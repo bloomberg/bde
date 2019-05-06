@@ -38,6 +38,7 @@
  just alphabetical.
 ..
   2. bdlmt_multiqueuethreadpool
+     bdlmt_signaler
      bdlmt_threadmultiplexor
 
   1. bdlmt_eventscheduler

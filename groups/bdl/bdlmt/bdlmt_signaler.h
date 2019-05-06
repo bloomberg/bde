@@ -50,39 +50,6 @@ BSLS_IDENT("$Id: $")
 // lifetime of such object will not exceed the collective lifetime of the
 // signaler and all connection objects associated with to that signaler.
 //
-///'bdlmt::Signaler' call operator
-///-------------------------------
-// 'bdlmt::Signaler' provides a call operator that, in C++11, would be defined
-// and behave exacly as follows:
-//..
-//  void operator()(ARGS... args) const;
-//      // Sequentially invoke each slot connected to this signaler as if by
-//      // 'f_i(args...)', where 'f_i' is the i-th connected slot.  The
-//      // behavior is undefined if this function is invoked from a slot
-//      // connected to this signaler.
-//      //
-//      // Note that slots are ordered by their respective groups, and within
-//      // groups, by connection order.
-//      //
-//      // Note also that the call operator does not forward rvalue references.
-//      // That is done explicitly to prevent invocation arguments from being
-//      // moved to the first slot, leaving them "empty" for all subsequent
-//      // slots.
-//      //
-//      // Note also that if a slot is connected to or disconnected from this
-//      // signaler during a call to this function, it is unspecified whether
-//      // that slot will be invoked.
-//      //
-//      // Note also that if execution of a slot throws an exception, the
-//      // invocation sequence is interrupted and the exception is propagated
-//      // to the caller immediately.
-//      //
-//      // NOTE: 'ARGS...' are the arguments types of 'PROT'.
-//..
-// The actual behavior of the call operator is virtually identical to the
-// description below, except that the maximum number of arguments is limited
-// to 9.
-//
 ///Thread safety
 ///-------------
 // 'bdlmt::Signaler' is fully thread-safe, meaning that multiple threads may
@@ -196,11 +163,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_cpp11.h>
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_functional.h>
-#include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_utility.h>  // bsl::pair
 
@@ -229,14 +195,28 @@ struct Signaler_NA {
 
 template <class PROT>
 struct Signaler_ArgumentType {
+    // For a function prototype 'PROT' of up to 9 arguments, provide types
+    // 'TypeN' where 'N' is the index of the argument, and provide types
+    // 'ForwardingTypeN' which is the most convenient way to forward an
+    // argument of type 'TypeN':
+    //: o as 'TypeN' (in the case of some fundamental types)
+    //: o as a const reference (if 'TypeN' is large and either by value or by
+    //:   const reference), or
+    //: o as a reference to a modifiable object, if that's how the argument was
+    //:   passed in the first place.
+    // Note that nothing is passed as an rvalue reference, since if there are
+    // multiple slots, the argument will be moved from by the first one and
+    // then unsuitable for the ones following.
+    //
+    // Also provide 'NA' (Not an Argument) and 'ForwardingNA' the type that
+    // forwards it.
 
-  private:
-    // PRIVATE TYPES
-    typedef Signaler_NA                                                NA;
+    // TYPES
+    typedef Signaler_NA                                 NA;
+    typedef typename bslmf::ForwardingType<NA>::Type    ForwardingNA;
+
     typedef typename bslmf::FunctionPointerTraits<PROT*>::ArgumentList Args;
 
-  public:
-    // TYPES
     typedef typename bslmf::TypeListTypeOf<1, Args, NA>::TypeOrDefault Type1;
     typedef typename bslmf::TypeListTypeOf<2, Args, NA>::TypeOrDefault Type2;
     typedef typename bslmf::TypeListTypeOf<3, Args, NA>::TypeOrDefault Type3;
@@ -354,13 +334,13 @@ struct Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7)> {
 };
 
 template <class SIGNALER, class R, class A1,
-                                 class A2,
-                                 class A3,
-                                 class A4,
-                                 class A5,
-                                 class A6,
-                                 class A7,
-                                 class A8>
+                                   class A2,
+                                   class A3,
+                                   class A4,
+                                   class A5,
+                                   class A6,
+                                   class A7,
+                                   class A8>
 struct Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8)> {
 
     // ACCESSOR
@@ -380,18 +360,21 @@ struct Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8, A9)> {
 
     // ACCESSOR
     void operator()(A1, A2, A3, A4, A5, A6, A7, A8, A9) const;
+        // Call the functions held in all slot holders, in the order of group
+        // numbers but with the ordering within one group unspecified, passing
+        // the number and type of arguments passed to this function.
 };
 
-                         // =======================
-                         // class Signaler_SlotBase
-                         // =======================
+                       // ============================
+                       // class Signaler_SlotNode_Base
+                       // ============================
 
-class Signaler_SlotBase {
+class Signaler_SlotNode_Base {
     // Provides a non-template partially abstract base class for
-    // 'Signaler_Slot' so that the non-template classes 'SignalerConnection'
-    // and 'SignalerScopedConnection' can refer to and manipulate the
-    // associated slot, and we can implement some of 'Slot' functionality in
-    // the imp file, avoiding code bloat.
+    // 'Signaler_SlotNode' so that the non-template classes
+    // 'SignalerConnection' and 'SignalerScopedConnection' can refer to and
+    // manipulate the associated slot, and we can implement some of 'Slot'
+    // functionality in the imp file, avoiding code bloat.
 
   public:
     // PUBLIC TYPE
@@ -418,12 +401,14 @@ class Signaler_SlotBase {
 
   private:
     // NOT IMPLEMENTED
-    Signaler_SlotBase(           const Signaler_SlotBase&) BSLS_CPP11_DELETED;
-    Signaler_SlotBase& operator=(const Signaler_SlotBase&) BSLS_CPP11_DELETED;
+    Signaler_SlotNode_Base(           const Signaler_SlotNode_Base&)
+                                                          BSLS_KEYWORD_DELETED;
+    Signaler_SlotNode_Base& operator=(const Signaler_SlotNode_Base&)
+                                                          BSLS_KEYWORD_DELETED;
 
   private:
     // PRIVATE MANIPULATORS
-    virtual void disconnect() BSLS_CPP11_NOEXCEPT = 0;
+    virtual void disconnect() BSLS_KEYWORD_NOEXCEPT = 0;
         // Disconnect this slot.  If the slot was already disconnected, this
         // function has no effect.
         //
@@ -432,7 +417,7 @@ class Signaler_SlotBase {
         // will not be invoked from another thread after this function
         // completes.
 
-    void disconnectAndWait() BSLS_CPP11_NOEXCEPT;
+    void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect this slot and block the calling thread pending its
         // completion.  If the slot was already disconnected, this function has
         // no effect.  The behavior is undefined if this function is invoked
@@ -447,7 +432,7 @@ class Signaler_SlotBase {
 
   public:
     // CLASS METHOD
-    static bsls::Types::Uint64 getId() BSLS_CPP11_NOEXCEPT;
+    static bsls::Types::Uint64 getId() BSLS_KEYWORD_NOEXCEPT;
         // Return an atomic '++x', where 'x' is the result of the previous
         // invocation.  If this function is invoked for the first time, return
         // 1.
@@ -455,201 +440,194 @@ class Signaler_SlotBase {
   protected:
     // CREATORS
     explicit
-    Signaler_SlotBase(SlotMapKey slotMapKey);
-        // Create a 'Signaler_Slotbase' object based on the specified
+    Signaler_SlotNode_Base(SlotMapKey slotMapKey);
+        // Create a 'Signaler_SlotNodebase' object based on the specified
         // 'slotMapKey'.
 
-    virtual ~Signaler_SlotBase();
-        // Virtual d'tor.  Does nothing, but the derived class's d'tor does
-        // some work.
+    virtual ~Signaler_SlotNode_Base();
+        // Virtual d'tor.
 
   public:
     // MANIPULATORS
-    void notifyDisconnected() BSLS_CPP11_NOEXCEPT;
+    void notifyDisconnected() BSLS_KEYWORD_NOEXCEPT;
         // Notify this slot that is was disconnected from its associated
         // signaler.  After this function completes, 'isConnected()' returns
         // 'false'.
 
     // ACCESSORS
-    bool isConnected() const BSLS_CPP11_NOEXCEPT;
+    bool isConnected() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this slot is connected to its associated signaler,
         // and 'false' otherwise.
 };
 
-                            // ===================
-                            // class Signaler_Slot
-                            // ===================
+                            // =======================
+                            // class Signaler_SlotNode
+                            // =======================
 
 template <class PROT>
-class Signaler_Slot : public Signaler_SlotBase {
+class Signaler_SlotNode : public Signaler_SlotNode_Base {
     //  Provides a slot connected to a signaler.
 
   private:
     // PRIVATE TYPES
-    typedef Signaler_Node<PROT> SignalerNode;
+    typedef Signaler_ArgumentType<PROT>           ArgumentType;
+    typedef typename ArgumentType::NA             NA;
+    typedef typename ArgumentType::ForwardingNA   ForwardingNA;
+    typedef Signaler_Node<PROT>                   SignalerNode;
 
   private:
     // PRIVATE DATA
     bsl::weak_ptr<SignalerNode>      d_signalerNodePtr;
-        // Weak reference to the associated signaler.
+        // Weak reference to the associated signaler node.
 
     bsl::function<PROT>              d_func;
         // The target callback.
 
   private:
     // NOT IMPLEMENTED
-    Signaler_Slot(const Signaler_Slot&)            BSLS_CPP11_DELETED;
-    Signaler_Slot& operator=(const Signaler_Slot&) BSLS_CPP11_DELETED;
+    Signaler_SlotNode(           const Signaler_SlotNode&)
+                                                          BSLS_KEYWORD_DELETED;
+    Signaler_SlotNode& operator=(const Signaler_SlotNode&)
+                                                          BSLS_KEYWORD_DELETED;
 
   private:
     // PRIVATE MANIPULATORS
-    void disconnect() BSLS_CPP11_NOEXCEPT BSLS_CPP11_OVERRIDE;
-        // Implements 'Signaler_SlotBase::disconnect()'.
+    virtual void disconnect() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Implements 'Signaler_SlotNode_Base::disconnect()'.
 
     // PRIVATE ACCESSORS
-    void
-    doInvoke(bsl::integral_constant<int, 0>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 1>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 2>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 3>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 4>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 5>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 6>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 7>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 8>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
-
-    void
-    doInvoke(bsl::integral_constant<int, 9>, // arguments count tag
-             typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-             typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-             typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-             typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-             typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-             typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-             typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-             typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-             typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
+    void doInvoke(bsl::integral_constant<int, 0>, // arguments count tag
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 1>, // arguments count tag
+                  typename ArgumentType::ForwardingType1 a1,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 2>, // arguments count tag
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 3>, // arguments count tag
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  typename ArgumentType::ForwardingType3 a3,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 4>, // arguments count tag
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  typename ArgumentType::ForwardingType3 a3,
+                  typename ArgumentType::ForwardingType4 a4,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 5>, // arguments count tag
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  typename ArgumentType::ForwardingType3 a3,
+                  typename ArgumentType::ForwardingType4 a4,
+                  typename ArgumentType::ForwardingType5 a5,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 6>, // arguments count tag
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  typename ArgumentType::ForwardingType3 a3,
+                  typename ArgumentType::ForwardingType4 a4,
+                  typename ArgumentType::ForwardingType5 a5,
+                  typename ArgumentType::ForwardingType6 a6,
+                  ForwardingNA,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 7>, // arguments count tag
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  typename ArgumentType::ForwardingType3 a3,
+                  typename ArgumentType::ForwardingType4 a4,
+                  typename ArgumentType::ForwardingType5 a5,
+                  typename ArgumentType::ForwardingType6 a6,
+                  typename ArgumentType::ForwardingType7 a7,
+                  ForwardingNA,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 8>,
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  typename ArgumentType::ForwardingType3 a3,
+                  typename ArgumentType::ForwardingType4 a4,
+                  typename ArgumentType::ForwardingType5 a5,
+                  typename ArgumentType::ForwardingType6 a6,
+                  typename ArgumentType::ForwardingType7 a7,
+                  typename ArgumentType::ForwardingType8 a8,
+                  ForwardingNA) const;
+    void doInvoke(bsl::integral_constant<int, 9>,
+                  typename ArgumentType::ForwardingType1 a1,
+                  typename ArgumentType::ForwardingType2 a2,
+                  typename ArgumentType::ForwardingType3 a3,
+                  typename ArgumentType::ForwardingType4 a4,
+                  typename ArgumentType::ForwardingType5 a5,
+                  typename ArgumentType::ForwardingType6 a6,
+                  typename ArgumentType::ForwardingType7 a7,
+                  typename ArgumentType::ForwardingType8 a8,
+                  typename ArgumentType::ForwardingType9 a9) const;
+        // Dispatch function to be called by the 'invoke' function, the first
+        // argument is an 'integral_constant' containing the number of
+        // arguments 'aN' that follow it.  Each function takes 9 arguments in
+        // addition to the integral constant, but the last ones of type
+        // 'ForwardingNA' are not used.
 
   public:
     // CREATORS
     template <class FUNC>
-    Signaler_Slot(const bsl::shared_ptr<SignalerNode>&     signalerNodePtr,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  func,
-                  SlotMapKey                               slotMapKey,
-                  bslma::Allocator                        *allocator);
-        // Create a 'Signaler_Slot' object associated with the specified
+    Signaler_SlotNode(const bsl::shared_ptr<SignalerNode>&     signalerNodePtr,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  slot,
+                      SlotMapKey                               slotMapKey,
+                      bslma::Allocator                        *allocator);
+        // Create a 'Signaler_SlotNode' object associated with the specified
         // 'signaler' using the specified 'slotMapKey' and with the specified
-        // 'func' callback.  Specify an 'allocator' used to supply memory.
+        // 'slot' callable object.  Specify an 'allocator' used to supply
+        // memory.
+
+    virtual ~Signaler_SlotNode();
+        // Destroy this object.
 
   public:
     // ACCESSORS
-    void invoke(
-               typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-               typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-               typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-               typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-               typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-               typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-               typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-               typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-               typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
+    void invoke(typename ArgumentType::ForwardingType1 a1,
+                typename ArgumentType::ForwardingType2 a2,
+                typename ArgumentType::ForwardingType3 a3,
+                typename ArgumentType::ForwardingType4 a4,
+                typename ArgumentType::ForwardingType5 a5,
+                typename ArgumentType::ForwardingType6 a6,
+                typename ArgumentType::ForwardingType7 a7,
+                typename ArgumentType::ForwardingType8 a8,
+                typename ArgumentType::ForwardingType9 a9) const;
         // Invoke the stored callback 'c', as if by 'c(args...)', where
         // 'args...' are the specified arguments 'a1', 'a2', 'a3', etc., except
         // that the actual number of arguments passed to 'c' is equal to the
@@ -667,19 +645,23 @@ class Signaler_Node :
     // Provides the implementation of a signaler.  This object has a 1-1
     // relationship with the 'Signaler', which has a shared pointer to it.
     // This allows other objects to refer to it via shared and weak pointers.
-    // This allows 'SignalerConnection' object to outlive the
+    // This allows 'SignalerConnection' objects to outlive the
     // 'Signaler - Signaler_Node' pair, since they can test or lock weak
     // pointers to see if the 'Signaler_Node' still exists when they are trying
     // to disconnect themselves.
 
   private:
     // PRIVATE TYPES
-    typedef Signaler_SlotBase              SlotBase;
-    typedef Signaler_Slot<PROT>            Slot;
-    typedef SlotBase::SlotMapKey           SlotMapKey;
+    typedef Signaler_SlotNode_Base                  SlotNode_Base;
+    typedef Signaler_SlotNode<PROT>                 Slot;
+    typedef SlotNode_Base::SlotMapKey               SlotMapKey;
 
     typedef bdlcc::SkipList<SlotMapKey,                // [GROUP, ID] pair
                             bsl::shared_ptr<Slot> > KeyToSlotMap;
+
+    typedef Signaler_ArgumentType<PROT>             ArgumentType;
+    typedef typename ArgumentType::NA               NA;
+    typedef typename ArgumentType::ForwardingNA     ForwardingNA;
 
   private:
     // PRIVATE DATA
@@ -695,8 +677,8 @@ class Signaler_Node :
 
   private:
     // NOT IMPLEMENTED
-    Signaler_Node(const Signaler_Node&)            BSLS_CPP11_DELETED;
-    Signaler_Node& operator=(const Signaler_Node&) BSLS_CPP11_DELETED;
+    Signaler_Node(const Signaler_Node&)            BSLS_KEYWORD_DELETED;
+    Signaler_Node& operator=(const Signaler_Node&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
@@ -710,41 +692,41 @@ class Signaler_Node :
   public:
     // MANIPULATORS
     template <class FUNC>
-    SignalerConnection connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
+    SignalerConnection connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) slot,
                                int                                     group);
         // Implements 'Signaler::connect()'.
 
-    void disconnect(int group) BSLS_CPP11_NOEXCEPT;
+    void disconnect(int group) BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnect()'.
 
-    void disconnectAndWait(int group) BSLS_CPP11_NOEXCEPT;
+    void disconnectAndWait(int group) BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectAndWait()'.
 
-    void disconnectAllSlots() BSLS_CPP11_NOEXCEPT;
+    void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectAllSlots()'.
 
-    void disconnectAllSlotsAndWait() BSLS_CPP11_NOEXCEPT;
+    void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectAllSlotsAndWait()'.
 
-    void notifyDisconnected(SlotMapKey slotMapKey) BSLS_CPP11_NOEXCEPT;
+    void notifyDisconnected(SlotMapKey slotMapKey) BSLS_KEYWORD_NOEXCEPT;
         // Notify this signaler that a slot with the specified 'slotMapKey' was
         // disconnected.
 
   public:
     // ACCESSORS
     void invoke(
-               typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-               typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-               typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-               typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-               typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-               typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-               typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-               typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-               typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const;
+               typename ArgumentType::ForwardingType1 a1,
+               typename ArgumentType::ForwardingType2 a2,
+               typename ArgumentType::ForwardingType3 a3,
+               typename ArgumentType::ForwardingType4 a4,
+               typename ArgumentType::ForwardingType5 a5,
+               typename ArgumentType::ForwardingType6 a6,
+               typename ArgumentType::ForwardingType7 a7,
+               typename ArgumentType::ForwardingType8 a8,
+               typename ArgumentType::ForwardingType9 a9) const;
         // Implements 'Signaler's call operator.
 
-    size_t slotCount() const BSLS_CPP11_NOEXCEPT;
+    size_t slotCount() const BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::slotCount()'.
 };
 
@@ -756,26 +738,25 @@ template <class PROT>
 class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     // This class template provides a thread-safe signaler that executes
     // connected slots when invoked via its call operator.
-    //
-    // Note that, unless otherwise specified, it is safe to invoke any method
-    // of 'Signaler' from the context of a slot connected to that signaler.
 
   public:
     // TYPES
-    typedef void ResultType;
-    typedef Signaler_Node<PROT> Node;
+    typedef void ResultType;    // Defines the result type of 'operator()'.  If
+                                // 'PROT' has a result type that is not 'void',
+                                // the return values of the calls to the slots
+                                // are discarded.
 
   private:
     // PRIVATE DATA
-    bsl::shared_ptr<Node > d_nodePtr;
+    bsl::shared_ptr<Signaler_Node<PROT> >     d_signalerNodePtr;
 
     // FRIENDS
     friend struct Signaler_Invocable<Signaler<PROT>, PROT>;
 
   private:
     // NOT IMPLEMENTED
-    Signaler(const Signaler&)            BSLS_CPP11_DELETED;
-    Signaler& operator=(const Signaler&) BSLS_CPP11_DELETED;
+    Signaler(const Signaler&)            BSLS_KEYWORD_DELETED;
+    Signaler& operator=(const Signaler&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
@@ -785,8 +766,8 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
         //
-        // No that the supplied allocator shall remain valid until all
-        // connection objects associated with this signaler are destroyed.
+        // No that the supplied must shall remain valid until all connection
+        // objects associated with this signaler are destroyed.
 
     ~Signaler();
         // Destroy this object.  Call 'disconnectAllSlots()'.  The behavior is
@@ -797,11 +778,13 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     // MANIPULATORS
     template <class FUNC>
     SignalerConnection connect(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) slot,
                             int                                     group = 0);
-        // Connect the specified 'func' to this signaler.  Optionally specify a
-        // 'group' used to order slots upon invocation.  Return an instance of
-        // 'SignalerConnection' representing the created connection.
+        // Connect the specified 'slot', a pointer to a function matching
+        // 'PROT', or an object callable with an interface matching 'PROT', to
+        // this signaler.  Optionally specify a 'group' used to order slots
+        // upon invocation.  Return an instance of 'SignalerConnection'
+        // representing the created connection.
         //
         // Note that the connected slot may be invoked from another thread
         // before this function completes.
@@ -820,7 +803,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // requirements of Destructible and CopyConstructible as specified in
         // the C++ standard.
 
-    void disconnect(int group) BSLS_CPP11_NOEXCEPT;
+    void disconnect(int group) BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots in the specified 'group', if any.
         //
         // Note that this function does not block the calling thread pending
@@ -833,7 +816,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // call to this function, it is unspecified whether that slot will
         // be disconnected.
 
-    void disconnectAndWait(int group) BSLS_CPP11_NOEXCEPT;
+    void disconnectAndWait(int group) BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots in the specified 'group', if any, and block the
         // calling thread pending completion of currently executing slots.  The
         // behavior is undefined if this function is invoked from a slot
@@ -849,7 +832,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // Note also that this function does block pending completion of
         // already disconnected, but still executing slots.
 
-    void disconnectAllSlots() BSLS_CPP11_NOEXCEPT;
+    void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots connected to this signaler, if any.
         //
         // Note that this function does not block the calling thread pending
@@ -862,7 +845,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // to this function, it is unspecified whether that slot will be
         // disconnected.
 
-    void disconnectAllSlotsAndWait() BSLS_CPP11_NOEXCEPT;
+    void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots connected to this signaler, if any, and block
         // the calling thread pending completion of currently executing slots.
         // The behavior is undefined if this function is invoked from a slot
@@ -880,7 +863,36 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
 
   public:
     // ACCESSORS
-    size_t slotCount() const BSLS_CPP11_NOEXCEPT;
+    // void operator()(ARGS... args) const;
+        // 'bdlmt::Signaler_Invocable', from which this 'class' inherits,
+        // provides a call operator that, in C++11, would be defined and behave
+        // exacly this way, except that the number of arguments is limited to
+        // to 9.
+        //
+        // Sequentially invoke each slot connected to this signaler as if by
+        // 'f_i(args...)', where 'f_i' is the i-th connected slot.  The
+        // behavior is undefined if this function is invoked from a slot
+        // connected to this signaler.
+        //
+        // Note that slots are ordered by their respective groups, and within
+        // groups, by the order in which they were connected.
+        //
+        // Note also that the call operator does not forward rvalue references.
+        // That is done explicitly to prevent invocation arguments from being
+        // moved to the first slot, leaving them "empty" for all subsequent
+        // slots.
+        //
+        // Note also that if a slot is connected to or disconnected from this
+        // signaler during a call to this function, it is unspecified whether
+        // that slot will be invoked.
+        //
+        // Note also that if execution of a slot throws an exception, the
+        // invocation sequence is interrupted and the exception is propagated
+        // to the caller immediately.
+        //
+        // NOTE: 'ARGS...' are the argument types of 'PROT'.
+
+    size_t slotCount() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of slots connected to this signaler.  Note that in
         // multithreaded environment, the value returned by 'slotCount()' is
         // approximate.
@@ -906,11 +918,11 @@ class SignalerConnection {
 
   private:
     // PRIVATE TYPES
-    typedef Signaler_SlotBase SlotBase;
+    typedef Signaler_SlotNode_Base SlotNode_Base;
 
   private:
     // PRIVATE DATA
-    bsl::weak_ptr<SlotBase> d_slotBasePtr;
+    bsl::weak_ptr<SlotNode_Base> d_slotNodeBasePtr;
         // Weak reference to the associated slot.
 
     // FRIENDS
@@ -918,28 +930,29 @@ class SignalerConnection {
     friend class Signaler_Node;
 
     friend bool operator<(const SignalerConnection&,
-                          const SignalerConnection&) BSLS_CPP11_NOEXCEPT;
+                          const SignalerConnection&) BSLS_KEYWORD_NOEXCEPT;
 
   private:
     // PRIVATE CREATORS
     explicit
-    SignalerConnection(const bsl::shared_ptr<SlotBase>& slotBase)
-                                                           BSLS_CPP11_NOEXCEPT;
+    SignalerConnection(const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr)
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Create 'SignalerConnection' object weakly linked to the specified
-        // 'slotBase'.
+        // 'slotNameBasePtr'.
 
   public:
     // CREATORS
-    SignalerConnection() BSLS_CPP11_NOEXCEPT;
+    SignalerConnection() BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnection' object having no associated slot.
 
-    SignalerConnection(const SignalerConnection& original) BSLS_CPP11_NOEXCEPT;
+    SignalerConnection(const SignalerConnection& original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnection' object that refers to and assumes
         // management of the same slot (if any) as the specified 'original'
         // object.
 
     SignalerConnection(bslmf::MovableRef<SignalerConnection> original)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnection' object that refers to and assumes
         // management of the same slot (if any) as the specified 'original'
         // object, and reset 'original' to a default-constructed state.
@@ -947,17 +960,17 @@ class SignalerConnection {
   public:
     // MANIPULATORS
     SignalerConnection&
-    operator=(const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+    operator=(const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
         // Make this connection refer to and assume management of the same slot
         // (if any) as the specified 'rhs' connection. Return '*this'.
 
     SignalerConnection&
-    operator=(bslmf::MovableRef<SignalerConnection> rhs) BSLS_CPP11_NOEXCEPT;
+    operator=(bslmf::MovableRef<SignalerConnection> rhs) BSLS_KEYWORD_NOEXCEPT;
         // Make this connection refer to and assume management of the same slot
         // (if any) as the specified 'rhs' connection, and reset 'rhs' to a
         // default-constructed state. Return '*this'.
 
-    void disconnect() BSLS_CPP11_NOEXCEPT;
+    void disconnect() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect the associated slot.  If '*this' does not have an
         // associated slot or the slot was already disconnected, this function
         // has no effect.
@@ -968,7 +981,7 @@ class SignalerConnection {
         // this function completes.  If such behavior is desired, use
         // 'disconnectAndWait()' instead.
 
-    void disconnectAndWait() BSLS_CPP11_NOEXCEPT;
+    void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect the associated slot and block the calling thread pending
         // its completion.  If '*this' does not have an associated slot, or the
         // slot was already disconnected, this function has no effect.  The
@@ -981,12 +994,12 @@ class SignalerConnection {
         // Note also that this function does block pending completion of an
         // already disconnected, but still executing slot.
 
-    void swap(SignalerConnection& other) BSLS_CPP11_NOEXCEPT;
+    void swap(SignalerConnection& other) BSLS_KEYWORD_NOEXCEPT;
         // Swap the contents of '*this' and 'other'.
 
   public:
     // ACCESSORS
-    bool isConnected() const BSLS_CPP11_NOEXCEPT;
+    bool isConnected() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the associated slot is connected to the signaler
         // '*this' was obtained from, and 'false' otherwise.  If '*this' does
         // not have an associated slot (i.e., was default-constructed), return
@@ -1011,31 +1024,31 @@ class SignalerScopedConnection : public SignalerConnection {
   private:
     // NOT IMPLEMENTED
     SignalerScopedConnection(const SignalerScopedConnection&)
-                                                            BSLS_CPP11_DELETED;
+                                                          BSLS_KEYWORD_DELETED;
     SignalerScopedConnection& operator=(const SignalerScopedConnection&)
-                                                            BSLS_CPP11_DELETED;
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
-    SignalerScopedConnection() BSLS_CPP11_NOEXCEPT;
+    SignalerScopedConnection() BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerScopedConnection' object having no associated
         // slot.
 
     SignalerScopedConnection(
                           bslmf::MovableRef<SignalerScopedConnection> original)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerScopedConnection' that refers to and assumes
         // management of the same slot (if any) as the specified 'original'
         // object, and reset 'original' to a default-constructed state.
 
     SignalerScopedConnection(const SignalerConnection& connection)
-                                               BSLS_CPP11_NOEXCEPT; // IMPLICIT
+                                             BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
         // Create a 'SignalerScopedConnection' object that refers to and
         // assumes management of the same slot (if any) as the specified
         // 'connection' object.
 
     SignalerScopedConnection(bslmf::MovableRef<SignalerConnection> connection)
-                                               BSLS_CPP11_NOEXCEPT; // IMPLICIT
+                                             BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
         // Create a 'SignalerScopedConnection' object that refers to and
         // assumes management of the same slot (if any) as the specified
         // 'connection' object, and reset 'connection' to a default-
@@ -1048,7 +1061,7 @@ class SignalerScopedConnection : public SignalerConnection {
     // MANIPULATORS
     SignalerScopedConnection&
     operator=(bslmf::MovableRef<SignalerScopedConnection> rhs)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Make this connection refer to and assume management of the same slot
         // (if any) as the specified 'rhs' connection, and reset 'rhs' to a
         // default-constructed state.  If, prior to this call '*this' has an
@@ -1056,63 +1069,75 @@ class SignalerScopedConnection : public SignalerConnection {
         // 'disconnect()'.  Return '*this'.
 
     SignalerScopedConnection&
-    operator=(const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+    operator=(const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
         // Make this connection refer to and assume management of the same slot
         // (if any) as the specified 'rhs' connection.  If, prior to this call
         // '*this' has an associated slot, disconnect that slot by a call to
         // 'disconnect()'.  Return '*this'.
 
     SignalerScopedConnection&
-    operator=(bslmf::MovableRef<SignalerConnection> rhs) BSLS_CPP11_NOEXCEPT;
+    operator=(bslmf::MovableRef<SignalerConnection> rhs) BSLS_KEYWORD_NOEXCEPT;
         // Make this connection refer to and assume management of the same slot
         // (if any) as the specified 'rhs' connection, and reset 'rhs' to a
         // default-constructed state.  If, prior to this call '*this' has an
         // associated slot, disconnect that slot by a call to
         // 'disconnect()'.  Return '*this'.
 
-    SignalerConnection release() BSLS_CPP11_NOEXCEPT;
+    SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
         // Disassociate this connection object from its associated slot, if
         // any, and reset '*this' to a default-constructed state.  Return a
         // copy of the 'SignalerConnection' object '*this' was constructed
         // from.  If '*this' was default-constructed, return a
         // default-constructed value.
 
-    void swap(SignalerScopedConnection& other) BSLS_CPP11_NOEXCEPT;
+    void swap(SignalerScopedConnection& other) BSLS_KEYWORD_NOEXCEPT;
         // Swap the contents of '*this' and 'other'.
 };
 
 // FREE OPERATORS
+
+// In equality or ordering comparisons, two default constructed connections
+// compare equal and a default constructed connection is never equal to a
+// connection to a slot.  The 'less than' and 'greater than' relationships are
+// transitive and will form an ordering of a set of unequal connections, but
+// the specific ordering is arbitrary and not predictable by the client.
+
 bool operator==(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' and 'rhs' referring to the same
+    // slot and 'false' otherwise.
 
 bool operator!=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+    // Return 'false' if the specified 'lhs' and 'rhs' referring to the same
+    // slot and 'true' otherwise.
 
 bool operator<(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is less than the specified 'rhs'
+    // and 'false' otherwise.
 
 bool operator>(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is grater than the specified 'rhs'
+    // and 'false' otherwise.
 
 bool operator<=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is less than or equal to the
+    // specified 'rhs' and 'false' otherwise.
 
 bool operator>=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
-    // Compare two 'SignalerConnection' objects. Return 'true' if the condition
-    // holds, and 'false' otherwise.  The ordering is strict weak ordering
-    // relation.  Two connections compare equal (and equivalent) only if both
-    // of them are default-constructed or if they both refer to the same slot.
-    //
-    // Note that disconnecting a slot does not affect the result of a
-    // comparison operation.
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is greater than or equal to the
+    // specified 'rhs' and 'false' otherwise.
 
 void swap(SignalerConnection& lhs,
-          SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT;
+          SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
     // Swap the contents of 'lhs' and 'rhs'.
 
 void swap(SignalerScopedConnection& lhs,
-          SignalerScopedConnection& rhs) BSLS_CPP11_NOEXCEPT;
+          SignalerScopedConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
     // Swap the contents of 'lhs' and 'rhs'.
 
 // ============================================================================
@@ -1127,22 +1152,23 @@ template <class SIGNALER, class R>
 inline
 void Signaler_Invocable<SIGNALER, R()>::operator()() const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(Signaler_NA(),
-                                                           Signaler_NA(),
-                                                           Signaler_NA(),
-                                                           Signaler_NA(),
-                                                           Signaler_NA(),
-                                                           Signaler_NA(),
-                                                           Signaler_NA(),
-                                                           Signaler_NA(),
-                                                           Signaler_NA());
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                                                                Signaler_NA(),
+                                                                Signaler_NA(),
+                                                                Signaler_NA(),
+                                                                Signaler_NA(),
+                                                                Signaler_NA(),
+                                                                Signaler_NA(),
+                                                                Signaler_NA(),
+                                                                Signaler_NA(),
+                                                                Signaler_NA());
 }
 
 template <class SIGNALER, class R, class A1>
 inline
 void Signaler_Invocable<SIGNALER, R(A1)>::operator()(A1 a1) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                             bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                             Signaler_NA(),
                             Signaler_NA(),
@@ -1160,7 +1186,7 @@ inline
 void Signaler_Invocable<SIGNALER, R(A1, A2)>::operator()(A1 a1,
                                                          A2 a2) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                             bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                             bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                             Signaler_NA(),
@@ -1180,7 +1206,7 @@ void Signaler_Invocable<SIGNALER, R(A1, A2, A3)>::operator()(A1 a1,
                                                              A2 a2,
                                                              A3 a3) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                             bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                             bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                             bslmf::ForwardingTypeUtil<A3>::forwardToTarget(a3),
@@ -1202,7 +1228,7 @@ void Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4)>::operator()(A1 a1,
                                                                  A3 a3,
                                                                  A4 a4) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                             bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                             bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                             bslmf::ForwardingTypeUtil<A3>::forwardToTarget(a3),
@@ -1227,7 +1253,7 @@ void Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5)>::operator()(
                                                                    A4 a4,
                                                                    A5 a5) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                            bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                            bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                            bslmf::ForwardingTypeUtil<A3>::forwardToTarget(a3),
@@ -1254,7 +1280,7 @@ void Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6)>::operator()(
                                                                   A5 a5,
                                                                   A6 a6) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                             bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                             bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                             bslmf::ForwardingTypeUtil<A3>::forwardToTarget(a3),
@@ -1283,7 +1309,7 @@ void Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7)>::operator()(
                                                                    A6 a6,
                                                                    A7 a7) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                             bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                             bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                             bslmf::ForwardingTypeUtil<A3>::forwardToTarget(a3),
@@ -1314,7 +1340,7 @@ void Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8)>::
                                                                    A7 a7,
                                                                    A8 a8) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                             bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                             bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                             bslmf::ForwardingTypeUtil<A3>::forwardToTarget(a3),
@@ -1348,7 +1374,7 @@ Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8, A9)>::
                                                                    A8 a8,
                                                                    A9 a9) const
 {
-    static_cast<const SIGNALER *>(this)->d_nodePtr->invoke(
+    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                            bslmf::ForwardingTypeUtil<A1>::forwardToTarget(a1),
                            bslmf::ForwardingTypeUtil<A2>::forwardToTarget(a2),
                            bslmf::ForwardingTypeUtil<A3>::forwardToTarget(a3),
@@ -1360,13 +1386,13 @@ Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8, A9)>::
                            bslmf::ForwardingTypeUtil<A9>::forwardToTarget(a9));
 }
 
-                            // -------------------
-                            // class Signaler_Slot
-                            // -------------------
+                            // -----------------------
+                            // class Signaler_SlotNode
+                            // -----------------------
 
 // PRIVATE MANIPULATORS
 template <class PROT>
-void Signaler_Slot<PROT>::disconnect() BSLS_CPP11_NOEXCEPT
+void Signaler_SlotNode<PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
 {
     if (!d_isConnected.testAndSwap(true, false)) {
         // Already disconnected.  Do nothing.
@@ -1376,8 +1402,8 @@ void Signaler_Slot<PROT>::disconnect() BSLS_CPP11_NOEXCEPT
 
     // Notify the associated signaler
 
-    if (bsl::shared_ptr<SignalerNode> signalerNodePtr =
-                                                    d_signalerNodePtr.lock()) {
+    bsl::shared_ptr<SignalerNode> signalerNodePtr = d_signalerNodePtr.lock();
+    if (signalerNodePtr) {
         signalerNodePtr->notifyDisconnected(d_slotMapKey);
     }
 }
@@ -1385,51 +1411,33 @@ void Signaler_Slot<PROT>::disconnect() BSLS_CPP11_NOEXCEPT
 // PRIVATE ACCESSORS
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 0>,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(bsl::integral_constant<int, 0>,
+                                         ForwardingNA,
+                                         ForwardingNA,
+                                         ForwardingNA,
+                                         ForwardingNA,
+                                         ForwardingNA,
+                                         ForwardingNA,
+                                         ForwardingNA,
+                                         ForwardingNA,
+                                         ForwardingNA) const
 {
     d_func();
 }
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 1>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 1>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1438,24 +1446,17 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 2>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 2>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1464,23 +1465,17 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 3>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 3>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     typename ArgumentType::ForwardingType3 a3,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1489,22 +1484,17 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 4>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 4>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     typename ArgumentType::ForwardingType3 a3,
+                                     typename ArgumentType::ForwardingType4 a4,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1513,21 +1503,17 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 5>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 5>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     typename ArgumentType::ForwardingType3 a3,
+                                     typename ArgumentType::ForwardingType4 a4,
+                                     typename ArgumentType::ForwardingType5 a5,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1536,20 +1522,17 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 6>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 6>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     typename ArgumentType::ForwardingType3 a3,
+                                     typename ArgumentType::ForwardingType4 a4,
+                                     typename ArgumentType::ForwardingType5 a5,
+                                     typename ArgumentType::ForwardingType6 a6,
+                                     ForwardingNA,
+                                     ForwardingNA,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1558,19 +1541,17 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 7>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 7>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     typename ArgumentType::ForwardingType3 a3,
+                                     typename ArgumentType::ForwardingType4 a4,
+                                     typename ArgumentType::ForwardingType5 a5,
+                                     typename ArgumentType::ForwardingType6 a6,
+                                     typename ArgumentType::ForwardingType7 a7,
+                                     ForwardingNA,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1579,18 +1560,17 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 8>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                BSLS_ANNOTATION_UNUSED
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 8>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     typename ArgumentType::ForwardingType3 a3,
+                                     typename ArgumentType::ForwardingType4 a4,
+                                     typename ArgumentType::ForwardingType5 a5,
+                                     typename ArgumentType::ForwardingType6 a6,
+                                     typename ArgumentType::ForwardingType7 a7,
+                                     typename ArgumentType::ForwardingType8 a8,
+                                     ForwardingNA) const
 {
     // NOTE: Does not forward
 
@@ -1599,17 +1579,18 @@ void Signaler_Slot<PROT>::doInvoke(
 
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::doInvoke(
-                BSLS_ANNOTATION_UNUSED bsl::integral_constant<int, 9>,
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::doInvoke(
+                                     bsl::integral_constant<int, 9>,
+                                     typename ArgumentType::ForwardingType1 a1,
+                                     typename ArgumentType::ForwardingType2 a2,
+                                     typename ArgumentType::ForwardingType3 a3,
+                                     typename ArgumentType::ForwardingType4 a4,
+                                     typename ArgumentType::ForwardingType5 a5,
+                                     typename ArgumentType::ForwardingType6 a6,
+                                     typename ArgumentType::ForwardingType7 a7,
+                                     typename ArgumentType::ForwardingType8 a8,
+                                     typename ArgumentType::ForwardingType9 a9)
+                                                                          const
 {
     // NOTE: Does not forward
 
@@ -1619,13 +1600,12 @@ void Signaler_Slot<PROT>::doInvoke(
 // CREATORS
 template <class PROT>
 template <class FUNC>
-inline
-Signaler_Slot<PROT>::Signaler_Slot(
+Signaler_SlotNode<PROT>::Signaler_SlotNode(
                       const bsl::shared_ptr<SignalerNode>&     signalerNodePtr,
                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  func,
                       SlotMapKey                               slotMapKey,
                       bslma::Allocator                        *allocator)
-: Signaler_SlotBase(slotMapKey)
+: Signaler_SlotNode_Base(slotMapKey)
 , d_signalerNodePtr(signalerNodePtr)
 , d_func(bsl::allocator_arg,
          allocator,
@@ -1635,19 +1615,23 @@ Signaler_Slot<PROT>::Signaler_Slot(
     BSLS_ASSERT(allocator);
 }
 
+template <class PROT>
+Signaler_SlotNode<PROT>::~Signaler_SlotNode()
+{}
+
 // MANIPULATORS
 template <class PROT>
 inline
-void Signaler_Slot<PROT>::invoke(
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+void Signaler_SlotNode<PROT>::invoke(
+                typename ArgumentType::ForwardingType1 a1,
+                typename ArgumentType::ForwardingType2 a2,
+                typename ArgumentType::ForwardingType3 a3,
+                typename ArgumentType::ForwardingType4 a4,
+                typename ArgumentType::ForwardingType5 a5,
+                typename ArgumentType::ForwardingType6 a6,
+                typename ArgumentType::ForwardingType7 a7,
+                typename ArgumentType::ForwardingType8 a8,
+                typename ArgumentType::ForwardingType9 a9) const
 {
     typedef Signaler_ArgumentType<PROT>                                AT;
     typedef typename bslmf::FunctionPointerTraits<PROT*>::ArgumentList AL;
@@ -1663,13 +1647,7 @@ void Signaler_Slot<PROT>::invoke(
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> lock(&d_callMutex);  // LOCK
 
     if (!d_isConnected) {
-        // The slot was disconnected, possibly by
-        //: o 'disconnect(group)'
-        //: o 'disconnectAndWait(group)'
-        //: o 'disconnectAllSlots()'
-        //: o 'disconnectAllSlotsAndWait()', or
-        //: o by 'disconnect()' being called on a connection.
-        // Do nothing.
+        // The slot was evidently disconnected by another thread.  Do nothing.
 
         return;                                                       // RETURN
     }
@@ -1705,17 +1683,17 @@ Signaler_Node<PROT>::Signaler_Node(bslma::Allocator *allocator)
 template <class PROT>
 inline
 void Signaler_Node<PROT>::invoke(
-                typename Signaler_ArgumentType<PROT>::ForwardingType1 a1,
-                typename Signaler_ArgumentType<PROT>::ForwardingType2 a2,
-                typename Signaler_ArgumentType<PROT>::ForwardingType3 a3,
-                typename Signaler_ArgumentType<PROT>::ForwardingType4 a4,
-                typename Signaler_ArgumentType<PROT>::ForwardingType5 a5,
-                typename Signaler_ArgumentType<PROT>::ForwardingType6 a6,
-                typename Signaler_ArgumentType<PROT>::ForwardingType7 a7,
-                typename Signaler_ArgumentType<PROT>::ForwardingType8 a8,
-                typename Signaler_ArgumentType<PROT>::ForwardingType9 a9) const
+                typename ArgumentType::ForwardingType1 a1,
+                typename ArgumentType::ForwardingType2 a2,
+                typename ArgumentType::ForwardingType3 a3,
+                typename ArgumentType::ForwardingType4 a4,
+                typename ArgumentType::ForwardingType5 a5,
+                typename ArgumentType::ForwardingType6 a6,
+                typename ArgumentType::ForwardingType7 a7,
+                typename ArgumentType::ForwardingType8 a8,
+                typename ArgumentType::ForwardingType9 a9) const
 {
-    typename KeyToSlotMap::PairHandle slotHandle;
+    typedef Signaler_ArgumentType<PROT> AT;
 
     // Hold this mutex (in read mode), so that 'disconnectAndWait()' (or
     // 'disconnectAllSlotsAndWait()') can synchonize with the call operator by
@@ -1729,6 +1707,7 @@ void Signaler_Node<PROT>::invoke(
     // removed from the skip list, though, in which case its 'next' pointers
     // will be null.
 
+    typename KeyToSlotMap::PairHandle slotHandle;
     if (d_slotMap.front(&slotHandle) != 0) {
         // No slots.  Do nothing.
 
@@ -1737,11 +1716,10 @@ void Signaler_Node<PROT>::invoke(
 
     do {
         const Slot&       slot       = *slotHandle.data();
-        const SlotMapKey& slotMapKey = slotHandle.key();
+        const SlotMapKey  slotMapKey = slotHandle.key();
 
         // invoke the slot
 
-        typedef Signaler_ArgumentType<PROT> AT;
         slot.invoke(
            bslmf::ForwardingTypeUtil<typename AT::Type1>::forwardToTarget(a1),
            bslmf::ForwardingTypeUtil<typename AT::Type2>::forwardToTarget(a2),
@@ -1776,7 +1754,7 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 {
     // create a key the slot will be indexed by
 
-    const SlotMapKey slotMapKey(group, SlotBase::getId());
+    const SlotMapKey slotMapKey(group, SlotNode_Base::getId());
 
     // create a slot
 
@@ -1798,7 +1776,7 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 }
 
 template <class PROT>
-void Signaler_Node<PROT>::disconnect(int group) BSLS_CPP11_NOEXCEPT
+void Signaler_Node<PROT>::disconnect(int group) BSLS_KEYWORD_NOEXCEPT
 {
     typename KeyToSlotMap::PairHandle slotHandle;
 
@@ -1820,7 +1798,7 @@ void Signaler_Node<PROT>::disconnect(int group) BSLS_CPP11_NOEXCEPT
 }
 
 template <class PROT>
-void Signaler_Node<PROT>::disconnectAndWait(int group) BSLS_CPP11_NOEXCEPT
+void Signaler_Node<PROT>::disconnectAndWait(int group) BSLS_KEYWORD_NOEXCEPT
 {
     // disconnect slots
 
@@ -1832,7 +1810,7 @@ void Signaler_Node<PROT>::disconnectAndWait(int group) BSLS_CPP11_NOEXCEPT
 }
 
 template <class PROT>
-void Signaler_Node<PROT>::disconnectAllSlots() BSLS_CPP11_NOEXCEPT
+void Signaler_Node<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
 {
     typename KeyToSlotMap::PairHandle slotHandle;
 
@@ -1850,7 +1828,7 @@ void Signaler_Node<PROT>::disconnectAllSlots() BSLS_CPP11_NOEXCEPT
 }
 
 template <class PROT>
-void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_CPP11_NOEXCEPT
+void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
 {
     // disconnect slots
 
@@ -1863,7 +1841,7 @@ void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_CPP11_NOEXCEPT
 
 template <class PROT>
 void Signaler_Node<PROT>::notifyDisconnected(SlotMapKey slotMapKey)
-                                                            BSLS_CPP11_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     typename KeyToSlotMap::PairHandle slotHandle;
 
@@ -1882,7 +1860,7 @@ void Signaler_Node<PROT>::notifyDisconnected(SlotMapKey slotMapKey)
 // ACCESSORS
 template <class PROT>
 inline
-size_t Signaler_Node<PROT>::slotCount() const BSLS_CPP11_NOEXCEPT
+size_t Signaler_Node<PROT>::slotCount() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_slotMap.length();
 }
@@ -1894,7 +1872,7 @@ size_t Signaler_Node<PROT>::slotCount() const BSLS_CPP11_NOEXCEPT
 // CREATORS
 template <class PROT>
 Signaler<PROT>::Signaler(bslma::Allocator *basicAllocator)
-: d_nodePtr(bsl::allocate_shared<Signaler_Node<PROT> >(
+: d_signalerNodePtr(bsl::allocate_shared<Signaler_Node<PROT> >(
                                     basicAllocator,
                                     bslma::Default::allocator(basicAllocator)))
 {
@@ -1905,7 +1883,7 @@ template <class PROT>
 inline
 Signaler<PROT>::~Signaler()
 {
-    d_nodePtr->disconnectAllSlots();
+    d_signalerNodePtr->disconnectAllSlots();
 }
 
 // MANIPULATORS
@@ -1916,99 +1894,100 @@ SignalerConnection Signaler<PROT>::connect(
                                  BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
                                  int                                     group)
 {
-    return d_nodePtr->connect(BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
-                              group);
+    return d_signalerNodePtr->connect(
+                                     BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
+                                     group);
 }
 
 template <class PROT>
 inline
-void Signaler<PROT>::disconnect(int group) BSLS_CPP11_NOEXCEPT
+void Signaler<PROT>::disconnect(int group) BSLS_KEYWORD_NOEXCEPT
 {
-    d_nodePtr->disconnect(group);
+    d_signalerNodePtr->disconnect(group);
 }
 
 template <class PROT>
 inline
-void Signaler<PROT>::disconnectAndWait(int group) BSLS_CPP11_NOEXCEPT
+void Signaler<PROT>::disconnectAndWait(int group) BSLS_KEYWORD_NOEXCEPT
 {
-    d_nodePtr->disconnectAndWait(group);
+    d_signalerNodePtr->disconnectAndWait(group);
 }
 
 template <class PROT>
 inline
-void Signaler<PROT>::disconnectAllSlots() BSLS_CPP11_NOEXCEPT
+void Signaler<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
 {
-    d_nodePtr->disconnectAllSlots();
+    d_signalerNodePtr->disconnectAllSlots();
 }
 
 template <class PROT>
 inline
-void Signaler<PROT>::disconnectAllSlotsAndWait() BSLS_CPP11_NOEXCEPT
+void Signaler<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
 {
-    d_nodePtr->disconnectAllSlotsAndWait();
+    d_signalerNodePtr->disconnectAllSlotsAndWait();
 }
 
 // ACCESSORS
 template <class PROT>
 inline
-size_t Signaler<PROT>::slotCount() const BSLS_CPP11_NOEXCEPT
+size_t Signaler<PROT>::slotCount() const BSLS_KEYWORD_NOEXCEPT
 {
-    return d_nodePtr->slotCount();
+    return d_signalerNodePtr->slotCount();
 }
 
 // FREE OPERATORS
 inline
 bool operator==(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs < rhs) && !(rhs < lhs);
 }
 
 inline
 bool operator!=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs == rhs);
 }
 
 inline
 bool operator<(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT
+               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
-    return lhs.d_slotBasePtr.owner_before(rhs.d_slotBasePtr);
+    return lhs.d_slotNodeBasePtr.owner_before(rhs.d_slotNodeBasePtr);
 }
 
 inline
 bool operator>(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT
+               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     return rhs < lhs;
 }
 
 inline
 bool operator<=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     return !(rhs < lhs);
 }
 
 inline
 bool operator>=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs < rhs);
 }
 
 inline
 void swap(SignalerConnection& lhs,
-          SignalerConnection& rhs) BSLS_CPP11_NOEXCEPT
+          SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     lhs.swap(rhs);
 }
 
 inline
 void swap(SignalerScopedConnection& lhs,
-          SignalerScopedConnection& rhs) BSLS_CPP11_NOEXCEPT
+          SignalerScopedConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     lhs.swap(rhs);
 }

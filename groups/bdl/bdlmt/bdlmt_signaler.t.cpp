@@ -179,23 +179,23 @@ struct NoOp {
 
     template <class A1>
     void
-    operator()(BSLS_ANNOTATION_UNUSED const A1&) const BSLS_CPP11_NOEXCEPT
+    operator()(const A1&) const BSLS_CPP11_NOEXCEPT
     { }
 
     template <class A1,
               class A2>
     void
-    operator()(BSLS_ANNOTATION_UNUSED const A1&,
-               BSLS_ANNOTATION_UNUSED const A2&) const BSLS_CPP11_NOEXCEPT
+    operator()(const A1&,
+               const A2&) const BSLS_CPP11_NOEXCEPT
     { }
 
     template <class A1,
               class A2,
               class A3>
     void
-    operator()(BSLS_ANNOTATION_UNUSED const A1&,
-               BSLS_ANNOTATION_UNUSED const A2&,
-               BSLS_ANNOTATION_UNUSED const A3&) const BSLS_CPP11_NOEXCEPT
+    operator()(const A1&,
+               const A2&,
+               const A3&) const BSLS_CPP11_NOEXCEPT
     { }
 
     template <class A1,
@@ -203,10 +203,10 @@ struct NoOp {
               class A3,
               class A4>
     void
-    operator()(BSLS_ANNOTATION_UNUSED const A1&,
-               BSLS_ANNOTATION_UNUSED const A2&,
-               BSLS_ANNOTATION_UNUSED const A3&,
-               BSLS_ANNOTATION_UNUSED const A4&) const BSLS_CPP11_NOEXCEPT
+    operator()(const A1&,
+               const A2&,
+               const A3&,
+               const A4&) const BSLS_CPP11_NOEXCEPT
     { }
 
     template <class A1,
@@ -215,11 +215,11 @@ struct NoOp {
               class A4,
               class A5>
     void
-    operator()(BSLS_ANNOTATION_UNUSED const A1&,
-               BSLS_ANNOTATION_UNUSED const A2&,
-               BSLS_ANNOTATION_UNUSED const A3&,
-               BSLS_ANNOTATION_UNUSED const A4&,
-               BSLS_ANNOTATION_UNUSED const A5&) const BSLS_CPP11_NOEXCEPT
+    operator()(const A1&,
+               const A2&,
+               const A3&,
+               const A4&,
+               const A5&) const BSLS_CPP11_NOEXCEPT
     { }
 };
 
@@ -548,7 +548,7 @@ static void test1_signaler_defaultConstructor()
 
 static void test2_signaler_destructor()
     // ------------------------------------------------------------------------
-    // DESTRUCTOR
+    // SIGNALER DESTRUCTOR
     //
     // Concerns:
     //   Ensure proper behavior of the destructor.
@@ -1205,7 +1205,7 @@ static void test6_signaler_disconnectAndWait()
     //      thread #1, and then again, from thread #2. At the same time call
     //      'disconnectAndWait()' from thread #0 (the main thread) specifying a
     //      group containing several slots. Check that:
-    //      - All slot were in the specified group were disconnected;
+    //      - All slots were in the specified group were disconnected;
     //      - No other slots were disconnected;
     //      - 'disconnectAllSlotsAndWait()' have blocked the calling thread
     //        pending completion of the currently executing slots.
@@ -1215,7 +1215,9 @@ static void test6_signaler_disconnectAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
-    bdlmt::FixedThreadPool threadPool(2, 0x0800000, &alloc);
+    bdlmt::FixedThreadPool threadPool(2,        // num threads
+                                      100,      // max pending jobs
+                                      &alloc);
 
     // 1. nothing to disconnect
     {
@@ -1435,7 +1437,9 @@ static void test8_signaler_disconnectAllSlotsAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
-    bdlmt::FixedThreadPool threadPool(2, 0x0800000, &alloc);
+    bdlmt::FixedThreadPool threadPool(2,        // num threads
+                                      100,      // max pending jobs
+                                      &alloc);
 
     // 1. nothing to disconnect
     {
@@ -1523,7 +1527,7 @@ static void test8_signaler_disconnectAllSlotsAndWait()
 
 static void test9_signaler_slotCount()
     // ------------------------------------------------------------------------
-    // SIGNALER SLOTCOUNT
+    // SIGNALER SLOT COUNT
     //
     // Concerns:
     //   Ensure proper behavior of the 'slotCount' method.
@@ -1905,14 +1909,14 @@ static void test12_connection_disconnect()
     {
         // create "empty" connection
         bdlmt::SignalerConnection con;
-        ASSERT_EQ(con.isConnected(),                 false);
+        ASSERT_EQ(con.isConnected(),                  false);
         ASSERT_EQ(con == bdlmt::SignalerConnection(), true);
 
         // do disconnect
         con.disconnect();
 
         // nothing happened
-        ASSERT_EQ(con.isConnected(),                 false);
+        ASSERT_EQ(con.isConnected(),                  false);
         ASSERT_EQ(con == bdlmt::SignalerConnection(), true);
     }
 
@@ -1963,7 +1967,7 @@ static void test12_connection_disconnect()
 
     // 3. disconnect one slot from another
     {
-        bsl::ostringstream       out(&alloc);
+        bsl::ostringstream        out(&alloc);
         bdlmt::Signaler<void()>   sig(&alloc);
         bdlmt::SignalerConnection con1, con2, con3, con4;
 
@@ -2080,7 +2084,9 @@ static void test13_connection_disconnectAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
-    bdlmt::FixedThreadPool threadPool(2, 0x0800000, &alloc);
+    bdlmt::FixedThreadPool threadPool(2,        // num threads
+                                      100,      // max pending jobs
+                                      &alloc);
 
     // 1. disconnect "empty" connection
     {
@@ -2257,8 +2263,8 @@ static void test14_connection_release()
     //   bdlmt::SignalerScopedConnection::release()
     // ------------------------------------------------------------------------
 {
-    bslma::TestAllocator    alloc;
-    bdlmt::Signaler<void()> sig(&alloc);
+    bslma::TestAllocator                  alloc;
+    bdlmt::Signaler<void()>               sig(&alloc);
     const bdlmt::SignalerScopedConnection def;
 
     // connect a slot

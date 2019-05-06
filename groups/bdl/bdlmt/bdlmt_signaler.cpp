@@ -9,12 +9,12 @@ BSLS_IDENT_RCSID(bdlmt_signaler_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlmt {
 
-                           // -----------------------
-                           // class Signaler_SlotBase
-                           // -----------------------
+                         // ----------------------------
+                         // class Signaler_SlotNode_Base
+                         // ----------------------------
 
 // PRIVATE MANIPULATOR
-void Signaler_SlotBase::disconnectAndWait() BSLS_CPP11_NOEXCEPT
+void Signaler_SlotNode_Base::disconnectAndWait() BSLS_CPP11_NOEXCEPT
 {
     // Disconnect the slot.
 
@@ -26,7 +26,7 @@ void Signaler_SlotBase::disconnectAndWait() BSLS_CPP11_NOEXCEPT
 }
 
 // CLASS METHOD
-bsls::Types::Uint64 Signaler_SlotBase::getId() BSLS_CPP11_NOEXCEPT
+bsls::Types::Uint64 Signaler_SlotNode_Base::getId() BSLS_CPP11_NOEXCEPT
 {
     typedef BloombergLP::bsls::AtomicOperations AtomicOps;
 
@@ -37,7 +37,7 @@ bsls::Types::Uint64 Signaler_SlotBase::getId() BSLS_CPP11_NOEXCEPT
 
 
 // CREATORS
-Signaler_SlotBase::Signaler_SlotBase(SlotMapKey slotMapKey)
+Signaler_SlotNode_Base::Signaler_SlotNode_Base(SlotMapKey slotMapKey)
 : d_callMutex()
 , d_slotMapKey(slotMapKey)
 , d_isConnected(true)
@@ -45,19 +45,19 @@ Signaler_SlotBase::Signaler_SlotBase(SlotMapKey slotMapKey)
     // Nothing.
 }
 
-Signaler_SlotBase::~Signaler_SlotBase()
+Signaler_SlotNode_Base::~Signaler_SlotNode_Base()
 {
     // Nothing.
 }
 
 // MANIPULATORS
-void Signaler_SlotBase::notifyDisconnected() BSLS_CPP11_NOEXCEPT
+void Signaler_SlotNode_Base::notifyDisconnected() BSLS_CPP11_NOEXCEPT
 {
     d_isConnected = false;
 }
 
 // ACCESSORS
-bool Signaler_SlotBase::isConnected() const BSLS_CPP11_NOEXCEPT
+bool Signaler_SlotNode_Base::isConnected() const BSLS_CPP11_NOEXCEPT
 {
     return d_isConnected;
 }
@@ -69,30 +69,30 @@ bool Signaler_SlotBase::isConnected() const BSLS_CPP11_NOEXCEPT
 
 // PRIVATE CREATORS
 SignalerConnection::SignalerConnection(
-              const bsl::shared_ptr<SlotBase>& slotBasePtr) BSLS_CPP11_NOEXCEPT
-: d_slotBasePtr(slotBasePtr)
+     const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr) BSLS_CPP11_NOEXCEPT
+: d_slotNodeBasePtr(slotNodeBasePtr)
 {
-    BSLS_ASSERT(slotBasePtr);
+    BSLS_ASSERT(slotNodeBasePtr);
 }
 
 // CREATORS
 SignalerConnection::SignalerConnection() BSLS_CPP11_NOEXCEPT
-: d_slotBasePtr()
+: d_slotNodeBasePtr()
 {
     // NOTHING
 }
 
 SignalerConnection::SignalerConnection(const SignalerConnection& original)
                                                             BSLS_CPP11_NOEXCEPT
-: d_slotBasePtr(original.d_slotBasePtr)
+: d_slotNodeBasePtr(original.d_slotNodeBasePtr)
 {
     // NOTHING
 }
 
 SignalerConnection::SignalerConnection(
             bslmf::MovableRef<SignalerConnection> original) BSLS_CPP11_NOEXCEPT
-: d_slotBasePtr(bslmf::MovableRefUtil::move(
-                        bslmf::MovableRefUtil::access(original).d_slotBasePtr))
+: d_slotNodeBasePtr(bslmf::MovableRefUtil::move(
+                    bslmf::MovableRefUtil::access(original).d_slotNodeBasePtr))
 {
     // NOTHING
 }
@@ -102,7 +102,7 @@ SignalerConnection&
 SignalerConnection::operator=(const SignalerConnection& rhs)
                                                             BSLS_CPP11_NOEXCEPT
 {
-    d_slotBasePtr = rhs.d_slotBasePtr;
+    d_slotNodeBasePtr = rhs.d_slotNodeBasePtr;
     return *this;
 }
 
@@ -112,37 +112,37 @@ SignalerConnection::operator=(bslmf::MovableRef<SignalerConnection> rhs)
 {
     SignalerConnection& rhsRef = rhs;
 
-    d_slotBasePtr = bslmf::MovableRefUtil::move(rhsRef.d_slotBasePtr);
+    d_slotNodeBasePtr = bslmf::MovableRefUtil::move(rhsRef.d_slotNodeBasePtr);
 
     return *this;
 }
 
 void SignalerConnection::disconnect() BSLS_CPP11_NOEXCEPT
 {
-    bsl::shared_ptr<SlotBase> slotBasePtr = d_slotBasePtr.lock();
-    if (slotBasePtr) {
-        slotBasePtr->disconnect();
+    bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
+    if (slotNodeBasePtr) {
+        slotNodeBasePtr->disconnect();
     }
 }
 
 void SignalerConnection::disconnectAndWait() BSLS_CPP11_NOEXCEPT
 {
-    bsl::shared_ptr<SlotBase> slotBasePtr = d_slotBasePtr.lock();
-    if (slotBasePtr) {
-        slotBasePtr->disconnectAndWait();
+    bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
+    if (slotNodeBasePtr) {
+        slotNodeBasePtr->disconnectAndWait();
     }
 }
 
 void SignalerConnection::swap(SignalerConnection& other) BSLS_CPP11_NOEXCEPT
 {
-    d_slotBasePtr.swap(other.d_slotBasePtr);
+    d_slotNodeBasePtr.swap(other.d_slotNodeBasePtr);
 }
 
 // ACCESSORS
 bool SignalerConnection::isConnected() const BSLS_CPP11_NOEXCEPT
 {
-    bsl::shared_ptr<SlotBase> slotBasePtr = d_slotBasePtr.lock();
-    return slotBasePtr ? slotBasePtr->isConnected() : false;
+    bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
+    return slotNodeBasePtr ? slotNodeBasePtr->isConnected() : false;
 }
 
                          // ------------------------------
@@ -189,12 +189,13 @@ SignalerScopedConnection&
 SignalerScopedConnection::operator=(
            bslmf::MovableRef<SignalerScopedConnection> rhs) BSLS_CPP11_NOEXCEPT
 {
-    SignalerConnection& rhsBaseRef = rhs;
-    SignalerConnection& lhsBaseRef = *this;
+    SignalerScopedConnection rhsMoved(bslmf::MovableRefUtil::move(rhs));
 
-    disconnect();
+    this->swap(rhsMoved);
 
-    lhsBaseRef = bslmf::MovableRefUtil::move(rhsBaseRef);
+    // Destruction of 'rhsMoved' will disonnect the slot, if any, to which
+    // '*this' was previously referring.
+
     return *this;
 }
 
@@ -202,11 +203,13 @@ SignalerScopedConnection&
 SignalerScopedConnection::operator=(const SignalerConnection& rhs)
                                                             BSLS_CPP11_NOEXCEPT
 {
-    SignalerConnection& lhsBaseRef = *this;
+    SignalerScopedConnection rhsDerived(rhs);
 
-    disconnect();
+    this->swap(rhsDerived);
 
-    lhsBaseRef = rhs;
+    // Destruction of 'rhsDerived' will disonnect the slot, if any, to which
+    // '*this' was previously referring.
+
     return *this;
 }
 
@@ -214,9 +217,13 @@ SignalerScopedConnection&
 SignalerScopedConnection::operator=(bslmf::MovableRef<SignalerConnection> rhs)
                                                             BSLS_CPP11_NOEXCEPT
 {
-    SignalerConnection& lhsBaseRef = *this;
+    SignalerScopedConnection rhsDerived(bslmf::MovableRefUtil::move(rhs));
 
-    lhsBaseRef = bslmf::MovableRefUtil::move(rhs);
+    this->swap(rhsDerived);
+
+    // Destruction of 'rhsDerived' will disonnect the slot, if any, to which
+    // '*this' was previously referring.
+
     return *this;
 }
 
