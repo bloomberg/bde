@@ -148,12 +148,29 @@ int main(int argc, char *argv[])
         // test all 8 modes
 
         for (unsigned int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
-            // do not try to set executable bit when on HP-UX
+            // Do not try to set executable bit when on HP-UX.
 #ifdef BSLS_PLATFORM_OS_HPUX
             if (mode & bdls::MemoryUtil::k_ACCESS_EXECUTE) {
-                continue;
+                if (verbose) cout << "Skipping mode with execute bit: "
+                                  << modes[mode] << bsl::endl;
+                continue;                                           // CONTINUE
             }
 #endif
+#ifdef BSLS_PLATFORM_OS_LINUX
+            // Check if selinux is enabled on linux and if the "execheap"
+            // policy is set ("off" = "do not allow unprivileged user to set
+            // the execute bit on the heap").  If so then do not try to set
+            // execute bit.
+            if (0 == system("(selinuxenabled"
+                            "   && getsebool selinuxuser_execheap | grep off) "
+                            ">/dev/null 2>&1")
+                && (mode & bdls::MemoryUtil::k_ACCESS_EXECUTE)) {
+                if (verbose) cout << "Skipping mode with execute bit: "
+                                  << modes[mode] << bsl::endl;
+                continue;                                           // CONTINUE
+            }
+#endif
+
             // test read & write
 
             for (unsigned int op=0;
