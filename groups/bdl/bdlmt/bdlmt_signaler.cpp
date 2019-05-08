@@ -13,24 +13,12 @@ namespace bdlmt {
                          // class Signaler_SlotNode_Base
                          // ----------------------------
 
-// PRIVATE MANIPULATOR
-void Signaler_SlotNode_Base::disconnectAndWait() BSLS_CPP11_NOEXCEPT
-{
-    // Disconnect the slot.
-
-    disconnect();
-
-    // Synchronize with the call operator.
-
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_callMutex); // LOCK
-}
-
 // CLASS METHOD
 bsls::Types::Uint64 Signaler_SlotNode_Base::getId() BSLS_CPP11_NOEXCEPT
 {
     typedef BloombergLP::bsls::AtomicOperations AtomicOps;
 
-    static AtomicOps::AtomicTypes::Uint64 autoId = { 0 };
+    static AtomicOps::AtomicTypes::Uint64 autoId = { 0U };
 
     return AtomicOps::incrementUint64NvAcqRel(&autoId);
 }
@@ -38,7 +26,7 @@ bsls::Types::Uint64 Signaler_SlotNode_Base::getId() BSLS_CPP11_NOEXCEPT
 
 // CREATORS
 Signaler_SlotNode_Base::Signaler_SlotNode_Base(SlotMapKey slotMapKey)
-: d_callMutex()
+: d_slotMutex()
 , d_slotMapKey(slotMapKey)
 , d_isConnected(true)
 {
@@ -51,6 +39,17 @@ Signaler_SlotNode_Base::~Signaler_SlotNode_Base()
 }
 
 // MANIPULATORS
+void Signaler_SlotNode_Base::disconnectAndWait() BSLS_CPP11_NOEXCEPT
+{
+    // Disconnect the slot.
+
+    disconnect();
+
+    // Synchronize with the call operator.
+
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_slotMutex); // LOCK
+}
+
 void Signaler_SlotNode_Base::notifyDisconnected() BSLS_CPP11_NOEXCEPT
 {
     d_isConnected = false;
@@ -133,6 +132,15 @@ void SignalerConnection::disconnectAndWait() BSLS_CPP11_NOEXCEPT
     }
 }
 
+SignalerConnection SignalerConnection::release() BSLS_CPP11_NOEXCEPT
+{
+    SignalerConnection ret;
+
+    this->swap(ret);
+
+    return ret;
+}
+
 void SignalerConnection::swap(SignalerConnection& other) BSLS_CPP11_NOEXCEPT
 {
     d_slotNodeBasePtr.swap(other.d_slotNodeBasePtr);
@@ -143,6 +151,37 @@ bool SignalerConnection::isConnected() const BSLS_CPP11_NOEXCEPT
 {
     bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
     return slotNodeBasePtr ? slotNodeBasePtr->isConnected() : false;
+}
+
+// FREE OPERATORS
+bool operator==(const SignalerConnection& lhs,
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return !(lhs < rhs) && !(rhs < lhs);
+}
+
+bool operator!=(const SignalerConnection& lhs,
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs < rhs || rhs < lhs;
+}
+
+bool operator>(const SignalerConnection& lhs,
+               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return rhs < lhs;
+}
+
+bool operator<=(const SignalerConnection& lhs,
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return !(rhs < lhs);
+}
+
+bool operator>=(const SignalerConnection& lhs,
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return !(lhs < rhs);
 }
 
                          // ------------------------------
@@ -225,15 +264,6 @@ SignalerScopedConnection::operator=(bslmf::MovableRef<SignalerConnection> rhs)
     // '*this' was previously referring.
 
     return *this;
-}
-
-SignalerConnection
-SignalerScopedConnection::release() BSLS_CPP11_NOEXCEPT
-{
-    SignalerConnection connection;
-    connection.swap(static_cast<SignalerConnection&>(*this));
-
-    return connection;
 }
 
 void SignalerScopedConnection::swap(SignalerScopedConnection& other)

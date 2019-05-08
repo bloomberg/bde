@@ -1205,7 +1205,7 @@ static void test6_signaler_disconnectAndWait()
     //      thread #1, and then again, from thread #2. At the same time call
     //      'disconnectAndWait()' from thread #0 (the main thread) specifying a
     //      group containing several slots. Check that:
-    //      - All slots were in the specified group were disconnected;
+    //      - All slots in the specified group were disconnected;
     //      - No other slots were disconnected;
     //      - 'disconnectAllSlotsAndWait()' have blocked the calling thread
     //        pending completion of the currently executing slots.
@@ -2194,8 +2194,8 @@ static void test13_connection_disconnectAndWait()
         int rc = threadPool.start();
         BSLS_ASSERT_OPT(rc == 0);
 
-        for (int i = 0; i < 10; ++i) {
-            // Repeat 10 times.
+        for (int i = 0; i < 8; ++i) {
+            // Repeat 8 times.
 
             // slot #1, disconnects slot #2 if 'slot1Enabled' is 'true'
             con1 = sig.connect(bdlf::BindUtil::bindR<void>(
@@ -2399,7 +2399,189 @@ static void test16_connection_isConnected()
     ASSERT_EQ(con.isConnected(), false);
 }
 
-static void test17_usageExample()
+namespace test17_signaler {
+
+inline
+double ratio(int ii)
+{
+    double ret = ii;
+    ret /= (ii + 1);
+
+    return ret;
+}
+
+template <class TYPE>
+inline
+TYPE sqr(TYPE x)
+{
+    return x * x;
+}
+
+template <class TYPE>
+inline
+TYPE cube(TYPE x)
+{
+    return x * x * x;
+}
+
+struct Functor {
+    // DATA
+    double d_data;
+
+  private:
+    // NOT IMPLEMENTED
+    Functor& operator=(const Functor&);
+
+  public:
+    // CREATOR
+    explicit
+    Functor(double data) : d_data(data)
+    {
+        // NOTHING
+    }
+
+    Functor(const Functor& original)
+    : d_data(original.d_data)
+    {
+        // NOTHING
+    }
+
+    // MANIPULATOR
+    double operator()(double& sum, double& sumSquares)                // LVALUE
+    {
+        sum        += d_data;
+        sumSquares += d_data * d_data;
+
+        return sum + sumSquares;
+    }
+
+    double operator()(double a1,
+                      double a2,
+                      const double a3,
+                      const int& a4,
+                      const int a5,
+                      const double& a6,
+                      double& sum,
+                      double& sumSquared,
+                      double& sumCubed)                               // LVALUE
+    {
+        sum        += d_data + a1 + a2 + a3 + a4 + a5 + a6;
+        sumSquared += sqr(d_data) + sqr(a1) + sqr(a2) + sqr(a3) + sqr(a4) +
+                                                             sqr(a5) + sqr(a6);
+        sumCubed   += cube(d_data) + cube(a1) + cube(a2) + cube(a3) +
+                                                cube(a4) + cube(a5) + cube(a6);
+
+        return sum + sumSquared + sumCubed;
+    }
+};
+
+void test_lvalues()
+    // ------------------------------------------------------------------------
+    // LVALUES IN ARG LIST
+    //
+    // Concerns:
+    //   Ensure lvalues are communicated properly.
+    //
+    // Plan:
+    //   1. Start with a list of 'double's.
+    //
+    //   2. Connect slots calling 'Functor' objects with each of the list
+    //      of data objects.
+    //
+    //   3. Call the slot, passing two 'double's by lvalue reference.
+    //
+    //   4. Observe that the lvalue references were appropriately updated.
+    //
+    // Testing:
+    //   bdlmt::SignalerConnection::isConnected()
+    // ------------------------------------------------------------------------
+{
+    {
+        bslma::TestAllocator                      alloc;
+        bdlmt::Signaler<double(double&, double&)> sig(&alloc);
+
+        const double data[] = { 0.1, -78.2, 31e5, -43.2e2, 0.99, 43.4 };
+        enum { k_NUM_DATA = sizeof data / sizeof *data };
+
+        for (int ii = 0; ii < k_NUM_DATA; ++ii) {
+            (void) sig.connect(Functor(data[ii]));
+        }
+
+        double sumA = 0, sumSquaresA = 0;
+        sig(sumA, sumSquaresA);
+
+        ASSERT(0 != sumA);
+        ASSERT(0 != sumSquaresA);
+
+        double sumB = 0, sumSquaresB = 0;
+        for (int ii = 0; ii < k_NUM_DATA; ++ii) {
+            sumB        += data[ii];
+            sumSquaresB += data[ii] * data[ii];
+        }
+
+        ASSERT(sumA == sumB);
+        ASSERT(sumSquaresA == sumSquaresB);
+    }
+
+    {
+        bslma::TestAllocator                    alloc;
+        bdlmt::Signaler<double(double,
+                               double,
+                               const double,
+                               const int&,
+                               const int,
+                               const double&,
+                               double&,
+                               double&,
+                               double&)>        sig(&alloc);
+
+        const double data[] = { 0.1, -78.2, 31e5, -43.2e2, 0.99, 43.4 };
+        enum { k_NUM_DATA = sizeof data / sizeof *data };
+
+        for (int ii = 0; ii < k_NUM_DATA; ++ii) {
+            (void) sig.connect(Functor(data[ii]));
+        }
+
+        double sumA = 0, sumSquaredA = 0, sumCubedA = 0;
+
+        for (int ii = 5; ii < 100; ii += 5) {
+            sig(ratio(ii+1), ratio(ii+2), ratio(ii+3), ii+4, ii+5, ratio(ii+6),
+                                                 sumA, sumSquaredA, sumCubedA);
+        }
+
+        ASSERT(0 != sumA);
+        ASSERT(0 != sumSquaredA);
+        ASSERT(0 != sumCubedA);
+
+        double sumB = 0, sumSquaredB = 0, sumCubedB = 0;
+
+        for (int ii = 5; ii < 100; ii += 5) {
+            double a1 = ratio(ii + 1);
+            double a2 = ratio(ii + 2);
+            double a3 = ratio(ii + 3);
+            int    a4 = ii + 4;
+            int    a5 = ii + 5;
+            double a6 = ratio(ii + 6);
+
+            for (int jj = 0; jj < k_NUM_DATA; ++jj) {
+                double d = data[jj];
+                sumB        += d + a1 + a2 + a3 + a4 + a5 + a6;
+                sumSquaredB += sqr(d) + sqr(a1) + sqr(a2) + sqr(a3) + sqr(a4) +
+                                                             sqr(a5) + sqr(a6);
+                sumCubedB   += cube(d) + cube(a1) + cube(a2) + cube(a3) +
+                                                cube(a4) + cube(a5) + cube(a6);
+            }
+        }
+
+        ASSERTV(sumB, sumA,               sumB        == sumA);
+        ASSERTV(sumSquaredB, sumSquaredA, sumSquaredB == sumSquaredA);
+        ASSERTV(sumCubedB, sumCubedA,     sumCubedB   == sumCubedA);
+    }
+}
+
+}  // close namespace test17_signaler
+
+static void test18_usageExample()
     // ------------------------------------------------------------------------
     // USAGE EXAMPLE
     //
@@ -2480,7 +2662,8 @@ int main(int argc, char *argv[])
       case  14: test14_connection_release();                break;
       case  15: test15_connection_swap();                   break;
       case  16: test16_connection_isConnected();            break;
-      case  17: test17_usageExample();                      break;
+      case  17: test17_signaler::test_lvalues();            break;
+      case  18: test18_usageExample();                      break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
 

@@ -211,11 +211,12 @@ struct Signaler_ArgumentType {
     // Also provide 'NA' (Not an Argument) and 'ForwardingNA' the type that
     // forwards it.
 
-    // TYPES
-    typedef Signaler_NA                                 NA;
-    typedef typename bslmf::ForwardingType<NA>::Type    ForwardingNA;
+    // PUBLIC TYPES
 
+  private:
+    // PRIVATE TYPES
     typedef typename bslmf::FunctionPointerTraits<PROT*>::ArgumentList Args;
+    typedef Signaler_NA                                                NA;
 
     typedef typename bslmf::TypeListTypeOf<1, Args, NA>::TypeOrDefault Type1;
     typedef typename bslmf::TypeListTypeOf<2, Args, NA>::TypeOrDefault Type2;
@@ -226,6 +227,10 @@ struct Signaler_ArgumentType {
     typedef typename bslmf::TypeListTypeOf<7, Args, NA>::TypeOrDefault Type7;
     typedef typename bslmf::TypeListTypeOf<8, Args, NA>::TypeOrDefault Type8;
     typedef typename bslmf::TypeListTypeOf<9, Args, NA>::TypeOrDefault Type9;
+
+  public:
+    // PUBLIC TYPES
+    typedef typename bslmf::ForwardingType<NA>::Type    ForwardingNA;
 
     typedef typename bslmf::ForwardingType<Type1>::Type ForwardingType1;
     typedef typename bslmf::ForwardingType<Type2>::Type ForwardingType2;
@@ -361,8 +366,9 @@ struct Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8, A9)> {
     // ACCESSOR
     void operator()(A1, A2, A3, A4, A5, A6, A7, A8, A9) const;
         // Call the functions held in all slot holders, in the order of group
-        // numbers but with the ordering within one group unspecified, passing
-        // the number and type of arguments passed to this function.
+        // numbers and with the ordering within one group being the order in
+        // which connections were made, passing the number and type of
+        // arguments passed to this function.
 };
 
                        // ============================
@@ -373,8 +379,8 @@ class Signaler_SlotNode_Base {
     // Provides a non-template partially abstract base class for
     // 'Signaler_SlotNode' so that the non-template classes
     // 'SignalerConnection' and 'SignalerScopedConnection' can refer to and
-    // manipulate the associated slot, and we can implement some of 'Slot'
-    // functionality in the imp file, avoiding code bloat.
+    // manipulate the associated slot, and we can implement some of
+    // 'Signaler_SlotNode' functionality in the imp file, avoiding code bloat.
 
   public:
     // PUBLIC TYPE
@@ -384,7 +390,7 @@ class Signaler_SlotNode_Base {
         // the slot ID.
 
   protected:
-    mutable bslmt::ReaderWriterMutex d_callMutex;
+    mutable bslmt::ReaderWriterMutex d_slotMutex;
         // The purpose of this mutex is to implement the waiting behavior of
         // the 'disconnectAndWait()' function.
 
@@ -396,9 +402,6 @@ class Signaler_SlotNode_Base {
         // Set to 'true' on construction, and to 'false' on disconnection.
         // Used for preventing calling a slot after it has been disconnected.
 
-    // FRIENDS
-    friend class SignalerConnection;
-
   private:
     // NOT IMPLEMENTED
     Signaler_SlotNode_Base(           const Signaler_SlotNode_Base&)
@@ -406,8 +409,25 @@ class Signaler_SlotNode_Base {
     Signaler_SlotNode_Base& operator=(const Signaler_SlotNode_Base&)
                                                           BSLS_KEYWORD_DELETED;
 
-  private:
-    // PRIVATE MANIPULATORS
+  public:
+    // CLASS METHOD
+    static bsls::Types::Uint64 getId() BSLS_KEYWORD_NOEXCEPT;
+        // Return an atomic '++x', where 'x' is the result of the previous
+        // invocation.  If this function is invoked for the first time, return
+        // 1.
+
+  protected:
+    // CREATORS
+    explicit
+    Signaler_SlotNode_Base(SlotMapKey slotMapKey);
+        // Create a 'Signaler_SlotNodebase' object based on the specified
+        // 'slotMapKey'.
+
+    virtual ~Signaler_SlotNode_Base();
+        // Virtual d'tor.
+
+  public:
+    // MANIPULATORS
     virtual void disconnect() BSLS_KEYWORD_NOEXCEPT = 0;
         // Disconnect this slot.  If the slot was already disconnected, this
         // function has no effect.
@@ -430,25 +450,6 @@ class Signaler_SlotNode_Base {
         // Note also that this function does block pending completion of this
         // slot, even if it is already disconnected.
 
-  public:
-    // CLASS METHOD
-    static bsls::Types::Uint64 getId() BSLS_KEYWORD_NOEXCEPT;
-        // Return an atomic '++x', where 'x' is the result of the previous
-        // invocation.  If this function is invoked for the first time, return
-        // 1.
-
-  protected:
-    // CREATORS
-    explicit
-    Signaler_SlotNode_Base(SlotMapKey slotMapKey);
-        // Create a 'Signaler_SlotNodebase' object based on the specified
-        // 'slotMapKey'.
-
-    virtual ~Signaler_SlotNode_Base();
-        // Virtual d'tor.
-
-  public:
-    // MANIPULATORS
     void notifyDisconnected() BSLS_KEYWORD_NOEXCEPT;
         // Notify this slot that is was disconnected from its associated
         // signaler.  After this function completes, 'isConnected()' returns
@@ -466,21 +467,24 @@ class Signaler_SlotNode_Base {
 
 template <class PROT>
 class Signaler_SlotNode : public Signaler_SlotNode_Base {
-    //  Provides a slot connected to a signaler.
+    // Dynamically-allocated container for one slot, containing a function
+    // pointer or functor that can be called by a signaler.  Owned by a shared
+    // pointer in a skip list container in the 'Signaler_Node'.  Also referred
+    // to by weak pointers from 'SignalerConnector' and
+    // 'SignalerScopedConnector' objects.
 
   private:
     // PRIVATE TYPES
     typedef Signaler_ArgumentType<PROT>           ArgumentType;
-    typedef typename ArgumentType::NA             NA;
     typedef typename ArgumentType::ForwardingNA   ForwardingNA;
     typedef Signaler_Node<PROT>                   SignalerNode;
 
   private:
     // PRIVATE DATA
-    bsl::weak_ptr<SignalerNode>      d_signalerNodePtr;
+    bsl::weak_ptr<SignalerNode>  d_signalerNodePtr;
         // Weak reference to the associated signaler node.
 
-    bsl::function<PROT>              d_func;
+    bsl::function<PROT>          d_func;
         // The target callback.
 
   private:
@@ -652,20 +656,19 @@ class Signaler_Node :
 
   private:
     // PRIVATE TYPES
-    typedef Signaler_SlotNode_Base                  SlotNode_Base;
-    typedef Signaler_SlotNode<PROT>                 Slot;
-    typedef SlotNode_Base::SlotMapKey               SlotMapKey;
+    typedef Signaler_SlotNode_Base                      SlotNode_Base;
+    typedef Signaler_SlotNode<PROT>                     SlotNode;
+    typedef SlotNode_Base::SlotMapKey                   SlotMapKey;
 
     typedef bdlcc::SkipList<SlotMapKey,                // [GROUP, ID] pair
-                            bsl::shared_ptr<Slot> > KeyToSlotMap;
+                            bsl::shared_ptr<SlotNode> > KeyToSlotMap;
 
-    typedef Signaler_ArgumentType<PROT>             ArgumentType;
-    typedef typename ArgumentType::NA               NA;
-    typedef typename ArgumentType::ForwardingNA     ForwardingNA;
+    typedef Signaler_ArgumentType<PROT>                 ArgumentType;
+    typedef typename ArgumentType::ForwardingNA         ForwardingNA;
 
   private:
     // PRIVATE DATA
-    mutable bslmt::ReaderWriterMutex  d_callMutex;
+    mutable bslmt::ReaderWriterMutex  d_signalerMutex;
         // The purpose of this mutex is to implement the waiting behavior of
         // 'disconnectAndWait()' and 'disconnectAllSlotsAndWait()' functions.
 
@@ -682,11 +685,12 @@ class Signaler_Node :
 
   public:
     // CREATORS
-    explicit Signaler_Node(bslma::Allocator *allocator);
+    explicit
+    Signaler_Node(bslma::Allocator *allocator);
         // Create a 'Signaler_Node' object having no connected slots.  Specify
         // an 'allocator' used to supply memory.
         //
-        // Note that the supplied allocator shall remain valid until all
+        // Note that the supplied allocator must remain valid until all
         // connection objects associated with this signaler are destroyed.
 
   public:
@@ -766,8 +770,8 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
         //
-        // No that the supplied must shall remain valid until all connection
-        // objects associated with this signaler are destroyed.
+        // No that the supplied allocator must remain valid until all
+        // connection objects associated with this signaler are destroyed.
 
     ~Signaler();
         // Destroy this object.  Call 'disconnectAllSlots()'.  The behavior is
@@ -928,7 +932,6 @@ class SignalerConnection {
     // FRIENDS
     template <class>
     friend class Signaler_Node;
-
     friend bool operator<(const SignalerConnection&,
                           const SignalerConnection&) BSLS_KEYWORD_NOEXCEPT;
 
@@ -993,6 +996,11 @@ class SignalerConnection {
         //
         // Note also that this function does block pending completion of an
         // already disconnected, but still executing slot.
+
+    SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
+        // Disassociate this connection object from its associated slot, if
+        // any, and reset '*this' to a default-constructed state.  Return a
+        // copy of '*this' in the state that it was in prior to release.
 
     void swap(SignalerConnection& other) BSLS_KEYWORD_NOEXCEPT;
         // Swap the contents of '*this' and 'other'.
@@ -1083,13 +1091,6 @@ class SignalerScopedConnection : public SignalerConnection {
         // associated slot, disconnect that slot by a call to
         // 'disconnect()'.  Return '*this'.
 
-    SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
-        // Disassociate this connection object from its associated slot, if
-        // any, and reset '*this' to a default-constructed state.  Return a
-        // copy of the 'SignalerConnection' object '*this' was constructed
-        // from.  If '*this' was default-constructed, return a
-        // default-constructed value.
-
     void swap(SignalerScopedConnection& other) BSLS_KEYWORD_NOEXCEPT;
         // Swap the contents of '*this' and 'other'.
 };
@@ -1097,10 +1098,13 @@ class SignalerScopedConnection : public SignalerConnection {
 // FREE OPERATORS
 
 // In equality or ordering comparisons, two default constructed connections
-// compare equal and a default constructed connection is never equal to a
-// connection to a slot.  The 'less than' and 'greater than' relationships are
-// transitive and will form an ordering of a set of unequal connections, but
-// the specific ordering is arbitrary and not predictable by the client.
+// compare equivalent and a default constructed connection is never equivalent
+// to a connection to a slot.  The 'less than' and 'greater than' relationships
+// are transitive and will form an ordering of a set of non-equivalent
+// connections, but the specific ordering is arbitrary and not predictable by
+// the client.  Note that neither state of a connection nor its ordering change
+// when it is disconnected.  Releasing a connection sets it to a
+// default-constructed value.
 
 bool operator==(const SignalerConnection& lhs,
                 const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
@@ -1412,15 +1416,15 @@ void Signaler_SlotNode<PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
 template <class PROT>
 inline
 void Signaler_SlotNode<PROT>::doInvoke(bsl::integral_constant<int, 0>,
-                                         ForwardingNA,
-                                         ForwardingNA,
-                                         ForwardingNA,
-                                         ForwardingNA,
-                                         ForwardingNA,
-                                         ForwardingNA,
-                                         ForwardingNA,
-                                         ForwardingNA,
-                                         ForwardingNA) const
+                                       ForwardingNA,
+                                       ForwardingNA,
+                                       ForwardingNA,
+                                       ForwardingNA,
+                                       ForwardingNA,
+                                       ForwardingNA,
+                                       ForwardingNA,
+                                       ForwardingNA,
+                                       ForwardingNA) const
 {
     d_func();
 }
@@ -1617,23 +1621,24 @@ Signaler_SlotNode<PROT>::Signaler_SlotNode(
 
 template <class PROT>
 Signaler_SlotNode<PROT>::~Signaler_SlotNode()
-{}
+{
+    // Note this d'tor destroys 'd_signalerNodePtr' and 'd_func'.
+}
 
 // MANIPULATORS
 template <class PROT>
 inline
 void Signaler_SlotNode<PROT>::invoke(
-                typename ArgumentType::ForwardingType1 a1,
-                typename ArgumentType::ForwardingType2 a2,
-                typename ArgumentType::ForwardingType3 a3,
-                typename ArgumentType::ForwardingType4 a4,
-                typename ArgumentType::ForwardingType5 a5,
-                typename ArgumentType::ForwardingType6 a6,
-                typename ArgumentType::ForwardingType7 a7,
-                typename ArgumentType::ForwardingType8 a8,
-                typename ArgumentType::ForwardingType9 a9) const
+                               typename ArgumentType::ForwardingType1 a1,
+                               typename ArgumentType::ForwardingType2 a2,
+                               typename ArgumentType::ForwardingType3 a3,
+                               typename ArgumentType::ForwardingType4 a4,
+                               typename ArgumentType::ForwardingType5 a5,
+                               typename ArgumentType::ForwardingType6 a6,
+                               typename ArgumentType::ForwardingType7 a7,
+                               typename ArgumentType::ForwardingType8 a8,
+                               typename ArgumentType::ForwardingType9 a9) const
 {
-    typedef Signaler_ArgumentType<PROT>                                AT;
     typedef typename bslmf::FunctionPointerTraits<PROT*>::ArgumentList AL;
 
     // The only way we are called is from a 'Signaler', which should exist
@@ -1644,7 +1649,7 @@ void Signaler_SlotNode<PROT>::invoke(
     // Hold this mutex (in read mode), so that 'disconnectAndWait()' can
     // synchronize with the call operator
 
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> lock(&d_callMutex);  // LOCK
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> lock(&d_slotMutex);  // LOCK
 
     if (!d_isConnected) {
         // The slot was evidently disconnected by another thread.  Do nothing.
@@ -1652,17 +1657,8 @@ void Signaler_SlotNode<PROT>::invoke(
         return;                                                       // RETURN
     }
 
-    doInvoke(
-           bsl::integral_constant<int, AL::LENGTH>(), // args count tag
-           bslmf::ForwardingTypeUtil<typename AT::Type1>::forwardToTarget(a1),
-           bslmf::ForwardingTypeUtil<typename AT::Type2>::forwardToTarget(a2),
-           bslmf::ForwardingTypeUtil<typename AT::Type3>::forwardToTarget(a3),
-           bslmf::ForwardingTypeUtil<typename AT::Type4>::forwardToTarget(a4),
-           bslmf::ForwardingTypeUtil<typename AT::Type5>::forwardToTarget(a5),
-           bslmf::ForwardingTypeUtil<typename AT::Type6>::forwardToTarget(a6),
-           bslmf::ForwardingTypeUtil<typename AT::Type7>::forwardToTarget(a7),
-           bslmf::ForwardingTypeUtil<typename AT::Type8>::forwardToTarget(a8),
-           bslmf::ForwardingTypeUtil<typename AT::Type9>::forwardToTarget(a9));
+    doInvoke(bsl::integral_constant<int, AL::LENGTH>(),
+             a1, a2, a3, a4, a5, a6, a7, a8, a9);
 }
 
                             // -------------------
@@ -1672,7 +1668,7 @@ void Signaler_SlotNode<PROT>::invoke(
 // CREATORS
 template <class PROT>
 Signaler_Node<PROT>::Signaler_Node(bslma::Allocator *allocator)
-: d_callMutex()
+: d_signalerMutex()
 , d_slotMap(allocator)
 , d_allocator_p(allocator)
 {
@@ -1693,13 +1689,11 @@ void Signaler_Node<PROT>::invoke(
                 typename ArgumentType::ForwardingType8 a8,
                 typename ArgumentType::ForwardingType9 a9) const
 {
-    typedef Signaler_ArgumentType<PROT> AT;
-
     // Hold this mutex (in read mode), so that 'disconnectAndWait()' (or
     // 'disconnectAllSlotsAndWait()') can synchonize with the call operator by
     // momemntarily locking it for write.
 
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> lock(&d_callMutex);  // LOCK
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
 
     // 'slotHandle' points in to a node in the skiplist, which has a reference
     // count to prevent it from being deallocated & destroyed by another thread
@@ -1715,27 +1709,18 @@ void Signaler_Node<PROT>::invoke(
     }
 
     do {
-        const Slot&       slot       = *slotHandle.data();
-        const SlotMapKey  slotMapKey = slotHandle.key();
+        const SlotNode   *slotNodePtr = &*slotHandle.data();
+        const SlotMapKey  slotMapKey  = slotHandle.key();
 
         // invoke the slot
 
-        slot.invoke(
-           bslmf::ForwardingTypeUtil<typename AT::Type1>::forwardToTarget(a1),
-           bslmf::ForwardingTypeUtil<typename AT::Type2>::forwardToTarget(a2),
-           bslmf::ForwardingTypeUtil<typename AT::Type3>::forwardToTarget(a3),
-           bslmf::ForwardingTypeUtil<typename AT::Type4>::forwardToTarget(a4),
-           bslmf::ForwardingTypeUtil<typename AT::Type5>::forwardToTarget(a5),
-           bslmf::ForwardingTypeUtil<typename AT::Type6>::forwardToTarget(a6),
-           bslmf::ForwardingTypeUtil<typename AT::Type7>::forwardToTarget(a7),
-           bslmf::ForwardingTypeUtil<typename AT::Type8>::forwardToTarget(a8),
-           bslmf::ForwardingTypeUtil<typename AT::Type9>::forwardToTarget(a9));
+        slotNodePtr->invoke(a1, a2, a3, a4, a5, a6, a7, a8, a9);
 
         if (0 != d_slotMap.skipForward(&slotHandle)) {
             // 'slot' has been removed from the skip list and we can't use the
             // 'next' pointers to get to the next node, but we can still access
-            // 'slotMapKey' to tell us where we were and skip to the next slot
-            // after that.
+            // 'slotMapKey' to tell us where we were and use random access to
+            // get to the next slot after that.
 
             if (0 != d_slotMap.findUpperBound(&slotHandle, slotMapKey)) {
                 // No slots left.  We're done.
@@ -1758,8 +1743,8 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 
     // create a slot
 
-    bsl::shared_ptr<Slot> slotPtr =
-                                 bsl::allocate_shared<Slot>(
+    bsl::shared_ptr<SlotNode> slotNodePtr =
+                         bsl::allocate_shared<SlotNode>(
                                      d_allocator_p,
                                      this->shared_from_this(),
                                      BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
@@ -1768,11 +1753,11 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 
     // connect the slot
 
-    d_slotMap.addR(slotMapKey, slotPtr);
+    d_slotMap.addR(slotMapKey, slotNodePtr);
 
     // return the connection
 
-    return SignalerConnection(slotPtr);
+    return SignalerConnection(slotNodePtr);
 }
 
 template <class PROT>
@@ -1806,7 +1791,7 @@ void Signaler_Node<PROT>::disconnectAndWait(int group) BSLS_KEYWORD_NOEXCEPT
 
     // synchronize with the call operator
 
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_callMutex); // LOCK
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
 }
 
 template <class PROT>
@@ -1836,7 +1821,7 @@ void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
 
     // synchronize with the call operator
 
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_callMutex); // LOCK
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
 }
 
 template <class PROT>
@@ -1937,45 +1922,10 @@ size_t Signaler<PROT>::slotCount() const BSLS_KEYWORD_NOEXCEPT
 
 // FREE OPERATORS
 inline
-bool operator==(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    return !(lhs < rhs) && !(rhs < lhs);
-}
-
-inline
-bool operator!=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    return !(lhs == rhs);
-}
-
-inline
 bool operator<(const SignalerConnection& lhs,
                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     return lhs.d_slotNodeBasePtr.owner_before(rhs.d_slotNodeBasePtr);
-}
-
-inline
-bool operator>(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    return rhs < lhs;
-}
-
-inline
-bool operator<=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    return !(rhs < lhs);
-}
-
-inline
-bool operator>=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    return !(lhs < rhs);
 }
 
 inline
