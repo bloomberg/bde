@@ -2496,12 +2496,13 @@ void test_lvalues()
     //   bdlmt::SignalerConnection::isConnected()
     // ------------------------------------------------------------------------
 {
-    {
-        bslma::TestAllocator                      alloc;
-        bdlmt::Signaler<double(double&, double&)> sig(&alloc);
+    bslma::TestAllocator                      alloc;
+    const double data[] = { 0.1, -78.2, 31e5, -43.2e2, 0.99, 43.4 };
+    enum { k_NUM_DATA = sizeof data / sizeof *data };
 
-        const double data[] = { 0.1, -78.2, 31e5, -43.2e2, 0.99, 43.4 };
-        enum { k_NUM_DATA = sizeof data / sizeof *data };
+    if (verbose) cout << "Two arg case:\n";
+    {
+        bdlmt::Signaler<double(double&, double&)> sig(&alloc);
 
         for (int ii = 0; ii < k_NUM_DATA; ++ii) {
             (void) sig.connect(Functor(data[ii]));
@@ -2523,8 +2524,8 @@ void test_lvalues()
         ASSERT(sumSquaresA == sumSquaresB);
     }
 
+    if (verbose) cout << "Nine arg case:\n";
     {
-        bslma::TestAllocator                    alloc;
         bdlmt::Signaler<double(double,
                                double,
                                const double,
@@ -2533,10 +2534,7 @@ void test_lvalues()
                                const double&,
                                double&,
                                double&,
-                               double&)>        sig(&alloc);
-
-        const double data[] = { 0.1, -78.2, 31e5, -43.2e2, 0.99, 43.4 };
-        enum { k_NUM_DATA = sizeof data / sizeof *data };
+                               double&)>          sig(&alloc);
 
         for (int ii = 0; ii < k_NUM_DATA; ++ii) {
             (void) sig.connect(Functor(data[ii]));

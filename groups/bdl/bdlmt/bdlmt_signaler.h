@@ -26,6 +26,11 @@ BSLS_IDENT("$Id: $")
 // expanding a great effort to manage the lifetimes of those connections with
 // regard to the lifetimes of all objects involved.
 //
+// Note that the function signatures of all the callbacks managed by a signaler
+// must exactly match the 'PROT' template parameter with which the signaler is
+// declared, including the return value, though the return value is always
+// discarded when callbacks are called.
+//
 ///Call groups
 ///-----------
 // Slots are free to have side effects, and that can mean that some slots may
@@ -44,11 +49,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Slots lifetime
 ///--------------
-// Internally, 'bdlmt::Signaler' stores copies of connected slot objects.  A
-// slot object is destroyed after the slot is disconnected from the signaler,
-// but the exact moment is unspecified.  It is only guaranteed that the
-// lifetime of such object will not exceed the collective lifetime of the
-// signaler and all connection objects associated with to that signaler.
+// Internally, 'bdlmt::Signaler' stores copies of connected slot objects.  The
+// copy of the slot object held by is destroyed after the slot is disconnected
+// from the signaler, or after the signaler is destroyed, but the exact moment
+// is unspecified.  It is only guaranteed that the lifetime of such object will
+// not exceed the collective lifetime of the signaler and all connection
+// objects associated with to that signaler.
 //
 ///Thread safety
 ///-------------
@@ -210,8 +216,6 @@ struct Signaler_ArgumentType {
     //
     // Also provide 'NA' (Not an Argument) and 'ForwardingNA' the type that
     // forwards it.
-
-    // PUBLIC TYPES
 
   private:
     // PRIVATE TYPES
@@ -468,10 +472,9 @@ class Signaler_SlotNode_Base {
 template <class PROT>
 class Signaler_SlotNode : public Signaler_SlotNode_Base {
     // Dynamically-allocated container for one slot, containing a function
-    // pointer or functor that can be called by a signaler.  Owned by a shared
-    // pointer in a skip list container in the 'Signaler_Node'.  Also referred
-    // to by weak pointers from 'SignalerConnector' and
-    // 'SignalerScopedConnector' objects.
+    // object that can be called by a signaler.  Owned by a shared pointer in a
+    // skip list container in the 'Signaler_Node'.  Also referred to by weak
+    // pointers from 'SignalerConnector' and 'SignalerScopedConnector' objects.
 
   private:
     // PRIVATE TYPES
@@ -834,7 +837,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // disconnected.
         //
         // Note also that this function does block pending completion of
-        // already disconnected, but still executing slots.
+        // already disconnected, but still executing, slots.
 
     void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots connected to this signaler, if any.
@@ -863,7 +866,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // disconnected.
         //
         // Note also that this function does block pending completion of
-        // already disconnected, but still executing slots.
+        // already disconnected, but still executing, slots.
 
   public:
     // ACCESSORS
@@ -1102,9 +1105,9 @@ class SignalerScopedConnection : public SignalerConnection {
 // to a connection to a slot.  The 'less than' and 'greater than' relationships
 // are transitive and will form an ordering of a set of non-equivalent
 // connections, but the specific ordering is arbitrary and not predictable by
-// the client.  Note that neither state of a connection nor its ordering change
-// when it is disconnected.  Releasing a connection sets it to a
-// default-constructed value.
+// the client.  Note a connection's ordering does not change when it is
+// disconnected.  Releasing a connection sets it to a default-constructed
+// value.
 
 bool operator==(const SignalerConnection& lhs,
                 const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
@@ -1719,8 +1722,8 @@ void Signaler_Node<PROT>::invoke(
         if (0 != d_slotMap.skipForward(&slotHandle)) {
             // 'slot' has been removed from the skip list and we can't use the
             // 'next' pointers to get to the next node, but we can still access
-            // 'slotMapKey' to tell us where we were and use random access to
-            // get to the next slot after that.
+            // 'slotMapKey' to tell us where we were and directly look up the
+            // next slot after that.
 
             if (0 != d_slotMap.findUpperBound(&slotHandle, slotMapKey)) {
                 // No slots left.  We're done.
