@@ -393,19 +393,6 @@ class Signaler_SlotNode_Base {
         // The first element of the pair is the slot call group; the second is
         // the slot ID.
 
-  protected:
-    mutable bslmt::ReaderWriterMutex d_slotMutex;
-        // The purpose of this mutex is to implement the waiting behavior of
-        // the 'disconnectAndWait()' function.
-
-    SlotMapKey                       d_slotMapKey;
-        // Slot key containing the call group and the slot ID.  Used when
-        // notifying the signaler about disconnection.
-
-    bsls::AtomicBool                 d_isConnected;
-        // Set to 'true' on construction, and to 'false' on disconnection.
-        // Used for preventing calling a slot after it has been disconnected.
-
   private:
     // NOT IMPLEMENTED
     Signaler_SlotNode_Base(           const Signaler_SlotNode_Base&)
@@ -417,15 +404,13 @@ class Signaler_SlotNode_Base {
     // CLASS METHOD
     static bsls::Types::Uint64 getId() BSLS_KEYWORD_NOEXCEPT;
         // Return an atomic '++x', where 'x' is the result of the previous
-        // invocation.  If this function is invoked for the first time, return
-        // 1.
+        // invocation, where 1 is returned from the first call.
 
   protected:
-    // CREATORS
+    // PROTECTED CREATORS
     explicit
-    Signaler_SlotNode_Base(SlotMapKey slotMapKey);
-        // Create a 'Signaler_SlotNodebase' object based on the specified
-        // 'slotMapKey'.
+    Signaler_SlotNode_Base();
+        // Create a 'Signaler_SlotNodebase' object.
 
     virtual ~Signaler_SlotNode_Base();
         // Virtual d'tor.
@@ -441,7 +426,7 @@ class Signaler_SlotNode_Base {
         // will not be invoked from another thread after this function
         // completes.
 
-    void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT;
+    virtual void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT = 0;
         // Disconnect this slot and block the calling thread pending its
         // completion.  If the slot was already disconnected, this function has
         // no effect.  The behavior is undefined if this function is invoked
@@ -454,13 +439,8 @@ class Signaler_SlotNode_Base {
         // Note also that this function does block pending completion of this
         // slot, even if it is already disconnected.
 
-    void notifyDisconnected() BSLS_KEYWORD_NOEXCEPT;
-        // Notify this slot that is was disconnected from its associated
-        // signaler.  After this function completes, 'isConnected()' returns
-        // 'false'.
-
-    // ACCESSORS
-    bool isConnected() const BSLS_KEYWORD_NOEXCEPT;
+    // ACCESSOR
+    virtual bool isConnected() const BSLS_KEYWORD_NOEXCEPT = 0;
         // Return 'true' if this slot is connected to its associated signaler,
         // and 'false' otherwise.
 };
@@ -484,10 +464,22 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
 
   private:
     // PRIVATE DATA
-    bsl::weak_ptr<SignalerNode>  d_signalerNodePtr;
+    mutable bslmt::ReaderWriterMutex d_slotMutex;
+        // The purpose of this mutex is to implement the waiting behavior of
+        // the 'disconnectAndWait()' function.
+
+    SlotMapKey                       d_slotMapKey;
+        // Slot key containing the call group and the slot ID.  Used when
+        // notifying the signaler about disconnection.
+
+    bsls::AtomicBool                 d_isConnected;
+        // Set to 'true' on construction, and to 'false' on disconnection.
+        // Used for preventing calling a slot after it has been disconnected.
+
+    bsl::weak_ptr<SignalerNode>      d_signalerNodePtr;
         // Weak reference to the associated signaler node.
 
-    bsl::function<PROT>          d_func;
+    bsl::function<PROT>              d_func;
         // The target callback.
 
   private:
@@ -498,10 +490,6 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
                                                           BSLS_KEYWORD_DELETED;
 
   private:
-    // PRIVATE MANIPULATORS
-    virtual void disconnect() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Implements 'Signaler_SlotNode_Base::disconnect()'.
-
     // PRIVATE ACCESSORS
     void doInvoke(bsl::integral_constant<int, 0>, // arguments count tag
                   ForwardingNA,
@@ -625,6 +613,34 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
         // Destroy this object.
 
   public:
+    // MANIPULATOR
+    void disconnect() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Disconnect this slot.  If the slot was already disconnected, this
+        // function has no effect.
+        //
+        // Note that this function does not block the calling thread pending
+        // completion of the slot.  There is also no guarantee that this slot
+        // will not be invoked from another thread after this function
+        // completes.
+
+    void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Disconnect this slot and block the calling thread pending its
+        // completion.  If the slot was already disconnected, this function has
+        // no effect.  The behavior is undefined if this function is invoked
+        // recursively from this slot, and unless the caller holds a shared
+        // pointer to this object.
+        //
+        // Note that it is guaranteed that this slot will not be invoked after
+        // this function completes.
+        //
+        // Note also that this function does block pending completion of this
+        // slot, even if it is already disconnected.
+
+    void notifyDisconnected() BSLS_KEYWORD_NOEXCEPT;
+        // Notify this slot that is was disconnected from its associated
+        // signaler.  After this function completes, 'isConnected()' returns
+        // 'false'.
+
     // ACCESSORS
     void invoke(typename ArgumentType::ForwardingType1 a1,
                 typename ArgumentType::ForwardingType2 a2,
@@ -640,6 +656,10 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
         // that the actual number of arguments passed to 'c' is equal to the
         // number of arguments for 'PROT'.  If this slot is disconnected, this
         // function has no effect.
+
+    bool isConnected() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Return 'true' if this slot is connected to its associated signaler,
+        // and 'false' otherwise.
 };
 
                             // ===================
@@ -1105,7 +1125,7 @@ class SignalerScopedConnection : public SignalerConnection {
 // to a connection to a slot.  The 'less than' and 'greater than' relationships
 // are transitive and will form an ordering of a set of non-equivalent
 // connections, but the specific ordering is arbitrary and not predictable by
-// the client.  Note a connection's ordering does not change when it is
+// the client.  Note that a connection's ordering does not change when it is
 // disconnected.  Releasing a connection sets it to a default-constructed
 // value.
 
@@ -1397,23 +1417,6 @@ Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8, A9)>::
                             // class Signaler_SlotNode
                             // -----------------------
 
-// PRIVATE MANIPULATORS
-template <class PROT>
-void Signaler_SlotNode<PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
-{
-    if (!d_isConnected.testAndSwap(true, false)) {
-        // Already disconnected.  Do nothing.
-
-        return;                                                       // RETURN
-    }
-
-    // Notify the associated signaler
-
-    bsl::shared_ptr<SignalerNode> signalerNodePtr = d_signalerNodePtr.lock();
-    if (signalerNodePtr) {
-        signalerNodePtr->notifyDisconnected(d_slotMapKey);
-    }
-}
 
 // PRIVATE ACCESSORS
 template <class PROT>
@@ -1612,7 +1615,10 @@ Signaler_SlotNode<PROT>::Signaler_SlotNode(
                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  func,
                       SlotMapKey                               slotMapKey,
                       bslma::Allocator                        *allocator)
-: Signaler_SlotNode_Base(slotMapKey)
+: Signaler_SlotNode_Base()
+, d_slotMutex()
+, d_slotMapKey(slotMapKey)
+, d_isConnected(true)
 , d_signalerNodePtr(signalerNodePtr)
 , d_func(bsl::allocator_arg,
          allocator,
@@ -1629,6 +1635,43 @@ Signaler_SlotNode<PROT>::~Signaler_SlotNode()
 }
 
 // MANIPULATORS
+template <class PROT>
+void Signaler_SlotNode<PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
+{
+    if (!d_isConnected.testAndSwap(true, false)) {
+        // Already disconnected.  Do nothing.
+
+        return;                                                       // RETURN
+    }
+
+    // Notify the associated signaler
+
+    bsl::shared_ptr<SignalerNode> signalerNodePtr = d_signalerNodePtr.lock();
+    if (signalerNodePtr) {
+        signalerNodePtr->notifyDisconnected(d_slotMapKey);
+    }
+}
+
+template <class PROT>
+inline
+void Signaler_SlotNode<PROT>::disconnectAndWait() BSLS_CPP11_NOEXCEPT
+{
+    // Disconnect the slot.
+
+    disconnect();
+
+    // Synchronize with the call operator.
+
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_slotMutex); // LOCK
+}
+
+template <class PROT>
+inline
+void Signaler_SlotNode<PROT>::notifyDisconnected() BSLS_CPP11_NOEXCEPT
+{
+    d_isConnected = false;
+}
+
 template <class PROT>
 inline
 void Signaler_SlotNode<PROT>::invoke(
@@ -1662,6 +1705,14 @@ void Signaler_SlotNode<PROT>::invoke(
 
     doInvoke(bsl::integral_constant<int, AL::LENGTH>(),
              a1, a2, a3, a4, a5, a6, a7, a8, a9);
+}
+
+// ACCESSORS
+template <class PROT>
+inline
+bool Signaler_SlotNode<PROT>::isConnected() const BSLS_CPP11_NOEXCEPT
+{
+    return d_isConnected;
 }
 
                             // -------------------

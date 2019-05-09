@@ -25,10 +25,7 @@ bsls::Types::Uint64 Signaler_SlotNode_Base::getId() BSLS_CPP11_NOEXCEPT
 
 
 // CREATORS
-Signaler_SlotNode_Base::Signaler_SlotNode_Base(SlotMapKey slotMapKey)
-: d_slotMutex()
-, d_slotMapKey(slotMapKey)
-, d_isConnected(true)
+Signaler_SlotNode_Base::Signaler_SlotNode_Base()
 {
     // Nothing.
 }
@@ -37,30 +34,6 @@ Signaler_SlotNode_Base::~Signaler_SlotNode_Base()
 {
     // Nothing.
 }
-
-// MANIPULATORS
-void Signaler_SlotNode_Base::disconnectAndWait() BSLS_CPP11_NOEXCEPT
-{
-    // Disconnect the slot.
-
-    disconnect();
-
-    // Synchronize with the call operator.
-
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_slotMutex); // LOCK
-}
-
-void Signaler_SlotNode_Base::notifyDisconnected() BSLS_CPP11_NOEXCEPT
-{
-    d_isConnected = false;
-}
-
-// ACCESSORS
-bool Signaler_SlotNode_Base::isConnected() const BSLS_CPP11_NOEXCEPT
-{
-    return d_isConnected;
-}
-
 
                           // ------------------------
                           // class SignalerConnection
