@@ -46,14 +46,25 @@ using bsl::flush;
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
-//                              Overview
-//                              --------
-//
+// [ 1] Signaler::creators
+// [ 2] Signaler::~Signaler
+// [ 3] Signaler::operator()
+// [ 4] Signaler::connect
+// [ 5] Signaler::disconnectGroup
+// [ 6] Signaler::disconnectGroupAndWait
+// [ 7] Signaler::disconnectAllSlots
+// [ 8] Signaler::disconnectAllSlotsAndWait
+// [ 9] Signaler::slotCount
+// [10] SignalerConnection::creators
+// [11] SignalerConnection::assignment
+// [12] SignalerConnection::disconnect
+// [13] SignalerConnection::disconnectAndWait
+// [14] SignalerConnection::release
+// [15] SignalerConnection::swap
+// [16] SignalerConnection::isConnected
+// [17] operator() -- 9 args with lvalues
+// [18] Usage example
 // ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-//
-// [17] Usage example
-
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1026,9 +1037,9 @@ static void test4_signaler_connect()
     }
 }
 
-static void test5_signaler_disconnect()
+static void test5_signaler_disconnectGroup()
     // ------------------------------------------------------------------------
-    // SIGNALER DISCONNECT
+    // SIGNALER DISCONNECT GROUP
     //
     // Concerns:
     //   Ensure proper behavior of the 'disconnect' method.
@@ -1069,7 +1080,7 @@ static void test5_signaler_disconnect()
         bdlmt::Signaler<void()> sig(&alloc);
 
         // disconnect all
-        sig.disconnect(0);
+        sig.disconnectGroup(0);
 
         // nothing happened
         ASSERT_EQ(sig.slotCount(), 0u);
@@ -1092,7 +1103,7 @@ static void test5_signaler_disconnect()
         bdlmt::SignalerConnection con6 = sig.connect(u::NoOp(), 2);
 
         // disconnect slots in group '1'
-        sig.disconnect(1);
+        sig.disconnectGroup(1);
 
         // slots in group '1' were disconnected
         ASSERT_EQ(sig.slotCount(),    4u);
@@ -1118,18 +1129,18 @@ static void test5_signaler_disconnect()
         // the first slot in this group disconnects group '0'
         // the second slot in this group disconnects group '2'
         bdlmt::SignalerConnection con3 = sig.connect(
-                                     bdlf::BindUtil::bind(
-                                          &bdlmt::Signaler<void()>::disconnect,
-                                          &sig,
-                                          0),
-                                     1);
+                                bdlf::BindUtil::bind(
+                                     &bdlmt::Signaler<void()>::disconnectGroup,
+                                     &sig,
+                                     0),
+                                1);
 
         bdlmt::SignalerConnection con4 = sig.connect(
-                                     bdlf::BindUtil::bind(
-                                          &bdlmt::Signaler<void()>::disconnect,
-                                          &sig,
-                                          2),
-                                     1);
+                                bdlf::BindUtil::bind(
+                                     &bdlmt::Signaler<void()>::disconnectGroup,
+                                     &sig,
+                                     2),
+                                1);
 
         // connect slots with group '2'
         bdlmt::SignalerConnection con5 = sig.connect(u::NoOp(), 2);
@@ -1163,11 +1174,11 @@ static void test5_signaler_disconnect()
         bdlmt::SignalerConnection con3 = sig.connect(u::NoOp(), 1);
 
         bdlmt::SignalerConnection con4 = sig.connect(
-                                     bdlf::BindUtil::bind(
-                                          &bdlmt::Signaler<void()>::disconnect,
-                                          &sig,
-                                          1),
-                                     1);
+                                bdlf::BindUtil::bind(
+                                     &bdlmt::Signaler<void()>::disconnectGroup,
+                                     &sig,
+                                     1),
+                                1);
 
         // connect slots with group '2'
         bdlmt::SignalerConnection con5 = sig.connect(u::NoOp(), 2);
@@ -1189,29 +1200,29 @@ static void test5_signaler_disconnect()
     }
 }
 
-static void test6_signaler_disconnectAndWait()
+static void test6_signaler_disconnectGroupAndWait()
     // ------------------------------------------------------------------------
-    // SIGNALER DISCONNECT AND WAIT
+    // SIGNALER DISCONNECT GROUP AND WAIT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'disconnectAndWait' method.
+    //   Ensure proper behavior of the 'disconnectGroupAndWait' method.
     //
     // Plan:
-    //   1. Create a signaler having no connected slots. Call
-    //      'disconnectAndWait()' specifying the group 0. Check that nothing
-    //      happened.
-    //
-    //   2. Create a signaler. Connect several slots. Invoke the signaler from
-    //      thread #1, and then again, from thread #2. At the same time call
-    //      'disconnectAndWait()' from thread #0 (the main thread) specifying a
-    //      group containing several slots. Check that:
-    //      - All slots in the specified group were disconnected;
-    //      - No other slots were disconnected;
-    //      - 'disconnectAllSlotsAndWait()' have blocked the calling thread
-    //        pending completion of the currently executing slots.
+    //: 1 Create a signaler having no connected slots.  Call
+    //:   'disconnectGroupAndWait()' specifying the group 0.  Check that
+    //:   nothing happened.
+    //:
+    //: 2 Create a signaler.  Connect several slots.  Invoke the signaler from
+    //:   thread #1, and then again, from thread #2.  At the same time call
+    //:   'disconnectGroupAndWait()' from thread #0 (the main thread)
+    //:   specifying a group containing several slots.  Check that:
+    //:   o All slots in the specified group were disconnected;
+    //:   o No other slots were disconnected;
+    //:   o 'disconnectAllSlotsAndWait()' have blocked the calling thread
+    //:     pending completion of the currently executing slots.
     //
     // Testing:
-    //   bdlmt::Signaler::disconnectAndWait()
+    //   bdlmt::Signaler::disconnectGroupAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
@@ -1224,7 +1235,7 @@ static void test6_signaler_disconnectAndWait()
         bdlmt::Signaler<void()> sig(&alloc);
 
         // disconnect
-        sig.disconnectAndWait(0);
+        sig.disconnectGroupAndWait(0);
 
         // nothing happened
         ASSERT_EQ(sig.slotCount(), 0u);
@@ -1282,7 +1293,7 @@ static void test6_signaler_disconnectAndWait()
             u::DoubleTI start2 = tQueue2.popFront();
 
             // disconnect group '2' from thread #0 (the main thread)
-            sig.disconnectAndWait(2);
+            sig.disconnectGroupAndWait(2);
 
             // disconnection timestamp
             u::DoubleTI disconnectionTime = bsls::SystemTime::now(
@@ -1302,7 +1313,7 @@ static void test6_signaler_disconnectAndWait()
             ASSERTV(elapsed1, 0.4 < elapsed1);
             ASSERTV(elapsed2, 0.4 < elapsed2);
 
-            // 'disconnectAndWait()' has blocked the calling thread
+            // 'disconnectGroupAndWait()' has blocked the calling thread
             const double diff1 = disconnectionTime - start1;
             ASSERTV(diff1, diff1 >= 0.4);
             const double diff2 = disconnectionTime - start2;
@@ -2644,24 +2655,24 @@ int main(int argc, char *argv[])
 
     switch (test) {
       case  0:
-      case  1:  test1_signaler_defaultConstructor();        break;
-      case  2:  test2_signaler_destructor();                break;
-      case  3:  test3_signaler::callOperator();             break;
-      case  4:  test4_signaler_connect();                   break;
-      case  5:  test5_signaler_disconnect();                break;
-      case  6:  test6_signaler_disconnectAndWait();         break;
-      case  7:  test7_signaler_disconnectAllSlots();        break;
-      case  8:  test8_signaler_disconnectAllSlotsAndWait(); break;
-      case  9:  test9_signaler_slotCount();                 break;
-      case  10: test10_connection_creators();               break;
-      case  11: test11_connection_assignment();             break;
-      case  12: test12_connection_disconnect();             break;
-      case  13: test13_connection_disconnectAndWait();      break;
-      case  14: test14_connection_release();                break;
-      case  15: test15_connection_swap();                   break;
-      case  16: test16_connection_isConnected();            break;
-      case  17: test17_signaler::test_lvalues();            break;
-      case  18: test18_usageExample();                      break;
+      case  1:  { test1_signaler_defaultConstructor();        } break;
+      case  2:  { test2_signaler_destructor();                } break;
+      case  3:  { test3_signaler::callOperator();             } break;
+      case  4:  { test4_signaler_connect();                   } break;
+      case  5:  { test5_signaler_disconnectGroup();           } break;
+      case  6:  { test6_signaler_disconnectGroupAndWait();    } break;
+      case  7:  { test7_signaler_disconnectAllSlots();        } break;
+      case  8:  { test8_signaler_disconnectAllSlotsAndWait(); } break;
+      case  9:  { test9_signaler_slotCount();                 } break;
+      case  10: { test10_connection_creators();               } break;
+      case  11: { test11_connection_assignment();             } break;
+      case  12: { test12_connection_disconnect();             } break;
+      case  13: { test13_connection_disconnectAndWait();      } break;
+      case  14: { test14_connection_release();                } break;
+      case  15: { test15_connection_swap();                   } break;
+      case  16: { test16_connection_isConnected();            } break;
+      case  17: { test17_signaler::test_lvalues();            } break;
+      case  18: { test18_usageExample();                      } break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
 
