@@ -27,9 +27,10 @@ BSLS_IDENT("$Id: $")
 // regard to the lifetimes of all objects involved.
 //
 // Note that the function signatures of all the callbacks managed by a signaler
-// must exactly match the 'PROT' template parameter with which the signaler is
-// declared, including the return value, though the return value is always
-// discarded when callbacks are called.
+// must have arguments such that there is an implicit cast from the
+// corresponding argument in 'PROT' to the argument of the passed function, and
+// an implicit cast from the return type of the function cast to the return
+// type of 'PROT'.
 //
 ///Call groups
 ///-----------
@@ -380,18 +381,9 @@ struct Signaler_Invocable<SIGNALER, R(A1, A2, A3, A4, A5, A6, A7, A8, A9)> {
                        // ============================
 
 class Signaler_SlotNode_Base {
-    // Provides a non-template partially abstract base class for
-    // 'Signaler_SlotNode' so that the non-template classes
-    // 'SignalerConnection' and 'SignalerScopedConnection' can refer to and
-    // manipulate the associated slot, and we can implement some of
-    // 'Signaler_SlotNode' functionality in the imp file, avoiding code bloat.
-
-  public:
-    // PUBLIC TYPE
-    typedef bsl::pair<int, bsls::Types::Uint64> SlotMapKey;
-        // Defines a "key" used to index slots in an associative collection.
-        // The first element of the pair is the slot call group; the second is
-        // the slot ID.
+    // Provide a non-template protocol base class for 'Signaler_SlotNode' so
+    // 'SignlerConnection' objects, which are not templated, can refer to and
+    // manipulate 'Signaler_SlotNode' objects.
 
   private:
     // NOT IMPLEMENTED
@@ -399,12 +391,6 @@ class Signaler_SlotNode_Base {
                                                           BSLS_KEYWORD_DELETED;
     Signaler_SlotNode_Base& operator=(const Signaler_SlotNode_Base&)
                                                           BSLS_KEYWORD_DELETED;
-
-  public:
-    // CLASS METHOD
-    static bsls::Types::Uint64 getId() BSLS_KEYWORD_NOEXCEPT;
-        // Return an atomic '++x', where 'x' is the result of the previous
-        // invocation, where 1 is returned from the first call.
 
   protected:
     // PROTECTED CREATORS
@@ -461,6 +447,13 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
     typedef Signaler_ArgumentType<PROT>           ArgumentType;
     typedef typename ArgumentType::ForwardingNA   ForwardingNA;
     typedef Signaler_Node<PROT>                   SignalerNode;
+
+  public:
+    // PUBLIC TYPE
+    typedef bsl::pair<int, unsigned> SlotMapKey;
+        // Defines a "key" used to index slots in an associative collection.
+        // The first element of the pair is the slot call group; the second is
+        // the slot ID.
 
   private:
     // PRIVATE DATA
@@ -679,15 +672,12 @@ class Signaler_Node :
 
   private:
     // PRIVATE TYPES
-    typedef Signaler_SlotNode_Base                      SlotNode_Base;
     typedef Signaler_SlotNode<PROT>                     SlotNode;
-    typedef SlotNode_Base::SlotMapKey                   SlotMapKey;
+    typedef typename SlotNode::SlotMapKey               SlotMapKey;
+    typedef Signaler_ArgumentType<PROT>                 ArgumentType;
 
     typedef bdlcc::SkipList<SlotMapKey,                // [GROUP, ID] pair
                             bsl::shared_ptr<SlotNode> > KeyToSlotMap;
-
-    typedef Signaler_ArgumentType<PROT>                 ArgumentType;
-    typedef typename ArgumentType::ForwardingNA         ForwardingNA;
 
   private:
     // PRIVATE DATA
@@ -699,7 +689,13 @@ class Signaler_Node :
         // Thread-safe collection containing slots indexed (and ordered) by
         // their respective keys.
 
+    bsls::AtomicUint                  d_keyId;
+        // For supplying 'second' members of the 'SlotMapKey' values that are
+        // unique to a signaler.
+
     bslma::Allocator                 *d_allocator_p;
+        // The allocator that was passed at construction, used for 'd_slotMap'
+        // and for allocating 'SlotNode' objects.
 
   private:
     // NOT IMPLEMENTED
@@ -1724,6 +1720,7 @@ template <class PROT>
 Signaler_Node<PROT>::Signaler_Node(bslma::Allocator *allocator)
 : d_signalerMutex()
 , d_slotMap(allocator)
+, d_keyId(0)
 , d_allocator_p(allocator)
 {
     BSLS_ASSERT(allocator);
@@ -1793,7 +1790,7 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 {
     // create a key the slot will be indexed by
 
-    const SlotMapKey slotMapKey(group, SlotNode_Base::getId());
+    const SlotMapKey slotMapKey(group, ++d_keyId);
 
     // create a slot
 

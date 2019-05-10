@@ -1,8 +1,6 @@
 // bdlmt_signaler.cpp                                                 -*-C++-*-
 #include <bdlmt_signaler.h>
 
-#include <bsls_atomicoperations.h>
-
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_signaler_cpp,"$Id$ $CSID$")
 
@@ -12,17 +10,6 @@ namespace bdlmt {
                          // ----------------------------
                          // class Signaler_SlotNode_Base
                          // ----------------------------
-
-// CLASS METHOD
-bsls::Types::Uint64 Signaler_SlotNode_Base::getId() BSLS_CPP11_NOEXCEPT
-{
-    typedef BloombergLP::bsls::AtomicOperations AtomicOps;
-
-    static AtomicOps::AtomicTypes::Uint64 autoId = { 0U };
-
-    return AtomicOps::incrementUint64NvAcqRel(&autoId);
-}
-
 
 // CREATORS
 Signaler_SlotNode_Base::Signaler_SlotNode_Base()
