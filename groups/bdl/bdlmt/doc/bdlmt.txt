@@ -63,6 +63,9 @@
 : 'bdlmt_multiqueuethreadpool':
 :      Provide a pool of queues, each processed serially by a thread pool.
 :
+: 'bdlmt_signaler':
+:      Provide a container for collectively callable function objects.
+:
 : 'bdlmt_threadmultiplexor':
 :      Provide a mechanism for partitioning a collection of threads.
 :

@@ -12,14 +12,9 @@ namespace bdlmt {
                          // ----------------------------
 
 // CREATORS
-Signaler_SlotNode_Base::Signaler_SlotNode_Base()
-{
-    // Nothing.
-}
-
 Signaler_SlotNode_Base::~Signaler_SlotNode_Base()
 {
-    // Nothing.
+    // NOTHING.
 }
 
                           // ------------------------
