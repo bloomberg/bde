@@ -102,7 +102,7 @@
                 "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
                 "targets": [ "bsl" ],
                 "install": {
-                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
+                    "libbsl-rs-dev": [ "bsl" ]
                 }
             }
         ],
@@ -207,7 +207,7 @@
                 "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
                 "targets": [ "bsl" ],
                 "install": {
-                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
+                    "libbsl-rs-dev": [ "bsl" ]
                 }
             }
         ],
@@ -312,7 +312,7 @@
                 "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
                 "targets": [ "bsl" ],
                 "install": {
-                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
+                    "libbsl-rs-dev": [ "bsl" ]
                 }
             }
         ]
