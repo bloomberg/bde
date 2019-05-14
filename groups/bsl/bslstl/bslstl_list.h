@@ -728,6 +728,14 @@ class List_Iterator {
     //: o ~List_Iterator() = default;
     //: o List_Iterator& operator=(const List_Iterator&) = default;
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    ~List_Iterator() = default;
+        // Default compiler-generated destructor.
+
+    List_Iterator& operator=(const List_Iterator&) = default;
+        // Default compiler-generated copy-assignment operator.
+#endif
+
     // MANIPULATORS
     List_Iterator& operator++();
         // Advance this iterator to the next element in the list and return its

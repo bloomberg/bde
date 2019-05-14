@@ -118,6 +118,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_removecv.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
@@ -196,7 +197,7 @@ class HashTableIterator {
         // iterator.  Note that this constructor enables converting from
         // modifiable to 'const' iterator types.
 
-    //! TreeIterator(const TreeIterator& original) = default;
+    //! HashTableIterator(const HashTableIterator& original) = default;
         // Create an iterator having the same value as the specified
         // 'original'.  Note that this operation is either defined by the
         // constructor taking 'NcIter' (if 'NcType' is the same as
@@ -205,13 +206,15 @@ class HashTableIterator {
         // using 'bsls::enableif') to avoid a duplicate declaration when
         // 'NcType' is the same as 'VALUE_TYPE'.
 
-    //! ~HashTableIterator();
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    ~HashTableIterator() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    //! HashTableIterator& operator=(const HashTableIterator& rhs);
+    HashTableIterator& operator=(const HashTableIterator& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // a return a reference providing modifiable access to this object.
+#endif
 
     HashTableIterator& operator++();
         // Move this iterator to the next node in the list and return a

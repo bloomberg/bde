@@ -402,7 +402,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // object.  The external representation must remain valid as long as it
         // is bound to this string reference.
 
-    //! StringRefImp(const StringRefImp& original) = default;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    StringRefImp(const StringRefImp& original) = default;
+#endif
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation is defined by the specified 'original'
         // object.  The external representation must remain valid as long as it
@@ -422,7 +424,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // Note that if 'startIndex' is 'original.length()' an empty string
         // reference is returned.
 
-    //! ~StringRefImp() = default;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    ~StringRefImp() = default;
+#endif
         // Destroy this object.
 
     // MANIPULATORS
