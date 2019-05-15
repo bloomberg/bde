@@ -1485,6 +1485,11 @@ class SkipList {
         // otherwise reset the value of 'item'.  Return 0 on success, and
         // 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item' is
         // no longer in the list.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
@@ -3339,6 +3344,15 @@ int SkipList<KEY, DATA>::skipForwardRaw(Pair **item) const
 
     Node **node_p = reinterpret_cast<Node **>(item);
     return skipForward(node_p);
+}
+
+                                  // Aspects
+
+template<class KEY, class DATA>
+inline
+bslma::Allocator *SkipList<KEY, DATA>::allocator() const
+{
+    return d_allocator_p;
 }
 
 }  // close package namespace

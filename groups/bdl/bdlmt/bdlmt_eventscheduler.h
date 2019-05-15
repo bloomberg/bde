@@ -820,6 +820,11 @@ class EventScheduler {
     int numRecurringEvents() const;
         // Return the number of recurring events registered with this
         // scheduler.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
 };
 
                       // ===============================
@@ -1186,6 +1191,14 @@ inline
 int EventScheduler::numRecurringEvents() const
 {
     return d_recurringQueue.length();
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *EventScheduler::allocator() const
+{
+    return d_eventQueue.allocator();
 }
 
 }  // close package namespace

@@ -276,10 +276,11 @@ int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
     bslmt::ThreadAttributes modAttr(threadAttributes);
     modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
 
-    if (bslmt::ThreadUtil::create(
+    if (bslmt::ThreadUtil::createWithAllocator(
                 &d_dispatcherThread,
                 modAttr,
-                bdlf::BindUtil::bind(&EventScheduler::dispatchEvents, this))) {
+                bdlf::BindUtil::bind(&EventScheduler::dispatchEvents, this),
+                allocator())) {
         return -1;                                                    // RETURN
     }
 

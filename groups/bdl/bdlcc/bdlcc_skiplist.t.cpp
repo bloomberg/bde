@@ -12,7 +12,9 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_barrier.h>
 #include <bslmt_condition.h>
@@ -369,7 +371,7 @@ class SimpleScheduler
                     &d_dispatcher,
                     bdlf::BindUtil::bind(&SimpleScheduler::dispatcherThread,
                                         this));
-        BSLS_ASSERT(0 == rc);
+        BSLS_ASSERT(0 == rc);  (void)rc;
         d_startBarrier.wait();
     }
 
@@ -787,7 +789,40 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING 'allocator' ACCESSOR
+        //
+        // Concern:
+        //   That the 'allocator' accessor correctly returns the allocator
+        //   suplied at construction.
+        //
+        // Plan:
+        //   Create objects with different allocators, and verify that the
+        //   value returned by the 'allocator' accessor is as expected.
+        //
+        // Testing:
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << "TESTING 'allocator' ACCESSOR\n"
+                             "============================\n";
+
+        typedef bdlcc::SkipList<int, bsl::string> SkipList;
+
+        {
+            SkipList mX;  const SkipList& X = mX;
+
+            ASSERT(bslma::Default::defaultAllocator() == X.allocator());
+        }
+        {
+            bslma::TestAllocator oa("supplied");
+
+            SkipList mX(&oa);  const SkipList& X = mX;
+
+            ASSERT(&oa == X.allocator());
+        }
+      } break;
       case 26: {
         DATA VALUES1[] = {
             // line,  key,  data,  level
@@ -2483,7 +2518,7 @@ int main(int argc, char *argv[])
             Obj.add(0, "Hi");
             ASSERT(!Obj.isEmpty());
             ASSERT(1 == Obj.length());
-            SkipList::Pair *h;
+            SkipList::Pair *h = 0;
             int ret = Obj.popFrontRaw(&h);
             ASSERT(ret==0);
             ASSERT(Obj.isEmpty());
@@ -2502,7 +2537,7 @@ int main(int argc, char *argv[])
             ASSERT(4 == Obj2.length());
             ASSERT(!Obj2.isEmpty());
 
-            bdlcc::SkipList<int, bsl::string>::Pair *h2;
+            bdlcc::SkipList<int, bsl::string>::Pair *h2 = 0;
             ret = Obj2.popFrontRaw(&h2);
             LOOP_ASSERT(Obj2.length(), 3 == Obj2.length());
             ASSERT(ret==0);

@@ -19,6 +19,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -114,13 +115,14 @@ using namespace bsl;  // automatically added by script
 // ACCESSORS
 // [21] bsls::SystemClockType::Enum clockType() const;
 // [23] bsls::TimeInterval now() const;
+// [24] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
-// [24] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -320,7 +322,7 @@ static void executeInParallel(int                               numThreads,
                                      new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
-    for (int i = 0; i < numThreads; ++i) {
+    for (bsls::Types::IntPtr i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
@@ -1103,7 +1105,8 @@ int numBitsRequired(int maxValue)
 {
     ASSERT(0 <= maxValue);
 
-    return (sizeof(maxValue) * CHAR_BIT) - bdlb::BitUtil::numLeadingUnsetBits(
+    return (  static_cast<int>(sizeof(maxValue)) * CHAR_BIT)
+            - bdlb::BitUtil::numLeadingUnsetBits(
                                          static_cast<bsl::uint32_t>(maxValue));
 }
 
@@ -2286,7 +2289,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2345,6 +2348,38 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING 'allocator' ACCESSOR
+        //
+        // Concern:
+        //   That the 'allocator' accessor correctly returns the allocator
+        //   suplied at construction.
+        //
+        // Plan:
+        //   Create objects with different allocators, and verify that the
+        //   value returned by the 'allocator' accessor is as expected.
+        //
+        // Testing:
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'allocator' ACCESSOR\n"
+                             "============================\n";
+
+        {
+            Obj mX;  const Obj& X = mX;
+
+            ASSERT(bslma::Default::defaultAllocator() == X.allocator());
+        }
+        {
+            bslma::TestAllocator oa("supplied");
+
+            Obj mX(&oa);  const Obj& X = mX;
+
+            ASSERT(&oa == X.allocator());
+        }
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -2932,7 +2967,7 @@ int main(int argc, char *argv[])
                             .totalMicroseconds() << endl;
             }
 
-            int slowFunctorSize = sf.timeList().size();
+            bsl::size_t slowFunctorSize = sf.timeList().size();
 
             ASSERT(!(slowFunctorSize & 1)); // should not be odd element
             slowFunctorSize &= ~1;          // ignore odd element if there
@@ -2965,14 +3000,16 @@ int main(int argc, char *argv[])
 
             double prevTime = start_time;
             bool startOver = false;
-            for (int i = 2; i + 2 <= slowFunctorSize; ++sfit,++sfit, i += 2) {
+            for (bsl::size_t i = 2;
+                 i + 2 <= slowFunctorSize;
+                 ++sfit, ++sfit, i += 2) {
                 double diff = sfit->first - prevTime;
                 prevTime = sfit->first;
                 double offBy = diff - sf.SLEEP_SECONDS;
                 if (veryVerbose) {
                     bsls::Types::Int64 interval = sfit->second;
                     P_(i); P_(offBy); P_(interval);
-                    P(sf.tolerance(i / 2));
+                    P(sf.tolerance(static_cast<int>(i / 2)));
                 }
                 ASSERT(ii < MAX_LOOP || sf.tolerance(1) > abs(offBy));
                 if (sf.tolerance(1) <= abs(offBy)) {
@@ -2990,14 +3027,16 @@ int main(int argc, char *argv[])
             ++sfit;
             prevTime = sfit->first;
             ++sfit; ++sfit;
-            for (int i = 3; i + 2 <= slowFunctorSize; ++sfit, ++sfit, i += 2) {
+            for (bsl::size_t i = 3;
+                 i + 2 <= slowFunctorSize;
+                 ++sfit, ++sfit, i += 2) {
                 double diff = sfit->first - prevTime;
                 prevTime = sfit->first;
                 double offBy = diff - sf.SLEEP_SECONDS;
                 if (veryVerbose) {
                     bsls::Types::Int64 interval = sfit->second;
                     P_(i); P_(offBy); P_(interval);
-                    P(sf.tolerance(i / 2));
+                    P(sf.tolerance(static_cast<int>(i / 2)));
                 }
                 ASSERT(ii < MAX_LOOP || sf.tolerance(1) > abs(offBy));
                 if (sf.tolerance(1) <= abs(offBy)) {
@@ -3098,7 +3137,7 @@ int main(int argc, char *argv[])
                     // let running tasks finish, test that clock queue did not
                     // get large
 
-            int slowFunctorSize = sf.timeList().size();
+            bsl::size_t slowFunctorSize = sf.timeList().size();
 
             if (verbose) { P(slowFunctorSize); }
 
@@ -3132,9 +3171,11 @@ int main(int argc, char *argv[])
 
             // go through even elements - they should be right on time
             bool startOver = false;
-            for (int i = 0;  i+2 <= slowFunctorSize;  ++it, ++it, i += 2) {
+            for (bsl::size_t i = 0;
+                 i + 2 <= slowFunctorSize;
+                 ++it, ++it, i += 2) {
                 double diff = it->first - start_time;
-                double offBy = diff - (i / 2) * CLOCKTIME1;
+                double offBy = diff - static_cast<double>(i / 2) * CLOCKTIME1;
 
                 if (veryVerbose) { P_(i); P_(offBy); }
 
