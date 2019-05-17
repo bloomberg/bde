@@ -2794,9 +2794,8 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     void resize(size_type newLength);
     void resize(size_type newLength, VALUE_TYPE *value);
 
-    using Base::reserve;
-    using Base::shrink_to_fit;
-        // These methods can be inherited from Base without a cast.
+    void reserve(size_type newCapacity);
+    void shrink_to_fit();
 
                             // *** modifiers ***
 
@@ -2811,8 +2810,7 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
     void push_back(VALUE_TYPE *value);
 
-    using Base::pop_back;
-        // This method can be inherited from Base without a cast.
+    void pop_back();
 
     iterator emplace(const_iterator position);
 
@@ -2854,14 +2852,12 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
     void swap(vector& other);
 
-    using Base::clear;
-        // This methods can be inherited from Base without a cast.
+    void clear() BSLS_KEYWORD_NOEXCEPT;
 
     // ACCESSORS
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
 
-    using Base::max_size;
-        // This method can be inherited from Base without a cast.
+    size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
 
                              // *** iterators ***
 
@@ -2877,10 +2873,9 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
                              // *** capacity ***
 
-    using Base::size;
-    using Base::capacity;
-    using Base::empty;
-        // These methods can be inherited from Base without a cast.
+    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type capacity() const BSLS_KEYWORD_NOEXCEPT;
+    bool empty() const BSLS_KEYWORD_NOEXCEPT;
 
                           // *** element access ***
 
@@ -5798,6 +5793,32 @@ vector<VALUE_TYPE *, ALLOCATOR>::rend() BSLS_KEYWORD_NOEXCEPT
     return reverse_iterator((iterator) Base::rend().base());
 }
 
+                            // *** capacity ***
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+typename vector<VALUE_TYPE *, ALLOCATOR>::size_type
+vector<VALUE_TYPE *, ALLOCATOR>::size() const BSLS_KEYWORD_NOEXCEPT
+{
+    return Base::size();
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+typename vector<VALUE_TYPE *, ALLOCATOR>::size_type
+vector<VALUE_TYPE *, ALLOCATOR>::capacity() const BSLS_KEYWORD_NOEXCEPT
+{
+    return Base::capacity();
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+bool
+vector<VALUE_TYPE *, ALLOCATOR>::empty() const BSLS_KEYWORD_NOEXCEPT
+{
+    return Base::empty();
+}
+
                           // *** element access ***
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5856,6 +5877,20 @@ void vector<VALUE_TYPE *, ALLOCATOR>::resize(size_type   newLength,
     Base::resize(newLength, (UintPtr) value);
 }
 
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void vector<VALUE_TYPE *, ALLOCATOR>::reserve(size_type newCapacity)
+{
+    Base::reserve(newCapacity);
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void vector<VALUE_TYPE *, ALLOCATOR>::shrink_to_fit()
+{
+    Base::shrink_to_fit();
+}
+
 
                             // *** modifiers ***
 
@@ -5895,6 +5930,13 @@ inline
 void vector<VALUE_TYPE *, ALLOCATOR>::push_back(VALUE_TYPE *value)
 {
     Base::emplace_back(reinterpret_cast<UintPtr>(value));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void vector<VALUE_TYPE *, ALLOCATOR>::pop_back()
+{
+    Base::pop_back();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5994,6 +6036,13 @@ void vector<VALUE_TYPE *, ALLOCATOR>::swap(vector& other)
     Base::swap(static_cast<Base&>(other));
 }
 
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void vector<VALUE_TYPE *, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
+{
+    Base::clear();
+}
+
 
     // ACCESSORS
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6002,6 +6051,14 @@ typename vector<VALUE_TYPE *, ALLOCATOR>::allocator_type
 vector<VALUE_TYPE *, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
 {
     return ALLOCATOR(Base::get_allocator());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+typename vector<VALUE_TYPE *, ALLOCATOR>::size_type
+vector<VALUE_TYPE *, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
+{
+    return Base::max_size();
 }
 
 
