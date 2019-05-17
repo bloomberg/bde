@@ -475,10 +475,8 @@ class StripedUnorderedContainerImpl {
         // comparison function for keys
 
     mutable bsls::AtomicInt           d_state;
-        //..
-        // bit 0: 0-rehash not in progress; 1-rehash in progress.
-        // bit 1: 0-rehash disabled;        1-rehash enabled.
-        //..
+        //: o bit 0: 0-rehash not in progress; 1-rehash in progress.
+        //: o bit 1: 0-rehash disabled;        1-rehash enabled.
 
     const char                        d_statePad[k_INT_PADDING];
         // padding, so that 'd_state' will have its own cache line
