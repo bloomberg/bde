@@ -2669,25 +2669,13 @@ void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 class vector<VALUE_TYPE *, ALLOCATOR>
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-    : private vector<BloombergLP::bsls::Types::UintPtr,
-                     typename allocator_traits<ALLOCATOR>::
-                      template rebind_alloc<BloombergLP::bsls::Types::UintPtr>>
-#else
-    : private vector<BloombergLP::bsls::Types::UintPtr,
-                     typename ALLOCATOR::template rebind<
-                                     BloombergLP::bsls::Types::UintPtr>::other>
-#endif
 {
     // This partial specialization of 'vector' for pointer types to a (template
     // parameter) 'VALUE_TYPE' type is implemented in terms of
     // 'vector<UintPtr>' to reduce the amount of code generated.  Note that
     // this specialization rebinds the (template parameter) 'ALLOCATOR' type to
     // an allocator of 'UintPtr' so as to satisfy the invariant in the 'vector'
-    // base class.  Also note that members that do not need to be redefined are
-    // inherited straightforwardly from the 'Base', although if an overloaded
-    // method needs to be redefined, then all its overloads need to be
-    // redefined.  Note that the contract for all members is the same as the
+    // base class.  Note that the contract for all members is the same as the
     // primary template, so documentation is not repeated to avoid accidentally
     // introducing inconsistency over time.
 
@@ -2695,12 +2683,15 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     typedef BloombergLP::bsls::Types::UintPtr                   UintPtr;
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
     typedef typename allocator_traits<ALLOCATOR>::
-                                template rebind_alloc<UintPtr>  BaseAlloc;
+                                template rebind_alloc<UintPtr>  ImplAlloc;
 #else
-    typedef typename ALLOCATOR::template rebind<UintPtr>::other BaseAlloc;
+    typedef typename ALLOCATOR::template rebind<UintPtr>::other ImplAlloc;
 #endif
-    typedef vector<UintPtr, BaseAlloc>                          Base;
+    typedef vector<UintPtr, ImplAlloc>                          Impl;
     typedef BloombergLP::bslmf::MovableRefUtil                  MoveUtil;
+
+    // PRIVATE DATA
+    Impl d_impl;  // The 'UintPtr' vector used for the implementation.
 
   public:
     // PUBLIC TYPES
@@ -2837,9 +2828,8 @@ class vector<VALUE_TYPE *, ALLOCATOR>
         typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
                                                        INPUT_ITER>::type Iter;
 
-        return (iterator) Base::insert((const UintPtr*) position,
-                                       Iter(first),
-                                       Iter(last));
+        return (iterator)d_impl.insert(
+            (const UintPtr *)position, Iter(first), Iter(last));
     }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2893,43 +2883,43 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     friend
     bool operator==(const vector& lhs, const vector& rhs)
     {
-        return (const Base&)lhs == (const Base&)rhs;
+        return lhs.d_impl == rhs.d_impl;
     }
 
     friend
     bool operator!=(const vector& lhs, const vector& rhs)
     {
-        return (const Base&)lhs != (const Base&)rhs;
+        return lhs.d_impl != rhs.d_impl;
     }
 
     friend
     bool operator<(const vector& lhs, const vector& rhs)
     {
-        return (const Base&)lhs < (const Base&)rhs;
+        return lhs.d_impl < rhs.d_impl;
     }
 
     friend
     bool operator>(const vector& lhs, const vector& rhs)
     {
-        return (const Base&)lhs > (const Base&)rhs;
+        return lhs.d_impl > rhs.d_impl;
     }
 
     friend
     bool operator<=(const vector& lhs, const vector& rhs)
     {
-        return (const Base&)lhs <= (const Base&)rhs;
+        return lhs.d_impl <= rhs.d_impl;
     }
 
     friend
     bool operator>=(const vector& lhs, const vector& rhs)
     {
-        return (const Base&)lhs >= (const Base&)rhs;
+        return lhs.d_impl >= rhs.d_impl;
     }
 
     friend
     void swap(vector& a, vector& b) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
     {
-        static_cast<Base&>(a).swap(b);
+        a.d_impl.swap(b.d_impl);
     }
 };
 
@@ -5593,7 +5583,7 @@ void hashAppend(HASHALG& hashAlg, const vector<VALUE_TYPE, ALLOCATOR>& input)
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector() BSLS_KEYWORD_NOEXCEPT
-: Base()
+: d_impl()
 {
 }
 
@@ -5601,7 +5591,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(const ALLOCATOR& basicAllocator)
                                                           BSLS_KEYWORD_NOEXCEPT
-: Base(BaseAlloc(basicAllocator))
+: d_impl(ImplAlloc(basicAllocator))
 {
 }
 
@@ -5609,7 +5599,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(size_type        initialSize,
                                         const ALLOCATOR& basicAllocator)
-: Base(initialSize, BaseAlloc(basicAllocator))
+: d_impl(initialSize, ImplAlloc(basicAllocator))
 {
 }
 
@@ -5618,7 +5608,7 @@ inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(size_type         initialSize,
                                         VALUE_TYPE       *value,
                                         const ALLOCATOR&  basicAllocator)
-: Base(initialSize, (UintPtr) value, BaseAlloc(basicAllocator))
+: d_impl(initialSize, (UintPtr) value, ImplAlloc(basicAllocator))
 {
 }
 
@@ -5628,18 +5618,18 @@ inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(INPUT_ITER       first,
                                         INPUT_ITER       last,
                                         const ALLOCATOR& basicAllocator)
-: Base(typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
-                                              INPUT_ITER>::type(first),
-       typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
-                                              INPUT_ITER>::type(last),
-       basicAllocator)
+: d_impl(typename vector_ForwardIteratorForPtrs<VALUE_TYPE, INPUT_ITER>::type(
+             first),
+         typename vector_ForwardIteratorForPtrs<VALUE_TYPE, INPUT_ITER>::type(
+             last),
+         basicAllocator)
 {
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector& original)
-: Base(original)
+: d_impl(original.d_impl)
 {
 }
 
@@ -5648,7 +5638,7 @@ inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(
                                BloombergLP::bslmf::MovableRef<vector> original)
                                                           BSLS_KEYWORD_NOEXCEPT
-: Base(MoveUtil::move(static_cast<Base&>(original)))
+: d_impl(MoveUtil::move(original.d_impl))
 {
 }
 
@@ -5656,7 +5646,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector&    original,
                                         const ALLOCATOR& basicAllocator)
-: Base(original, BaseAlloc(basicAllocator))
+: d_impl(original.d_impl, ImplAlloc(basicAllocator))
 {
 }
 
@@ -5665,8 +5655,7 @@ inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(
                          BloombergLP::bslmf::MovableRef<vector> original,
                          const ALLOCATOR&                       basicAllocator)
-: Base(MoveUtil::move(static_cast<Base&>(original)),
-       BaseAlloc(basicAllocator))
+: d_impl(MoveUtil::move(original.d_impl), ImplAlloc(basicAllocator))
 {
 }
 
@@ -5674,17 +5663,17 @@ vector<VALUE_TYPE *, ALLOCATOR>::vector(
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(
-                            std::initializer_list<VALUE_TYPE *> values,
-                            const ALLOCATOR&                    basicAllocator)
-: Base(typename vector_ForwardIteratorForPtrs<
-                   VALUE_TYPE,
-                   typename std::initializer_list<VALUE_TYPE *>::const_iterator
-                                             >::type(values.begin()),
-       typename vector_ForwardIteratorForPtrs<
-                   VALUE_TYPE,
-                   typename std::initializer_list<VALUE_TYPE *>::const_iterator
-                                             >::type(values.end()),
-       basicAllocator)
+    std::initializer_list<VALUE_TYPE *> values,
+    const ALLOCATOR&                    basicAllocator)
+: d_impl(typename vector_ForwardIteratorForPtrs<
+             VALUE_TYPE,
+             typename std::initializer_list<VALUE_TYPE *>::const_iterator>::
+             type(values.begin()),
+         typename vector_ForwardIteratorForPtrs<
+             VALUE_TYPE,
+             typename std::initializer_list<VALUE_TYPE *>::const_iterator>::
+             type(values.end()),
+         basicAllocator)
 {
 }
 #endif
@@ -5701,7 +5690,7 @@ inline
 vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
                                                              const vector& rhs)
 {
-    Base::operator=(rhs);
+    d_impl = rhs.d_impl;
     return *this;
 }
 
@@ -5711,7 +5700,7 @@ vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
                                     BloombergLP::bslmf::MovableRef<vector> rhs)
                                      BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
-    Base::operator=(MoveUtil::move(static_cast<Base&>(rhs)));
+    d_impl = MoveUtil::move(rhs.d_impl);
     return *this;
 }
 
@@ -5736,7 +5725,7 @@ void vector<VALUE_TYPE *, ALLOCATOR>::assign(
     typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE, InitIter>::type
                                                                           Iter;
 
-    Base::assign(Iter(values.begin()), Iter(values.end()));
+    d_impl.assign(Iter(values.begin()), Iter(values.end()));
 }
 #endif
 
@@ -5748,7 +5737,7 @@ void vector<VALUE_TYPE *, ALLOCATOR>::assign(INPUT_ITER first, INPUT_ITER last)
     typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
                                                    INPUT_ITER>::type Iter;
 
-    Base::assign(Iter(first), Iter(last));
+    d_impl.assign(Iter(first), Iter(last));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5756,7 +5745,7 @@ inline
 void vector<VALUE_TYPE *, ALLOCATOR>::assign(size_type   numElements,
                                              VALUE_TYPE *value)
 {
-    Base::assign(numElements, (UintPtr) value);
+    d_impl.assign(numElements, (UintPtr) value);
 }
 
                              // *** iterators ***
@@ -5766,7 +5755,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::begin() BSLS_KEYWORD_NOEXCEPT
 {
-    return (iterator) Base::begin();
+    return (iterator) d_impl.begin();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5774,7 +5763,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::end() BSLS_KEYWORD_NOEXCEPT
 {
-    return (iterator) Base::end();
+    return (iterator) d_impl.end();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5782,7 +5771,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reverse_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::rbegin() BSLS_KEYWORD_NOEXCEPT
 {
-    return reverse_iterator((iterator) Base::rbegin().base());
+    return reverse_iterator((iterator) d_impl.rbegin().base());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5790,7 +5779,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reverse_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::rend() BSLS_KEYWORD_NOEXCEPT
 {
-    return reverse_iterator((iterator) Base::rend().base());
+    return reverse_iterator((iterator) d_impl.rend().base());
 }
 
                             // *** capacity ***
@@ -5800,7 +5789,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::size_type
 vector<VALUE_TYPE *, ALLOCATOR>::size() const BSLS_KEYWORD_NOEXCEPT
 {
-    return Base::size();
+    return d_impl.size();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5808,7 +5797,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::size_type
 vector<VALUE_TYPE *, ALLOCATOR>::capacity() const BSLS_KEYWORD_NOEXCEPT
 {
-    return Base::capacity();
+    return d_impl.capacity();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5816,7 +5805,7 @@ inline
 bool
 vector<VALUE_TYPE *, ALLOCATOR>::empty() const BSLS_KEYWORD_NOEXCEPT
 {
-    return Base::empty();
+    return d_impl.empty();
 }
 
                           // *** element access ***
@@ -5826,7 +5815,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::operator[](size_type position)
 {
-    return (reference) Base::operator[](position);
+    return (reference) d_impl.operator[](position);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5834,7 +5823,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::at(size_type position)
 {
-    return (reference) Base::at(position);
+    return (reference) d_impl.at(position);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5842,7 +5831,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::front()
 {
-    return (reference) Base::front();
+    return (reference) d_impl.front();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5850,14 +5839,14 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::back()
 {
-    return (reference) Base::back();
+    return (reference) d_impl.back();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 VALUE_TYPE **vector<VALUE_TYPE *, ALLOCATOR>::data() BSLS_KEYWORD_NOEXCEPT
 {
-    return (VALUE_TYPE **) Base::data();
+    return (VALUE_TYPE **) d_impl.data();
 }
 
                              // *** capacity ***
@@ -5866,7 +5855,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::resize(size_type newLength)
 {
-    Base::resize(newLength);
+    d_impl.resize(newLength);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5874,21 +5863,21 @@ inline
 void vector<VALUE_TYPE *, ALLOCATOR>::resize(size_type   newLength,
                                              VALUE_TYPE *value)
 {
-    Base::resize(newLength, (UintPtr) value);
+    d_impl.resize(newLength, (UintPtr) value);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::reserve(size_type newCapacity)
 {
-    Base::reserve(newCapacity);
+    d_impl.reserve(newCapacity);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::shrink_to_fit()
 {
-    Base::shrink_to_fit();
+    d_impl.shrink_to_fit();
 }
 
 
@@ -5899,7 +5888,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::emplace_back()
 {
-    Base::emplace_back();
+    d_impl.emplace_back();
     return back();
 }
 
@@ -5911,7 +5900,7 @@ typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(ARG&& arg)
 {
     VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
-    Base::emplace_back(reinterpret_cast<UintPtr>(ptr));
+    d_impl.emplace_back(reinterpret_cast<UintPtr>(ptr));
     return back();
 }
 # else
@@ -5920,7 +5909,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(VALUE_TYPE *ptr)
 {
-    Base::emplace_back(reinterpret_cast<UintPtr>(ptr));
+    d_impl.emplace_back(reinterpret_cast<UintPtr>(ptr));
     return back();
 }
 # endif
@@ -5929,14 +5918,14 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::push_back(VALUE_TYPE *value)
 {
-    Base::emplace_back(reinterpret_cast<UintPtr>(value));
+    d_impl.emplace_back(reinterpret_cast<UintPtr>(value));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::pop_back()
 {
-    Base::pop_back();
+    d_impl.pop_back();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5944,7 +5933,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::emplace(const_iterator position)
 {
-    return (iterator) Base::emplace((const UintPtr*) position);
+    return (iterator) d_impl.emplace((const UintPtr*) position);
 }
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -5955,8 +5944,8 @@ typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::emplace(const_iterator position, ARG&& arg)
 {
     VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
-    return (iterator) Base::emplace((const UintPtr*) position,
-                                    reinterpret_cast<UintPtr>(ptr));
+    return (iterator) d_impl.emplace((const UintPtr *)position,
+                                     reinterpret_cast<UintPtr>(ptr));
 }
 # else
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5965,8 +5954,8 @@ typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::emplace(const_iterator  position,
                                          VALUE_TYPE     *ptr)
 {
-    return (iterator) Base::emplace((const UintPtr*) position,
-                                    reinterpret_cast<UintPtr>(ptr));
+    return (iterator) d_impl.emplace((const UintPtr*) position,
+                                     reinterpret_cast<UintPtr>(ptr));
 }
 # endif
 
@@ -5976,8 +5965,8 @@ typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::insert(const_iterator  position,
                                         VALUE_TYPE     *value)
 {
-    return (iterator) Base::emplace((const UintPtr*) position,
-                                    reinterpret_cast<UintPtr>(value));
+    return (iterator) d_impl.emplace((const UintPtr*) position,
+                                     reinterpret_cast<UintPtr>(value));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5987,8 +5976,8 @@ vector<VALUE_TYPE *, ALLOCATOR>::insert(const_iterator  position,
                                         size_type       numElements,
                                         VALUE_TYPE     *value)
 {
-    return (iterator) Base::insert((const UintPtr*) position, numElements,
-                                   (UintPtr) value);
+    return (iterator) d_impl.insert(
+        (const UintPtr *)position, numElements, (UintPtr)value);
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -6005,9 +5994,8 @@ vector<VALUE_TYPE *, ALLOCATOR>::insert(
     typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE, InitIter>::type
                                                                           Iter;
 
-    return (iterator) Base::insert((const UintPtr*) position,
-                                   Iter(values.begin()),
-                                   Iter(values.end()));
+    return (iterator) d_impl.insert(
+        (const UintPtr *)position, Iter(values.begin()), Iter(values.end()));
 }
 #endif
 
@@ -6016,7 +6004,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::erase(const_iterator position)
 {
-    return (iterator) Base::erase((const UintPtr*) position);
+    return (iterator) d_impl.erase((const UintPtr*) position);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6025,22 +6013,22 @@ typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
 vector<VALUE_TYPE *, ALLOCATOR>::erase(const_iterator first,
                                        const_iterator last)
 {
-    return (iterator) Base::erase((const UintPtr*) first,
-                                  (const UintPtr*) last);
+    return (iterator) d_impl.erase((const UintPtr*) first,
+                                   (const UintPtr*) last);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::swap(vector& other)
 {
-    Base::swap(static_cast<Base&>(other));
+    d_impl.swap(other.d_impl);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 {
-    Base::clear();
+    d_impl.clear();
 }
 
 
@@ -6050,7 +6038,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::allocator_type
 vector<VALUE_TYPE *, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
 {
-    return ALLOCATOR(Base::get_allocator());
+    return ALLOCATOR(d_impl.get_allocator());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6058,7 +6046,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::size_type
 vector<VALUE_TYPE *, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
 {
-    return Base::max_size();
+    return d_impl.max_size();
 }
 
 
@@ -6069,7 +6057,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
 {
-    return (const_iterator) Base::begin();
+    return (const_iterator) d_impl.begin();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6077,7 +6065,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 {
-    return (const_iterator) Base::cbegin();
+    return (const_iterator) d_impl.cbegin();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6085,7 +6073,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
 {
-    return (const_iterator) Base::end();
+    return (const_iterator) d_impl.end();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6093,7 +6081,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
 {
-    return (const_iterator) Base::cend();
+    return (const_iterator) d_impl.cend();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6101,7 +6089,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 {
-    return const_reverse_iterator((const_iterator) Base::rbegin().base());
+    return const_reverse_iterator((const_iterator) d_impl.rbegin().base());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6109,7 +6097,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 {
-    return const_reverse_iterator((const_iterator) Base::crbegin().base());
+    return const_reverse_iterator((const_iterator) d_impl.crbegin().base());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6117,7 +6105,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::rend() const BSLS_KEYWORD_NOEXCEPT
 {
-    return const_reverse_iterator((const_iterator) Base::rend().base());
+    return const_reverse_iterator((const_iterator) d_impl.rend().base());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6125,7 +6113,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
 vector<VALUE_TYPE *, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
 {
-    return const_reverse_iterator((const_iterator) Base::crend().base());
+    return const_reverse_iterator((const_iterator) d_impl.crend().base());
 }
 
 
@@ -6136,7 +6124,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
 vector<VALUE_TYPE *, ALLOCATOR>::operator[](size_type position) const
 {
-    return (const_reference) Base::operator[](position);
+    return (const_reference) d_impl.operator[](position);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6144,7 +6132,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
 vector<VALUE_TYPE *, ALLOCATOR>::at(size_type position) const
 {
-    return (const_reference) Base::at(position);
+    return (const_reference) d_impl.at(position);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6152,7 +6140,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
 vector<VALUE_TYPE *, ALLOCATOR>::front() const
 {
-    return (const_reference) Base::front();
+    return (const_reference) d_impl.front();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6160,7 +6148,7 @@ inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
 vector<VALUE_TYPE *, ALLOCATOR>::back() const
 {
-    return (const_reference) Base::back();
+    return (const_reference) d_impl.back();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6168,7 +6156,7 @@ inline
 VALUE_TYPE *const *vector<VALUE_TYPE *, ALLOCATOR>::data() const
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return (VALUE_TYPE *const *) Base::data();
+    return (VALUE_TYPE *const *) d_impl.data();
 }
 
 
