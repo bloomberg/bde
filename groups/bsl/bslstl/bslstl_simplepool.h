@@ -208,7 +208,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 
-#include <algorithm>       // 'std::swap'
+#include <algorithm>  // swap (C++03)
+#include <utility>    // swap (C++17)
 
 namespace BloombergLP {
 namespace bslstl {

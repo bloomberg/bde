@@ -1528,13 +1528,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-#include <algorithm>  // for fill_n, max
-
-#include <cstddef> // for 'size_t'
-
-#include <cstring> // for 'memset'
-
-#include <limits>  // for numeric_limits
+#include <algorithm>  // for fill_n, max, swap (C++03)
+#include <cstddef>    // for 'size_t'
+#include <cstring>    // for 'memset'
+#include <limits>     // for numeric_limits
+#include <utility>    // for swap (C++17)
 
 namespace BloombergLP {
 
