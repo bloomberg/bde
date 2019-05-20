@@ -11,6 +11,7 @@
 #include <bdlde_charconvertutf32.h>
 
 #include <bdlde_charconvertstatus.h>
+#include <bdlde_utf8util.h>
 
 #include <bdlb_random.h>
 
@@ -193,8 +194,9 @@ bool aSsErT(int c, const char *s, int i)
 
 typedef bdlde::CharConvertUtf32  Util;
 typedef bdlde::CharConvertStatus Status;
-typedef bsls::Types::UintPtr    UintPtr;
-typedef bsls::Types::IntPtr     IntPtr;
+typedef bdlde::Utf8Util          Utf8Util;
+typedef bsls::Types::UintPtr     UintPtr;
+typedef bsls::Types::IntPtr      IntPtr;
 
 // ============================================================================
 //                           CUSTOM TEST APPARATUS
@@ -2249,6 +2251,27 @@ bsl::string dumpVec(const bsl::vector<int>& vec)
     return oss.str();
 }
 
+bsl::string dumpVec(const bsl::vector<unsigned int>& vec)
+{
+    const bsl::vector<int> *p = reinterpret_cast<const bsl::vector<int> *>(
+                                                                         &vec);
+    return dumpVec(*p);
+}
+
+bsl::string dumpVec(const bsl::vector<char>& vec)
+{
+    if (vec.empty()) {
+        return "";                                                    // RETURN
+    }
+
+    bsl::string ret(&vec[0], vec.size());
+    if ('\0' == vec[vec.size() - 1]) {
+        ret.resize(ret.length() - 1);
+    }
+
+    return ret;
+}
+
                                 // -------
                                 // CASE -1
                                 // -------
@@ -2884,20 +2907,30 @@ int main(int argc, char **argv)
         sw.start();
 
         bsl::string               utf8InStr;
+        bsl::string               utf8ExpStr;
+        bsl::string               utf8OutStr;
+        bsl::size_t               utf8ExpNumBytesWritten;
         bsl::vector<unsigned int> utf32ExpVec;
         bsl::vector<unsigned int> utf32OutVec;
         bsl::vector<int>          idxVec;
 
+        bsl::vector<char>         utf8OutVec;
+        bsl::vector<char>         utf8ExpVec;
+
         enum { UNICODE_CODE_POINTS_MOD = 6 };
 
-        for (int ti = 0; ti < 50 * 1000; ++ti) {
+        for (int ti = 0; ti < 25 * 1000; ++ti) {
             const int  numCodePointsIn =
                                       myRand15() % UNICODE_CODE_POINTS_MOD + 1;
-            const bool opposite  = ti & 1;
-
+            const bool opposite        = ti & 1;
+            unsigned int errorChar32 = 0x20 + myRand15() % (128-0x20);
+            ASSERT(errorChar32 < 128);
+            const char errorChar = static_cast<char>(errorChar32);
             const bdlde::ByteOrder::Enum endian = opposite
                                                 ? oppositeEndian
                                                 : bdlde::ByteOrder::e_HOST;
+
+            utf8ExpNumBytesWritten = 0;
 
             // 'nullIdx0' and 'nullIdx1' are indexes where nulls are inserted.
             // If they have a value of '-1', no null is inserted.  We are only
@@ -2917,19 +2950,25 @@ int main(int argc, char **argv)
             int expRc = 0;
             utf8InStr.clear();
             utf32ExpVec.clear();
+            utf8ExpVec.clear();
+            utf8ExpStr.clear();
             idxVec.clear();
             for (int tj = 0; true; ++tj) {
                 if (nullIdx0 == tj) {
                     utf8InStr.  push_back('\0');
+                    utf8ExpStr. push_back('\0');
                     utf32ExpVec.push_back(0);
                     idxVec.     push_back(-1);
                     prevTrunc = false;
+                    ++utf8ExpNumBytesWritten;
                 }
                 if (nullIdx1 == tj) {
                     utf8InStr.  push_back('\0');
+                    utf8ExpStr. push_back('\0');
                     utf32ExpVec.push_back(0);
                     idxVec.     push_back(-1);
                     prevTrunc = false;
+                    ++utf8ExpNumBytesWritten;
                 }
 
                 if (tj == numCodePointsIn) {
@@ -2944,33 +2983,107 @@ int main(int argc, char **argv)
                 do {
                     tableIdx = myRand15() % NUM_BETTER_UTF8_TABLE;
                 } while (prevTrunc && tableIdx < BETTER_UTF8_TABLE_CONT_IDX);
+                const BetterUtf8TableStruct& table = betterUtf8Table[tableIdx];
 
-                utf8InStr          += betterUtf8Table[tableIdx].d_utf8String;
-                utf32ExpVec.push_back(
-                           opposite ? sb(betterUtf8Table[tableIdx].d_utf32Val)
-                                    :    betterUtf8Table[tableIdx].d_utf32Val);
-                prevTrunc          =     betterUtf8Table[tableIdx].d_truncBy;
-
-                if (                     betterUtf8Table[tableIdx].d_error) {
-                    expRc = Status::k_INVALID_INPUT_BIT;
+                if (table.d_error) {
+                    utf8ExpStr .push_back(errorChar);
+                    utf32ExpVec.push_back(opposite ? sb(errorChar32)
+                                                   :    errorChar32);
+                    ++utf8ExpNumBytesWritten;
+                    expRc = bdlde::CharConvertStatus::k_INVALID_INPUT_BIT;
                 }
+                else {
+                    utf8ExpStr += table.d_utf8String;
+                    utf32ExpVec.push_back(opposite ? sb(table.d_utf32Val)
+                                                   :    table.d_utf32Val);
+                    utf8ExpNumBytesWritten += bsl::strlen(table.d_utf8String);
+                }
+
+                utf8InStr += table.d_utf8String;
+                prevTrunc =  table.d_truncBy;
 
                 idxVec.push_back(tableIdx);
             }
             utf32ExpVec.push_back(0);
+            ++utf8ExpNumBytesWritten;
 
             int rc = Util::utf8ToUtf32(&utf32OutVec,
                                        utf8InStr,
-                                       '?',
+                                       errorChar32,
                                        endian);
             ASSERT(expRc == rc);
-            LOOP3_ASSERT(dumpVec(idxVec), utf32ExpVec.size(),
-                               utf32OutVec.size(), utf32ExpVec == utf32OutVec);
+            LOOP5_ASSERT(dumpVec(idxVec), utf32ExpVec.size(),
+                utf32OutVec.size(), dumpVec(utf32ExpVec), dumpVec(utf32OutVec),
+                                                   utf32ExpVec == utf32OutVec);
+            ASSERT(!utf32OutVec.empty());
 
-            // We can't test translating the UTF-32 back to UTF-8, because
-            // there is no UTF-32 equivalent of a string ref, so there is no
-            // way to pass non-null-terminated input to a UTF-32 -> UTF-8
-            // translator.
+            bsl::size_t numCodePointsWritten = myRand15();
+            rc = Util::utf32ToUtf8(&utf8OutStr,
+                                   &utf32OutVec[0],
+                                   utf32OutVec.size() - 1,
+                                   &numCodePointsWritten,
+                                   errorChar,
+                                   endian);
+            ASSERT(0 == rc);
+            LOOP2_ASSERT(utf32OutVec.size(), numCodePointsWritten,
+                                   utf32OutVec.size() == numCodePointsWritten);
+            LOOP5_ASSERT(utf8OutStr, utf8InStr, expRc,
+                                   utf8OutStr.length(), utf8ExpNumBytesWritten,
+                            utf8OutStr.length() + 1 == utf8ExpNumBytesWritten);
+            LOOP2_ASSERT(utf8ExpStr, utf8OutStr, utf8ExpStr == utf8OutStr);
+            ASSERT(Utf8Util::isValid(&utf8OutStr[0], utf8OutStr.length()));
+
+            numCodePointsWritten = myRand15();
+            utf8ExpVec.clear();
+            utf8ExpVec.insert(utf8ExpVec.begin(),
+                              &utf8ExpStr[0],
+                              &utf8ExpStr[0] + utf8ExpStr.length() + 1);
+
+            rc = Util::utf32ToUtf8(&utf8OutVec,
+                                   &utf32OutVec[0],
+                                   utf32OutVec.size() - 1,
+                                   &numCodePointsWritten,
+                                   errorChar,
+                                   endian);
+            ASSERT(0 == rc);
+            LOOP2_ASSERT(utf32OutVec.size(), numCodePointsWritten,
+                                   utf32OutVec.size() == numCodePointsWritten);
+            LOOP5_ASSERT(utf8OutStr, utf8InStr, expRc,
+                                   utf8OutStr.length(), utf8ExpNumBytesWritten,
+                                  utf8OutVec.size() == utf8ExpNumBytesWritten);
+            LOOP3_ASSERT(errorChar, dumpVec(utf8ExpVec), dumpVec(utf8OutVec),
+                                                     utf8ExpVec == utf8OutVec);
+
+            for (bsl::size_t ii = utf8OutVec.size() + 1; 0 < ii--; ) {
+                numCodePointsWritten = myRand15();
+                bsl::size_t numBytesWritten = myRand15();
+                const char initChar = '*';
+                bsl::memset(&utf8OutVec[0], initChar, utf8OutVec.size());
+                rc = Util::utf32ToUtf8(&utf8OutVec[0],
+                                       ii,
+                                       &utf32OutVec[0],
+                                       utf32OutVec.size() - 1,
+                                       &numCodePointsWritten,
+                                       &numBytesWritten,
+                                       errorChar,
+                                       endian);
+                ASSERT(rc == (ii == utf8OutVec.size()
+                              ? 0
+                              : Status::k_OUT_OF_SPACE_BIT));
+                ASSERT(!!numCodePointsWritten == !!numBytesWritten);
+                ASSERT(!!ii                   == !!numBytesWritten);
+                ASSERT(numCodePointsWritten   <=   numBytesWritten);
+                if (numCodePointsWritten) {
+                    ASSERT('\0' == utf8OutVec[numBytesWritten - 1]);
+                    ASSERT(0 == bsl::memcmp(&utf8OutVec[0],
+                                            &utf8ExpVec[0],
+                                            numBytesWritten - 1));
+                }
+                for (bsl::size_t jj = ii; jj < utf8OutVec.size(); ++jj) {
+                    ASSERT(initChar == utf8OutVec[jj]);
+                }
+                ASSERT(Utf8Util::isValid(&utf8OutVec[0], numBytesWritten));
+            }
         }
         sw.stop();
 
