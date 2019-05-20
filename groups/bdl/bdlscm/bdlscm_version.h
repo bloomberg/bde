@@ -136,7 +136,7 @@ const char *Version::version()
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           bdlscm_version_assertion,
-                                          bdlscm::Version::BDLSCM_S_VERSION);
+                                          bdlscm::Version::BDLSCM_S_VERSION)
 
 }  // close enterprise namespace
 
