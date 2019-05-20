@@ -2243,6 +2243,8 @@ char *decodeUtf32(char *outBuf, unsigned val)
 }
 
 bsl::string dumpVec(const bsl::vector<int>& vec)
+    // Return a 'bsl::string' representation of the contents of 'vec' in
+    // human-readable form.
 {
     bsl::ostringstream oss;
     for (unsigned u = 0; u < vec.size(); ++u) {
@@ -2252,6 +2254,8 @@ bsl::string dumpVec(const bsl::vector<int>& vec)
 }
 
 bsl::string dumpVec(const bsl::vector<unsigned int>& vec)
+    // Return a 'bsl::string' representation of the contents of 'vec' in
+    // human-readable form.
 {
     const bsl::vector<int> *p = reinterpret_cast<const bsl::vector<int> *>(
                                                                          &vec);
@@ -2259,6 +2263,8 @@ bsl::string dumpVec(const bsl::vector<unsigned int>& vec)
 }
 
 bsl::string dumpVec(const bsl::vector<char>& vec)
+    // Return a 'bsl::string' representation of the contents of 'vec' in
+    // human-readable form.
 {
     if (vec.empty()) {
         return "";                                                    // RETURN

@@ -540,7 +540,7 @@ class Utf32PtrBasedEnd {
     // end by comparing pointers.
 
     // DATA
-    const unsigned int * const d_end;
+    const unsigned int * const d_end_p;
 
   public:
     // CREATORS
@@ -563,18 +563,18 @@ class Utf32PtrBasedEnd {
 // CREATORS
 inline
 Utf32PtrBasedEnd::Utf32PtrBasedEnd(const unsigned int *end)
-: d_end(end)
+: d_end_p(end)
 {}
 
 // ACCESSORS
 inline
 bool Utf32PtrBasedEnd::isFinished(const unsigned int *position) const
 {
-    if (position < d_end) {
+    if (position < d_end_p) {
         return false;                                                 // RETURN
     }
     else {
-        BSLS_ASSERT(d_end == position);
+        BSLS_ASSERT(d_end_p == position);
         return true;                                                  // RETURN
     }
 }
@@ -879,11 +879,12 @@ bsl::size_t utf8BufferLengthNeeded(const unsigned int *input,
                                    const OctetType     errorByte)
     // Return the length, in bytes, of the UTF-8 sequence required to store the
     // translation of the UTF-32 sequence pointed at by the specified 'input',
-    // including the terminating 0, when using the specified 'errorByte'.
-    // Use the specified 'SWAPPER' to perform swapping, or not perform
-    // swapping, as desired (see detailed doc in 'Utf8ToUtf32Translator' and
-    // 'Utf32ToUtf8Translator' below).  Note that this estimate will always be
-    // exact.
+    // including the terminating 0, when using the specified 'errorByte'.  Use
+    // the specified 'endFunctor' on 'input' prior to dereferencing it to
+    // detect end fo input.  Use the specified 'SWAPPER' to perform swapping,
+    // or not perform swapping, as desired (see detailed doc in
+    // 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator' below).  Note that
+    // this estimate will always be exact.
 {
     BSLMF_ASSERT((bsl::is_same<END_FUNCTOR,  Utf32PtrBasedEnd>::value ||
                   bsl::is_same<END_FUNCTOR, Utf32ZeroBasedEnd>::value));
@@ -1285,15 +1286,17 @@ class Utf32ToUtf8Translator {
         // the terminating null byte.  If the template argument is type
         // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-8 sequence is to be
-        // translated.  Write to the specified '*numCodePointsWritten' the
-        // number of Unicode code points written, including the terminating 0.
-        // Write to the specified '*numBytesWritten' the number of bytes of
-        // output written, including the terminating null byte.  If the
-        // specified 'errorByte' is non-zero, write 'errorByte' to the output
-        // every time an error sequence is encountered in the input, otherwise
-        // write no output corresponding to error sequences in the input.  The
-        // behavior is undefined unless 'CAPACITY' is 'NoopCapacity' or
-        // 'capacity > 0'.
+        // translated.  Call the specified 'endFunctor' on the pointer to each
+        // word of 'input' to be read, prior to dereferencing the pointer, so
+        // see if we've reached the end of input.  Write to the specified
+        // '*numCodePointsWritten' the number of Unicode code points written,
+        // including the terminating 0.  Write to the specified
+        // '*numBytesWritten' the number of bytes of output written, including
+        // the terminating null byte.  If the specified 'errorByte' is
+        // non-zero, write 'errorByte' to the output every time an error
+        // sequence is encountered in the input, otherwise write no output
+        // corresponding to error sequences in the input.  The behavior is
+        // undefined unless 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
 };
 
                      // ---------------------------------
