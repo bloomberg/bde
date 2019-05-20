@@ -1928,6 +1928,9 @@ struct TestDriver {
     static void testCase35();
         // Test 'noexcept' specifications
 
+    static void testCase37();
+        // Test member pointer compilation.
+
     template <class CONTAINER>
     static void testCaseM1Range(const CONTAINER&);
         // Performance test for operators that take a range of inputs.
@@ -2606,6 +2609,41 @@ TestDriver<TYPE, ALLOC>::testCase28a_RunTest(Obj            *target,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase37()
+{
+    // ------------------------------------------------------------------------
+    // MEMBER POINTER COMPILATION
+    //
+    // Concerns:
+    //: 1 The specialization of vector or pointer formerly used 'using' to
+    //:   make a few privately inherited methods public.  This causes
+    //:   compilation errors when attempting to use pointers to these methods.
+    //
+    // Plan:
+    //: 1 Now that they've been rewritten, check that calls through member
+    //:   pointers compile.  No runtime test is needed.
+    //
+    // Testing:
+    //   CONCERN: Access through membert pointers compiles.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        T_ P(bsls::NameOf<Obj>())
+        T_ P(bsls::NameOf<TYPE>())
+        T_ P(bsls::NameOf<ALLOC>())
+    }
+
+    (void)sizeof((Obj().*&Obj::reserve)(0),      0);
+    (void)sizeof((Obj().*&Obj::shrink_to_fit)(), 0);
+    (void)sizeof((Obj().*&Obj::pop_back)(),      0);
+    (void)sizeof((Obj().*&Obj::clear)(),         0);
+    (void)sizeof((Obj().*&Obj::max_size)(),      0);
+    (void)sizeof((Obj().*&Obj::size)(),          0);
+    (void)sizeof((Obj().*&Obj::capacity)(),      0);
+    (void)sizeof((Obj().*&Obj::empty)(),         0);
+}
 
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase35()
@@ -12685,6 +12723,18 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING ACCESS THROUGH MEMBER POINTERS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING ACCESS THROUGH MEMBER POINTERS"
+                            "\n======================================\n");
+
+        TestDriver<int *>::testCase37();
+        TestDriver<const char *>::testCase37();
+
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // TESTING 'vector<bool>'
