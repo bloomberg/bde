@@ -5638,7 +5638,7 @@ inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(
                                BloombergLP::bslmf::MovableRef<vector> original)
                                                           BSLS_KEYWORD_NOEXCEPT
-: d_impl(MoveUtil::move(original.d_impl))
+: d_impl(MoveUtil::move(MoveUtil::access(original).d_impl))
 {
 }
 
@@ -5653,9 +5653,10 @@ vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector&    original,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(
-                         BloombergLP::bslmf::MovableRef<vector> original,
-                         const ALLOCATOR&                       basicAllocator)
-: d_impl(MoveUtil::move(original.d_impl), ImplAlloc(basicAllocator))
+    BloombergLP::bslmf::MovableRef<vector> original,
+    const ALLOCATOR&                       basicAllocator)
+: d_impl(MoveUtil::move(MoveUtil::access(original).d_impl),
+         ImplAlloc(basicAllocator))
 {
 }
 
@@ -5700,7 +5701,7 @@ vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
                                     BloombergLP::bslmf::MovableRef<vector> rhs)
                                      BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
-    d_impl = MoveUtil::move(rhs.d_impl);
+    d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl);
     return *this;
 }
 
