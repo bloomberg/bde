@@ -202,15 +202,14 @@ BSL_OVERRIDES_STD mode"
 
 #include <bslma_allocatortraits.h>
 
-#include <bslalg_swaputil.h>
-
 #include <bslmf_movableref.h>
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 
-#include <algorithm>       // 'std::swap'
+#include <algorithm>  // swap (C++03)
+#include <utility>    // swap (C++17)
 
 namespace BloombergLP {
 namespace bslstl {
@@ -554,10 +553,11 @@ inline
 void SimplePool<VALUE, ALLOCATOR>::quickSwapExchangeAllocators(
                                            SimplePool<VALUE, ALLOCATOR>& other)
 {
-    bslalg::SwapUtil::swap(&this->allocator(), &other.allocator());
-    std::swap(d_blocksPerChunk, other.d_blocksPerChunk);
-    std::swap(d_freeList_p, other.d_freeList_p);
-    std::swap(d_chunkList_p, other.d_chunkList_p);
+    using std::swap;
+    swap(this->allocator(), other.allocator());
+    swap(d_blocksPerChunk,  other.d_blocksPerChunk);
+    swap(d_freeList_p,      other.d_freeList_p);
+    swap(d_chunkList_p,     other.d_chunkList_p);
 }
 
 template <class VALUE, class ALLOCATOR>

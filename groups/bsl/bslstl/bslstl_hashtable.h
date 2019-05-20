@@ -1507,7 +1507,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hashtableanchor.h>
 #include <bslalg_hashtablebucket.h>
 #include <bslalg_hashtableimputil.h>
-#include <bslalg_swaputil.h>
 
 #include <bslma_allocatortraits.h>
 #include <bslma_destructorguard.h>
@@ -1529,13 +1528,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-#include <algorithm>  // for fill_n, max
-
-#include <cstddef> // for 'size_t'
-
-#include <cstring> // for 'memset'
-
-#include <limits>  // for numeric_limits
+#include <algorithm>  // for fill_n, max, swap (C++03)
+#include <cstddef>    // for 'size_t'
+#include <cstring>    // for 'memset'
+#include <limits>     // for numeric_limits
+#include <utility>    // for swap (C++17)
 
 namespace BloombergLP {
 
@@ -3396,9 +3393,8 @@ template <class FUNCTOR>
 inline
 void HashTable_HashWrapper<FUNCTOR>::swap(HashTable_HashWrapper &other)
 {
-    bslalg::SwapUtil::swap(
-                static_cast<FUNCTOR*>(bsls::Util::addressOf(d_functor)),
-                static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
+    using std::swap;
+    swap(d_functor, other.d_functor);
 }
 
                  // 'const FUNCTOR' partial specialization
@@ -3498,9 +3494,8 @@ inline
 void
 HashTable_ComparatorWrapper<FUNCTOR>::swap(HashTable_ComparatorWrapper &other)
 {
-    bslalg::SwapUtil::swap(
-                static_cast<FUNCTOR*>(bsls::Util::addressOf(d_functor)),
-                static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
+    using std::swap;
+    swap(d_functor, other.d_functor);
 }
 
                  // 'const FUNCTOR' partial specialization
@@ -3818,11 +3813,11 @@ quickSwapExchangeAllocators(HashTable_ImplParameters *other)
 {
     BSLS_ASSERT_SAFE(other);
 
-    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
-                           static_cast<BaseHasher*>(other));
+    using std::swap;
+    swap(*static_cast<BaseHasher*>(this), *static_cast<BaseHasher*>(other));
 
-    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
-                           static_cast<BaseComparator*>(other));
+    swap(*static_cast<BaseComparator*>(this), 
+         *static_cast<BaseComparator*>(other));
 
     nodeFactory().swapExchangeAllocators(other->nodeFactory());
 }
@@ -3834,11 +3829,11 @@ quickSwapRetainAllocators(HashTable_ImplParameters *other)
 {
     BSLS_ASSERT_SAFE(other);
 
-    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
-                           static_cast<BaseHasher*>(other));
+    using std::swap;
+    swap(*static_cast<BaseHasher*>(this), *static_cast<BaseHasher*>(other));
 
-    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
-                           static_cast<BaseComparator*>(other));
+    swap(*static_cast<BaseComparator*>(this), 
+         *static_cast<BaseComparator*>(other));
 
     nodeFactory().swapRetainAllocators(other->nodeFactory());
 }
@@ -3996,10 +3991,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::HashTable(
 , d_maxLoadFactor(1.0)
 {
     HashTable& lvalue = original;
-    bslalg::SwapUtil::swap(&d_anchor,        &lvalue.d_anchor);
-    bslalg::SwapUtil::swap(&d_size,          &lvalue.d_size);
-    bslalg::SwapUtil::swap(&d_capacity,      &lvalue.d_capacity);
-    bslalg::SwapUtil::swap(&d_maxLoadFactor, &lvalue.d_maxLoadFactor);
+    using std::swap;
+    swap(d_anchor,        lvalue.d_anchor);
+    swap(d_size,          lvalue.d_size);
+    swap(d_capacity,      lvalue.d_capacity);
+    swap(d_maxLoadFactor, lvalue.d_maxLoadFactor);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -4035,10 +4031,11 @@ HashTable(bslmf::MovableRef<HashTable> original,
                                     basicAllocator == lvalue.allocator())) {
         d_parameters.nodeFactory().adopt(
                             MoveUtil::move(lvalue.d_parameters.nodeFactory()));
-        bslalg::SwapUtil::swap(&d_anchor,        &lvalue.d_anchor);
-        bslalg::SwapUtil::swap(&d_size,          &lvalue.d_size);
-        bslalg::SwapUtil::swap(&d_capacity,      &lvalue.d_capacity);
-        bslalg::SwapUtil::swap(&d_maxLoadFactor, &lvalue.d_maxLoadFactor);
+        using std::swap;
+        swap(d_anchor,        lvalue.d_anchor);
+        swap(d_size,          lvalue.d_size);
+        swap(d_capacity,      lvalue.d_capacity);
+        swap(d_maxLoadFactor, lvalue.d_maxLoadFactor);
     }
     else {
         d_size = lvalue.d_size;
@@ -4047,7 +4044,8 @@ HashTable(bslmf::MovableRef<HashTable> original,
             // 'original' left in the default state
             bslalg::HashTableAnchor anchor(
                            HashTable_ImpDetails::defaultBucketAddress(), 1, 0);
-            bslalg::SwapUtil::swap(&anchor, &lvalue.d_anchor);
+            using std::swap;
+            swap(anchor, lvalue.d_anchor);
 
             lvalue.d_size = 0;
             lvalue.d_capacity = 0;
@@ -4203,10 +4201,13 @@ quickSwapExchangeAllocators(HashTable *other)
 
     d_parameters.quickSwapExchangeAllocators(&other->d_parameters);
 
-    bslalg::SwapUtil::swap(&d_anchor,        &other->d_anchor);
-    bslalg::SwapUtil::swap(&d_size,          &other->d_size);
-    bslalg::SwapUtil::swap(&d_capacity,      &other->d_capacity);
-    bslalg::SwapUtil::swap(&d_maxLoadFactor, &other->d_maxLoadFactor);
+
+    using std::swap;
+    swap(d_anchor,        other->d_anchor);
+    swap(d_size,          other->d_size);
+    swap(d_capacity,      other->d_capacity);
+    swap(d_maxLoadFactor, other->d_maxLoadFactor);
+    
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -4219,10 +4220,11 @@ quickSwapRetainAllocators(HashTable *other)
 
     d_parameters.quickSwapRetainAllocators(&other->d_parameters);
 
-    bslalg::SwapUtil::swap(&d_anchor,        &other->d_anchor);
-    bslalg::SwapUtil::swap(&d_size,          &other->d_size);
-    bslalg::SwapUtil::swap(&d_capacity,      &other->d_capacity);
-    bslalg::SwapUtil::swap(&d_maxLoadFactor, &other->d_maxLoadFactor);
+    using std::swap;
+    swap(d_anchor,        other->d_anchor);
+    swap(d_size,          other->d_size);
+    swap(d_capacity,      other->d_capacity);
+    swap(d_maxLoadFactor, other->d_maxLoadFactor);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
