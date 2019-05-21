@@ -261,8 +261,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
 
@@ -373,6 +375,10 @@ class ThreadAttributes {
     bsl::string      d_threadName;          // name of the thread
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ThreadAttributes,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
     ThreadAttributes();
     explicit ThreadAttributes(bslma::Allocator *basicAllocator);
@@ -456,9 +462,6 @@ class ThreadAttributes {
         // 'value'.
 
     // ACCESSORS
-    bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
-
     DetachedState detachedState() const;
         // Return the value of the 'detachedState' attribute of this object.  A
         // value of 'e_CREATE_JOINABLE' indicates that a thread must be joined
@@ -507,6 +510,11 @@ class ThreadAttributes {
         // Return the 'threadName' attribute of this object.  Note that the
         // returned string reference will be invalidated if 'setThreadName' is
         // subsequently called on this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
@@ -595,12 +603,6 @@ void bslmt::ThreadAttributes::setThreadName(const bslstl::StringRef& value)
 
 // ACCESSORS
 inline
-bslma::Allocator *bslmt::ThreadAttributes::allocator() const
-{
-    return d_threadName.get_allocator().mechanism();
-}
-
-inline
 bslmt::ThreadAttributes::DetachedState
 bslmt::ThreadAttributes::detachedState() const
 {
@@ -642,6 +644,14 @@ inline
 bslstl::StringRef bslmt::ThreadAttributes::threadName() const
 {
     return d_threadName;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *bslmt::ThreadAttributes::allocator() const
+{
+    return d_threadName.get_allocator().mechanism();
 }
 
 }  // close enterprise namespace
