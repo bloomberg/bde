@@ -13,8 +13,11 @@
 
 #include <bslim_testutil.h>
 
-#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslma_testallocator.h>
+
+#include <bslmf_assert.h>
 
 #include <bsls_types.h>
 
@@ -242,7 +245,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
@@ -290,6 +293,26 @@ int main(int argc, char *argv[])
     ASSERT(attributes == copy);
 //..
 
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING TYPE TRAITS
+        //
+        // Concern:
+        //: 1 That the class has the 'UsesBslmaAllocator' type trait.
+        //
+        // Plan:
+        //: 1 Evaluate the type trait.  (C-1)
+        //
+        // Testing
+        //   bslma::UsesBslmaAllocator
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING TYPE TRAITS\n"
+                             "===================\n";
+
+        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::VALUE);
       } break;
       case 2: {
         // ------------------------------------------------------------------
