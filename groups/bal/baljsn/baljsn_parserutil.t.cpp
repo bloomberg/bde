@@ -2334,68 +2334,97 @@ int main(int argc, char *argv[])
         {
             typedef bsl::string Type;
 
-            const Type ERROR_VALUE = "";
+            const char *ERROR_VALUE = "";
 
-            static const struct {
+            static const struct Data {
                 int         d_line;    // line number
                 const char *d_input_p; // input on the stream
-                Type        d_exp;     // exp unsigned value
+                int         d_inputLen;
+                const char *d_exp_p;   // expected value
+                int         d_expLen;
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                //line    input              exp                     isValid
-                //----    -----              ---                     -------
-                {  L_,    "\"\"",            "",                      true   },
-                {  L_,    "\"ABC\"",         "ABC",                   true   },
+                //line input             len exp                     isValid
+                //---- -----             --- ---                    -------
+                {  L_, "\"\"",           -1, "",                      -1, 1  },
+                {  L_, "\"ABC\"",        -1, "ABC",                   -1, 1  },
+                {  L_, "\"\\\"\"",       -1, "\"",                    -1, 1  },
+                {  L_, "\"\\\\\"",       -1, "\\",                    -1, 1  },
+                {  L_, "\"\\b\"",        -1, "\b",                    -1, 1  },
+                {  L_, "\"\\f\"",        -1, "\f",                    -1, 1  },
+                {  L_, "\"\\n\"",        -1, "\n",                    -1, 1  },
+                {  L_, "\"\\r\"",        -1, "\r",                    -1, 1  },
+                {  L_, "\"\\t\"",        -1, "\t",                    -1, 1  },
 
-                {  L_,     "\"\\\"\"",       "\"",                    true   },
-                {  L_,     "\"\\\\\"",       "\\",                    true   },
-                {  L_,     "\"\\b\"",        "\b",                    true   },
-                {  L_,     "\"\\f\"",        "\f",                    true   },
-                {  L_,     "\"\\n\"",        "\n",                    true   },
-                {  L_,     "\"\\r\"",        "\r",                    true   },
-                {  L_,     "\"\\t\"",        "\t",                    true   },
+                {  L_, "\"u0001\"",      -1, "u0001",                 -1, 1  },
+                {  L_, "\"UABCD\"",      -1, "UABCD",                 -1, 1  },
 
-                {  L_,     "\"u0001\"",      "u0001",                 true   },
-                {  L_,     "\"UABCD\"",      "UABCD",                 true   },
+                {  L_, "\"\\u0001\"",    -1, "\x01",                  -1, 1  },
+                {  L_, "\"\\u0020\"",    -1, " ",                     -1, 1  },
+                {  L_, "\"\\u002E\"",    -1, ".",                     -1, 1  },
+                {  L_, "\"\\u0041\"",    -1, "A",                     -1, 1  },
 
-                {  L_,     "\"\\u0001\"",    "\x01",                  true   },
-                {  L_,     "\"\\u0020\"",    " ",                     true   },
-                {  L_,     "\"\\u002E\"",    ".",                     true   },
-                {  L_,     "\"\\u0041\"",    "A",                     true   },
+                {  L_, "\"\\U006d\"",    -1, "m",                     -1, 1  },
+                {  L_, "\"\\U007E\"",    -1, "~",                     -1, 1  },
 
-                {  L_,     "\"\\U006d\"",    "m",                     true   },
-                {  L_,     "\"\\U007E\"",    "~",                     true   },
+                {  L_, "\"\\U007F\"",    -1, "\x7F",                  -1, 1  },
+                {  L_, "\"\\U0080\"",    -1, "\xC2\x80",              -1, 1  },
 
-                {  L_,     "\"\\U007F\"",    "\x7F",                  true   },
-                {  L_,     "\"\\U0080\"",    "\xC2\x80",              true   },
+                {  L_, "\"\\U07FF\"",    -1, "\xDF\xBF",              -1, 1  },
+                {  L_, "\"\\U0800\"",    -1, "\xE0\xA0\x80",          -1, 1  },
 
-                {  L_,     "\"\\U07FF\"",    "\xDF\xBF",              true   },
-                {  L_,     "\"\\U0800\"",    "\xE0\xA0\x80",          true   },
+                {  L_, "\"\\UFFFF\"",    -1, "\xEF\xBF\xBF",          -1, 1  },
 
-                {  L_,     "\"\\UFFFF\"",    "\xEF\xBF\xBF",          true   },
+                {  L_, "\"\\U02f1\"",    -1, "\xCB\xB1",              -1, 1  },
+                {  L_, "\"\\U2710\"",    -1, "\xE2\x9C\x90",          -1, 1  },
+                {  L_, "\"\\UD7Ff\"",    -1, "\xED\x9F\xBF",          -1, 1  },
+                {  L_, "\"\\Ue000\"",    -1, "\xEE\x80\x80",          -1, 1  },
 
-                {  L_,     "\"\\U02f1\"",    "\xCB\xB1",              true   },
-                {  L_,     "\"\\U2710\"",    "\xE2\x9C\x90",          true   },
-                {  L_,     "\"\\UD7Ff\"",    "\xED\x9F\xBF",          true   },
-                {  L_,     "\"\\Ue000\"",    "\xEE\x80\x80",          true   },
+                {  L_, "\"AB\"",         -1, "AB",                    -1, 1  },
+                {  L_, "\"A\\u0020B\"",  -1, "A B",                   -1, 1  },
+                {  L_, "\"A\\u002eB\"",  -1, "A.B",                   -1, 1  },
+                {  L_, "\"A\\u0080G\"",  -1, "A\xC2\x80G",            -1, 1  },
 
-                {  L_,     "\"AB\"",         "AB",                    true   },
-                {  L_,     "\"A\\u0020B\"",  "A B",                   true   },
-                {  L_,     "\"A\\u002eB\"",  "A.B",                   true   },
-                {  L_,     "\"A\\u0080B\"",  "\x41\xC2\x80\x42",      true   },
-                {  L_,     "\"A\\u0800B\"",  "\x41\xE0\xA0\x80\x42",  true   },
+                {  L_, "\"\\U0000\"",    -1, "\0",                     1, 1  },
+                {  L_, "\"A\\U0000B\"",  -1, "A\0B",                   3, 1  },
+                {  L_, "\"A\\U0000\\u0080G\"",
+                                         -1, "A\0\xC2\x80G",           5, 1  },
+                {  L_, "\"A\\U0000\\ue000G\"",
+                                         -1, "A\0\xEE\x80\x80G",       6, 1  },
 
-                {  L_,     "\"\\U000G\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\U00h0\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\U0M00\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UX000\"",    ERROR_VALUE,             false  },
+                {  L_, "\"\0\"",          3, "\0",                     1, 1  },
 
-                {  L_,     "\"\\U7G00\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\U007G\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UXXXX\"",    ERROR_VALUE,             false  },
+                {  L_, "\"\\U02f1\0\"",   9, "\xCB\xB1\0",             3, 1  },
+                {  L_, "\"\\U2710\0\"",   9, "\xE2\x9C\x90\0",         4, 1  },
+                {  L_, "\"\\UD7Ff\0\"",   9, "\xED\x9F\xBF\0",         4, 1  },
+                {  L_, "\"\\Ue000\0\"",   9, "\xEE\x80\x80\0",         4, 1  },
 
-                {  L_,     "\"A\\U7G00B\"",  "A",                     false  },
-                {  L_,     "\"A\\UXXXXB\"",  "A",                     false  },
+                {  L_, "\"AB\0\"",        5, "AB\0",                   3, 1  },
+                {  L_, "\"A\\u0020B\0\"",11, "A B\0",                  4, 1  },
+                {  L_, "\"A\\u002eB\0\"",11, "A.B\0",                  4, 1  },
+                {  L_, "\"A\\u0080G\0\"",11, "A\xC2\x80G\0",           5, 1  },
+
+                {  L_, "\"\0\\U02f1\"",   9, "\0\xCB\xB1",             3, 1  },
+                {  L_, "\"\0\\U2710\"",   9, "\0\xE2\x9C\x90",         4, 1  },
+                {  L_, "\"\0\\UD7Ff\"",   9, "\0\xED\x9F\xBF",         4, 1  },
+                {  L_, "\"\0\\Ue000\"",   9, "\0\xEE\x80\x80",         4, 1  },
+
+                {  L_, "\"\0AB\"",        5, "\0AB",                   3, 1  },
+                {  L_, "\"\0A\\u0020B\"",11, "\0A B",                  4, 1  },
+                {  L_, "\"\0A\\u002eB\"",11, "\0A.B",                  4, 1  },
+                {  L_, "\"\0A\\u0080G\"",11, "\0A\xC2\x80G",           5, 1  },
+
+                {  L_, "\"\\U000G\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\U00h0\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\U0M00\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UX000\"",    -1, ERROR_VALUE,             -1, 0  },
+
+                {  L_, "\"\\U7G00\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\U007G\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UXXXX\"",    -1, ERROR_VALUE,             -1, 0  },
+
+                {  L_, "\"A\\U7G00B\"",  -1, "A",                     -1, 0  },
+                {  L_, "\"A\\UXXXXB\"",  -1, "A",                     -1, 0  },
 
                 // These error strings were copied from
                 // 'bdlde_charconvertutf32' test driver.
@@ -2403,57 +2432,66 @@ int main(int argc, char *argv[])
                 // values that are not valid unicode because they are in the
                 // lower UTF-16 bit plane.
 
-                {  L_,     "\"\\UD800\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\uD8ff\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\ud917\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\Udaaf\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\Udb09\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UdbFF\"",    ERROR_VALUE,             false  },
+                {  L_, "\"\\UD800\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\uD8ff\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\ud917\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\Udaaf\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\Udb09\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UdbFF\"",    -1, ERROR_VALUE,             -1, 0  },
 
                 // values that are not valid unicode because they are in the
                 // upper UTF-16 bit plane.
 
-                {  L_,     "\"\\UDc00\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UDcFF\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UDd80\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UDea7\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UDF03\"",    ERROR_VALUE,             false  },
-                {  L_,     "\"\\UDFFF\"",    ERROR_VALUE,             false  },
+                {  L_, "\"\\UDc00\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UDcFF\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UDd80\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UDea7\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UDF03\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\UDFFF\"",    -1, ERROR_VALUE,             -1, 0  },
 
                 // Supplementary plane characters.
 
-                { L_,      "\"\\ud800\\udbff\"", ERROR_VALUE,         false  },
-                { L_,      "\"\\udbad\\udbff\"", ERROR_VALUE,         false  },
-                { L_,      "\"\\udbff\\udbff\"", ERROR_VALUE,         false  },
-                { L_,      "\"\\ud800\\udc00\"", "\xF0\x90\x80\x80",  true   },
-                { L_,      "\"\\ud83d\\ude42\"", "\xF0\x9F\x99\x82",  true   },
-                { L_,      "\"\\udbff\\udfff\"", "\xF4\x8F\xBF\xBF",  true   },
-                { L_,      "\"\\ud800\\ue000\"", ERROR_VALUE,         false  },
-                { L_,      "\"\\udbad\\ue000\"", ERROR_VALUE,         false  },
-                { L_,      "\"\\udbff\\ue000\"", ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ude4\"",  ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ude4",    ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ude\"",   ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ude",     ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ud\"",    ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ud",      ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\u\"",     ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\u",       ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\\"",      ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\",        ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ude4`\"", ERROR_VALUE,         false  },
-                { L_,      "\"\\ud83d\\ude4g\"", ERROR_VALUE,         false  },
+                {  L_, "\"\\ud800\\udbff\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\udbad\\udbff\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\udbff\\udbff\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud800\\udc00\"", -1, "\xF0\x90\x80\x80",  -1, 1  },
+                {  L_, "\"\\ud83d\\ude42\"", -1, "\xF0\x9F\x99\x82",  -1, 1  },
+                {  L_, "\"\\udbff\\udfff\"", -1, "\xF4\x8F\xBF\xBF",  -1, 1  },
+                {  L_, "\"\\ud800\\ue000\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\udbad\\ue000\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\udbff\\ue000\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ude4\"",  -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ude4",    -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ude\"",   -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ude",     -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ud\"",    -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ud",      -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\u\"",     -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\u",       -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\\"",      -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\",        -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ude4`\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\ude4g\"", -1, ERROR_VALUE,         -1, 0  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int    LINE     = DATA[i].d_line;
-                const string INPUT    = DATA[i].d_input_p;
-                const Type   EXP      = DATA[i].d_exp;
-                const bool   IS_VALID = DATA[i].d_isValid;
-                      Type   value    = ERROR_VALUE;
+                const Data&        data     = DATA[i];
+                const int          LINE     = data.d_line;
+                const char        *IN_P     = data.d_input_p;
+                const bsl::size_t  IN_LEN   = data.d_inputLen < 0
+                                            ? bsl::strlen(IN_P)
+                                            : data.d_inputLen;
+                const char        *EXP_P    = data.d_exp_p;
+                const bsl::size_t  EXP_LEN  = data.d_expLen < 0
+                                            ? bsl::strlen(EXP_P)
+                                            : data.d_expLen;
+                const bool         IS_VALID = data.d_isValid;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const StringRef isb(IN_P,  IN_LEN);
+                const StringRef EXP(EXP_P, EXP_LEN);
+
+                Type value = ERROR_VALUE;
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
