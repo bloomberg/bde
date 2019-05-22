@@ -12,33 +12,30 @@ BSLS_IDENT("$Id: $")
 //  bdlmt::SignalerConnection:       signaler/slot connection
 //  bdlmt::SignalerScopedConnection: RAII signaler/slot connection
 //
-//@DESCRIPTION: This component provides the template 'class' 'bdlmt::Signaler'
-// an implementation of a managed signals and slots system.  Signals represent
-// callbacks with multiple targets, and are also called publishers or events in
-// similar systems.  Signals are connected to some set of slots, which are
-// callback receivers (also called event targets or subscribers), which are
-// executed when the signal is "emitted".
+//@DESCRIPTION: This component provides the template class
+// 'bdlmt::Signaler<PROT>', an implementation of a managed signal and slots
+// system for the void returning function type 'PROT'.  Each signaler
+// represents a callback with multiple targets (called "slots") which are
+// invoked in a known order when the signaler is invoked (called being
+// "emitted").
 //
-// Signals and slots are managed, in that signals and slots (or, more properly,
-// objects that occur as part of the slots) can track connections and are
-// capable of automatically disconnecting signal/slot connections when either
-// is destroyed.  This enables the user to make signal/slot connections without
-// expanding a great effort to manage the lifetimes of those connections with
-// regard to the lifetimes of all objects involved.
+// A slot being connected to a signaler is represented by a
+// 'bdlmt::SignalerConnection' which can be used to disconnect that connection
+// at any time, but can also be discarded if managing the lifetime of the
+// individual connection is not needed.  A scoped guard to disconnect a slot on
+// its destruction is available in 'bdlmt::SignalerScopedConnection'.
 //
-// When a slot is added to the signaler, a 'bdlmt::SignalerConnection' is
-// returned, and the slot can be removed from the signaler by calling the
-// 'disconnect' mthod on that signaler.  There is a second type of connection,
-// 'bdlmt::SignalerScopedConnection', which is derived from
-// 'bdlmt::SignalerConnection' and whose destructor will disconnect the slot.
-// 'SignlaerConnection's can be copied, while 'SignalerScopedConnection's can
-// only be moved.
+// Signalers and the slots connected to them are all managed.  Any connections
+// will be automatically disconnected when a 'Signaler' is destroyed, or when
+// explicitly disconnected. and all internally allocated resources will be
+// destroyed when no more references to them remain.  This enables the user to
+// make signaler/slot connections and emit the signal without expanding effort
+// on managing the lifetimes of any of the involved objects.
 //
-// Note that the function signatures of all the callbacks managed by a signaler
-// must have arguments such that there is an implicit conversion from the
-// corresponding argument in 'PROT' to the argument of the passed function.
-// The return value, if any, is always discarded, and there are no constraints
-// on the return types of the callbacks.
+// 'PROT' must have a return type of 'void', and all slots must be callable
+// with the argument types of 'PROT', essentially meeting the requirements of
+// being a valid argument to construct a 'bsl::function<PROT>'.  The return
+// value of a slot may be other than 'void', in which case it is discarded.
 //
 ///Call groups
 ///-----------
@@ -59,9 +56,9 @@ BSLS_IDENT("$Id: $")
 ///Slots lifetime
 ///--------------
 // Internally, 'bdlmt::Signaler' stores copies of connected slot objects.  The
-// copy of the slot object held by is destroyed after the slot is disconnected
-// from the signaler, or after the signaler is destroyed, but the exact moment
-// is unspecified.  It is only guaranteed that the lifetime of such object will
+// copy of the slot object is destroyed after the slot is disconnected from the
+// signaler, or after the signaler is destroyed, but the exact moment is
+// unspecified.  It is only guaranteed that the lifetime of such object will
 // not exceed the collective lifetime of the signaler and all connection
 // objects associated with to that signaler.
 //
@@ -82,93 +79,100 @@ BSLS_IDENT("$Id: $")
 //
 ///Exception Safety
 ///----------------
-//: o no 'disconnectAllSlots()', 'disconnectAllSlotsAndWait()' or 'slotCount()'
-//:   member function on a signaler object throws an exception.
-//:
-//: o no constructor, assingment operator or comparison operator, as well as
-//:   o disconnectAllSlots
-//:   o disconnectAllSlotsAndWait
-//:   o disconnectGroup
-//:   o disconnectGroupAndWait, or
-//:   o isConnected
-//:   member function on a connection object throws an exception.
-//:
-//: o no 'swap()' function throws an exception.
-//:
-//: o if an exception is thrown by the signaler's 'connect()' member function,
-//:   that function has no effects.
+// 'Signaler<PROT>::connect' provides the strong exception guarantee.
 //
 ///Comparison of 'SignalerConnection's and 'SignalerScopedConnection's
 ///-------------------------------------------------------------------
-// In equality or ordering comparisons, two default constructed connections
-// compare equivalent and a default constructed connection is never equivalent
-// to a connection to a slot.  If a connection is not default constructed, it
-// is equivalent only to another connection that refers to the same slot.  The
-// 'less than' and 'greater than' relationships are transitive and will form an
-// ordering of a set of non-equivalent connections, but the specific ordering
-// is arbitrary and not predictable by the client.  Note that a connection's
-// ordering does not change when it is disconnected.  Releasing a connection
-// sets it to a default-constructed value.
+// Ordering comparisons of 'SignalerConnection's are transitve and are provided
+// to facilitate their being stored in an associative container.  The ordering
+// of a 'SignalerConnection' does not change when it is disconnected.
+//
+// In equality comparisons, two default constructed connections compare
+// equivalent and a default constructed connection is never equivalent to a
+// connection to a slot.  If a connection is not default constructed, it is
+// equivalent only to another connection that refers to the same slot.
 //
 ///Usage
 ///-----
-// Lets implement a GUI button class that allows users to subscribe to its
-// 'onClick' events.
+// Suppose we want to implement a GUI button class that allows users to
+// keep track of its 'press' events.
+//
+// First, we declare the 'class':
 //..
 //  class Button {
-//      // A pretend GUI button.
+//      // A pretend GUI button from the usage example.
+//
+//      // DATA
+//      int d_numPresses;
 //
 //    public:
 //      // TYPES
-//      typedef bsl::function<void(int, int)> OnClickSlotType;
+//      typedef bsl::function<void(int)> OnPressSlotType;
 //          // Slot arguments are the 'x' and 'y' cursor coordinates.
 //
 //    private:
 //      // PRIVATE DATA
-//      bdlmt::Signaler<void(int, int)> d_onClick;
+//      bdlmt::Signaler<void(int)> d_onPress;
 //          // Signaler arguments are the 'x' and 'y' cursor coordinates.
 //
 //    public:
+//      // CREATORS
+//      Button();
+//          // Default construct a 'Button'.
+//
 //      // MANIPULATORS
-//      bdlmt::SignalerConnection onClickConnect(const OnClickSlotType& slot);
+//      bdlmt::SignalerConnection onPressConnect(const OnPressSlotType& slot);
 //          // Connect the specified 'slot' to this button.
 //
-//      void click(int x, int y);
-//          // Simulate user clicking on GUI button at coordinates 'x', 'y'.
+//      void press();
+//          // Simulate user pressing on GUI button at coordinates 'x', 'y'.
 //  };
-//
-//  bdlmt::SignalerConnection
-//  Button::onClickConnect(const OnClickSlotType& slot)
+//..
+// Then, we define its methods:
+//..
+// CREATORS
+//  Button::Button()
+//  : d_numPresses(0)
 //  {
-//      return d_onClick.connect(slot);
 //  }
 //
-//  void Button::click(int x, int y)
+// MANIPULATORS
+//  bdlmt::SignalerConnection Button::onPressConnect(
+//                                                 const OnPressSlotType& slot)
 //  {
-//      d_onClick(x, y);
+//      return d_onPress.connect(slot);
+//  }
+//
+//  void Button::press()
+//  {
+//      d_onPress(++d_numPresses);
 //  }
 //..
-// And provide an event handler function printing the cursor coordinates each
-// time the button is clicked.
+// Next, we provide an event handler callback printing its argument, which the
+// class will pass the number of times the button has been pressed:
 //..
-//  void printCoordinates(int x, int y)
+//  void showPresses(int numPresses)
 //  {
-//      bsl::cout << "(" << x << ", " << y << ")" << bsl::endl;
+//      bsl::cout << "Button pressed " << numPresses << " times.\n";
 //  }
 //..
-// Then, create a button and subscribe to its events.
+// Then, in 'main', create a button and subscribe to its events.
 //..
-//  Button                   button;
-//  bdlmt::SignalerConnection connection = button.onClickConnect(
-//                                                          &printCoordinates);
+//  u::Button                 button;
+//  bdlmt::SignalerConnection connection = button.onPressConnect(
+//                                                            &u::showPresses);
 //..
-// When the button is "clicked", we will receive a notification.
+// Next the button is "pressed", we will receive a notification.
 //..
-//  button.click(100, 200);
-//  // "(100, 200)" was printed to cout
+//  button.press();
+//..
+// Now, we see the following message:
+//..
+//  Button pressed 1 times.
 //..
 // Finally, unsubscribe from button's events when we don't want to receive
-// notifications anymore.
+// notifications anymore.  (If we didn't call 'disconnect', 'button' would
+// clean up all the allocated resources when it went out of scope):
 //..
 //  connection.disconnect();
 //..
@@ -291,8 +295,8 @@ struct Signaler_Invocable {
     // them, discards the return value, and returns 'void'.
 };
 
-template <class SIGNALER, class RET>
-struct Signaler_Invocable<SIGNALER, RET()> {
+template <class SIGNALER>
+struct Signaler_Invocable<SIGNALER, void()> {
 
     // ACCESSOR
     void operator()() const;
@@ -302,8 +306,8 @@ struct Signaler_Invocable<SIGNALER, RET()> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1>
-struct Signaler_Invocable<SIGNALER, RET(ARG1)> {
+template <class SIGNALER, class ARG1>
+struct Signaler_Invocable<SIGNALER, void(ARG1)> {
 
     // ACCESSOR
     void operator()(ARG1) const;
@@ -313,9 +317,9 @@ struct Signaler_Invocable<SIGNALER, RET(ARG1)> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2>
-struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2)> {
+template <class SIGNALER, class ARG1,
+                          class ARG2>
+struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2) const;
@@ -325,10 +329,10 @@ struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2)> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3>
-struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3)> {
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3>
+struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2, ARG3) const;
@@ -338,11 +342,11 @@ struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3)> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4>
-struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4)> {
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4>
+struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2, ARG3, ARG4) const;
@@ -352,12 +356,12 @@ struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4)> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5>
-struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5)> {
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5>
+struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2, ARG3, ARG4, ARG5) const;
@@ -367,13 +371,13 @@ struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5)> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6>
-struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)> {
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6>
+struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const;
@@ -383,15 +387,15 @@ struct Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6,
-                                     class ARG7>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6,
+                          class ARG7>
 struct Signaler_Invocable<SIGNALER,
-                          RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)> {
+                          void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const;
@@ -401,16 +405,17 @@ struct Signaler_Invocable<SIGNALER,
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6,
-                                     class ARG7,
-                                     class ARG8>
-struct Signaler_Invocable<SIGNALER,
-                          RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>{
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6,
+                          class ARG7,
+                          class ARG8>
+struct Signaler_Invocable<
+                        SIGNALER,
+                        void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const;
@@ -420,18 +425,18 @@ struct Signaler_Invocable<SIGNALER,
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6,
-                                     class ARG7,
-                                     class ARG8,
-                                     class ARG9>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6,
+                          class ARG7,
+                          class ARG8,
+                          class ARG9>
 struct Signaler_Invocable<
-                   SIGNALER,
-                   RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)> {
+                  SIGNALER,
+                  void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)> {
 
     // ACCESSOR
     void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)
@@ -448,13 +453,11 @@ struct Signaler_Invocable<
 
 class Signaler_SlotNode_Base {
     // Provide a non-template protocol base class for 'Signaler_SlotNode' so
-    // 'SignlerConnection' objects, which are not templated, can refer to and
+    // 'SignalerConnection' objects, which are not templated, can refer to and
     // manipulate 'Signaler_SlotNode' objects.
 
   private:
     // NOT IMPLEMENTED
-    Signaler_SlotNode_Base(           const Signaler_SlotNode_Base&)
-                                                          BSLS_KEYWORD_DELETED;
     Signaler_SlotNode_Base& operator=(const Signaler_SlotNode_Base&)
                                                           BSLS_KEYWORD_DELETED;
 
@@ -467,25 +470,21 @@ class Signaler_SlotNode_Base {
     // MANIPULATORS
     virtual void disconnect() BSLS_KEYWORD_NOEXCEPT = 0;
         // Disconnect this slot.  If the slot was already disconnected, this
-        // function has no effect.
-        //
-        // Note that this function does not block the calling thread pending
-        // completion of the slot.  There is also no guarantee that this slot
-        // will not be invoked from another thread after this function
-        // completes.
+        // function has no effect.  Note that this function does not block the
+        // calling thread pending completion of the slot.  Any invocation of
+        // the corresponding signaler that happens after this call to disconect
+        // completes will not invoke this socket.  Note that it is unspecified
+        // if any invocation on the signaler that begins before this function
+        // completes will invoke this slot.
 
     virtual void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT = 0;
         // Disconnect this slot and block the calling thread pending its
         // completion.  If the slot was already disconnected, this function has
         // no effect.  The behavior is undefined if this function is invoked
-        // recursively from this slot, and unless the caller holds a shared
-        // pointer to this object.
-        //
-        // Note that it is guaranteed that this slot will not be invoked after
-        // this function completes.
-        //
-        // Note also that this function does block pending completion of this
-        // slot, even if it is already disconnected.
+        // recursively from this slot.  Note that it is guaranteed that this
+        // slot will not be invoked after this function completes.  Note also
+        // that this function does block pending completion of this slot, even
+        // if it is already disconnected.
 
     // ACCESSOR
     virtual bool isConnected() const BSLS_KEYWORD_NOEXCEPT = 0;
@@ -502,7 +501,8 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
     // Dynamically-allocated container for one slot, containing a function
     // object that can be called by a signaler.  Owned by a shared pointer in a
     // skip list container in the 'Signaler_Node'.  Also referred to by weak
-    // pointers from 'SignalerConnector' and 'SignalerScopedConnector' objects.
+    // pointers from 'SignalerConnection' and 'SignalerScopedConnector'
+    // objects.
 
   private:
     // PRIVATE TYPES
@@ -671,25 +671,21 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
     // MANIPULATOR
     void disconnect() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
         // Disconnect this slot.  If the slot was already disconnected, this
-        // function has no effect.
-        //
-        // Note that this function does not block the calling thread pending
-        // completion of the slot.  There is also no guarantee that this slot
-        // will not be invoked from another thread after this function
-        // completes.
+        // function has no effect.  Note that this function does not block the
+        // calling thread pending completion of the slot.  Any invocation of
+        // the corresponding signaler that happens after this call to disconect
+        // completes will not invoke this slot.  Note that it is unspecified if
+        // any invocation on the signaler that begins before this function
+        // completes will invoke this slot.
 
     void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
         // Disconnect this slot and block the calling thread pending its
         // completion.  If the slot was already disconnected, this function has
         // no effect.  The behavior is undefined if this function is invoked
-        // recursively from this slot, and unless the caller holds a shared
-        // pointer to this object.
-        //
-        // Note that it is guaranteed that this slot will not be invoked after
-        // this function completes.
-        //
-        // Note also that this function does block pending completion of this
-        // slot, even if it is already disconnected.
+        // recursively from this slot.  Note that it is guaranteed that this
+        // slot will not be invoked after this function completes.  Note also
+        // that this function does block pending completion of this slot, even
+        // if it is already disconnected.
 
     void notifyDisconnected() BSLS_KEYWORD_NOEXCEPT;
         // Notify this slot that is was disconnected from its associated
@@ -740,6 +736,7 @@ class Signaler_Node :
 
     typedef bdlcc::SkipList<SlotMapKey,                // [GROUP, ID] pair
                             bsl::shared_ptr<SlotNode> > KeyToSlotMap;
+    typedef typename KeyToSlotMap::PairHandle           SlotPairHandle;
 
   private:
     // PRIVATE DATA
@@ -769,106 +766,89 @@ class Signaler_Node :
     explicit
     Signaler_Node(bslma::Allocator *allocator);
         // Create a 'Signaler_Node' object having no connected slots.  Specify
-        // an 'allocator' used to supply memory.
-        //
-        // Note that the supplied allocator must remain valid until all
-        // connection objects associated with this signaler are destroyed.
+        // an 'allocator' used to supply memory.  Note that the supplied
+        // allocator must remain valid until all connection objects associated
+        // with this signaler are destroyed.
 
   public:
     // MANIPULATORS
     template <class FUNC>
     SignalerConnection connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) slot,
                                int                                     group);
-        // Implements 'Signaler::connect()'.
-        //
-        // Connect the specified 'slot', a copyable object that can be called
-        // with the function signature 'PROT', or an object callable with an
-        // interface matching 'PROT', to this signaler.  Optionally specify a
-        // 'group' used to order slots upon invocation.  Return an instance of
-        // 'SignalerConnection' representing the created connection.
-        //
-        // Note that the connected slot may be invoked from another thread
-        // before this function completes.
-        //
-        // Note also that it is unspecified whether connecting a slot while the
-        // signaler is calling will result in the slot being invoked
-        // immediately.
-        //
-        // This function meets the strong exception guarantee.  If an exception
-        // is thrown, this function has no effect.
-        //
-        // Let 'ARGS...' be the arguments types of 'PROT', and 'args...' be
-        // lvalues of types 'bsl::decay_t<ARGS>...'.  Given an lvalue 'f' of
-        // type 'bsl::decay_t<FUNC>', the expression 'f(args...)' shall be well
-        // formed and have a well-defined behavior.  'FUNC' must meet the
-        // requirements of Destructible and CopyConstructible as specified in
-        // the C++ standard.
+        // Implements 'Signaler::connect()'.  Connect the specified 'slot', a
+        // copyable object callable with an interface matching 'PROT', to this
+        // signaler.  Specify a 'group' used to order slots upon invocation.
+        // Return an instance of 'SignalerConnection' representing the created
+        // connection.  Let 'ARGS...' be the arguments types of 'PROT', and
+        // 'args...' be lvalues of types 'bsl::decay_t<ARGS>...'.  Given an
+        // lvalue 'f' of type 'bsl::decay_t<FUNC>', the expression 'f(args...)'
+        // shall be well formed and have a well-defined behavior.  'FUNC' must
+        // meet the requirements of Destructible and CopyConstructible as
+        // specified in the C++ standard, and must meet the requirements to be
+        // a slot.  This function meets the strong exception guarantee.  Note
+        // that the connected slot may be invoked from another thread before
+        // this function completes.  Also note that it is unspecified whether
+        // connecting a slot while the signaler is calling will result in the
+        // slot being invoked immediately.  Note that 'FUNC' may have a return
+        // type other than 'void', but in that case, when the slot is called,
+        // the return value will be discarded.
 
-    void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
-        // Implements 'Signaler::disconnectAllSlots()'.
-        //
-        // Disconnect all slots connected to this signaler, if any.
-        //
-        // Note that this function does not block the calling thread pending
-        // completion of currently executing slots.  There is also no guarantee
-        // that disconnected slots will not be invoked from another thread
-        // after this function completes.  If such behavior is desired, use
-        // 'disconnectAllSlotsAndWait()' instead.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
-        // disconnected.
-
-    void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
-        // Implements 'Signaler::disconnectAllSlotsAndWait()'.
-        //
-        // Disconnect all slots connected to this signaler, if any, and block
-        // the calling thread pending completion of currently executing slots.
-        // The behavior is undefined if this function is invoked from a slot
-        // connected to this signaler.
-        //
-        // Note that it is guaranteed that disconnected slots will not be
-        // invoked after this function completes.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
-        // disconnected.
-        //
-        // Note also that this function does block pending completion of
-        // already disconnected, but still executing, slots.
+                            // Disconnect by Group
 
     void disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT;
-        // Implements 'Signaler::disconnectGroup()'.
-        //
-        // Disconnect all slots in the specified 'group', if any.
-        //
-        // Note that this function does not block the calling thread pending
-        // completion of currently executing slots.  There is also no guarantee
-        // that disconnected slots will not be invoked from another thread
-        // after this function completes.  If such behavior is desired, use
-        // 'disconnectGroupAndWait()' instead.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
+        // Implements 'Signaler::disconnectGroup()'.  Disconnect all slots, if
+        // any, connected to this signaler in the specified 'group'.  Any
+        // invocation of the corresponding signaler that happens after this
+        // call to disconect completes will not invoke any slots in 'group'
+        // that were connected prior to this call.  Note that this function
+        // does not block the calling thread pending completion of ongoing
+        // calls to the slots.  Also note that it is unspecified how many
+        // affected slots, if any, will be called by any invocation on the
+        // signaler that begins before this function completes.  Also note that
+        // if a slot in 'group' is connected to this signaler during a call to
+        // this function, it is unspecified whether that slot will be
         // disconnected.
 
     void disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT;
-        // Implements 'Signaler::disconnectGroupAndWait()'.
-        //
-        // Disconnect all slots in the specified 'group', if any, and block the
-        // calling thread pending completion of currently executing slots.  The
-        // behavior is undefined if this function is invoked from a slot
-        // connected to this signaler.
-        //
-        // Note that it is guaranteed that disconnected slots will not be
-        // invoked after this function completes.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
-        // disconnected.
-        //
-        // Note also that this function does block pending completion of
-        // already disconnected, but still executing, slots.
+        // Disconnect all slots, if any, connected to this signaler in the
+        // specified 'group'.  Any invocation of the corresponding signaler
+        // that happens after this call to disconect completes will not invoke
+        // any slots in 'group' that were connected prior to this call.  This
+        // function blocks the calling thread pending completion of ongoing
+        // calls to the slots.  The behavior is undefined if this method is
+        // called from a slot.  Note that it is unspecified how many affected
+        // slots, if any, will be called by any invocation on the signaler that
+        // begins before this function completes.  Also note that if a slot in
+        // 'group' is connected to this signaler during a call to this
+        // function, it is unspecified whether that slot will be disconnected.
+
+                               // Disconnect All
+
+    void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
+        // Implements 'Signaler::disconnectAllSlots()'.  Disconnect all slots,
+        // if any, connected to this signaler.  Any invocation of the
+        // corresponding signaler that happens after this call to disconect
+        // completes will not invoke any slots that were connected prior to
+        // this call.  Note that this function does not block the calling
+        // thread pending completion of ongoing calls to the slots.  Also note
+        // that it is unspecified how many slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot is connected to this signaler
+        // during a call to this function, it is unspecified whether that slot
+        // will be disconnected.
+
+    void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
+        // Disconnect all slots, if any, connected to this signaler.  Any
+        // invocation of the corresponding signaler that happens after this
+        // call to disconect completes will not invoke any slots that were
+        // connected prior to this call.  This function blocks the calling
+        // thread pending completion of ongoing calls to the slots.  The
+        // behavior is undefined if this method is called from a slot.  Note
+        // that it is unspecified how many slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot is connected to this signaler
+        // during a call to this function, it is unspecified whether that slot
+        // will be disconnected.
 
     void notifyDisconnected(SlotMapKey slotMapKey) BSLS_KEYWORD_NOEXCEPT;
         // Notify this signaler that a slot with the specified 'slotMapKey' was
@@ -876,20 +856,23 @@ class Signaler_Node :
 
   public:
     // ACCESSORS
-    void invoke(
-               typename ArgumentType::ForwardingType1 arg1,
-               typename ArgumentType::ForwardingType2 arg2,
-               typename ArgumentType::ForwardingType3 arg3,
-               typename ArgumentType::ForwardingType4 arg4,
-               typename ArgumentType::ForwardingType5 arg5,
-               typename ArgumentType::ForwardingType6 arg6,
-               typename ArgumentType::ForwardingType7 arg7,
-               typename ArgumentType::ForwardingType8 arg8,
-               typename ArgumentType::ForwardingType9 arg9) const;
-        // Implements 'Signaler's call operator.
+    void invoke(typename ArgumentType::ForwardingType1 arg1,
+                typename ArgumentType::ForwardingType2 arg2,
+                typename ArgumentType::ForwardingType3 arg3,
+                typename ArgumentType::ForwardingType4 arg4,
+                typename ArgumentType::ForwardingType5 arg5,
+                typename ArgumentType::ForwardingType6 arg6,
+                typename ArgumentType::ForwardingType7 arg7,
+                typename ArgumentType::ForwardingType8 arg8,
+                typename ArgumentType::ForwardingType9 arg9) const;
+        // Called by 'Signaler_Invocable's call operators, passing the
+        // specified 'arg1', 'arg2', 'arg3', 'arg4', 'arg5', 'arg6', 'arg7',
+        // 'arg8' and 'arg9' on to the slots.
 
     bsl::size_t slotCount() const BSLS_KEYWORD_NOEXCEPT;
-        // Implements 'Signaler::slotCount()'.
+        // Implements 'Signaler::slotCount()'.  Return the number of slots
+        // connected to this signaler.  Note that in multithreaded environment,
+        // the value returned by 'slotCount()' is approximate.
 };
 
                                // ==============
@@ -899,7 +882,10 @@ class Signaler_Node :
 template <class PROT>
 class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     // This class template provides a thread-safe signaler that executes
-    // connected slots when invoked via its call operator.
+    // connected slots when invoked via its call operator.  'PROT' is a
+    // function signature and must have a return type of 'void'.  The functions
+    // assigned to the slots may have return types other than 'void', in which
+    // case their return values will be discarded.
 
   public:
     // TYPES
@@ -915,6 +901,10 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     // FRIENDS
     friend struct Signaler_Invocable<Signaler<PROT>, PROT>;
 
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Signaler, bslma::UsesBslmaAllocator)
+
   private:
     // NOT IMPLEMENTED
     Signaler& operator=(const Signaler&) BSLS_KEYWORD_DELETED;
@@ -925,9 +915,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // Create a 'Signaler' object having no connected slots.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-        //
-        // No that the supplied allocator must remain valid until all
+        // used.  Note that the supplied allocator must remain valid until all
         // connection objects associated with this signaler are destroyed.
 
     ~Signaler();
@@ -941,90 +929,78 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     SignalerConnection connect(
                             BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) slot,
                             int                                     group = 0);
-        // Connect the specified 'slot', a pointer to a function matching
-        // 'PROT', or an object callable with an interface matching 'PROT', to
-        // this signaler.  Optionally specify a 'group' used to order slots
-        // upon invocation.  Return an instance of 'SignalerConnection'
-        // representing the created connection.
-        //
-        // Note that the connected slot may be invoked from another thread
-        // before this function completes.
-        //
-        // Note also that it is unspecified whether connecting a slot while the
-        // signaler is calling will result in the slot being invoked
-        // immediately.
-        //
-        // This function meets the strong exception guarantee.  If an exception
-        // is thrown, this function has no effect.
-        //
-        // Let 'ARGS...' be the arguments types of 'PROT', and 'args...' be
-        // lvalues of types 'bsl::decay_t<ARGS>...'.  Given an lvalue 'f' of
-        // type 'bsl::decay_t<FUNC>', the expression 'f(args...)' shall be well
+        // Connect the specified 'slot', a copyable object callable with an
+        // interface matching 'PROT', to this signaler.  Specify a 'group' used
+        // to order slots upon invocation.  Return an instance of
+        // 'SignalerConnection' representing the created connection.  Let
+        // 'ARGS...' be the arguments types of 'PROT', and 'args...' be lvalues
+        // of types 'bsl::decay_t<ARGS>...'.  Given an lvalue 'f' of type
+        // 'bsl::decay_t<FUNC>', the expression 'f(args...)' shall be well
         // formed and have a well-defined behavior.  'FUNC' must meet the
         // requirements of Destructible and CopyConstructible as specified in
-        // the C++ standard.
+        // the C++ standard, and must meet the requirements to be a slot.  This
+        // function meets the strong exception guarantee.  Note that the
+        // connected slot may be invoked from another thread before this
+        // function completes.  Also note that it is unspecified whether
+        // connecting a slot while the signaler is calling will result in the
+        // slot being invoked immediately.  Note that 'FUNC' may have a return
+        // type other than 'void', but in that case, when the slot is called,
+        // the return value will be discarded.
 
                             // Disconnect by Group
 
     void disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots in the specified 'group', if any.
-        //
-        // Note that this function does not block the calling thread pending
-        // completion of currently executing slots.  There is also no guarantee
-        // that disconnected slots will not be invoked from another thread
-        // after this function completes.  If such behavior is desired, use
-        // 'disconnectGroupAndWait()' instead.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
-        // disconnected.
+        // Disconnect all slots, if any, connected to this signaler in the
+        // specified 'group'.  Any invocation of the corresponding signaler
+        // that happens after this call to disconect completes will not invoke
+        // any slots in 'group' that were connected prior to this call.  Note
+        // that this function does not block the calling thread pending
+        // completion of ongoing calls to the slots.  Also note that it is
+        // unspecified how many affected slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot in 'group' is connected to this
+        // signaler during a call to this function, it is unspecified whether
+        // that slot will be disconnected.
 
     void disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots in the specified 'group', if any, and block the
-        // calling thread pending completion of currently executing slots.  The
-        // behavior is undefined if this function is invoked from a slot
-        // connected to this signaler.
-        //
-        // Note that it is guaranteed that disconnected slots will not be
-        // invoked after this function completes.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
-        // disconnected.
-        //
-        // Note also that this function does block pending completion of
-        // already disconnected, but still executing, slots.
+        // Disconnect all slots, if any, connected to this signaler in the
+        // specified 'group'.  Any invocation of the corresponding signaler
+        // that happens after this call to disconect completes will not invoke
+        // any slots in 'group' that were connected prior to this call.  This
+        // function blocks the calling thread pending completion of ongoing
+        // calls to the slots.  The behavior is undefined if this method is
+        // called from a slot.  Note that it is unspecified how many affected
+        // slots, if any, will be called by any invocation on the signaler that
+        // begins before this function completes.  Also note that if a slot in
+        // 'group' is connected to this signaler during a call to this
+        // function, it is unspecified whether that slot will be disconnected.
 
-			    // Disconnect All
+                            // Disconnect All
 
     void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots connected to this signaler, if any.
-        //
-        // Note that this function does not block the calling thread pending
-        // completion of currently executing slots.  There is also no guarantee
-        // that disconnected slots will not be invoked from another thread
-        // after this function completes.  If such behavior is desired, use
-        // 'disconnectAllSlotsAndWait()' instead.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
-        // disconnected.
+        // Disconnect all slots, if any, connected to this signaler.  Any
+        // invocation of the corresponding signaler that happens after this
+        // call to disconect completes will not invoke any slots that were
+        // connected prior to this call.  Note that this function does not
+        // block the calling thread pending completion of ongoing calls to the
+        // slots.  Also note that it is unspecified how many slots, if any,
+        // will be called by any invocation on the signaler that begins before
+        // this function completes.  Also note that if a slot is connected to
+        // this signaler during a call to this function, it is unspecified
+        // whether that slot will be disconnected.
 
     void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots connected to this signaler, if any, and block
-        // the calling thread pending completion of currently executing slots.
-        // The behavior is undefined if this function is invoked from a slot
-        // connected to this signaler.
-        //
-        // Note that it is guaranteed that disconnected slots will not be
-        // invoked after this function completes.
-        //
-        // Note also that if a slot is connected to this signaler during a call
-        // to this function, it is unspecified whether that slot will be
-        // disconnected.
-        //
-        // Note also that this function does block pending completion of
-        // already disconnected, but still executing, slots.
+        // Disconnect all slots, if any, connected to this signaler.  Any
+        // invocation of the corresponding signaler that happens after this
+        // call to disconect completes will not invoke any slots that were
+        // connected prior to this call.  This function blocks the calling
+        // thread pending completion of ongoing calls to the slots.  The
+        // behavior is undefined if this method is called from a slot.  Note
+        // that it is unspecified how many slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot is connected to this signaler
+        // during a call to this function, it is unspecified whether that slot
+        // will be disconnected.
 
   public:
     // ACCESSORS
@@ -1033,39 +1009,28 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // 'bdlmt::Signaler_Invocable', from which this 'class' inherits,
         // provides a call operator that, in C++11, would be defined and behave
         // exacly this way, except that the number of arguments is limited to
-        // to 9.
-        //
-        // Sequentially invoke each slot connected to this signaler as if by
-        // 'f_i(args...)', where 'f_i' is the i-th connected slot.  The
-        // behavior is undefined if this function is invoked from a slot
-        // connected to this signaler.
-        //
-        // Note that slots are ordered by their respective groups, and within
-        // groups, by the order in which they were connected.
-        //
-        // Note also that the call operator does not forward rvalue references.
-        // That is done explicitly to prevent invocation arguments from being
-        // moved to the first slot, leaving them "empty" for all subsequent
-        // slots.
-        //
-        // Note also that if a slot is connected to or disconnected from this
-        // signaler during a call to this function, it is unspecified whether
-        // that slot will be invoked.
-        //
-        // Note also that if execution of a slot throws an exception, the
-        // invocation sequence is interrupted and the exception is propagated
-        // to the caller immediately.
-        //
-        // NOTE: 'ARGS...' are the argument types of 'PROT'.
+        // to 9, where 'ARGS...' are the arguments of 'PROT'.  Sequentially
+        // invoke each slot connected to this signaler as if by 'f_i(args...)',
+        // where 'f_i' is the i-th connected slot.  The behavior is undefined
+        // if this function is invoked from a slot connected to this signaler.
+        // Note that calls to slots are ordered by their respective groups, and
+        // within groups, by the order in which they were connected.  Also note
+        // that the call operator does not forward rvalue references.  That is
+        // done explicitly to prevent invocation arguments from being moved to
+        // the first slot, leaving them "empty" for all subsequent slots.  Also
+        // note that if a slot is connected by a called slot and the group of
+        // the new slots is less than the group of the called slot, the new
+        // slot will not be called, otherwise it will.  If a slot that has not
+        // been visited in a traversal is disconnected by a call to any of the
+        // 'disconnect*' method from a slot, the disconnected slot will not be
+        // called in the traversal.  Also note that if execution of a slot
+        // throws an exception, the invocation sequence is interrupted and the
+        // exception is propagated to the caller of the signaler immediately.
 
     bsl::size_t slotCount() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of slots connected to this signaler.  Note that in
         // multithreaded environment, the value returned by 'slotCount()' is
         // approximate.
-
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Signaler, bslma::UsesBslmaAllocator)
 };
 
                           // ========================
@@ -1073,14 +1038,12 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
                           // ========================
 
 class SignalerConnection {
-    // This class represents a connection between a signaler and a slot.  It is
-    // a lightweight object that has the ability to query whether the signaler
-    // and slot are currently connected, and to disconnect the slot from the
-    // signaler.
-    //
-    // Note that, unless otherwise specified, it is safe to invoke any method
-    // of 'SignalerConnection' from the context of its associated slot, or any
-    // other slot.
+    // This 'class' represents a connection between a signaler and a slot.  It
+    // is a lightweight object that has the ability to query whether the
+    // signaler and slot are currently connected, and to disconnect the slot
+    // from the signaler.  Note that, unless otherwise specified, it is safe to
+    // invoke any method of 'SignalerConnection' from the context of its
+    // associated slot, or any other slot.
 
   private:
     // PRIVATE TYPES
@@ -1136,28 +1099,24 @@ class SignalerConnection {
         // default-constructed state.  Return '*this'.
 
     void disconnect() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect the associated slot.  If '*this' does not have an
-        // associated slot or the slot was already disconnected, this function
-        // has no effect.
-        //
-        // Note that this function does not block the calling thread pending
-        // completion of the associated slot.  There is also no guarantee that
-        // the disconnected slot will not be invoked from another thread after
-        // this function completes.  If such behavior is desired, use
-        // 'disconnectAndWait()' instead.
+        // Disconnect the associated slot.  If the slot was already
+        // disconnected, this function has no effect.  Note that this function
+        // does not block the calling thread pending completion of the slot.
+        // Any invocation of the corresponding signaler that happens after this
+        // call to disconect completes will not invoke this slot.  Note that it
+        // is unspecified if any invocation on the signaler that begins before
+        // this function completes will invoke this slot.
 
     void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect the associated slot and block the calling thread pending
-        // its completion.  If '*this' does not have an associated slot, or the
-        // slot was already disconnected, this function has no effect.  The
-        // behavior is undefined if this function is invoked from the slot
-        // associated with '*this'.
-        //
-        // Note that it is guaranteed that the disconnected slot will not be
-        // invoked after this function completes.
-        //
-        // Note also that this function does block pending completion of an
-        // already disconnected, but still executing slot.
+        // Disconnect the associated slot.  If the slot was already
+        // disconnected, this function has no effect.  This function blocks the
+        // calling thread pending completion of any execution the slot, even if
+        // the slot was disconnected priot to this call.  Any invocation of the
+        // corresponding signaler that happens after this call to disconect
+        // completes will not invoke this slot.  The behavior is undefined if
+        // this method is called from the slot managed by this connection.
+        // Note that it is unspecified if any invocation on the signaler that
+        // begins before this function completes will invoke this slot.
 
     SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
         // Disassociate this connection object from its associated slot, if
@@ -1211,12 +1170,14 @@ class SignalerScopedConnection : public SignalerConnection {
         // management of the same slot (if any) as the specified 'original'
         // object, and reset 'original' to a default-constructed state.
 
+    explicit
     SignalerScopedConnection(const SignalerConnection& connection)
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
         // Create a 'SignalerScopedConnection' object that refers to and
         // assumes management of the same slot (if any) as the specified
         // 'connection' object.
 
+    explicit
     SignalerScopedConnection(bslmf::MovableRef<SignalerConnection> connection)
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
         // Create a 'SignalerScopedConnection' object that refers to and
@@ -1305,9 +1266,9 @@ void swap(SignalerScopedConnection& a,
                          // struct Signaler_Invocable
                          // -------------------------
 
-template <class SIGNALER, class RET>
+template <class SIGNALER>
 inline
-void Signaler_Invocable<SIGNALER, RET()>::operator()() const
+void Signaler_Invocable<SIGNALER, void()>::operator()() const
 {
     static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                                                             Signaler_NotArg(),
@@ -1321,9 +1282,9 @@ void Signaler_Invocable<SIGNALER, RET()>::operator()() const
                                                             Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1>
+template <class SIGNALER, class ARG1>
 inline
-void Signaler_Invocable<SIGNALER, RET(ARG1)>::operator()(ARG1 arg1) const
+void Signaler_Invocable<SIGNALER, void(ARG1)>::operator()(ARG1 arg1) const
 {
     static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
                         bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
@@ -1337,10 +1298,10 @@ void Signaler_Invocable<SIGNALER, RET(ARG1)>::operator()(ARG1 arg1) const
                         Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2>
+template <class SIGNALER, class ARG1,
+                          class ARG2>
 inline
-void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2)>::operator()(ARG1 arg1,
+void Signaler_Invocable<SIGNALER, void(ARG1, ARG2)>::operator()(ARG1 arg1,
                                                                ARG2 arg2) const
 {
     static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
@@ -1355,11 +1316,11 @@ void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2)>::operator()(ARG1 arg1,
                         Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3>
 inline
-void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3)>::operator()(
+void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3)>::operator()(
                                                                ARG1 arg1,
                                                                ARG2 arg2,
                                                                ARG3 arg3) const
@@ -1376,12 +1337,12 @@ void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3)>::operator()(
                         Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4>
 inline
-void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4)>::operator()(
+void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4)>::operator()(
                                                                ARG1 arg1,
                                                                ARG2 arg2,
                                                                ARG3 arg3,
@@ -1399,13 +1360,13 @@ void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4)>::operator()(
                         Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5>
 inline
-void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5)>::
+void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5)>::
                                                     operator()(ARG1 arg1,
                                                                ARG2 arg2,
                                                                ARG3 arg3,
@@ -1424,14 +1385,14 @@ void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5)>::
                        Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6>
 inline
-void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>::
+void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>::
                                                    operator()(ARG1 arg1,
                                                               ARG2 arg2,
                                                               ARG3 arg3,
@@ -1451,16 +1412,16 @@ void Signaler_Invocable<SIGNALER, RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>::
                         Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6,
-                                     class ARG7>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6,
+                          class ARG7>
 inline
 void Signaler_Invocable<SIGNALER,
-                        RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>::
+                        void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>::
                                                     operator()(ARG1 arg1,
                                                                ARG2 arg2,
                                                                ARG3 arg3,
@@ -1481,17 +1442,17 @@ void Signaler_Invocable<SIGNALER,
                         Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6,
-                                     class ARG7,
-                                     class ARG8>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6,
+                          class ARG7,
+                          class ARG8>
 inline
 void Signaler_Invocable<SIGNALER,
-                        RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>::
+                        void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>::
                                                     operator()(ARG1 arg1,
                                                                ARG2 arg2,
                                                                ARG3 arg3,
@@ -1513,19 +1474,19 @@ void Signaler_Invocable<SIGNALER,
                         Signaler_NotArg());
 }
 
-template <class SIGNALER, class RET, class ARG1,
-                                     class ARG2,
-                                     class ARG3,
-                                     class ARG4,
-                                     class ARG5,
-                                     class ARG6,
-                                     class ARG7,
-                                     class ARG8,
-                                     class ARG9>
+template <class SIGNALER, class ARG1,
+                          class ARG2,
+                          class ARG3,
+                          class ARG4,
+                          class ARG5,
+                          class ARG6,
+                          class ARG7,
+                          class ARG8,
+                          class ARG9>
 inline
 void
-Signaler_Invocable<SIGNALER,
-                   RET(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>::
+Signaler_Invocable<SIGNALER, void(
+                       ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>::
                                                     operator()(ARG1 arg1,
                                                                ARG2 arg2,
                                                                ARG3 arg3,
@@ -1885,7 +1846,7 @@ void Signaler_Node<PROT>::invoke(
     // removed from the skip list, though, in which case its 'next' pointers
     // will be null.
 
-    typename KeyToSlotMap::PairHandle slotHandle;
+    SlotPairHandle slotHandle;
     if (d_slotMap.front(&slotHandle) != 0) {
         // No slots.  Do nothing.
 
@@ -1945,36 +1906,60 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
     return SignalerConnection(slotNodePtr);
 }
 
+                            // Disconnect by Group
+
 template <class PROT>
 void Signaler_Node<PROT>::disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT
 {
-    typename KeyToSlotMap::PairHandle slotHandle;
+    // 'skipForward', below, may fail is a node is removed from the list while
+    // we're visiting it, in which case we have to go back to the front and
+    // start over.
 
-    while (d_slotMap.findLowerBound(&slotHandle, bsl::make_pair(group, 0)) == 0
-           && slotHandle.key().first == group) {
-        // disconnect all slots in the specified 'group', one by one
+    SlotPairHandle   slotHandle;
+    const SlotMapKey boundary(group, 0);
+    while (0 == d_slotMap.findLowerBound(&slotHandle, boundary) &&
+                                             slotHandle.key().first == group) {
+        do {
+            // notify the slot it's being disconnected
 
-        // notify the slot it's being disconnected
+            slotHandle.data()->notifyDisconnected();
 
-        slotHandle.data()->notifyDisconnected();
+            SlotPairHandle condemned(slotHandle);
 
-        // remove the slot from the collection
+            if (0 != d_slotMap.skipForward(&slotHandle)) {
+                slotHandle.release();
+            }
 
-        d_slotMap.remove(slotHandle);
+            // remove the slot from the collection
+
+            d_slotMap.remove(condemned);
+        } while (slotHandle && slotHandle.key().first == group);
     }
-
-    // TODO: This function complexity is N*logN. Should investigate if it can
-    //       be made linear.
 }
+
+template <class PROT>
+void Signaler_Node<PROT>::disconnectGroupAndWait(int group)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    // disconnect slots
+
+    disconnectGroup(group);
+
+    // synchronize with the call operator
+
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
+}
+
+                               // Disconnect All
 
 template <class PROT>
 void Signaler_Node<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
 {
-    typename KeyToSlotMap::PairHandle slotHandle;
+    SlotPairHandle slotHandle;
+
+    // disconnect all slots in the collection, one by one
 
     while (d_slotMap.front(&slotHandle) == 0) {
-        // disconnect all slots in the collection, one by one
-
         // notify the slot it's being disconnected
 
         slotHandle.data()->notifyDisconnected();
@@ -1991,19 +1976,6 @@ void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
     // disconnect slots
 
     disconnectAllSlots();
-
-    // synchronize with the call operator
-
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
-}
-
-template <class PROT>
-void Signaler_Node<PROT>::disconnectGroupAndWait(int group)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    // disconnect slots
-
-    disconnectGroup(group);
 
     // synchronize with the call operator
 

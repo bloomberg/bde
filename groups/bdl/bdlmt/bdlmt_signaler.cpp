@@ -4,6 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_signaler_cpp,"$Id$ $CSID$")
 
+//-----------------------------------------------------------------------------
+//                           IMPLEMENTATION NOTES
+//
+// The behavior is undefined if any method of 'Signaler_SlotNode',
+// 'Signaler_SlotNode_Base', or 'Signaler_Node' is called by a thread that does
+// not have a shared pointer to the object called.
+//-----------------------------------------------------------------------------
+
 namespace BloombergLP {
 namespace bdlmt {
 
@@ -187,8 +195,8 @@ SignalerScopedConnection::operator=(
 
     this->swap(rhsMoved);
 
-    // Destruction of 'rhsMoved' will disonnect the slot, if any, to which
-    // '*this' was previously referring.
+    // Destruction of 'rhsMoved' will disconnect the slot, if any, which
+    // '*this' was previously referencing.
 
     return *this;
 }
@@ -201,8 +209,8 @@ SignalerScopedConnection::operator=(const SignalerConnection& rhs)
 
     this->swap(rhsDerived);
 
-    // Destruction of 'rhsDerived' will disonnect the slot, if any, to which
-    // '*this' was previously referring.
+    // Destruction of 'rhsDerived' will disconnect the slot, if any, which
+    // '*this' was previously referencing.
 
     return *this;
 }

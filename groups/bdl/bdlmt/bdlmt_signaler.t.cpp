@@ -494,38 +494,72 @@ struct ThrowOnCopy {
     }
 };
 
-class Button {
-    // A pretend GUI button from the usage example.
+                                // -----
+                                // Usage
+                                // -----
 
-  public:
-    // TYPES
-    typedef bsl::function<void(int, int)> OnClickSlotType;
-        // Slot arguments are the 'x' and 'y' cursor coordinates.
+// Suppose we want to implement a GUI button class that allows users to
+// keep track of its 'press' events.
+//
+// First, we declare the 'class':
+//..
+    class Button {
+        // A pretend GUI button from the usage example.
 
-  private:
-    // PRIVATE DATA
-    bdlmt::Signaler<void(int, int)> d_onClick;
-        // Signaler arguments are the 'x' and 'y' cursor coordinates.
+        // DATA
+        int d_numPresses;
 
-  public:
-    // MANIPULATORS
-    bdlmt::SignalerConnection onClickConnect(const OnClickSlotType& slot)
-        // Connect the specified 'slot' to this button.
+      public:
+        // TYPES
+        typedef bsl::function<void(int)> OnPressSlotType;
+            // Slot arguments are the 'x' and 'y' cursor coordinates.
+
+      private:
+        // PRIVATE DATA
+        bdlmt::Signaler<void(int)> d_onPress;
+            // Signaler arguments are the 'x' and 'y' cursor coordinates.
+
+      public:
+        // CREATORS
+        Button();
+            // Default construct a 'Button'.
+
+        // MANIPULATORS
+        bdlmt::SignalerConnection onPressConnect(const OnPressSlotType& slot);
+            // Connect the specified 'slot' to this button.
+
+        void press();
+            // Simulate user pressing on GUI button at coordinates 'x', 'y'.
+    };
+//..
+// Then, we define its methods:
+//..
+// CREATORS
+    Button::Button()
+    : d_numPresses(0)
     {
-        return d_onClick.connect(slot);
     }
 
-    void click(int x, int y)
-        // Simulate user clicking on GUI button at coordinates 'x', 'y'.
+// MANIPULATORS
+    bdlmt::SignalerConnection Button::onPressConnect(
+                                                   const OnPressSlotType& slot)
     {
-        d_onClick(x, y);
+        return d_onPress.connect(slot);
     }
-};
 
-void printCoordinates(int x, int y)
-{
-    bsl::cout << "(" << x << ", " << y << ")" << bsl::endl;
-}
+    void Button::press()
+    {
+        d_onPress(++d_numPresses);
+    }
+//..
+// Next, we provide an event handler callback printing its argument, which the
+// class will pass the number of times the button has been pressed:
+//..
+    void showPresses(int numPresses)
+    {
+        bsl::cout << "Button pressed " << numPresses << " times.\n";
+    }
+//..
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -2513,7 +2547,7 @@ void test_lvalues()
 
     if (verbose) cout << "Two arg case:\n";
     {
-        bdlmt::Signaler<double(double&, double&)> sig(&alloc);
+        bdlmt::Signaler<void(double&, double&)> sig(&alloc);
 
         for (int ii = 0; ii < k_NUM_DATA; ++ii) {
             (void) sig.connect(Functor(data[ii]));
@@ -2537,15 +2571,15 @@ void test_lvalues()
 
     if (verbose) cout << "Nine arg case:\n";
     {
-        bdlmt::Signaler<double(double,
-                               double,
-                               const double,
-                               const int&,
-                               const int,
-                               const double&,
-                               double&,
-                               double&,
-                               double&)>          sig(&alloc);
+        bdlmt::Signaler<void(double,
+                             double,
+                             const double,
+                             const int&,
+                             const int,
+                             const double&,
+                             double&,
+                             double&,
+                             double&)>          sig(&alloc);
 
         for (int ii = 0; ii < k_NUM_DATA; ++ii) {
             (void) sig.connect(Functor(data[ii]));
@@ -2605,18 +2639,27 @@ static void test18_usageExample()
     //   Usage example
     // ------------------------------------------------------------------------
 {
-    // create a button and subscribe to its events
+// Then, in 'main', create a button and subscribe to its events.
+//..
     u::Button                 button;
-    bdlmt::SignalerConnection connection = button.onClickConnect(
-                                                         &u::printCoordinates);
-
-    // "click" the button
-    button.click(100, 200);
-
-    // disconnect
+    bdlmt::SignalerConnection connection = button.onPressConnect(
+                                                              &u::showPresses);
+//..
+// Next the button is "pressed", we will receive a notification.
+//..
+    button.press();
+//..
+// Now, we see the following message:
+//..
+//  Button pressed 1 times.
+//..
+// Finally, unsubscribe from button's events when we don't want to receive
+// notifications anymore.  (If we didn't call 'disconnect', 'button' would
+// clean up all the allocated resources when it went out of scope):
+//..
     connection.disconnect();
+//..
 }
-
 
 // ============================================================================
 //                                 MAIN PROGRAM
