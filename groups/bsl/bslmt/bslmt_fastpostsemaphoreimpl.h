@@ -729,7 +729,8 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::
 {
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
-    return (state & k_DISABLED_GEN_MASK) >> k_DISABLED_GEN_SHIFT;
+    return static_cast<int>((state & k_DISABLED_GEN_MASK)
+                                                      >> k_DISABLED_GEN_SHIFT);
 }
 
 template <class ATOMIC_OP, class MUTEX, class CONDITION>
