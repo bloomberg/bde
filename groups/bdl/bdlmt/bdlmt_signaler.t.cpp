@@ -504,7 +504,7 @@ struct ThrowOnCopy {
 // First, we declare the 'class':
 //..
     class Button {
-        // A pretend GUI button from the usage example.
+        // A pretend GUI button.
 
         // DATA
         int d_numPresses;
@@ -517,7 +517,8 @@ struct ThrowOnCopy {
       private:
         // PRIVATE DATA
         bdlmt::Signaler<void(int)> d_onPress;
-            // Signaler arguments are the 'x' and 'y' cursor coordinates.
+            // Signaler argument is the number of times the button has been
+            // pressed.
 
       public:
         // CREATORS
@@ -529,7 +530,7 @@ struct ThrowOnCopy {
             // Connect the specified 'slot' to this button.
 
         void press();
-            // Simulate user pressing on GUI button at coordinates 'x', 'y'.
+            // Simulate user pressing on GUI button.
     };
 //..
 // Then, we define its methods:
