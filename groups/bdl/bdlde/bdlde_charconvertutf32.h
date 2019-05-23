@@ -306,32 +306,27 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
-        // Load into the specified 'dstString' the result of converting the
-        // specified 'srcString' of optionally specified 'srcStringLength'
-        // containing UTF-32 to its UTF-8 equivalent.  If 'srcStringLength' is
-        // not specified, 'srcString' is null terminated and may not include
-        // embedded nulls, otherwise it may contain embedded nulls and must not
-        // include a terminating null.  Optionally specify
-        // 'numCodePointsWritten', which (if not 0) indicates the location of
-        // the modifiable variable into which the number of Unicode code points
-        // written, including the null terminator, is to be loaded.  Optionally
-        // specify 'errorByte' to be substituted (if not 0) for invalid
-        // encodings in the input string.  Invalid encodings are illegal
-        // Unicode values (in the range '[ 0xd800 .. 0xdfff ]' or above
-        // '0x10ffff').  If 'errorByte' is 0, invalid input words are ignored
-        // (i.e., produce no corresponding output).  Optionally specify
-        // 'byteOrder' to indicate the byte order of the UTF-32 input; if
-        // 'byteOrder' is not specified, the input is assumed to be in host
-        // byte order.  Any previous contents of the destination are discarded.
-        // Return 0 on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' if
-        // one or more invalid words were encountered in the input.  The
-        // behavior is undefined unless 'srcString' is null-terminated and
-        // 'errorByte' is either 0 or a valid single-byte encoded UTF-8 code
-        // point ('0 < errorByte < 0x80').  Note that one Unicode code point
-        // can occupy multiple *bytes* of UTF-8.  Also note that if you are
-        // passing the 'bsl;:vector<unsigned int>'obtained from a call to
-        // 'utf8ToUtf32' and using 'srcStringLength', you must take care to
-        // pass 'vector.size() - 1' to 'srcStringLength' to avoid embedding the
+        // Load into the specified 'dstString' the always null-terminated
+        // result of converting the specified 'srcString' of 'UTF-32' values to
+        // 'UTF-8' and return 0 on success or
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if invalid 'UTF-32' values
+        // (in the range '[0xD800 .. 0xDFFF]' or above 0x10FFFF) are
+        // encountered.  Optionally specify 'srcStringlength' as the number of
+        // 'UTF-32' values to be converted.  If 'srcStringLength' is specified,
+        // any 0's encountered, even the last word, are interpreted as embedded
+        // 0's, otherwise the input is interpreted a null-terminated.
+        // Optionally specify 'numCodePointsWritten' to receive the number of
+        // 'UTF-8' code points written to 'dstString', including the
+        // null-terminator.  Optionally specify 'errorByte' as the character to
+        // be written to 'dstString' as the translation of invalid 'UTF-32'
+        // values; if not specified, '?' is used, and if given as 0, no
+        // character is written at all.  Optionally specify 'byteOrder' to
+        // determine how 'UTF-32' values in 'srcString' are interpreted; if not
+        // given, host byte order is used.  The behavior is undefined if
+        // 'errorByte' is 0x80 or above.  Note that if you are passing the
+        // 'bsl;:vector<unsigned int>' obtained from a call to 'utf8ToUtf32'
+        // and using 'srcStringLength', you must take care to pass
+        // 'vector.size() - 1' to 'srcStringLength' to avoid embedding the
         // terminating 0.
 
     static int utf32ToUtf8(bsl::vector<char>     *dstVector,
@@ -347,34 +342,27 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
-        // Load into the specified 'dstVector' the result of converting the
-        // specified 'srcString' of optionally specified 'srcStringLength'
-        // containing UTF-32 to its UTF-8 equivalent.  If 'srcStringLength' is
-        // not specified, 'srcString' is null-terminated and may not contain
-        // embedded nulls, if it is specified, the input may contain embedded
-        // nulls and must not include a terminating null.  Optionally specify
-        // 'numCodePointsWritten', which (if not 0) indicates the location of
-        // the modifiable variable into which the number of Unicode code points
-        // written, including the null terminator, is to be loaded.  Optionally
-        // specify 'errorByte' to be substituted (if not 0) for invalid
-        // encodings in the input string.  Invalid encodings are illegal
-        // Unicode values (in the range '[ 0xd800 .. 0xdfff ]' or above
-        // '0x10ffff').  If 'errorByte' is 0, invalid input words are ignored
-        // (i.e., produce no corresponding output).  Optionally specify
-        // 'byteOrder' to indicate the byte order of the UTF-32 input; if
-        // 'byteOrder' is not specified, the input is assumed to be in host
-        // byte order.  Any previous contents of the destination are discarded.
-        // Return 0 on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' if
-        // one or more invalid words were encountered in the input.  The
-        // behavior is undefined unless 'srcString' is null-terminated and
-        // 'errorByte' is either 0 or at valid single-byte encoded UTF-8 code
-        // point ('0 < errorByte < 0x80').  Note that one code point can occupy
-        // multiple bytes of UTF-8.  Also note that 'dstVector' is sized to
-        // exactly fit the output, including a terminating '\0' which is always
-        // added.  Also note that if you are passing the 'bsl;:vector<unsigned
-        // int>'obtained from a call to 'utf8ToUtf32' and using
-        // 'srcStringLength', you must take care to pass 'vector.size() - 1' to
-        // 'srcStringLength' to avoid embedding the terminating 0.
+        // Load into the specified 'dstVector' the always null-terminated
+        // result of converting the specified 'srcString' of 'UTF-32' values to
+        // 'UTF-8', followed by a null character, and return 0 on success or
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if invalid 'UTF-32' values
+        // (in the range '[0xD800 .. 0xDFFF]' or above 0x10FFFF) are seen.
+        // Optionally specify 'srcStringlength' as the number of 'UTF-32'
+        // values to be converted.  If 'srcStringLength' is specified, any 0's
+        // encountered, even the last word, are interpreted as embedded 0's,
+        // otherwise the input is interpreted a null-terminated.  Optionally
+        // specify 'numCodePointsWritten' to receive the number of 'UTF-8' code
+        // points written to 'dstVector'.  Optionally specify 'errorByte' as
+        // the character to be written to 'dstVector' as the translation of
+        // invalid 'UTF-32' values; if not specified, '?' is used, and if given
+        // as 0, no character is written at all.  Optionally specify
+        // 'byteOrder' to determine how 'UTF-32' values in 'srcString' are
+        // interpreted; if not given, host byte order is used.  The behavior is
+        // undefined if 'errorByte' is 0x80 or above.  Note that if you are
+        // passing the 'bsl;:vector<unsigned int>' obtained from a call to
+        // 'utf8ToUtf32' and using 'srcStringLength', you must take care to
+        // pass 'vector.size() - 1' to 'srcStringLength' to avoid embedding the
+        // terminating 0.
 
     static int utf32ToUtf8(char                  *dstBuffer,
                            bsl::size_t            dstCapacity,
@@ -393,52 +381,29 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
-        // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
-        // the result of converting the specified 'srcString' of optionally
-        // specified 'srcStringLength' containing UTF-32 to its UTF-8
-        // equivalent.  If 'srcStringLength' is not specified, then the input
-        // is null-terminated and may not contain embedden nulls, otherwise it
-        // may contain embedden nulls and must not include a terminating null.
-        // Optionally specify 'numCodePointsWritten', which (if not 0)
-        // indicates the location of the modifiable variable into which the
-        // number of Unicode code points (including the terminating 0, if any)
-        // written is to be loaded.  Optionally specify 'numBytesWritten',
-        // which (if not 0) indicates the location of the modifiable variable
-        // into which the number of bytes written (including the null
-        // terminator, if any) is to be loaded.  Optionally specify 'errorByte'
-        // to be substituted (if not 0) for invalid encodings in the input
-        // string.  Invalid encodings are illegal Unicode values (in the range
-        // '[ 0xd800 .. 0xdfff ]' or above '0x10ffff').  If 'errorByte' is 0,
-        // invalid input words are ignored (i.e., produce no corresponding
-        // output).  Optionally specify 'byteOrder' to indicate the byte order
-        // of the UTF-32 input; if 'byteOrder' is not specified, the input is
-        // assumed to be in host byte order.  Return 0 on success and a
-        // bit-wise OR of the masks defined by 'CharConvertStatus::Enum'
-        // otherwise, where 'CharConvertStatus::k_INVALID_INPUT_BIT' will be
-        // set if one or more invalid words were encountered in the input, and
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be set if the
-        // output space was exhausted before conversion was complete.  The
-        // behavior is undefined unless 'dstBuffer' refers to an array of at
-        // least 'dstCapacity' elements, 'srcString' is null-terminated, and
-        // 'errorByte' is either 0 or a valid single-byte encoded UTF-8 code
-        // point ('0 < errorByte < 0x80').  Note that one Unicode code point
-        // can occupy multiple UTF-8 *bytes*, but will be a single UTF-32
-        // *word*.  Also note that if 'dstCapacity' is 0, this function returns
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is written
-        // into '*numCodePointsWritten' and '*numBytesWritten' (if those
-        // pointers are not zero), since there is insufficient space for even a
-        // null terminator alone.  Also note that since UTF-8 is a
-        // variable-length encoding, 'numBytesWritten' may be up to four times
-        // 'numCodePointsWritten', and, therefore, an input 'srcString' of
-        // 'dstCapacity' words (including terminating 0) may not fit into
-        // 'dstBuffer'.  Also note that the amount of room needed will vary
-        // with the contents of the data and the language being translated, but
-        // never will the number of bytes output exceed four times the number
-        // of 32-bit words input.  Note that '*numBytesWritten' includes the
-        // number of bytes written, including a terminating '\0', which is
-        // always added if 'dstCapacity > 0'.  Also note that if you are
-        // passing the 'bsl;:vector<unsigned int>'obtained from a call to
-        // 'utf8ToUtf32' and using 'srcStringLength', you must take care to
+        // Load, into the specified 'dstBuffer' no more than the specified
+        // 'dstCapacity' bytes of the result of converting the specified
+        // 'srcString' of 'UTF-32' values to 'UTF-8', always followed by a null
+        // temrinator unless 'dstCapacity == 0', and return 0 on success or a
+        // bit-wise OR of 'CharConvertStatus::k_INVALID_INPUT_BIT' if invalid
+        // 'UTF-32' values (in the range '[0xD800 .. 0xDFFF]' or above
+        // 0x10FFFF) are seen and 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT'
+        // if there is insufficient room for the entire result to be written.
+        // Optionally specify 'srcStringlength' as the number of 'UTF-32'
+        // values to be converted.  If 'srcStringLength' is specified, any 0's
+        // encountered, even last word, are interpreted as embedded 0's,
+        // otherwise the input is interpreted a null-terminated.  Optionally
+        // specify 'numCodePointsWritten' to receive the number of 'UTF-8' code
+        // points written to 'dstBuffer'.  Optionally specify 'numBytesWritten'
+        // to receive the number of bytes written to 'dstBuffer'.  Optionally
+        // specify 'errorByte' as the character to be written to 'dstBuffer' as
+        // the translation of invalid 'UTF-32' values; if not specified, '?' is
+        // used, and if given as 0, no character is written at all.  Optionally
+        // specify 'byteOrder' to determine how 'UTF-32' values in 'srcString'
+        // are interpreted; if not given, host byte order is used.  The
+        // behavior is undefined if 'errorByte' is 0x80 or above.  Note that if
+        // you are passing the 'bsl;:vector<unsigned int>' obtained from a call
+        // to 'utf8ToUtf32' and using 'srcStringLength', you must take care to
         // pass 'vector.size() - 1' to 'srcStringLength' to avoid embedding the
         // terminating 0.
 };
