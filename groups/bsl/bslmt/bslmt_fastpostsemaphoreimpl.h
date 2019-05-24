@@ -364,7 +364,7 @@ bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::setEnable(bool value)
             state = ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
                                                       state,
                                                       newState);
-        } while (state != expState && value == isDisabled(value));
+        } while (state != expState && value == isDisabled(state));
 
         return true;                                                  // RETURN
     }
