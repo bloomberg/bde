@@ -737,10 +737,6 @@ class Signaler_Node :
         // For supplying 'second' members of the 'SlotMapKey' values that are
         // unique to a signaler.
 
-    bslma::Allocator                 *d_allocator_p;
-        // The allocator that was passed at construction, used for 'd_slotMap'
-        // and for allocating 'SlotNode' objects.
-
   private:
     // NOT IMPLEMENTED
     Signaler_Node& operator=(const Signaler_Node&) BSLS_KEYWORD_DELETED;
@@ -915,19 +911,17 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // Connect the specified 'slot', a copyable object callable with an
         // interface matching 'PROT', to this signaler.  Optionally specify a
         // 'group' used to order slots upon invocation.  Return an instance of
-        // 'SignalerConnection' representing the created connection.  Let
-        // 'ARGS...' be the arguments types of 'PROT', and 'args...' be lvalues
-        // of types 'bsl::decay_t<ARGS>...'.  Given an lvalue 'f' of type
-        // 'bsl::decay_t<FUNC>', the expression 'f(args...)' shall be well
-        // formed and have a well-defined behavior.  'FUNC' must meet the
-        // requirements of Destructible and CopyConstructible as specified in
-        // the C++ standard.  This function meets the strong exception
-        // guarantee.  Note that the connected slot may be invoked from another
-        // thread before this function completes.  Also note that it is
-        // unspecified whether connecting a slot while the signaler is calling
-        // will result in the slot being invoked immediately.  Note that 'FUNC'
-        // may have a return type other than 'void', but in that case, when the
-        // slot is called, the return value will be discarded.
+        // 'SignalerConnection' representing the created connection.  'FUNC'
+        // must meet the requirements of Destructible and CopyConstructible as
+        // specified in the C++ standard, and 'slot' must be able to be passed
+        // to the copy constructor of 'bsl::function<PROT>'.  This function
+        // meets the strong exception guarantee.  Note that the connected slot
+        // may be invoked from another thread before this function completes.
+        // Also note that it is unspecified whether connecting a slot while the
+        // signaler is calling will result in the slot being invoked
+        // immediately.  Note that 'FUNC' may have a return type other than
+        // 'void', but in that case, when the slot is called, the return value
+        // will be discarded.
 
                             // Disconnect by Group
 
@@ -1097,7 +1091,7 @@ class SignalerConnection {
         // calling thread pending completion of execution of the slot by any
         // thread, even if the slot was disconnected prior to this call.  Any
         // invocation of the corresponding signaler that happens after this
-        // call to 'disconect' completes will not invoke the slot.  The
+        // call to 'disconectAndWait' completes will not invoke the slot.  The
         // behavior is undefined if this method is called from the slot managed
         // by this connection.  Note that it is unspecified if any invocation
         // on the signaler that begins before this function completes will
@@ -1798,7 +1792,6 @@ Signaler_Node<PROT>::Signaler_Node(bslma::Allocator *allocator)
 : d_signalerMutex()
 , d_slotMap(allocator)
 , d_keyId(0)
-, d_allocator_p(allocator)
 {
     BSLS_ASSERT(allocator);
 }
@@ -1874,11 +1867,11 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 
     bsl::shared_ptr<SlotNode> slotNodePtr =
                          bsl::allocate_shared<SlotNode>(
-                                     d_allocator_p,
+                                     d_slotMap.allocator(),
                                      this->shared_from_this(),
                                      BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
                                      slotMapKey,
-                                     d_allocator_p);
+                                     d_slotMap.allocator());
 
     // connect the slot
 
