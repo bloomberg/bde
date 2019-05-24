@@ -29,6 +29,7 @@
 #include <bsl_c_stdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_sstream.h>
@@ -1246,32 +1247,47 @@ int main(int argc, char *argv[])
                     "\n============================================\n";
         }
 
+        enum { k_NUM_NAMES = 100 };
+
         const bsl::string prefix = "name_prefix_";
-        for (int check = 0; check < 100; ++check) {
-            bsl::string name1;
-            Obj::makeUnsafeTemporaryFilename(&name1, prefix);
-            bsl::string name2 = name1;
-            Obj::makeUnsafeTemporaryFilename(&name2, prefix);
-            if ((check == 0 && veryVerbose) || veryVeryVerbose) {
-                cout << ":" << name1 << ": :" << name2 << ":\n";
+        bsl::deque<bsl::string> names;
+        for (unsigned ii = 0; ii < k_NUM_NAMES; ++ii) {
+            ASSERT(names.size() == ii);
+
+            bsl::string name;
+            Obj::makeUnsafeTemporaryFilename(&name, prefix);
+
+            if (veryVerbose) P(name);
+
+            ASSERT(!bsl::strncmp(name.c_str(),
+                                 prefix.c_str(),
+                                 prefix.length()));
+            ASSERT(prefix.length() + 6 <= name.length());
+
+            for (unsigned jj = 0; jj < ii; ++jj) {
+                ASSERTV(name, names[jj], name != names[jj]);
+                const bsl::size_t commonLen = bsl::min(name.length(),
+                                                       names[jj].length());
+                const int randLength = static_cast<int>(
+                                                  commonLen - prefix.length());
+                const int minNumDiffs = jj + 1 == ii ? randLength / 2 : 2;
+
+                int maxDiff  = 0;
+                int numDiffs = 0;
+                for (bsl::size_t kk = prefix.length(); kk < commonLen; ++kk) {
+                    const int diff = name[kk] - names[jj][kk];
+                    numDiffs += 0 != diff;
+                    maxDiff = bsl::max(maxDiff, diff < 0 ? -diff : diff);
+                }
+                ASSERTV(minNumDiffs, numDiffs, name, names[jj],
+                                                      minNumDiffs <= numDiffs);
+                ASSERTV(maxDiff, name, names[jj], 3 <= maxDiff);
             }
-            const size_t p1 = prefix.size();
-            ASSERT(name1.size() >= p1 + 8);
-            ASSERT(name2.size() >= p1 + 8);
-            ASSERT(name1.size() > p1 && prefix == name1.substr(0,p1));
-            ASSERT(name2.size() > p1 && prefix == name2.substr(0,p1));
-            ASSERT(name1.size() == name2.size());
-            ASSERT(name1.substr(p1) != name2.substr(p1));
-            int sum = 0, diffs = 0;
-            for (size_t i = p1; i < name1.size(); ++i) {
-                int diff = name1[i] - name2[i];
-                diffs += diff != 0;
-                sum += bsl::abs(diff);
-            }
-            ASSERT(sum >= 40);
-            ASSERT(diffs >= 4);
+
+            names.push_back(name);
         }
 
+        ASSERTV(names.size(), k_NUM_NAMES == names.size());
       } break;
       case 17: {
         // --------------------------------------------------------------------
