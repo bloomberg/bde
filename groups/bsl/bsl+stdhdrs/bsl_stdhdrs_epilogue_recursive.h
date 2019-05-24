@@ -309,6 +309,8 @@
 # endif
 # ifndef INCLUDED_BSLSTL_FUNCTION
 #   include <bslstl_function.h>
+#   include <bslstl_defaultsearcher.h>
+#   include <bslstl_boyermoorehorspoolsearcher.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 # ifndef INCLUDED_BSLSTL_HASH
