@@ -331,8 +331,6 @@ BSLS_IDENT("$Id: $")
 
 #include <cwchar>
 
-//#include <cstdio> // DEBUG: 'printf'
-
 namespace BloombergLP {
 
 namespace bslalg {
@@ -840,7 +838,6 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(
     std::size_t numBytes = reinterpret_cast<const char *>(end1)
                          - reinterpret_cast<const char *>(start1);
 
-    //printf("RangeCompare_Imp::equalBitwiseEqualityComparable: memcmp\n");
     return 0 == std::memcmp(reinterpret_cast<const void *>(start1),
                             reinterpret_cast<const void *>(start2),
                             numBytes);
@@ -925,7 +922,6 @@ int RangeCompare_Imp::lexicographical(const unsigned char *start1,
                                       const unsigned char *end1,
                                       const unsigned char *start2)
 {
-    //printf("RangeCompare_Imp::lexicographical: memcmp\n");
     return std::memcmp(start1, start2, end1 - start1);
 }
 
@@ -935,7 +931,6 @@ int RangeCompare_Imp::lexicographical(const char *start1,
                                       const char *start2)
 {
 #if CHAR_MAX == SCHAR_MAX
-//printf("RangeCompare_Imp::lexicographical: CHAR_MAX == SCHAR_MAX: memcmp\n");
     return std::memcmp(start1, start2, (end1 - start1));
 #else
     return lexicographical<const char *>(start1, end1, start2, 0);
@@ -947,7 +942,6 @@ int RangeCompare_Imp::lexicographical(const wchar_t *start1,
                                       const wchar_t *end1,
                                       const wchar_t *start2)
 {
-    //printf("RangeCompare_Imp::lexicographical: wmemcmp\n");
     return std::wmemcmp(start1, start2, end1 - start1);
 }
 
