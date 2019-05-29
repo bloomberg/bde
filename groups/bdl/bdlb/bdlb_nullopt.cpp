@@ -8,6 +8,11 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlb {
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+const NullOptType NullOptType::s_nullOpt;
+const NullOptType nullOpt = NullOptType::s_nullOpt;
+#endif
+
 }  // close package namespace
 }  // close enterprise namespace
 
