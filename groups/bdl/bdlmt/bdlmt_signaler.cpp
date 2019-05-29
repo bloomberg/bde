@@ -53,10 +53,11 @@ SignalerConnection::SignalerConnection(const SignalerConnection& original)
 
 SignalerConnection::SignalerConnection(
             bslmf::MovableRef<SignalerConnection> original) BSLS_CPP11_NOEXCEPT
-: d_slotNodeBasePtr(bslmf::MovableRefUtil::move(
-                    bslmf::MovableRefUtil::access(original).d_slotNodeBasePtr))
+: d_slotNodeBasePtr()
 {
-    // NOTHING
+    SignalerConnection& local = original;
+
+    d_slotNodeBasePtr.swap(local.d_slotNodeBasePtr);
 }
 
 // MANIPULATORS
@@ -104,11 +105,6 @@ SignalerConnection SignalerConnection::release() BSLS_CPP11_NOEXCEPT
     return ret;
 }
 
-void SignalerConnection::swap(SignalerConnection& other) BSLS_CPP11_NOEXCEPT
-{
-    d_slotNodeBasePtr.swap(other.d_slotNodeBasePtr);
-}
-
 // ACCESSORS
 bool SignalerConnection::isConnected() const BSLS_CPP11_NOEXCEPT
 {
@@ -147,94 +143,130 @@ bool operator>=(const SignalerConnection& lhs,
     return !(lhs < rhs);
 }
 
-                         // ------------------------------
-                         // class SignalerScopedConnection
-                         // ------------------------------
+                        // -----------------------
+                        // SignalerConnectionGuard
+                        // -----------------------
 
 // CREATORS
-SignalerScopedConnection::SignalerScopedConnection() BSLS_CPP11_NOEXCEPT
-: SignalerConnection()
+SignalerConnectionGuard::SignalerConnectionGuard() BSLS_KEYWORD_NOEXCEPT
+: d_connection()
 {
     // NOTHING
 }
 
-SignalerScopedConnection::SignalerScopedConnection(
-      bslmf::MovableRef<SignalerScopedConnection> original) BSLS_CPP11_NOEXCEPT
-: SignalerConnection(bslmf::MovableRefUtil::move(
-                                 static_cast<SignalerConnection&>(
-                                     bslmf::MovableRefUtil::access(original))))
+SignalerConnectionGuard::SignalerConnectionGuard(
+                    const SignalerConnection& connection) BSLS_KEYWORD_NOEXCEPT
+: d_connection(connection)
 {
     // NOTHING
 }
 
-SignalerScopedConnection::SignalerScopedConnection(
-                      const SignalerConnection& connection) BSLS_CPP11_NOEXCEPT
-: SignalerConnection(connection)
+SignalerConnectionGuard::SignalerConnectionGuard(
+        bslmf::MovableRef<SignalerConnection> connection) BSLS_KEYWORD_NOEXCEPT
+: d_connection()
 {
-    // NOTHING
+    bdlmt::SignalerConnection& localConnection = connection;
+    d_connection.swap(localConnection);
 }
 
-SignalerScopedConnection::SignalerScopedConnection(
-          bslmf::MovableRef<SignalerConnection> connection) BSLS_CPP11_NOEXCEPT
-: SignalerConnection(bslmf::MovableRefUtil::move(connection))
+SignalerConnectionGuard::SignalerConnectionGuard(bslmf::MovableRef<
+                       SignalerConnectionGuard> original) BSLS_KEYWORD_NOEXCEPT
+: d_connection()
 {
-    // NOTHING
+    bdlmt::SignalerConnectionGuard& localOriginal = original;
+    d_connection.swap(localOriginal.d_connection);
 }
 
-SignalerScopedConnection::~SignalerScopedConnection()
+SignalerConnectionGuard::~SignalerConnectionGuard()
 {
-    disconnect();
+    d_connection.disconnect();
 }
 
 // MANIPULATORS
-SignalerScopedConnection&
-SignalerScopedConnection::operator=(
-           bslmf::MovableRef<SignalerScopedConnection> rhs) BSLS_CPP11_NOEXCEPT
+SignalerConnectionGuard& SignalerConnectionGuard::operator=(
+                                bslmf::MovableRef<SignalerConnectionGuard> rhs)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    SignalerScopedConnection rhsMoved(bslmf::MovableRefUtil::move(rhs));
-
-    this->swap(rhsMoved);
-
-    // Destruction of 'rhsMoved' will disconnect the slot, if any, which
-    // '*this' was previously referencing.
+    SignalerConnectionGuard& localRhs = rhs;
+    disconnect();
+    d_connection = localRhs.d_connection;
 
     return *this;
 }
 
-SignalerScopedConnection&
-SignalerScopedConnection::operator=(const SignalerConnection& rhs)
-                                                            BSLS_CPP11_NOEXCEPT
+SignalerConnectionGuard& SignalerConnectionGuard::operator=(
+                           const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
-    SignalerScopedConnection rhsDerived(rhs);
-
-    this->swap(rhsDerived);
-
-    // Destruction of 'rhsDerived' will disconnect the slot, if any, which
-    // '*this' was previously referencing.
+    disconnect();
+    d_connection = rhs;
 
     return *this;
 }
 
-SignalerScopedConnection&
-SignalerScopedConnection::operator=(bslmf::MovableRef<SignalerConnection> rhs)
-                                                            BSLS_CPP11_NOEXCEPT
+SignalerConnectionGuard& SignalerConnectionGuard::operator=(
+               bslmf::MovableRef<SignalerConnection> rhs) BSLS_KEYWORD_NOEXCEPT
 {
-    SignalerScopedConnection rhsDerived(bslmf::MovableRefUtil::move(rhs));
-
-    this->swap(rhsDerived);
-
-    // Destruction of 'rhsDerived' will disonnect the slot, if any, to which
-    // '*this' was previously referring.
+    SignalerConnection& localRhs = rhs;
+    disconnect();
+    d_connection = localRhs;
 
     return *this;
 }
 
-void SignalerScopedConnection::swap(SignalerScopedConnection& other)
-                                                            BSLS_CPP11_NOEXCEPT
+void SignalerConnectionGuard::disconnect() BSLS_KEYWORD_NOEXCEPT
 {
-    SignalerConnection& otherBaseRef = other;
+    d_connection.disconnect();
+}
 
-    SignalerConnection::swap(otherBaseRef);
+void SignalerConnectionGuard::disconnectAndWait() BSLS_KEYWORD_NOEXCEPT
+{
+    d_connection.disconnectAndWait();
+}
+
+SignalerConnection SignalerConnectionGuard::release() BSLS_KEYWORD_NOEXCEPT
+{
+    SignalerConnection ret;
+
+    d_connection.swap(ret);
+
+    return ret;
+}
+
+// FREE OPERATORS
+bool operator==(const SignalerConnectionGuard& lhs,
+                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs.connection() == rhs.connection();
+}
+
+bool operator==(const SignalerConnection&      lhs,
+                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs == rhs.connection();
+}
+
+bool operator==(const SignalerConnectionGuard& lhs,
+                const SignalerConnection&      rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs.connection() == rhs;
+}
+
+bool operator!=(const SignalerConnectionGuard& lhs,
+                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs.connection() != rhs.connection();
+}
+
+bool operator!=(const SignalerConnection&      lhs,
+                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs != rhs.connection();
+}
+
+bool operator!=(const SignalerConnectionGuard& lhs,
+                const SignalerConnection&      rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs.connection() != rhs;
 }
 
 }  // close package namespace

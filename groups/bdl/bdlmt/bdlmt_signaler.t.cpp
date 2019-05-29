@@ -1613,46 +1613,46 @@ static void test10_connection_creators()
     //   Ensure proper behavior of creators methods.
     //
     // Plan:
-    //   1. Default-construct an instance of 'bdlmt::SignalerConnection'. Check
-    //      postconditions.
+    //: 1 Default-construct an instance of 'bdlmt::SignalerConnection'.  Check
+    //:   postconditions.
+    //:
+    //: 2 Copy-construct an instance of 'bdlmt::SignalerConnection'.  Check
+    //:   postconditions.
+    //:
+    //: 3 Move-construct an instance of 'bdlmt::SignalerConnection'.  Check
+    //:   postconditions.
     //
-    //   2. Copy-construct an instance of 'bdlmt::SignalerConnection'. Check
-    //      postconditions.
-    //
-    //   3. Move-construct an instance of 'bdlmt::SignalerConnection'. Check
-    //      postconditions.
-    //
-    //   4. Default-construct an instance of 'bdlmt::SignalerScopedConnection'.
-    //      Check postconditions.
-    //
-    //   5. Move-construct an instance of 'bdlmt::SignalerScopedConnection'.
-    //      Check postconditions.
-    //
-    //   6. Construct an instance of 'bdlmt::SignalerScopedConnection', from an
-    //      instance of bdlmt::SignalerConnection. Check postconditions.
-    //
-    //   7. Construct an instance of 'bdlmt::SignalerScopedConnection', from an
-    //      instance of 'bdlmt::SignalerConnection' by moving it. Check
-    //      postconditions.
-    //
-    //   8. Construct an instance of 'bdlmt::SignalerScopedConnection', from an
-    //      instance of 'bdlmt::SignalerConnection', destroy the instance of
-    //      'bdlmt::SignalerScopedConnection' and check that 'disconnect()' was
-    //      invoked.
+    //: 4 Default-construct an instance of 'bdlmt::SignalerConnectionGuard'.
+    //:   Check postconditions.
+    //:
+    //: 5 Move-construct an instance of 'bdlmt::SignalerConnectionGuard'.
+    //:   Check postconditions.
+    //:
+    //: 6 Construct an instance of 'bdlmt::SignalerConnectionGuard', from an
+    //:   instance of bdlmt::SignalerConnection.  Check postconditions.
+    //:
+    //: 7 Construct an instance of 'bdlmt::SignalerConnectionGuard', from an
+    //:   instance of 'bdlmt::SignalerConnection' by moving it.  Check
+    //:   postconditions.
+    //:
+    //: 8 Construct an instance of 'bdlmt::SignalerConnectionGuard', from an
+    //:   instance of 'bdlmt::SignalerConnection', destroy the instance of
+    //:   'bdlmt::SignalerConnectionGuard' and check that 'disconnect()' was
+    //:   invoked.
     //
     // Testing:
     //   - bdlmt::SignalerConnection's default constructor
     //   - bdlmt::SignalerConnection's copy constructor
     //   - bdlmt::SignalerConnection's move constructor
-    //   - bdlmt::SignalerScopedConnection's default constructor
-    //   - bdlmt::SignalerScopedConnection's move constructor
-    //   - bdlmt::SignalerScopedConnection's connection copying constructor
-    //   - bdlmt::SignalerScopedConnection's connection moving constructor
-    //   - bdlmt::SignalerScopedConnection's destructor
+    //   - bdlmt::SignalerConnectionGuard's default constructor
+    //   - bdlmt::SignalerConnectionGuard's move constructor
+    //   - bdlmt::SignalerConnectionGuard's connection copying constructor
+    //   - bdlmt::SignalerConnectionGuard's connection moving constructor
+    //   - bdlmt::SignalerConnectionGuard's destructor
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator alloc;
-    const bdlmt::SignalerScopedConnection def;
+    const bdlmt::SignalerConnectionGuard def;
 
     // 1. SignalerConnection default c-tor
     {
@@ -1696,43 +1696,42 @@ static void test10_connection_creators()
                   !con3.isConnected(),   true);
     }
 
-    // 4. SignalerScopedConnection default c-tor
+    // 4. SignalerConnectionGuard default c-tor
     {
-        bdlmt::SignalerScopedConnection con;
+        bdlmt::SignalerConnectionGuard con;
 
         // the connection is "empty"
         ASSERT(con == def);
     }
 
-    // 5. SignalerScopedConnection move c-tor
+    // 5. SignalerConnectionGuard move c-tor
     {
-        bdlmt::Signaler<void()>         sig(&alloc);
-        bdlmt::SignalerConnection       con0 = sig.connect(u::NoOp());
-        bdlmt::SignalerScopedConnection con1(con0);
-        bdlmt::SignalerScopedConnection con2(con0);
+        bdlmt::Signaler<void()>        sig(&alloc);
+        bdlmt::SignalerConnection      con0 = sig.connect(u::NoOp());
+        bdlmt::SignalerConnectionGuard con1(con0);
+        bdlmt::SignalerConnectionGuard con2(con0);
 
         // move
-        bdlmt::SignalerScopedConnection con3(
-                                       bslmf::MovableRefUtil::move(con1));
+        bdlmt::SignalerConnectionGuard con3(bslmf::MovableRefUtil::move(con1));
 
         // 'con1' is now "empty"
         ASSERT_EQ(con1 == def, true);
 
         // 'con3' reffers to the same slot as 'con1' used to
-        ASSERT_EQ(con2.isConnected() &&
-                   con3.isConnected(),   true);
+        ASSERT_EQ(con2.isConnected()  &&
+                  con3.isConnected(),    true);
         con2.disconnect();
         ASSERT_EQ(!con2.isConnected() &&
                   !con3.isConnected(),   true);
     }
 
-    // 6. SignalerScopedConnection connection copy c-tor
+    // 6. SignalerConnectionGuard connection copy c-tor
     {
         bdlmt::Signaler<void()>   sig(&alloc);
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
 
         // copy
-        bdlmt::SignalerScopedConnection con2(con1);
+        bdlmt::SignalerConnectionGuard con2(con1);
 
         // 'con2' reffers to the same slot as 'con1'
         ASSERT_EQ(con1.isConnected() && con2.isConnected(),   true);
@@ -1740,34 +1739,33 @@ static void test10_connection_creators()
         ASSERT_EQ(!con1.isConnected() && !con2.isConnected(), true);
     }
 
-    // 7. SignalerScopedConnection connection move c-tor
+    // 7. SignalerConnectionGuard connection move c-tor
     {
         bdlmt::Signaler<void()>   sig(&alloc);
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
         bdlmt::SignalerConnection con2(con1);
 
         // move
-        bdlmt::SignalerScopedConnection con3(
-                                        bslmf::MovableRefUtil::move(con1));
+        bdlmt::SignalerConnectionGuard con3(bslmf::MovableRefUtil::move(con1));
 
         // 'con1' is now "empty"
         ASSERT_EQ(con1 == def, true);
 
         // 'con3' reffers to the same slot as 'con1' used to
         ASSERT_EQ(con2.isConnected() &&
-                   con3.isConnected(),   true);
+                  con3.isConnected(),   true);
         con2.disconnect();
         ASSERT_EQ(!con2.isConnected() &&
-                  !con3.isConnected(),   true);
+                  !con3.isConnected(),  true);
     }
 
-    // 8. SignalerScopedConnection d-tor
+    // 8. SignalerConnectionGuard d-tor
     {
         bdlmt::Signaler<void()>   sig(&alloc);
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
 
         {
-            bdlmt::SignalerScopedConnection con2(con1);
+            bdlmt::SignalerConnectionGuard con2(con1);
         }
 
         // 'con2's destructor invoked 'disconnect()'
@@ -1783,33 +1781,33 @@ static void test11_connection_assignment()
     //   Ensure proper behavior of assignment operators.
     //
     // Plan:
-    //   1. Copy-assign an instance of 'bdlmt::SignalerConnection'. Check
-    //      postconditions.
-    //
-    //   2. Move-assign an instance of 'bdlmt::SignalerConnection'. Check
-    //      postconditions.
-    //
-    //   3. Move-assign an instance of 'bdlmt::SignalerScopedConnection'. Check
-    //      postconditions.
-    //
-    //   4. Copy-assign an instance of 'bdlmt::SignalerScopedConnection', from
-    //      an instance of 'bdlmt::SignalerConnection'. Check postconditions.
-    //
-    //   5. Move-assign an instance of 'bdlmt::SignalerScopedConnection', from
-    //      an instance of 'bdlmt::SignalerConnection'. Check postconditions.
+    //: 1 Copy-assign an instance of 'bdlmt::SignalerConnection'.  Check
+    //:   postconditions.
+    //:
+    //: 2 Move-assign an instance of 'bdlmt::SignalerConnection'.  Check
+    //:   postconditions.
+    //:
+    //: 3 Move-assign an instance of 'bdlmt::SignalerConnectionGuard'.  Check
+    //:   postconditions.
+    //:
+    //: 4 Copy-assign an instance of 'bdlmt::SignalerConnectionGuard', from an
+    //:   instance of 'bdlmt::SignalerConnection'.  Check postconditions.
+    //:
+    //: 5 Move-assign an instance of 'bdlmt::SignalerConnectionGuard', from an
+    //:   instance of 'bdlmt::SignalerConnection'.  Check postconditions.
     //
     // Testing:
     //   - bdlmt::SignalerConnection's copy assignment operator
     //   - bdlmt::SignalerConnection's move assignment operator
-    //   - bdlmt::SignalerScopedConnection's move assignment operator
-    //   - bdlmt::SignalerScopedConnection's connection copying assignment
+    //   - bdlmt::SignalerConnectionGuard's move assignment operator
+    //   - bdlmt::SignalerConnectionGuard's connection copying assignment
     //     operator
-    //   - bdlmt::SignalerScopedConnection's connection moving assignment
+    //   - bdlmt::SignalerConnectionGuard's connection moving assignment
     //     operator
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator alloc;
-    const bdlmt::SignalerScopedConnection def;
+    const bdlmt::SignalerConnectionGuard def;
 
     // 1. SignalerConnection copy assignment
     {
@@ -1847,15 +1845,15 @@ static void test11_connection_assignment()
                   !con3.isConnected(),  true);
     }
 
-    // 3. SignalerScopedConnection move assignment
+    // 3. SignalerConnectionGuard move assignment
     {
-        bdlmt::Signaler<void()>         sig(&alloc);
-        bdlmt::SignalerConnection       con0 = sig.connect(u::NoOp());
-        bdlmt::SignalerScopedConnection con1(con0);
-        bdlmt::SignalerScopedConnection con2(con0);
+        bdlmt::Signaler<void()>        sig(&alloc);
+        bdlmt::SignalerConnection      con0 = sig.connect(u::NoOp());
+        bdlmt::SignalerConnectionGuard con1(con0);
+        bdlmt::SignalerConnectionGuard con2(con0);
 
         // move-assign
-        bdlmt::SignalerScopedConnection con3;
+        bdlmt::SignalerConnectionGuard con3;
                                        con3 = bslmf::MovableRefUtil::move(
                                                                      con1);
 
@@ -1870,13 +1868,13 @@ static void test11_connection_assignment()
                   !con3.isConnected(),   true);
     }
 
-    // 4. SignalerScopedConnection connection copy assignment
+    // 4. SignalerConnectionGuard connection copy assignment
     {
         bdlmt::Signaler<void()>   sig(&alloc);
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
 
         // copy-assign
-        bdlmt::SignalerScopedConnection con2;
+        bdlmt::SignalerConnectionGuard con2;
                                        con2 = con1;
 
         // 'con2' reffer to the same slot as 'con1'
@@ -1885,14 +1883,14 @@ static void test11_connection_assignment()
         ASSERT_EQ(!con1.isConnected() && !con2.isConnected(), true);
     }
 
-    // 5. SignalerScopedConnection connection move assignment
+    // 5. SignalerConnectionGuard connection move assignment
     {
         bdlmt::Signaler<void()>   sig(&alloc);
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
         bdlmt::SignalerConnection con2(con1);
 
         // move-assign
-        bdlmt::SignalerScopedConnection con3;
+        bdlmt::SignalerConnectionGuard con3;
                                        con3 = bslmf::MovableRefUtil::move(
                                                                      con1);
 
@@ -1949,7 +1947,8 @@ static void test12_connection_disconnect()
     //   bdlmt::SignalerConnection::disconnect()
     // ------------------------------------------------------------------------
 {
-    bslma::TestAllocator alloc;
+    bslma::TestAllocator            alloc;
+    const bdlmt::SignalerConnection def;
 
     // 1. disconnect "empty" connection
     {
@@ -1964,6 +1963,7 @@ static void test12_connection_disconnect()
         // nothing happened
         ASSERT_EQ(con.isConnected(),                  false);
         ASSERT_EQ(con == bdlmt::SignalerConnection(), true);
+        ASSERT(def == con);
     }
 
     // 2. regular disconnect
@@ -2000,6 +2000,7 @@ static void test12_connection_disconnect()
         // first slot disconnected
         ASSERT_EQ(sig.slotCount(),    2u);
         ASSERT_EQ(con1.isConnected(), false);
+        ASSERT(def != con1);
 
         // disconnected connection is not "empty"
         ASSERT_EQ(con1 == bdlmt::SignalerConnection(), false);
@@ -2013,9 +2014,10 @@ static void test12_connection_disconnect()
 
     // 3. disconnect one slot from another
     {
-        bsl::ostringstream        out(&alloc);
-        bdlmt::Signaler<void()>   sig(&alloc);
-        bdlmt::SignalerConnection con1, con2, con3, con4;
+        bsl::ostringstream             out(&alloc);
+        bdlmt::Signaler<void()>        sig(&alloc);
+        bdlmt::SignalerConnection      con1, con2, con3;
+        bdlmt::SignalerConnectionGuard con4;
 
         // slot #1, prints "1_"
         con1 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
@@ -2029,7 +2031,7 @@ static void test12_connection_disconnect()
 
         // slot #3, disconnects slot #4
         con3 = sig.connect(bdlf::BindUtil::bind(
-                                 &bdlmt::SignalerConnection::disconnect,
+                                 &bdlmt::SignalerConnectionGuard::disconnect,
                                  &con4));
 
         // slot #4, prints "4_"
@@ -2046,6 +2048,8 @@ static void test12_connection_disconnect()
         ASSERT_EQ(sig.slotCount(),    2u);
         ASSERT_EQ(con1.isConnected(), false);
         ASSERT_EQ(con4.isConnected(), false);
+        ASSERT(def != con1);
+        ASSERT(def != con4);
 
         // slots #2 and #3 still connected
         ASSERT_EQ(con2.isConnected(), true);
@@ -2057,9 +2061,10 @@ static void test12_connection_disconnect()
 
     // 4. disconnect a slot from itself
     {
-        bsl::ostringstream       out(&alloc);
-        bdlmt::Signaler<void()>   sig(&alloc);
-        bdlmt::SignalerConnection con1, con2, con3;
+        bsl::ostringstream             out(&alloc);
+        bdlmt::Signaler<void()>        sig(&alloc);
+        bdlmt::SignalerConnection      con1, con2, con3;
+        bdlmt::SignalerConnectionGuard con4;
 
         // slot #1, prints "1_"
         con1 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
@@ -2076,18 +2081,50 @@ static void test12_connection_disconnect()
                                                        bsl::ref(out),
                                                        "3_"));
 
-        ASSERT_EQ(sig.slotCount(), 3u);
+        // slot #2, disconnects itself
+        con4 = sig.connect(bdlf::BindUtil::bind(
+                                 &bdlmt::SignalerConnectionGuard::disconnect,
+                                 &con4));
+
+        {
+            bdlmt::SignalerConnectionGuard con5;
+
+            // slot #5, prints "5_"
+            con5 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
+                                                           bsl::ref(out),
+                                                           "5_"));
+
+            ASSERT(5 == sig.slotCount());
+
+            // call the signaler
+            sig();
+
+            // slot #2 was disconnected
+            ASSERT_EQ(sig.slotCount(),    3u);
+            ASSERT_EQ(con2.isConnected(), false);
+            ASSERT_EQ(con4.isConnected(), false);
+            ASSERT(def != con2);
+            ASSERT(def != con4);
+
+            // slots #1, #3, and #5 are still connected
+            ASSERT_EQ(con1.isConnected(), true);
+            ASSERT_EQ(con3.isConnected(), true);
+            ASSERT_EQ(con5.isConnected(), true);
+
+            ASSERTV(out.str(), "1_3_5_" == out.str());
+
+            ASSERT(3 == sig.slotCount());
+
+            out.str("");
+        }
+
+        ASSERT_EQ(con1.isConnected(), true);
+        ASSERT_EQ(con3.isConnected(), true);
+        ASSERT(2 == sig.slotCount());
 
         // call the signaler
         sig();
-
-        // slot #2 was disconnected
-        ASSERT_EQ(sig.slotCount(),    2u);
-        ASSERT_EQ(con2.isConnected(), false);
-
-        // slots #1 and #3 are still connected
-        ASSERT_EQ(con1.isConnected(), true);
-        ASSERT_EQ(con3.isConnected(), true);
+        ASSERTV(out.str(), "1_3_" == out.str());
     }
 }
 
@@ -2113,17 +2150,6 @@ static void test13_connection_disconnectAndWait()
     //      - No other slot was disconnected;
     //      - 'disconnectAndWait()' have blocked the calling thread (thread #0)
     //        pending completion of the disconnected slot.
-    //
-    //   3. Connect slots #1 and #2 obtaining connection objects 'c1' and 'c2'
-    //      for each respective slot, given that slot #1, when invoked,
-    //      (conditionally) disconnects the slot #2 via a call to
-    //      'c2.disconnectAndWait()'. "Disable" slot #1 and call the signaler
-    //      from thread #1. Then, "enable" slot #1 and call the signaler from
-    //      thread #0 (the main thread).
-    //      Check that:
-    //      - Slot #2 was disconnected;
-    //      - 'disconnectAndWait()' have blocked the calling thread (thread #0)
-    //        pending completion of the disconnected slot (slot #2).
     //
     // Testing:
     //   bdlmt::SignalerConnection::disconnectAndWait()
@@ -2225,71 +2251,6 @@ static void test13_connection_disconnectAndWait()
         // stop the thread pool
         threadPool.stop();
     }
-
-    // 3. disconnect one slot from another
-    {
-        typedef bdlcc::Deque<u::DoubleTI>  TimestampQueue;
-        typedef bdlmt::Signaler<void()>    Sig;
-
-        TimestampQueue            tQueue(&alloc); // modified from thread #1
-        Sig                       sig(&alloc);    // invoked from threads #0
-        bdlmt::SignalerConnection con1, con2;
-        bsls::AtomicBool          slot1Enabled;
-
-        // start the thread pool
-        int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);
-
-        for (int i = 0; i < 8; ++i) {
-            // Repeat 8 times.
-
-            // slot #1, disconnects slot #2 if 'slot1Enabled' is 'true'
-            con1 = sig.connect(bdlf::BindUtil::bindR<void>(
-                                                    u::CondDisconnectAndWait(),
-                                                    &con2,
-                                                    &slot1Enabled));
-
-            // Connect slot #2 (the slot we'll be disconnecting). Does the
-            // following:
-            // 1. push starting timestamp
-            // 2. sleep
-            // 3. push completion timestamp
-            con2 = sig.connect(bdlf::BindUtil::bindR<void>(
-                                                    u::SleepAndPushTimestamp(),
-                                                    0.5, // sleep 500 ms
-                                                    &tQueue));
-
-            // disable slot #1 and call the signaler from thread #1
-            slot1Enabled = false;
-            threadPool.enqueueJob(bdlf::MemFnUtil::memFn(
-                                          &bdlmt::Signaler<void()>::operator(),
-                                          &sig));
-
-            // wait till slot #2 starts executing
-            tQueue.popFront();
-
-            // enable slot #1 and call the signaler from thread #2 (this
-            // thread)
-            slot1Enabled = true;
-            sig();
-
-            // disconnection timestamp
-            u::DoubleTI disconnectionTime = bsls::SystemTime::now(
-                                           bsls::SystemClockType::e_MONOTONIC);
-
-            // timestamp of target slot completion on thread #1
-            u::DoubleTI completionTime = tQueue.popFront();
-
-            // 'disconnectAndWait()' has blocked the calling thread
-            ASSERT_EQ(disconnectionTime >= completionTime, true);
-
-            // slot #2 disconnected
-            ASSERT_EQ(con2.isConnected(), false);
-        }
-
-        // stop the thread pool
-        threadPool.stop();
-    }
 }
 
 static void test14_connection_release()
@@ -2300,29 +2261,29 @@ static void test14_connection_release()
     //   Ensure proper behavior of the 'release' method.
     //
     // Plan:
-    //   Obtain a scoped connection object by connecting a slot to a signaler.
-    //   Release that connection. Check that the connection object is reset to
-    //   a default-constructed state. Then, destroy the connection object and
-    //   check that the slot was not disconnected.
+    //: 1 Obtain a connection guard object by connecting a slot to a signaler.
+    //:   Release that connection.  Check that the connection object is reset
+    //:   to a default-constructed state.  Then, destroy the connection object
+    //:   and check that the slot was not disconnected.
     //
     // Testing:
-    //   bdlmt::SignalerScopedConnection::release()
+    //   bdlmt::SignalerConnectionGuard::release()
     // ------------------------------------------------------------------------
 {
-    bslma::TestAllocator                  alloc;
-    bdlmt::Signaler<void()>               sig(&alloc);
-    const bdlmt::SignalerScopedConnection def;
+    bslma::TestAllocator            alloc;
+    bdlmt::Signaler<void()>         sig(&alloc);
+    const bdlmt::SignalerConnection def;
 
     // connect a slot
     bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
 
     {
-        // create a scoped connection
-        bdlmt::SignalerScopedConnection con2(con1);
+        // create a connection
+        bdlmt::SignalerConnection con2(con1);
         ASSERT_EQ(con2 == def, false);
 
         // release it
-        con2.release();
+        ASSERT(con1 == con2.release());
 
         // the connection is now "empty"
         ASSERT_EQ(con2 == def, true);
@@ -2330,8 +2291,21 @@ static void test14_connection_release()
         // destroy the connection ...
     }
 
-    // the slot was not disconnected
-    ASSERT_EQ(con1.isConnected(), true);
+    {
+        // create a connection guard
+        bdlmt::SignalerConnectionGuard con2(con1);
+        ASSERT_EQ(con2 == def, false);
+
+        // release it
+        ASSERT(con1 == con2.release());
+
+        // the connection is now "empty"
+        ASSERT_EQ(con2 == def, true);
+
+        // destroy the connection ...
+    }
+
+    ASSERT(con1.isConnected());
 }
 
 static void test15_connection_swap()
@@ -2345,16 +2319,18 @@ static void test15_connection_swap()
     //   1. Create two instance of 'bdlmt::SignalerConnection', swap them.
     //      Check that they were swapped.
     //
-    //   2. Create two instance of 'bdlmt::SignalerScopedConnection', swap
+    //   2. Create two instance of 'bdlmt::SignalerConnectionGuard', swap
     //      them. Check that they were swapped.
     //
     // Testing:
     //   - bdlmt::SignalerConnection::swap()
-    //   - bdlmt::SignalerScopedConnection::swap()
+    //   - bdlmt::SignalerConnectionGuard::swap()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator    alloc;
     bdlmt::Signaler<void()> sig(&alloc);
+
+    bdlmt::SignalerConnection def;
 
     // 1. swap two SignalerConnection's
     {
@@ -2383,15 +2359,35 @@ static void test15_connection_swap()
                   !con4.isConnected(),   true);
     }
 
-    // 2. swap two SignalerScopedConnection's
+    // 2. swap two SignalerConnectionGuard's
     {
-        bdlmt::SignalerScopedConnection con1(sig.connect(u::NoOp()));
-        bdlmt::SignalerScopedConnection con2(sig.connect(u::NoOp()));
-        bdlmt::SignalerConnection       con3(con1);
-        bdlmt::SignalerConnection       con4(con2);
+        bdlmt::SignalerConnectionGuard con1(sig.connect(u::NoOp()));
+        bdlmt::SignalerConnectionGuard con2(sig.connect(u::NoOp()));
+        bdlmt::SignalerConnection      con3(con1.connection());
+        bdlmt::SignalerConnection      con4(con2.connection());
+
+        ASSERT(con1 != def);
+        ASSERT(con2 != def);
+        ASSERT(con3 != def);
+        ASSERT(con4 != def);
+
+        ASSERT(con1 == con3);
+        ASSERT(con2 == con4);
+        ASSERT(con3 != con2);
+        ASSERT(con4 != con1);
 
         // swap
         con1.swap(con2);
+
+        ASSERT(con1 != def);
+        ASSERT(con2 != def);
+        ASSERT(con3 != def);
+        ASSERT(con4 != def);
+
+        ASSERT(con1 != con3);
+        ASSERT(con2 != con4);
+        ASSERT(con3 == con2);
+        ASSERT(con4 == con1);
 
         // check
         ASSERT_EQ(con1.isConnected() &&
@@ -2399,11 +2395,34 @@ static void test15_connection_swap()
                   con3.isConnected() &&
                   con4.isConnected(),   true);
         con4.disconnect();
+
+        ASSERT(con1 != def);
+        ASSERT(con2 != def);
+        ASSERT(con3 != def);
+        ASSERT(con4 != def);
+
+        ASSERT(con1 != con3);
+        ASSERT(con2 != con4);
+        ASSERT(con3 == con2);
+        ASSERT(con4 == con1);
+
         ASSERT_EQ(!con1.isConnected() &&
                    con2.isConnected() &&
                    con3.isConnected() &&
                   !con4.isConnected(),   true);
+
         con3.disconnect();
+
+        ASSERT(con1 != def);
+        ASSERT(con2 != def);
+        ASSERT(con3 != def);
+        ASSERT(con4 != def);
+
+        ASSERT(con1 != con3);
+        ASSERT(con2 != con4);
+        ASSERT(con3 == con2);
+        ASSERT(con4 == con1);
+
         ASSERT_EQ(!con1.isConnected() &&
                   !con2.isConnected() &&
                   !con3.isConnected() &&
