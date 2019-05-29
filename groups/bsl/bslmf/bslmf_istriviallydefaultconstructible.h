@@ -152,10 +152,6 @@ BSLS_IDENT("$Id: $")
 
 #include <stddef.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_ispointertomember.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 namespace bsl {
 
 template <class TYPE>

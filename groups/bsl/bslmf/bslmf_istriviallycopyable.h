@@ -129,10 +129,6 @@ BSLS_IDENT("$Id: $")
 
 #include <stddef.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_ispointertomember.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 // This set of includes must come last, due to usage of 'bsls_nativestd'
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 # include <bsls_nativestd.h>

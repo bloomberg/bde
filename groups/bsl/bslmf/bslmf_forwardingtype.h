@@ -260,10 +260,6 @@ BSLS_IDENT("$Id: $")
 
 #include <stddef.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_ispointertomember.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 #if defined(BSLS_PLATFORM_CMP_IBM) &&                                         \
     ((BSLS_PLATFORM_CMP_VERSION  < 0x0c10) ||                                 \
      (BSLS_PLATFORM_CMP_VERSION == 0x0c10  && __xlC_ver__ < 0x00000013))
