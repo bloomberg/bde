@@ -247,12 +247,14 @@ class Moment {
                         // --------------------------
 
 // CREATORS
+inline
 Moment_Data<MomentLevel::e_M1>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
 {
 }
 
+inline
 Moment_Data<MomentLevel::e_M2>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
@@ -261,6 +263,7 @@ Moment_Data<MomentLevel::e_M2>::Moment_Data()
 {
 }
 
+inline
 Moment_Data<MomentLevel::e_M3>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
@@ -270,6 +273,7 @@ Moment_Data<MomentLevel::e_M3>::Moment_Data()
 {
 }
 
+inline
 Moment_Data<MomentLevel::e_M4>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
