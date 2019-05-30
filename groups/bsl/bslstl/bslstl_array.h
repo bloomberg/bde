@@ -526,7 +526,8 @@ template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
 {
     for (size_t i = 0; i < SIZE; ++i) {
-        std::swap(*(d_data + i), *(rhs.d_data + i));
+        using std::swap;
+        swap(d_data[i], rhs.d_data[i]);
     }
 }
 
