@@ -99,128 +99,131 @@ namespace bsl {
     // Import selected symbols into bsl namespace
 
     // 20.10.4.1, primary type categories:
-    using native_std::is_union;
+using native_std::is_union;
 
     // 20.10.4.2, composite type categories:
-    using native_std::is_object;
-    using native_std::is_scalar;
-    using native_std::is_compound;
+using native_std::is_object;
+using native_std::is_scalar;
+using native_std::is_compound;
 
     // 20.10.4.3, type properties:
-    using native_std::is_trivial;
-    using native_std::is_standard_layout;
-    using native_std::is_pod;
-    using native_std::is_literal_type;
-    using native_std::is_abstract;
-    using native_std::is_signed;
-    using native_std::is_unsigned;
-    using native_std::is_constructible;
-    using native_std::is_default_constructible;
-    using native_std::is_move_constructible;
-    using native_std::is_assignable;
-    using native_std::is_copy_assignable;
-    using native_std::is_move_assignable;
-    using native_std::is_destructible;
+using native_std::is_trivial;
+using native_std::is_standard_layout;
+using native_std::is_pod;
+using native_std::is_literal_type;
+using native_std::is_abstract;
+using native_std::is_signed;
+using native_std::is_unsigned;
+using native_std::is_constructible;
+using native_std::is_default_constructible;
+using native_std::is_move_constructible;
+using native_std::is_assignable;
+using native_std::is_copy_assignable;
+using native_std::is_move_assignable;
+using native_std::is_destructible;
 #if BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
-    using native_std::is_trivially_constructible;
-    using native_std::is_trivially_copy_constructible;
-    using native_std::is_trivially_move_constructible;
-    using native_std::is_trivially_assignable;
-    using native_std::is_trivially_copy_assignable;
-    using native_std::is_trivially_move_assignable;
-    using native_std::is_trivially_destructible;
+using native_std::is_trivially_constructible;
+using native_std::is_trivially_copy_constructible;
+using native_std::is_trivially_move_constructible;
+using native_std::is_trivially_assignable;
+using native_std::is_trivially_copy_assignable;
+using native_std::is_trivially_move_assignable;
+using native_std::is_trivially_destructible;
 #endif
-    using native_std::is_nothrow_constructible;
-    using native_std::is_nothrow_default_constructible;
-    using native_std::is_nothrow_copy_constructible;
-    using native_std::is_nothrow_assignable;
-    using native_std::is_nothrow_copy_assignable;
-    using native_std::is_nothrow_move_assignable;
+using native_std::is_nothrow_constructible;
+using native_std::is_nothrow_default_constructible;
+using native_std::is_nothrow_copy_constructible;
+using native_std::is_nothrow_assignable;
+using native_std::is_nothrow_copy_assignable;
+using native_std::is_nothrow_move_assignable;
 #if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 40800
-    using native_std::is_nothrow_destructible;
+using native_std::is_nothrow_destructible;
 #endif
-    using native_std::has_virtual_destructor;
+using native_std::has_virtual_destructor;
 
     // 20.10.5, type property queries:
-    using native_std::alignment_of;
-    using native_std::rank;
-    using native_std::extent;
+using native_std::alignment_of;
+using native_std::rank;
+using native_std::extent;
 
     // 20.10.6, type relations:
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::is_base_of;
+using native_std::is_base_of;
 #endif
 
     // 20.10.7.3, sign modifications:
-    using native_std::make_signed;
-    using native_std::make_unsigned;
+using native_std::make_signed;
+using native_std::make_unsigned;
 
     // 20.10.7.4, array modifications:
-    using native_std::remove_all_extents;
+using native_std::remove_all_extents;
 
     // 20.10.7.6, other transformations:
-    using native_std::aligned_storage;
+using native_std::aligned_storage;
 #if BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-    using native_std::aligned_union;
+using native_std::aligned_union;
 #endif
-    using native_std::common_type;
-    using native_std::underlying_type;
-    using native_std::result_of;
+using native_std::common_type;
+using native_std::underlying_type;
+using native_std::result_of;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-template <std::size_t LEN, std::size_t ALIGN> using aligned_storage_t =
+template <std::size_t LEN, std::size_t ALIGN>
+using aligned_storage_t =
                         typename native_std::aligned_storage<LEN, ALIGN>::type;
     // 'aligned_storage_t' is an alias to the return type of the
     // 'native_std::aligned_storage' meta-function.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-template <std::size_t LEN, class... TYPES> using aligned_union_t =
+template <std::size_t LEN, class... TYPES>
+using aligned_union_t =
                        typename native_std::aligned_union<LEN, TYPES...>::type;
     // 'aligned_union_t' is an alias to the return type of the
     // 'native_std::aligned_union' meta-function.
-#endif
 
-template <class TYPE> using common_type_t =
-                                  typename native_std::common_type<TYPE>::type;
+template <class... TYPES>
+using common_type_t = typename native_std::common_type<TYPES...>::type;
     // 'common_type_t' is an alias to the return type of the
     // 'native_std::common_type' meta-function.
+#endif
 
-template <class TYPE> using make_signed_t =
-                                  typename native_std::make_signed<TYPE>::type;
+template <class TYPE>
+using make_signed_t = typename native_std::make_signed<TYPE>::type;
     // 'make_signed_t' is an alias to the return type of the
     // 'native_std::make_signed' meta-function.
 
-template <class TYPE> using make_unsigned_t =
-                                typename native_std::make_unsigned<TYPE>::type;
+template <class TYPE>
+using make_unsigned_t = typename native_std::make_unsigned<TYPE>::type;
     // 'make_unsigned_t' is an alias to the return type of the
     // 'native_std::make_unsigned' meta-function.
 
-template <class TYPE> using remove_all_extents_t =
+template <class TYPE>
+using remove_all_extents_t =
                            typename native_std::remove_all_extents<TYPE>::type;
     // 'remove_all_extents_t' is an alias to the return type of the
     // 'native_std::remove_all_extents' meta-function.
 
-template <class TYPE> using result_of_t =
-                                    typename native_std::result_of<TYPE>::type;
+template <class TYPE>
+using result_of_t = typename native_std::result_of<TYPE>::type;
     // ' result_of_t' is an alias to the return type of the
     // 'native_std::result_of' meta-function.
 
-template <class TYPE> using underlying_type_t =
-                              typename native_std::underlying_type<TYPE>::type;
+template <class TYPE>
+using underlying_type_t = typename native_std::underlying_type<TYPE>::type;
     // 'underlying_type_t' is an alias to the return type of the
     // 'native_std::underlying_type' meta-function.
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    using native_std::is_null_pointer;
-    using native_std::is_final;
+using native_std::is_null_pointer;
+using native_std::is_final;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // 20.10.8, logical operator traits:
-    using native_std::conjunction;
-    using native_std::disjunction;
-    using native_std::negation;
+using native_std::conjunction;
+using native_std::disjunction;
+using native_std::negation;
 #endif
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
@@ -407,51 +410,51 @@ constexpr bool is_base_of_v = native_std::is_base_of<TYPE1, TYPE2>::value;
     // These traits are provided by BDE, and have additional members for
     // Bloomberg legacy code still using the pre-standard interface.
 
-    using native_std::add_const;
-    using native_std::add_cv;
-    using native_std::add_lvalue_reference;
-    using native_std::add_pointer;
-    using native_std::add_rvalue_reference;
-    using native_std::add_volatile;
-    using native_std::conditional;
-    using native_std::decay;
-    using native_std::enable_if;
-    using native_std::false_type;
-    using native_std::integral_constant;
-    using native_std::invoke_result;
-    using native_std::is_arithmetic;
-    using native_std::is_array;
-    using native_std::is_class;
-    using native_std::is_const;
-    using native_std::is_convertible;
-    using native_std::is_copy_constructible;
-    using native_std::is_empty;
-    using native_std::is_enum;
-    using native_std::is_floating_point;
-    using native_std::is_function;
-    using native_std::is_fundamental;
-    using native_std::is_integral;
-    using native_std::is_lvalue_reference;
-    using native_std::is_member_function_pointer;
-    using native_std::is_member_object_pointer;
-    using native_std::is_member_pointer;
-    using native_std::is_nothrow_move_constructible;
-    using native_std::is_pointer;
-    using native_std::is_polymorphic;
-    using native_std::is_reference;
-    using native_std::is_rvalue_reference;
-    using native_std::is_same;
-    using native_std::is_trivially_copyable;
-    using native_std::is_trivially_default_constructible;
-    using native_std::is_void;
-    using native_std::is_volatile;
-    using native_std::remove_const;
-    using native_std::remove_cv;
-    using native_std::remove_extent;
-    using native_std::remove_pointer;
-    using native_std::remove_reference;
-    using native_std::remove_volatile;
-    using native_std::true_type;
+using native_std::add_const;
+using native_std::add_cv;
+using native_std::add_lvalue_reference;
+using native_std::add_pointer;
+using native_std::add_rvalue_reference;
+using native_std::add_volatile;
+using native_std::conditional;
+using native_std::decay;
+using native_std::enable_if;
+using native_std::false_type;
+using native_std::integral_constant;
+using native_std::invoke_result;
+using native_std::is_arithmetic;
+using native_std::is_array;
+using native_std::is_class;
+using native_std::is_const;
+using native_std::is_convertible;
+using native_std::is_copy_constructible;
+using native_std::is_empty;
+using native_std::is_enum;
+using native_std::is_floating_point;
+using native_std::is_function;
+using native_std::is_fundamental;
+using native_std::is_integral;
+using native_std::is_lvalue_reference;
+using native_std::is_member_function_pointer;
+using native_std::is_member_object_pointer;
+using native_std::is_member_pointer;
+using native_std::is_nothrow_move_constructible;
+using native_std::is_pointer;
+using native_std::is_polymorphic;
+using native_std::is_reference;
+using native_std::is_rvalue_reference;
+using native_std::is_same;
+using native_std::is_trivially_copyable;
+using native_std::is_trivially_default_constructible;
+using native_std::is_void;
+using native_std::is_volatile;
+using native_std::remove_const;
+using native_std::remove_cv;
+using native_std::remove_extent;
+using native_std::remove_pointer;
+using native_std::remove_reference;
+using native_std::remove_volatile;
+using native_std::true_type;
 #endif
 }  // close package namespace
 
@@ -511,7 +514,7 @@ constexpr bool is_base_of_v = native_std::is_base_of<TYPE1, TYPE2>::value;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
