@@ -424,6 +424,70 @@ bool LessThanTestType::operator<(const LessThanTestType& other) const
     return d_val < other.d_val;
 }
 
+                             // =================
+                             // class CountedSwap
+                             // =================
+
+class CountedSwap {
+    // Wrapper class to track number of times swap is called.
+
+  private:
+    // CLASS DATA
+    static int s_numSwaps;
+
+    // DATA
+    int d_value;
+
+  public:
+    // CLASS METHODS
+    static int numSwaps();
+
+    static void resetNumSwaps();
+
+    // CREATORS
+    CountedSwap();
+    explicit CountedSwap(int v);
+
+    // FRIENDS
+    friend void swap(CountedSwap& a, CountedSwap& b);
+};
+
+                             // -----------------
+                             // class CountedSwap
+                             // -----------------
+
+// CLASS DATA
+int CountedSwap::s_numSwaps = 0;
+
+// CLASS METHODS
+int CountedSwap::numSwaps()
+{
+    return s_numSwaps;
+}
+
+void CountedSwap::resetNumSwaps()
+{
+    s_numSwaps = 0;
+}
+
+// CREATORS
+CountedSwap::CountedSwap()
+{
+}
+
+CountedSwap::CountedSwap(int v)
+: d_value(v)
+{
+}
+
+// FREE FUNCTIONS
+void swap(CountedSwap& a, CountedSwap& b)
+{
+    ++CountedSwap::s_numSwaps;
+
+    std::swap(a.d_value, b.d_value);
+}
+
                             // ====================
                             // struct AggregateTest
                             // ====================
@@ -3393,6 +3457,57 @@ void TestDriver<TYPE, SIZE>::testCase9()
     }
 }
 
+template <size_t SIZE>
+void testCase8_elementADL()
+{
+    // ------------------------------------------------------------------------
+    // TESTING SWAP ELEMENT ADL
+    //
+    // Concerns:
+    //: 1 The element's 'swap' is discovered through ADL when swapping arrays.
+    //:
+    //
+    // Plan:
+    //: 1 Construct arrays 'X1' and 'X2' of 'CountedSwap' elements.
+    //:
+    //: 3 Use the free 'swap' function to swap X1 and X2, then confirm that
+    //:   number of ADL-discovered swaps recorded by 'CountedSwap' equals to
+    //:   array size.
+    //:
+    //: 4 Use the member 'swap' function to swap X1 and X2, then confirm that
+    //:   number of ADL-discovered swaps recorded by 'CountedSwap' equals to
+    //:   array size.
+    //
+    // Testing:
+    //   void swap(array&);
+    //   void swap(array<TYPE,SIZE>& lhs, array<TYPE,SIZE>& rhs);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
+
+    typedef bsl::array<CountedSwap, SIZE> Obj;
+
+    const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
+    const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
+
+    Obj mX1; const Obj& X1 = gg(&mX1, SPEC1);
+    Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
+
+    if (veryVerbose)
+        printf("\t\t\tTesting element ADL of free 'swap' function\n");
+
+    CountedSwap::resetNumSwaps();
+    swap(mX1, mX2);
+    ASSERTV(SIZE, SIZE == CountedSwap::numSwaps());
+
+    if (veryVerbose)
+        printf("\t\t\tTesting element ADL of member 'swap' function\n");
+
+    CountedSwap::resetNumSwaps();
+    mX1.swap(mX2);
+    ASSERTV(SIZE, SIZE == CountedSwap::numSwaps());
+}
+
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase8()
 {
@@ -4587,6 +4702,16 @@ int main(int argc, char *argv[])
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase8,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        if (verbose)
+            printf("Testing element 'swap' ADL\n");
+
+        testCase8_elementADL<0>();
+        testCase8_elementADL<1>();
+        testCase8_elementADL<2>();
+        testCase8_elementADL<3>();
+        testCase8_elementADL<4>();
+        testCase8_elementADL<5>();
       } break;
       case 7: {
         // --------------------------------------------------------------------
