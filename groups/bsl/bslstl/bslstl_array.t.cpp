@@ -3465,7 +3465,6 @@ void testCase8_elementADL()
     //
     // Concerns:
     //: 1 The element's 'swap' is discovered through ADL when swapping arrays.
-    //:
     //
     // Plan:
     //: 1 Construct arrays 'X1' and 'X2' of 'CountedSwap' elements.
@@ -3483,7 +3482,7 @@ void testCase8_elementADL()
     //   void swap(array<TYPE,SIZE>& lhs, array<TYPE,SIZE>& rhs);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\tFor array of length " ZU "\n", SIZE);
 
     typedef bsl::array<CountedSwap, SIZE> Obj;
 
