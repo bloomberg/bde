@@ -55,7 +55,7 @@ const int EncoderOptions::DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION = bsl::numeric
 
 const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION = bsl::numeric_limits<double>::digits10;
 
-const bool EncoderOptions::DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64 = false;
+const bool EncoderOptions::DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64 = true;
 
 const bdlat_AttributeInfo EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {

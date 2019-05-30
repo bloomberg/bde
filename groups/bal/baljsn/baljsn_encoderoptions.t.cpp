@@ -309,47 +309,47 @@ const DefaultDataRow DEFAULT_DATA[] =
 //----  ------     ---     -----     ---    ---    ----- --- -- --  ---
 
 // default (must be first)
-{ L_,       0,       0,    COMPACT,  false, false, false, 3, 6, 15, false },
+{ L_,       0,       0,    COMPACT,  false, false, false, 3, 6, 15, true  },
 
 // 'initialIndentLevel'
-{ L_,       1,       0,    PRETTY,   false, false, false, 3, 9, 17, false },
-{ L_, INT_MAX,       0,    COMPACT,  false, false, false, 3, 9, 17, false },
+{ L_,       1,       0,    PRETTY,   false, false, false, 3, 9, 17, true  },
+{ L_, INT_MAX,       0,    COMPACT,  false, false, false, 3, 9, 17, true  },
 
 // 'spacesPerLevel'
-{ L_,       0,       1,    PRETTY,   false, false, false, 3, 9, 17, false },
-{ L_,       0, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, false },
+{ L_,       0,       1,    PRETTY,   false, false, false, 3, 9, 17, true  },
+{ L_,       0, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true  },
 
 // 'encodingStyle'
-{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, false },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, false },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, true  },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true  },
 
 // 'encodeEmptyArrays'
-{ L_, INT_MAX,       1,    PRETTY,   true,  false, false, 3, 9, 17, false },
-{ L_,       1, INT_MAX,    COMPACT,  true,  false, false, 3, 9, 17, false },
+{ L_, INT_MAX,       1,    PRETTY,   true,  false, false, 3, 9, 17, true  },
+{ L_,       1, INT_MAX,    COMPACT,  true,  false, false, 3, 9, 17, true  },
 
 // 'encodeNullElements'
-{ L_, INT_MAX,       1,    PRETTY,   false, true,  false, 3, 9, 17, false },
-{ L_,       1, INT_MAX,    COMPACT,  false, true,  false, 3, 9, 17, false },
+{ L_, INT_MAX,       1,    PRETTY,   false, true,  false, 3, 9, 17, true  },
+{ L_,       1, INT_MAX,    COMPACT,  false, true,  false, 3, 9, 17, true  },
 
 // 'encodeInfAndNaNAsStrings'
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9, 17, false },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 17, false },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9, 17, true  },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 17, true  },
 
 // 'datetimeFractionalSecondPrecision'
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  4, 9, 17, false },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  6, 9, 17, false },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  4, 9, 17, true  },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  6, 9, 17, true  },
 
 // 'maxFloatPrecision'
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 3, 17, false },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 6, 17, false },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 3, 17, true  },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 6, 17, true  },
 
 // 'maxDoublePrecision'
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9,  9, false },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 15, false },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9,  9, true  },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 15, true  },
 
 // 'encodeQuotedDecimal64'
-{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, true   },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true   },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, false },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, false },
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
                                                == options.maxFloatPrecision());
     ASSERT(bsl::numeric_limits<double>::digits10
                                               == options.maxDoublePrecision());
-    ASSERT(false == options.encodeQuotedDecimal64());
+    ASSERT(true == options.encodeQuotedDecimal64());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -674,7 +674,8 @@ int main(int argc, char *argv[])
         { // Testing 'EncodeQuotedDecimal64Accessor'
             for (int id = 0; id < Obj::NUM_ATTRIBUTES; ++id) {
                 EncodeQuotedDecimal64Accessor A;
-                const bdlat_AttributeInfo INFO = { id, "", 0, 0 };
+                const bdlat_AttributeInfo     INFO = {
+                    id, "", 0, 0, bdlat_FormattingMode::e_DEFAULT};
                 bool VALUE;
 
                 if (ATTRIBUTE_ID != id) {
@@ -695,7 +696,8 @@ int main(int argc, char *argv[])
             }
             {
                 EncodeQuotedDecimal64Accessor A;
-                const bdlat_AttributeInfo INFO = { ATTRIBUTE_ID, "", 0, 0 };
+                const bdlat_AttributeInfo     INFO = {
+                    ATTRIBUTE_ID, "", 0, 0, bdlat_FormattingMode::e_DEFAULT};
                 ASSERTV(L_, 0 == A(int(), INFO));
                 ASSERTV(L_, false == A.value());
                 ASSERTV(L_, 0 == A(baljsn::EncodingStyle(), INFO));
@@ -707,7 +709,8 @@ int main(int argc, char *argv[])
         { // Testing 'EncodeQuotedDecimal64Manipulator'
             for (int id = 0; id < Obj::NUM_ATTRIBUTES; ++id) {
                 EncodeQuotedDecimal64Manipulator M(true);
-                const bdlat_AttributeInfo INFO = { id, "", 0, 0 };
+                const bdlat_AttributeInfo        INFO = {
+                    id, "", 0, 0, bdlat_FormattingMode::e_DEFAULT};
 
                 if (ATTRIBUTE_ID != id) {
                     bool VALUE = false;
@@ -721,7 +724,8 @@ int main(int argc, char *argv[])
             }
             {
                 EncodeQuotedDecimal64Manipulator M(true);
-                const bdlat_AttributeInfo INFO = { ATTRIBUTE_ID, "", 0, 0 };
+                const bdlat_AttributeInfo        INFO = {
+                    ATTRIBUTE_ID, "", 0, 0, bdlat_FormattingMode::e_DEFAULT};
                 int                   V0;
                 baljsn::EncodingStyle V1;
                 double                V2;
@@ -1874,7 +1878,7 @@ int main(int argc, char *argv[])
         const int   D7   = 3;                    // 'datetimePrecision'
         const int   D8   = 6;                    // 'maxFloatPrecision'
         const int   D9   = 15;                   // 'maxDoublePrecision'
-        const bool  D10  = false;                // 'encodeQuotedDecimal64'
+        const bool  D10  = true;                 // 'encodeQuotedDecimal64'
 
                        // ----------------------------
                        // 'A' values: Boundary values.
@@ -1889,7 +1893,7 @@ int main(int argc, char *argv[])
         const int   A7   = 6;                    // 'datetimePrecision'
         const int   A8   = 6;                    // 'maxFloatPrecision'
         const int   A9   = 15;                   // 'maxDoublePrecision'
-        const bool  A10  = true;                 // 'encodeQuotedDecimal64'
+        const bool  A10  = false;                // 'encodeQuotedDecimal64'
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -2086,7 +2090,7 @@ int main(int argc, char *argv[])
         const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
         const int   D8   = 6;                    // 'maxFloatPrecision'
         const int   D9   = 15;                   // 'maxDoublePrecision'
-        const bool  D10  = false;                // 'encodeQuotedDecimal64'
+        const bool  D10  = true;                 // 'encodeQuotedDecimal64'
         // 'A' values.
 
         const int   A1   = 1;                    // 'initialIndentLevel'
@@ -2098,7 +2102,7 @@ int main(int argc, char *argv[])
         const int   A7   = 0;            // 'datetimeFractionalSecondPrecision'
         const int   A8   = 6;                    // 'maxFloatPrecision'
         const int   A9   = 15;                   // 'maxDoublePrecision'
-        const bool  A10  = true;                 // 'encodeQuotedDecimal64'
+        const bool  A10  = false;                // 'encodeQuotedDecimal64'
 
         // 'B' values.
 
@@ -2111,7 +2115,7 @@ int main(int argc, char *argv[])
         const int   B7   = 6;            // 'datetimeFractionalSecondPrecision'
         const int   B8   = 3;                    // 'maxFloatPrecision'
         const int   B9   = 9;                    // 'maxDoublePrecision'
-        const bool  B10  = true;                 // 'encodeQuotedDecimal64'
+        const bool  B10  = false;                // 'encodeQuotedDecimal64'
 
         Obj mX;  const Obj& X = mX;
 
@@ -2757,7 +2761,7 @@ int main(int argc, char *argv[])
         const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
         const int   D8   = 6;                    // 'maxFloatPrecision'
         const int   D9   = 15;                   // 'maxDoublePrecision'
-        const bool  D10  = false;                // 'encodeQuotedDecimal64'
+        const bool  D10  = true;                 // 'encodeQuotedDecimal64'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -2872,8 +2876,8 @@ int main(int argc, char *argv[])
 
         // Attribute 10 Values: 'encodeQuotedDecimal64'
 
-        const T10 D10 = false;     // default value
-        const T10 A10 = true;
+        const T10 D10 = true;     // default value
+        const T10 A10 = false;
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."

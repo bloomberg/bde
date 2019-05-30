@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //  encodeInfAndNaNAsStrings
 //                      bool           false           none
 //  encodeQuotedDecimal64
-//                      bool           false           none
+//                      bool           true            none
 //  datetimeFractionalSecondPrecision
 //                      int            3               >= 0 and <= 6
 //  maxFloatPrecision   int            bsl::numeric_limits<float>::digits10
@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: $")
 //  assert(bsl::numeric_limits<double>::digits10
 //                                            ==
 //                                            options.maxDoublePrecision());
-//  assert(false == options.encodeQuotedDecimal64());
+//  assert(true == options.encodeQuotedDecimal64());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:

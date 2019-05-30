@@ -150,7 +150,7 @@
       </xs:element>
       <xs:element name='EncodeQuotedDecimal64' type='xs:boolean'
             minOccurs='0' maxOccurs='1'
-            default='false'
+            default='true'
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
