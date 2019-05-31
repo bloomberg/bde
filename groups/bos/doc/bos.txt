@@ -1,0 +1,43 @@
+ bos.txt
+
+@PURPOSE: Empty scaffolding for a package group which will eventually provide
+          intercept headers substituting bsl:: symbols for standard std::
+          symbols.
+
+@MNEMONIC: BSL_OVERRIDES_STD library (bos)
+
+@AUTHOR: Pablo Halpern (phalpern), Alisdair Meredith (ameredit),
+         Mike Giroux (mgiroux)
+
+@DESCRIPTION: The 'bos' ("BSL_OVERRIDES_STD Library") package group will
+ contain one package that will provide intercept headers for the C++ standard
+ library headers, rendering 'std' as merely an alias to 'bsl' (i.e.,
+ 'std::vector' will be the same as 'bsl::vector').  This is also known as the
+ 'BDE-STL' mode.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bos' package group currently has 1 package.
+..
+  1. bosscm
+..
+
+/Package Synopsis
+/----------------
+: 'bosscm':
+:      Provide versioning information for library components in 'bos'.
+
+/Package Overview
+/----------------
+ This section provides a brief introduction to the package of the 'bos'
+ package group.
+
+/'bosscm'
+/ - - - -
+ The {'bslscm'} package contains only two components, 'bosscm_version' and
+ 'bosscm_versiontag'.  The first of these components is included by every other
+ component in 'bos', and provides versioning information for the package group.
+ Users may use the 'bosscm_version' facilities to query a particular 'bos'
+ library for its version information.  The second component defines macros that
+ can be used for conditional-compilation based on 'bos' version information.
+
