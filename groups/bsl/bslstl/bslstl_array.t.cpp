@@ -4733,9 +4733,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING COMPARISON OPERATORS"
                             "\n============================\n");
 
-        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
-                      testCase6,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                 TestDriverWrapper,
+                                 testCase6,
+                                 BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                                 long double);
       } break;
       case 5: {
         // --------------------------------------------------------------------
