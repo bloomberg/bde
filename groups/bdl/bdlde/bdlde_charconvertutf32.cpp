@@ -1287,7 +1287,7 @@ class Utf32ToUtf8Translator {
         // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-8 sequence is to be
         // translated.  Call the specified 'endFunctor' on the pointer to each
-        // word of 'input' to be read, prior to dereferencing the pointer, so
+        // word of 'input' to be read, prior to dereferencing the pointer, to
         // see if we've reached the end of input.  Write to the specified
         // '*numCodePointsWritten' the number of Unicode code points written,
         // including the terminating 0.  Write to the specified
