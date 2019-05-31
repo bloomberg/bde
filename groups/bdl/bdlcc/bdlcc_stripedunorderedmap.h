@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlcc_stripedunorderedmultimap,
 //           bdlcc_stripedunorderedcontainerimpl
 //
-//@AUTHOR: Ofer Imanuel (oimanuel)
-//
 //@DESCRIPTION: This component provides a single concurrent (fully thread-safe)
 // associative container, 'bdlcc::StripedUnorderedMap', that partitions the
 // underlying hash table into a (user defined) number of "bucket groups" and

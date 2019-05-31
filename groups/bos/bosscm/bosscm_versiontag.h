@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bosscm_version
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides versioning information for the 'bos'
 // package group.  The 'BOS_VERSION' macro that is supplied can be used for
 // conditional-compilation based on 'bos' version information.  The following

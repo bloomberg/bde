@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_fastpostsemaphore, bslmt_semaphore
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component defines a testable semaphore,
 // 'bslmt::FastPostSemaphoreImpl', with the 'post' operation being optimized at
 // the potential expense of other operations.  In particular,
