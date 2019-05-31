@@ -111,6 +111,13 @@ void aSsErT(bool condition, const char *message, int line)
 // (on just this broken platform) is negligible.
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900
+# define BSLMF_ISBITWISEEQUALITYCOMPARABLE_NO_ABOMINABLE_FUNCTIONS   1
+// Older MSVC compilers do not parse abominable function types, so it does not
+// matter whether trait would support them or not, we can simply disable such
+// tests on this platform.
+#endif
+
 //=============================================================================
 //                  MACROS TO CONFIGURE TESTING
 //-----------------------------------------------------------------------------
@@ -823,21 +830,36 @@ int main(int argc, char *argv[])
                     "\nTESTING 'bslmf::IsBitwiseEqualityComparable::value'"
                     "\n===================================================\n");
 
-        // C-1
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(bool, true);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(char, true);
+        // C-1 : Test all fundamental types to be sure there are no accidental
+        // gaps in coverage.
+
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(short,  true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(unsigned short,  true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(int,  true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(unsigned int,  true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long,  true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(unsigned long ,  true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long long,  true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(unsigned long long,  true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(float, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(double, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long double, true);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(wchar_t, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(bsl::nullptr_t, true);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(bool, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(char, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(signed char, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(unsigned char, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(wchar_t, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)                 \
+ || defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_NO_ABOMINABLE_FUNCTIONS)
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(char16_t, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(char32_t, true);
 #endif
 
         // C-2 : 'void' is not an object type, but can be cv-qualified.
+
         ASSERT_IS_BITWISE_COMPARABLE_CV_TYPE(void, false);
 
         // C-3
