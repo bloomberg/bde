@@ -4,8 +4,6 @@
 
 @MNEMONIC: BSL_OVERRIDES_STD Library Source Control Management (bosscm)
 
-@AUTHOR Mike Giroux (mgiroux)
-
 @SEE_ALSO: bslscm
 
 @DESCRIPTION: This package is for use only by the BDE library.  Components in

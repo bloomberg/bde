@@ -1,13 +1,10 @@
- bos.txt
+bos.txt
 
 @PURPOSE: Empty scaffolding for a package group which will eventually provide
           intercept headers substituting bsl:: symbols for standard std::
           symbols.
 
 @MNEMONIC: BSL_OVERRIDES_STD library (bos)
-
-@AUTHOR: Pablo Halpern (phalpern), Alisdair Meredith (ameredit),
-         Mike Giroux (mgiroux)
 
 @DESCRIPTION: The 'bos' ("BSL_OVERRIDES_STD Library") package group will
  contain one package that will provide intercept headers for the C++ standard

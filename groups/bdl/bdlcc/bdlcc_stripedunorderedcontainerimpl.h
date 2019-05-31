@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlcc:stripedunorderedmap, bdlcc:stripedunorderedmultimap
 //
-//@AUTHOR: Ofer Imanuel (oimanuel)
-//
 //@DESCRIPTON: This component provides 'bdlcc::StripedUnorderedContainerImpl',
 // a common implementation for 'bdlcc:StripedUnorderedMap' and
 // 'bdlcc::StripedUnorderedMultiMap', that are concurrent (fully thread-safe)

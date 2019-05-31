@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bosscm::Version: namespace for versioning information for 'bos'
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendels)
-//
 //@DESCRIPTION: This component provides source control management (versioning)
 // information for the 'bos' package group.  In particular, this component
 // embeds RCS-style and SCCS-style version strings in binary executable files
