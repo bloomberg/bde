@@ -1,0 +1,4 @@
+set(uor_description "BSL_OVERRIDES_STD Library \(bos\) package.")
+
+set(uor_extra_defines "-I\$\{includedir\}/stlport -DBSL_OVERRIDES_STD")
+

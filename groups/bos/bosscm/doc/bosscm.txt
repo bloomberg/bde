@@ -1,0 +1,39 @@
+ bosscm.txt
+
+@PURPOSE: Provide versioning information for library components in 'bos'.
+
+@MNEMONIC: BSL_OVERRIDES_STD Library Source Control Management (bosscm)
+
+@AUTHOR Mike Giroux (mgiroux)
+
+@SEE_ALSO: bslscm
+
+@DESCRIPTION: This package is for use only by the BDE library.  Components in
+ the 'bos' package group include this component in order to generate versioning
+ information.  Developers use this versioning information to track releases of
+ individual components when diagnosing problems using the 'bos' library.
+
+ This component is only used within the 'bos' package group.  Each BDE package
+ group contains a similar component that provides the same functionality for
+ components in that package group.  Thus separate package groups can be
+ deployed independently from one another.
+
+ In normal usage, developers should not need to refer to this component.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bosscm' package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. bosscm_version
+
+  1. bosscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'bosscm_version':
+:      Provide source control management (versioning) information.
+:
+: 'bosscm_versiontag':
+:      Provide versioning information for the 'bos' package group.

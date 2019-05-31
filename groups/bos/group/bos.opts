@@ -1,0 +1,4 @@
+# BOS overrides for default.opts
+
+*-                      _       OPTS_FILE       = bos.opts
+
