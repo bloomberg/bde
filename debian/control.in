@@ -21,6 +21,13 @@ Architecture: any
 Description: BSL
  groups/bsl development files
 
+Package: libbos-dev
+Depends: libbsl-dev
+Architecture: any
+XB-X-Blp-Private-Dependency-From: robobuild-meta, libbsloverridesstd-dev
+Description: BOS
+ groups/bos 'BSL_OVERRIDES_STD' development files.  This library is private, do not use it.
+
 Package: libbdl-dev
 Depends: libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
