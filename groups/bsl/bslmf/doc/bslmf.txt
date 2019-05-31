@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 78 components having 18 levels of physical
+ The 'bslmf' package currently has 77 components having 18 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -88,7 +88,6 @@
   10. bslmf_isfundamental
 
    9. bslmf_isarithmetic
-      bslmf_ispointertomember
 
    8. bslmf_isintegral
       bslmf_ismemberpointer
@@ -284,9 +283,6 @@
 :
 : 'bslmf_ispointer':
 :      Provide a compile-time check for pointer types.
-:
-: 'bslmf_ispointertomember':
-:      Provide a compile-time check for pointer-to-member types.
 :
 : 'bslmf_ispolymorphic':
 :      Provide a compile-time check for determining polymorphic types.
