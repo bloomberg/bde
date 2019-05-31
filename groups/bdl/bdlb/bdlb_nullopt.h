@@ -106,6 +106,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
 namespace BloombergLP {
@@ -135,6 +136,7 @@ class NullOptType {
 
   public:
     // CLASS METHODS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     static BSLS_KEYWORD_CONSTEXPR NullOptType makeInitialValue()
         // Return a value initialized 'NullOptType' object.  It is undefined
         // behavior to call this function other than to initialize the global
@@ -145,11 +147,17 @@ class NullOptType {
 
         return NullOptType();
     }
-
+#else
+    static const NullOptType s_nullOpt;
+#endif
 };
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 BSLS_KEYWORD_INLINE_CONSTEXPR NullOptType nullOpt =
                                                NullOptType::makeInitialValue();
+#else
+extern const NullOptType nullOpt;
+#endif
     // Value of type 'NullOptType' that serves as a literal value for the empty
     // state of any nullable value.
 
