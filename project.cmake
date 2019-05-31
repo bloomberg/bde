@@ -35,6 +35,7 @@ function(bdeproj_project_process_uors proj listDir)
         ${listDir}/groups/bbl
         ${listDir}/groups/bdl
         ${listDir}/groups/bsl
+        ${listDir}/groups/bos
     )
 
     bde_remove_recorded_overrides()
