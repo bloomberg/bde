@@ -106,13 +106,6 @@
                     "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
                                           "decnumber-pic-symlink-hack" ]
                 }
-            },
-            {
-                "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
-                "targets": [ "bsl" ],
-                "install": {
-                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
-                }
             }
         ],
         "aix6_powerpc": [
@@ -220,13 +213,6 @@
                     "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
                                           "decnumber-pic-symlink-hack" ]
                 }
-            },
-            {
-                "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
-                "targets": [ "bsl" ],
-                "install": {
-                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
-                }
             }
         ],
         "solaris10_sparc": [
@@ -333,13 +319,6 @@
                                           "pcre2-pic-symlink-hack" ],
                     "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
                                           "decnumber-pic-symlink-hack" ]
-                }
-            },
-            {
-                "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
-                "targets": [ "bsl" ],
-                "install": {
-                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
                 }
             }
         ]

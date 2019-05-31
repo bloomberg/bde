@@ -10,13 +10,7 @@ Architecture: any
 Description: bsl-internal bde metadata
  bde metadata for the bsl-internal source package
 
-Package: libbsl-rs${shlib:RSSUITE}
-Architecture: any
-Description: BSL
- groups/bde shared library runtime files Robo Shared Library Suite
-
 Package: libbsl-dev
-Depends: libbsl-rs${shlib:RSSUITE} (= ${binary:Version})
 Architecture: any
 Description: BSL
  groups/bsl development files
