@@ -458,23 +458,16 @@ class Signaler_SlotNode_Base {
 
   public:
     // MANIPULATORS
-    virtual void disconnect() BSLS_KEYWORD_NOEXCEPT = 0;
-        // Disconnect this slot.  If the slot was already disconnected, this
-        // function has no effect.  Note that this function does not block the
-        // calling thread pending completion of the slot.  Any invocation of
-        // the corresponding signaler that happens after this call to
-        // 'disconect' completes will not invoke this slot.  Note that it is
-        // unspecified if any invocation on the signaler that begins before
-        // this function completes will invoke this slot.
-
-    virtual void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT = 0;
-        // Disconnect this slot and block the calling thread pending its
-        // completion.  If the slot was already disconnected, this function has
-        // no effect.  The behavior is undefined if this function is invoked
-        // from this slot.  Note that it is guaranteed that this slot will not
-        // be invoked after this function completes.  Note also that this
-        // function does block pending completion of this slot, even if it is
-        // already disconnected.
+    virtual void disconnect(bool wait) BSLS_KEYWORD_NOEXCEPT = 0;
+        // Disconnect this slot and, if the specified 'wait' is 'true' block
+        // the calling thread pending the completion of any threads calling the
+        // signaler.  If 'wait' is 'false', return after disconnecting without
+        // waiting.  If the slot was already disconnected, this function has no
+        // effect.  The behavior is undefined if this function is invoked from
+        // a slot with 'true' passed to 'wait'.  Note that it is guaranteed
+        // that this slot will not be invoked after this function completes.
+        // Note also that this function does block pending completion of this
+        // slot, even if it is already disconnected.
 
     // ACCESSOR
     virtual bool isConnected() const BSLS_KEYWORD_NOEXCEPT = 0;
@@ -655,23 +648,17 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
 
   public:
     // MANIPULATOR
-    void disconnect() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Disconnect this slot.  If the slot was already disconnected, this
-        // function has no effect.  Note that this function does not block the
-        // calling thread pending completion of the slot.  Any invocation of
-        // the corresponding signaler that happens after this call to
-        // 'disconect' completes will not invoke this slot.  Note that it is
-        // unspecified if any invocation on the signaler that begins before
-        // this function completes will invoke this slot.
-
-    void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Disconnect this slot and block the calling thread pending its
-        // completion.  If the slot was already disconnected, this function has
-        // no effect.  The behavior is undefined if this function is invoked
-        // from this slot.  Note that it is guaranteed that this slot will not
-        // be invoked after this function completes.  Note also that this
-        // function does block pending completion of this slot, even if it is
-        // already disconnected.
+    void disconnect(bool wait) BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Disconnect this slot and, if the specified 'wait' is 'true', block
+        // the calling thread pending the completion of any other threads
+        // calling this signaler.  If 'wait' is 'false', return after
+        // disconnecting without waiting.  If the slot was already
+        // disconnected, this function has no effect.  The behavior is
+        // undefined if this function is invoked from a slot with 'true' passed
+        // to 'wait'.  Note that it is guaranteed that this slot will not be
+        // invoked after this function completes.  Note also that this function
+        // does block pending completion of this slot, even if it is already
+        // disconnected.
 
     void notifyDisconnected() BSLS_KEYWORD_NOEXCEPT;
         // Notify this slot that is was disconnected from its associated
@@ -728,8 +715,7 @@ class Signaler_Node :
     // PRIVATE DATA
     mutable bslmt::ReaderWriterMutex  d_signalerMutex;
         // The purpose of this mutex is to implement the waiting behavior of
-        // 'disconnectGroupAndWait()' and 'disconnectAllSlotsAndWait()'
-        // functions.
+        // diconnects in 'wait' mode.
 
     KeyToSlotMap                      d_slotMap;
         // Thread-safe collection containing slots indexed (and ordered) by
@@ -770,7 +756,31 @@ class Signaler_Node :
         // type other than 'void', but in that case, when the slot is called,
         // the return value will be discarded.
 
-                            // Disconnect by Group
+    void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
+        // Implements 'Signaler::disconnectAllSlots()'.  Disconnect all slots,
+        // if any, connected to this signaler.  Any invocation of the
+        // corresponding signaler that happens after this call to disconect
+        // completes will not invoke any slots that were connected prior to
+        // this call.  Note that this function does not block the calling
+        // thread pending completion of ongoing calls to the slots.  Also note
+        // that it is unspecified how many slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot is connected to this signaler
+        // during a call to this function, it is unspecified whether that slot
+        // will be disconnected.
+
+    void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
+        // Disconnect all slots, if any, connected to this signaler.  Any
+        // invocation of the corresponding signaler that happens after this
+        // call to disconect completes will not invoke any slots that were
+        // connected prior to this call.  This function blocks the calling
+        // thread pending completion of ongoing calls to the slots.  The
+        // behavior is undefined if this method is called from a slot.  Note
+        // that it is unspecified how many slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot is connected to this signaler
+        // during a call to this function, it is unspecified whether that slot
+        // will be disconnected.
 
     void disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectGroup()'.  Disconnect all slots, if
@@ -798,34 +808,6 @@ class Signaler_Node :
         // begins before this function completes.  Also note that if a slot in
         // 'group' is connected to this signaler during a call to this
         // function, it is unspecified whether that slot will be disconnected.
-
-                               // Disconnect All
-
-    void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
-        // Implements 'Signaler::disconnectAllSlots()'.  Disconnect all slots,
-        // if any, connected to this signaler.  Any invocation of the
-        // corresponding signaler that happens after this call to disconect
-        // completes will not invoke any slots that were connected prior to
-        // this call.  Note that this function does not block the calling
-        // thread pending completion of ongoing calls to the slots.  Also note
-        // that it is unspecified how many slots, if any, will be called by any
-        // invocation on the signaler that begins before this function
-        // completes.  Also note that if a slot is connected to this signaler
-        // during a call to this function, it is unspecified whether that slot
-        // will be disconnected.
-
-    void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots, if any, connected to this signaler.  Any
-        // invocation of the corresponding signaler that happens after this
-        // call to disconect completes will not invoke any slots that were
-        // connected prior to this call.  This function blocks the calling
-        // thread pending completion of ongoing calls to the slots.  The
-        // behavior is undefined if this method is called from a slot.  Note
-        // that it is unspecified how many slots, if any, will be called by any
-        // invocation on the signaler that begins before this function
-        // completes.  Also note that if a slot is connected to this signaler
-        // during a call to this function, it is unspecified whether that slot
-        // will be disconnected.
 
     void notifyDisconnected(SlotMapKey slotMapKey) BSLS_KEYWORD_NOEXCEPT;
         // Notify this signaler that a slot with the specified 'slotMapKey' was
@@ -921,62 +903,58 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // that 'FUNC' may have a return type other than 'void', but in that
         // case, when the slot is called, the return value will be discarded.
 
-                            // Disconnect by Group
-
-    void disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots, if any, connected to this signaler in the
-        // specified 'group'.  Any invocation of the corresponding signaler
-        // that happens after this call to 'disconectGroup' completes will not
-        // invoke any slots in 'group' that were connected prior to this call.
-        // Note that this function does not block the calling thread pending
-        // completion of ongoing calls to the slots.  Also note that it is
-        // unspecified how many affected slots, if any, will be called by any
-        // invocation on the signaler that begins before this function
-        // completes.  Also note that if a slot in 'group' is connected to this
-        // signaler during a call to this function, it is unspecified whether
-        // that slot will be disconnected.
-
-    void disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots, if any, connected to this signaler in the
-        // specified 'group'.  Any invocation of the corresponding signaler
-        // that happens after this call to 'disconectGroupAndWait' completes
-        // will not invoke any slots in 'group' that were connected prior to
-        // this call.  This function blocks the calling thread pending
-        // completion of ongoing calls to the slots.  The behavior is undefined
-        // if this method is called from a slot connected to this signaler.
-        // Note that it is unspecified how many affected slots, if any, will be
-        // called by any invocation on the signaler that begins before this
-        // function completes.  Also note that if a slot in 'group' is
-        // connected to this signaler during a call to this function, it is
-        // unspecified whether that slot will be disconnected.
-
-                            // Disconnect All
-
     void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect all slots, if any, connected to this signaler.  Any
-        // invocation of the corresponding signaler that happens after this
-        // call to disconect completes will not invoke any slots that were
-        // connected prior to this call to 'disconnectAllSlots'.  Note that
-        // this function does not block the calling thread pending completion
-        // of ongoing calls to the slots.  Also note that it is unspecified how
-        // many slots, if any, will be called by any invocation on the signaler
-        // that begins before this function completes.  Also note that if a
-        // slot is connected to this signaler during a call to this function,
-        // it is unspecified whether that slot will be disconnected.
+        // Implements 'Signaler::disconnectAllSlots()'.  Disconnect all slots,
+        // if any, connected to this signaler.  Any invocation of the
+        // corresponding signaler that happens after this call to disconect
+        // completes will not invoke any slots that were connected prior to
+        // this call.  Note that this function does not block the calling
+        // thread pending completion of ongoing calls to the slots.  Also note
+        // that it is unspecified how many slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot is connected to this signaler
+        // during a call to this function, it is unspecified whether that slot
+        // will be disconnected.
 
     void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots, if any, connected to this signaler.  Any
         // invocation of the corresponding signaler that happens after this
         // call to disconect completes will not invoke any slots that were
-        // connected prior to this call to 'disconnectAllSlotsAndWait'.  This
-        // function blocks the calling thread pending completion of ongoing
-        // calls to the slots.  The behavior is undefined if this method is
-        // called from a slot connected to this signaler.  Note that it is
-        // unspecified how many slots, if any, will be called by any invocation
-        // on the signaler that begins before this function completes.  Also
-        // note that if a slot is connected to this signaler during a call to
+        // connected prior to this call.  This function blocks the calling
+        // thread pending completion of ongoing calls to the slots.  The
+        // behavior is undefined if this method is called from a slot.  Note
+        // that it is unspecified how many slots, if any, will be called by any
+        // invocation on the signaler that begins before this function
+        // completes.  Also note that if a slot is connected to this signaler
+        // during a call to this function, it is unspecified whether that slot
+        // will be disconnected.
+
+    void disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT;
+        // Implements 'Signaler::disconnectGroup()'.  Disconnect all slots, if
+        // any, connected to this signaler in the specified 'group'.  Any
+        // invocation of the corresponding signaler that happens after this
+        // call to disconect completes will not invoke any slots in 'group'
+        // that were connected prior to this call.  Note that this function
+        // does not block the calling thread pending completion of ongoing
+        // calls to the slots.  Also note that it is unspecified how many
+        // affected slots, if any, will be called by any invocation on the
+        // signaler that begins before this function completes.  Also note that
+        // if a slot in 'group' is connected to this signaler during a call to
         // this function, it is unspecified whether that slot will be
         // disconnected.
+
+    void disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT;
+        // Disconnect all slots, if any, connected to this signaler in the
+        // specified 'group'.  Any invocation of the corresponding signaler
+        // that happens after this call to disconect completes will not invoke
+        // any slots in 'group' that were connected prior to this call.  This
+        // function blocks the calling thread pending completion of ongoing
+        // calls to the slots.  The behavior is undefined if this method is
+        // called from a slot.  Note that it is unspecified how many affected
+        // slots, if any, will be called by any invocation on the signaler that
+        // begins before this function completes.  Also note that if a slot in
+        // 'group' is connected to this signaler during a call to this
+        // function, it is unspecified whether that slot will be disconnected.
 
   public:
     // ACCESSORS
@@ -1033,8 +1011,10 @@ class SignalerConnection {
     // FRIENDS
     template <class>
     friend class Signaler_Node;
-    friend bool operator<(const SignalerConnection&,
-                          const SignalerConnection&) BSLS_KEYWORD_NOEXCEPT;
+    friend bool operator<( const SignalerConnection&,
+                           const SignalerConnection&) BSLS_KEYWORD_NOEXCEPT;
+    friend bool operator==(const SignalerConnection&,
+                           const SignalerConnection&) BSLS_KEYWORD_NOEXCEPT;
 
   private:
     // PRIVATE CREATORS
@@ -1073,37 +1053,29 @@ class SignalerConnection {
         // (if any) as the specified 'rhs' connection, and reset 'rhs' to a
         // default-constructed state.  Return '*this'.
 
-    void disconnect() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect the associated slot.  If the slot was already
-        // disconnected, this function has no effect.  Note that this function
-        // does not block the calling thread pending completion of the slot.
-        // Any invocation of the corresponding signaler that happens after this
-        // call to 'disconect' completes will not invoke the slot.  Note that
-        // it is unspecified if any invocation on the signaler that begins
-        // before this function completes will invoke the slot.
-
-    void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect the associated slot.  If the slot was already
-        // disconnected, this function has no effect.  This function blocks the
-        // calling thread pending completion of execution of the slot by any
-        // thread, even if the slot was disconnected prior to this call.  Any
-        // invocation of the corresponding signaler that happens after this
-        // call to 'disconectAndWait' completes will not invoke the slot.  The
-        // behavior is undefined if this method is called from the slot managed
-        // by this connection.  Note that it is unspecified if any invocation
-        // on the signaler that begins before this function completes will
-        // invoke the slot.
-
-    SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
+    void reset() BSLS_KEYWORD_NOEXCEPT;
         // Disassociate this connection object from its associated slot, if
-        // any, and reset '*this' to a default-constructed state.  Return a
-        // copy of '*this' in the state that it was in prior to release.
+        // any, and reset '*this' to a default-constructed state.
 
     void swap(SignalerConnection& other) BSLS_KEYWORD_NOEXCEPT;
         // Swap the contents of '*this' and the specified 'other'.
 
   public:
     // ACCESSORS
+    void disconnect(bool wait = false) const BSLS_KEYWORD_NOEXCEPT;
+        // Disconnect the associated slot.  If the slot was already
+        // disconnected, this function has no effect.  If the optionally
+        // specified 'wait' is 'true', this function blocks the calling thread
+        // pending completion of execution of the signaler by any thread, even
+        // if the slot was disconnected prior to this call.  If 'wait' is
+        // false, this function returns immediately without waiting.  Any
+        // invocation of the corresponding signaler that happens after this
+        // call to 'disconect' completes will not invoke the slot.  The
+        // behavior is undefined if this method is called from the slot managed
+        // by this connection.  Note that it is unspecified if any invocation
+        // on the signaler that begins before this function completes will
+        // invoke the slot.
+
     bool isConnected() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the associated slot is connected to the signaler
         // '*this' was obtained from, and 'false' otherwise.  If '*this' does
@@ -1118,32 +1090,60 @@ class SignalerConnection {
 class SignalerConnectionGuard {
     // DATA
     SignalerConnection d_connection;
+    bool               d_waitOnDisconnect;    // passed to the 'wait' arguement
+                                              // of the 'disconnect' call in
+                                              // the destructor
 
   public:
     // CREATORS
-    SignalerConnectionGuard() BSLS_KEYWORD_NOEXCEPT;
+    explicit
+    SignalerConnectionGuard(bool waitOnDisconnect = false)
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnectionGuard' object having no associated slot.
+        // Upon destruction, the specified 'waitOnDisconnect' is passed to the
+        // 'disconnect' call on the 'SingalerConnection' held by this object.
 
     explicit
-    SignalerConnectionGuard(const SignalerConnection& connection)
+    SignalerConnectionGuard(const SignalerConnection& connection,
+                            bool                      waitOnDisconnect = false)
                                                          BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnectionGuard' object that refers to and assumes
         // management of the same slot (if any) as the specified 'connection'
-        // object.
+        // object.  Upon destruction, the specified 'waitOnDisconnect' is
+        // passed to the 'disconnect' call on the 'SingalerConnection' held by
+        // this object.
 
     explicit
-    SignalerConnectionGuard(bslmf::MovableRef<SignalerConnection> connection)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    SignalerConnectionGuard(bslmf::MovableRef<
+           SignalerConnection> connection,
+           bool                waitOnDisconnect = false) BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnectionGuard' object that refers to and assumes
         // management of the same slot (if any) as the specified 'connection'
         // object, and reset 'connection' to a default- constructed state.
+        // Upon destruction, the specified 'waitOnDisconnect' is passed to the
+        // 'disconnect' call on the 'SingalerConnection' held by this object.
 
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
                       SignalerConnectionGuard> original) BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnectionGuard' that refers to and assumes
         // management of the same slot (if any) as the specified 'original'
-        // object, and reset 'original' to a default-constructed state.
+        // object, and reset the connection in 'original' to a
+        // default-constructed state.  The 'waitOnDisconnect' state is copied
+        // from 'original' to the newly created guard.  Upon destruction, the
+        // specified 'waitOnDisconnect' is passed to the 'disconnect' call on
+        // the 'SingalerConnection' held by this object.
+
+    explicit
+    SignalerConnectionGuard(bslmf::MovableRef<
+              SignalerConnectionGuard> original,
+              bool                     waitOnDisconnect) BSLS_KEYWORD_NOEXCEPT;
+        // Create a 'SignalerConnectionGuard' that refers to and assumes
+        // management of the same slot (if any) as the specified 'original'
+        // object, and reset the connection in 'original' to a
+        // default-constructed state.  Upon destruction, the specified
+        // 'waitOnDisconnect' is passed to the 'disconnect' call on the
+        // 'SingalerConnection' held by this object.
 
     ~SignalerConnectionGuard();
         // Destroy this object.  Call 'disconnect()'.
@@ -1174,27 +1174,6 @@ class SignalerConnectionGuard {
         // associated slot, disconnect that slot by a call to 'disconnect()'.
         // Return '*this'.
 
-    void disconnect() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect the associated slot.  If the slot was already
-        // disconnected, this function has no effect.  Note that this function
-        // does not block the calling thread pending completion of the slot.
-        // Any invocation of the corresponding signaler that happens after this
-        // call to 'disconect' completes will not invoke the slot.  Note that
-        // it is unspecified if any invocation on the signaler that begins
-        // before this function completes will invoke the slot.
-
-    void disconnectAndWait() BSLS_KEYWORD_NOEXCEPT;
-        // Disconnect the associated slot.  If the slot was already
-        // disconnected, this function has no effect.  This function blocks the
-        // calling thread pending completion of execution of the slot by any
-        // thread, even if the slot was disconnected prior to this call.  Any
-        // invocation of the corresponding signaler that happens after this
-        // call to 'disconectAndWait' completes will not invoke the slot.  The
-        // behavior is undefined if this method is called from the slot managed
-        // by this connection.  Note that it is unspecified if any invocation
-        // on the signaler that begins before this function completes will
-        // invoke the slot.
-
     SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
         // Disassociate this connection object from its associated slot, if
         // any, and reset '*this' to a default-constructed state.  Return a
@@ -1214,6 +1193,11 @@ class SignalerConnectionGuard {
         // '*this' was obtained from, and 'false' otherwise.  If '*this' does
         // not have an associated slot (i.e., was default-constructed), return
         // 'false'.
+
+    bool waitOnDisconnect() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a 'bool' that indicates the boolean value that will be passed
+        // to the 'wait' argument of the 'SignalerConnection::disconnect' call
+        // that will be made on destruction.
 };
 
 // FREE OPERATORS
@@ -1246,36 +1230,6 @@ bool operator>=(const SignalerConnection& lhs,
                 const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' is greater than or equal to the
     // specified 'rhs' and 'false' otherwise.
-
-bool operator==(const SignalerConnectionGuard& lhs,
-                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' and 'rhs' referring to the same
-    // slot and 'false' otherwise.
-
-bool operator==(const SignalerConnection&      lhs,
-                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' and 'rhs' referring to the same
-    // slot and 'false' otherwise.
-
-bool operator==(const SignalerConnectionGuard& lhs,
-                const SignalerConnection&      rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' and 'rhs' referring to the same
-    // slot and 'false' otherwise.
-
-bool operator!=(const SignalerConnectionGuard& lhs,
-                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false' if the specified 'lhs' and 'rhs' referring to the same
-    // slot and 'true' otherwise.
-
-bool operator!=(const SignalerConnection&      lhs,
-                const SignalerConnectionGuard& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false' if the specified 'lhs' and 'rhs' referring to the same
-    // slot and 'true' otherwise.
-
-bool operator!=(const SignalerConnectionGuard& lhs,
-                const SignalerConnection&      rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false' if the specified 'lhs' and 'rhs' referring to the same
-    // slot and 'true' otherwise.
 
 // FREE FUNCTIONS
 void swap(SignalerConnection& a,
@@ -1752,25 +1706,8 @@ Signaler_SlotNode<PROT>::Signaler_SlotNode(
 
 // MANIPULATORS
 template <class PROT>
-void Signaler_SlotNode<PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
-{
-    if (!d_isConnected.testAndSwap(true, false)) {
-        // Already disconnected.  Do nothing.
-
-        return;                                                       // RETURN
-    }
-
-    // Notify the associated signaler
-
-    bsl::shared_ptr<SignalerNode> signalerNodePtr = d_signalerNodePtr.lock();
-    if (signalerNodePtr) {
-        signalerNodePtr->notifyDisconnected(d_slotMapKey);
-    }
-}
-
-template <class PROT>
 inline
-void Signaler_SlotNode<PROT>::disconnectAndWait() BSLS_KEYWORD_NOEXCEPT
+void Signaler_SlotNode<PROT>::disconnect(bool wait) BSLS_KEYWORD_NOEXCEPT
 {
     if (!d_isConnected.testAndSwap(true, false)) {
         // Already disconnected.  Do nothing.
@@ -1784,10 +1721,12 @@ void Signaler_SlotNode<PROT>::disconnectAndWait() BSLS_KEYWORD_NOEXCEPT
     if (signalerNodePtr) {
         signalerNodePtr->notifyDisconnected(d_slotMapKey);
 
-        // Synchronize with the call operator.
+        if (wait) {
+            // Synchronize with the call operator.
 
-        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(
+            bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(
                                             &signalerNodePtr->mutex()); // LOCK
+        }
     }
 }
 
@@ -1864,9 +1803,8 @@ void Signaler_Node<PROT>::invoke(
                              typename ArgumentType::ForwardingType8 arg8,
                              typename ArgumentType::ForwardingType9 arg9) const
 {
-    // Hold this mutex (in read mode), so that 'disconnectGroupAndWait()' (or
-    // 'disconnectAllSlotsAndWait()') can synchonize with the call operator by
-    // momemntarily locking it for write.
+    // Hold this mutex (in read mode), so that disconnects in 'wait' mode can
+    // synchonize with the call operator by momemntarily locking it for write.
 
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
 
@@ -1936,7 +1874,35 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
     return SignalerConnection(slotNodePtr);
 }
 
-                            // Disconnect by Group
+template <class PROT>
+void Signaler_Node<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
+{
+    SlotPairHandle slotHandle;
+
+    // disconnect all slots in the collection, one by one
+
+    while (d_slotMap.front(&slotHandle) == 0) {
+        // notify the slot it's being disconnected
+
+        slotHandle.data()->notifyDisconnected();
+
+        // remove the slot from the collection
+
+        d_slotMap.remove(slotHandle);
+    }
+}
+
+template <class PROT>
+void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
+{
+    // disconnect slots
+
+    disconnectAllSlots();
+
+    // synchronize with the call operator
+
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
+}
 
 template <class PROT>
 void Signaler_Node<PROT>::disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT
@@ -1974,38 +1940,6 @@ void Signaler_Node<PROT>::disconnectGroupAndWait(int group)
     // disconnect slots
 
     disconnectGroup(group);
-
-    // synchronize with the call operator
-
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
-}
-
-                               // Disconnect All
-
-template <class PROT>
-void Signaler_Node<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
-{
-    SlotPairHandle slotHandle;
-
-    // disconnect all slots in the collection, one by one
-
-    while (d_slotMap.front(&slotHandle) == 0) {
-        // notify the slot it's being disconnected
-
-        slotHandle.data()->notifyDisconnected();
-
-        // remove the slot from the collection
-
-        d_slotMap.remove(slotHandle);
-    }
-}
-
-template <class PROT>
-void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
-{
-    // disconnect slots
-
-    disconnectAllSlots();
 
     // synchronize with the call operator
 
@@ -2128,8 +2062,15 @@ void SignalerConnection::swap(SignalerConnection& other) BSLS_CPP11_NOEXCEPT
 
 // FREE OPERATORS
 inline
-bool operator<(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+bool operator==(const SignalerConnection& lhs,
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs.d_slotNodeBasePtr.rep() == rhs.d_slotNodeBasePtr.rep();
+}
+
+inline
+bool operator<( const SignalerConnection& lhs,
+                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     return lhs.d_slotNodeBasePtr.owner_before(rhs.d_slotNodeBasePtr);
 }
@@ -2166,6 +2107,12 @@ inline
 bool SignalerConnectionGuard::isConnected() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_connection.isConnected();
+}
+
+inline
+bool SignalerConnectionGuard::waitOnDisconnect() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_waitOnDisconnect;
 }
 
 // FREE FUNCTIONS
