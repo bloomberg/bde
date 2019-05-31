@@ -200,16 +200,16 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 tmp[k_NUM_UNICODE_DIGITS] = '\0';
 
                 char         *last = 0;
-                unsigned int  utf32input[2] = { 0 };
+                unsigned int  utf32input;
 
-                utf32input[0] = static_cast<unsigned int>(
+                utf32input = static_cast<unsigned int>(
                                                   bsl::strtol(tmp, &last, 16));
 
                 if (last == tmp || *last != '\0') {
                     return -1;                                        // RETURN
                 }
 
-                unsigned int first = utf32input[0];
+                unsigned int first = utf32input;
 
                 // Confirm that only the lower two bytes are set.
 
@@ -253,7 +253,7 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                         return -1;                                    // RETURN
                     }
                     // Combine the two 16-bit halves into one 21-bit whole.
-                    utf32input[0] = 0x010000 +
+                    utf32input = 0x010000 +
                                     ((first - 0xD800) << 10) +
                                     (second - 0xDC00);
 
@@ -267,7 +267,8 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 bsl::string utf8String;
                 const int rc = bdlde::CharConvertUtf32::utf32ToUtf8(
                                                                    &utf8String,
-                                                                   utf32input);
+                                                                   &utf32input,
+                                                                   1);
 
                 if (rc) {
                     return rc;                                        // RETURN
