@@ -679,7 +679,7 @@ struct bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy {
     // FUNCTIONS
     template <class TYPE>
     inline
-    int operator()(TYPE *object, bslmf::Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -3;
