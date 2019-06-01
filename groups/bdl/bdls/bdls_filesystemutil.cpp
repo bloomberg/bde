@@ -313,10 +313,12 @@ int makeDirectory(const char *path, bool)
         }
 
         switch (GetLastError()) {
-          case ERROR_ALREADY_EXISTS:
+          case ERROR_ALREADY_EXISTS: {
             return bdls::FilesystemUtil::k_ERROR_ALREADY_EXISTS;      // RETURN
-          case ERROR_PATH_NOT_FOUND:
+          } break;
+          case ERROR_PATH_NOT_FOUND: {
             return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
+          } break;
         }
     }
 
@@ -2118,7 +2120,8 @@ int FilesystemUtil::createDirectories(const char *path,
         PathUtil::appendRaw(&workingPath,
                             directoryStack.back().c_str(),
                             static_cast<int>(directoryStack.back().length()));
-        if (int rc = makeDirectory(workingPath.c_str(), false)) {
+        int rc = makeDirectory(workingPath.c_str(), false);
+        if (0 != rc) {
             if (rc == k_ERROR_ALREADY_EXISTS) {
                 if (!isDirectory(workingPath, true)) {
                     return k_ERROR_PATH_NOT_FOUND;                    // RETURN
