@@ -1229,17 +1229,44 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Prefix is copied to output with stuff appended.
+        //:
         //: 2 Stuff appended is enough to make it unique.
+        //:
         //: 3 Stuff appended is different from previous calls.
         //
         // Plan:
         //: 1 Create names. (C-1)
+        //:
         //: 2 Check invariant and variant parts. (C-1,2)
-        //: 3 Sample entropy. (C-3)
+        //:   o The first 'prefix.length()' characters will all be the same and
+        //:     match the string 'prefix'.  Everything after that will be
+        //:     randomly generated.
+        //:
+        //: 3 Sample entropy.  Use the function under test to create
+        //:   'k_NUM_NAMES' temporary file names, and then compare them against
+        //:   each other and verify not only that they all differ, but that
+        //:   they differ by at least a certain number of characters.
+        //:   o Keep all the names created so far in a random-access container,
+        //:     and after each name is created, analyze how many characters it
+        //:     differs from all the previously created names.
+        //:
+        //:   o Go through all previous names:
+        //:     1 For each previous name, calculate 'minNumDiffs', the minimum
+        //:       number characters that must differ between the two names.
+        //:       For the most recently created previous name, at least half of
+        //:       the randomly generated characters must differ; for other
+        //:       names, at least 2 characters must differ.
+        //:
+        //:     2 Compare corresponding characters in the random parts of the
+        //:       the two names, keeping a tally, 'numDiffs', of the number of
+        //:       times they differ, and then verify that
+        //:       'minNumDiffs <= numDiff's.
+        //:
+        //:     3 While comparing corresponding chars of the two strings, make
+        //:       sure that at least one such pair differs by at least 3.
         //
         // Testing:
         //   makeUnsafeTemporaryFilename(string *, const StringRef&)
-        //
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1264,24 +1291,49 @@ int main(int argc, char *argv[])
                                  prefix.length()));
             ASSERT(prefix.length() + 6 <= name.length());
 
-            for (unsigned jj = 0; jj < ii; ++jj) {
-                ASSERTV(name, names[jj], name != names[jj]);
-                const bsl::size_t commonLen = bsl::min(name.length(),
-                                                       names[jj].length());
-                const int randLength = static_cast<int>(
-                                                  commonLen - prefix.length());
-                const int minNumDiffs = jj + 1 == ii ? randLength / 2 : 2;
+            // 'jj' is the index of a name in 'names' made prior to 'name'.
 
-                int maxDiff  = 0;
-                int numDiffs = 0;
-                for (bsl::size_t kk = prefix.length(); kk < commonLen; ++kk) {
-                    const int diff = name[kk] - names[jj][kk];
-                    numDiffs += 0 != diff;
-                    maxDiff = bsl::max(maxDiff, diff < 0 ? -diff : diff);
+            for (unsigned jj = 0; jj < ii; ++jj) {
+                const bsl::string& otherName = names[jj];
+                const bool otherNameWasPrevious = jj == ii - 1;
+
+                ASSERTV(name, otherName, otherName != name);
+                const bsl::size_t minLen = bsl::min(name.length(),
+                                                    otherName.length());
+
+                // 'numRandChars' is the number of random characters that both
+                // names have.
+
+                const int numRandChars = static_cast<int>(
+                                                     minLen - prefix.length());
+
+                // Names created adjacently in sequence must differ in at least
+                // 'numRandChars / 2' characters, all names must differ in at
+                // least 2 characters.
+
+                const int minNumCharDiffs = otherNameWasPrevious
+                                          ? numRandChars / 2
+                                          : 2;
+
+                // Iterate 'kk', an index into 'name' and 'otherName', through
+                // the random parts of the names.
+
+                bool charDiffEnough = false;    // Did at least one pair of
+                                                // corresponding chars differ
+                                                // by >= 3?
+                int numCharDiffs = 0;           // How many corresponding chars
+                                                // differed?
+                for (bsl::size_t kk = prefix.length(); kk < minLen; ++kk) {
+                    const int charDiff    = name[kk] - otherName[kk];
+                    numCharDiffs   += 0 != charDiff;
+
+                    const int absCharDiff = charDiff < 0 ? -charDiff
+                                                         :  charDiff;
+                    charDiffEnough |= 3 <= absCharDiff;
                 }
-                ASSERTV(minNumDiffs, numDiffs, name, names[jj],
-                                                      minNumDiffs <= numDiffs);
-                ASSERTV(maxDiff, name, names[jj], 3 <= maxDiff);
+                ASSERTV(minNumCharDiffs, numCharDiffs, name, otherName,
+                                              minNumCharDiffs <= numCharDiffs);
+                ASSERTV(name, otherName, charDiffEnough);
             }
 
             names.push_back(name);
