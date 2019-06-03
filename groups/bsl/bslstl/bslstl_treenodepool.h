@@ -303,12 +303,6 @@ class TreeNodePool {
         // 'original' refers to a 'TreeNode<VALUE>' object holding a valid
         // (initialized) value.
 
-    bslalg::RbTreeNode *createNode(const VALUE& value);
-        // Allocate a node object having the specified 'value'.  This operation
-        // will copy-construct 'value' into the value of the returned node.
-        // Note that this method is provided only for backward compatibility;
-        // use the 'emplaceIntoNewNode' method instead.
-
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args>
     bslalg::RbTreeNode *emplaceIntoNewNode(Args&&... args);
@@ -565,14 +559,6 @@ bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::cloneNode(
 {
     return emplaceIntoNewNode(
                         static_cast<const TreeNode<VALUE>&>(original).value());
-}
-
-template <class VALUE, class ALLOCATOR>
-inline
-bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode(
-                                                            const VALUE& value)
-{
-    return emplaceIntoNewNode(BSLS_COMPILERFEATURES_FORWARD(VALUE, value));
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
