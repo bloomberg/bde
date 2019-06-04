@@ -833,7 +833,7 @@ BSLS_IDENT("$Id: $")
 // Note that '_MSVC_LANG' is only useful for distinguishing MSVC 2017 from MSVC
 // 2014.
 
-# unudef  BSLS_COMPILERFEATURES_CPLUSPLUS
+# undef   BSLS_COMPILERFEATURES_CPLUSPLUS
 # if defined(_MSVC_LANG)
 #  define BSLS_COMPILERFEATURES_CPLUSPLUS _MSVC_LANG
 # else
