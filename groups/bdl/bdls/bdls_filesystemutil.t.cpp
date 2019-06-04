@@ -29,6 +29,7 @@
 #include <bsl_c_stdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_sstream.h>
@@ -1228,17 +1229,44 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Prefix is copied to output with stuff appended.
+        //:
         //: 2 Stuff appended is enough to make it unique.
+        //:
         //: 3 Stuff appended is different from previous calls.
         //
         // Plan:
         //: 1 Create names. (C-1)
+        //:
         //: 2 Check invariant and variant parts. (C-1,2)
-        //: 3 Sample entropy. (C-3)
+        //:   o The first 'prefix.length()' characters will all be the same and
+        //:     match the string 'prefix'.  Everything after that will be
+        //:     randomly generated.
+        //:
+        //: 3 Sample entropy.  Use the function under test to create
+        //:   'k_NUM_NAMES' temporary file names, and then compare them against
+        //:   each other and verify not only that they all differ, but that
+        //:   they differ by at least a certain number of characters.
+        //:   o Keep all the names created so far in a random-access container,
+        //:     and after each name is created, analyze how many characters it
+        //:     differs from all the previously created names.
+        //:
+        //:   o Go through all previous names:
+        //:     1 For each previous name, calculate 'minNumDiffs', the minimum
+        //:       number characters that must differ between the two names.
+        //:       For the most recently created previous name, at least half of
+        //:       the randomly generated characters must differ; for other
+        //:       names, at least 2 characters must differ.
+        //:
+        //:     2 Compare corresponding characters in the random parts of the
+        //:       the two names, keeping a tally, 'numDiffs', of the number of
+        //:       times they differ, and then verify that
+        //:       'minNumDiffs <= numDiff's.
+        //:
+        //:     3 While comparing corresponding chars of the two strings, make
+        //:       sure that at least one such pair differs by at least 3.
         //
         // Testing:
         //   makeUnsafeTemporaryFilename(string *, const StringRef&)
-        //
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1246,32 +1274,72 @@ int main(int argc, char *argv[])
                     "\n============================================\n";
         }
 
+        enum { k_NUM_NAMES = 100 };
+
         const bsl::string prefix = "name_prefix_";
-        for (int check = 0; check < 100; ++check) {
-            bsl::string name1;
-            Obj::makeUnsafeTemporaryFilename(&name1, prefix);
-            bsl::string name2 = name1;
-            Obj::makeUnsafeTemporaryFilename(&name2, prefix);
-            if ((check == 0 && veryVerbose) || veryVeryVerbose) {
-                cout << ":" << name1 << ": :" << name2 << ":\n";
+        bsl::deque<bsl::string> names;
+        for (unsigned ii = 0; ii < k_NUM_NAMES; ++ii) {
+            ASSERT(names.size() == ii);
+
+            bsl::string name;
+            Obj::makeUnsafeTemporaryFilename(&name, prefix);
+
+            if (veryVerbose) P(name);
+
+            ASSERT(!bsl::strncmp(name.c_str(),
+                                 prefix.c_str(),
+                                 prefix.length()));
+            ASSERT(prefix.length() + 6 <= name.length());
+
+            // 'jj' is the index of a name in 'names' made prior to 'name'.
+
+            for (unsigned jj = 0; jj < ii; ++jj) {
+                const bsl::string& otherName = names[jj];
+                const bool otherNameWasPrevious = jj == ii - 1;
+
+                ASSERTV(name, otherName, otherName != name);
+                const bsl::size_t minLen = bsl::min(name.length(),
+                                                    otherName.length());
+
+                // 'numRandChars' is the number of random characters that both
+                // names have.
+
+                const int numRandChars = static_cast<int>(
+                                                     minLen - prefix.length());
+
+                // Names created adjacently in sequence must differ in at least
+                // 'numRandChars / 2' characters, all names must differ in at
+                // least 2 characters.
+
+                const int minNumCharDiffs = otherNameWasPrevious
+                                          ? numRandChars / 2
+                                          : 2;
+
+                // Iterate 'kk', an index into 'name' and 'otherName', through
+                // the random parts of the names.
+
+                bool charDiffEnough = false;    // Did at least one pair of
+                                                // corresponding chars differ
+                                                // by >= 3?
+                int numCharDiffs = 0;           // How many corresponding chars
+                                                // differed?
+                for (bsl::size_t kk = prefix.length(); kk < minLen; ++kk) {
+                    const int charDiff    = name[kk] - otherName[kk];
+                    numCharDiffs   += 0 != charDiff;
+
+                    const int absCharDiff = charDiff < 0 ? -charDiff
+                                                         :  charDiff;
+                    charDiffEnough |= 3 <= absCharDiff;
+                }
+                ASSERTV(minNumCharDiffs, numCharDiffs, name, otherName,
+                                              minNumCharDiffs <= numCharDiffs);
+                ASSERTV(name, otherName, charDiffEnough);
             }
-            const size_t p1 = prefix.size();
-            ASSERT(name1.size() >= p1 + 8);
-            ASSERT(name2.size() >= p1 + 8);
-            ASSERT(name1.size() > p1 && prefix == name1.substr(0,p1));
-            ASSERT(name2.size() > p1 && prefix == name2.substr(0,p1));
-            ASSERT(name1.size() == name2.size());
-            ASSERT(name1.substr(p1) != name2.substr(p1));
-            int sum = 0, diffs = 0;
-            for (size_t i = p1; i < name1.size(); ++i) {
-                int diff = name1[i] - name2[i];
-                diffs += diff != 0;
-                sum += bsl::abs(diff);
-            }
-            ASSERT(sum >= 40);
-            ASSERT(diffs >= 4);
+
+            names.push_back(name);
         }
 
+        ASSERTV(names.size(), k_NUM_NAMES == names.size());
       } break;
       case 17: {
         // --------------------------------------------------------------------
