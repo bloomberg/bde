@@ -3,8 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <limits.h>  // 'INT_MIN', 'INT_MAX'
 #include <stdio.h>
 #include <stdlib.h>  // 'atoi'
+#include <string.h>  // 'memset'
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -47,7 +49,7 @@
 // aid to assuring test coverage.
 //..
 //  Annotation                            Result
-//  ------------------------------------  --------
+//  ------------------------------------  -------
 //  BSLA_DEPRECATED                       Warning
 //..
 // ----------------------------------------------------------------------------
@@ -116,13 +118,14 @@ void aSsErT(bool condition, const char *message, int line)
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a deprecated type 'UsageType':
 //..
-    struct UsageType {
+    struct BSLA_DEPRECATED UsageType {
         int d_int;
-    } BSLA_DEPRECATED;
+    };
 //..
 // Then, we define a deprecated function 'usageFunc':
 //..
-    void usageFunc() BSLA_DEPRECATED;
+    BSLA_DEPRECATED
+    void usageFunc();
     void usageFunc()
     {
         printf("Don't call me.\n");
@@ -133,6 +136,37 @@ void aSsErT(bool condition, const char *message, int line)
     extern int usageVar BSLA_DEPRECATED;
     int usageVar = 5;
 //..
+// Then, we define a deprecated typedef 'usageTypedef:
+//..
+    BSLA_DEPRECATED typedef int UsageTypedef;
+//..
+// Next, we define a 'struct' with a deprecated member 'd_usageMember':
+//..
+    struct UsageStruct {
+        double                 d_x;
+        BSLA_DEPRECATED double d_y;
+    };
+//..
+// Then, we define a deprecated enum 'UsageEnum':
+//..
+    enum BSLA_DEPRECATED UsageEnum { e_FALSE, e_TRUE };
+//..
+// Next, we define a template where it's only deprecated if 'TYPE' == 'int':
+//..
+    template <class TYPE>
+    TYPE usageAbs(TYPE x)
+    {
+        return x < 0 ? -x : x;
+    }
+//
+    template <>
+    BSLA_DEPRECATED_MESSAGE("'int' specialization not allowed")
+    int usageAbs<int>(int x)
+    {
+        int ret = x < 0 ? -x : x;
+        return ret < 0 ? ~ret : ret;
+    }
+//..
 // Then, as long as we don't use them, no warnings will be issued.
 //
 
@@ -140,7 +174,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void test_DEPRECATED_function() BSLA_DEPRECATED;
+BSLA_DEPRECATED
+void test_DEPRECATED_function();
     // Provide a test function which, if called, will result in a deprecated
     // compiler warning.
 
@@ -160,12 +195,12 @@ int test_DEPRECATED_variable BSLA_DEPRECATED;
 //                  DEFINITION OF ANNOTATED TYPES
 // ----------------------------------------------------------------------------
 
-struct Test_DEPRECATED_type {
+struct BSLA_DEPRECATED Test_DEPRECATED_type {
     // This 'struct' is a test type which, if used, will result in a deprecated
     // compiler warning.
 
     int d_d;
-} BSLA_DEPRECATED;
+};
 
 // ============================================================================
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
@@ -287,6 +322,7 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 #if U_TRIGGER_WARNINGS
+
 // Next, we use 'UsageType':
 //..
     UsageType ut;
@@ -304,7 +340,7 @@ int main(int argc, char **argv)
 //      } BSLA_DEPRECATED;
 //        ^
 //..
-// Now, we call 'usageFunc':
+// Then, we call 'usageFunc':
 //..
     usageFunc();
 //..
@@ -319,21 +355,92 @@ int main(int argc, char **argv)
 //      void usageFunc() BSLA_DEPRECATED;
 //                       ^
 //..
-// Finally, we access 'usageVar':
+// Next, we access 'usageVar':
 //..
     printf("%d\n", usageVar);
 //..
 // which results in the following warnings:
 //..
-//  .../bsla_deprecated.t.cpp:329:20: warning: 'usageVar' is deprecated
+//  .../bsla_deprecated.t.cpp:326:20: warning: 'usageVar' is deprecated
 //  [-Wdeprecated-declarations]
 //      printf("%d\n", usageVar);
 //                     ^
-//  .../bsla_deprecated.t.cpp:125:25: note: 'usageVar' has been explicitly
+//  .../bsla_deprecated.t.cpp:134:25: note: 'usageVar' has been explicitly
 //  marked deprecated here
 //      extern int usageVar BSLA_DEPRECATED;
 //                          ^
+//  .../bsla_deprecated.h:119:32: note: expanded from macro 'BSLA_DEPRECATED'
+//  #     define BSLA_DEPRECATED [[deprecated]]
 //..
+// Then, we use 'UsageTypedef':
+//..
+    UsageTypedef jjj = 32;
+    (void) jjj;
+//..
+// which results in the following warnings:
+//..
+//  .../bsla_deprecated.t.cpp:379:5: warning: 'UsageTypedef' is deprecated
+//  [-Wdeprecated-declarations]
+//      UsageTypedef jjj = 32;
+//      ^
+//  .../bsla_deprecated.t.cpp:140:5: note: 'UsageTypedef' has been explicitly
+//  marked deprecated here
+//      BSLA_DEPRECATED typedef int UsageTypedef;
+//      ^
+//..
+// Next, we access the deprecated member of 'UsageStruct':
+//..
+    UsageStruct us;
+    ::memset(&us, 0, sizeof(us));
+    ASSERT(0 == us.d_x);    // no warning
+    ASSERT(0 == us.d_y);    // 'd_y' is deprecated -- issues warning.
+//..
+// which results in the following warnings:
+//..
+//  .../bsla_deprecated.t.cpp:387:20: warning: 'd_y' is deprecated
+//  [-Wdeprecated-declarations]
+//      assert(0 == us.d_y);    // 'd_y' is deprecated -- issues warning.
+//                     ^
+//  .../bsla_deprecated.t.cpp:146:9: note: 'd_y' has been explicitly marked
+//  deprecated here
+//          BSLA_DEPRECATED double d_y;
+//          ^
+//..
+// Now, we use the deprecated 'UsageEnum':
+//..
+    UsageEnum ue;
+    ue = e_TRUE;
+    (void) ue;
+//..
+// which results in the following warnings:
+//..
+//  .../bsla_deprecated.t.cpp:411:15: warning: 'UsageEnum' is deprecated
+//  [-Wdeprecated-declarations]
+//       UsageEnum ue;
+//                 ^
+//  .../bsla_deprecated.t.cpp:152:26: note: declared here
+//       enum BSLA_DEPRECATED UsageEnum { e_FALSE, e_TRUE };
+//                            ^
+//..
+// Finally, we access the deprecated specialization of 'usageAbs':
+//..
+    ASSERT(2.0 == usageAbs(-2.0));            // no warning, 'usageAbs<double>'
+                                              // not deprecated
+    ASSERT(INT_MAX == usageAbs(INT_MIN));     // warning, 'usageAbs<int>' is
+                                              // deprecated
+//..
+// which results in the following warnings:
+//..
+//  .../bsla_deprecated.t.cpp:441:39: warning: 'TYPE usageAbs(TYPE) [with TYPE
+//  = int]' is deprecated: 'int' specialization not allowed
+//  [-Wdeprecated-declarations]
+//       assert(INT_MAX == usageAbs(INT_MIN));     // warning, 'usageAbs<int>'
+//                                         ^
+//  .../bsla_deprecated.t.cpp:168:9: note: declared here
+//       int usageAbs<int>(int x)
+//           ^~~~~~~~~~~~~
+//..
+
 #endif
       } break;
       case 1: {

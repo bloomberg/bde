@@ -8,51 +8,37 @@
 #include <stdlib.h>  // 'abort', 'atoi', 'getenv'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
-
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor variables.
-// In each case, the concerns are:
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
-//
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations defined in this
-//:   component, except those expected to cause compile-time failure.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -182,7 +168,10 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 
 #if BSLA_NORETURN_IS_ACTIVE
-BSLA_NORETURN void f() {}
+BSLA_NORETURN void f()
+{
+    ::exit(1);
+}
 
 int g()
 {
@@ -190,8 +179,8 @@ int g()
 }
 #endif
 
-#if U_TRIGGER_ERRORS
-void ff() {}
+#if U_TRIGGER_WARNINGS
+BSLA_NORETURN void ff() {}
 
 int gg()
 {
