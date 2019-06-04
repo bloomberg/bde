@@ -1062,19 +1062,25 @@ class SignalerConnection {
 
   public:
     // ACCESSORS
-    void disconnect(bool wait = false) const BSLS_KEYWORD_NOEXCEPT;
+    void disconnect() const BSLS_KEYWORD_NOEXCEPT;
         // Disconnect the associated slot.  If the slot was already
-        // disconnected, this function has no effect.  If the optionally
-        // specified 'wait' is 'true', this function blocks the calling thread
-        // pending completion of execution of the signaler by any thread, even
-        // if the slot was disconnected prior to this call.  If 'wait' is
-        // false, this function returns immediately without waiting.  Any
-        // invocation of the corresponding signaler that happens after this
+        // disconnected, this function has no effect.  This function returns
+        // immediately without waiting.  Any invocation of the corresponding
+        // signaler that happens after this call to 'disconect' completes will
+        // not invoke the slot Note that it is unspecified if any invocation on
+        // the signaler that begins before this function completes will invoke
+        // the slot.
+
+    void disconnectAndWait() const BSLS_KEYWORD_NOEXCEPT;
+        // Disconnect the associated slot.  If the slot was already
+        // disconnected, this function has no effect.  This function blocks the
+        // calling thread pending completion of execution of the signaler by
+        // any thread, even if the slot was disconnected prior to this call.
+        // Any invocation of the corresponding signaler that happens after this
         // call to 'disconect' completes will not invoke the slot.  The
-        // behavior is undefined if this method is called from the slot managed
-        // by this connection.  Note that it is unspecified if any invocation
-        // on the signaler that begins before this function completes will
-        // invoke the slot.
+        // behavior is undefined if this method is called from any slot.  Note
+        // that it is unspecified if any invocation on the signaler that begins
+        // before this function completes will invoke the slot.
 
     bool isConnected() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the associated slot is connected to the signaler

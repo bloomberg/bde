@@ -55,9 +55,9 @@ SignalerConnection::SignalerConnection(
             bslmf::MovableRef<SignalerConnection> original) BSLS_CPP11_NOEXCEPT
 : d_slotNodeBasePtr()
 {
-    SignalerConnection& local = original;
 
-    d_slotNodeBasePtr.swap(local.d_slotNodeBasePtr);
+    SignalerConnection& originalRef = original;
+    d_slotNodeBasePtr.swap(originalRef.d_slotNodeBasePtr);
 }
 
 // MANIPULATORS
@@ -86,11 +86,19 @@ void SignalerConnection::reset() BSLS_CPP11_NOEXCEPT
 }
 
 // ACCESSORS
-void SignalerConnection::disconnect(bool wait) const BSLS_CPP11_NOEXCEPT
+void SignalerConnection::disconnect() const BSLS_CPP11_NOEXCEPT
 {
     bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
     if (slotNodeBasePtr) {
-        slotNodeBasePtr->disconnect(wait);
+        slotNodeBasePtr->disconnect(false);
+    }
+}
+
+void SignalerConnection::disconnectAndWait() const BSLS_CPP11_NOEXCEPT
+{
+    bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
+    if (slotNodeBasePtr) {
+        slotNodeBasePtr->disconnect(true);
     }
 }
 
@@ -163,9 +171,9 @@ SignalerConnectionGuard::SignalerConnectionGuard(
                                                           BSLS_KEYWORD_NOEXCEPT
 : d_connection()
 {
-    bdlmt::SignalerConnectionGuard& localOriginal = original;
-    d_connection.swap(localOriginal.d_connection);
-    d_waitOnDisconnect = localOriginal.d_waitOnDisconnect;
+    bdlmt::SignalerConnectionGuard& originalRef = original;
+    d_connection.swap(originalRef.d_connection);
+    d_waitOnDisconnect = originalRef.d_waitOnDisconnect;
 }
 
 SignalerConnectionGuard::SignalerConnectionGuard(
@@ -175,13 +183,18 @@ SignalerConnectionGuard::SignalerConnectionGuard(
 : d_connection()
 , d_waitOnDisconnect(waitOnDisconnect)
 {
-    bdlmt::SignalerConnectionGuard& localOriginal = original;
-    d_connection.swap(localOriginal.d_connection);
+    bdlmt::SignalerConnectionGuard& originalRef = original;
+    d_connection.swap(originalRef.d_connection);
 }
 
 SignalerConnectionGuard::~SignalerConnectionGuard()
 {
-    d_connection.disconnect(d_waitOnDisconnect);
+    if (d_waitOnDisconnect) {
+        d_connection.disconnectAndWait();
+    }
+    else {
+        d_connection.disconnect();
+    }
 }
 
 // MANIPULATORS
@@ -189,12 +202,17 @@ SignalerConnectionGuard& SignalerConnectionGuard::operator=(
                                 bslmf::MovableRef<SignalerConnectionGuard> rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    d_connection.disconnect(d_waitOnDisconnect);
+    if (d_waitOnDisconnect) {
+        d_connection.disconnectAndWait();
+    }
+    else {
+        d_connection.disconnect();
+    }
     d_connection.reset();
 
-    SignalerConnectionGuard& localRhs = rhs;
-    d_connection.swap(localRhs.d_connection);
-    d_waitOnDisconnect = localRhs.d_waitOnDisconnect;
+    SignalerConnectionGuard& rhsRef = rhs;
+    d_connection.swap(rhsRef.d_connection);
+    d_waitOnDisconnect = rhsRef.d_waitOnDisconnect;
 
     return *this;
 }
@@ -202,7 +220,12 @@ SignalerConnectionGuard& SignalerConnectionGuard::operator=(
 SignalerConnectionGuard& SignalerConnectionGuard::operator=(
                            const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
 {
-    d_connection.disconnect(d_waitOnDisconnect);
+    if (d_waitOnDisconnect) {
+        d_connection.disconnectAndWait();
+    }
+    else {
+        d_connection.disconnect();
+    }
     d_connection = rhs;
 
     return *this;
@@ -211,10 +234,15 @@ SignalerConnectionGuard& SignalerConnectionGuard::operator=(
 SignalerConnectionGuard& SignalerConnectionGuard::operator=(
                bslmf::MovableRef<SignalerConnection> rhs) BSLS_KEYWORD_NOEXCEPT
 {
-    SignalerConnection& localRhs = rhs;
-    d_connection.disconnect(d_waitOnDisconnect);
+    SignalerConnection& rhsRef = rhs;
+    if (d_waitOnDisconnect) {
+        d_connection.disconnectAndWait();
+    }
+    else {
+        d_connection.disconnect();
+    }
     d_connection.reset();
-    d_connection.swap(localRhs);
+    d_connection.swap(rhsRef);
 
     return *this;
 }

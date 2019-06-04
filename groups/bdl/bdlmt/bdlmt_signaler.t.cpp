@@ -58,7 +58,7 @@ using bsl::flush;
 // [10] SignalerConnection::creators
 // [11] SignalerConnection::assignment
 // [12] SignalerConnection::disconnect()
-// [13] SignalerConnection::disconnect(true)
+// [13] SignalerConnection::disconnectAndWait()
 // [14] SignalerConnection::release
 // [15] SignalerConnection::swap
 // [16] SignalerConnection::isConnected
@@ -1481,7 +1481,7 @@ static void test8_signaler_disconnectAllSlotsAndWait()
     //        pending completion of the currently executing slots.
     //
     // Testing:
-    //   bdlmt::Signaler::disconnectAllSlots(true)
+    //   bdlmt::Signaler::disconnectAllSlotsAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
@@ -2026,14 +2026,12 @@ static void test12_connection_disconnect()
         // slot #2, disconnects slot #1
         con2 = sig.connect(bdlf::BindUtil::bind(
                                  &bdlmt::SignalerConnection::disconnect,
-                                 &con1,
-                                 false));
+                                 &con1));
 
         // slot #3, disconnects slot #4
         con3 = sig.connect(bdlf::BindUtil::bind(
                                  &bdlmt::SignalerConnection::disconnect,
-                                 &con4,
-                                 false));
+                                 &con4));
 
         // slot #4, prints "4_"
         con4 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
@@ -2074,8 +2072,7 @@ static void test12_connection_disconnect()
         // slot #2, disconnects itself
         con2 = sig.connect(bdlf::BindUtil::bind(
                                  &bdlmt::SignalerConnection::disconnect,
-                                 &con2,
-                                 false));
+                                 &con2));
 
         // slot #3, prints "3_"
         con3 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
@@ -2085,8 +2082,7 @@ static void test12_connection_disconnect()
         // slot #2, disconnects itself
         con4 = sig.connect(bdlf::BindUtil::bind(
                                  &bdlmt::SignalerConnection::disconnect,
-                                 &con4,
-                                 false));
+                                 &con4));
 
         {
             bdlmt::SignalerConnectionGuard con5;
@@ -2154,7 +2150,7 @@ static void test13_connection_disconnectAndWait()
     //        pending completion of the disconnected slot.
     //
     // Testing:
-    //   bdlmt::SignalerConnection::disconnect(true)
+    //   bdlmt::SignalerConnection::disconnectAndWait()
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator   alloc;
@@ -2168,7 +2164,7 @@ static void test13_connection_disconnectAndWait()
         ASSERT_EQ(con == bdlmt::SignalerConnection(), true);
 
         // do disconnect
-        con.disconnect(true);
+        con.disconnectAndWait();
 
         // nothing happened
         ASSERT_EQ(con.isConnected(),                  false);
@@ -2220,7 +2216,7 @@ static void test13_connection_disconnectAndWait()
             u::DoubleTI start2 = tQueue2.popFront();
 
             // disconnect the target slot from thread #0 (the main thread)
-            con3.disconnect(true);
+            con3.disconnectAndWait();
 
             // disconnection timestamp
             u::DoubleTI disconnectionTime = bsls::SystemTime::now(
@@ -3189,7 +3185,7 @@ static void test18_destroyGuardAndWait()
     //:     pending completion of the currently executing slots.
     //
     // Testing:
-    //   bdlmt::Signaler::disconnectGroup(true)
+    //   bdlmt::Signaler::disconnectGroupAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
