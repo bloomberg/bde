@@ -852,12 +852,15 @@ int main(int argc, char *argv[])
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long long,  true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(unsigned long long,  true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long, true);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(float, true);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(double, true);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long double, true);
 
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(bool, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(bsl::nullptr_t, true);
+
+        // floating-point types are not bitwise EqualityComparable.
+
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(float, false);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(double, false);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long double, false);
 
         // C-2 : 'void' is not an object type, but can be cv-qualified.
 

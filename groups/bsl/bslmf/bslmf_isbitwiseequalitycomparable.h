@@ -503,6 +503,17 @@ struct IsBitwiseEqualityComparable<void> : bsl::false_type {};
     // EqualityComparable.  Note that cv-'void' types are covered by the
     // partial specialization for any cv-qualified type.
 
+template <>
+struct IsBitwiseEqualityComparable<float> : bsl::false_type {};
+template <>
+struct IsBitwiseEqualityComparable<double> : bsl::false_type {};
+template <>
+struct IsBitwiseEqualityComparable<long double> : bsl::false_type {};
+    // Explicit specialization to confirm that floating point types are not
+    // bitwise EqualityComparable, as they typically have specific problematic
+    // values: NaNs do not compare equal with themselves, and there may be
+    // multiple representations for zero (with negative zero).
+
 }  // close package namespace
 }  // close enterprise namespace
 
