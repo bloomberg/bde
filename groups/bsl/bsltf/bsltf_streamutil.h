@@ -101,6 +101,17 @@ STREAM& operator<<(STREAM&                             stream,
 
 template <class STREAM>
 inline
+STREAM& operator<<(STREAM&                        stream,
+                   const AllocEmplacableTestType& object)
+    // Stream the integer representing the value of the specified 'object' to
+    // the specified 'stream'.
+{
+    stream << TemplateTestFacility::getIdentifier(object);
+    return stream;
+}
+
+template <class STREAM>
+inline
 STREAM& operator<<(STREAM&              stream,
                    const AllocTestType& object)
     // Stream the integer representing the value of the specified 'object' to
@@ -125,6 +136,17 @@ template <class STREAM>
 inline
 STREAM& operator<<(STREAM&                        stream,
                    const BitwiseMoveableTestType& object)
+    // Stream the integer representing the value of the specified 'object' to
+    // the specified 'stream'.
+{
+    stream << TemplateTestFacility::getIdentifier(object);
+    return stream;
+}
+
+template <class STREAM>
+inline
+STREAM& operator<<(STREAM&                   stream,
+                   const EmplacableTestType& object)
     // Stream the integer representing the value of the specified 'object' to
     // the specified 'stream'.
 {
@@ -246,6 +268,17 @@ template <class STREAM>
 inline
 STREAM& operator<<(STREAM&               stream,
                    const SimpleTestType& object)
+    // Stream the integer representing the value of the specified 'object' to
+    // the specified 'stream'.
+{
+    stream << TemplateTestFacility::getIdentifier(object);
+    return stream;
+}
+
+template <class STREAM, class ALLOC>
+inline
+STREAM& operator<<(STREAM&                        stream,
+                   const StdAllocTestType<ALLOC>& object)
     // Stream the integer representing the value of the specified 'object' to
     // the specified 'stream'.
 {

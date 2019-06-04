@@ -1033,113 +1033,202 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cerr << "BSLTF OUTPUT ('<<') OPERATORS\n"
                                   "=============================\n";
 
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+
         using namespace BloombergLP::bsltf;
 
         AllocBitwiseMoveableTestType o1 =
                  TemplateTestFacility::create<AllocBitwiseMoveableTestType>(1);
 
-        AllocTestType o2 = TemplateTestFacility::create<AllocTestType>(2);
+#if 0
+        // 'TTF::create<bt::AllocEmplacableTestType>' is commented out
+        // everywhere it is called in bsltf_templatetestfacility.t.cpp and
+        // doesn't compile when I try to build it here.
 
-        BitwiseCopyableTestType o3 =
-                      TemplateTestFacility::create<BitwiseCopyableTestType>(3);
+        AllocEmplacableTestType o2 =
+                      TemplateTestFacility::create<AllocEmplacableTestType>(2);
+#endif
 
-        BitwiseMoveableTestType o4 =
-                      TemplateTestFacility::create<BitwiseMoveableTestType>(4);
+        AllocTestType o3 = TemplateTestFacility::create<AllocTestType>(3);
 
-        EnumeratedTestType::Enum o5 =
-                     TemplateTestFacility::create<EnumeratedTestType::Enum>(5);
+        BitwiseCopyableTestType o4 =
+                      TemplateTestFacility::create<BitwiseCopyableTestType>(4);
 
-        MovableAllocTestType o6 =
-                         TemplateTestFacility::create<MovableAllocTestType>(6);
+        BitwiseMoveableTestType o5 =
+                      TemplateTestFacility::create<BitwiseMoveableTestType>(5);
 
-        MovableTestType o7 = TemplateTestFacility::create<MovableTestType>(7);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        EmplacableTestType o6 =
+                           TemplateTestFacility::create<EmplacableTestType>(6);
+#endif
 
-        MoveOnlyAllocTestType o8(8);
+        EnumeratedTestType::Enum o7 =
+                     TemplateTestFacility::create<EnumeratedTestType::Enum>(7);
 
-        NonAssignableTestType o9 =
-                        TemplateTestFacility::create<NonAssignableTestType>(9);
+        TemplateTestFacility::MethodPtr o8 =
+              TemplateTestFacility::create<TemplateTestFacility::MethodPtr>(8);
 
-        NonCopyConstructibleTestType o10(10);
+        MovableAllocTestType o9 =
+                         TemplateTestFacility::create<MovableAllocTestType>(9);
 
-        NonDefaultConstructibleTestType o11 =
-             TemplateTestFacility::create<NonDefaultConstructibleTestType>(11);
+        MovableTestType o10 =
+                             TemplateTestFacility::create<MovableTestType>(10);
 
-        NonEqualComparableTestType o12 =
-                  TemplateTestFacility::create<NonEqualComparableTestType>(12);
+        MoveOnlyAllocTestType o11(11);
 
-        NonTypicalOverloadsTestType o13 =
-                 TemplateTestFacility::create<NonTypicalOverloadsTestType>(13);
+        NonAssignableTestType o12 =
+                       TemplateTestFacility::create<NonAssignableTestType>(12);
 
-        SimpleTestType o14 = TemplateTestFacility::create<SimpleTestType>(14);
+        NonCopyConstructibleTestType o13(13);
 
-        UnionTestType o15 = TemplateTestFacility::create<UnionTestType>(15);
+        NonDefaultConstructibleTestType o14 =
+             TemplateTestFacility::create<NonDefaultConstructibleTestType>(14);
+
+        NonEqualComparableTestType o15 =
+                  TemplateTestFacility::create<NonEqualComparableTestType>(15);
+
+        NonOptionalAllocTestType o16(16, &ta);
+
+        NonTypicalOverloadsTestType o17 =
+                 TemplateTestFacility::create<NonTypicalOverloadsTestType>(17);
+
+        SimpleTestType o18 = TemplateTestFacility::create<SimpleTestType>(18);
+
+        StdAllocTestType<bsl::allocator<int> > o19(19);
+
+        UnionTestType o20 = TemplateTestFacility::create<UnionTestType>(20);
 
         if (veryVerbose) {
-            P_(o1);    P_(o2);    P_(o3);    P_(o4);    P_(o5);    P(o6);
+            P_(o1);               P_(o3);    P_(o4);    P_(o5);
             P_(o7);    P_(o8);    P_(o9);    P_(o10);   P_(o11);   P(o12);
-            P_(o13);   P_(o14);   P(o15);
+            P_(o13);   P_(o14);   P_(o15);   P_(o16);   P_(o17);   P_(o18);
+            P_(o19);   P(o20);
         }
 
-        bsl::ostringstream oss;
+        bsl::ostringstream oss, *oss_p = 0;
 
-        oss << o1;
+        oss_p = 0;
+        oss_p = &(oss << o1);
         ASSERT( "1" == oss.str());
+        ASSERT(oss_p == &oss);
 
+#if 0
+        oss_p = 0;
         oss.str("");
-        oss << o2;
+        oss_p = &(oss << o2);
         ASSERT( "2" == oss.str());
+        ASSERT(oss_p == &oss);
+#endif
 
+        oss_p = 0;
         oss.str("");
-        oss << o3;
+        oss_p = &(oss << o3);
         ASSERT( "3" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o4;
+        oss_p = &(oss << o4);
         ASSERT( "4" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o5;
+        oss_p = &(oss << o5);
         ASSERT( "5" == oss.str());
+        ASSERT(oss_p == &oss);
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        oss_p = 0;
         oss.str("");
-        oss << o6;
+        oss_p = &(oss << o6);
         ASSERT( "6" == oss.str());
+        ASSERT(oss_p == &oss);
+#endif
 
+        oss_p = 0;
         oss.str("");
-        oss << o7;
+        oss_p = &(oss << o7);
         ASSERT( "7" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o8;
+        oss_p = &(oss << o8);
         ASSERT( "8" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o9;
+        oss_p = &(oss << o9);
         ASSERT( "9" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o10;
+        oss_p = &(oss << o10);
         ASSERT("10" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o11;
+        oss_p = &(oss << o11);
         ASSERT("11" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o12;
+        oss_p = &(oss << o12);
         ASSERT("12" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o13;
+        oss_p = &(oss << o13);
         ASSERT("13" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o14;
+        oss_p = &(oss << o14);
         ASSERT("14" == oss.str());
+        ASSERT(oss_p == &oss);
 
+        oss_p = 0;
         oss.str("");
-        oss << o15;
+        oss_p = &(oss << o15);
         ASSERT("15" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o16);
+        ASSERT("16" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o17);
+        ASSERT("17" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o18);
+        ASSERT("18" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o19);
+        ASSERT("19" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o20);
+        ASSERT("20" == oss.str());
+        ASSERT(oss_p == &oss);
       } break;
       case 18: {
         // --------------------------------------------------------------------

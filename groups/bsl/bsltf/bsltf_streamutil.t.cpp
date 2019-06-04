@@ -4,6 +4,9 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+
+#include <bslma_testallocator.h>
 
 #include <bsltf_templatetestfacility.h>
 
@@ -208,10 +211,11 @@ class StdioStream {
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;    (void) veryVerbose;
-    int veryVeryVerbose = argc > 4;    (void) veryVeryVerbose;
+    int test                = argc > 1 ? atoi(argv[1]) : 0;
+    int verbose             = argc > 2;
+    int veryVerbose         = argc > 3;    (void) veryVerbose;
+    int veryVeryVerbose     = argc > 4;    (void) veryVeryVerbose;
+    int veryVeryVeryVerbose = argc > 5;    (void) veryVeryVeryVerbose;
 
     printf("TEST %s case %s\n", __FILE__, argv[1]);
 
@@ -305,62 +309,82 @@ int main(int argc, char *argv[])
 
         namespace bt = BloombergLP::bsltf;
 
+        BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
+
         {
             bt::AllocBitwiseMoveableTestType o1 =
                               TTF::create<bt::AllocBitwiseMoveableTestType>(1);
 
-            bt::AllocTestType o2 = TTF::create<bt::AllocTestType>(2);
+#if 0
+            // 'TTF::create<bt::AllocEmplacableTestType>' is commented out
+            // everywhere it is called in bsltf_templatetestfacility.t.cpp and
+            // doesn't compile when I try to build it here.
 
-            bt::BitwiseCopyableTestType o3 =
-                                   TTF::create<bt::BitwiseCopyableTestType>(3);
+            bt::AllocEmplacableTestType o2 =
+                                   TTF::create<bt::AllocEmplacableTestType>(2);
+#endif
 
-            bt::BitwiseMoveableTestType o4 =
-                                   TTF::create<bt::BitwiseMoveableTestType>(4);
+            bt::AllocTestType o3 = TTF::create<bt::AllocTestType>(3);
 
-            bt::EnumeratedTestType::Enum o5 =
-                                  TTF::create<bt::EnumeratedTestType::Enum>(5);
+            bt::BitwiseCopyableTestType o4 =
+                                   TTF::create<bt::BitwiseCopyableTestType>(4);
 
-            bt::MovableAllocTestType o6 =
-                                      TTF::create<bt::MovableAllocTestType>(6);
+            bt::BitwiseMoveableTestType o5 =
+                                   TTF::create<bt::BitwiseMoveableTestType>(5);
 
-            bt::MovableTestType o7 = TTF::create<bt::MovableTestType>(7);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            bt::EmplacableTestType o6 = TTF::create<bt::EmplacableTestType>(6);
+#endif
 
-            bt::MoveOnlyAllocTestType o8(8);
+            bt::EnumeratedTestType::Enum o7 =
+                                  TTF::create<bt::EnumeratedTestType::Enum>(7);
 
-            bt::NonAssignableTestType o9 =
-                                     TTF::create<bt::NonAssignableTestType>(9);
+            TTF::MethodPtr o8 = TTF::create<TTF::MethodPtr>(8);
 
-            bt::NonCopyConstructibleTestType o10(10);
+            bt::MovableAllocTestType o9 =
+                                      TTF::create<bt::MovableAllocTestType>(9);
 
-            bt::NonDefaultConstructibleTestType o11 =
-                          TTF::create<bt::NonDefaultConstructibleTestType>(11);
+            bt::MovableTestType o10 = TTF::create<bt::MovableTestType>(10);
 
-            bt::NonEqualComparableTestType o12 =
-                               TTF::create<bt::NonEqualComparableTestType>(12);
+            bt::MoveOnlyAllocTestType o11(11);
 
-            bt::NonTypicalOverloadsTestType o13 =
-                              TTF::create<bt::NonTypicalOverloadsTestType>(13);
+            bt::NonAssignableTestType o12 =
+                                    TTF::create<bt::NonAssignableTestType>(12);
 
-            bt::SimpleTestType o14 = TTF::create<bt::SimpleTestType>(14);
+            bt::NonCopyConstructibleTestType o13(13);
 
-            bt::UnionTestType o15 = TTF::create<bt::UnionTestType>(15);
+            bt::NonDefaultConstructibleTestType o14 =
+                          TTF::create<bt::NonDefaultConstructibleTestType>(14);
 
-            TTF::MethodPtr o16 = TTF::create<TTF::MethodPtr>(16);
+            bt::NonEqualComparableTestType o15 =
+                               TTF::create<bt::NonEqualComparableTestType>(15);
 
-            bt::NonOptionalAllocTestType o17 =
-                                 TTF::create<bt::NonOptionalAllocTestType>(17);
+            bt::NonOptionalAllocTestType o16(16, &ta);
 
-            u::TestStreamer ts, *ts_p = 0;
+            bt::NonTypicalOverloadsTestType o17 =
+                              TTF::create<bt::NonTypicalOverloadsTestType>(17);
 
+            bt::SimpleTestType o18 = TTF::create<bt::SimpleTestType>(18);
+
+            bt::StdAllocTestType<bsl::allocator<int> > o19(19);
+
+            bt::UnionTestType o20 = TTF::create<bt::UnionTestType>(20);
+
+            u::TestStreamer ts, *ts_p;
+
+            ts.reset();
+            ts_p = 0;
             ts_p = &(ts << o1);
             ASSERT( 1 == ts.value());
             ASSERT(&ts == ts_p);
 
+#if 0
             ts.reset();
             ts_p = 0;
             ts_p = &(ts << o2);
             ASSERT( 2 == ts.value());
             ASSERT(&ts == ts_p);
+#endif
 
             ts.reset();
             ts_p = 0;
@@ -380,11 +404,13 @@ int main(int argc, char *argv[])
             ASSERT( 5 == ts.value());
             ASSERT(&ts == ts_p);
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
             ts.reset();
             ts_p = 0;
             ts_p = &(ts << o6);
             ASSERT( 6 == ts.value());
             ASSERT(&ts == ts_p);
+#endif
 
             ts.reset();
             ts_p = 0;
@@ -450,6 +476,24 @@ int main(int argc, char *argv[])
             ts_p = 0;
             ts_p = &(ts << o17);
             ASSERT(17 == ts.value());
+            ASSERT(&ts == ts_p);
+
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o18);
+            ASSERT(18 == ts.value());
+            ASSERT(&ts == ts_p);
+
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o19);
+            ASSERT(19 == ts.value());
+            ASSERT(&ts == ts_p);
+
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o20);
+            ASSERT(20 == ts.value());
             ASSERT(&ts == ts_p);
         }
 
