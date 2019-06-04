@@ -131,7 +131,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void test_DEPRECATED_function() BSLA_DEPRECATED;
+BSLA_DEPRECATED
+void test_DEPRECATED_function();
 void test_DEPRECATED_function()
 {
 }
@@ -257,7 +258,8 @@ int test_WARNING()
 //                  DEFINITION OF ANNOTATED VARIABLES
 // ----------------------------------------------------------------------------
 
-int test_DEPRECATED_variable BSLA_DEPRECATED;
+BSLA_DEPRECATED
+int test_DEPRECATED_variable;
 
 static
 int test_UNUSED_variable_no_warning     BSLA_UNUSED;
@@ -276,9 +278,9 @@ int test_USED_variable_no_warning BSLA_USED;
 //                  DEFINITION OF ANNOTATED TYPES
 // ----------------------------------------------------------------------------
 
-struct Test_DEPRECATED_type {
+struct BSLA_DEPRECATED Test_DEPRECATED_type {
     int d_d;
-} BSLA_DEPRECATED;
+};
 
 namespace {
 
