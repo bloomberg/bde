@@ -133,7 +133,7 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 // Next, we define a deprecated variable 'usageVar':
 //..
-    extern int usageVar BSLA_DEPRECATED;
+    BSLA_DEPRECATED extern int usageVar;
     int usageVar = 5;
 //..
 // Then, we define a deprecated typedef 'usageTypedef:
@@ -187,7 +187,7 @@ void test_DEPRECATED_function()
 //                  DEFINITION OF ANNOTATED VARIABLES
 // ----------------------------------------------------------------------------
 
-int test_DEPRECATED_variable BSLA_DEPRECATED;
+BSLA_DEPRECATED int test_DEPRECATED_variable;
     // Provide a test variable which, if used, will result in a deprecated
     // compiler warning.
 

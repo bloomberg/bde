@@ -244,12 +244,6 @@ BSLS_IDENT("$Id: $")
 #   undef  BSLA_DEPRECATED_IS_ACTIVE
 #   define BSLA_DEPRECATED_IS_ACTIVE 1
 # endif
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-# define BSLA_DEPRECATED                  __declspec(deprecated)
-# define BSLA_DEPRECATED_MESSAGE(message) __declspec(deprecated)
-
-# undef  BSLA_DEPRECATED_IS_ACTIVE
-# define BSLA_DEPRECATED_IS_ACTIVE 1
 #endif
 
 #if BSLA_DEPRECATED_IS_ACTIVE == 0
