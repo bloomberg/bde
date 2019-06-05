@@ -1718,11 +1718,11 @@ static void test10_connection_creators()
         ASSERT_EQ(con1.connection() == def, true);
 
         // 'con3' reffers to the same slot as 'con1' used to
-        ASSERT_EQ(con2.isConnected()  &&
-                  con3.isConnected(),    true);
+        ASSERT_EQ(con2.connection().isConnected()  &&
+                  con3.connection().isConnected(),    true);
         con2.connection().disconnect();
-        ASSERT_EQ(!con2.isConnected() &&
-                  !con3.isConnected(),   true);
+        ASSERT_EQ(!con2.connection().isConnected() &&
+                  !con3.connection().isConnected(),   true);
     }
 
     // 6. SignalerConnectionGuard connection copy c-tor
@@ -1734,9 +1734,9 @@ static void test10_connection_creators()
         bdlmt::SignalerConnectionGuard con2(con1);
 
         // 'con2' reffers to the same slot as 'con1'
-        ASSERT_EQ(con1.isConnected() && con2.isConnected(),   true);
+        ASSERT( con1.isConnected() &&  con2.connection().isConnected());
         con1.disconnect();
-        ASSERT_EQ(!con1.isConnected() && !con2.isConnected(), true);
+        ASSERT(!con1.isConnected() && !con2.connection().isConnected());
     }
 
     // 7. SignalerConnectionGuard connection move c-tor
@@ -1749,14 +1749,13 @@ static void test10_connection_creators()
         bdlmt::SignalerConnectionGuard con3(bslmf::MovableRefUtil::move(con1));
 
         // 'con1' is now "empty"
-        ASSERT_EQ(con1 == def, true);
+        ASSERT(con1 == def);
 
         // 'con3' reffers to the same slot as 'con1' used to
-        ASSERT_EQ(con2.isConnected() &&
-                  con3.isConnected(),   true);
+        ASSERT( con2.isConnected() &&  con3.connection().isConnected());
+
         con2.disconnect();
-        ASSERT_EQ(!con2.isConnected() &&
-                  !con3.isConnected(),  true);
+        ASSERT(!con2.isConnected() && !con3.connection().isConnected());
     }
 
     // 8. SignalerConnectionGuard d-tor
@@ -1861,48 +1860,11 @@ static void test11_connection_assignment()
         ASSERT_EQ(con1.connection() == def, true);
 
         // 'con3' reffer to the same slot as 'con1' used to
-        ASSERT_EQ(con2.isConnected() &&
-                   con3.isConnected(),   true);
+        ASSERT( con2.connection().isConnected() &&
+                                              con3.connection().isConnected());
         con2.connection().disconnect();
-        ASSERT_EQ(!con2.isConnected() &&
-                  !con3.isConnected(),   true);
-    }
-
-    // 4. SignalerConnectionGuard connection copy assignment
-    {
-        bdlmt::Signaler<void()>   sig(&alloc);
-        bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
-
-        // copy-assign
-        bdlmt::SignalerConnectionGuard con2;
-                                       con2 = con1;
-
-        // 'con2' reffer to the same slot as 'con1'
-        ASSERT_EQ(con1.isConnected() && con2.isConnected(),   true);
-        con1.disconnect();
-        ASSERT_EQ(!con1.isConnected() && !con2.isConnected(), true);
-    }
-
-    // 5. SignalerConnectionGuard connection move assignment
-    {
-        bdlmt::Signaler<void()>   sig(&alloc);
-        bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
-        bdlmt::SignalerConnection con2(con1);
-
-        // move-assign
-        bdlmt::SignalerConnectionGuard con3;
-                                       con3 = bslmf::MovableRefUtil::move(
-                                                                     con1);
-
-        // 'con1' is now "empty"
-        ASSERT_EQ(con1 == def, true);
-
-        // 'con3' reffer to the same slot as 'con1' used to
-        ASSERT_EQ(con2.isConnected() &&
-                   con3.isConnected(),   true);
-        con2.disconnect();
-        ASSERT_EQ(!con2.isConnected() &&
-                  !con3.isConnected(),   true);
+        ASSERT(!con2.connection().isConnected() &&
+                                             !con3.connection().isConnected());
     }
 }
 
@@ -2085,12 +2047,11 @@ static void test12_connection_disconnect()
                                  &con4));
 
         {
-            bdlmt::SignalerConnectionGuard con5;
-
             // slot #5, prints "5_"
-            con5 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
-                                                           bsl::ref(out),
-                                                           "5_"));
+            bdlmt::SignalerConnectionGuard con5(
+                        sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
+                                                                bsl::ref(out),
+                                                                "5_")));
 
             ASSERT(5 == sig.slotCount());
 
@@ -2107,7 +2068,7 @@ static void test12_connection_disconnect()
             // slots #1, #3, and #5 are still connected
             ASSERT_EQ(con1.isConnected(), true);
             ASSERT_EQ(con3.isConnected(), true);
-            ASSERT_EQ(con5.isConnected(), true);
+            ASSERT_EQ(con5.connection().isConnected(), true);
 
             ASSERTV(out.str(), "1_3_5_" == out.str());
 
@@ -2392,8 +2353,8 @@ static void test15_connection_swap()
         ASSERT(con4 == con1.connection());
 
         // check
-        ASSERT_EQ(con1.isConnected() &&
-                  con2.isConnected() &&
+        ASSERT_EQ(con1.connection().isConnected() &&
+                  con2.connection().isConnected() &&
                   con3.isConnected() &&
                   con4.isConnected(),   true);
         con4.disconnect();
@@ -2408,8 +2369,8 @@ static void test15_connection_swap()
         ASSERT(con3 == con2.connection());
         ASSERT(con4 == con1.connection());
 
-        ASSERT_EQ(!con1.isConnected() &&
-                   con2.isConnected() &&
+        ASSERT_EQ(!con1.connection().isConnected() &&
+                   con2.connection().isConnected() &&
                    con3.isConnected() &&
                   !con4.isConnected(),   true);
 
@@ -2425,8 +2386,8 @@ static void test15_connection_swap()
         ASSERT(con3 == con2.connection());
         ASSERT(con4 == con1.connection());
 
-        ASSERT_EQ(!con1.isConnected() &&
-                  !con2.isConnected() &&
+        ASSERT_EQ(!con1.connection().isConnected() &&
+                  !con2.connection().isConnected() &&
                   !con3.isConnected() &&
                   !con4.isConnected(),   true);
     }
@@ -2513,7 +2474,7 @@ static void test16_connection_isConnected()
         con = sig.connect(u::NoOp());
         bdlmt::SignalerConnectionGuard guardA(con);
         ASSERT(con.isConnected());
-        ASSERT(guardA.isConnected());
+        ASSERT(guardA.connection().isConnected());
         ASSERT(!guardA.waitOnDisconnect());
         ASSERT(guardA.connection() == con);
         ASSERT(1 == sig.slotCount());
@@ -2532,7 +2493,7 @@ static void test16_connection_isConnected()
             con = sig.connect(u::NoOp());
             bdlmt::SignalerConnectionGuard guardA(con, rhsB);
             ASSERT(con.isConnected());
-            ASSERT(guardA.isConnected());
+            ASSERT(guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
             ASSERT(1 == sig.slotCount());
@@ -2550,7 +2511,7 @@ static void test16_connection_isConnected()
                                             bslmf::MovableRefUtil::move(conB));
         ASSERT(con.isConnected());
         ASSERT(def == conB);
-        ASSERT(guardA.isConnected());
+        ASSERT(guardA.connection().isConnected());
         ASSERT(!guardA.waitOnDisconnect());
         ASSERT(guardA.connection() == con);
         ASSERT(1 == sig.slotCount());
@@ -2573,7 +2534,7 @@ static void test16_connection_isConnected()
                                       bslmf::MovableRefUtil::move(conB), rhsB);
             ASSERT(con.isConnected());
             ASSERT(def == conB);
-            ASSERT(guardA.isConnected());
+            ASSERT(guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
             ASSERT(1 == sig.slotCount());
@@ -2599,7 +2560,7 @@ static void test16_connection_isConnected()
                                       bslmf::MovableRefUtil::move(conB), rhsB);
             ASSERT(con.isConnected());
             ASSERT(def == conB);
-            ASSERT(guardA.isConnected());
+            ASSERT(guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
             ASSERT(1 == sig.slotCount());
@@ -2609,8 +2570,8 @@ static void test16_connection_isConnected()
             ASSERT(con.isConnected());
             ASSERT(def == conB);
             ASSERT(def == guardA.connection());
-            ASSERT(!guardA.isConnected());
-            ASSERT(guardB.isConnected());
+            ASSERT(!guardA.connection().isConnected());
+            ASSERT(guardB.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(rhsB == guardB.waitOnDisconnect());
             ASSERT(guardB.connection() == con);
@@ -2639,7 +2600,7 @@ static void test16_connection_isConnected()
                 pGuardA = new (alloc) bdlmt::SignalerConnectionGuard(rhsB);
             }
             bdlmt::SignalerConnectionGuard& guardA = *pGuardA;
-            ASSERT(!guardA.isConnected());
+            ASSERT(!guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(0 == sig.slotCount());
@@ -2648,8 +2609,8 @@ static void test16_connection_isConnected()
                                           bslmf::MovableRefUtil::move(guardA));
             ASSERT(def == guardA.connection());
             ASSERT(def == guardB.connection());
-            ASSERT(!guardA.isConnected());
-            ASSERT(!guardB.isConnected());
+            ASSERT(!guardA.connection().isConnected());
+            ASSERT(!guardB.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(rhsB == guardB.waitOnDisconnect());
             ASSERT(0 == sig.slotCount());
@@ -2676,7 +2637,7 @@ static void test16_connection_isConnected()
                                       bslmf::MovableRefUtil::move(conB), rhsB);
             ASSERT(con.isConnected());
             ASSERT(def == conB);
-            ASSERT(guardA.isConnected());
+            ASSERT(guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
             ASSERT(1 == sig.slotCount());
@@ -2686,8 +2647,8 @@ static void test16_connection_isConnected()
             ASSERT(con.isConnected());
             ASSERT(def == conB);
             ASSERT(def == guardA.connection());
-            ASSERT(!guardA.isConnected());
-            ASSERT(guardB.isConnected());
+            ASSERT(!guardA.connection().isConnected());
+            ASSERT( guardB.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(lhsB == guardB.waitOnDisconnect());
             ASSERT(guardB.connection() == con);
@@ -2708,6 +2669,10 @@ static void test16_connection_isConnected()
         const AssignMode aMode = static_cast<AssignMode>(ii / 4);
 
         const bool expWait = e_MOVE_GUARD == aMode ? rhsB : lhsB;
+
+        if (e_MOVE_GUARD != aMode) {
+            continue;
+        }
 
         if (veryVerbose) {
             switch (aMode) {
@@ -2745,7 +2710,7 @@ static void test16_connection_isConnected()
             bdlmt::SignalerConnectionGuard guardA(conB, rhsB);
             ASSERT(con.isConnected());
             ASSERT(conB.isConnected());
-            ASSERT(guardA.isConnected());
+            ASSERT(guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
             ASSERT(2 == sig.slotCount());
@@ -2756,8 +2721,8 @@ static void test16_connection_isConnected()
             ASSERT(conB.isConnected());
             ASSERT(conC.isConnected());
             ASSERT(def == conD);
-            ASSERT(guardA.isConnected());
-            ASSERT(guardB.isConnected());
+            ASSERT(guardA.connection().isConnected());
+            ASSERT(guardB.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(lhsB == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
@@ -2768,6 +2733,7 @@ static void test16_connection_isConnected()
               case e_MOVE_GUARD: {
                 guardB = bslmf::MovableRefUtil::move(guardA);
               } break;
+#if 0
               case e_MOVE_CONNECTOR: {
                 bdlmt::SignalerConnection conE = guardA.release();
                 ASSERT(con == conE);
@@ -2780,6 +2746,7 @@ static void test16_connection_isConnected()
                 guardB = conE;
                 ASSERT(con == conE);
               } break;
+#endif
               default: {
                 ASSERT(0);
               }
@@ -2789,8 +2756,8 @@ static void test16_connection_isConnected()
             ASSERT(!conC.isConnected());
             ASSERT(def == conD);
             ASSERT(def != conC);
-            ASSERT(!guardA.isConnected());
-            ASSERT(guardB.isConnected());
+            ASSERT(!guardA.connection().isConnected());
+            ASSERT(guardB.connection().isConnected());
             ASSERT(rhsB    == guardA.waitOnDisconnect());
             ASSERT(expWait == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
@@ -2838,7 +2805,7 @@ static void test16_connection_isConnected()
                 pGuardA = new (alloc) bdlmt::SignalerConnectionGuard(rhsB);
             }
             bdlmt::SignalerConnectionGuard& guardA = *pGuardA;
-            ASSERT(!guardA.isConnected());
+            ASSERT(!guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(1 == sig.slotCount());
@@ -2847,8 +2814,8 @@ static void test16_connection_isConnected()
                                       bslmf::MovableRefUtil::move(conD), lhsB);
             ASSERT(conC.isConnected());
             ASSERT(def == conD);
-            ASSERT(!guardA.isConnected());
-            ASSERT(guardB.isConnected());
+            ASSERT(!guardA.connection().isConnected());
+            ASSERT(guardB.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(lhsB == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
@@ -2859,8 +2826,8 @@ static void test16_connection_isConnected()
             ASSERT(!conC.isConnected());
             ASSERT(def == conD);
             ASSERT(def != conC);
-            ASSERT(!guardA.isConnected());
-            ASSERT(!guardB.isConnected());
+            ASSERT(!guardA.connection().isConnected());
+            ASSERT(!guardB.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(rhsB == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
@@ -2886,6 +2853,10 @@ static void test16_connection_isConnected()
                                              ii / (2 * k_NUM_CONSTRUCT_MODES));
 
         const bool          expWait = e_MOVE_GUARD == aMode ? rhsB : lhsB;
+
+        if (e_MOVE_GUARD != aMode) {
+            continue;
+        }
 
         if (veryVerbose) {
             switch (aMode) {
@@ -2921,7 +2892,7 @@ static void test16_connection_isConnected()
             bdlmt::SignalerConnectionGuard guardA(conB, rhsB);
             ASSERT(con.isConnected());
             ASSERT(conB.isConnected());
-            ASSERT(guardA.isConnected());
+            ASSERT(guardA.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
             ASSERT(1 == sig.slotCount());
@@ -2934,8 +2905,8 @@ static void test16_connection_isConnected()
                 pGuardB = new (alloc) bdlmt::SignalerConnectionGuard(lhsB);
             }
             bdlmt::SignalerConnectionGuard& guardB = *pGuardB;
-            ASSERT(guardA.isConnected());
-            ASSERT(!guardB.isConnected());
+            ASSERT(guardA.connection().isConnected());
+            ASSERT(!guardB.connection().isConnected());
             ASSERT(rhsB == guardA.waitOnDisconnect());
             ASSERT(lhsB == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
@@ -2946,6 +2917,7 @@ static void test16_connection_isConnected()
               case e_MOVE_GUARD: {
                 guardB = bslmf::MovableRefUtil::move(guardA);
               } break;
+#if 0
               case e_MOVE_CONNECTOR: {
                 bdlmt::SignalerConnection conE = guardA.release();
                 ASSERT(con == conE);
@@ -2958,14 +2930,15 @@ static void test16_connection_isConnected()
                 guardB = conE;
                 ASSERT(con == conE);
               } break;
+#endif
               default: {
                 ASSERT(0);
               }
             }
             ASSERT(con.isConnected());
             ASSERT(conB.isConnected());
-            ASSERT(!guardA.isConnected());
-            ASSERT(guardB.isConnected());
+            ASSERT(!guardA.connection().isConnected());
+            ASSERT(guardB.connection().isConnected());
             ASSERT(rhsB    == guardA.waitOnDisconnect());
             ASSERT(expWait == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);

@@ -53,11 +53,9 @@ SignalerConnection::SignalerConnection(const SignalerConnection& original)
 
 SignalerConnection::SignalerConnection(
             bslmf::MovableRef<SignalerConnection> original) BSLS_CPP11_NOEXCEPT
-: d_slotNodeBasePtr()
+: d_slotNodeBasePtr(bslmf::MovableRefUtil::move(
+                    bslmf::MovableRefUtil::access(original).d_slotNodeBasePtr))
 {
-
-    SignalerConnection& originalRef = original;
-    d_slotNodeBasePtr.swap(originalRef.d_slotNodeBasePtr);
 }
 
 // MANIPULATORS
@@ -133,9 +131,9 @@ bool operator>=(const SignalerConnection& lhs,
     return !(lhs < rhs);
 }
 
-                        // -----------------------
-                        // SignalerConnectionGuard
-                        // -----------------------
+                        // -----------------------------
+                        // class SignalerConnectionGuard
+                        // -----------------------------
 
 // CREATORS
 SignalerConnectionGuard::SignalerConnectionGuard(bool waitOnDisconnect)
@@ -159,42 +157,38 @@ SignalerConnectionGuard::SignalerConnectionGuard(
                         bslmf::MovableRef<SignalerConnection> connection,
                         bool                                  waitOnDisconnect)
                                                           BSLS_KEYWORD_NOEXCEPT
-: d_connection()
+: d_connection(bslmf::MovableRefUtil::move(connection))
 , d_waitOnDisconnect(waitOnDisconnect)
 {
-    bdlmt::SignalerConnection& localConnection = connection;
-    d_connection.swap(localConnection);
+    // NOTHING
 }
 
 SignalerConnectionGuard::SignalerConnectionGuard(
                            bslmf::MovableRef<SignalerConnectionGuard> original)
                                                           BSLS_KEYWORD_NOEXCEPT
-: d_connection()
+: d_connection(bslmf::MovableRefUtil::move(
+                         bslmf::MovableRefUtil::access(original).d_connection))
+, d_waitOnDisconnect(
+                    bslmf::MovableRefUtil::access(original).d_waitOnDisconnect)
 {
-    bdlmt::SignalerConnectionGuard& originalRef = original;
-    d_connection.swap(originalRef.d_connection);
-    d_waitOnDisconnect = originalRef.d_waitOnDisconnect;
+    // NOTHING
 }
 
 SignalerConnectionGuard::SignalerConnectionGuard(
                    bslmf::MovableRef<SignalerConnectionGuard> original,
                    bool                                       waitOnDisconnect)
                                                           BSLS_KEYWORD_NOEXCEPT
-: d_connection()
+: d_connection(bslmf::MovableRefUtil::move(
+                         bslmf::MovableRefUtil::access(original).d_connection))
 , d_waitOnDisconnect(waitOnDisconnect)
 {
-    bdlmt::SignalerConnectionGuard& originalRef = original;
-    d_connection.swap(originalRef.d_connection);
+    // NOTHING
 }
 
 SignalerConnectionGuard::~SignalerConnectionGuard()
 {
-    if (d_waitOnDisconnect) {
-        d_connection.disconnectAndWait();
-    }
-    else {
-        d_connection.disconnect();
-    }
+    d_waitOnDisconnect ? d_connection.disconnectAndWait()
+                       : d_connection.disconnect();
 }
 
 // MANIPULATORS
@@ -202,47 +196,12 @@ SignalerConnectionGuard& SignalerConnectionGuard::operator=(
                                 bslmf::MovableRef<SignalerConnectionGuard> rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    if (d_waitOnDisconnect) {
-        d_connection.disconnectAndWait();
-    }
-    else {
-        d_connection.disconnect();
-    }
-    d_connection.reset();
+    d_waitOnDisconnect ? d_connection.disconnectAndWait()
+                       : d_connection.disconnect();
 
     SignalerConnectionGuard& rhsRef = rhs;
-    d_connection.swap(rhsRef.d_connection);
+    d_connection       = bslmf::MovableRefUtil::move(rhsRef.d_connection);
     d_waitOnDisconnect = rhsRef.d_waitOnDisconnect;
-
-    return *this;
-}
-
-SignalerConnectionGuard& SignalerConnectionGuard::operator=(
-                           const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    if (d_waitOnDisconnect) {
-        d_connection.disconnectAndWait();
-    }
-    else {
-        d_connection.disconnect();
-    }
-    d_connection = rhs;
-
-    return *this;
-}
-
-SignalerConnectionGuard& SignalerConnectionGuard::operator=(
-               bslmf::MovableRef<SignalerConnection> rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    SignalerConnection& rhsRef = rhs;
-    if (d_waitOnDisconnect) {
-        d_connection.disconnectAndWait();
-    }
-    else {
-        d_connection.disconnect();
-    }
-    d_connection.reset();
-    d_connection.swap(rhsRef);
 
     return *this;
 }
