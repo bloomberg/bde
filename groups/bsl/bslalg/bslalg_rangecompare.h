@@ -764,7 +764,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end2,
                              const VALUE_TYPE& value)
 {
-    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::Type
+    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::type
                                                       CanUseLengthOptimization;
 
     return equal(start1,
@@ -789,7 +789,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
     // 'CanUseBitwiseCopyOptimization' is necessary to remove further
     // ambiguities on SunPro).
 
-    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::Type
+    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::type
                                               CanUseBitwiseCompareOptimization;
 
     return equalBitwiseEqualityComparable(start1,
@@ -910,7 +910,7 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
                                       INPUT_ITER        end2,
                                       const VALUE_TYPE& value)
 {
-    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::Type
+    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::type
                                                       CanUseLengthOptimization;
 
     return lexicographical(start1, end1, start2, end2, value,
