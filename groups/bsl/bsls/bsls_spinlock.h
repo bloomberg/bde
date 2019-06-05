@@ -25,9 +25,9 @@ BSLS_IDENT("$: $")
 //..
 //  bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
 //..
-// Note that 'SpinLock' is a struct requiring aggregate initialization
-// to allow lock variables to be statically initalized when using a C++03
-// compiler (i.e., without using 'constexpr').
+// Note that 'SpinLock' is a struct requiring aggregate initialization to allow
+// lock variables to be statically initialized when using a C++03 compiler
+// (i.e., without using 'constexpr').
 //
 ///Usage
 ///-----
@@ -154,7 +154,7 @@ BSLS_IDENT("$: $")
 //        // Add the specified 'value' to the back of the queue.
 //   };
 //..
-// Next, we implement the creators. Note that a different idiom is used to
+// Next, we implement the creators.  Note that a different idiom is used to
 // initialize member variables of 'SpinLock' type than is used for static
 // variables:
 //..
@@ -263,6 +263,8 @@ BSLS_IDENT("$: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_platform.h>
+#include <bsls_performancehint.h>
 
 #define BSLS_SPINLOCK_UNLOCKED  { {0} }
     // Use this macro as the value for initializing an object of type
@@ -270,6 +272,29 @@ BSLS_IDENT("$: $")
     //..
     //  SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
     //..
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+typedef unsigned long DWORD;
+typedef int BOOL;
+
+extern "C" {
+    __declspec(dllimport) void __stdcall Sleep(
+            DWORD dwMilliseconds);
+
+    __declspec(dllimport) DWORD __stdcall SleepEx(
+            DWORD dwMilliseconds,
+            BOOL  bAlertable);
+};
+#else
+#include <pthread.h>
+#include <sched.h>
+#include <time.h>
+#endif
+
+#if !(defined(BSLS_PLATFORM_OS_SOLARIS)) && !(defined(BSLS_PLATFORM_OS_AIX))
+#include <immintrin.h>
+#include <emmintrin.h>
+#endif
 
 namespace BloombergLP {
 namespace bsls {
@@ -295,8 +320,9 @@ struct SpinLock {
     // NOT IMPLEMENTED
     SpinLock& operator=(const SpinLock&);
 
-    // We would like to prohibit copy construction, but then this class
-    // would not be a POD and could not be initialized statically:
+    // We would like to prohibit copy construction, but then this class would
+    // not be a POD and could not be initialized statically:
+    //
     // SpinLock(const SpinLock&);
 
     // PRIVATE TYPES
@@ -305,13 +331,35 @@ struct SpinLock {
         e_LOCKED = 1    // locked state value
     };
 
+    // PRIVATE CLASS METHODS
+    static void doBackoff(int *count);
+        // This function provides a backoff mechanism for 'lock' and 'tryLock',
+        // using the specified 'count' as the backoff counter.  'count' is
+        // incremented within this method.
+
+    static void pause();
+        // If available, invoke a pause operation (e.g., Intel's 'pause'
+        // instruction); otherwise do nothing. (i.e., this method is a no-op).
+
+    static void sleepMillis(int milliseconds);
+        // Sleep the specified 'milliseconds'.  Note that this partially
+        // reimplements 'bslmt::ThreadUtil::microSleep' locally, as 'bslmt' is
+        // above 'bsls'.
+
+    static void yield();
+        // Move the current thread to the end of the scheduler's queue and
+        // schedule another thread to run. Note that this allows cooperating
+        // threads of the same priority to share CPU resources equally.  Also
+        // note that this reimplements 'bslmt::ThreadUtil::yield()' locally, as
+        // 'bslmt' is above 'bsls'.
+
   public:
     // PUBLIC CLASS DATA
     static const SpinLock s_unlocked;
-        // This constant SpinLock is always unlocked. It is suitable for use
+        // This constant SpinLock is always unlocked.  It is suitable for use
         // initializing class members of SpinLock type.
 
-    // DATA
+    // PUBLIC DATA
     AtomicOperations::AtomicTypes::Int d_state;
         // Public to allow this type to be a statically-initializable POD. Do
         // not use directly.
@@ -320,7 +368,13 @@ struct SpinLock {
     void lock();
         // Spin (repeat a loop continuously without using the system to pause
         // or reschedule the thread) until this object is unlocked, then
-        // atomically acquire the lock.
+        // atomically acquire the lock.  The spinning has backoff logic.
+
+    void lockWithoutBackoff();
+        // Spin (repeat a loop continuously without using the system to pause
+        // or reschedule the thread) until this object is unlocked, then
+        // atomically acquire the lock.  The spinning does not perform a
+        // backoff.  Note that use of this method is not recommended.
 
     int tryLock(int numRetries = 0);
         // Attempt to acquire the lock; optionally specify the 'numRetries'
@@ -329,7 +383,7 @@ struct SpinLock {
         // acquired.  The behavior is undefined unless '0 <= numRetries'.
 
     void unlock();
-        // Release the lock. The behavior is undefined unless the current
+        // Release the lock.  The behavior is undefined unless the current
         // thread holds the lock.
 };
 
@@ -373,8 +427,68 @@ class SpinLockGuard {
                              // --------------
                              // class SpinLock
                              // --------------
+// PRIVATE CLASS METHODS
+inline
+void SpinLock::doBackoff(int *count) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(*count < 10)) {
+        pause();
+    } else if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(*count < 25)) {
+        yield();
+    } else {
+        sleepMillis(10);
+    }
+    ++(*count);
+}
+
+inline
+void SpinLock::pause() {
+#if !(defined(BSLS_PLATFORM_OS_SOLARIS)) && !(defined(BSLS_PLATFORM_OS_AIX))
+    _mm_pause();
+#endif
+}
+
+inline
+void SpinLock::sleepMillis(int milliseconds)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    ::Sleep(milliseconds);
+#else
+    timespec naptime;
+    naptime.tv_sec = 0;
+    naptime.tv_nsec = 1000 * 1000 * milliseconds;
+    nanosleep(&naptime, 0);
+#endif
+}
+
+inline
+void SpinLock::yield() {
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    ::SleepEx(0, 0);
+#else
+    sched_yield();
+#endif
+}
+
+// MANIPULATORS
 inline
 void SpinLock::lock() {
+    int count = 0;
+    do {
+        // Implementation note: the outer 'if' block is not logically
+        // necessary but may reduce memory barrier costs when spinning.
+        if (e_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
+            if (e_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
+                                                              e_LOCKED))
+            {
+                break;
+            }
+        }
+        doBackoff(&count);
+    } while(1);
+}
+
+inline
+void SpinLock::lockWithoutBackoff() {
     do {
         // Implementation note: the outer 'if' block is not logically
         // necessary but may reduce memory barrier costs when spinning.
@@ -390,6 +504,7 @@ void SpinLock::lock() {
 
 inline
 int SpinLock::tryLock(int numRetries) {
+    int count = 0;
     do {
         // See lock() for implementation note.
         if (e_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
@@ -399,6 +514,7 @@ int SpinLock::tryLock(int numRetries) {
                 return 0;                                             // RETURN
             }
         }
+        doBackoff(&count);
     } while(numRetries--);
     return -1;
 }

@@ -2,6 +2,11 @@
 #include <bsls_spinlock.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
+
+#include <iostream>
 
 #include <stdlib.h>  // atoi
 #include <stdio.h>   // printf
@@ -187,6 +192,17 @@ extern "C" void *usageExampleFn(void *) {
     return 0;
 }
 
+static bsls::Types::Int64 s_antiOptimization = 0;
+
+void busyWork(bsls::Types::Int64 busyWorkAmount)
+{
+    int j = 1;
+    for (bsls::Types::Int64 i = 0; i < busyWorkAmount; ++i) {
+        j = j * 3 % 7;
+    }
+    s_antiOptimization += j;
+}
+
 // Suppose that we have a large array of objects to be manipulated concurrently
 // by multiple threads, but the size of the array itself does not change.
 // (This might be because it represents an inherently fixed number of objects
@@ -200,96 +216,121 @@ extern "C" void *usageExampleFn(void *) {
 // In particular, imagine we want a threadsafe "multi-queue". In this case,
 // we would have an array of queues, each with a SpinLock member for
 // fine-grained locking.  First, we define the type to be held in the array.
-template<typename TYPE>
+template <class TYPE>
 class LightweightThreadsafeQueue {
-  // This type implements a threadsafe queue with a small memory
-  // footprint and low initialization costs. It is designed for
-  // low-contention use only.
+    // This type implements a threadsafe queue with a small memory
+    // footprint and low initialization costs. It is designed for
+    // low-contention use only.
 
-  // TYPES
-  struct Node {
-       TYPE  d_item;
-       Node *d_next_p;
+    // TYPES
+    struct Node {
+        TYPE  d_item;
+        Node *d_next_p;
 
-       Node(const TYPE& item) : d_item(item), d_next_p(0) {}
-   };
+        Node(const TYPE& item) : d_item(item), d_next_p(0) {}
+    };
 
-  // DATA
-  Node           *d_front_p; // Front of queue, or 0 if empty
-  Node           *d_back_p; // Back of queue, or 0 if empty
-  bsls::SpinLock  d_lock;
+    // DATA
+    Node           *d_front_p; // Front of queue, or 0 if empty
+    Node           *d_back_p; // Back of queue, or 0 if empty
+    bsls::SpinLock  d_lock;
 
- public:
-  // CREATORS
-  LightweightThreadsafeQueue();
-    // Create an empty queue.
+  public:
+    // CREATORS
+    LightweightThreadsafeQueue();
+        // Create an empty queue.
 
-  ~LightweightThreadsafeQueue();
-    // Destroy this object.
+    ~LightweightThreadsafeQueue();
+        // Destroy this object.
 
-  // MANIPULATORS
-  int dequeue(TYPE* value);
-     // Remove the element at the front of the queue and load it into the
-     // specified 'value'. Return '0' on success, or a nonzero value if
-     // the queue is empty.
+    // MANIPULATORS
+    int dequeue(TYPE* value);
+        // Remove the element at the front of the queue and load it into the
+        // specified 'value'. Return '0' on success, or a nonzero value if the
+        // queue is empty.
 
-  void enqueue(const TYPE& value);
-     // Add the specified 'value' to the back of the queue.
+    void enqueue(const TYPE& value);
+        // Add the specified 'value' to the back of the queue.
+
+    void enqueueWL(const TYPE& value, int backoffFlag, int busyWorkAmount);
+        // Add the specified 'value' to the back of the queue and simulate
+        // doing work for the specified 'busyWorkAmount'.  The queue uses
+        // backoff if the specified 'backoffFlag' is set, and does not
+        // otherwise.
 };
 
 // Next, we implement the creators. Note that a different idiom is used
 // to initialize member variables of 'SpinLock' type than is used for static
 // variables:
-template<typename TYPE>
+template <class TYPE>
 LightweightThreadsafeQueue<TYPE>::LightweightThreadsafeQueue()
 : d_front_p(0)
 , d_back_p(0)
 , d_lock(bsls::SpinLock::s_unlocked)
 {}
 
-template<typename TYPE>
+template <class TYPE>
 LightweightThreadsafeQueue<TYPE>::~LightweightThreadsafeQueue() {
-   for (Node *node = d_front_p; 0 != node; ) {
-       Node *next = node->d_next_p;
-       delete node;
-       node = next;
-   }
+    for (Node *node = d_front_p; 0 != node; ) {
+        Node *next = node->d_next_p;
+        delete node;
+        node = next;
+    }
 }
 
 // Then we implement the manipulator functions using 'SpinLockGuard' to ensure
 // thread safety.
-template<typename TYPE>
+template <class TYPE>
 int LightweightThreadsafeQueue<TYPE>::dequeue(TYPE* value) {
-   Node *front;
-   {
-      bsls::SpinLockGuard guard(&d_lock);
-      front = d_front_p;
-      if (0 == front) {
-        return 1;
-      }
+    Node *front;
+    {
+        bsls::SpinLockGuard guard(&d_lock);
+        front = d_front_p;
+        if (0 == front) {
+            return 1;                                                 // RETURN
+        }
 
-      *value = front->d_item;
+        *value = front->d_item;
 
-      if (d_back_p == front) {
-         d_front_p = d_back_p = 0;
-      } else {
-         d_front_p = front->d_next_p;
-      }
-   }
-   delete front;
-   return 0;
+        if (d_back_p == front) {
+            d_front_p = d_back_p = 0;
+        } else {
+            d_front_p = front->d_next_p;
+        }
+    }
+    delete front;
+    return 0;
 }
 
-template<typename TYPE>
+template <class TYPE>
 void LightweightThreadsafeQueue<TYPE>::enqueue(const TYPE& value) {
-   Node *node = new Node(value);
-   bsls::SpinLockGuard guard(&d_lock);
-   if (0 == d_front_p && 0 == d_back_p) {
-      d_front_p = d_back_p = node;
-   } else {
-      d_back_p->d_next_p = node;
-      d_back_p = node;
-   }
+    Node *node = new Node(value);
+    bsls::SpinLockGuard guard(&d_lock);
+    if (0 == d_front_p && 0 == d_back_p) {
+        d_front_p = d_back_p = node;
+    } else {
+        d_back_p->d_next_p = node;
+        d_back_p = node;
+    }
+}
+
+template <class TYPE>
+void LightweightThreadsafeQueue<TYPE>::
+            enqueueWL(const TYPE& value, int backoffFlag, int busyWorkAmount) {
+    Node *node = new Node(value);
+    if (backoffFlag == 1) {
+        d_lock.lock();
+    } else {
+        d_lock.lockWithoutBackoff();
+    }
+    if (0 == d_front_p && 0 == d_back_p) {
+        d_front_p = d_back_p = node;
+    } else {
+        d_back_p->d_next_p = node;
+        d_back_p = node;
+    }
+    busyWork(busyWorkAmount);
+    d_lock.unlock();
 }
 
 //  To illustrate fine-grained locking with this queue, we create a thread
@@ -297,31 +338,54 @@ void LightweightThreadsafeQueue<TYPE>::enqueue(const TYPE& value) {
 //  Since each element in the array is locked independently, these threads
 //  will rarely contend for the same queue and can run largely in parallel.
 
-const int NUM_QUEUES = 10000;
+const int NUM_QUEUES = 100;
 const int NUM_ITERATIONS = 20000;
 
 struct QueueElement {
-   int d_threadId;
-   int d_value;
+    int d_threadId;
+    int d_value;
 };
 
 struct ThreadParam {
-   LightweightThreadsafeQueue<QueueElement> *d_queues_p;
-   int                                       d_threadId;
+    LightweightThreadsafeQueue<QueueElement> *d_queues_p;
+    int                                       d_threadId;
+    int                                       d_numQueues;
+    int                                       d_backoffFlag;
+    int                                       d_busyWork;
 };
 
 extern "C" void *addToRandomQueues(void *paramAddr) {
-   ThreadParam *param = (ThreadParam*)paramAddr;
-   LightweightThreadsafeQueue<QueueElement> *queues = param->d_queues_p;
-   int threadId = param->d_threadId;
-   unsigned seed = threadId;
-   for (int i = 0; i < NUM_ITERATIONS; ++i) {
-      int queueIndex = rand_r(&seed) % NUM_QUEUES;
-      LightweightThreadsafeQueue<QueueElement> *queue = queues + queueIndex;
-      QueueElement value = { threadId, i };
-      queue->enqueue(value);
-   }
-   return 0;
+    ThreadParam *param = (ThreadParam*)paramAddr;
+
+    LightweightThreadsafeQueue<QueueElement> *queues = param->d_queues_p;
+
+    int      threadId = param->d_threadId;
+    unsigned seed = threadId;
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        int queueIndex = rand_r(&seed) % NUM_QUEUES;
+
+        LightweightThreadsafeQueue<QueueElement> *queue = queues + queueIndex;
+        QueueElement                              value = { threadId, i };
+        queue->enqueue(value);
+    }
+    return 0;
+}
+
+extern "C" void *testPerformance(void *paramAddr) {
+    ThreadParam *param = (ThreadParam*)paramAddr;
+    LightweightThreadsafeQueue<QueueElement> *queues = param->d_queues_p;
+    int threadId = param->d_threadId;
+    int numQueues      = param->d_numQueues;
+    int backoffFlag    = param->d_backoffFlag;
+    int busyWorkAmount = param->d_busyWork;
+    unsigned seed = threadId;
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        int queueIndex = rand_r(&seed) % numQueues;
+        LightweightThreadsafeQueue<QueueElement> *queue = queues + queueIndex;
+        QueueElement value = { threadId, i };
+        queue->enqueueWL(value, backoffFlag, busyWorkAmount);
+    }
+    return 0;
 }
 
 //=============================================================================
@@ -340,7 +404,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-    case 1: {
+      case 1: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -351,9 +415,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Place the block of code from usage example 1 in a function
         //:   to be executed by N threads. In the parallelizable region, sleep
-        //:   for a second. This should allow all N threads to be in that region
-        //:   concurrently. Validate that the "maxThreads" count is N after the
-        //:   threads are joined.
+        //:   for a second. This should allow all N threads to be in that
+        //:   region concurrently. Validate that the "maxThreads" count is N
+        //:   after the threads are joined.
         //:
         //: 2 Execute usage example 2, validating that all elements from all
         //:   threads are present in the multiqueue after joining the worker
@@ -420,7 +484,68 @@ int main(int argc, char *argv[])
                         NUM_ITERATIONS == elementCount[i]);
             }
         }
-    } break;
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // TEST PERFORMANCE
+        //
+        // Concern:
+        //: 1 Use a modified version of the multiqueue usage example to test
+        //:   the difference in performance with and without backoff logic.
+        //
+        // Plan:
+        //: 1 Use the following parameters:
+        //:   2nd parameter: 1-with backoff, 0-without
+        //:   3rd parameter: number of threads; defaults to 8
+        //:   4th parameter: number of queues; defaults to 10
+        //:   5th parameter: amount of busyWork; defaults to 1000
+
+        if (argc < 3) {
+            printf("Usage: bsls_spinlock.t -1 <backoff flag> [numThreads(8)]"
+                   "[numQueues(1)] [busyWorkAmount(1000)]\n");
+            exit(0);
+        }
+        int backoffFlag = atoi(argv[2]);
+        int numThreads  = argc > 3 ? atoi(argv[3]) : 8;
+        int numQueues   = argc > 4 ? atoi(argv[4]) : 10;
+        int busyWork    = argc > 5 ? atoi(argv[5]) : 1000;
+        if (verbose) {
+            printf("backoff=%d,numThread=%d,numQueues=%d,busyWork=%d\n",
+                    backoffFlag, numThreads, numQueues, busyWork);
+        }
+        if (veryVeryVerbose) {
+            printf("Anti Optimzation value=%lld\n", s_antiOptimization);
+        }
+
+        bsls::TimeInterval startTime = bsls::SystemTime::nowMonotonicClock();
+
+        LightweightThreadsafeQueue<QueueElement> *multiQueue =
+                       new LightweightThreadsafeQueue<QueueElement>[numQueues];
+
+        ThreadParam *threadParams = new ThreadParam[numThreads];
+        ThreadId    *threadIds    = new ThreadId[numThreads];
+        for (int i = 0; i < numThreads; ++i) {
+            threadParams[i].d_queues_p    = multiQueue;
+            threadParams[i].d_threadId    = i + 1;
+            threadParams[i].d_numQueues   = numQueues;
+            threadParams[i].d_backoffFlag = backoffFlag;
+            threadParams[i].d_busyWork    = busyWork;
+            threadIds[i] = createThread(testPerformance, threadParams + i);
+        }
+
+        // Join the threads.
+        for (int i = 0; i < numThreads; ++i) {
+            joinThread(threadIds[i]);
+        }
+        bsls::TimeInterval endTime = bsls::SystemTime::nowMonotonicClock();
+        bsls::Types::Int64 actualNanos =
+                                  (endTime - startTime).totalNanoseconds();
+        std::cout << "Millis taken:" << actualNanos / 1000000 << "\n";
+
+        delete [] multiQueue;
+        delete [] threadParams;
+        delete [] threadIds;
+      } break;
 
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
