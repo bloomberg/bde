@@ -209,15 +209,17 @@ void aSsErT(bool condition, const char *message, int line)
 // as 'false'.  This property is denoted by the 'IsBitwiseEqualityComparable'
 // trait.
 //
-// First, we create a simple 'struct' that wraps a single 'int' as its only
-// data member, and supported comparison with 'operator=='.  We insert
-// telemetry to count the number of times 'operator==' is called:
+// First, we create a simple 'struct' that contains a 'char' and a 'short' as
+// its two data members, and supported comparison with 'operator=='.  Note that
+// there will be a btye of padding between the 'char' and the 'short' members
+// to ensure proper alignment.  We insert telemetry to count the number of
+// times 'operator==' is called:
 //..
     namespace BloombergLP {
 
     struct SimpleType {
-        // This 'struct' holds a single 'int' member, 'd_data', and can be
-        // compared using the overloaded 'operator=='.
+        // This 'struct' holds two data members with a byte of padding, and can
+        // be compared using the overloaded 'operator=='.
 
         char  d_dataC;
         short d_dataS;
@@ -227,9 +229,9 @@ void aSsErT(bool condition, const char *message, int line)
         friend bool operator==(const SimpleType& a, const SimpleType& b)
             // Return 'true' if the specified 'a' has the same value as the
             // specified 'b'.  Two 'SimpleType' objects have the same value if
-            // their corresponding 'd_data' elements have the same value.  The
-            // static data member 's_comparisons' is incremented by one each
-            // time this function is called.
+            // their corresponding 'd_dataC' and 'd_dataS' members have the
+            // same value.  The static data member 's_comparisons' is
+            // incremented by one each time this function is called.
         {
             ++s_comparisons;
             return a.d_dataC == b.d_dataC
@@ -239,21 +241,22 @@ void aSsErT(bool condition, const char *message, int line)
         friend bool operator!=(const SimpleType& a, const SimpleType& b)
             // Return 'true' if the specified 'a' does not have the same value
             // as the specified 'b'.  Two 'SimpleType' objects do not have the
-            // same value if their corresponding 'd_data' elements do not have
-            // the same value.  The static data member 's_comparisons' is
-            // incremented by one each time this function is called.
+            // same value if their corresponding 'd_dataC' and 'd_dataS'
+            // members do not have the same value.  The static data member
+            // 's_comparisons' is incremented by one each time this function is
+            // called.
         {
             ++s_comparisons;
             return a.d_dataC != b.d_dataC
-                && a.d_dataS != b.d_dataS;
+                || a.d_dataS != b.d_dataS;
         }
     };
 
     int SimpleType::s_comparisons = 0;
 //..
 // Then, we create another 'struct' that wraps a single 'int' as its only data
-// member, and supported comparison with 'operator==', inserting telemetry to
-// count the number of times 'operator==' is called::
+// member, and supports comparison with 'operator==', inserting telemetry to
+// count the number of times 'operator==' is called:
 //..
     struct SecondType {
         // This 'struct' holds a single 'int' member, 'd_data', and can be
@@ -296,8 +299,8 @@ void aSsErT(bool condition, const char *message, int line)
     int SecondType::s_comparisons = 0;
 //..
 // Next, we create another 'struct' that wraps a single 'int' as its only data
-// member, and supported comparison with 'operator==', inserting telemetry to
-// count the number of times 'operator==' is called::
+// member, and supports comparison with 'operator==', inserting telemetry to
+// count the number of times 'operator==' is called:
 //..
     struct ThirdType {
         // This 'struct' holds a single 'int' member, 'd_data', and can be
@@ -347,7 +350,7 @@ void aSsErT(bool condition, const char *message, int line)
     {
 //..
 // If we detect the bitwise EqualityComparable trait, we rely on the optimized
-// 'memcmp' function::
+// 'memcmp' function:
 //..
         if (bslmf::IsBitwiseEqualityComparable<TYPE>::value) {
             return 0 == memcmp(start,
