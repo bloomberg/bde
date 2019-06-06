@@ -2059,7 +2059,7 @@ int main(int argc, char *argv[])
             printf("vector<signed char>::iterator with FUNCTOR\n");
         }
         {
-            bsl::vector<signed char>        v(&uniqKeys[0], 
+            bsl::vector<signed char>        v(&uniqKeys[0],
                                               uniqKeys + NUM_DATA);
             const bsl::vector<signed char>& V = v;
             bsl::ostringstream              out;
@@ -2608,7 +2608,7 @@ int main(int argc, char *argv[])
 
             const void *ptr = static_cast<const void *>(sp.get());
             eOut << bsl::hex << bsl::showbase
-                 << reinterpret_cast<bsls::Types::UintPtr>(ptr) 
+                 << reinterpret_cast<bsls::Types::UintPtr>(ptr)
                  << " \"" << *sp << "\"\n";
             ASSERTV(eOut.str(), vOut.str(), eOut.str() == vOut.str());
 
@@ -2616,8 +2616,6 @@ int main(int argc, char *argv[])
             Obj nV(&nOut, 0, 0);
             nV.printValue(sp);
             ASSERTV(nOut.str(), nOut.str() == "NULL\n");
-            
-
         }
       } break;
       case 9: {

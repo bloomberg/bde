@@ -7318,13 +7318,13 @@ static void testRangeInsertOptimization()
     ASSERT(2                == sam.numBlocksTotalChange());
                                            // No free nodes so allocated more.
                                            // No free nodes left.
-                                      
+
     mX.insert(beginFwd, endFwd);           // Re-re-insert entire range.
     ASSERT(NUM_ELEMENTS * 3 == X.size());  // Duplciates allowed.
     ASSERT(3                == sam.numBlocksTotalChange());
                                            // No free nodes so allocated more.
                                            // No free nodes left.
-    
+
     mX.insert(beginFwd, endFwd);           // Re-re-re-insert entire range.
     ASSERT(NUM_ELEMENTS * 4 == X.size());  // Duplicates allowed.
     ASSERT(4                == sam.numBlocksTotalChange());
@@ -7356,7 +7356,7 @@ static void testRangeInsertOptimization()
     ASSERT(NUM_ELEMENTS   == Y.size());
     ASSERT(2              == sam2.numBlocksInUseChange());
                                       // Allocated more nodes.
-        
+
     if (verbose) {
         P(X.size());
         printf("\nAfter: Object-Allocator\n");

@@ -44,16 +44,15 @@ using namespace bsl;
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Primary Constructors:
-//   A 'bdlde::Sha224' object is created with a default message length of 0 and a
-//   digest of d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f.  A
+//   A 'bdlde::Sha224' object is created with a default message length of 0 and
+//   a digest of d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f.  A
 //   'bdlde::Sha256' object is created with a default message length of 0 and a
-//   digest of 
+//   digest of
 //   e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.  A
 //   'bdlde::Sha384' object is created with a default message length of 0 and a
 //   digest of 38b060a751ac96384cd9327eb1b1e36a21fdb71114be0743
-//             4c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b.  A
-//   'bdlde::Sha512' object is created with a default message length of 0 and a
-//   digest of
+//   4c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b.  A 'bdlde::Sha512'
+//   object is created with a default message length of 0 and a digest of
 //   cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce
 //   47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e.  An
 //   object's white-box state is represented by a buffer of unprocessed bytes,
@@ -492,7 +491,7 @@ void testTwoArgumentConstructor(const char (&message)[LENGTH])
     HASHER digest1(message, LENGTH);
     HASHER digest2;
     digest2.update(message, LENGTH);
-    
+
     ASSERT(digest1 == digest2);
 }
 

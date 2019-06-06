@@ -3816,7 +3816,7 @@ quickSwapExchangeAllocators(HashTable_ImplParameters *other)
     using std::swap;
     swap(*static_cast<BaseHasher*>(this), *static_cast<BaseHasher*>(other));
 
-    swap(*static_cast<BaseComparator*>(this), 
+    swap(*static_cast<BaseComparator*>(this),
          *static_cast<BaseComparator*>(other));
 
     nodeFactory().swapExchangeAllocators(other->nodeFactory());
@@ -3832,7 +3832,7 @@ quickSwapRetainAllocators(HashTable_ImplParameters *other)
     using std::swap;
     swap(*static_cast<BaseHasher*>(this), *static_cast<BaseHasher*>(other));
 
-    swap(*static_cast<BaseComparator*>(this), 
+    swap(*static_cast<BaseComparator*>(this),
          *static_cast<BaseComparator*>(other));
 
     nodeFactory().swapRetainAllocators(other->nodeFactory());
@@ -4207,7 +4207,6 @@ quickSwapExchangeAllocators(HashTable *other)
     swap(d_size,          other->d_size);
     swap(d_capacity,      other->d_capacity);
     swap(d_maxLoadFactor, other->d_maxLoadFactor);
-    
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

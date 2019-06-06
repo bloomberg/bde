@@ -4478,7 +4478,7 @@ void TestDriver<TEST_TYPE>::testCase18_withoutAllocator()
               case 4: addr = &mX.makeValueInplace(v1, v2, v3, v4);     break;
               case 5: addr = &mX.makeValueInplace(v1, v2, v3, v4, v5); break;
               default:
-                ASSERT(!"Too many parameters.");  
+                ASSERT(!"Too many parameters.");
                 return;                                               // RETURN
             }
         }

@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
-        //: 3 Using the table-driven technique: 
+        //: 3 Using the table-driven technique:
         //:
         //:   1 Specify a set of (unique) valid object values (one per row) in
         //:     terms of their individual attributes, including (a) first, the

@@ -963,7 +963,7 @@ BSLS_IDENT("$Id: $")
 
 // Oracle Solaris Studio 12.4 claims C++11 support except for C++11 concurrency
 // and atomic operations, and for user-defined literals
-// http://docs.oracle.com/cd/E37069_01/html/E37071/gncix.html#scrolltoc 
+// http://docs.oracle.com/cd/E37069_01/html/E37071/gncix.html#scrolltoc
 // No C++11 features are available by default.  To use any C++11 features, you
 // must use the -std=c++11 option with the CC compiler.
 // ('__cplusplus >= 201103L' when Oracle Solaris Studio 'CC -std=c++11' is

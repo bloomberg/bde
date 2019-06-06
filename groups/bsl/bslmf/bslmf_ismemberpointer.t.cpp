@@ -590,7 +590,7 @@ int main(int argc, char *argv[])
         TEST_OBJECT(bsl::is_member_pointer, bsl::nullptr_t);
 #else
         TEST_MEMPTR(bsl::is_member_pointer, bsl::nullptr_t);
-#endif        
+#endif
 
         // Test 'void' separately as cannot form reference to cv-'void'.
 
