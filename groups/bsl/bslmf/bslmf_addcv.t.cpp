@@ -86,7 +86,7 @@ struct TestType {
 
 typedef void (TestType::*MethodPtrTestType) ();
     // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of 
+    // testing as an argument for the template parameter 'TYPE' of
     // 'bsl::add_cv'.
 
 typedef int TestType::* PMD;

@@ -2610,7 +2610,7 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     // not duplicate any keys already in the container.  If there are any
     // duplicates, this container will have free nodes on return from this
     // method.
-    
+
     const bool canCalculateInsertDistance =
     ! bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
                    bsl::input_iterator_tag>::value;
@@ -2621,7 +2621,7 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                               !nodeFactory().hasFreeNodes())) {
             const size_type numElements =
                 BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-            
+
             nodeFactory().reserveNodes(numElements);
         }
         insert(*first);

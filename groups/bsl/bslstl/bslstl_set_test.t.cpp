@@ -7564,13 +7564,13 @@ static void testRangeInsertOptimization()
     ASSERT(2            == sam.numBlocksTotalChange());
                                        // No free nodes so allocated more;
                                        // however, did not use them.
-                                      
+
     mX.insert(beginFwd, endFwd);       // Re-re-insert entire range.
     ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
     ASSERT(2            == sam.numBlocksTotalChange());
                                        // Have free nodes so no new allocation.
                                        // The free nodes remain unused.
-    
+
     mX.insert(beginFwd, endFwd);       // Re-re-re-insert entire range.
     ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
     ASSERT(2            == sam.numBlocksTotalChange());
@@ -7602,7 +7602,7 @@ static void testRangeInsertOptimization()
     ASSERT(NUM_ELEMENTS   == Y.size());
     ASSERT(2              == sam2.numBlocksInUseChange());
                                       // Allocated more nodes.
-        
+
     if (verbose) {
         P(X.size());
         printf("\nAfter: Object-Allocator\n");

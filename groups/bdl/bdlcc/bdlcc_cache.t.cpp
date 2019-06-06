@@ -32,7 +32,7 @@
 #include <bsls_review.h>
 #include <bsls_nameof.h>
 #include <bsls_timeutil.h>  // 'CachePerformance'
-#include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'             
+#include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>

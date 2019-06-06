@@ -3372,7 +3372,7 @@ void TestDriver<CONTAINER>::testCase18(bool isMovableContainer)
 
             const VALUE *ADDRESS_OF_TOP = bsls::Util::addressOf(A.top());
             ASSERTV(ADDRESS_OF_TOP == addressOfResult);
-            
+
             ASSERTV(
                    value,
                    bsls::NameOf<CONTAINER>(),

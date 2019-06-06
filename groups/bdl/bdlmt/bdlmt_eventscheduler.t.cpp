@@ -856,7 +856,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
        // Schedule a single-run event at a 35s offset.
        scheduler.scheduleEvent(initialAbsoluteTime + 35,
                                bsl::function<void()>(&myCallbackFunction));
-  
+
        // Schedule a 30s recurring event.
        scheduler.scheduleRecurringEvent(bsls::TimeInterval(30),
                                         bsl::function<void()>(
