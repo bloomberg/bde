@@ -203,32 +203,33 @@ BSLS_IDENT("$Id: $")
 // (transitively) by this component.
 
 #include <bsla_deprecated.h>
-// BDE_VERIFY pragma: re-export <bsla_deprecated.h>
 #include <bsla_error.h>
-// BDE_VERIFY pragma: re-export <bsla_error.h>
 #include <bsla_fallthrough.h>
-// BDE_VERIFY pragma: re-export <bsla_fallthrough.h>
 #include <bsla_format.h>
-// BDE_VERIFY pragma: re-export <bsla_format.h>
 #include <bsla_nodiscard.h>
-// BDE_VERIFY pragma: re-export <bsla_nodiscard.h>
 #include <bsla_nonnullarg.h>
-// BDE_VERIFY pragma: re-export <bsla_nonnullarg.h>
 #include <bsla_noreturn.h>
-// BDE_VERIFY pragma: re-export <bsla_noreturn.h>
 #include <bsla_nullterminated.h>
-// BDE_VERIFY pragma: re-export <bsla_nullterminated.h>
 #include <bsla_printf.h>
-// BDE_VERIFY pragma: re-export <bsla_printf.h>
 #include <bsla_scanf.h>
-// BDE_VERIFY pragma: re-export <bsla_scanf.h>
 #include <bsla_unreachable.h>
-// BDE_VERIFY pragma: re-export <bsla_unreachable.h>
 #include <bsla_unused.h>
-// BDE_VERIFY pragma: re-export <bsla_unused.h>
 #include <bsla_used.h>
-// BDE_VERIFY pragma: re-export <bsla_used.h>
 #include <bsla_warning.h>
+
+// BDE_VERIFY pragma: re-export <bsla_deprecated.h>
+// BDE_VERIFY pragma: re-export <bsla_error.h>
+// BDE_VERIFY pragma: re-export <bsla_fallthrough.h>
+// BDE_VERIFY pragma: re-export <bsla_format.h>
+// BDE_VERIFY pragma: re-export <bsla_nodiscard.h>
+// BDE_VERIFY pragma: re-export <bsla_nonnullarg.h>
+// BDE_VERIFY pragma: re-export <bsla_noreturn.h>
+// BDE_VERIFY pragma: re-export <bsla_nullterminated.h>
+// BDE_VERIFY pragma: re-export <bsla_printf.h>
+// BDE_VERIFY pragma: re-export <bsla_scanf.h>
+// BDE_VERIFY pragma: re-export <bsla_unreachable.h>
+// BDE_VERIFY pragma: re-export <bsla_unused.h>
+// BDE_VERIFY pragma: re-export <bsla_used.h>
 // BDE_VERIFY pragma: re-export <bsla_warning.h>
 
 #endif

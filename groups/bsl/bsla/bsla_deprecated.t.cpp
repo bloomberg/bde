@@ -114,15 +114,15 @@ void aSsErT(bool condition, const char *message, int line)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Deprecating a type, a function, and a variable
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Various Deprecations
+///- - - - - - - - - - - - - - - -
 // First, we define a deprecated type 'UsageType':
 //..
     struct BSLA_DEPRECATED UsageType {
         int d_int;
     };
 //..
-// Then, we define a deprecated function 'usageFunc':
+// Then, we define a function 'usageFunc' that is deprecated:
 //..
     BSLA_DEPRECATED
     void usageFunc();
@@ -131,27 +131,28 @@ void aSsErT(bool condition, const char *message, int line)
         printf("Don't call me.\n");
     }
 //..
-// Next, we define a deprecated variable 'usageVar':
+// Next, we define a variable 'usageVar' that is deprecated:
 //..
     BSLA_DEPRECATED extern int usageVar;
     int usageVar = 5;
 //..
-// Then, we define a deprecated typedef 'usageTypedef:
+// Then, we define a typedef 'UsageTypedef' that is deprecated:
 //..
     BSLA_DEPRECATED typedef int UsageTypedef;
 //..
-// Next, we define a 'struct' with a deprecated member 'd_usageMember':
+// Next, we define a 'struct' with a member 'd_y' that is deprecated:
 //..
     struct UsageStruct {
         double                 d_x;
         BSLA_DEPRECATED double d_y;
     };
 //..
-// Then, we define a deprecated enum 'UsageEnum':
+// Then, we define an 'enum' 'UsageEnum' that is deprecated:
 //..
     enum BSLA_DEPRECATED UsageEnum { e_FALSE, e_TRUE };
 //..
-// Next, we define a template where it's only deprecated if 'TYPE' == 'int':
+// Next, we define a template this is only deprecated in the case where it is
+// specialized with the 'int' type as a template parameter:
 //..
     template <class TYPE>
     TYPE usageAbs(TYPE x)

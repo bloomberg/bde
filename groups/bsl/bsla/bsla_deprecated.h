@@ -5,19 +5,20 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compiler-hint macro to indicate deprecated entities.
+//@PURPOSE: Provide compiler-hint macros to indicate deprecated entities.
 //
 //@MACROS:
 //  BSLA_DEPRECATED: warn if annotated (deprecated) entity is used
-//  BSLA_DEPRECATED_IS_ACTIVE: 1 if 'BSLA_DEPRECATED' is active, 0 otherwise
+//  BSLA_DEPRECATED_MESSAGE: warn with message if annotated entity is used
+//  BSLA_DEPRECATED_IS_ACTIVE: 1 if both macros are active, 0 if both inactive
 //
 //@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a preprocessor macro that hints to the
-// compile that a function, variable, type, typedef, struct member, enum type,
-// enum value, or template specialization is deprecated.  This is useful, for
+//@DESCRIPTION: This component provides preprocessor macros that hint to the
+// compiler that a function, variable, type, 'typedef', 'struct' member, 'enum'
+// type, or template specialization is deprecated.  This is useful, for
 // example, when identifying functions that are expected to be removed in a
 // future version of a library.
 //
@@ -25,42 +26,42 @@ BSLS_IDENT("$Id: $")
 ///---------------
 //: 'BSLA_DEPRECATED'
 //:     This annotation will, when used, cause a compile-time warning if the
-//:     so-annotated function, variable, type, typedef, struct member, enum
-//:     type, enum value, or template specialization is used anywhere within
-//:     the source file.  The warning includes the location of the declaration
-//:     of the deprecated entity to enable users to find further information
-//:     about the deprecation, or what they should use instead.
+//:     so-annotated function, variable, type, 'typedef', 'struct' member,
+//:     'enum' type, or template specialization is used anywhere within the
+//:     source file.  The warning includes the location of the declaration of
+//:     the deprecated entity to enable users to find further information about
+//:     the deprecation, or what they should use instead.
 //
-//: 'BSLA_DEPRECATED_MESSAGE(message)'
+//: 'BSLA_DEPRECATED_MESSAGE(QUOTED_MESSAGE)'
 //:     This annotation will, when used, cause a compile-time warning if the
-//:     so-annotated function, variable, type, typedef, struct member, enum
-//:     type, enum value, or template specialization is used anywhere within
-//:     the source file.  The compiler warning will contain the contents of the
-//:     specified 'message', which must be a double-quoted string.  The warning
-//:     includes the location of the declaration of the deprecated entity to
-//:     enable users to find further information about the deprecation, and
-//:     what they should use instead.  Note that on some compilers 'message' is
-//:     ignored.
+//:     so-annotated function, variable, type, 'typedef', 'struct' member,
+//:     'enum' type, or template specialization is used anywhere within the
+//:     source file.  The compiler warning will contain the contents of the
+//:     specified 'QUOTED_MESSAGE', which must be a double-quoted string.  The
+//:     warning includes the location of the declaration of the deprecated
+//:     entity to enable users to find further information about the
+//:     deprecation, and what they should use instead.  Note that on some
+//:     compilers 'message' is ignored.
 //
 //: 'BSLA_DEPRECATED_IS_ACTIVE'
 //:     The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined to 0 if
 //:     'BSLA_DEPRECATED' and 'BSLA_DEPRECATED_MESSAGE' both expand to nothing
 //:     and 1 if they are both enabled and have the desired effect.  Either
-//:     both of them work, or neither.
+//:     both of them work or neither works.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Deprecating a type, a function, and a variable
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Various Deprecations
+///- - - - - - - - - - - - - - - -
 // First, we define a deprecated type 'UsageType':
 //..
 //  struct BSLA_DEPRECATED UsageType {
 //      int d_int;
 //  };
 //..
-// Then, we define a deprecated function 'usageFunc':
+// Then, we define a function 'usageFunc' that is deprecated:
 //..
 //  BSLA_DEPRECATED
 //  void usageFunc();
@@ -69,27 +70,28 @@ BSLS_IDENT("$Id: $")
 //      printf("Don't call me.\n");
 //  }
 //..
-// Next, we define a deprecated variable 'usageVar':
+// Next, we define a variable 'usageVar' that is deprecated:
 //..
-//  extern int usageVar BSLA_DEPRECATED;
+//  BSLA_DEPRECATED extern int usageVar;
 //  int usageVar = 5;
 //..
-// Then, we define a deprecated typedef 'usageTypedef:
+// Then, we define a typedef 'UsageTypedef' that is deprecated:
 //..
 //  BSLA_DEPRECATED typedef int UsageTypedef;
 //..
-// Next, we define a 'struct' with a deprecated member 'd_usageMember':
+// Next, we define a 'struct' with a member 'd_y' that is deprecated:
 //..
 //  struct UsageStruct {
 //      double                 d_x;
 //      BSLA_DEPRECATED double d_y;
 //  };
 //..
-// Then, we define a deprecated enum 'UsageEnum':
+// Then, we define an 'enum' 'UsageEnum' that is deprecated:
 //..
 //  enum BSLA_DEPRECATED UsageEnum { e_FALSE, e_TRUE };
 //..
-// Next, we define a template where it's only deprecated if 'TYPE' == 'int':
+// Next, we define a template this is only deprecated in the case where it is
+// specialized with the 'int' type as a template parameter:
 //..
 //  template <class TYPE>
 //  TYPE usageAbs(TYPE x)
