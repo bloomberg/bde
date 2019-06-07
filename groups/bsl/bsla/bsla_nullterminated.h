@@ -191,7 +191,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)) &&   \
+    !defined(BSLS_PLATFORM_OS_SOLARIS)
     #define BSLA_NULLTERMINATED         __attribute__((__sentinel__))
     #define BSLA_NULLTERMINATEDAT(ARG_IDX)                                    \
                                         __attribute__((__sentinel__(ARG_IDX)))

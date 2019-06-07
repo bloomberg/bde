@@ -4,6 +4,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+                            // Implementation Note
+
+// This feature is disabled on Solaris g++ because on Solaris g++, the only
+// acceptable terminator is 'nullptr', even in C++03 builds, and in theory
+// 'nullptr' is not available until C++11.  So our doc here is telling clients
+// to terminate argument lists with 'NULL', which won't work on Solaris g++.
+//
+// Perhaps after we are no longer supporting C++03, we can change the doc in
+// this component to instruct the client to terminate argument lists with
+// 'nullptr' and re-enable the feature for Solaris g++.
+
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
 //
