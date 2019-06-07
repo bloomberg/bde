@@ -490,10 +490,10 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(LINE) P_(OFFSET) P(EXPECTED) }
 
-            LOOP3_ASSERT(LINE, OFFSET, EXPECTED,
-                         EXPECTED == Obj::isValidUtcOffsetInSeconds(OFFSET));
+            ASSERTV(LINE, OFFSET, EXPECTED,
+                    EXPECTED == Obj::isValidUtcOffsetInSeconds(OFFSET));
 
-            LOOP2_ASSERT(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
       } break;
       case 12: {
@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                LOOP3_ASSERT(LINE1, Obj(), Z, Obj() == Z);
+                ASSERTV(LINE1, Obj(), Z, Obj() == Z);
                 firstFlag = false;
             }
 
@@ -753,29 +753,28 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(LINE2) P(F) P(X) }
 
-                    LOOP4_ASSERT(LINE1, LINE2, F, X,
-                                 (F == X) == (LINE1 == LINE2));
+                    ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
 
                     bslma::TestAllocatorMonitor s1m(&s1);
 
                     Obj *mR = &(mX = bslmf::MovableRefUtil::move(mF));
-                    LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
-                    LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
+                    ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                    ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
 
-                    LOOP2_ASSERT(LINE1, LINE2, s1m.isTotalSame());
+                    ASSERTV(LINE1, LINE2, s1m.isTotalSame());
 
-                    LOOP4_ASSERT(LINE1, LINE2, &s1, X.allocator(),
-                                 &s1 == X.allocator());
-                    LOOP4_ASSERT(LINE1, LINE2, &s1, F.allocator(),
-                                 &s1 == F.allocator());
+                    ASSERTV(LINE1, LINE2, &s1, X.allocator(),
+                            &s1 == X.allocator());
+                    ASSERTV(LINE1, LINE2, &s1, F.allocator(),
+                            &s1 == F.allocator());
 
                     anyObjectMemoryAllocatedFlag |= !!s1.numBlocksInUse();
                 }
 
                 // Verify all memory is released on object destruction.
 
-                LOOP3_ASSERT(LINE1, LINE2, s1.numBlocksInUse(),
-                             0 == s1.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, s1.numBlocksInUse(),
+                        0 == s1.numBlocksInUse());
             }
 
             // move assignment with different allocators
@@ -798,31 +797,29 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(LINE2) P(F) P(X) }
 
-                    LOOP4_ASSERT(LINE1, LINE2, F, X,
-                                 (F == X) == (LINE1 == LINE2));
+                    ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
 
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(s2) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                         Obj *mR = &(mX = bslmf::MovableRefUtil::move(mF));
-                        LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
-                        LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
 
-                        LOOP4_ASSERT(LINE1, LINE2,  Z,   F,  Z == F);
+                        ASSERTV(LINE1, LINE2,  Z,   F,  Z == F);
 
-                        LOOP4_ASSERT(LINE1, LINE2, &s2, X.allocator(),
-                                     &s2 == X.allocator());
-                        LOOP4_ASSERT(LINE1, LINE2, &s1, F.allocator(),
-                                     &s1 == F.allocator());
+                        ASSERTV(LINE1, LINE2, &s2, X.allocator(),
+                               &s2 == X.allocator());
+                        ASSERTV(LINE1, LINE2, &s1, F.allocator(),
+                               &s1 == F.allocator());
 
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
-                            LOOP2_ASSERT(LINE1, LINE2, 0 < EXCEPTION_COUNT);
+                            ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
 #endif
-
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     anyObjectMemoryAllocatedFlag |= !!s1.numBlocksInUse();
@@ -830,10 +827,10 @@ int main(int argc, char *argv[])
 
                 // Verify all memory is released on object destruction.
 
-                LOOP3_ASSERT(LINE1, LINE2, s1.numBlocksInUse(),
-                             0 == s1.numBlocksInUse());
-                LOOP3_ASSERT(LINE1, LINE2, s2.numBlocksInUse(),
-                             0 == s2.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, s1.numBlocksInUse(),
+                        0 == s1.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, s2.numBlocksInUse(),
+                        0 == s2.numBlocksInUse());
             }
 
             // self-assignment
@@ -848,24 +845,24 @@ int main(int argc, char *argv[])
 
                 Obj& Z = mX;
 
-                LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
+                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 Obj *mR = &(mX = bslmf::MovableRefUtil::move(Z));
-                LOOP3_ASSERT(LINE1, ZZ,   Z, ZZ == Z);
-                LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
+                ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
+                ASSERTV(LINE1, mR, &mX, mR == &mX);
 
-                LOOP3_ASSERT(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
+                ASSERTV(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
 
-                LOOP_ASSERT(LINE1, oam.isTotalSame());
+                ASSERTV(LINE1, oam.isTotalSame());
 
-                LOOP_ASSERT(LINE1, 0 == da.numBlocksTotal());
+                ASSERTV(LINE1, 0 == da.numBlocksTotal());
             }
 
             // Verify all object memory is released on destruction.
 
-            LOOP2_ASSERT(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+            ASSERTV(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
         }
 
         // Double check that some object memory was allocated.
@@ -1082,7 +1079,7 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                LOOP3_ASSERT(LINE1, Obj(), Z, Obj() == Z);
+                ASSERTV(LINE1, Obj(), Z, Obj() == Z);
                 firstFlag = false;
             }
 
@@ -1100,8 +1097,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(LINE2) P(X) }
 
-                    LOOP4_ASSERT(LINE1, LINE2, Z, X,
-                                 (Z == X) == (LINE1 == LINE2));
+                    ASSERTV(LINE1, LINE2, Z, X, (Z == X) == (LINE1 == LINE2));
 
                     bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
@@ -1109,45 +1105,45 @@ int main(int argc, char *argv[])
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                         Obj *mR = &(mX = Z);
-                        LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
-                        LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
 
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
-                            LOOP2_ASSERT(LINE1, LINE2, 0 < EXCEPTION_COUNT);
+                            ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
                         }
 #endif
 
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    LOOP4_ASSERT(LINE1, LINE2, ZZ, Z, ZZ == Z);
+                    ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
-                    LOOP4_ASSERT(LINE1, LINE2, &oa, X.allocator(),
-                                 &oa == X.allocator());
-                    LOOP4_ASSERT(LINE1, LINE2, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
+                    ASSERTV(LINE1, LINE2, &oa, X.allocator(),
+                            &oa == X.allocator());
+                    ASSERTV(LINE1, LINE2, &scratch, Z.allocator(),
+                            &scratch == Z.allocator());
 
                     if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
-                        LOOP2_ASSERT(LINE1, LINE2, oam.isInUseUp());
+                        ASSERTV(LINE1, LINE2, oam.isInUseUp());
                     }
                     else if ('Y' == MEMDST2) {
-                        LOOP2_ASSERT(LINE1, LINE2, oam.isInUseSame());
+                        ASSERTV(LINE1, LINE2, oam.isInUseSame());
                     }
 
                     // Record if some object memory was allocated.
 
                     anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
 
-                    LOOP2_ASSERT(LINE1, LINE2, sam.isInUseSame());
+                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
-                    LOOP2_ASSERT(LINE1, LINE2, 0 == da.numBlocksTotal());
+                    ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
                 }
 
                 // Verify all memory is released on object destruction.
 
-                LOOP3_ASSERT(LINE1, LINE2, oa.numBlocksInUse(),
-                             0 == oa.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
+                        0 == oa.numBlocksInUse());
             }
 
             // self-assignment
@@ -1162,7 +1158,7 @@ int main(int argc, char *argv[])
 
                 const Obj& Z = mX;
 
-                LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
+                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1170,20 +1166,20 @@ int main(int argc, char *argv[])
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj *mR = &(mX = Z);
-                    LOOP3_ASSERT(LINE1, ZZ,   Z, ZZ == Z);
-                    LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
+                    ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
+                    ASSERTV(LINE1, mR, &mX, mR == &mX);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP3_ASSERT(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
+                ASSERTV(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
 
-                LOOP_ASSERT(LINE1, !oam.isInUseUp());
+                ASSERTV(LINE1, !oam.isInUseUp());
 
-                LOOP_ASSERT(LINE1, 0 == da.numBlocksTotal());
+                ASSERTV(LINE1, 0 == da.numBlocksTotal());
             }
 
             // Verify all object memory is released on destruction.
 
-            LOOP2_ASSERT(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+            ASSERTV(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
         }
 
         // Double check that some object memory was allocated.
@@ -1382,7 +1378,7 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                LOOP3_ASSERT(LINE1, Obj(), W, Obj() == W);
+                ASSERTV(LINE1, Obj(), W, Obj() == W);
                 firstFlag = false;
             }
 
@@ -1392,9 +1388,9 @@ int main(int argc, char *argv[])
 
                 mW.swap(mW);
 
-                LOOP3_ASSERT(LINE1, XX, W, XX == W);
-                LOOP_ASSERT(LINE1, &oa == W.allocator());
-                LOOP_ASSERT(LINE1, oam.isTotalSame());
+                ASSERTV(LINE1, XX, W, XX == W);
+                ASSERTV(LINE1, &oa == W.allocator());
+                ASSERTV(LINE1, oam.isTotalSame());
             }
 
             // free function 'swap'
@@ -1403,16 +1399,16 @@ int main(int argc, char *argv[])
 
                 swap(mW, mW);
 
-                LOOP3_ASSERT(LINE1, XX, W, XX == W);
-                LOOP_ASSERT(LINE1, &oa == W.allocator());
-                LOOP_ASSERT(LINE1, oam.isTotalSame());
+                ASSERTV(LINE1, XX, W, XX == W);
+                ASSERTV(LINE1, &oa == W.allocator());
+                ASSERTV(LINE1, oam.isTotalSame());
             }
 
             // Verify expected ('Y'/'N') object-memory allocations.
 
             if ('?' != MEM1) {
-                LOOP3_ASSERT(LINE1, MEM1, oa.numBlocksInUse(),
-                           ('N' == MEM1) == (0 == oa.numBlocksInUse()));
+                ASSERTV(LINE1, MEM1, oa.numBlocksInUse(),
+                        ('N' == MEM1) == (0 == oa.numBlocksInUse()));
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
@@ -1434,11 +1430,11 @@ int main(int argc, char *argv[])
 
                     mX.swap(mY);
 
-                    LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
-                    LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
+                    ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                    ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                    ASSERTV(LINE1, LINE2, &oa == X.allocator());
+                    ASSERTV(LINE1, LINE2, &oa == Y.allocator());
+                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
                 }
 
                 // free function 'swap', same allocator
@@ -1447,11 +1443,11 @@ int main(int argc, char *argv[])
 
                     swap(mX, mY);
 
-                    LOOP4_ASSERT(LINE1, LINE2, XX, X, XX == X);
-                    LOOP4_ASSERT(LINE1, LINE2, YY, Y, YY == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
+                    ASSERTV(LINE1, LINE2, XX, X, XX == X);
+                    ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
+                    ASSERTV(LINE1, LINE2, &oa == X.allocator());
+                    ASSERTV(LINE1, LINE2, &oa == Y.allocator());
+                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
                 }
             }
 
@@ -1489,8 +1485,8 @@ int main(int argc, char *argv[])
 
             bslalg::SwapUtil::swap(&mX, &mY);
 
-            LOOP2_ASSERT(YY, X, YY == X);
-            LOOP2_ASSERT(XX, Y, XX == Y);
+            ASSERTV(YY, X, YY == X);
+            ASSERTV(XX, Y, XX == Y);
             ASSERT(oam.isTotalSame());
 
             if (veryVeryVerbose) { T_ P_(X) P(Y) }
@@ -1498,7 +1494,7 @@ int main(int argc, char *argv[])
 
         // Verify no memory is allocated from the default allocator.
 
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
         if (verbose) cout <<
                    "\nFree 'swap' function with different allocators." << endl;
@@ -1533,10 +1529,10 @@ int main(int argc, char *argv[])
                 {
                     swap(mX, mY);
 
-                    LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
-                    LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa  == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa2 == Y.allocator());
+                    ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                    ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                    ASSERTV(LINE1, LINE2, &oa  == X.allocator());
+                    ASSERTV(LINE1, LINE2, &oa2 == Y.allocator());
                 }
             }
         }
@@ -1557,7 +1553,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(mA.swap(mZ));
             }
         }
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1579,7 +1574,7 @@ int main(int argc, char *argv[])
         //: 3 If an allocator is supplied that is the same as the original
         //:   object, then no new allocations occur.
         //:
-        //: 4 If an allocaotr is supplied that is different from the original
+        //: 4 If an allocator is supplied that is different from the original
         //:   object, then the original object's value remains unchanged.
         //:
         //: 5 Supplying a null allocator explicitly is the same as supplying
@@ -1628,7 +1623,7 @@ int main(int argc, char *argv[])
         //: 3 For each of these iterations (P-2.2):
         //:
         //:   1 Create four 'bslma::TestAllocator' objects, and install one as
-        //:     the current default allocaotr (note that a ubiquitous test
+        //:     the current default allocator (note that a ubiquitous test
         //:     allocator is already installed as the global allocator).
         //:
         //:   2 Dynamically allocate another object 'F" using the 's1'
@@ -1755,11 +1750,10 @@ int main(int argc, char *argv[])
                                      Obj(bslmf::MovableRefUtil::move(mF), &s2);
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, !"Bad allocator config.");
                       } break;
                     }
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 2*sizeof(Obj) == fa.numBytesInUse());
+                    ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
 
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
@@ -1772,78 +1766,78 @@ int main(int argc, char *argv[])
 
                     static bool firstFlag = true;
                     if (firstFlag) {
-                        LOOP4_ASSERT(LINE, CONFIG, Obj(), *objPtr,
-                                     Obj() == *objPtr)
+                        ASSERTV(LINE, CONFIG, Obj(), *objPtr,
+                                Obj() == *objPtr);
                         firstFlag = false;
                     }
 
                     // Verify the value of the object.
 
-                    LOOP4_ASSERT(LINE, CONFIG,  Z, X,  Z == X);
+                    ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
 
                     if (objAllocatorPtr != F.allocator()) {
                         // If the allocators are different, verify that the
                         // value of 'fX' has not changed.
 
-                         LOOP4_ASSERT(LINE, CONFIG, Z, F, Z == F);
+                         ASSERTV(LINE, CONFIG, Z, F, Z == F);
 
                          // If memory was used, verify that the same amount was
                          // used by the moved-to object.
 
                          bsls::Types::Int64 moveBytesUsed =
                                    objAllocatorPtr->numBytesInUse() - objAlloc;
-                         LOOP4_ASSERT(LINE, CONFIG,
-                                      s1.numBytesInUse(), moveBytesUsed,
-                                      s1.numBytesInUse() == moveBytesUsed);
+                         ASSERTV(LINE, CONFIG,
+                                 s1.numBytesInUse(), moveBytesUsed,
+                                 s1.numBytesInUse() == moveBytesUsed);
                     }
                     else {
                         // If the allocators are the same, verify that no new
                         // bytes were allocated by moving.
 
-                        LOOP4_ASSERT(LINE, CONFIG, s1Alloc, s1.numBytesInUse(),
-                                     s1Alloc == s1.numBytesInUse());
+                        ASSERTV(LINE, CONFIG, s1Alloc, s1.numBytesInUse(),
+                                s1Alloc == s1.numBytesInUse());
                     }
 
                     // -------------------------------------------------------
                     // Verify any attribute allocators are installed properly.
                     // -------------------------------------------------------
 
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa == X.description().allocator());
+                    ASSERTV(LINE, CONFIG,
+                            &oa == X.description().allocator());
 
                     // Also invoke the object's 'allocator' accessor, as well
                     // as that of 'Z'.
 
-                    LOOP4_ASSERT(LINE, CONFIG, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &oa, X.allocator(),
+                            &oa == X.allocator());
 
-                    LOOP4_ASSERT(LINE, CONFIG, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
+                    ASSERTV(LINE, CONFIG, &scratch, Z.allocator(),
+                            &scratch == Z.allocator());
 
                     // Verify no allocation from the non-object allocators.
                     if (objAllocatorPtr != &da) {
-                        LOOP3_ASSERT(LINE, CONFIG, da.numBlocksTotal(),
-                                     0 == da.numBlocksTotal());
+                        ASSERTV(LINE, CONFIG, da.numBlocksTotal(),
+                                0 == da.numBlocksTotal());
                     }
 
                     if (objAllocatorPtr != &s2) {
-                        LOOP3_ASSERT(LINE, CONFIG, s2.numBlocksTotal(),
-                                     0 == s2.numBlocksTotal());
+                        ASSERTV(LINE, CONFIG, s2.numBlocksTotal(),
+                                0 == s2.numBlocksTotal());
                     }
 
                     // Verify no temporary memory is allocated from the object
                     // allocator.
 
-                    LOOP4_ASSERT(LINE, CONFIG, oa.numBlocksTotal(),
-                                 oa.numBlocksInUse(),
-                                 oa.numBlocksTotal() == oa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
 
 
                     // Verify expected ('Y'/'N') object-memory allocations.
 
                     if ('?' != MEM) {
-                        LOOP4_ASSERT(LINE, CONFIG, MEM, oa.numBlocksInUse(),
-                                   ('N' == MEM) == (0 == oa.numBlocksInUse()));
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                                ('N' == MEM) == (0 == oa.numBlocksInUse()));
                     }
 
                     // Record if some object memory was allocated.
@@ -1857,14 +1851,14 @@ int main(int argc, char *argv[])
 
                     // Verify all memory is released on object destruction.
 
-                    LOOP3_ASSERT(LINE, CONFIG, da.numBlocksInUse(),
-                                 0 == da.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, fa.numBlocksInUse(),
-                                 0 == fa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, s1.numBlocksInUse(),
-                                 0 == s1.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, s2.numBlocksInUse(),
-                                 0 == s2.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, s1.numBlocksInUse(),
+                            0 == s1.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, s2.numBlocksInUse(),
+                            0 == s2.numBlocksInUse());
                 }  // end foreach configuration
 
             }  // end foreach row
@@ -1903,27 +1897,25 @@ int main(int argc, char *argv[])
                     Obj from(OFFSET, FLAG, DESC, &s1);
 
                     Obj obj(bslmf::MovableRefUtil::move(from), &s2);
-                    LOOP3_ASSERT(LINE, Z, obj, Z == obj);
+                    ASSERTV(LINE, Z, obj, Z == obj);
 
 #ifdef BDE_BUILD_TARGET_EXC
                     if ('Y' == MEM) {
-                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
+                        ASSERTV(LINE, 0 < EXCEPTION_COUNT);
                     }
 #endif
-
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP3_ASSERT(LINE, &scratch, Z.allocator(),
-                             &scratch == Z.allocator());
-                LOOP2_ASSERT(LINE, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
-                LOOP2_ASSERT(LINE, s1.numBlocksInUse(),
-                             0 == s1.numBlocksInUse());
-                LOOP2_ASSERT(LINE, s2.numBlocksInUse(),
-                             0 == s2.numBlocksInUse());
+                ASSERTV(LINE, &scratch, Z.allocator(),
+                        &scratch == Z.allocator());
+                ASSERTV(LINE, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, s1.numBlocksInUse(),
+                        0 == s1.numBlocksInUse());
+                ASSERTV(LINE, s2.numBlocksInUse(),
+                        0 == s2.numBlocksInUse());
             }
         }
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2110,11 +2102,10 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, !"Bad allocator config.");
                       } break;
                     }
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 sizeof(Obj) == fa.numBytesInUse());
+                    ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
 
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
@@ -2128,52 +2119,52 @@ int main(int argc, char *argv[])
 
                     static bool firstFlag = true;
                     if (firstFlag) {
-                        LOOP4_ASSERT(LINE, CONFIG, Obj(), *objPtr,
-                                     Obj() == *objPtr)
+                        ASSERTV(LINE, CONFIG, Obj(), *objPtr,
+                                Obj() == *objPtr);
                         firstFlag = false;
                     }
 
                     // Verify the value of the object.
 
-                    LOOP4_ASSERT(LINE, CONFIG,  Z, X,  Z == X);
+                    ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
 
                     // Verify that the value of 'Z' has not changed.
 
-                    LOOP4_ASSERT(LINE, CONFIG, ZZ, Z, ZZ == Z);
+                    ASSERTV(LINE, CONFIG, ZZ, Z, ZZ == Z);
 
                     // -------------------------------------------------------
                     // Verify any attribute allocators are installed properly.
                     // -------------------------------------------------------
 
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa == X.description().allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X.description().allocator());
 
                     // Also invoke the object's 'allocator' accessor, as well
                     // as that of 'Z'.
 
-                    LOOP4_ASSERT(LINE, CONFIG, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &oa, X.allocator(),
+                            &oa == X.allocator());
 
-                    LOOP4_ASSERT(LINE, CONFIG, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
+                    ASSERTV(LINE, CONFIG, &scratch, Z.allocator(),
+                            &scratch == Z.allocator());
 
                     // Verify no allocation from the non-object allocator.
 
-                    LOOP3_ASSERT(LINE, CONFIG, noa.numBlocksTotal(),
-                                 0 == noa.numBlocksTotal());
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
 
                     // Verify no temporary memory is allocated from the object
                     // allocator.
 
-                    LOOP4_ASSERT(LINE, CONFIG, oa.numBlocksTotal(),
-                                                           oa.numBlocksInUse(),
-                                 oa.numBlocksTotal() == oa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG,
+                            oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
 
                     // Verify expected ('Y'/'N') object-memory allocations.
 
                     if ('?' != MEM) {
-                        LOOP4_ASSERT(LINE, CONFIG, MEM, oa.numBlocksInUse(),
-                                   ('N' == MEM) == (0 == oa.numBlocksInUse()));
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                                ('N' == MEM) == (0 == oa.numBlocksInUse()));
                     }
 
                     // Record if some object memory was allocated.
@@ -2186,12 +2177,12 @@ int main(int argc, char *argv[])
 
                     // Verify all memory is released on object destruction.
 
-                    LOOP3_ASSERT(LINE, CONFIG, da.numBlocksInUse(),
-                                 0 == da.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, fa.numBlocksInUse(),
-                                 0 == fa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, sa.numBlocksInUse(),
-                                 0 == sa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
                 }  // end foreach configuration
 
             }  // end foreach row
@@ -2203,7 +2194,6 @@ int main(int argc, char *argv[])
             // Note that memory should be independently allocated for each
             // attribute capable of allocating memory.
         }
-
 
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
         {
@@ -2229,24 +2219,21 @@ int main(int argc, char *argv[])
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj obj(Z, &sa);
-                    LOOP3_ASSERT(LINE, Z, obj, Z == obj);
+                    ASSERTV(LINE, Z, obj, Z == obj);
 
 #ifdef BDE_BUILD_TARGET_EXC
                     if ('Y' == MEM) {
-                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
+                        ASSERTV(LINE, 0 < EXCEPTION_COUNT);
                     }
 #endif
-
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
+                ASSERTV(LINE, ZZ, Z, ZZ == Z);
 
-                LOOP3_ASSERT(LINE, &scratch, Z.allocator(),
-                             &scratch == Z.allocator());
-                LOOP2_ASSERT(LINE, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
-                LOOP2_ASSERT(LINE, sa.numBlocksInUse(),
-                             0 == sa.numBlocksInUse());
+                ASSERTV(LINE, &scratch, Z.allocator(),
+                        &scratch == Z.allocator());
+                ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+                ASSERTV(LINE, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
             }
         }
       } break;
@@ -2432,8 +2419,8 @@ int main(int argc, char *argv[])
 
                 const Obj X(OFFSET1, FLAG1, DESC1, &scratch);
 
-                LOOP2_ASSERT(LINE1, X,   X == X);
-                LOOP2_ASSERT(LINE1, X, !(X != X));
+                ASSERTV(LINE1, X,   X == X);
+                ASSERTV(LINE1, X, !(X != X));
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
@@ -2471,28 +2458,28 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocatorMonitor oaxm(&oax), oaym(&oay);
 
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
 
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X, !EXP == (Y != X));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, Y, X, !EXP == (Y != X));
 
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG, oaym.isTotalSame());
+                    ASSERTV(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
+                    ASSERTV(LINE1, LINE2, CONFIG, oaym.isTotalSame());
 
                     // Double check that some object memory was allocated.
 
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG,
-                                 1 <= xa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG,
-                                 1 <= ya.numBlocksInUse());
+                    ASSERTV(LINE1, LINE2, CONFIG,
+                            1 <= xa.numBlocksInUse());
+                    ASSERTV(LINE1, LINE2, CONFIG,
+                            1 <= ya.numBlocksInUse());
 
                     // Note that memory should be independently allocated for
                     // each attribute capable of allocating memory.
                 }
             }
 
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
       } break;
       case 5: {
@@ -2773,21 +2760,21 @@ int main(int argc, char *argv[])
                 // Verify supplied stream is returned by reference.
 
                 if (-9 == L && -9 == SPL) {
-                    LOOP_ASSERT(LINE, &os == &(os << X));
+                    ASSERTV(LINE, &os == &(os << X));
 
                     if (veryVeryVerbose) { T_ T_ Q(operator<<) }
                 }
                 else {
-                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
+                    ASSERTV(LINE, -8 == SPL || -8 != L);
 
                     if (-8 != SPL) {
-                        LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
+                        ASSERTV(LINE, &os == &X.print(os, L, SPL));
                     }
                     else if (-8 != L) {
-                        LOOP_ASSERT(LINE, &os == &X.print(os, L));
+                        ASSERTV(LINE, &os == &X.print(os, L));
                     }
                     else {
-                        LOOP_ASSERT(LINE, &os == &X.print(os));
+                        ASSERTV(LINE, &os == &X.print(os));
                     }
 
                     if (veryVeryVerbose) { T_ T_ Q(print) }
@@ -2797,7 +2784,7 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { P(os.str()) }
 
-                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
+                ASSERTV(LINE, EXP, os.str(), EXP == os.str());
             }
         }
       } break;
@@ -2898,13 +2885,13 @@ int main(int argc, char *argv[])
                 "\nVerify all basic accessors report expected values." << endl;
         {
             const T1& utcOffsetInSeconds = X.utcOffsetInSeconds();
-            LOOP2_ASSERT(D1, utcOffsetInSeconds, D1 == utcOffsetInSeconds);
+            ASSERTV(D1, utcOffsetInSeconds, D1 == utcOffsetInSeconds);
 
             const T2& dstInEffectFlag = X.dstInEffectFlag();
-            LOOP2_ASSERT(D2, dstInEffectFlag, D2 == dstInEffectFlag);
+            ASSERTV(D2, dstInEffectFlag, D2 == dstInEffectFlag);
 
             const T3& description = X.description();
-            LOOP2_ASSERT(D3, description, D3 == description);
+            ASSERTV(D3, description, D3 == description);
 
             ASSERT(&oa == X.allocator());
         }
@@ -2919,7 +2906,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T1& utcOffsetInSeconds = X.utcOffsetInSeconds();
-            LOOP2_ASSERT(A1, utcOffsetInSeconds, A1 == utcOffsetInSeconds);
+            ASSERTV(A1, utcOffsetInSeconds, A1 == utcOffsetInSeconds);
 
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
@@ -2931,7 +2918,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T2& dstInEffectFlag = X.dstInEffectFlag();
-            LOOP2_ASSERT(A2, dstInEffectFlag, A2 == dstInEffectFlag);
+            ASSERTV(A2, dstInEffectFlag, A2 == dstInEffectFlag);
 
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
@@ -2943,7 +2930,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T3& description = X.description();
-            LOOP2_ASSERT(A3, description, A3 == description);
+            ASSERTV(A3, description, A3 == description);
 
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
@@ -2955,7 +2942,7 @@ int main(int argc, char *argv[])
         // Note that memory should be independently allocated for each
         // attribute capable of allocating memory.
 
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -3107,7 +3094,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(MEM) P_(OFFSET) P_(FLAG) P(DESC) }
 
-                LOOP2_ASSERT(LINE, MEM, MEM && strchr("YN?", MEM));
+               ASSERTV(LINE, MEM, MEM && strchr("YN?", MEM));
 
                 for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -3138,10 +3125,10 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP2_ASSERT(LINE, CONFIG, !"Bad allocator config.");
+                        ASSERTV(LINE, CONFIG, !"Bad allocator config.");
                       } break;
                     }
-                    LOOP2_ASSERT(LINE, CONFIG,
+                    ASSERTV(LINE, CONFIG,
                                  sizeof(Obj) == fa.numBytesInUse());
 
                     Obj& mX = *objPtr;  const Obj& X = mX;
@@ -3156,7 +3143,7 @@ int main(int argc, char *argv[])
 
                     static bool firstFlag = true;
                     if (firstFlag) {
-                        LOOP4_ASSERT(LINE, CONFIG, Obj(), *objPtr,
+                        ASSERTV(LINE, CONFIG, Obj(), *objPtr,
                                      Obj() == *objPtr)
                         firstFlag = false;
                     }
@@ -3165,44 +3152,45 @@ int main(int argc, char *argv[])
                     // Verify the object's attribute values.
                     // -------------------------------------
 
-                    LOOP4_ASSERT(LINE, CONFIG, OFFSET, X.utcOffsetInSeconds(),
-                                 OFFSET == X.utcOffsetInSeconds());
+                    ASSERTV(LINE, CONFIG, OFFSET, X.utcOffsetInSeconds(),
+                            OFFSET == X.utcOffsetInSeconds());
 
-                    LOOP4_ASSERT(LINE, CONFIG, FLAG, X.dstInEffectFlag(),
-                                 FLAG == X.dstInEffectFlag());
+                    ASSERTV(LINE, CONFIG, FLAG, X.dstInEffectFlag(),
+                            FLAG == X.dstInEffectFlag());
 
-                    LOOP4_ASSERT(LINE, CONFIG, DESC, X.description(),
-                                 DESC == X.description());
+                    ASSERTV(LINE, CONFIG, DESC, X.description(),
+                            DESC == X.description());
 
                     // -------------------------------------------------------
                     // Verify any attribute allocators are installed properly.
                     // -------------------------------------------------------
 
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa == X.description().allocator());
+                    ASSERTV(LINE, CONFIG,
+                            &oa == X.description().allocator());
 
                     // Also invoke the object's 'allocator' accessor.
 
-                    LOOP4_ASSERT(LINE, CONFIG, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &oa, X.allocator(),
+                            &oa == X.allocator());
 
                     // Verify no allocation from the non-object allocator.
 
-                    LOOP3_ASSERT(LINE, CONFIG, noa.numBlocksTotal(),
-                                 0 == noa.numBlocksTotal());
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
 
                     // Verify no temporary memory is allocated from the object
                     // allocator.
 
-                    LOOP4_ASSERT(LINE, CONFIG, oa.numBlocksTotal(),
-                                                           oa.numBlocksInUse(),
-                                 oa.numBlocksTotal() == oa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG,
+                            oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
 
                     // Verify expected ('Y'/'N') object-memory allocations.
 
                     if ('?' != MEM) {
-                        LOOP4_ASSERT(LINE, CONFIG, MEM, oa.numBlocksInUse(),
-                                   ('N' == MEM) == (0 == oa.numBlocksInUse()));
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                                ('N' == MEM) == (0 == oa.numBlocksInUse()));
                     }
 
                     // Record if some object memory was allocated.
@@ -3215,12 +3203,12 @@ int main(int argc, char *argv[])
 
                     // Verify all memory is released on object destruction.
 
-                    LOOP3_ASSERT(LINE, CONFIG, da.numBlocksInUse(),
-                                 0 == da.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, fa.numBlocksInUse(),
-                                 0 == fa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, sa.numBlocksInUse(),
-                                 0 == sa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
 
                 }  // end foreach configuration
 
@@ -3259,25 +3247,24 @@ int main(int argc, char *argv[])
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj obj(OFFSET, FLAG, DESC, &sa);
-                    LOOP3_ASSERT(LINE, OFFSET, obj.utcOffsetInSeconds(),
-                                 OFFSET == obj.utcOffsetInSeconds());
-                    LOOP3_ASSERT(LINE, FLAG, obj.dstInEffectFlag(),
-                                 FLAG == obj.dstInEffectFlag());
-                    LOOP3_ASSERT(LINE, DESC, obj.description(),
-                                 DESC == obj.description());
+                    ASSERTV(LINE, OFFSET, obj.utcOffsetInSeconds(),
+                            OFFSET == obj.utcOffsetInSeconds());
+                    ASSERTV(LINE, FLAG, obj.dstInEffectFlag(),
+                            FLAG == obj.dstInEffectFlag());
+                    ASSERTV(LINE, DESC, obj.description(),
+                            DESC == obj.description());
 
 #ifdef BDE_BUILD_TARGET_EXC
                     if ('Y' == MEM) {
-                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
+                        ASSERTV(LINE, 0 < EXCEPTION_COUNT);
                     }
 #endif
-
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP2_ASSERT(LINE, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
-                LOOP2_ASSERT(LINE, sa.numBlocksInUse(),
-                             0 == sa.numBlocksInUse());
+                ASSERTV(LINE, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, sa.numBlocksInUse(),
+                        0 == sa.numBlocksInUse());
             }
         }
 
@@ -3475,7 +3462,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, !"Bad allocator config.");
               } break;
             }
 
@@ -3487,29 +3474,29 @@ int main(int argc, char *argv[])
             // Verify any attribute allocators are installed properly.
             // -------------------------------------------------------
 
-            LOOP_ASSERT(CONFIG, &oa == X.description().allocator());
+            ASSERTV(CONFIG, &oa == X.description().allocator());
 
             // Also invoke the object's 'allocator' accessor.
 
-            LOOP3_ASSERT(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+            ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
 
             // Verify no allocation from the object/non-object allocators.
 
-            LOOP2_ASSERT(CONFIG,  oa.numBlocksTotal(),
-                         0 ==  oa.numBlocksTotal());
-            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
-                         0 == noa.numBlocksTotal());
+            ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                    0 ==  oa.numBlocksTotal());
+            ASSERTV(CONFIG, noa.numBlocksTotal(),
+                    0 == noa.numBlocksTotal());
 
             // -------------------------------------
             // Verify the object's attribute values.
             // -------------------------------------
 
-            LOOP3_ASSERT(CONFIG, D1, X.utcOffsetInSeconds(),
-                         D1 == X.utcOffsetInSeconds());
-            LOOP3_ASSERT(CONFIG, D2, X.dstInEffectFlag(),
-                         D2 == X.dstInEffectFlag());
-            LOOP3_ASSERT(CONFIG, D3, X.description(),
-                         D3 == X.description());
+            ASSERTV(CONFIG, D1, X.utcOffsetInSeconds(),
+                    D1 == X.utcOffsetInSeconds());
+            ASSERTV(CONFIG, D2, X.dstInEffectFlag(),
+                    D2 == X.dstInEffectFlag());
+            ASSERTV(CONFIG, D3, X.description(),
+                    D3 == X.description());
 
             // -----------------------------------------------------
             // Verify that each attribute is independently settable.
@@ -3520,21 +3507,21 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setUtcOffsetInSeconds(A1);
-                LOOP_ASSERT(CONFIG, A1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, D3 == X.description());
+                ASSERTV(CONFIG, A1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, D2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, D3 == X.description());
 
                 mX.setUtcOffsetInSeconds(B1);
-                LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, D3 == X.description());
+                ASSERTV(CONFIG, B1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, D2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, D3 == X.description());
 
                 mX.setUtcOffsetInSeconds(D1);
-                LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, D3 == X.description());
+                ASSERTV(CONFIG, D1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, D2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, D3 == X.description());
 
-                LOOP_ASSERT(CONFIG, tam.isTotalSame());
+                ASSERTV(CONFIG, tam.isTotalSame());
             }
 
             // 'dstInEffectFlag'
@@ -3542,21 +3529,21 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setDstInEffectFlag(A2);
-                LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, A2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, D3 == X.description());
+                ASSERTV(CONFIG, D1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, A2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, D3 == X.description());
 
                 mX.setDstInEffectFlag(B2);
-                LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, B2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, D3 == X.description());
+                ASSERTV(CONFIG, D1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, B2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, D3 == X.description());
 
                 mX.setDstInEffectFlag(D2);
-                LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, D3 == X.description());
+                ASSERTV(CONFIG, D1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, D2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, D3 == X.description());
 
-                LOOP_ASSERT(CONFIG, tam.isTotalSame());
+                ASSERTV(CONFIG, tam.isTotalSame());
             }
 
             // 'description'
@@ -3566,30 +3553,29 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocatorMonitor tam(&oa);
                     mX.setDescription(A3);
-                    LOOP_ASSERT(CONFIG, tam.isInUseUp());
+                    ASSERTV(CONFIG, tam.isInUseUp());
 
 #ifdef BDE_BUILD_TARGET_EXC
                     ASSERT(0 < EXCEPTION_COUNT);
 #endif
-
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, A3 == X.description());
+                ASSERTV(CONFIG, D1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, D2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, A3 == X.description());
 
                 bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setDescription(B3);
-                LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, B3 == X.description());
+                ASSERTV(CONFIG, D1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, D2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, B3 == X.description());
 
                 mX.setDescription(D3);
-                LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, D3 == X.description());
+                ASSERTV(CONFIG, D1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, D2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, D3 == X.description());
 
-                LOOP_ASSERT(CONFIG, tam.isTotalSame());
+                ASSERTV(CONFIG, tam.isTotalSame());
             }
 
             // Corroborate attribute independence.
@@ -3600,32 +3586,32 @@ int main(int argc, char *argv[])
                 mX.setDstInEffectFlag(A2);
                 mX.setDescription(A3);
 
-                LOOP_ASSERT(CONFIG, A1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, A2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, A3 == X.description());
+                ASSERTV(CONFIG, A1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, A2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, A3 == X.description());
 
                 // Set all attributes to their 'B' values.
 
                 mX.setUtcOffsetInSeconds(B1);
-                LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, A2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, A3 == X.description());
+                ASSERTV(CONFIG, B1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, A2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, A3 == X.description());
 
                 mX.setDstInEffectFlag(B2);
-                LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, B2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, A3 == X.description());
+                ASSERTV(CONFIG, B1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, B2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, A3 == X.description());
 
                 mX.setDescription(B3);
-                LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
-                LOOP_ASSERT(CONFIG, B2 == X.dstInEffectFlag());
-                LOOP_ASSERT(CONFIG, B3 == X.description());
+                ASSERTV(CONFIG, B1 == X.utcOffsetInSeconds());
+                ASSERTV(CONFIG, B2 == X.dstInEffectFlag());
+                ASSERTV(CONFIG, B3 == X.description());
             }
 
             // Verify no temporary memory is allocated from the object
             // allocator.
 
-            LOOP2_ASSERT(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
+            ASSERTV(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
 
             // Reclaim dynamically allocated object under test.
 
@@ -3633,13 +3619,13 @@ int main(int argc, char *argv[])
 
             // Verify all memory is released on object destruction.
 
-            LOOP_ASSERT(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
-            LOOP_ASSERT(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
-            LOOP_ASSERT(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+            ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
+            ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
+            ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             // Double check that some object memory was allocated.
 
-            LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksTotal());
+            ASSERTV(CONFIG, 1 <= oa.numBlocksTotal());
 
             // Note that memory should be independently allocated for each
             // attribute capable of allocating memory.
@@ -3910,8 +3896,8 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
