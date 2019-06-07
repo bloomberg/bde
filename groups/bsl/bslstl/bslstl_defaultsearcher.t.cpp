@@ -11,6 +11,7 @@
 
 #include <bslmf_issame.h>
 
+#include <bsls_assert.h>   // TBD: DEBUG
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nativestd.h>
@@ -2190,6 +2191,70 @@ const static DATA_t U_DATA_TEXT[] = {
 const BSL::size_t NUM_U_DATA_TEXT = sizeof  U_DATA_TEXT
                                   / sizeof *U_DATA_TEXT;
 
+const static DATA_t U_DATA_TEXT_PLUS[] = {
+    //LINE  EXP  PATTERN
+    //----  ---  -------------------
+    { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+  , { L_,  true, HAYSTACK_TEXT_FIRST
+    }
+};
+
+const BSL::size_t NUM_U_DATA_TEXT_PLUS = sizeof  U_DATA_TEXT_PLUS
+                                       / sizeof *U_DATA_TEXT_PLUS;
+
 const static DATA_t U_DATA_OCTAL[] = {
     { L_,  true, // "Allegiance to the British Crown"
                     "101154154145147151141156143145040164157040164150145040102"
@@ -2278,11 +2343,72 @@ const static DATA_t U_DATA_OCTAL[] = {
   , { L_, false, // "Barack Obama"
                     "102141162141143153040117142141155141"
     }
-
 };
 
 const BSL::size_t NUM_U_DATA_OCTAL = sizeof  U_DATA_OCTAL
                                    / sizeof *U_DATA_OCTAL;
+
+const static DATA_t U_DATA_OCTAL_PLUS[] = {
+    { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+  , { L_,  true, HAYSTACK_OCTAL_FIRST
+    }
+};
+
+const BSL::size_t NUM_U_DATA_OCTAL_PLUS = sizeof  U_DATA_OCTAL_PLUS
+                                        / sizeof *U_DATA_OCTAL;
 
 const static DATA_t U_DATA_BINARY[] = {
     { L_,  true, // "Allegiance to the British Crown"
@@ -2380,7 +2506,7 @@ const static DATA_t U_DATA_BINARY[] = {
   , { L_,  true, // ""
                     ""
     }
-  , { L_, true, // "%"    // Found since search crosses byte boundaries.
+  , { L_,  true, // "%"   // Found since search crosses byte boundaries.
                     "00100101"
     }
   , { L_, false, // "BAZINGA!"
@@ -2402,6 +2528,68 @@ const static DATA_t U_DATA_BINARY[] = {
 
 const BSL::size_t   NUM_U_DATA_BINARY = sizeof  U_DATA_BINARY
                                       / sizeof *U_DATA_BINARY;
+
+const static DATA_t U_DATA_BINARY_PLUS[] = {
+    { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+  , { L_,  true, HAYSTACK_BINARY_FIRST
+    }
+};
+
+const BSL::size_t   NUM_U_DATA_BINARY_PLUS = sizeof  U_DATA_BINARY_PLUS
+                                           / sizeof *U_DATA_BINARY_PLUS;
 
 //    " When in the Course of human events,"
 
@@ -2446,13 +2634,54 @@ const static DATA_t U_DATA_SHORT[] = {
 const BSL::size_t NUM_U_DATA_SHORT = sizeof  U_DATA_SHORT
                                    / sizeof *U_DATA_SHORT;
 
+const static DATA_t U_DATA_SHORT_PLUS[] = {
+    //LINE  EXP   PATTERN
+    //----  ---   --------
+
+  // Words in Document
+    { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+
+  // Sub-Words in Document
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+
+  // Punctuation in Document
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+
+  // Phrases/Punctuation Not in Document
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+  , { L_,  true, HAYSTACK_SHORT_FIRST }
+};
+
+const BSL::size_t NUM_U_DATA_SHORT_PLUS = sizeof  U_DATA_SHORT_PLUS
+                                        / sizeof *U_DATA_SHORT_PLUS;
+
 static const char *performanceSyntaxMessage(int test)
 {
     switch (test) {
       case -1: return
           "syntax: "
           "<numRepetitions> "
-          "<text|octal|binary|short>";
+          "<text|octal|binary|short>[+}";
       // case -2: return
       //     "syntax: "
       //     "<numRepetitions> "
@@ -2471,22 +2700,30 @@ static int getHaystack(const char **haystackFirstPtr,
     assert(haystackOption);
 
     *haystackFirstPtr =
-            0 == BSL::strcmp("text",   haystackOption) ? HAYSTACK_TEXT_FIRST  :
-            0 == BSL::strcmp("octal",  haystackOption) ? HAYSTACK_OCTAL_FIRST :
-            0 == BSL::strcmp("binary", haystackOption) ? HAYSTACK_BINARY_FIRST:
-            0 == BSL::strcmp("short",  haystackOption) ? HAYSTACK_SHORT_FIRST :
-            /* unknown */                                0                    ;
+          0 == BSL::strcmp("text",    haystackOption) ? HAYSTACK_TEXT_FIRST  :
+          0 == BSL::strcmp("text+",   haystackOption) ? HAYSTACK_TEXT_FIRST  :
+          0 == BSL::strcmp("octal",   haystackOption) ? HAYSTACK_OCTAL_FIRST :
+          0 == BSL::strcmp("octal+",  haystackOption) ? HAYSTACK_OCTAL_FIRST :
+          0 == BSL::strcmp("binary",  haystackOption) ? HAYSTACK_BINARY_FIRST:
+          0 == BSL::strcmp("binary+", haystackOption) ? HAYSTACK_BINARY_FIRST:
+          0 == BSL::strcmp("short",   haystackOption) ? HAYSTACK_SHORT_FIRST :
+          0 == BSL::strcmp("short+",  haystackOption) ? HAYSTACK_SHORT_FIRST :
+          /* unknown */                                 0                    ;
 
     if (0 == *haystackFirstPtr) {
         return -1;                                                    // RETURN
     }
 
     *haystackLastPtr =
-             0 == BSL::strcmp("text",   haystackOption) ? HAYSTACK_TEXT_LAST  :
-             0 == BSL::strcmp("octal",  haystackOption) ? HAYSTACK_OCTAL_LAST :
-             0 == BSL::strcmp("binary", haystackOption) ? HAYSTACK_BINARY_LAST:
-             0 == BSL::strcmp("short",  haystackOption) ? HAYSTACK_SHORT_LAST :
-             /* unknown */                                0                   ;
+           0 == BSL::strcmp("text",    haystackOption) ? HAYSTACK_TEXT_LAST  :
+           0 == BSL::strcmp("text+",   haystackOption) ? HAYSTACK_TEXT_LAST  :
+           0 == BSL::strcmp("octal",   haystackOption) ? HAYSTACK_OCTAL_LAST :
+           0 == BSL::strcmp("octal+",  haystackOption) ? HAYSTACK_OCTAL_LAST :
+           0 == BSL::strcmp("binary",  haystackOption) ? HAYSTACK_BINARY_LAST:
+           0 == BSL::strcmp("binary+", haystackOption) ? HAYSTACK_BINARY_LAST:
+           0 == BSL::strcmp("short",   haystackOption) ? HAYSTACK_SHORT_LAST :
+           0 == BSL::strcmp("short+",  haystackOption) ? HAYSTACK_SHORT_LAST :
+           /* unknown */                                 0                   ;
 
     if (0 == *haystackLastPtr) {
         return -1;                                                    // RETURN
@@ -2503,22 +2740,30 @@ int getDataForHaystack(const DATA_t **DATA,
     assert(NUM_DATA);
     assert(haystackOption);
 
-    *DATA = 0 == BSL::strcmp("text",   haystackOption) ? U_DATA_TEXT   :
-            0 == BSL::strcmp("octal",  haystackOption) ? U_DATA_OCTAL  :
-            0 == BSL::strcmp("binary", haystackOption) ? U_DATA_BINARY :
-            0 == BSL::strcmp("short",  haystackOption) ? U_DATA_SHORT  :
-            /* unknown */                                0             ;
+    *DATA = 0 == BSL::strcmp("text",    haystackOption) ? U_DATA_TEXT         :
+            0 == BSL::strcmp("text+",   haystackOption) ? U_DATA_TEXT_PLUS    :
+            0 == BSL::strcmp("octal",   haystackOption) ? U_DATA_OCTAL        :
+            0 == BSL::strcmp("octal+",  haystackOption) ? U_DATA_OCTAL_PLUS   :
+            0 == BSL::strcmp("binary",  haystackOption) ? U_DATA_BINARY       :
+            0 == BSL::strcmp("binary+", haystackOption) ? U_DATA_BINARY_PLUS  :
+            0 == BSL::strcmp("short",   haystackOption) ? U_DATA_SHORT        :
+            0 == BSL::strcmp("short+",  haystackOption) ? U_DATA_SHORT_PLUS   :
+            /* unknown */                                 0                   ;
 
     if (0 == *DATA) {
         return -1;                                                    // RETURN
     }
 
     *NUM_DATA =
-              0 == BSL::strcmp("text",   haystackOption)  ? NUM_U_DATA_TEXT   :
-              0 == BSL::strcmp("octal",  haystackOption)  ? NUM_U_DATA_OCTAL  :
-              0 == BSL::strcmp("binary", haystackOption)  ? NUM_U_DATA_BINARY :
-              0 == BSL::strcmp("short",  haystackOption)  ? NUM_U_DATA_SHORT  :
-              /* unknown */                       static_cast<BSL::size_t>(-1);
+        0 == BSL::strcmp("text",    haystackOption)  ? NUM_U_DATA_TEXT        :
+        0 == BSL::strcmp("text+",   haystackOption)  ? NUM_U_DATA_TEXT_PLUS   :
+        0 == BSL::strcmp("octal",   haystackOption)  ? NUM_U_DATA_OCTAL       :
+        0 == BSL::strcmp("octal+",  haystackOption)  ? NUM_U_DATA_OCTAL_PLUS  :
+        0 == BSL::strcmp("binary",  haystackOption)  ? NUM_U_DATA_BINARY      :
+        0 == BSL::strcmp("binary+", haystackOption)  ? NUM_U_DATA_BINARY_PLUS :
+        0 == BSL::strcmp("short",   haystackOption)  ? NUM_U_DATA_SHORT       :
+        0 == BSL::strcmp("short+",  haystackOption)  ? NUM_U_DATA_SHORT_PLUS  :
+        /* unknown */                             static_cast<BSL::size_t>(-1);
 
     if (static_cast<BSL::size_t>(-1) == *NUM_DATA) {
         return -1;                                                    // RETURN
@@ -2895,9 +3140,10 @@ int main(int argc, char *argv[])
         } DATA[]  = {
             //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
             //---- --------     ------  ------  ------
+            { L_,  "ABC"      , "AbC"  , 3, 0,  0, 3  }
 
             // Degenerate combinations
-            { L_,  ""         , ""     , 0, 0,  0, 0  }
+          , { L_,  ""         , ""     , 0, 0,  0, 0  }
           , { L_,  ""         , "a"    , 0, 0,  0, 0  }
           , { L_,  ""         , "ab"   , 0, 0,  0, 0  }
           , { L_,  ""         , "abc"  , 0, 0,  0, 0  }
@@ -3059,7 +3305,12 @@ int main(int argc, char *argv[])
  ASSERT(OFFSET_CS == bsl::distance(haystackRnd.begin(), rndResultFwdCs.first));
 
  ASSERT(OFFSET_CS == bsl::distance(haystackFwd.begin(), fwdResultRndCs.first));
- ASSERTV(LINE, OFFSET_CS == bsl::distance(haystackRnd.begin(), rndResultRndCs.first));
+
+ int resultOffset_CS = bsl::distance(haystackRnd.begin(), rndResultRndCs.first);
+ ASSERTV(LINE, OFFSET_CS, resultOffset_CS, OFFSET_CS == resultOffset_CS);
+ if (OFFSET_CS != resultOffset_CS) {
+         abort();
+ }
 
  ASSERT(OFFSET_CI == bsl::distance(haystackFwd.begin(), fwdResultFwdCi.first));
  ASSERT(OFFSET_CI == bsl::distance(haystackRnd.begin(), rndResultFwdCi.first));
@@ -3076,8 +3327,11 @@ int main(int argc, char *argv[])
 
             ASSERT(LENGTH_CS == bsl::distance(fwdResultRndCs.first,
                                               fwdResultRndCs.second));
-            ASSERTV(LINE, LENGTH_CS == bsl::distance(rndResultRndCs.first,
-                                              rndResultRndCs.second));
+            int resultLength_CS = bsl::distance(rndResultRndCs.first, rndResultRndCs.second);
+            ASSERTV(LINE, LENGTH_CS, resultLength_CS, LENGTH_CS == resultLength_CS);
+            if (LENGTH_CS != resultLength_CS) {
+                    abort();
+            }
 
             ASSERT(LENGTH_CI == bsl::distance(fwdResultFwdCi.first,
                                               fwdResultFwdCi.second));
@@ -3359,6 +3613,8 @@ int main(int argc, char *argv[])
         int                numRepetitions = BSL::atoi(argv[2]);
         const char * const haystackOption =           argv[3];
 
+        bool isPlusHaystackOption = BSL::strchr(haystackOption, '+');
+
         const char *haystackFirst;
         const char *haystackLast;
 
@@ -3372,7 +3628,7 @@ int main(int argc, char *argv[])
         const DATA_t *DATA;
         BSL::size_t   NUM_DATA;
 
-        getDataForHaystack(&DATA, &NUM_DATA, haystackOption);
+        rc = getDataForHaystack(&DATA, &NUM_DATA, haystackOption);
         if (0 != rc) {
             P(haystackOption)
             fprintf(stderr, "3 %s\n", performanceSyntaxMessage(test));
@@ -3381,13 +3637,28 @@ int main(int argc, char *argv[])
 
         const BSL::string haystackAsString(haystackFirst, haystackLast);
 
+#if 0
+        if (isPlusHaystackOption && argc > 4) {
+            int diffPosition = BSL::atoi(argv[4]);
+            if (0 <= diffPosition
+                  && diffPosition < haystackAsString.length()) {
+                haystackAsString.data[diffPosition] = 255;
+            }
+        }
+#endif
+
+
         for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE     = DATA[ti].d_line;
             const bool        EXPECTED = DATA[ti].d_expected;
             const char *const NEEDLE   = DATA[ti].d_needle_p;
 
             if (veryVerbose) {
-                P_(ti) P_(LINE) P_(EXPECTED) P(NEEDLE)
+                if (isPlusHaystackOption) {
+                    P_(ti) P_(LINE) P(EXPECTED)
+                } else {
+                    P_(ti) P_(LINE) P_(EXPECTED) P(NEEDLE)
+                }
             }
 
             const bsl::default_searcher<const char *> searcher(

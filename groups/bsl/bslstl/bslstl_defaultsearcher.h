@@ -271,10 +271,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #include <bslmf_issame.h>
 
-#include <bslalg_rangecompare.h>
+// #include <bslalg_rangecompare.h>
 
 #include <bsls_assert.h>
+#include <bsls_performancehint.h>
 
+#include <cstring>  // for 'native_std::memcmp'
 #include <utility>  // for 'native_std::make_pair'
 
 namespace bsl {
@@ -287,7 +289,6 @@ template <class FORWARD_ITR_NEEDLE,
           class EQUAL = bsl::equal_to<
                typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type> >
 class default_searcher {
-
 
   public:
    // PUBLIC TYPES
@@ -384,12 +385,15 @@ namespace bslstl {
                         // struct default_searcher_CanOptimize
                         // ===================================
 
-template <class FORWARD_ITR_NEEDLE, class EQUAL, class FORWARD_ITR_HAYSTACK>
+template <class FORWARD_ITR_NEEDLE,
+          class EQUAL,
+          class FORWARD_ITR_HAYSTACK>
 struct default_searcher_CanOptimize {
     enum {
 
         value = (
 #if defined(BSLSTL_DEFAULTSEARCHER_TRY_OPTIMIZE)
+#if 0
         bsl::is_same<  // 'FORWARD_ITR_NEEDLE' is random access (TBD: needed?)
                    typename
                    bsl::iterator_traits<FORWARD_ITR_NEEDLE>::iterator_category,
@@ -398,6 +402,11 @@ struct default_searcher_CanOptimize {
                  typename
                  bsl::iterator_traits<FORWARD_ITR_HAYSTACK>::iterator_category,
                      bsl::random_access_iterator_tag>::value
+#endif
+                     // Also need test the the 'value_type' is valid for
+                     // 'bsl::memcmp'.
+        bsl::is_pointer<FORWARD_ITR_NEEDLE>::value
+    &&  bsl::is_pointer<FORWARD_ITR_HAYSTACK>::value
     &&  bsl::is_same<EQUAL, // 'EQUAL' does 'value_type::operator=='
                      bsl::equal_to<
                           typename
@@ -435,6 +444,7 @@ struct default_searcher_ImpUtil {
                      const FORWARD_ITR_NEEDLE&   needleFirst,
                      const FORWARD_ITR_NEEDLE&   needleLast,
                      const EQUAL&                equal);
+
     template <class FORWARD_ITR_NEEDLE,
               class EQUAL,
               class FORWARD_ITR_HAYSTACK>
@@ -477,6 +487,14 @@ struct default_searcher_ImpUtil {
         // "needle" sequence is longer than the "haystack" sequence -- thus,
         // impossible for the "needle" to be found in the "haystack" -- the
         // range '[haystackLast, haystackLast)' is returned.
+
+    template <class FORWARD_ITR_NEEDLE,
+              class FORWARD_ITR_HAYSTACK>
+    static
+    bool equalPrefix(const FORWARD_ITR_HAYSTACK& haystackItr,
+                     const FORWARD_ITR_NEEDLE&   needleFirst,
+                     const FORWARD_ITR_NEEDLE&   needleLast);
+
 };
 
 }  // close package namespace
@@ -506,7 +524,8 @@ default_searcher(FORWARD_ITR_NEEDLE needleFirst,
 }
 
 // ACCESSORS
-template <class FORWARD_ITR_NEEDLE, class EQUAL>
+template <class FORWARD_ITR_NEEDLE,
+          class EQUAL>
 template <class FORWARD_ITR_HAYSTACK>
 inline
 bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK>
@@ -514,6 +533,11 @@ default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::operator()(
                                        FORWARD_ITR_HAYSTACK haystackFirst,
                                        FORWARD_ITR_HAYSTACK haystackLast) const
 {
+    BSLMF_ASSERT((bsl::is_same< 
+               typename bsl::iterator_traits<FORWARD_ITR_NEEDLE  >::value_type,
+               typename bsl::iterator_traits<FORWARD_ITR_HAYSTACK>::value_type
+                             >::value));
+
     return BloombergLP::bslstl::
            default_searcher_ImpUtil::doSearch<FORWARD_ITR_NEEDLE,
                                               EQUAL,
@@ -639,9 +663,9 @@ bsl::enable_if<
     typedef typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::difference_type
                                                               NeedleDifference;
 
-      NeedleDifference   needleLength = bsl::distance(needleFirst, needleLast);
-    HaystackDifference haystackLength = bsl::distance(haystackFirst,
-                                                      haystackLast);
+    const   NeedleDifference   needleLength =   needleLast -   needleFirst;
+    const HaystackDifference haystackLength = haystackLast - haystackFirst;
+
     BSLS_ASSERT(0 <=   needleLength);
     BSLS_ASSERT(0 <= haystackLength);
 
@@ -649,16 +673,73 @@ bsl::enable_if<
         return native_std::make_pair(haystackLast, haystackLast);     // RETURN
     }
 
-    if (0 == needleLength) {
+    if (0 == needleLength || 0 == haystackLength) {
         return native_std::make_pair(haystackFirst, haystackFirst);   // RETURN
     }
 
     for (FORWARD_ITR_HAYSTACK itr = haystackFirst;
-                              itr < haystackLast - needleLength + 1;
-                            ++itr) {
-            if (BloombergLP::bslalg::RangeCompare::equal(needleFirst,
-                                                         needleLast,
-                                                         itr)) {      // Match!
+                              itr < haystackLast - needleLength + 1; ++itr) {
+
+            FORWARD_ITR_HAYSTACK itrInner          = itr;
+            FORWARD_ITR_NEEDLE   needleItrInner    = needleFirst;
+            NeedleDifference     needleLengthInner = needleLength;
+
+#if 1
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*itr == *needleFirst)) {
+                if (1 == needleLength) {
+                    return native_std::make_pair(itr, itr + needleLength);
+                                                                     // RETURN
+                }
+                           ++itrInner;
+                     ++needleItrInner;
+                  --needleLengthInner;
+            } else {
+                continue; // Avoided 'memcmp' call
+            }
+
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                           *(itr + 1) == *(needleFirst + 1))) {
+                if (2 == needleLength) {
+                    return native_std::make_pair(itr, itr + needleLength);
+                                                                     // RETURN
+                }
+                           ++itrInner;
+                     ++needleItrInner;
+                  --needleLengthInner;
+            } else {
+                continue; // Avoided 'memcmp' call
+            }
+
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                         *(itr + 2) == *(needleFirst + 2))) {
+                if (3 == needleLength) {
+                    return native_std::make_pair(itr, itr + needleLength);
+                                                                     // RETURN
+                }
+                           ++itrInner;
+                     ++needleItrInner;
+                  --needleLengthInner;
+            } else {
+                continue; // Avoided 'memcmp' call
+            }
+            
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                         *(itr + 3) == *(needleFirst + 3))) {
+                if (4 == needleLength) {
+                    return native_std::make_pair(itr, itr + needleLength);
+                                                                     // RETURN
+                }
+                           ++itrInner;
+                     ++needleItrInner;
+                  --needleLengthInner;
+            } else {
+                continue; // Avoided 'memcmp' call
+            }
+#endif
+            
+            if (0 == native_std::memcmp(         itrInner,
+                                           needleItrInner,
+                                        needleLengthInner)) {
                 return native_std::make_pair(itr, itr + needleLength);
                                                                       // RETURN
             }
@@ -666,6 +747,19 @@ bsl::enable_if<
 
     // Ran out of haystack without match.
     return native_std::make_pair(haystackLast, haystackLast);
+}
+
+template <class FORWARD_ITR_NEEDLE,
+          class FORWARD_ITR_HAYSTACK>
+inline
+bool default_searcher_ImpUtil::equalPrefix(
+                                       const FORWARD_ITR_HAYSTACK& haystackItr,
+                                       const FORWARD_ITR_NEEDLE&   needleFirst,
+                                       const FORWARD_ITR_NEEDLE&   needleLast)
+{
+    BSLS_ASSERT(0 < needleLast - needleFirst);
+
+    return *haystackItr == *needleFirst;
 }
 
 }  // close package namespace
