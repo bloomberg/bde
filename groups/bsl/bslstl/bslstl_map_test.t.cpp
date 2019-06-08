@@ -7945,10 +7945,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase17()
     //
     //: 5 Invoke the 'testRangeInsertOptimization' function that creates a
     //:   container for a non-allocating type that uses a test allocator to
-    //:   supply memory.  'insert' elements using both forward and random
-    //:   access iterators.  'clear' the elements and re-insert them.  Compare
-    //:   the state of the allocator to expected memory needs at each step of
-    //:   the scenario.  (C-8).
+    //:   supply memory.  'insert' elements using forward, random access, and
+    //:   input (only) iterators.  'clear' the elements and re-insert them.
+    //:   Compare the state of the allocator to expected memory needs at each
+    //:   step of the scenario.  (C-8).
     //
     // Testing:
     //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -8923,10 +8923,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
     //:   arguments in terms of 'string' using a "scratch" allocator.
     //:
     //: 4 Invoke the 'testRangeCtorOptimization' function that creates a
-    //:   containers for a non-allocating type using both random access and
-    //:   forward iterators.  Each container is given a test allocator to
-    //:   supply memory.  The test allocator is state compared to the expected
-    //:   state in each step of the scenario.  (C-14)
+    //:   containers for a non-allocating type using random access, forward,
+    //:   and input (only) iterators.  Each container is given a test allocator
+    //:   to supply memory.  The test allocator is state compared to the
+    //:   expected state in each step of the scenario.  (C-14)
     //
     // Testing:
     //   map(ITER first, ITER last, const C& comparator, const A& allocator);
@@ -9197,8 +9197,9 @@ static DataType  ARRAY[] = { DataType( 0,  0)
                            };
 const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
 
-typedef bslstl::ForwardIterator<     DataType, DataType *> FwdItr;
-typedef bslstl::RandomAccessIterator<DataType, DataType *> RndItr;
+typedef bslstl::ForwardIterator<       DataType, DataType *> FwdItr;
+typedef bslstl::RandomAccessIterator<  DataType, DataType *> RndItr;
+typedef bsltf::TestValuesArrayIterator<DataType>             InpItr;
 
 static void testRangeCtorOptimization()
 {
@@ -9206,6 +9207,22 @@ static void testRangeCtorOptimization()
 
     FwdItr beginFwd(ARRAY), endFwd(ARRAY + NUM_ELEMENTS);
     RndItr beginRnd(ARRAY), endRnd(ARRAY + NUM_ELEMENTS);
+
+    bool         isValid[NUM_ELEMENTS + 1];
+    bool isReferenceable[NUM_ELEMENTS + 1];
+
+    memset(isValid,         true, (NUM_ELEMENTS + 1) * sizeof(bool));
+    memset(isReferenceable, true, (NUM_ELEMENTS + 1) * sizeof(bool));
+    isReferenceable[NUM_ELEMENTS] = false;  // 'end' is never dereferenceable
+
+    InpItr beginInp(ARRAY,
+                    ARRAY + NUM_ELEMENTS,
+                    isReferenceable,
+                    isValid);
+    InpItr   endInp(ARRAY           + NUM_ELEMENTS,
+                    ARRAY           + NUM_ELEMENTS,
+                    isReferenceable + NUM_ELEMENTS,
+                    isValid         + NUM_ELEMENTS);
 
     bslma::TestAllocator        sa("scratch", veryVeryVeryVerbose);
     bslma::TestAllocatorMonitor sam(&sa);
@@ -9216,21 +9233,29 @@ static void testRangeCtorOptimization()
     }
 
     ContainerType mXF(beginFwd, endFwd, &sa); const ContainerType& XF = mXF;
-    ASSERT(1            == sam.numBlocksTotalChange());
     ASSERT(NUM_ELEMENTS == XF.size());
+    ASSERT(1            == sam.numBlocksTotalChange());
 
+    sam.reset();
     ContainerType mXR(beginRnd, endRnd, &sa); const ContainerType& XR = mXR;
-    ASSERT(2            == sam.numBlocksTotalChange());
     ASSERT(NUM_ELEMENTS == XR.size());
+    ASSERT(1            == sam.numBlocksTotalChange());
+
+    sam.reset();
+    ContainerType mXI(beginInp, endInp, &sa); const ContainerType& XI = mXI;
+    ASSERT(NUM_ELEMENTS == XI.size());
+    ASSERT(1            <  sam.numBlocksTotalChange());
 
     if (verbose) {
-         P(XF.size());
+        P_(XF.size());
         P_(XR.size());
+         P(XI.size());
         printf("\nAfter: Object-Allocator\n");
         sa.print();
     }
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::TestAllocatorMonitor  dam(&da);
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose) {
@@ -9238,13 +9263,26 @@ static void testRangeCtorOptimization()
         da.print();
     }
 
-    ContainerType mYF(beginFwd, endFwd, &sa); const ContainerType& YF = mYF;
-    ASSERT(3            == sam.numBlocksTotalChange());
+    ContainerType mYF(beginFwd, endFwd); const ContainerType& YF = mYF;
     ASSERT(NUM_ELEMENTS == YF.size());
+    ASSERT(1            == dam.numBlocksTotalChange());
 
-    ContainerType mYR(beginRnd, endRnd, &sa); const ContainerType& YR = mYR;
-    ASSERT(4            == sam.numBlocksTotalChange());
+    dam.reset();
+    ContainerType mYR(beginRnd, endRnd); const ContainerType& YR = mYR;
     ASSERT(NUM_ELEMENTS == YR.size());
+    ASSERT(1            == dam.numBlocksTotalChange());
+
+    // Our input (only) iterators were consumed in the construction of 'mXI'.
+    // Reset them before reuse.
+
+    memset(isValid,         true, (NUM_ELEMENTS + 1) * sizeof(bool));
+    memset(isReferenceable, true, (NUM_ELEMENTS + 1) * sizeof(bool));
+    isReferenceable[NUM_ELEMENTS] = false;  // 'end' is never dereferenceable
+
+    dam.reset();
+    ContainerType mYI(beginInp, endInp); const ContainerType& YI = mYI;
+    ASSERT(NUM_ELEMENTS == YI.size());
+    ASSERT(1            <  dam.numBlocksTotalChange());
 
     if (verbose) {
          P(YF.size());
@@ -9265,6 +9303,21 @@ static void testRangeInsertOptimization()
     RndItr beginRnd(ARRAY);
     RndItr   midRnd(ARRAY + NUM_ELEMENTS/2);
     RndItr   endRnd(ARRAY + NUM_ELEMENTS);
+    bool         isValid[NUM_ELEMENTS + 1];
+    bool isReferenceable[NUM_ELEMENTS + 1];
+
+    memset(isValid,         true, (NUM_ELEMENTS + 1) * sizeof(bool));
+    memset(isReferenceable, true, (NUM_ELEMENTS + 1) * sizeof(bool));
+    isReferenceable[NUM_ELEMENTS] = false;  // 'end' is never dereferenceable
+
+    InpItr beginInp(ARRAY,
+                    ARRAY + NUM_ELEMENTS,
+                    isReferenceable,
+                    isValid);
+    InpItr   endInp(ARRAY           + NUM_ELEMENTS,
+                    ARRAY           + NUM_ELEMENTS,
+                    isReferenceable + NUM_ELEMENTS,
+                    isValid         + NUM_ELEMENTS);
 
     bslma::TestAllocator        sa("scratch", veryVeryVeryVerbose);
     bslma::TestAllocatorMonitor sam(&sa);
@@ -9284,49 +9337,61 @@ static void testRangeInsertOptimization()
                                         // Had to allocate nodes.
                                         // No free nodes left.
 
+    sam.reset();
     mX.insert(beginFwd, endFwd);       // Re-insert entire range.
     ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
-    ASSERT(2            == sam.numBlocksTotalChange());
+    ASSERT(1            == sam.numBlocksTotalChange());
                                        // No free nodes so allocated more;
                                        // however, did not use them.
 
+    sam.reset();
     mX.insert(beginFwd, endFwd);       // Re-re-insert entire range.
     ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
-    ASSERT(2            == sam.numBlocksTotalChange());
+    ASSERT(0            == sam.numBlocksTotalChange());
                                        // Have free nodes so no new allocation.
                                        // The free nodes remain unused.
 
+    sam.reset();
     mX.insert(beginFwd, endFwd);       // Re-re-re-insert entire range.
     ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
-    ASSERT(2            == sam.numBlocksTotalChange());
+    ASSERT(0            == sam.numBlocksTotalChange());
                                        // Have free nodes so no new allocation.
                                        // The free nodes remain unused.
     // ...
 
+    sam.reset();
     ContainerType mY(&sa); const ContainerType& Y = mY;
-
-    bslma::TestAllocatorMonitor sam2(&sa);
-
-    ASSERT(0              == sam2.numBlocksInUseChange());
+    ASSERT(0              == Y.size());
+    ASSERT(0              == sam.numBlocksInUseChange());
 
     mY.insert(beginFwd, midFwd);        // Insert first half of 'DATA'.
     ASSERT(NUM_ELEMENTS/2 == Y.size());
-    ASSERT(1              == sam2.numBlocksInUseChange());
+    ASSERT(1              == sam.numBlocksInUseChange());
 
+    sam.reset();
     mY.clear();                         // Clear
     ASSERT(0              == Y.size());
-    ASSERT(1              == sam2.numBlocksInUseChange());
+    ASSERT(0              == sam.numBlocksInUseChange());
 
     mY.insert(beginFwd, midFwd);       // Re-insert previous elements
     ASSERT(NUM_ELEMENTS/2 == Y.size());
-    ASSERT(1              == sam2.numBlocksInUseChange());
+    ASSERT(0              == sam.numBlocksInUseChange());
                                       // Reused nodes.  No new allocation.
                                       // No free nodes left.
 
     mY.insert(midRnd, endRnd);        // Insert additional elements
     ASSERT(NUM_ELEMENTS   == Y.size());
-    ASSERT(2              == sam2.numBlocksInUseChange());
+    ASSERT(1              == sam.numBlocksInUseChange());
                                       // Allocated more nodes.
+
+    sam.reset();
+    ContainerType mZ(&sa); const ContainerType& Z = mZ;
+    ASSERT(0              == Z.size());
+    ASSERT(0              == sam.numBlocksInUseChange());
+
+    mZ.insert(beginInp, endInp);
+    ASSERT(NUM_ELEMENTS  == Z.size());
+    ASSERT(1             <  sam.numBlocksInUseChange());
 
     if (verbose) {
         P(X.size());

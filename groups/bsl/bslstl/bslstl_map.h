@@ -2612,8 +2612,9 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     // method.
 
     const bool canCalculateInsertDistance =
-    ! bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
-                   bsl::input_iterator_tag>::value;
+             is_convertible<typename
+                            iterator_traits<INPUT_ITERATOR>::iterator_category,
+                            forward_iterator_tag>::value;
 
     while (first != last) {
         if (canCalculateInsertDistance
