@@ -496,6 +496,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isconvertible.h>
 #include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
 
@@ -2345,8 +2346,9 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
 
     const bool canCalculateInsertDistance =
-    ! bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
-                   bsl::input_iterator_tag>::value;
+             is_convertible<typename
+                            iterator_traits<INPUT_ITERATOR>::iterator_category,
+                            forward_iterator_tag>::value;
 
     while (first != last) {
         if (canCalculateInsertDistance
