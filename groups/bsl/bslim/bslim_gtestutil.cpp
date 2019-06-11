@@ -5,7 +5,7 @@
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
-#include <bsl_c_ctype.h>    // 'isprint'
+#include <bsl_cctype.h>    // 'isprint'
 
 // FREE OPERATORS
 void bsl::PrintTo(const bsl::string& value, bsl::ostream *stream)
