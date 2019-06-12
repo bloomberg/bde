@@ -302,7 +302,6 @@ class SingleProducerSingleConsumerBoundedQueue {
 
     mutable AtomicUint        d_emptyCount;      // count of threads in
                                                  // 'waitUntilEmpty'
-                                                 // 'd_pushCapacity'
 
     AtomicUint                d_emptyGeneration; // generation count of a
                                                  // method causing the queue to
@@ -1018,11 +1017,12 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>::removeAll()
     d_pushCondition.signal();
 
     AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
-
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+    if (0 < AtomicOp::getUintAcquire(&d_emptyCount)) {
+        {
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+        }
+        d_emptyCondition.broadcast();
     }
-    d_emptyCondition.broadcast();
 }
 
 template <class TYPE>
@@ -1061,10 +1061,12 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>::disablePopFront()
     }
     d_popCondition.broadcast();
 
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+    if (0 < AtomicOp::getUintAcquire(&d_emptyCount)) {
+        {
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+        }
+        d_emptyCondition.broadcast();
     }
-    d_emptyCondition.broadcast();
 }
 
 template <class TYPE>
