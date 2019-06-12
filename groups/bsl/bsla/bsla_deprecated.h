@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //:     warning includes the location of the declaration of the deprecated
 //:     entity to enable users to find further information about the
 //:     deprecation, and what they should use instead.  Note that on some
-//:     compilers 'message' is ignored.
+//:     compilers 'QUOTED_MESSAGE' is ignored.
 //
 //: 'BSLA_DEPRECATED_IS_ACTIVE'
 //:     The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined to 0 if
