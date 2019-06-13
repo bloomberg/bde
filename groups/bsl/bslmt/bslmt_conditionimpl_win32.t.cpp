@@ -18,6 +18,7 @@
 
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_c_errno.h>
 #include <bsl_cstdlib.h>
@@ -124,7 +125,7 @@ struct PingPongArgs
 };
 
 enum {
-    k_PINGPONG_ITER = 200
+    k_PINGPONG_ITER = 2000
 };
 
 extern "C" {
@@ -132,6 +133,7 @@ extern "C" {
 void* pingPong(void* argp) {
     PingPongArgs *arg = (PingPongArgs*)argp;
 
+    bsls::TimeInterval startTime = bsls::SystemTime::nowMonotonicClock();
     while (arg->d_count < k_PINGPONG_ITER) {
         arg->d_lock->lock();
         arg->d_cond->signal();
@@ -139,6 +141,12 @@ void* pingPong(void* argp) {
         arg->d_lock->unlock();
 
         ++arg->d_count;
+    }
+    bsls::TimeInterval endTime = bsls::SystemTime::nowMonotonicClock();
+    bsls::Types::Int64 actualNanos =
+                              (endTime - startTime).totalNanoseconds();
+    if (verbose) {
+        cout << "Millis taken:" << actualNanos / 1000000 << "\n";
     }
     return argp;
 }
@@ -278,6 +286,65 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+    case 5: {
+        // --------------------------------------------------------------------
+        // TESTING CONDITION::TIMEDWAIT() ACCURACY WITH MONOTONIC CLOCK
+        //
+        // Concerns:
+        //   Test how accurate Condition::timedWait() is.
+        //
+        // Plan:
+        //   Several times, timedWait for 0.3 seconds, then check how much
+        //   time has passed and verify that it is within acceptable
+        //   boundaries.
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TimedWait() accuracy test with monotonic clock\n";
+        }
+
+        const bsls::TimeInterval SLEEP_SECONDS(0.3);
+        const double OVERSHOOT_MIN = -1e-3;
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+        const double OVERSHOOT_MAX = 0.10;
+#else
+        const double OVERSHOOT_MAX = 0.05;
+#endif
+
+        Obj condition(bsls::SystemClockType::e_MONOTONIC);
+        bslmt::Mutex     mutex;
+        bslmt::LockGuard<bslmt::Mutex> guard(&mutex);
+
+        for (int i = 0; i < 8; ++i) {
+            const bsls::TimeInterval start =
+                bsls::SystemTime::nowMonotonicClock();
+            const bsls::TimeInterval timeout = start + SLEEP_SECONDS;
+            const bsls::TimeInterval minTimeout = timeout + OVERSHOOT_MIN;
+
+            int sts;
+            bsls::TimeInterval finish;
+
+            int j;
+            for (j = 0; j < 4; ++j) {
+                sts = condition.timedWait(&mutex, timeout);
+                finish = bsls::SystemTime::nowMonotonicClock();
+                if (finish > minTimeout) {
+                    break;
+                }
+            }
+            ASSERT(j < 4);
+            LOOP_ASSERT(sts, -1 == sts);
+
+            double overshoot =
+                (finish - start - SLEEP_SECONDS).totalSecondsAsDouble();
+
+            if (veryVerbose) P(overshoot);
+
+            LOOP2_ASSERT(overshoot, j, overshoot >= OVERSHOOT_MIN);
+            LOOP3_ASSERT(overshoot, j, OVERSHOOT_MAX,
+                overshoot < OVERSHOOT_MAX);
+        }
+    } break;
     case 4: {
         // --------------------------------------------------------------------
         // PING-PONG TEST
@@ -476,7 +543,7 @@ int main()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

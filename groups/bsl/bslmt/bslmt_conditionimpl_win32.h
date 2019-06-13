@@ -56,11 +56,45 @@ BSLS_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
-#include <bslmt_sluice.h>
-
 #include <bslma_mallocfreeallocator.h>
 
 #include <bsls_systemclocktype.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmt_sluice.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+// Rather than setting 'WINVER' or 'NTDDI_VERSION', just forward declare the
+// Windows 2000 functions that are used.
+
+struct _RTL_CONDITION_VARIABLE;
+struct _RTL_CRITICAL_SECTION;
+
+typedef struct _RTL_CONDITION_VARIABLE  CONDITION_VARIABLE,
+                                       *PCONDITION_VARIABLE;
+typedef struct _RTL_CRITICAL_SECTION CRITICAL_SECTION, *LPCRITICAL_SECTION;
+typedef int BOOL;
+typedef unsigned long DWORD;
+
+extern "C" {
+    __declspec(dllimport) BOOL __stdcall SleepConditionVariableCS(
+        PCONDITION_VARIABLE  ConditionVariable,
+        LPCRITICAL_SECTION   CriticalSection,
+        DWORD                dwMilliseconds);
+
+
+    __declspec(dllimport) void __stdcall InitializeConditionVariable(
+        PCONDITION_VARIABLE ConditionVariable);
+
+    __declspec(dllimport) void __stdcall WakeConditionVariable(
+        PCONDITION_VARIABLE ConditionVariable);
+
+    __declspec(dllimport) void __stdcall WakeAllConditionVariable(
+        PCONDITION_VARIABLE ConditionVariable);
+
+    __declspec(dllimport) DWORD __stdcall GetLastError();
+
+}  // extern "C"
 
 namespace BloombergLP {
 namespace bslmt {
@@ -80,8 +114,12 @@ class ConditionImpl<Platform::Win32Threads> {
     // The implementation provided here defines an efficient POSIX like
     // condition variable.
 
+  private:
     // DATA
-    Sluice d_waitSluice;  // provides post/wait for condition
+    void                        *d_cond;      // Condition variable is the size
+                                              // of a pointer.
+
+    bsls::SystemClockType::Enum  d_clockType; // clock type
 
     // NOT IMPLEMENTED
     ConditionImpl(const ConditionImpl&);
@@ -154,10 +192,10 @@ class ConditionImpl<Platform::Win32Threads> {
 inline
 bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::ConditionImpl(
                                          bsls::SystemClockType::Enum clockType)
-: d_waitSluice(clockType, &bslma::MallocFreeAllocator::singleton())
+: d_clockType(clockType)
 {
-    // We use the malloc/free allocator singleton so as not to produce "noise"
-    // in any tests involving the global allocator or global new/delete.
+    InitializeConditionVariable(
+                         reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond));
 }
 
 inline
@@ -169,13 +207,15 @@ bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::~ConditionImpl()
 inline
 void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::broadcast()
 {
-    d_waitSluice.signalAll();
+    WakeAllConditionVariable(
+                         reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond));
 }
 
 inline
 void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::signal()
 {
-    d_waitSluice.signalOne();
+    WakeConditionVariable(
+                         reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond));
 }
 
 }  // close enterprise namespace
@@ -185,7 +225,7 @@ void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::signal()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -13,10 +13,17 @@
 BSLS_IDENT_RCSID(bslmt_conditionimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <bslmt_mutex.h>
+#include <bsls_systemtime.h>
+
+// Include 'synchapi.h' here to check that our declarations of windows API
+// functions and types do not conflict with 'synchapi'.
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <windows.h>
+#include <synchapi.h>
+#endif
 
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
-
-// #define BSLMT_WIN64_DEBUG
 
 namespace BloombergLP {
 
@@ -29,22 +36,28 @@ int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::timedWait(
                                             Mutex                     *mutex,
                                             const bsls::TimeInterval&  timeout)
 {
-    const void *sluiceToken = d_waitSluice.enter();
-    mutex->unlock();
-    const int rc = d_waitSluice.timedWait(sluiceToken, timeout);
-    mutex->lock();
+    LPCRITICAL_SECTION mtx = &mutex->nativeMutex();
+    bsls::TimeInterval duration = timeout - bsls::SystemTime::now(d_clockType);
 
-    return 0 == rc ? 0 : -1;
+    BOOL ret = SleepConditionVariableCS(
+                          reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond),
+                          mtx,
+                          static_cast<DWORD>(duration.totalMilliseconds()));
+    if (ret != 0) {
+        return 0;                                                     // RETURN
+    }
+    DWORD err = GetLastError();
+    return ERROR_TIMEOUT == err ? -1 : -2;
 }
 
 int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::wait(Mutex *mutex)
 {
-    const void *sluiceToken = d_waitSluice.enter();
-    mutex->unlock();
-    d_waitSluice.wait(sluiceToken);
-    mutex->lock();
-
-    return 0;
+    LPCRITICAL_SECTION mtx = &mutex->nativeMutex();
+    BOOL ret = SleepConditionVariableCS(
+                          reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond),
+                          mtx,
+                          INFINITE);
+    return 0 == ret ? -2 : 0;
 }
 
 }  // close enterprise namespace
@@ -52,7 +65,7 @@ int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::wait(Mutex *mutex)
 #endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
