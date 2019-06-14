@@ -27,7 +27,7 @@ void bsl::PrintTo(const bsl::wstring& value, bsl::ostream *stream)
         char c = 0;
         if (currentWChar > 0 && currentWChar < 128) {
             c = static_cast<char>(currentWChar);
-            if (!isprint(c)) {
+            if (!bsl::isprint(c)) {
                 c = 0;
             }
         }
