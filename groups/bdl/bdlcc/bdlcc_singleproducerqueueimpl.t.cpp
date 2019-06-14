@@ -101,6 +101,7 @@ using namespace bsl;
 // [10] CONCERN: 'popFront' and 'tryPopFront' honor move-semantics
 // [11] CONCERN: template requirements
 // [12] CONCERN: ordering guarantee
+// [13] CONCERN: 'numElements' is not lower-bound due to 'tryPopFront'
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -434,6 +435,287 @@ public:
     }
 };
 
+                      // ==============================
+                      // struct BarrierAtomicOperations
+                      // ==============================
+
+struct BarrierAtomicOperations {
+    // Simulates 'bsls::AtomicOperations'.
+
+    // PUBLIC TYPES
+    struct AtomicTypes {
+        typedef bsls::AtomicOperations::AtomicTypes::Int     Int;
+        typedef bsls::AtomicOperations::AtomicTypes::Uint    Uint;
+        typedef bsls::AtomicOperations::AtomicTypes::Int64   Int64;
+        typedef bsls::AtomicOperations::AtomicTypes::Pointer Pointer;
+    };
+
+    // PUBLIC CLASS DATA
+    static bsls::AtomicOperations::AtomicTypes::Int *s_count_p;
+    static bsls::Types::Uint64                       s_ignoreThreadId;
+
+    // CLASS METHODS
+    static bsls::Types::Int64 addInt64NvAcqRel(AtomicTypes::Int64 *pValue,
+                                               bsls::Types::Int64  value);
+        // Simulate 'bsls::AtomicOperations::addInt64NvAcqRel' for the
+        // specified 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static bsls::Types::Int64 getInt64Acquire(
+                                             const AtomicTypes::Int64 *pValue);
+        // Simulate 'bsls::AtomicOperations::getInt64Acquire' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static int getIntAcquire(const AtomicTypes::Int *pValue);
+        // Simulate 'bsls::AtomicOperations::getIntAcquire' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void *getPtrAcquire(const AtomicTypes::Pointer *pValue);
+        // Simulate 'bsls::AtomicOperations::getPtrAcquire' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static unsigned int getUintAcquire(const AtomicTypes::Uint *pValue);
+        // Simulate 'bsls::AtomicOperations::getUintAcquire' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void initInt(AtomicTypes::Int *pValue,
+                        int               value);
+        // Simulate 'bsls::AtomicOperations::initInt' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void initInt64(AtomicTypes::Int64 *pValue,
+                          bsls::Types::Int64  value);
+        // Simulate 'bsls::AtomicOperations::initInt64' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void initPointer(AtomicTypes::Pointer *pValue,
+                            void                 *value);
+        // Simulate 'bsls::AtomicOperations::initPointer' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void initUint(AtomicTypes::Uint *pValue,
+                         unsigned int       value);
+        // Simulate 'bsls::AtomicOperations::initUint' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void setIntRelease(AtomicTypes::Int *pValue, int value);
+        // Simulate 'bsls::AtomicOperations::setIntRelease' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void setPtrRelease(AtomicTypes::Pointer *pValue, void *value);
+        // Simulate 'bsls::AtomicOperations::setPtrRelease' for the specified
+        // 'pValue' and 'value'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static bsls::Types::Int64 testAndSwapInt64AcqRel(
+                                                 AtomicTypes::Int64 *pValue,
+                                                 bsls::Types::Int64  oldValue,
+                                                 bsls::Types::Int64  newValue);
+        // Simulate 'bsls::AtomicOperations::testAndSwapInt64AcqRel' for the
+        // specified 'pValue', 'oldValue', and 'newValue'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+    static void *testAndSwapPtrAcqRel(AtomicTypes::Pointer *pValue,
+                                      void                 *oldValue,
+                                      void                 *newValue);
+        // Simulate 'bsls::AtomicOperations::testAndSwapInt64AcqRel' for the
+        // specified 'pValue', 'oldValue', and 'newValue'.  If
+        // 's_ignoreThreadId != bslmt::ThreadUtil::selfIdAdUint64()', invoke
+        // 'wait' before simulating the operation.
+
+                             // "wait" methods
+    static void disableWait();
+        // Disable the "wait" functionality.
+
+    static void wait();
+        // Block until two threads have called 'wait' on this object or
+        // 'disableWait' is invoked.  Then release the threads and reset.
+
+    static void waitForOther();
+        // Block until one thread has called 'wait' on this object or
+        // 'disableWait' is invoked.
+};
+
+                      // ------------------------------
+                      // struct BarrierAtomicOperations
+                      // ------------------------------
+
+bsls::AtomicOperations::AtomicTypes::Int *BarrierAtomicOperations::s_count_p
+                                                                           = 0;
+
+bsls::Types::Uint64 BarrierAtomicOperations::s_ignoreThreadId = 0;
+
+bsls::Types::Int64 BarrierAtomicOperations::addInt64NvAcqRel(
+                                                    AtomicTypes::Int64 *pValue,
+                                                    bsls::Types::Int64  value)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    return bsls::AtomicOperations::addInt64NvAcqRel(pValue, value);
+}
+
+bsls::Types::Int64 BarrierAtomicOperations::getInt64Acquire(
+                                              const AtomicTypes::Int64 *pValue)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    return bsls::AtomicOperations::getInt64Acquire(pValue);
+}
+
+int BarrierAtomicOperations::getIntAcquire(const AtomicTypes::Int *pValue)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    return bsls::AtomicOperations::getIntAcquire(pValue);
+}
+
+void *BarrierAtomicOperations::getPtrAcquire(
+                                            const AtomicTypes::Pointer *pValue)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    return bsls::AtomicOperations::getPtrAcquire(pValue);
+}
+
+unsigned int BarrierAtomicOperations::getUintAcquire(
+                                               const AtomicTypes::Uint *pValue)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    return bsls::AtomicOperations::getUintAcquire(pValue);
+}
+
+void BarrierAtomicOperations::initInt(AtomicTypes::Int *pValue, int value)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    bsls::AtomicOperations::initInt(pValue, value);
+}
+
+void BarrierAtomicOperations::initInt64(AtomicTypes::Int64 *pValue,
+                                        bsls::Types::Int64  value)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    bsls::AtomicOperations::initInt64(pValue, value);
+}
+
+void BarrierAtomicOperations::initPointer(AtomicTypes::Pointer *pValue,
+                                          void                 *value)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    bsls::AtomicOperations::initPointer(pValue, value);
+}
+
+void BarrierAtomicOperations::initUint(AtomicTypes::Uint *pValue,
+                                       unsigned int       value)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    bsls::AtomicOperations::initUint(pValue, value);
+}
+
+void BarrierAtomicOperations::setIntRelease(AtomicTypes::Int *pValue,
+                                            int               value)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    bsls::AtomicOperations::setIntRelease(pValue, value);
+}
+
+void BarrierAtomicOperations::setPtrRelease(AtomicTypes::Pointer *pValue,
+                                            void                 *value)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    bsls::AtomicOperations::setPtrRelease(pValue, value);
+}
+
+bsls::Types::Int64 BarrierAtomicOperations::testAndSwapInt64AcqRel(
+                                                  AtomicTypes::Int64 *pValue,
+                                                  bsls::Types::Int64  oldValue,
+                                                  bsls::Types::Int64  newValue)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    return bsls::AtomicOperations::testAndSwapInt64AcqRel(pValue,
+                                                          oldValue,
+                                                          newValue);
+}
+
+void *BarrierAtomicOperations::testAndSwapPtrAcqRel(
+                                                AtomicTypes::Pointer *pValue,
+                                                void                 *oldValue,
+                                                void                 *newValue)
+{
+    if (s_ignoreThreadId != bslmt::ThreadUtil::selfIdAsUint64()) {
+        wait();
+    }
+    return bsls::AtomicOperations::testAndSwapPtrAcqRel(pValue,
+                                                        oldValue,
+                                                        newValue);
+}
+
+                              // "wait" methods
+
+void BarrierAtomicOperations::disableWait()
+{
+    bsls::AtomicOperations::setIntRelease(s_count_p, 1000);
+}
+
+void BarrierAtomicOperations::wait()
+{
+    int count = bsls::AtomicOperations::addIntNvAcqRel(s_count_p, 1);
+    int need  = 1 == (count & 1) ? count + 1 : count;
+    while (1000 > count && need > count) {
+        bslmt::ThreadUtil::yield();
+        count = bsls::AtomicOperations::getIntAcquire(s_count_p);
+    }
+}
+
+void BarrierAtomicOperations::waitForOther()
+{
+    int count = bsls::AtomicOperations::getIntAcquire(s_count_p);
+    while (1000 > count && 1 != (count & 1)) {
+        bslmt::ThreadUtil::yield();
+        count = bsls::AtomicOperations::getIntAcquire(s_count_p);
+    }
+}
+
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -686,6 +968,27 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
     bslmt::ThreadUtil::join(watchdogHandle);
 }
 
+namespace Case13 {
+
+typedef bdlcc::SingleProducerQueueImpl<int,
+                                       BarrierAtomicOperations,
+                                       bslmt::Mutex,
+                                       bslmt::Condition> Obj;
+
+extern "C" void *tryPopFront(void *arg)
+{
+    Obj& mX = *static_cast<Obj *>(arg);
+
+    int value = 0;
+
+    ASSERT(e_SUCCESS == mX.tryPopFront(&value));
+    ASSERT(        3 == value);
+
+    return 0;
+}
+
+} // close namespace Case13
+
 // ============================================================================
 //               GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
 // ----------------------------------------------------------------------------
@@ -804,8 +1107,67 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 13: {
+        // --------------------------------------------------------------------
+        // 'numElements' IS NOT LOWER_BOUND DUE TO 'tryPopFront'
+        //   As per DRQS 143438145, 'numElements' return value was too low
+        //   by up to the number of 'tryPopFront' invocations about to fail.
+        //
+        // Concerns:
+        //: 1 'tryPopFront' does not cause 'numElements' to be a lower-bound.
+        //
+        // Plan:
+        //: 1 Using 'BarrierAtomicOperations', on an empty queue invoke
+        //:   'tryPopFront', catch the thread in 'tryPopFront' before it can
+        //:   replace the optimistically taken resource, invoke 'pushBack',
+        //:   verify '0 == 'numElements()', allow 'tryPopFront' to continue,
+        //:   verify the pushed element is returned.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: 'numElements' is not lower-bound due to 'tryPopFront'
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "'numElements' IS NOT LOWER_BOUND DUE TO 'tryPopFront'"
+                 << endl
+                 << "====================================================="
+                 << endl;
+        }
+
+        bsls::AtomicOperations::AtomicTypes::Int count;
+
+        bsls::AtomicOperations::initInt(&count, 0);
+
+        BarrierAtomicOperations::s_count_p        = &count;
+        BarrierAtomicOperations::s_ignoreThreadId =
+                                           bslmt::ThreadUtil::selfIdAsUint64();
+
+        Case13::Obj mX(8);  const Case13::Obj& X = mX;
+
+        bslmt::ThreadUtil::Handle handle;
+
+        bslmt::ThreadUtil::create(&handle, Case13::tryPopFront, &mX);
+
+        BarrierAtomicOperations::wait();  // disabled check
+        BarrierAtomicOperations::wait();  // opportunistic resource acquisition
+
+        BarrierAtomicOperations::waitForOther();
+
+        ASSERT(0 == X.numElements());
+
+        mX.pushBack(3);
+
+        ASSERT(0 == X.numElements());  // "surprise"
+
+        BarrierAtomicOperations::disableWait();
+
+        bslmt::ThreadUtil::join(handle);
+
+        ASSERT(0 == X.numElements());
+      } break;
       case 12: {
-        // ---------------------------------------------------------
+        // --------------------------------------------------------------------
         // Ordering Guarantee Test
         //   The queue should provide the minimal ordering guarantee for
         //   concurrent queues.  Specifically, for the set of elements enqueued
@@ -830,7 +1192,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CONCERN: ordering guarantee
-        // ---------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "Ordering Guarantee Test" << endl
@@ -840,7 +1202,7 @@ int main(int argc, char *argv[])
         orderingGuaranteeTest(1, 4);  // SPMC
       } break;
       case 11: {
-        // ---------------------------------------------------------
+        // --------------------------------------------------------------------
         // Template Requirements Test
         //   The queue should work for types that have no default
         //   constructor and a 1-arg copy constructor.
@@ -855,7 +1217,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CONCERN: template requirements
-        // ---------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "Template Requirements Test" << endl
@@ -2544,7 +2906,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

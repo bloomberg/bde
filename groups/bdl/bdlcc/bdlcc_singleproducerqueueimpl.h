@@ -923,18 +923,33 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::tryPopFront(
         return e_DISABLED;                                            // RETURN
     }
 
+    // optimistically attempt to acquire resource (representing an element)
+
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            -k_AVAILABLE_INC);
 
-    if (willHaveBlockedThread(state)) {
-        state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
-        if (canSupplyBlockedThread(state)) {
-            {
-                bslmt::LockGuard<MUTEX> guard(&d_readMutex);
+    while (willHaveBlockedThread(state)) {
+
+        // failed to acquire resource, must revert the change to 'd_state' or
+        // acquire the resource (due to actions of other threads)
+
+        const bsls::Types::Int64 expState = state;
+
+        state = ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
+                                                  state,
+                                                  state + k_AVAILABLE_INC);
+        if (expState == state) {
+            // reverted the change to 'd_state'
+
+            state += k_AVAILABLE_INC;
+            if (canSupplyBlockedThread(state)) {
+                {
+                    bslmt::LockGuard<MUTEX> guard(&d_readMutex);
+                }
+                d_readCondition.signal();
             }
-            d_readCondition.signal();
+            return e_EMPTY;                                           // RETURN
         }
-        return e_EMPTY;
     }
 
     popFrontRaw(value, isEmpty(state));
