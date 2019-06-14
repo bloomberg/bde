@@ -12,6 +12,8 @@ BSLS_IDENT_RCSID(bdlmt_signaler_cpp,"$Id$ $CSID$")
 // not have a shared pointer to the object called.
 //-----------------------------------------------------------------------------
 
+#include <bsl_algorithm.h>    // swap
+
 namespace BloombergLP {
 namespace bdlmt {
 
@@ -49,6 +51,7 @@ SignalerConnection::SignalerConnection(const SignalerConnection& original)
 : d_slotNodeBasePtr(original.d_slotNodeBasePtr)
 {
     // NOTHING
+    // NOTHING
 }
 
 SignalerConnection::SignalerConnection(
@@ -56,6 +59,7 @@ SignalerConnection::SignalerConnection(
 : d_slotNodeBasePtr(bslmf::MovableRefUtil::move(
                     bslmf::MovableRefUtil::access(original).d_slotNodeBasePtr))
 {
+    // NOTHING
 }
 
 // MANIPULATORS
@@ -213,6 +217,13 @@ SignalerConnection SignalerConnectionGuard::release() BSLS_KEYWORD_NOEXCEPT
     d_connection.swap(ret);
 
     return ret;
+}
+
+void SignalerConnectionGuard::swap(SignalerConnectionGuard& other)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    d_connection.swap(other.d_connection);
+    bsl::swap(d_waitOnDisconnect, other.d_waitOnDisconnect);
 }
 
 }  // close package namespace

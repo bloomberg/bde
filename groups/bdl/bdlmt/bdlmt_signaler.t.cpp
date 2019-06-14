@@ -65,7 +65,15 @@ using bsl::flush;
 // [16] SignalerConnectionGuard::isConnected()
 // [16] SignalerConnectionGuard::waitOnDisconnect()
 // [16] SignalerConnectionGuard::release()
-// [17] operator() -- 9 args with lvalues
+// [17] operator()(T1&);
+// [17] operator()(T1&, T2&);
+// [17] operator()(T1&, T2&, T3&);
+// [17] operator()(T1&, T2&, T3&, T4&);
+// [17] operator()(T1&, T2&, T3&, T4&, T5&);
+// [17] operator()(T1&, T2&, T3&, T4&, T5&, T6&);
+// [17] operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&);
+// [17] operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&);
+// [17] operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&, T9&);
 // [18] Usage example
 // ----------------------------------------------------------------------------
 
@@ -504,6 +512,9 @@ struct ThrowOnCopy {
                                 // Usage
                                 // -----
 
+//
+///Usage
+///-----
 // Suppose we want to implement a GUI button class that allows users to
 // keep track of its 'press' events.
 //
@@ -518,7 +529,8 @@ struct ThrowOnCopy {
       public:
         // TYPES
         typedef bsl::function<void(int)> OnPressSlotType;
-            // Slot arguments are the 'x' and 'y' cursor coordinates.
+            // Slot argument is the number of times the button has been
+            // pressed.
 
       private:
         // PRIVATE DATA
@@ -529,7 +541,7 @@ struct ThrowOnCopy {
       public:
         // CREATORS
         Button();
-            // Default construct a 'Button'.
+            // Construct a 'Button' object.
 
         // MANIPULATORS
         bdlmt::SignalerConnection onPressConnect(const OnPressSlotType& slot);
@@ -541,13 +553,13 @@ struct ThrowOnCopy {
 //..
 // Then, we define its methods:
 //..
-// CREATORS
+    // CREATORS
     Button::Button()
     : d_numPresses(0)
     {
     }
 
-// MANIPULATORS
+    // MANIPULATORS
     bdlmt::SignalerConnection Button::onPressConnect(
                                                    const OnPressSlotType& slot)
     {
@@ -702,14 +714,7 @@ static void callOperator()
     //      - Slots were invoked in the order defined by their respective
     //        groups, and (within groups) by the connection order.
     //
-    //   2. Create a signaler. Connect slots #1, #2 and #3, given that slot #2,
-    //      when invoked, "disables" itself and recursively calls the signaler.
-    //      Call the signaler. Check that the slots invocation order is the
-    //      following: #1, #2, #1, #3, #3.
-    //
-    //      NOTE: THIS TEST IS DISABLED
-    //
-    //   3. Create a signaler. Connect slots #1, #2, #3 and #4, given that slot
+    //   2. Create a signaler. Connect slots #1, #2, #3 and #4, given that slot
     //      #3, when invoked, throws an exception. Call the signaler. Check
     //      that:
     //      - The exception thrown by slot #3 is propagated to the signaler's
@@ -717,7 +722,7 @@ static void callOperator()
     //      - The slot invocation sequence is interrupted after the call to
     //        slot #3, i.e. only slots #1, #2 and #3 are invoked.
     //
-    //   4. Check that the call operator correctly forwards lvalue references.
+    //   3. Check that the call operator correctly forwards lvalue references.
     //
     // Testing:
     //   bdlmt::Signaler::operator()()
@@ -807,46 +812,7 @@ static void callOperator()
                              "1#1:X_1#2:X_1#3:X_");
     }
 
-#if 0
-    NOTE: This test is disabled. Currently, recursively calling a signaler is
-          undefined behavior.
-
-    // 2. recursively call the signaler from a slot
-
-    {
-        bsl::ostringstream      out(&alloc);
-        bdlmt::Signaler<void()> sig(&alloc);
-        bsls::AtomicBool slot2Enabled(true);
-
-        // slot #1, prints "1_"
-
-        sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
-                                                bsl::ref(out),
-                                                "1_"));
-
-        // slot #2, "disables" itself and calls the signaler
-
-        sig.connect(bdlf::BindUtil::bindR<void>(CondCall(),
-                                                &sig,
-                                                &slot2Enabled));
-
-        // slot #3, prints "3_"
-
-        sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
-                                                bsl::ref(out),
-                                                "3_"));
-
-        // invoke the signaler
-
-        sig();
-
-        // check slot invocation order
-
-        ASSERT_EQ(out.str(), "1_1_3_3_");
-    }
-#endif
-
-    // 3. slot throws an exception
+    // 2. slot throws an exception
     {
         bsl::ostringstream      out(&alloc);
         bdlmt::Signaler<void()> sig(&alloc);
@@ -878,7 +844,7 @@ static void callOperator()
         ASSERT_EQ(out.str(), "1_2_");
     }
 
-    // 4. use lvalue references in signaler's call signature
+    // 3. use lvalue references in signaler's call signature
     {
         bdlmt::Signaler<void(int&, int&)> sig(&alloc);
 
@@ -2324,8 +2290,8 @@ static void test15_connection_swap()
 
     // 2. swap two SignalerConnectionGuard's
     {
-        bdlmt::SignalerConnectionGuard con1(sig.connect(u::NoOp()));
-        bdlmt::SignalerConnectionGuard con2(sig.connect(u::NoOp()));
+        bdlmt::SignalerConnectionGuard con1(sig.connect(u::NoOp()), false);
+        bdlmt::SignalerConnectionGuard con2(sig.connect(u::NoOp()), true);
         bdlmt::SignalerConnection      con3(con1.connection());
         bdlmt::SignalerConnection      con4(con2.connection());
 
@@ -2339,6 +2305,9 @@ static void test15_connection_swap()
         ASSERT(con3 != con2.connection());
         ASSERT(con4 != con1.connection());
 
+        ASSERT(!con1.waitOnDisconnect());
+        ASSERT( con2.waitOnDisconnect());
+
         // swap
         con1.swap(con2);
 
@@ -2351,6 +2320,9 @@ static void test15_connection_swap()
         ASSERT(con2.connection() != con4);
         ASSERT(con3 == con2.connection());
         ASSERT(con4 == con1.connection());
+
+        ASSERT( con1.waitOnDisconnect());
+        ASSERT(!con2.waitOnDisconnect());
 
         // check
         ASSERT_EQ(con1.connection().isConnected() &&
@@ -3032,32 +3004,15 @@ struct Functor {
     }
 };
 
-void test_lvalues()
-    // ------------------------------------------------------------------------
-    // LVALUES IN ARG LIST
-    //
-    // Concerns:
-    //   Ensure lvalues are communicated properly.
-    //
-    // Plan:
-    //   1. Start with a list of 'double's.
-    //
-    //   2. Connect slots calling 'Functor' objects with each of the list
-    //      of data objects.
-    //
-    //   3. Call the slot, passing two 'double's by lvalue reference.
-    //
-    //   4. Observe that the lvalue references were appropriately updated.
-    //
-    // Testing:
-    //   bdlmt::SignalerConnection::isConnected()
-    // ------------------------------------------------------------------------
+void test_lvaluesComplex()
 {
     bslma::TestAllocator                      alloc;
     const double data[] = { 0.1, -78.2, 31e5, -43.2e2, 0.99, 43.4 };
     enum { k_NUM_DATA = sizeof data / sizeof *data };
 
-    if (verbose) cout << "Two arg case:\n";
+    if (verbose) cout << "Complex multi-args passed by lvalues cases\n";
+
+    if (veryVerbose) cout << "Two arg case:\n";
     {
         bdlmt::Signaler<void(double&, double&)> sig(&alloc);
 
@@ -3081,7 +3036,7 @@ void test_lvalues()
         ASSERT(sumSquaresA == sumSquaresB);
     }
 
-    if (verbose) cout << "Nine arg case:\n";
+    if (veryVerbose) cout << "Nine arg case:\n";
     {
         bdlmt::Signaler<void(double,
                              double,
@@ -3132,6 +3087,306 @@ void test_lvalues()
         ASSERTV(sumSquaredB, sumSquaredA, sumSquaredB == sumSquaredA);
         ASSERTV(sumCubedB, sumCubedA,     sumCubedB   == sumCubedA);
     }
+}
+
+struct MultiFunctor {
+    int operator()(int& a1)                                            // LVALUE
+    {
+        ASSERT(1 == a1);
+
+        return a1 *= 2;
+    }
+
+    int operator()(int& a1, int& a2)                                   // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        a1 *= 2;
+        a2 *= 2;
+
+        return a1;
+    }
+
+    int operator()(int& a1, int& a2, int& a3)                          // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        ASSERT(3 == a3);
+        a1 *= 2;
+        a2 *= 2;
+        a3 *= 2;
+
+        return a1;
+    }
+
+    void operator()(int& a1, int& a2, int& a3, int& a4)                // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        ASSERT(3 == a3);
+        ASSERT(4 == a4);
+        a1 *= 2;
+        a2 *= 2;
+        a3 *= 2;
+        a4 *= 2;
+    }
+
+    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5)     // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        ASSERT(3 == a3);
+        ASSERT(4 == a4);
+        ASSERT(5 == a5);
+        a1 *= 2;
+        a2 *= 2;
+        a3 *= 2;
+        a4 *= 2;
+        a5 *= 2;
+
+        return a1;
+    }
+
+    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5,
+                                                             int& a6) // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        ASSERT(3 == a3);
+        ASSERT(4 == a4);
+        ASSERT(5 == a5);
+        ASSERT(6 == a6);
+        a1 *= 2;
+        a2 *= 2;
+        a3 *= 2;
+        a4 *= 2;
+        a5 *= 2;
+        a6 *= 2;
+
+        return a1;
+    }
+
+    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
+                                                              int& a7) // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        ASSERT(3 == a3);
+        ASSERT(4 == a4);
+        ASSERT(5 == a5);
+        ASSERT(6 == a6);
+        ASSERT(7 == a7);
+        a1 *= 2;
+        a2 *= 2;
+        a3 *= 2;
+        a4 *= 2;
+        a5 *= 2;
+        a6 *= 2;
+        a7 *= 2;
+
+        return a1;
+    }
+
+    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
+                                                    int& a7, int& a8) // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        ASSERT(3 == a3);
+        ASSERT(4 == a4);
+        ASSERT(5 == a5);
+        ASSERT(6 == a6);
+        ASSERT(7 == a7);
+        ASSERT(8 == a8);
+        a1 *= 2;
+        a2 *= 2;
+        a3 *= 2;
+        a4 *= 2;
+        a5 *= 2;
+        a6 *= 2;
+        a7 *= 2;
+        a8 *= 2;
+
+        return a1;
+    }
+
+    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
+                                           int& a7, int& a8, int& a9) // LVALUE
+    {
+        ASSERT(1 == a1);
+        ASSERT(2 == a2);
+        ASSERT(3 == a3);
+        ASSERT(4 == a4);
+        ASSERT(5 == a5);
+        ASSERT(6 == a6);
+        ASSERT(7 == a7);
+        ASSERT(8 == a8);
+        ASSERT(9 == a9);
+        a1 *= 2;
+        a2 *= 2;
+        a3 *= 2;
+        a4 *= 2;
+        a5 *= 2;
+        a6 *= 2;
+        a7 *= 2;
+        a8 *= 2;
+        a9 *= 2;
+
+        return a1;
+    }
+};
+
+int x[10];
+
+void resetX()
+{
+    for (int ii = 0; ii < 10; ++ii) {
+        x[ii] = ii;
+    }
+}
+
+void checkX(int maxIndex)
+{
+    for (int ii = 0; ii < 10; ++ii) {
+        if (ii <= maxIndex) {
+            ASSERTV(ii, x[ii], maxIndex, 2 * ii == x[ii]);
+        }
+        else {
+            ASSERTV(ii, x[ii], maxIndex,     ii == x[ii]);
+        }
+    }
+}
+
+void test_lvaluesSimple()
+{
+    bslma::TestAllocator                      alloc;
+
+    if (verbose) cout << "Simple multi-arg lvalues test\n";
+
+    if (veryVerbose) cout << "1 arg\n";
+    {
+        bdlmt::Signaler<void(int&)> sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1]);
+        checkX(1);
+    }
+
+    if (veryVerbose) cout << "2 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&)> sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2]);
+        checkX(2);
+    }
+
+    if (veryVerbose) cout << "3 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&, int&)> sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2], x[3]);
+        checkX(3);
+    }
+
+    if (veryVerbose) cout << "4 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&, int&, int&)> sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2], x[3], x[4]);
+        checkX(4);
+    }
+
+    if (veryVerbose) cout << "5 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&, int&, int&, int&)> sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2], x[3], x[4], x[5]);
+        checkX(5);
+    }
+
+    if (veryVerbose) cout << "6 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&, int&, int&, int&, int&)> sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2], x[3], x[4], x[5], x[6]);
+        checkX(6);
+    }
+
+    if (veryVerbose) cout << "7 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&, int&, int&, int&, int&, int&)>
+                                                                   sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2], x[3], x[4], x[5], x[6], x[7]);
+        checkX(7);
+    }
+
+    if (veryVerbose) cout << "8 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&, int&, int&, int&, int&, int&, int&)>
+                                                                   sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8]);
+        checkX(8);
+    }
+
+    if (veryVerbose) cout << "9 args\n";
+    {
+        bdlmt::Signaler<void(int&, int&, int&, int&, int&, int&, int&, int&,
+                                                            int&)> sig(&alloc);
+        sig.connect(MultiFunctor());
+
+        resetX();
+        sig(x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9]);
+        checkX(9);
+    }
+}        
+
+void test_lvalues()
+    // ------------------------------------------------------------------------
+    // LVALUES IN ARG LIST
+    //
+    // Concerns:
+    //   Ensure lvalues are communicated properly.
+    //
+    // Plan:
+    //: 1 'test_lvaluesComplex': a fairly complex test passing 9 arguments of
+    //:   a variety of types.
+    //:
+    //: 2 'test_lvaluesSimple': test emitting signals passing a range of 1-9
+    //:   lvalue arguments, checking tha they were passed correctly to slots,
+    //:   then having the slots modify them and having the caller check that
+    //:   the args we correctly modified by the called slot.
+    //
+    // Testing:
+    //   operator()(T1&);
+    //   operator()(T1&, T2&);
+    //   operator()(T1&, T2&, T3&);
+    //   operator()(T1&, T2&, T3&, T4&);
+    //   operator()(T1&, T2&, T3&, T4&, T5&);
+    //   operator()(T1&, T2&, T3&, T4&, T5&, T6&);
+    //   operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&);
+    //   operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&);
+    //   operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&, T9&);
+    // ------------------------------------------------------------------------
+{
+    test_lvaluesComplex();
+    test_lvaluesSimple();
 }
 
 }  // close namespace test17_signaler
