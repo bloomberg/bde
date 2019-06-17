@@ -7,21 +7,21 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bsl+stdhdrs
+//@SEE_ALSO: package bos+stdhdrs
 //
 //@DESCRIPTION: Provide functionality of the corresponding C++ standard
 // header.  This file includes the compiler provided native standard header.
 // In addition, in 'bde-stl' mode (used by Bloomberg managed code, see
-// 'bsl+stdhdrs.txt' for more information) include the corresponding header in
-// 'bsl+bslhdrs' as well as 'bsl_stdhdrs_prologue.h' and
-// 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
+// 'bos+stdhdrs.txt' for more information) include the corresponding header in
+// 'bsl+bslhdrs' as well as 'bos_stdhdrs_prologue.h' and
+// 'bos_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
 #include <bsls_compilerfeatures.h>
 
 #ifndef BSL_OVERRIDES_STD
 
-# include <bsl_stdhdrs_incpaths.h>
+# include <bos_stdhdrs_incpaths.h>
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #   include_next <forward_list>
@@ -31,16 +31,16 @@ BSLS_IDENT("$Id: $")
 
 #else // defined(BSL_OVERRIDES_STD)
 
-# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
-#   include <bsl_stdhdrs_prologue.h>
+# ifndef BOS_STDHDRS_PROLOGUE_IN_EFFECT
+#   include <bos_stdhdrs_prologue.h>
 # endif
 
-# ifndef BSL_STDHDRS_RUN_EPILOGUE
-# define BSL_STDHDRS_RUN_EPILOGUE
-# define BSL_STDHDRS_EPILOGUE_RUN_BY_forward_list
+# ifndef BOS_STDHDRS_RUN_EPILOGUE
+# define BOS_STDHDRS_RUN_EPILOGUE
+# define BOS_STDHDRS_EPILOGUE_RUN_BY_forward_list
 # endif
 
-# include <bsl_stdhdrs_incpaths.h>
+# include <bos_stdhdrs_incpaths.h>
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #   include_next <forward_list>
@@ -50,9 +50,9 @@ BSLS_IDENT("$Id: $")
 
 # include <bsl_forward_list.h>
 
-# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_forward_list
-# undef BSL_STDHDRS_EPILOGUE_RUN_BY_forward_list
-# include <bsl_stdhdrs_epilogue.h>
+# ifdef BOS_STDHDRS_EPILOGUE_RUN_BY_forward_list
+# undef BOS_STDHDRS_EPILOGUE_RUN_BY_forward_list
+# include <bos_stdhdrs_epilogue.h>
 # endif
 
 #endif  // BSL_OVERRIDES_STD
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 #endif  // INCLUDED_NATIVE_FORWARD_LIST
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
