@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a single class template,
 // 'bsl::boyer_moore_horspool_searcher', that is compliant with section
-// '[func.search.bmh]' of the C++ Standard.  This class has several template
-// parameters:
+// '[func.search.bmh]' of the C++ Standard (C++17 and later).  This class has
+// several template parameters:
 //
 //: 'RANDOM_ITR_NEEDLE':
 //:    The type used to specify (on construction) the range of values
@@ -44,11 +44,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Algorithm
 ///---------
-// The 'bsl::default_searcher' class an implementation of the well-known Boyer,
-// Moore, Horspool Algorithm for string matching (see
+// The 'bsl::default_searcher' class provides an implementation of the
+// well-known Boyer, Moore, Horspool Algorithm for string matching (see
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm).
-// offers complexity of 'O(N)' for random text where 'N' is the length of the
-// haystack.
+// It offers complexity of 'O(N)' for a haystack of length 'N' in the typical
+// case.
 //
 ///Iterator Requirements
 ///---------------------
@@ -60,12 +60,15 @@ BSLS_IDENT("$Id: $")
 //: o These iterators can be constant.
 //: o When dereferenced, both iterator types must refer to the same value type.
 //
-// Either of the iterator types are allowed to throw exceptions.
+// The operations of either of the iterator types are allowed to throw
+// exceptions.
 //
 ///Requirements for 'HASH' and 'EQUAL'
 ///-----------------------------------
-// The comparer class, 'EQUAL', must meet the requirements of *BinaryPredicate*:
-//: o The class defines an 'operator()' method having the signature:
+// The comparer class, 'EQUAL', must meet the requirements of
+// *BinaryPredicate*:
+//: o The class defines an 'operator()' method that, given an
+//:   *RandomAccessIterator', 'iterator', can be invoked as
 //:   'operator()(*iterator, *iterator)'.
 //: o The return value must be contextually convertible to 'bool'.
 //: o The supplied iterators can be constant.
@@ -87,9 +90,9 @@ BSLS_IDENT("$Id: $")
 ///----------------------------------------
 // This implementation handles needle metadata using a fixed size array when
 // the 'value_type' is 'char'.  For needles of typical size, this choice
-// results in a larger searcher object footprint a larger footprint than it
-// would have if some dynamically sized container were used; however, the
-// faster access during searches warrants the tradeoff.
+// results in a larger searcher object footprint than it would have if some
+// dynamically sized container were used; however, the faster access during
+// searches warrants the tradeoff.
 //
 ///Usage
 ///-----
@@ -103,8 +106,8 @@ BSLS_IDENT("$Id: $")
 // suppose we would like to know the first occurrence of the word "United" in
 // the Declaration of Independence (of the United States):
 //
-// First, we obtain the text of document and word of interest as sequences of
-// 'char' values.
+// First, we obtain the text of the document and word of interest as sequences
+// of 'char' values.
 //..
 //  const char document[] =
 //  " IN CONGRESS, July 4, 1776.\n"                // 28
@@ -175,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Now, specify 'bsl::boyer_moore_horspool_searcher' type for and create a
+// Now, specify a 'bsl::boyer_moore_horspool_searcher' type for, and create a
 // searcher object to search for 'word':
 //..
 //  bsl::boyer_moore_horspool_searcher<const char *,
@@ -190,8 +193,8 @@ BSLS_IDENT("$Id: $")
 // If stateful functors are required such objects can be passed in the optional
 // constructor arguments.
 //
-// Now, we invoke our new functor, specifying that the same document searched
-// in {Example 1}:
+// Now, we invoke our new functor, specifying the same document searched in
+// {Example 1}:
 //..
 //  bsl::pair<const char *, const char *> resultInsensitive =
 //                                                  searchForUnitedInsensitive(
@@ -230,10 +233,10 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose one has data from an instrument that reports 'float' values and that
 // inserts the sequence '{ FLT_MAX, FLT_MIN, FLT_MAX }' as a marker for the
-// start and end of a test run.  We can assume the probably of the instrument
-// reporting this sequence as readings is negligible and that data reported
-// outside of the test runs is random noise.  Here is how we can search for the
-// first test run data in the data sequence.
+// start and end of a test run.  We can assume the probability of the
+// instrument reporting this sequence of readings is negligible and that data
+// reported outside of the test runs is random noise.  Here is how we can
+// search for the first test run data in the data sequence.
 //
 // First, we create a representation of the sequence that denotes the limit of
 // a test run.
@@ -301,42 +304,47 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslstl {
 
-                // ============================================
-                // class boyer_moore_horspool_searcher_CharImpl
-                // ============================================
+                // ===========================================
+                // class boyer_moore_horspool_searcher_CharImp
+                // ===========================================
 
 template <class RANDOM_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
-class boyer_moore_horspool_searcher_CharImpl {
+class boyer_moore_horspool_searcher_CharImp {
     // This class template implements the same interfaces as the
-    // 'boyer_moore_horspool_searcher_GeneralImpl'; however, the implementation
+    // 'boyer_moore_horspool_searcher_GeneralImp'; however, the implementation
     // is specialized for a 'value_type' of 'char'.  Notably, needle metadata
     // is stored/accessed from a fixed size array, not a dynamically-sized
     // container.
 
-    // PUBLIC TYPES
   public:
+    // TYPES
     typedef typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::value_type
                                                               value_type;
+        // the type of the values that can be obtained by dereferencing a
+        // 'RANDOM_ITR_NEEDLE'
 
     typedef typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::difference_type
                                                               difference_type;
+        // a signed type that can describe the distance between
+        // 'RANDOM_ITR_NEEDLE' iterators
+
   private:
     // DATA
     native_std::size_t d_needleLength;
-    difference_type    d_table[UCHAR_MAX + 1];
+    difference_type    d_table[UCHAR_MAX + 1];  // skip on mismatch table
     ALLOCATOR          d_allocator;
 
   public:
     // CREATORS
-    boyer_moore_horspool_searcher_CharImpl(RANDOM_ITR_NEEDLE needleFirst,
+    boyer_moore_horspool_searcher_CharImp(RANDOM_ITR_NEEDLE needleFirst,
                                            RANDOM_ITR_NEEDLE needleLast,
                                            HASH              hash,
                                            EQUAL             equal,
                                            const ALLOCATOR&  basicAllocator);
-        // Create a 'boyer_moore_horspool_searcher_CharImpl' object for the
+        // Create a 'boyer_moore_horspool_searcher_CharImp' object for the
         // sequence of 'char' values in the specified range
         // '[needleFirst, needlelast)'.  This implementation is invoked when
         // the specified 'hash' is 'bsl::hash<char>' and the specified 'equal'
@@ -351,8 +359,8 @@ class boyer_moore_horspool_searcher_CharImpl {
     // ACCESSORS
     difference_type badCharacterSkip(const value_type& value) const;
         // Return the number of positions to advance the search in the haystack
-        // when the specified 'value' is found in the rightmost position of
-        // the current (unsuccessful) match attempt.
+        // when the specified 'value' is found in the rightmost position of the
+        // current (unsuccessful) match attempt.
 
     HASH hash() const;
         // Return the hashing functor supplied on construction.
@@ -364,17 +372,17 @@ class boyer_moore_horspool_searcher_CharImpl {
         // Return the allocator supplied on construction.
 };
 
-                // ===============================================
-                // class boyer_moore_horspool_searcher_GeneralImpl
-                // ===============================================
+                // ==============================================
+                // class boyer_moore_horspool_searcher_GeneralImp
+                // ==============================================
 
 template <class RANDOM_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
-class boyer_moore_horspool_searcher_GeneralImpl {
+class boyer_moore_horspool_searcher_GeneralImp {
     // This class template implements the same interfaces as the
-    // 'boyer_moore_horspool_searcher_CharImpl' for arbitrary 'value_type'.
+    // 'boyer_moore_horspool_searcher_CharImp' for arbitrary 'value_type'.
 
     // PUBLIC TYPES
   public:
@@ -396,16 +404,13 @@ class boyer_moore_horspool_searcher_GeneralImpl {
 
   public:
     // CREATORS
-    boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                              HASH,
-                                              EQUAL,
-                                              ALLOCATOR>(
+    boyer_moore_horspool_searcher_GeneralImp(
                                              RANDOM_ITR_NEEDLE needleFirst,
                                              RANDOM_ITR_NEEDLE needleLast,
                                              HASH              hash,
                                              EQUAL             equal,
                                              const ALLOCATOR&  basicAllocator);
-        // Create a 'boyer_moore_horspool_searcher_CharImpl' object for the
+        // Create a 'boyer_moore_horspool_searcher_CharImp' object for the
         // sequence of 'value_type' values in the specified range
         // '[needleFirst, needlelast)'.  The specified 'hash' and 'equal'
         // functors are used to store/access metadata associated with the
@@ -416,8 +421,8 @@ class boyer_moore_horspool_searcher_GeneralImpl {
     // ACCESSORS
     difference_type badCharacterSkip(const value_type& value) const;
         // Return the number of positions to advance the search in the haystack
-        // when the specified 'value' is found in the rightmost position of
-        // the current (unsuccessful) match attempt.
+        // when the specified 'value' is found in the rightmost position of the
+        // current (unsuccessful) match attempt.
 
     HASH hash() const;
         // Return the hashing functor supplied on construction.
@@ -453,54 +458,63 @@ class boyer_moore_horspool_searcher {
     // uses the Boyer, Moore, Horsepool Algorithm.  Several non-standard
     // accessors are also provided.
 
-    // PUBLIC TYPES
   public:
+    // TYPES
     typedef typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::value_type
                                                               value_type;
+        // the type of the values that can be obtained by dereferencing a
+        // 'RANDOM_ITR_NEEDLE'
 
-    // PRIVATE TYPES
   private:
+    // PRIVATE TYPES
     typedef typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::difference_type
                                                               difference_type;
+        // a signed type that can describe the distance between
+        // 'RANDOM_ITR_NEEDLE' iterators
 
     typedef bsl::hash<
                   typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::value_type>
                                                                    DefaultHash;
+        // the default type for the 'HASH' optional template parameter
     typedef bsl::equal_to<
                   typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::value_type>
                                                                   DefaultEqual;
+        // the default type for the 'EQUAL' optional template parameter
+
     typedef bsl::allocator<bsl::pair<
         const typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::value_type,
               typename bsl::iterator_traits<RANDOM_ITR_NEEDLE>::difference_type
                                     >
                           >                                   DefaultAllocator;
+        // the default type for the 'ALLOCATOR' optional template parameter
+
     enum {
-        k_CanOptimizedForChar = (
+        k_CAN_OPTIMIZE_FOR_CHAR = (
                   bsl::is_same<value_type, char>        ::value
                && bsl::is_same<HASH,       DefaultHash >::value
                && bsl::is_same<EQUAL,      DefaultEqual>::value)
     };
 
     typedef typename bsl::conditional<
-             k_CanOptimizedForChar,
+             k_CAN_OPTIMIZE_FOR_CHAR,
 
              BloombergLP::bslstl::
-             boyer_moore_horspool_searcher_CharImpl<RANDOM_ITR_NEEDLE,
-                                                    HASH,
-                                                    EQUAL,
-                                                    ALLOCATOR>,
+             boyer_moore_horspool_searcher_CharImp<RANDOM_ITR_NEEDLE,
+                                                   HASH,
+                                                   EQUAL,
+                                                   ALLOCATOR>,
              BloombergLP::bslstl::
-             boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                                       HASH,
-                                                       EQUAL,
-                                                       ALLOCATOR> >::type Impl;
+             boyer_moore_horspool_searcher_GeneralImp<RANDOM_ITR_NEEDLE,
+                                                      HASH,
+                                                      EQUAL,
+                                                      ALLOCATOR> >::type Imp;
 
     // DATA
-    RANDOM_ITR_NEEDLE d_needleFirst;
-    RANDOM_ITR_NEEDLE d_needleLast;
-    difference_type   d_needleLength;
+    RANDOM_ITR_NEEDLE d_needleFirst;   // start  of needle specified by CTOR
+    RANDOM_ITR_NEEDLE d_needleLast;    // end    of needle specified by CTOR
+    difference_type   d_needleLength;  // length of needle specified by CTOR
 
-    Impl              d_impl;
+    Imp               d_imp;  // 'char'-optimized or general implementation
 
   public:
     // CREATORS
@@ -554,16 +568,17 @@ class boyer_moore_horspool_searcher {
         // first sequence of 'value_type' values specified on construction.
         // Return the range where those values are found, or the range
         // '[haystackLast, haystackLast)' if that sequence is not found.  The
-        // search is performed an implementation of the Boyer Moore Horspool
-        // algorithm and has a complexity of O(N) for random text.  Values of
-        // the "needle" sequence and the "haystack" sequence are compared using
-        // the equality comparison functor specified on construction.  The
-        // behavior is undefined unless 'haystackFirst' can be advanced to
-        // equal 'haystackLast'.  Note that if the "needle" sequence is empty,
-        // the range '[haystackFirst, haystackFirst)' is returned.  Also note
-        // that if the "needle" sequence is longer than the "haystack" sequence
-        // -- thus, impossible for the "needle" to be found in the "haystack"
-        // -- the range '[haystackLast, haystackLast)' is returned.
+        // search is performed using an implementation of the Boyer Moore
+        // Horspool algorithm and has a complexity of O(N) for random text.
+        // Values of the "needle" sequence and the "haystack" sequence are
+        // compared using the equality comparison functor specified on
+        // construction.  The behavior is undefined unless 'haystackFirst' can
+        // be advanced to equal 'haystackLast'.  Note that if the "needle"
+        // sequence is empty, the range '[haystackFirst, haystackFirst)' is
+        // returned.  Also note that if the "needle" sequence is longer than
+        // the "haystack" sequence -- thus, impossible for the "needle" to be
+        // found in the "haystack" -- the range '[haystackLast, haystackLast)'
+        // is returned.
 
                         // Non-Standard Accessors
 
@@ -589,15 +604,15 @@ class boyer_moore_horspool_searcher {
 }  // close namespace bsl
 
 // ----------------------------------------------------------------------------
-//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ----------------------------------------------------------------------------
 
 namespace BloombergLP {
 namespace bslstl {
 
-                // --------------------------------------------
-                // class boyer_moore_horspool_searcher_CharImpl
-                // --------------------------------------------
+                // -------------------------------------------
+                // class boyer_moore_horspool_searcher_CharImp
+                // -------------------------------------------
 
 // CREATORS
 template <class RANDOM_ITR_NEEDLE,
@@ -605,24 +620,25 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-boyer_moore_horspool_searcher_CharImpl<RANDOM_ITR_NEEDLE,
-                                       HASH,
-                                       EQUAL,
-                                       ALLOCATOR>::
-boyer_moore_horspool_searcher_CharImpl(RANDOM_ITR_NEEDLE needleFirst,
-                                       RANDOM_ITR_NEEDLE needleLast,
-                                       HASH              ,
-                                       EQUAL             ,
-                                       const ALLOCATOR&  basicAllocator)
+boyer_moore_horspool_searcher_CharImp<RANDOM_ITR_NEEDLE,
+                                      HASH,
+                                      EQUAL,
+                                      ALLOCATOR>::
+boyer_moore_horspool_searcher_CharImp(RANDOM_ITR_NEEDLE needleFirst,
+                                      RANDOM_ITR_NEEDLE needleLast,
+                                      HASH              ,
+                                      EQUAL             ,
+                                      const ALLOCATOR&  basicAllocator)
 : d_needleLength(needleLast - needleFirst)
 , d_allocator(basicAllocator)
 {
     BSLS_ASSERT(needleFirst <= needleLast);
 
-    for (int i = 0; i < UCHAR_MAX; ++i) {
+    for (int i = 0; i < UCHAR_MAX + 1; ++i) {
         d_table[i] = d_needleLength;
     }
 
+#if 1
     if (0 < d_needleLength) {
         for (RANDOM_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast - 1;
@@ -633,6 +649,22 @@ boyer_moore_horspool_searcher_CharImpl(RANDOM_ITR_NEEDLE needleFirst,
                                                      - (current - needleFirst);
         }
     }
+#else
+    if (0 < d_needleLength) {
+        for (RANDOM_ITR_NEEDLE current  = needleFirst,
+                               last     = needleLast;
+                               last    != current; ++current) {
+            const unsigned char   characterAtNeedleIndex = *current;
+            const difference_type needleIndex            = current
+                                                         - needleFirst;
+            const difference_type numCharactersToSkip    = d_needleLength
+                                                         - 1
+                                                         - needleIndex;
+
+            d_table[characterAtNeedleIndex] = numCharactersToSkip;
+        }
+    }
+#endif
 }
 
 // ACCESSORS
@@ -642,14 +674,14 @@ template <class RANDOM_ITR_NEEDLE,
           class ALLOCATOR>
 inline
 typename
-boyer_moore_horspool_searcher_CharImpl<RANDOM_ITR_NEEDLE,
-                                       HASH,
-                                       EQUAL,
-                                       ALLOCATOR>::difference_type
-boyer_moore_horspool_searcher_CharImpl<RANDOM_ITR_NEEDLE,
-                                       HASH,
-                                       EQUAL,
-                                       ALLOCATOR>::badCharacterSkip(
+boyer_moore_horspool_searcher_CharImp<RANDOM_ITR_NEEDLE,
+                                      HASH,
+                                      EQUAL,
+                                      ALLOCATOR>::difference_type
+boyer_moore_horspool_searcher_CharImp<RANDOM_ITR_NEEDLE,
+                                      HASH,
+                                      EQUAL,
+                                      ALLOCATOR>::badCharacterSkip(
                                                        const value_type& value)
                                                                           const
 {
@@ -661,10 +693,10 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-HASH boyer_moore_horspool_searcher_CharImpl<RANDOM_ITR_NEEDLE,
-                                               HASH,
-                                               EQUAL,
-                                               ALLOCATOR>::hash() const
+HASH boyer_moore_horspool_searcher_CharImp<RANDOM_ITR_NEEDLE,
+                                           HASH,
+                                           EQUAL,
+                                           ALLOCATOR>::hash() const
 {
     return HASH();
 }
@@ -674,10 +706,10 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-EQUAL boyer_moore_horspool_searcher_CharImpl<RANDOM_ITR_NEEDLE,
-                                             HASH,
-                                             EQUAL,
-                                             ALLOCATOR>::equal() const
+EQUAL boyer_moore_horspool_searcher_CharImp<RANDOM_ITR_NEEDLE,
+                                            HASH,
+                                            EQUAL,
+                                            ALLOCATOR>::equal() const
 {
     return EQUAL();
 }
@@ -687,17 +719,17 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-ALLOCATOR boyer_moore_horspool_searcher_CharImpl<RANDOM_ITR_NEEDLE,
-                                                 HASH,
-                                                 EQUAL,
-                                                 ALLOCATOR>::allocator() const
+ALLOCATOR boyer_moore_horspool_searcher_CharImp<RANDOM_ITR_NEEDLE,
+                                                HASH,
+                                                EQUAL,
+                                                ALLOCATOR>::allocator() const
 {
     return d_allocator;
 }
 
-                // -----------------------------------------------
-                // class boyer_moore_horspool_searcher_GeneralImpl
-                // -----------------------------------------------
+                // ----------------------------------------------
+                // class boyer_moore_horspool_searcher_GeneralImp
+                // ----------------------------------------------
 
 // CREATORS
 template <class RANDOM_ITR_NEEDLE,
@@ -705,15 +737,15 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                          HASH,
-                                          EQUAL,
-                                          ALLOCATOR>::
-boyer_moore_horspool_searcher_GeneralImpl(RANDOM_ITR_NEEDLE needleFirst,
-                                          RANDOM_ITR_NEEDLE needleLast,
-                                          HASH              hash,
-                                          EQUAL             equal,
-                                          const ALLOCATOR&  basicAllocator)
+boyer_moore_horspool_searcher_GeneralImp<RANDOM_ITR_NEEDLE,
+                                         HASH,
+                                         EQUAL,
+                                         ALLOCATOR>::
+boyer_moore_horspool_searcher_GeneralImp(RANDOM_ITR_NEEDLE needleFirst,
+                                         RANDOM_ITR_NEEDLE needleLast,
+                                         HASH              hash,
+                                         EQUAL             equal,
+                                         const ALLOCATOR&  basicAllocator)
 : d_needleLength(needleLast - needleFirst)
 , d_map(0, hash, equal, basicAllocator)
 {
@@ -723,9 +755,10 @@ boyer_moore_horspool_searcher_GeneralImpl(RANDOM_ITR_NEEDLE needleFirst,
         for (RANDOM_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast - 1;
                                last    != current; ++current) {
-            d_map[*current] = d_needleLength
-                            - 1
-                            - (current - needleFirst);
+            d_map.insert(native_std::make_pair(*current,
+                                               d_needleLength
+                                             - 1
+                                             - (current - needleFirst)));
         }
     }
 }
@@ -737,20 +770,20 @@ template <class RANDOM_ITR_NEEDLE,
           class ALLOCATOR>
 inline
 typename
-boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                          HASH,
-                                          EQUAL,
-                                          ALLOCATOR>::difference_type
-boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                          HASH,
-                                          EQUAL,
-                                          ALLOCATOR>::badCharacterSkip(
+boyer_moore_horspool_searcher_GeneralImp<RANDOM_ITR_NEEDLE,
+                                         HASH,
+                                         EQUAL,
+                                         ALLOCATOR>::difference_type
+boyer_moore_horspool_searcher_GeneralImp<RANDOM_ITR_NEEDLE,
+                                         HASH,
+                                         EQUAL,
+                                         ALLOCATOR>::badCharacterSkip(
                                                        const value_type& value)
                                                                           const
 {
     typename Map::const_iterator result = d_map.find(value);
 
-    return d_map.cend() == result ? d_needleLength : (*result).second;
+    return d_map.cend() == result ? d_needleLength : result->second;
 }
 
 template <class RANDOM_ITR_NEEDLE,
@@ -758,10 +791,10 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-HASH boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                               HASH,
-                                               EQUAL,
-                                               ALLOCATOR>::hash() const
+HASH boyer_moore_horspool_searcher_GeneralImp<RANDOM_ITR_NEEDLE,
+                                              HASH,
+                                              EQUAL,
+                                              ALLOCATOR>::hash() const
 {
     return d_map.hash_function();
 }
@@ -771,10 +804,10 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-EQUAL boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                                HASH,
-                                                EQUAL,
-                                                ALLOCATOR>::equal() const
+EQUAL boyer_moore_horspool_searcher_GeneralImp<RANDOM_ITR_NEEDLE,
+                                               HASH,
+                                               EQUAL,
+                                               ALLOCATOR>::equal() const
 {
     return d_map.key_eq();
 }
@@ -784,10 +817,10 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 inline
-ALLOCATOR boyer_moore_horspool_searcher_GeneralImpl<RANDOM_ITR_NEEDLE,
-                                                    HASH,
-                                                    EQUAL,
-                                                    ALLOCATOR>::allocator()
+ALLOCATOR boyer_moore_horspool_searcher_GeneralImp<RANDOM_ITR_NEEDLE,
+                                                   HASH,
+                                                   EQUAL,
+                                                   ALLOCATOR>::allocator()
                                                                           const
 {
     return d_map.get_allocator();
@@ -801,7 +834,7 @@ namespace bsl {
                         // class boyer_moore_horspool_searcher
                         // -----------------------------------
 
-//CREATORS
+// CREATORS
 template <class RANDOM_ITR_NEEDLE,
           class HASH,
           class EQUAL,
@@ -818,7 +851,7 @@ boyer_moore_horspool_searcher(RANDOM_ITR_NEEDLE needleFirst,
 : d_needleFirst( needleFirst)
 , d_needleLast(  needleLast)
 , d_needleLength(bsl::distance(needleFirst, needleLast))
-, d_impl(needleFirst, needleLast, hash, equal, basicAllocator)
+, d_imp(needleFirst, needleLast, hash, equal, basicAllocator)
 {
     BSLS_ASSERT(needleFirst <= needleLast);
 }
@@ -837,7 +870,7 @@ boyer_moore_horspool_searcher(
 : d_needleFirst( original.needleFirst())
 , d_needleLast(  original.needleLast())
 , d_needleLength(bsl::distance(original.needleFirst(), original.needleLast()))
-, d_impl(original.needleFirst(),
+, d_imp(original.needleFirst(),
          original.needleLast(),
          original.hash(),
          original.equal(),
@@ -868,11 +901,10 @@ boyer_moore_horspool_searcher<RANDOM_ITR_NEEDLE,
     native_std::size_t haystackLength = haystackLast - haystackFirst;
 
     for (native_std::size_t possibleMatch  = 0;
-         //d_needleLength <= haystackLength - possibleMatch;
          d_needleLength + possibleMatch <= haystackLength;
-         possibleMatch += d_impl.badCharacterSkip(haystackFirst[possibleMatch
-                                                              + d_needleLength
-                                                              - 1])) {
+         possibleMatch += d_imp.badCharacterSkip(haystackFirst[possibleMatch
+                                                             + d_needleLength
+                                                             - 1])) {
         // check for match in reverse order
         for (native_std::size_t idx = d_needleLength - 1;
              equal()(haystackFirst[possibleMatch + idx], d_needleFirst[idx]);
@@ -926,7 +958,7 @@ HASH boyer_moore_horspool_searcher<RANDOM_ITR_NEEDLE,
                                    EQUAL,
                                    ALLOCATOR>::hash() const
 {
-    return d_impl.hash();
+    return d_imp.hash();
 }
 
 template <class RANDOM_ITR_NEEDLE, class HASH, class EQUAL, class ALLOCATOR>
@@ -936,7 +968,7 @@ EQUAL boyer_moore_horspool_searcher<RANDOM_ITR_NEEDLE,
                                     EQUAL,
                                     ALLOCATOR>::equal() const
 {
-    return d_impl.equal();
+    return d_imp.equal();
 }
 
 template <class RANDOM_ITR_NEEDLE,
@@ -949,7 +981,7 @@ ALLOCATOR boyer_moore_horspool_searcher<RANDOM_ITR_NEEDLE,
                                         EQUAL,
                                         ALLOCATOR>::allocator() const
 {
-    return d_impl.allocator();
+    return d_imp.allocator();
 }
 
 }  // close namespace bsl
@@ -978,7 +1010,7 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 struct UsesBslmaAllocator<
-    BloombergLP::bslstl::boyer_moore_horspool_searcher_GeneralImpl<
+    BloombergLP::bslstl::boyer_moore_horspool_searcher_GeneralImp<
                                                              RANDOM_ITR_NEEDLE,
                                                              HASH,
                                                              EQUAL,
@@ -991,7 +1023,7 @@ template <class RANDOM_ITR_NEEDLE,
           class EQUAL,
           class ALLOCATOR>
 struct UsesBslmaAllocator<
-    BloombergLP::bslstl::boyer_moore_horspool_searcher_CharImpl<
+    BloombergLP::bslstl::boyer_moore_horspool_searcher_CharImp<
                                                              RANDOM_ITR_NEEDLE,
                                                              HASH,
                                                              EQUAL,
@@ -1003,3 +1035,19 @@ struct UsesBslmaAllocator<
 }  // close enterprise namespace
 
 #endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2019 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
