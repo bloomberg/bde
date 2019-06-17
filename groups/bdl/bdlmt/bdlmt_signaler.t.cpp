@@ -3090,14 +3090,14 @@ void test_lvaluesComplex()
 }
 
 struct MultiFunctor {
-    int operator()(int& a1)                                            // LVALUE
+    int operator()(int& a1)                                           // LVALUE
     {
         ASSERT(1 == a1);
 
         return a1 *= 2;
     }
 
-    int operator()(int& a1, int& a2)                                   // LVALUE
+    int operator()(int& a1, int& a2)                                  // LVALUE
     {
         ASSERT(1 == a1);
         ASSERT(2 == a2);
@@ -3107,7 +3107,7 @@ struct MultiFunctor {
         return a1;
     }
 
-    int operator()(int& a1, int& a2, int& a3)                          // LVALUE
+    int operator()(int& a1, int& a2, int& a3)                         // LVALUE
     {
         ASSERT(1 == a1);
         ASSERT(2 == a2);
@@ -3119,7 +3119,7 @@ struct MultiFunctor {
         return a1;
     }
 
-    void operator()(int& a1, int& a2, int& a3, int& a4)                // LVALUE
+    void operator()(int& a1, int& a2, int& a3, int& a4)               // LVALUE
     {
         ASSERT(1 == a1);
         ASSERT(2 == a2);
@@ -3131,7 +3131,7 @@ struct MultiFunctor {
         a4 *= 2;
     }
 
-    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5)     // LVALUE
+    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5)    // LVALUE
     {
         ASSERT(1 == a1);
         ASSERT(2 == a2);
@@ -3167,7 +3167,7 @@ struct MultiFunctor {
     }
 
     double operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
-                                                              int& a7) // LVALUE
+                                                             int& a7) // LVALUE
     {
         ASSERT(1 == a1);
         ASSERT(2 == a2);
@@ -3355,7 +3355,7 @@ void test_lvaluesSimple()
         sig(x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9]);
         checkX(9);
     }
-}        
+}
 
 void test_lvalues()
     // ------------------------------------------------------------------------
