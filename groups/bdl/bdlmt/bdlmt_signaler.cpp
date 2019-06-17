@@ -51,7 +51,6 @@ SignalerConnection::SignalerConnection(const SignalerConnection& original)
 : d_slotNodeBasePtr(original.d_slotNodeBasePtr)
 {
     // NOTHING
-    // NOTHING
 }
 
 SignalerConnection::SignalerConnection(
@@ -222,8 +221,9 @@ SignalerConnection SignalerConnectionGuard::release() BSLS_KEYWORD_NOEXCEPT
 void SignalerConnectionGuard::swap(SignalerConnectionGuard& other)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    d_connection.swap(other.d_connection);
-    bsl::swap(d_waitOnDisconnect, other.d_waitOnDisconnect);
+    using bsl::swap;
+    swap(d_connection,       other.d_connection);
+    swap(d_waitOnDisconnect, other.d_waitOnDisconnect);
 }
 
 }  // close package namespace
