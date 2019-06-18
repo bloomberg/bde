@@ -650,10 +650,11 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
         // made by any other threads.  If 'wait' is 'false', return after
         // disconnecting without waiting.  If the slot was already
         // disconnected, this function has no effect.  The behavior is
-        // undefined if this function is invoked from a slot with 'true' passed
-        // to 'wait'.  Note that it is guaranteed that this slot will not be
-        // invoked by a call to the same signaler that begins after this
-        // function completes, whether 'wait' is 'true' or not'
+        // undefined if this function is called by a signal emitted on the same
+        // signaler with 'true' passed to 'wait'.  Note that it is guaranteed
+        // that this slot will not be invoked by a call to the same signaler
+        // that begins after this function completes, whether 'wait' is 'true'
+        // or not'
 
     void notifyDisconnected() BSLS_KEYWORD_NOEXCEPT;
         // Notify this slot that is was disconnected from its associated
@@ -745,12 +746,12 @@ class Signaler_Node :
         // a 'group' used to order slots upon invocation.  Return an instance
         // of 'SignalerConnection' representing the created connection.  This
         // function meets the strong exception guarantee.  Note that the
-        // connected slot may be invoked from another thread before this
-        // function completes.  Also note that it is unspecified whether
-        // connecting a slot while the signaler is emitting will result in the
-        // slot being invoked immediately.  Note that 'FUNC' may have a return
-        // type other than 'void', but in that case, when the slot is called,
-        // the return value will be discarded.
+        // connected slot may be called by a signal emitted from another thread
+        // before this function completes.  Also note that it is unspecified
+        // whether connecting a slot while the signaler is emitting will result
+        // in the slot being called immediately.  Note that 'FUNC' may have a
+        // return type other than 'void', but in that case, when the slot is
+        // called, the return value will be discarded.
 
     void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectAllSlots()'.  Disconnect all slots,
@@ -830,7 +831,7 @@ class Signaler_Node :
     bslmt::ReaderWriterMutex& mutex() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reference to the modifiable mutex of this signaler node.
 
-    bsl::size_t slotCount() const BSLS_KEYWORD_NOEXCEPT;
+    bsl::size_t slotCount() const;
         // Implements 'Signaler::slotCount()'.  Return the number of slots
         // connected to this signaler.  Note that in multithreaded environment,
         // the value returned by 'slotCount()' is approximate.
@@ -894,15 +895,16 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
                             int                                     group = 0);
         // Connect the specified 'slot', a callable object which must meet the
         // 'Slot Object Requirements' described in the component documentation,
-        // to this signaler.  Optionally specify a 'group' used to order slots
-        // upon invocation.  Return an instance of 'SignalerConnection'
-        // representing the created connection.  This function meets the strong
-        // exception guarantee.  Note that the connected slot may be invoked
-        // from another thread before this function completes.  Also note that
-        // it is unspecified whether connecting a slot while the signaler is
-        // emitting will result in the slot being invoked immediately.  Note
-        // that 'FUNC' may have a return type other than 'void', but in that
-        // case, when the slot is called, the return value will be discarded.
+        // to this signaler.  Specify a 'group' used to order slots upon
+        // invocation.  Return an instance of 'SignalerConnection' representing
+        // the created connection.  This function meets the strong exception
+        // guarantee.  Note that the connected slot may be called by a signal
+        // emitted from another thread before this function completes.  Also
+        // note that it is unspecified whether connecting a slot while the
+        // signaler is emitting will result in the slot being called
+        // immediately.  Note that 'FUNC' may have a return type other than
+        // 'void', but in that case, when the slot is called, the return value
+        // will be discarded.
 
     void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots, if any, connected to this signaler.  Any
@@ -964,25 +966,25 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // provides a call operator that, in C++11, would be defined and behave
         // exacly this way, except that the number of arguments is limited to
         // to 9, where 'ARGS...' are the arguments of 'PROT'.  Sequentially
-        // emit the signal, calling each slot connected to this signaler as if
-        // by 'f_i(args...)', where 'f_i' is the i-th connected slot.  The
-        // behavior is undefined if this function is invoked from a slot
-        // connected to this signaler.  Note that signals emitted to slots are
-        // ordered by their respective groups, and within groups, by the order
-        // in which they were connected.  Also note that the call operator does
-        // not forward rvalue references.  That is done explicitly to prevent
-        // invocation arguments from being moved to the first slot, leaving
-        // them "empty" for all subsequent slots.  Also note that if a slot is
-        // connected by a called slot and the group of the new slots is less
-        // than the group of the called slot, the new slot will not be called,
-        // otherwise it will.  If a slot that has not been visited in a
-        // traversal is disconnected by a call to any of the 'disconnect*'
-        // methods, the disconnected slot will not be called in the traversal.
-        // Also note that if execution of a slot throws an exception, the
-        // emission sequence is interrupted and the exception is propagated to
-        // the caller of the signaler immediately.
+        // emit the signal, sequentially calling each slot connected to this
+        // signaler as if by 'f_i(args...)', where 'f_i' is the i-th connected
+        // slot.  The behavior is undefined if this function is invoked from a
+        // slot connected to this signaler.  Note that signals emitted to slots
+        // are ordered by their respective groups, and within groups, by the
+        // order in which they were connected.  Also note that the call
+        // operator does not forward rvalue references.  That is done
+        // explicitly to prevent invocation arguments from being moved to the
+        // first slot, leaving them "empty" for all subsequent slots.  Also
+        // note that if a slot is connected by a called slot and the group of
+        // the new slots is less than the group of the called slot, the new
+        // slot will not be called, otherwise it will.  If a slot that has not
+        // been visited in a traversal is disconnected by a call to any of the
+        // 'disconnect*' methods, the disconnected slot will not be called in
+        // the traversal.  Also note that if execution of a slot throws an
+        // exception, the emission sequence is interrupted and the exception is
+        // propagated to the caller of the signaler immediately.
 
-    bsl::size_t slotCount() const BSLS_KEYWORD_NOEXCEPT;
+    bsl::size_t slotCount() const;
         // Return the number of slots connected to this signaler.  Note that
         // the value returned by 'slotCount()' is approximate if the signaler
         // is being simulateously manipulated by other threads.
@@ -1020,14 +1022,13 @@ class SignalerConnection {
   private:
     // PRIVATE CREATORS
     explicit
-    SignalerConnection(const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    SignalerConnection(const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr);
         // Create 'SignalerConnection' object weakly linked to the specified
         // 'slotNodeBasePtr'.
 
   public:
     // CREATORS
-    SignalerConnection() BSLS_KEYWORD_NOEXCEPT;
+    SignalerConnection();
         // Create a 'SignalerConnection' object having no associated slot.
 
     SignalerConnection(const SignalerConnection& original)
@@ -1044,7 +1045,7 @@ class SignalerConnection {
 
     // MANIPULATORS
     SignalerConnection&
-    operator=(const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+    operator=(const SignalerConnection& rhs);
         // Make this connection refer to and assume management of the same slot
         // (if any) as the specified 'rhs' connection.  Return '*this'.
 
@@ -1070,7 +1071,7 @@ class SignalerConnection {
         // in progress.  Any signal emitted on the corresponding signaler that
         // happens after this call to 'disconect' completes will not emit to
         // the slot.  Note that it is unspecified if any signal that is emitted
-        // before this function completes will invoke the slot.
+        // before this function completes will call the slot.
 
     void disconnectAndWait() const BSLS_KEYWORD_NOEXCEPT;
         // Disconnect the associated slot.  If the slot was already
@@ -1081,9 +1082,9 @@ class SignalerConnection {
         // this call to 'disconect' completes will not emit to the slot.  The
         // behavior is undefined if this method is called from any slot.  Note
         // that it is unspecified if any signal emitted on the signaler that
-        // begins before this function completes will emit to the slot.
+        // begins before this function completes will call the slot.
 
-    bool isConnected() const BSLS_KEYWORD_NOEXCEPT;
+    bool isConnected() const;
         // Return 'true' if the associated slot is connected to the signaler
         // '*this' was obtained from, and 'false' otherwise.  If '*this' does
         // not have an associated slot (i.e., was default-constructed), return
@@ -1114,17 +1115,16 @@ class SignalerConnectionGuard {
   public:
     // CREATORS
     explicit
-    SignalerConnectionGuard(bool waitOnDisconnect = false)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    SignalerConnectionGuard(bool waitOnDisconnect = false);
         // Create a 'SignalerConnectionGuard' object having no associated slot.
         // Upon destruction, the specified 'waitOnDisconnect' determines
         // whether 'disconnect()' or 'disconnectAndWait()' will be called on
         // the connection contained in this object.
 
     explicit
-    SignalerConnectionGuard(const SignalerConnection& connection,
-                            bool                      waitOnDisconnect = false)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    SignalerConnectionGuard(
+                           const SignalerConnection& connection,
+                           bool                      waitOnDisconnect = false);
         // Create a 'SignalerConnectionGuard' object that refers to and assumes
         // management of the same slot (if any) as the specified 'connection'
         // object.  Upon destruction, the specified 'waitOnDisconnect'
@@ -1205,32 +1205,32 @@ class SignalerConnectionGuard {
 
 // FREE OPERATORS
 bool operator==(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const SignalerConnection& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' referring to the same
     // slot and 'false' otherwise.
 
 bool operator!=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const SignalerConnection& rhs);
     // Return 'false' if the specified 'lhs' and 'rhs' referring to the same
     // slot and 'true' otherwise.
 
 bool operator<(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+               const SignalerConnection& rhs);
     // Return 'true' if the specified 'lhs' is less than the specified 'rhs'
     // and 'false' otherwise.
 
 bool operator>(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+               const SignalerConnection& rhs);
     // Return 'true' if the specified 'lhs' is grater than the specified 'rhs'
     // and 'false' otherwise.
 
 bool operator<=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const SignalerConnection& rhs);
     // Return 'true' if the specified 'lhs' is less than or equal to the
     // specified 'rhs' and 'false' otherwise.
 
 bool operator>=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const SignalerConnection& rhs);
     // Return 'true' if the specified 'lhs' is greater than or equal to the
     // specified 'rhs' and 'false' otherwise.
 
@@ -1712,17 +1712,13 @@ template <class PROT>
 inline
 void Signaler_SlotNode<PROT>::disconnect(bool wait) BSLS_KEYWORD_NOEXCEPT
 {
-    if (!d_isConnected.testAndSwap(true, false)) {
-        // Already disconnected.  Do nothing.
-
-        return;                                                       // RETURN
-    }
-
     // Notify the associated signaler
 
     bsl::shared_ptr<SignalerNode> signalerNodePtr = d_signalerNodePtr.lock();
     if (signalerNodePtr) {
-        signalerNodePtr->notifyDisconnected(d_slotMapKey);
+        if (d_isConnected.testAndSwap(true, false)) {
+            signalerNodePtr->notifyDisconnected(d_slotMapKey);
+        }
 
         if (wait) {
             // Synchronize with the call operator.
@@ -1868,13 +1864,19 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
                                      slotMapKey,
                                      d_slotMap.allocator());
 
+    // Construct the return value (which may throw) before adding the slot to
+    // the slot map, so that this function will have the strong exception
+    // guarantee.
+
+    SignalerConnection ret(slotNodePtr);
+
     // connect the slot
 
     d_slotMap.addR(slotMapKey, slotNodePtr);
 
     // return the connection
 
-    return SignalerConnection(slotNodePtr);
+    return ret;
 }
 
 template <class PROT>
@@ -1978,7 +1980,7 @@ bslmt::ReaderWriterMutex& Signaler_Node<PROT>::mutex() const
 
 template <class PROT>
 inline
-bsl::size_t Signaler_Node<PROT>::slotCount() const BSLS_KEYWORD_NOEXCEPT
+bsl::size_t Signaler_Node<PROT>::slotCount() const
 {
     return d_slotMap.length();
 }
@@ -2048,7 +2050,7 @@ void Signaler<PROT>::disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT
 // ACCESSORS
 template <class PROT>
 inline
-bsl::size_t Signaler<PROT>::slotCount() const BSLS_KEYWORD_NOEXCEPT
+bsl::size_t Signaler<PROT>::slotCount() const
 {
     return d_signalerNodePtr->slotCount();
 }
@@ -2066,15 +2068,13 @@ void SignalerConnection::swap(SignalerConnection& other) BSLS_CPP11_NOEXCEPT
 
 // FREE OPERATORS
 inline
-bool operator==(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+bool operator==(const SignalerConnection& lhs, const SignalerConnection& rhs)
 {
     return lhs.d_slotNodeBasePtr.rep() == rhs.d_slotNodeBasePtr.rep();
 }
 
 inline
-bool operator<( const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+bool operator<( const SignalerConnection& lhs, const SignalerConnection& rhs)
 {
     return lhs.d_slotNodeBasePtr.owner_before(rhs.d_slotNodeBasePtr);
 }

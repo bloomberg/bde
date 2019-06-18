@@ -33,14 +33,14 @@ Signaler_SlotNode_Base::~Signaler_SlotNode_Base()
 
 // PRIVATE CREATORS
 SignalerConnection::SignalerConnection(
-     const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr) BSLS_CPP11_NOEXCEPT
+   const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr)
 : d_slotNodeBasePtr(slotNodeBasePtr)
 {
     BSLS_ASSERT(slotNodeBasePtr);
 }
 
 // CREATORS
-SignalerConnection::SignalerConnection() BSLS_CPP11_NOEXCEPT
+SignalerConnection::SignalerConnection()
 : d_slotNodeBasePtr()
 {
     // NOTHING
@@ -64,7 +64,6 @@ SignalerConnection::SignalerConnection(
 // MANIPULATORS
 SignalerConnection&
 SignalerConnection::operator=(const SignalerConnection& rhs)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     d_slotNodeBasePtr = rhs.d_slotNodeBasePtr;
     return *this;
@@ -103,33 +102,29 @@ void SignalerConnection::disconnectAndWait() const BSLS_CPP11_NOEXCEPT
     }
 }
 
-bool SignalerConnection::isConnected() const BSLS_CPP11_NOEXCEPT
+bool SignalerConnection::isConnected() const
 {
     bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
     return slotNodeBasePtr ? slotNodeBasePtr->isConnected() : false;
 }
 
 // FREE OPERATORS
-bool operator!=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+bool operator!=(const SignalerConnection& lhs, const SignalerConnection& rhs)
 {
     return !(lhs == rhs);
 }
 
-bool operator>(const SignalerConnection& lhs,
-               const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+bool operator>( const SignalerConnection& lhs, const SignalerConnection& rhs)
 {
     return rhs < lhs;
 }
 
-bool operator<=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+bool operator<=(const SignalerConnection& lhs, const SignalerConnection& rhs)
 {
     return !(rhs < lhs);
 }
 
-bool operator>=(const SignalerConnection& lhs,
-                const SignalerConnection& rhs) BSLS_KEYWORD_NOEXCEPT
+bool operator>=(const SignalerConnection& lhs, const SignalerConnection& rhs)
 {
     return !(lhs < rhs);
 }
