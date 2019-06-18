@@ -135,7 +135,6 @@ bool operator>=(const SignalerConnection& lhs, const SignalerConnection& rhs)
 
 // CREATORS
 SignalerConnectionGuard::SignalerConnectionGuard(bool waitOnDisconnect)
-                                                          BSLS_KEYWORD_NOEXCEPT
 : d_connection()
 , d_waitOnDisconnect(waitOnDisconnect)
 {
@@ -143,8 +142,8 @@ SignalerConnectionGuard::SignalerConnectionGuard(bool waitOnDisconnect)
 }
 
 SignalerConnectionGuard::SignalerConnectionGuard(
-              const SignalerConnection& connection,
-              bool                      waitOnDisconnect) BSLS_KEYWORD_NOEXCEPT
+                                    const SignalerConnection& connection,
+                                    bool                      waitOnDisconnect)
 : d_connection(connection)
 , d_waitOnDisconnect(waitOnDisconnect)
 {

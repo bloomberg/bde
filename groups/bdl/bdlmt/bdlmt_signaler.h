@@ -1009,15 +1009,15 @@ class SignalerConnection {
   private:
     // PRIVATE DATA
     bsl::weak_ptr<SlotNode_Base> d_slotNodeBasePtr;
-        // Weak reference to the associated slot.
+        // Weak pointer to the associated slot.
 
     // FRIENDS
     template <class>
     friend class Signaler_Node;
     friend bool operator<( const SignalerConnection&,
-                           const SignalerConnection&) BSLS_KEYWORD_NOEXCEPT;
+                           const SignalerConnection&);
     friend bool operator==(const SignalerConnection&,
-                           const SignalerConnection&) BSLS_KEYWORD_NOEXCEPT;
+                           const SignalerConnection&);
 
   private:
     // PRIVATE CREATORS
