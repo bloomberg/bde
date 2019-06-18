@@ -1,0 +1,15 @@
+bsla_annotations
+bsla_deprecated
+bsla_error
+bsla_fallthrough
+bsla_format
+bsla_nodiscard
+bsla_nonnullarg
+bsla_noreturn
+bsla_nullterminated
+bsla_printf
+bsla_scanf
+bsla_unreachable
+bsla_unused
+bsla_used
+bsla_warning

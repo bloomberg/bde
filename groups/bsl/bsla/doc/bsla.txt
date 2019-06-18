@@ -1,0 +1,197 @@
+ bsla.txt
+
+@PURPOSE: Provide macros for portable use of compiler annotations.
+
+@MNEMONIC: Basic Standard Library Annotations (bsla)
+
+@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
+
+@DESCRIPTION: The 'bsla' package provides a variety of macros that expand to
+ annotations to provide hints to the compiler, to suppress or emit compiler
+ warnings or errors.
+
+ The annotations themselves are not supported on all compilers, and sometimes
+ different annotations are required for different compilers to have a given
+ effect.  The macros provided in this package either expand to the correct
+ annotation for the current compiler, or, if the compiler does not support any
+ form of the given annotation, the macros expand to nothing.
+
+ For every macro, 'BSLA_{X}', there is a corresponding macro,
+ 'BSLA_{X}_IS_ACTIVE', which is always defined to an integer, and expands to 0
+ if 'BSLA_{X}' expands to nothing and 1 if 'BSLA_{X}' expands to an annotation
+ and the annotation works.  There are situations where compilers will
+ "tolerate" an annotation -- the annotation won't be reported as a syntax
+ error, but it will have no effect.  In those cases, 'BSLA_{X}' will expand to
+ nothing and 'BSLA_{X}_IS_ACTIVE' will be 0.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bsla' package currently has 15 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+   3. bsla_annotations
+
+   2. bsla_used
+
+   1. bsla_deprecated
+      bsla_error
+      bsla_fallthrough
+      bsla_format
+      bsla_nodiscard
+      bsla_nonnullarg
+      bsla_noreturn
+      bsla_nullterminated
+      bsla_printf
+      bsla_scanf
+      bsla_unreachable
+      bsla_unused
+      bsla_warning
+..
+
+/Component Synopsis
+/------------------
+: 'bsla_annotations':
+:      Provide support for compiler annotations for compile-time safety.
+:
+: 'bsla_deprecated':
+:      Provide a compiler-hint macro to indicate deprecated entities.
+:
+: 'bsla_error':
+:      Provide a macro to emit an error when a function is called.
+:
+: 'bsla_fallthrough':
+:      Provide a macro to suppress warnings on 'switch' fall-throughs.
+:
+: 'bsla_format':
+:      Provide a macro to indicate that a return value is a format string.
+:
+: 'bsla_nodiscard':
+:      Provide a macro for warning about ignored function results.
+:
+: 'bsla_nonnullarg':
+:      Provide macros to hint at null arguments to functions.
+:
+: 'bsla_noreturn':
+:      Provide a macro to issue a compiler warning if a function returns.
+:
+: 'bsla_nullterminated':
+:      Provide macros for use with 'NULL'-terminated variadic functions.
+:
+: 'bsla_printf':
+:      Provide a macro to indicate 'printf'-style arguments.
+:
+: 'bsla_scanf':
+:       Provide a macro for checking 'scanf'-style format strings.
+:
+: 'bsla_unreachable':
+:      Provide a compiler-hint macro to indicate unreachable code.
+:
+: 'bsla_unused':
+:      Provide a macro to suppress "unused" warnings.
+:
+: 'bsla_used':
+:      Provide a macro to prevent elision of unused entities.
+:
+: 'bsla_warning':
+:      Provide a macro to emit a warning when a function is called.
+
+/Component Overview
+/------------------
+ This section provides a brief introduction to some of the components in the
+ 'bsla' package.  See the documentation in each component for full details.
+
+/'bsla_annotations'
+/ - - - - - - - - -
+ This component exists to provide a single component whose header can be
+ included to transitively include all of the annotation macros defined in the
+ 'bsla' package.  The macros that are transitively included by this component
+ correspond to various compiler features, and can be used to annotate code for
+ specific compile-time safety checks.
+
+/'bsla_deprecated'
+/ - - - - - - - -
+ This component provides a preprocessor macro that hints to the compile that a
+ function, variable, or type is deprecated.
+
+/'bsla_error'
+/ - - - - - -
+ This component provides a preprocessor macro that flags a function such that a
+ compiler error will occur when the function is called.  On platforms where the
+ appropriate attribute is not supported, the macro expands to nothing.
+
+/'bsla_fallthrough'
+/- - - - - - - - -
+ This component provides a preprocessor macro that suppresses compiler warnings
+ about flow of control fall-through from one 'case' or 'default' of a 'switch'
+ statement to another.  On compilers where the appropriate attribute is not
+ supported, the macro expands to nothing.
+
+/'bsla_format'
+/ - - - - - -
+ This component provides a preprocessor macro to indicate that an indexed
+ argument of a function is a 'printf'-style format specification, and that the
+ function will return a 'printf'-style format string with an equivalent
+ specification.
+
+/'bsla_nodiscard'
+/- - - - - - - -
+ This component provides a preprocessor macro that annotates a function such
+ that a compiler warning will be generated if the return value of the function
+ is ignored.
+
+/'bsla_nonnullarg'
+/ - - - - - - - -
+ This component provides preprocessor macros that define compiler-specific
+ compile-time annotations.  These macros instruct the compiler to warn if null
+ is passed to certain arguments to a function, or, on platforms where the
+ feature is not supported, expand to nothing.
+
+/'bsla_noreturn'
+/ - - - - - - -
+ This component provides a preprocessor macro that annotates a function as
+ never returning, resulting in a compiler warning if a path of control exists
+ such that the function does return.
+
+/'bsla_nullterminated'
+/ - - - - - - - - - -
+ This component provides preprocessor macros to indicate that a variadic
+ function's arguments are terminated by a 'NULL' value, or, in the case of
+ 'BSLA_NULLTERMINATEDAT', by a 'NULL' value at a certain index.  Note that the
+ terminating 'NULL' must actually be 'NULL'; passing 0 in it's place will
+ result in a warning.
+
+/'bsla_printf'
+/- - - - - - -
+ This component provides a preprocessor macro that allows the designation of a
+ given function argument as a 'printf'-style format string, and arguments
+ starting at a certain index in the argument list to be formatted according to
+ that string.
+
+/'bsla_scanf'
+/ - - - - - -
+ This component provides a preprocessor macro that indicates that one of the
+ arguments to a function is a 'scanf'-style format string, and that the
+ arguments starting at a certain index are to be checked for compatibility with
+ that format string.
+
+/'bsla_unreachable'
+/- - - - - - - - -
+ This component provides a preprocessor macro that hints to the compile that a
+ statement in the code is intended to be unreachable.
+
+/'bsla_unused'
+/ - - - - - -
+ This component provides a preprocessor macro that will suppress "unused"
+ warnings on a locally defined function, type, or variable that is not used.
+
+/'bsla_used'
+/ - - - - -
+ This component provides a preprocessor macro that will guarantee the emission
+ of a local function, type, or variable whether it is used or not.
+
+/'bsla_warning'
+/ - - - - - - -
+ This component provides a macro that indicates that a compiler warning should
+ be emitted when a given function is called.

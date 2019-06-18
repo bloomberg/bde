@@ -834,11 +834,7 @@ namespace test_case_24 {
 // check here.
     #if __has_cpp_attribute(nodiscard)
 
-    #if defined(BSLS_PLATFORM_CMP_CLANG)
-    // clang does not allow nodiscard where other compilers do.
-    #else
     #error [[nodiscard]] is available but feature macro is not defined.
-    #endif
 
     #endif
 
@@ -2466,7 +2462,6 @@ int main(int argc, char *argv[])
         alias_template1<char> templateObj1; (void) templateObj1;
         alias_template2<char> templateObj2; (void) templateObj2;
 #endif
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
