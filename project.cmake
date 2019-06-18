@@ -36,7 +36,6 @@ function(bdeproj_project_process_uors proj listDir)
         ${listDir}/groups/bal
         ${listDir}/groups/bbl
         ${listDir}/groups/bdl
-        ${listDir}/groups/bos
         ${listDir}/groups/bsl
         ${listDir}/groups/bos
     )
