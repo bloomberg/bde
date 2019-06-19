@@ -1286,7 +1286,7 @@ int main(int argc, char *argv[])
 
             ASSERT(   s_deferredPopFrontInterval.totalSecondsAsDouble() * 0.8
                                            <= interval.totalSecondsAsDouble()
-                   && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.2
+                   && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.5
                                            >= interval.totalSecondsAsDouble());
 
             bslmt::ThreadUtil::join(handle);
@@ -1326,7 +1326,7 @@ int main(int argc, char *argv[])
                      - interval;
 
             ASSERT(   bsls::TimeInterval(0.8) <= interval
-                   && bsls::TimeInterval(1.2) >= interval);
+                   && bsls::TimeInterval(1.5) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 
