@@ -2,7 +2,7 @@
 #include <bslstl_defaultsearcher.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_forwarditerator.h>  // for testing only
 #include <bslstl_list.h>             // for testing only

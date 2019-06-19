@@ -2,7 +2,7 @@
 #include <bslstl_boyermoorehorspoolsearcher.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT("$Id$ $CSID$")
 
 namespace bsl {
 

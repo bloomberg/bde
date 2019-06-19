@@ -45,14 +45,14 @@ BSLS_IDENT("$Id: $")
 // the needle and 'N' is the length of the haystack.
 //
 // There are more sophisticated algorithms available; however, those typically
-// require creating an retaining metadata derived from the needle and/or
+// require creating and retaining metadata derived from the needle and/or
 // haystack.  If the needle is short and the haystack of moderate length, the
 // naive algorithm may be faster than generating that metadata, especially if
 // the search is one-time and the metadata cost cannot be amortized.
 //
 // Another advantage of 'bsl::default_searcher' is that it accepts (relatively
 // simple) *ForwardIterator*s whereas more sophisticated algorithms typically
-// require (full-featured) *RandomIterators*.
+// require (full-featured) *RandomIterator*s.
 //
 // TBD: The Standard suggests but does not state that this is the algorithm
 // used by 'default_searcher'; however, a component without this information is
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Iterator Requirements
 ///---------------------
-// The two independent iterators types associated with this class -- one
+// The two independent iterator types associated with this class -- one
 // defining the needle, the other defining the haystack -- must meet the
 // requirements of *ForwardIterator*.
 //
@@ -76,7 +76,8 @@ BSLS_IDENT("$Id: $")
 ///Comparer Class Requirements
 ///---------------------------
 // The comparer class must meet the requirements of *BinaryPredicate*:
-//: o The class defines an 'operator()' method having the signature:
+//: o The class defines an 'operator()' method, which, given an
+//:   *ForwardIterator*, 'iterator', may be invoked as
 //:   'operator()(*iterator, *iterator)'.
 //: o The return value must be contextually convertible to 'bool'.
 //: o The supplied iterators can be constant.
@@ -92,7 +93,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // The problem of searching a sequence of characters for a particular
 // sub-sequence arises in many applications.  For example, one might need to
-// know of some document contains a particular word of interest.  For example,
+// know if some document contains a particular word of interest.  For example,
 // suppose we would like to know the first occurrence of the word "United" in
 // the Declaration of Independence (of the United States):
 //
@@ -289,19 +290,21 @@ template <class FORWARD_ITR_NEEDLE,
           class EQUAL = bsl::equal_to<
                typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type> >
 class default_searcher {
+    // This class template defines functors that can search for the sequence of
+    // 'value_type' values defined on construction (i.e., the "needle") in
+    // sequences of 'value_type' values (i.e., "haystacks) passed to the
+    // functor's 'operator()'.
 
-  public:
-   // PUBLIC TYPES
-   typedef typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type
-                                                              value_type;
+    // PRIVATE TYPES
+    typedef typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type
+                                                               value_type;
+        // the type of the values that can be obtained by dereferencing a
+        // 'FORWARD_ITR_NEEDLE' iterator
 
-   typedef typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::iterator_category
-                                                        NeedleIteratorCategory;
-
-  private:
-   typedef typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::iterator_category
+    typedef typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::
+                                                             iterator_category
                                                               IteratorCategory;
-   // DATA
+    // DATA
     FORWARD_ITR_NEEDLE d_needleFirst;
     FORWARD_ITR_NEEDLE d_needleLast;
     EQUAL              d_equal;
@@ -316,7 +319,6 @@ class default_searcher {
         // '[needleFirst, needleLast)'.  Optionally supply a 'equal' functor
         // for use by 'operator()'.  The behavior is undefined unless
         // 'needleFirst' can be advanced to equal 'needleLast'.
-
 
     //! default_searcher(const default_searcher& original) = default;
         // Create a 'default_searcher' object that has the same state as the
@@ -334,6 +336,11 @@ class default_searcher {
     //! default_searcher& operator=(const default_searcher& rhs) = default;
         // Assign to this object the state of the specified 'rhs' object, and
         // return a non-'const' reference to this object.
+
+    //! default_searcher(default_searcher&& original) = default;
+        // Create a 'default_searcher' object having the same state as the
+        // specified 'original' on entry.  The 'original' object is left in an
+        // unspecified (valid) state.
 
     // ACCESSORS
     template<class FORWARD_ITR_HAYSTACK>
@@ -389,6 +396,12 @@ template <class FORWARD_ITR_NEEDLE,
           class EQUAL,
           class FORWARD_ITR_HAYSTACK>
 struct default_searcher_CanOptimize {
+    // This component-private meta-function 'struct' provides a member
+    // enumerator value that has the value 'true' if all of the specified
+    // 'FORWARD_ITR_NEEDLE,' 'EQUAL,' and 'FORWARD_ITR_HAYSTACK' meet the
+    // criteria for an optimization of the default searcher, and has the value
+    // 'false' otherwise.
+
     enum {
 
         value = (
@@ -424,10 +437,10 @@ struct default_searcher_CanOptimize {
                         // ===============================
 
 struct default_searcher_ImpUtil {
-    // This utility 'struct' provides two mutually exclusive overloads of the
-    // 'doSearch' method -- i.e., just one of the two methods is enabled at any
-    // time.  Enabling is decided by the 'default_searcher_CanOptimize'
-    // meta-function.
+    // This component-private utility 'struct' provides two mutually exclusive
+    // overloads of the 'doSearch' method -- i.e., just one of the two methods
+    // is enabled at any time.  Enablement is decided by the
+    // 'default_searcher_CanOptimize' meta-function.
 
     template <class FORWARD_ITR_NEEDLE,
               class EQUAL,
@@ -462,14 +475,12 @@ struct default_searcher_ImpUtil {
                      const EQUAL&                equal);
         // Search the specified "haystack" sequence of 'value_type' values,
         // '[haystackFirst, hastackLast)', for the specified "needle" sequence
-        // of 'value_type' values, '[needleFirst, hastackLast)'.  Return ...
-        // Search the specified range '[haystackFirst, haystackLast)' for the
-        // first sequence of 'value_type' values specified on construction.
-        //
-        // Return the range where those values are found, or the range
-        // '[haystackLast, haystackLast)' if that sequence is not found.  The
-        // search is performed using a "naive" algorithm that has time
-        // complexity of:
+        // of 'value_type' values, '[needleFirst, needleLast)' where the
+        // 'value_type' values are compared using the specified 'equal'
+        // functor.  Return the range where the sought sequcne of values are
+        // found, or the range '[haystackLast, haystackLast)' if that sequence
+        // is not found.  The search is performed using a "naive" algorithm
+        // that has time complexity of:
         //..
         //    bsl::distance(needleFirst(), needleLast())
         //  * bsl::distance(haystackFirst, haystackLast);

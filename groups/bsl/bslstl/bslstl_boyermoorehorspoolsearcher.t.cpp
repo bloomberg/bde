@@ -46,8 +46,8 @@ namespace BSL = native_std;  // for Usage examples
 //                             Overview
 //                             --------
 // This component defines a template for a mechanism class,
-// 'bsl::boyermoorehorspoolsearcher' in which two iterators define the range of
-// values being sought (the "needle") and another two iterators define the
+// 'bsl::boyer_moore_horspool_searcher' in which two iterators define the range
+// of values being sought (the "needle") and another two iterators define the
 // range of values being sought.  Note that the two pairs of iterators must
 // refer to the same value type and must be random access iterators, but
 // otherwise need not be the same type.  Thus, a sequences in one type of
@@ -192,8 +192,6 @@ typename CharArray<TYPE>::const_iterator CharArray<TYPE>::end() const
 {
     return const_iterator(d_value.end());
 }
-
-// typedef bool(EqualToCharSignature)(char a, char b);
 
                               // ==============================
                               // class CharEqualCaseInsensitive
@@ -3599,7 +3597,6 @@ int main(int argc, char *argv[])
             bsls::Types::Int64 startWall =
                                          bsls::TimeUtil::getTimer();
 
-            /*static volatile*/
             bsl::pair<const char *, const char *> result;
 
             for (int i = 0; i < numRepetitions; ++i) {
