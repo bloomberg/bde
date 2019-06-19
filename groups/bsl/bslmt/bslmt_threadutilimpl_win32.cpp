@@ -25,9 +25,11 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>  // 'memcpy'
 
 #include <bsls_assert.h>
+#include <bsls_bslonce.h>
 #include <bsls_types.h>
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
+#include <windows.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
     // On 64-bit Windows, we have to deal with the fact that Windows ThreadProc
@@ -49,6 +51,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::INVALID_HANDLE =
                                                    { INVALID_HANDLE_VALUE, 0 };
 
 namespace {
+namespace u {
 
 class HandleGuard {
     // This guard mechanism closes the windows handle (using 'CloseHandle')
@@ -123,27 +126,28 @@ enum InitializationState {
   , e_DEINITIALIZED = -1  // threading environment has been de-initialized
 };
 
-static void *volatile            s_startupInfoCache = 0;
-static DWORD                     s_threadInfoTLSIndex = 0;
-static ThreadSpecificDestructor *s_destructors = 0;
-static CRITICAL_SECTION          s_threadSpecificDestructorsListLock;
-static volatile long             s_initializationState = e_UNINITIALIZED;
+static HMODULE                   Kernel32DllHandle;
+static void *volatile            startupInfoCache = 0;
+static DWORD                     threadInfoTLSIndex = 0;
+static ThreadSpecificDestructor *destructors = 0;
+static CRITICAL_SECTION          threadSpecificDestructorsListLock;
+static volatile long             initializationState = e_UNINITIALIZED;
 
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
-static CRITICAL_SECTION          s_returnValueMapLock;
+static CRITICAL_SECTION          returnValueMapLock;
 
-// Access to this map will be serialized with 's_returnValueMapLock'.  It must
+// Access to this map will be serialized with 'returnValueMapLock'.  It must
 // be declared before 's_initializer' - the 's_initializer' destructor will
-// empty the map.  's_returnValueMapValid' will be false if this module's
+// empty the map.  'returnValueMapValid' will be false if this module's
 // static initialization has not run, or static cleanup has occurred.
 
-static volatile bool                      s_returnValueMapValid = false;
+static volatile bool                      returnValueMapValid = false;
 typedef bsl::unordered_map<DWORD, void *> TReturnValueMap;
-static TReturnValueMap                    s_returnValueMap(
+static TReturnValueMap                    returnValueMap(
                                             bslma::Default::globalAllocator());
 #endif
 
-static Win32Initializer   s_initializer;
+static Win32Initializer   initializer;
 
 static inline
 int bslmt_threadutil_win32_Initialize()
@@ -153,13 +157,13 @@ int bslmt_threadutil_win32_Initialize()
     // from some other thread, then it waits until the environment is
     // initialized and returns.
 {
-    if (e_INITIALIZED == s_initializationState) {
+    if (e_INITIALIZED == initializationState) {
         return 0;                                                     // RETURN
     }
     else {
         long result;
         do {
-            result = InterlockedCompareExchange(&s_initializationState,
+            result = InterlockedCompareExchange(&initializationState,
                                                 e_INITIALIZING,
                                                 e_UNINITIALIZED);
             if (e_INITIALIZING == result) {
@@ -171,15 +175,15 @@ int bslmt_threadutil_win32_Initialize()
         } while (1);
 
         if (e_UNINITIALIZED == result) {
-            s_threadInfoTLSIndex = TlsAlloc();
-            InitializeCriticalSection(&s_threadSpecificDestructorsListLock);
+            threadInfoTLSIndex = TlsAlloc();
+            InitializeCriticalSection(&threadSpecificDestructorsListLock);
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
-            InitializeCriticalSection(&s_returnValueMapLock);
-            s_returnValueMapValid = true;
+            InitializeCriticalSection(&returnValueMapLock);
+            returnValueMapValid = true;
 #endif
-            InterlockedExchange(&s_initializationState, e_INITIALIZED);
+            InterlockedExchange(&u::initializationState, e_INITIALIZED);
         }
-        return e_INITIALIZED == s_initializationState ? 0 : 1;        // RETURN
+        return e_INITIALIZED == u::initializationState ? 0 : 1;     // RETURN
     }
 }
 
@@ -190,26 +194,26 @@ static void bslmt_threadutil_win32_Deinitialize()
     // prevents static objects from inadvertently re-initializing
     // re-initializing the environment when they are destroyed.
 {
-    if (InterlockedExchange(&s_initializationState, e_DEINITIALIZED)
+    if (InterlockedExchange(&u::initializationState, e_DEINITIALIZED)
                                                             != e_INITIALIZED) {
         return;                                                       // RETURN
     }
 
-    TlsFree(s_threadInfoTLSIndex);
+    TlsFree(threadInfoTLSIndex);
 
-    EnterCriticalSection(&s_threadSpecificDestructorsListLock);
-    ThreadSpecificDestructor *d = s_destructors;
-    s_destructors = 0;
-    LeaveCriticalSection(&s_threadSpecificDestructorsListLock);
-    DeleteCriticalSection(&s_threadSpecificDestructorsListLock);
+    EnterCriticalSection(&threadSpecificDestructorsListLock);
+    ThreadSpecificDestructor *d = destructors;
+    destructors = 0;
+    LeaveCriticalSection(&threadSpecificDestructorsListLock);
+    DeleteCriticalSection(&threadSpecificDestructorsListLock);
 
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
-    EnterCriticalSection(&s_returnValueMapLock);
-    s_returnValueMap.erase(s_returnValueMap.begin(), s_returnValueMap.end());
-    s_returnValueMapValid = false;
-    LeaveCriticalSection(&s_returnValueMapLock);
+    EnterCriticalSection(&returnValueMapLock);
+    returnValueMap.erase(returnValueMap.begin(), returnValueMap.end());
+    returnValueMapValid = false;
+    LeaveCriticalSection(&returnValueMapLock);
     // NOT deleted, so static objects can spawn threads.
-    // DeleteCriticalSection(&s_returnValueMapLock);
+    // DeleteCriticalSection(&returnValueMapLock);
 #endif
 
     while (d) {
@@ -219,8 +223,8 @@ static void bslmt_threadutil_win32_Deinitialize()
     }
 
     ThreadStartupInfo *head;
-    head = (ThreadStartupInfo *)InterlockedExchangePointer(&s_startupInfoCache,
-                                                           0);
+    head = (ThreadStartupInfo *)InterlockedExchangePointer(
+                                                      &u::startupInfoCache, 0);
     while (head) {
         ThreadStartupInfo *t = head;
         head = head->d_next;
@@ -245,10 +249,10 @@ static ThreadStartupInfo *allocStartupInfo()
 {
     ThreadStartupInfo *head;
     head = (ThreadStartupInfo *)InterlockedCompareExchangePointer(
-                                                    &s_startupInfoCache, 0, 0);
+                                                   &u::startupInfoCache, 0, 0);
     while (head) {
         void *t;
-        t = InterlockedCompareExchangePointer(&s_startupInfoCache,
+        t = InterlockedCompareExchangePointer(&u::startupInfoCache,
                                               head->d_next, head);
         if (t == head) {
             break;
@@ -273,9 +277,9 @@ static void freeStartupInfo(ThreadStartupInfo *item)
     while (1) {
         ThreadStartupInfo *t;
         t = (ThreadStartupInfo*)InterlockedCompareExchangePointer(
-                                                           &s_startupInfoCache,
-                                                           item,
-                                                           item->d_next);
+                                                          &u::startupInfoCache,
+                                                          item,
+                                                          item->d_next);
         if (t == item->d_next) {
             break;
         }
@@ -289,12 +293,12 @@ static void invokeDestructors()
     // iterates through all registered destructor functions and invokes each
     // destructor that has a non-zero key value.
 {
-    if (s_initializationState != e_INITIALIZED) {
+    if (initializationState != e_INITIALIZED) {
         return;                                                       // RETURN
     }
 
-    EnterCriticalSection(&s_threadSpecificDestructorsListLock);
-    ThreadSpecificDestructor *d = s_destructors;
+    EnterCriticalSection(&threadSpecificDestructorsListLock);
+    ThreadSpecificDestructor *d = destructors;
     while (d) {
         void *value = TlsGetValue(d->d_key);
         if (value) {
@@ -302,7 +306,7 @@ static void invokeDestructors()
         }
         d = d->d_next;
     }
-    LeaveCriticalSection(&s_threadSpecificDestructorsListLock);
+    LeaveCriticalSection(&threadSpecificDestructorsListLock);
 }
 
 static unsigned _stdcall ThreadEntry(void *arg)
@@ -313,19 +317,20 @@ static unsigned _stdcall ThreadEntry(void *arg)
     bsl::memcpy(&startInfo, arg, sizeof(startInfo));
 
     freeStartupInfo((ThreadStartupInfo *)arg);
-    TlsSetValue(s_threadInfoTLSIndex, &startInfo.d_handle);
+    TlsSetValue(threadInfoTLSIndex, &startInfo.d_handle);
     void *ret = startInfo.d_function(startInfo.d_threadArg);
     invokeDestructors();
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
-    EnterCriticalSection(&s_returnValueMapLock);
-    if (s_returnValueMapValid) {
-        s_returnValueMap[startInfo.d_handle.d_id] = ret;
+    EnterCriticalSection(&returnValueMapLock);
+    if (returnValueMapValid) {
+        returnValueMap[startInfo.d_handle.d_id] = ret;
     }
-    LeaveCriticalSection(&s_returnValueMapLock);
+    LeaveCriticalSection(&returnValueMapLock);
 #endif
     return (unsigned)(bsls::Types::IntPtr)ret;
 }
 
+}  // close namespace u
 }  // close unnamed namespace
 
                // --------------------------------------------
@@ -348,11 +353,11 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
                                             bslmt_ThreadFunction     function,
                                             void                    *userData)
 {
-    if (bslmt_threadutil_win32_Initialize()) {
+    if (u::bslmt_threadutil_win32_Initialize()) {
         return 1;                                                     // RETURN
     }
 
-    ThreadStartupInfo *startInfo = allocStartupInfo();
+    u::ThreadStartupInfo *startInfo = u::allocStartupInfo();
 
     int stackSize = attribute.stackSize();
     if (ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
@@ -374,12 +379,12 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
     handle->d_handle = (HANDLE)_beginthreadex(
                                              0,
                                              stackSize,
-                                             ThreadEntry,
+                                             u::ThreadEntry,
                                              startInfo,
                                              STACK_SIZE_PARAM_IS_A_RESERVATION,
                                              (unsigned int *)&handle->d_id);
     if ((HANDLE)-1 == handle->d_handle) {
-        freeStartupInfo(startInfo);
+        u::freeStartupInfo(startInfo);
         return 1;                                                     // RETURN
     }
     if (ThreadAttributes::e_CREATE_DETACHED ==
@@ -417,11 +422,11 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::join(
     // get the 'result' value
 
     if (status) {
-        EnterCriticalSection(&s_returnValueMapLock);
-        if (s_returnValueMapValid) {
-            *status = s_returnValueMap[handle.d_id];
+        EnterCriticalSection(&u::returnValueMapLock);
+        if (u::returnValueMapValid) {
+            *status = u::returnValueMap[handle.d_id];
         }
-        LeaveCriticalSection(&s_returnValueMapLock);
+        LeaveCriticalSection(&u::returnValueMapLock);
     }
 #else
     if (status) {
@@ -439,7 +444,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::detach(
 {
     if (handle.d_handle == GetCurrentThread()
      && handle.d_id     == GetCurrentThreadId()) {
-        Handle *realHandle = (Handle *)TlsGetValue(s_threadInfoTLSIndex);
+        Handle *realHandle = (Handle *)TlsGetValue(u::threadInfoTLSIndex);
         if (!realHandle || !realHandle->d_handle) {
             return 1;                                                 // RETURN
         }
@@ -461,13 +466,13 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::detach(
 
 void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::exit(void *status)
 {
-    invokeDestructors();
+    u::invokeDestructors();
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
-    EnterCriticalSection(&s_returnValueMapLock);
-    if (s_returnValueMapValid) {
-        s_returnValueMap[GetCurrentThreadId()] = status;
+    EnterCriticalSection(&u::returnValueMapLock);
+    if (u::returnValueMapValid) {
+        u::returnValueMap[GetCurrentThreadId()] = status;
     }
-    LeaveCriticalSection(&s_returnValueMapLock);
+    LeaveCriticalSection(&u::returnValueMapLock);
 #endif
     _endthreadex((unsigned)(bsls::Types::IntPtr)status);
 }
@@ -481,7 +486,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::createKey(
     // are initialized before the BCE threading environment, so make sure to do
     // so first.
 
-    if (bslmt_threadutil_win32_Initialize()) {
+    if (u::bslmt_threadutil_win32_Initialize()) {
         return 1;                                                     // RETURN
     }
 
@@ -490,32 +495,32 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::createKey(
         return 1;                                                     // RETURN
     }
     if (destructor) {
-        ThreadSpecificDestructor *d = new ThreadSpecificDestructor;
+        u::ThreadSpecificDestructor *d = new u::ThreadSpecificDestructor;
         d->d_key = *key;
         d->d_destructor = destructor;
-        EnterCriticalSection(&s_threadSpecificDestructorsListLock);
-        d->d_next = s_destructors;
-        s_destructors = d;
-        LeaveCriticalSection(&s_threadSpecificDestructorsListLock);
+        EnterCriticalSection(&u::threadSpecificDestructorsListLock);
+        d->d_next = u::destructors;
+        u::destructors = d;
+        LeaveCriticalSection(&u::threadSpecificDestructorsListLock);
     }
     return 0;
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::deleteKey(Key& key)
 {
-    ThreadSpecificDestructor *prev = 0;
+    u::ThreadSpecificDestructor *prev = 0;
     if (!TlsFree(key)) {
         return 1;                                                     // RETURN
     }
-    EnterCriticalSection(&s_threadSpecificDestructorsListLock);
-    ThreadSpecificDestructor *d = s_destructors;
+    EnterCriticalSection(&u::threadSpecificDestructorsListLock);
+    u::ThreadSpecificDestructor *d = u::destructors;
     while (d) {
         if (d->d_key == key) {
             if (prev) {
                 prev->d_next = d->d_next;
             }
             else {
-                s_destructors = d->d_next;
+                u::destructors = d->d_next;
             }
             delete d;
             break;
@@ -523,7 +528,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::deleteKey(Key& key)
         prev = d;
         d = d->d_next;
     }
-    LeaveCriticalSection(&s_threadSpecificDestructorsListLock);
+    LeaveCriticalSection(&u::threadSpecificDestructorsListLock);
     return 0;
 }
 
@@ -532,6 +537,91 @@ bool bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::areEqual(
                                                                const Handle& b)
 {
     return a.d_id == b.d_id;
+}
+
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::getThreadName(
+                                                       bsl::string *threadName)
+{
+    BSLS_ASSERT(threadName);
+
+    threadName->clear();    // Not implemented on Windows, but does clear the
+                            // passed 'bsl::string'.
+
+    typedef HRESULT (WINAPI *GetThreadDescriptionType)(HANDLE, PWSTR *);
+
+    static GetThreadDescriptionType gtdFuncPtr = 0;
+    static bsls::BslOnce            once       = BSLS_BSLONCE_INITIALIZER;
+    bsls::BslOnceGuard              onceGuard;
+    if (onceGuard.enter(&once)) {
+        if (!u::Kernel32DllHandle) {
+            u::Kernel32DllHandle = ::GetModuleHandle("Kernel32.dll");
+        }
+
+        if (u::Kernel32DllHandle) {
+            gtdFuncPtr = reinterpret_cast<GetThreadDescriptionType>(
+                                      ::GetProcAddress(u::Kernel32DllHandle,
+                                                      "GetThreadDescription"));
+        }
+    }
+
+    if (gtdFuncPtr) {
+        wchar_t *utf16Result = 0;
+        (void) (*gtdFuncPtr)(::GetCurrentThread(), &utf16Result);
+
+        // 'GetThreadDescription' returned us a UTF-16 string, while our caller
+        // wants a 'bsl::string'.  The BDE UTF-16 -> UTF-8 translation
+        // compoonent is in 'bdlde', which is above here, so we will just
+        // translate all non-ascii characters to '?'.
+
+        if (utf16Result) {
+            const wchar_t mask = ~ static_cast<wchar_t>(0x7f);
+            for (const wchar_t *pwc = utf16Result; *pwc; ++pwc) {
+                threadName->push_back(*pwc & mask ? '?'
+                                                 : static_cast<char>(*pwc));
+            }
+        }
+    }
+}
+
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::setThreadName(
+                                           const bslstl::StringRef& threadName)
+{
+    typedef HRESULT(WINAPI* SetThreadDescriptionType)(HANDLE hThread,
+                                                      PCWSTR wideThreadName);
+
+    // The SetThreadDescription API works even if no debugger is attached, but
+    // is only available on Windows version at or after Windows 10 version
+    // 1607.
+
+    static SetThreadDescriptionType stdFuncPtr = 0;
+    static bsls::BslOnce            once       = BSLS_BSLONCE_INITIALIZER;
+    bsls::BslOnceGuard              onceGuard;
+    if (onceGuard.enter(&once)) {
+        if (!u::Kernel32DllHandle) {
+            u::Kernel32DllHandle = ::GetModuleHandle("Kernel32.dll");
+        }
+
+        if (u::Kernel32DllHandle) {
+            stdFuncPtr = reinterpret_cast<SetThreadDescriptionType>(
+                                      ::GetProcAddress(u::Kernel32DllHandle,
+                                                      "SetThreadDescription"));
+        }
+    }
+
+    if (stdFuncPtr) {
+        // The Windows 'SetThreadDescription' takes its argument in UTF-16.
+        // Our BDE UTF8 -> UTF16 translation component is in 'bdlde', which is
+        // above 'bslmt'.  So we will just translate any non-ascii characters
+        // to '?'.
+
+        bsl::wstring utf16String;
+        const char *end = threadName.data() + threadName.length();
+        for (const char *pc = threadName.data(); pc < end; ++pc) {
+            utf16String.push_back(*pc & 0x80 ? '?' : *pc);
+        }
+
+        (*stdFuncPtr)(::GetCurrentThread(), utf16String.c_str());
+    }
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
@@ -555,7 +645,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
         if (0 == timer) {
             return GetLastError();                                    // RETURN
         }
-        HandleGuard guard(timer);
+        u::HandleGuard guard(timer);
 
         LARGE_INTEGER clockTime;
 

@@ -1478,7 +1478,7 @@ int main(int argc, char *argv[])
 
         defaultThreadName.resize(
                         bsl::min<bsl::size_t>(defaultThreadName.length(), 15));
-#elif defined(BSLS_PLATFORM_OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN) || defined(BSLS_PLATFORM_OS_WINDOWS)
         const bsl::string defaultThreadName;    // empty string
 #endif
 
@@ -1488,9 +1488,6 @@ int main(int argc, char *argv[])
 
         for (int ii = e_CREATE_MODE_START; ii < e_NUM_CREATE_MODES; ++ii) {
             CreateMode cm = static_cast<CreateMode>(ii);
-            if (veryVerbose) {
-                P(cm);
-            }
 
             bslmt::ThreadAttributes attr;
             attr.setStackSize(10 << 10);    // smaller than the functor object
@@ -1577,6 +1574,10 @@ int main(int argc, char *argv[])
             rc = Obj::join(handle, &status);
             LOOP_ASSERT(cm, 0 == rc);
 
+            if (veryVerbose) {
+                P_(cm);    P(threadName);
+            }
+
             switch (cm) {
               case e_NO_ALLOC_FUNCTOR_NO_ATTR:
               case e_NO_ALLOC_FUNCTOR_ATTR:
@@ -1606,14 +1607,22 @@ int main(int argc, char *argv[])
               case e_NO_ALLOC_ATTR_NAME:
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
                 LOOP2_ASSERT(cm, threadName, "woof" == threadName);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+                // The threadname will only be visible if we're running on
+                // Windows 10, version 1607 or later, otherwise it will be
+                // empty.
+
+                LOOP2_ASSERT(cm, threadName, "woof" == threadName ||
+                                                           threadName.empty());
 #else
                 LOOP2_ASSERT(cm, threadName, threadName.empty());
 #endif
               } break;
               default: {
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||    \
+    defined(BSLS_PLATFORM_OS_WINDOWS)
                 // All platforms that support thread names.
 
                 LOOP2_ASSERT(cm, threadName, defaultThreadName == threadName);
