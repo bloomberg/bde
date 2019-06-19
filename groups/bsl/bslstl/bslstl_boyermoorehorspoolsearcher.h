@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // '[func.search.bmh]' of the C++ Standard (C++17 and later).  This class has
 // several template parameters:
 //
-//: 'RANACC_ITR_NEEDLE':
+//: 'RNDACC_ITR_NEEDLE':
 //:    The type used to specify (on construction) the range of values
 //:    being sought (the "needle").
 //
@@ -308,7 +308,7 @@ namespace bslstl {
                 // class boyer_moore_horspool_searcher_CharImp
                 // ===========================================
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
@@ -321,15 +321,15 @@ class boyer_moore_horspool_searcher_CharImp {
 
   public:
     // TYPES
-    typedef typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type
+    typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type
                                                               value_type;
         // the type of the values that can be obtained by dereferencing a
-        // 'RANACC_ITR_NEEDLE'
+        // 'RNDACC_ITR_NEEDLE'
 
-    typedef typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::difference_type
+    typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::difference_type
                                                               difference_type;
         // a signed type that can describe the distance between
-        // 'RANACC_ITR_NEEDLE' iterators
+        // 'RNDACC_ITR_NEEDLE' iterators
 
   private:
     // DATA
@@ -339,11 +339,11 @@ class boyer_moore_horspool_searcher_CharImp {
 
   public:
     // CREATORS
-    boyer_moore_horspool_searcher_CharImp(RANACC_ITR_NEEDLE needleFirst,
-                                           RANACC_ITR_NEEDLE needleLast,
-                                           HASH              hash,
-                                           EQUAL             equal,
-                                           const ALLOCATOR&  basicAllocator);
+    boyer_moore_horspool_searcher_CharImp(RNDACC_ITR_NEEDLE needleFirst,
+                                          RNDACC_ITR_NEEDLE needleLast,
+                                          HASH              hash,
+                                          EQUAL             equal,
+                                          const ALLOCATOR&  basicAllocator);
         // Create a 'boyer_moore_horspool_searcher_CharImp' object for the
         // sequence of 'char' values in the specified range
         // '[needleFirst, needlelast)'.  This implementation is invoked when
@@ -376,7 +376,7 @@ class boyer_moore_horspool_searcher_CharImp {
                 // class boyer_moore_horspool_searcher_GeneralImp
                 // ==============================================
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
@@ -386,10 +386,10 @@ class boyer_moore_horspool_searcher_GeneralImp {
 
     // PUBLIC TYPES
   public:
-    typedef typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type
+    typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type
                                                               value_type;
 
-    typedef typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::difference_type
+    typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::difference_type
                                                               difference_type;
   private:
     // PRIVATE TYPES
@@ -405,8 +405,8 @@ class boyer_moore_horspool_searcher_GeneralImp {
   public:
     // CREATORS
     boyer_moore_horspool_searcher_GeneralImp(
-                                             RANACC_ITR_NEEDLE needleFirst,
-                                             RANACC_ITR_NEEDLE needleLast,
+                                             RNDACC_ITR_NEEDLE needleFirst,
+                                             RNDACC_ITR_NEEDLE needleLast,
                                              HASH              hash,
                                              EQUAL             equal,
                                              const ALLOCATOR&  basicAllocator);
@@ -442,14 +442,14 @@ namespace bsl {
                         // class boyer_moore_horspool_searcher
                         // ===================================
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH = bsl::hash<
-                typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type>,
+                typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>,
           class EQUAL = bsl::equal_to<
-                typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type>,
+                typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>,
           class ALLOCATOR = bsl::allocator<bsl::pair<
-        const typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type,
-              typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::difference_type
+        const typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type,
+              typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::difference_type
                                                     >
                                           >
          >
@@ -460,30 +460,30 @@ class boyer_moore_horspool_searcher {
 
   public:
     // TYPES
-    typedef typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type
+    typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type
                                                               value_type;
         // the type of the values that can be obtained by dereferencing a
-        // 'RANACC_ITR_NEEDLE'
+        // 'RNDACC_ITR_NEEDLE'
 
   private:
     // PRIVATE TYPES
-    typedef typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::difference_type
+    typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::difference_type
                                                               difference_type;
         // a signed type that can describe the distance between
-        // 'RANACC_ITR_NEEDLE' iterators
+        // 'RNDACC_ITR_NEEDLE' iterators
 
     typedef bsl::hash<
-                  typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type>
+                  typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>
                                                                    DefaultHash;
         // the default type for the 'HASH' optional template parameter
     typedef bsl::equal_to<
-                  typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type>
+                  typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>
                                                                   DefaultEqual;
         // the default type for the 'EQUAL' optional template parameter
 
     typedef bsl::allocator<bsl::pair<
-        const typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::value_type,
-              typename bsl::iterator_traits<RANACC_ITR_NEEDLE>::difference_type
+        const typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type,
+              typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::difference_type
                                     >
                           >                                   DefaultAllocator;
         // the default type for the 'ALLOCATOR' optional template parameter
@@ -499,19 +499,19 @@ class boyer_moore_horspool_searcher {
              k_CAN_OPTIMIZE_FOR_CHAR,
 
              BloombergLP::bslstl::
-             boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
+             boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
                                                    HASH,
                                                    EQUAL,
                                                    ALLOCATOR>,
              BloombergLP::bslstl::
-             boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
+             boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
                                                       HASH,
                                                       EQUAL,
                                                       ALLOCATOR> >::type Imp;
 
     // DATA
-    RANACC_ITR_NEEDLE d_needleFirst;   // start  of needle specified by CTOR
-    RANACC_ITR_NEEDLE d_needleLast;    // end    of needle specified by CTOR
+    RNDACC_ITR_NEEDLE d_needleFirst;   // start  of needle specified by CTOR
+    RNDACC_ITR_NEEDLE d_needleLast;    // end    of needle specified by CTOR
     difference_type   d_needleLength;  // length of needle specified by CTOR
 
     Imp               d_imp;  // 'char'-optimized or general implementation
@@ -519,8 +519,8 @@ class boyer_moore_horspool_searcher {
   public:
     // CREATORS
     boyer_moore_horspool_searcher(
-                               RANACC_ITR_NEEDLE needleFirst,
-                               RANACC_ITR_NEEDLE needleLast,
+                               RNDACC_ITR_NEEDLE needleFirst,
+                               RNDACC_ITR_NEEDLE needleLast,
                                HASH              hash           = HASH(),
                                EQUAL             equal          = EQUAL(),
                                const ALLOCATOR&  basicAllocator = ALLOCATOR());
@@ -560,10 +560,10 @@ class boyer_moore_horspool_searcher {
         // return a non-'const' reference to this object.
 
     // ACCESSORS
-    template<class RANACC_ITR_HAYSTACK>
-    bsl::pair<RANACC_ITR_HAYSTACK, RANACC_ITR_HAYSTACK> operator()(
-                                       RANACC_ITR_HAYSTACK haystackFirst,
-                                       RANACC_ITR_HAYSTACK haystackLast) const;
+    template<class RNDACC_ITR_HAYSTACK>
+    bsl::pair<RNDACC_ITR_HAYSTACK, RNDACC_ITR_HAYSTACK> operator()(
+                                       RNDACC_ITR_HAYSTACK haystackFirst,
+                                       RNDACC_ITR_HAYSTACK haystackLast) const;
         // Search the specified range '[haystackFirst, haystackLast)' for the
         // first sequence of 'value_type' values specified on construction.
         // Return the range where those values are found, or the range
@@ -582,11 +582,11 @@ class boyer_moore_horspool_searcher {
 
                         // Non-Standard Accessors
 
-    RANACC_ITR_NEEDLE needleFirst() const;
+    RNDACC_ITR_NEEDLE needleFirst() const;
         // Return an iterator referring to the first element of the sequence of
         // 'value_type' values that can be sought by this searcher object.
 
-    RANACC_ITR_NEEDLE needleLast() const;
+    RNDACC_ITR_NEEDLE needleLast() const;
         // Return an iterator referring to one past the last element of the
         // sequence of 'value_type' values that can be sought by this searcher
         // object.
@@ -615,17 +615,17 @@ namespace bslstl {
                 // -------------------------------------------
 
 // CREATORS
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
                                       HASH,
                                       EQUAL,
                                       ALLOCATOR>::
-boyer_moore_horspool_searcher_CharImp(RANACC_ITR_NEEDLE needleFirst,
-                                      RANACC_ITR_NEEDLE needleLast,
+boyer_moore_horspool_searcher_CharImp(RNDACC_ITR_NEEDLE needleFirst,
+                                      RNDACC_ITR_NEEDLE needleLast,
                                       HASH              ,
                                       EQUAL             ,
                                       const ALLOCATOR&  basicAllocator)
@@ -640,7 +640,7 @@ boyer_moore_horspool_searcher_CharImp(RANACC_ITR_NEEDLE needleFirst,
 
 #if 1
     if (0 < d_needleLength) {
-        for (RANACC_ITR_NEEDLE current  = needleFirst,
+        for (RNDACC_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast - 1;
                                last    != current; ++current) {
             d_table[static_cast<unsigned char>(*current)]
@@ -651,7 +651,7 @@ boyer_moore_horspool_searcher_CharImp(RANACC_ITR_NEEDLE needleFirst,
     }
 #else
     if (0 < d_needleLength) {
-        for (RANACC_ITR_NEEDLE current  = needleFirst,
+        for (RNDACC_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast;
                                last    != current; ++current) {
             const unsigned char   characterAtNeedleIndex = *current;
@@ -668,17 +668,17 @@ boyer_moore_horspool_searcher_CharImp(RANACC_ITR_NEEDLE needleFirst,
 }
 
 // ACCESSORS
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
 typename
-boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
                                       HASH,
                                       EQUAL,
                                       ALLOCATOR>::difference_type
-boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
                                       HASH,
                                       EQUAL,
                                       ALLOCATOR>::badCharacterSkip(
@@ -688,12 +688,12 @@ boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
     return d_table[static_cast<unsigned char>(value)];
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-HASH boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
+HASH boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
                                            HASH,
                                            EQUAL,
                                            ALLOCATOR>::hash() const
@@ -701,12 +701,12 @@ HASH boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
     return HASH();
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-EQUAL boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
+EQUAL boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
                                             HASH,
                                             EQUAL,
                                             ALLOCATOR>::equal() const
@@ -714,12 +714,12 @@ EQUAL boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
     return EQUAL();
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-ALLOCATOR boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
+ALLOCATOR boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
                                                 HASH,
                                                 EQUAL,
                                                 ALLOCATOR>::allocator() const
@@ -732,17 +732,17 @@ ALLOCATOR boyer_moore_horspool_searcher_CharImp<RANACC_ITR_NEEDLE,
                 // ----------------------------------------------
 
 // CREATORS
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
                                          HASH,
                                          EQUAL,
                                          ALLOCATOR>::
-boyer_moore_horspool_searcher_GeneralImp(RANACC_ITR_NEEDLE needleFirst,
-                                         RANACC_ITR_NEEDLE needleLast,
+boyer_moore_horspool_searcher_GeneralImp(RNDACC_ITR_NEEDLE needleFirst,
+                                         RNDACC_ITR_NEEDLE needleLast,
                                          HASH              hash,
                                          EQUAL             equal,
                                          const ALLOCATOR&  basicAllocator)
@@ -752,7 +752,7 @@ boyer_moore_horspool_searcher_GeneralImp(RANACC_ITR_NEEDLE needleFirst,
     BSLS_ASSERT(needleFirst <= needleLast);
 
     if (0 < d_needleLength) {
-        for (RANACC_ITR_NEEDLE current  = needleFirst,
+        for (RNDACC_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast - 1;
                                last    != current; ++current) {
             d_map.insert(native_std::make_pair(*current,
@@ -764,17 +764,17 @@ boyer_moore_horspool_searcher_GeneralImp(RANACC_ITR_NEEDLE needleFirst,
 }
 
 // ACCESSORS
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
 typename
-boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
                                          HASH,
                                          EQUAL,
                                          ALLOCATOR>::difference_type
-boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
                                          HASH,
                                          EQUAL,
                                          ALLOCATOR>::badCharacterSkip(
@@ -786,12 +786,12 @@ boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
     return d_map.cend() == result ? d_needleLength : result->second;
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-HASH boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
+HASH boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
                                               HASH,
                                               EQUAL,
                                               ALLOCATOR>::hash() const
@@ -799,12 +799,12 @@ HASH boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
     return d_map.hash_function();
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-EQUAL boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
+EQUAL boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
                                                HASH,
                                                EQUAL,
                                                ALLOCATOR>::equal() const
@@ -812,12 +812,12 @@ EQUAL boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
     return d_map.key_eq();
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-ALLOCATOR boyer_moore_horspool_searcher_GeneralImp<RANACC_ITR_NEEDLE,
+ALLOCATOR boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
                                                    HASH,
                                                    EQUAL,
                                                    ALLOCATOR>::allocator()
@@ -835,16 +835,16 @@ namespace bsl {
                         // -----------------------------------
 
 // CREATORS
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
-boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                               HASH,
                               EQUAL,
                               ALLOCATOR>::
-boyer_moore_horspool_searcher(RANACC_ITR_NEEDLE needleFirst,
-                              RANACC_ITR_NEEDLE needleLast,
+boyer_moore_horspool_searcher(RNDACC_ITR_NEEDLE needleFirst,
+                              RNDACC_ITR_NEEDLE needleLast,
                               HASH              hash,
                               EQUAL             equal,
                               const ALLOCATOR&  basicAllocator)
@@ -856,11 +856,11 @@ boyer_moore_horspool_searcher(RANACC_ITR_NEEDLE needleFirst,
     BSLS_ASSERT(needleFirst <= needleLast);
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
-boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                               HASH,
                               EQUAL,
                               ALLOCATOR>::
@@ -879,18 +879,18 @@ boyer_moore_horspool_searcher(
 }
 
 // ACCESSORS
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
-template <class RANACC_ITR_HAYSTACK>
-bsl::pair<RANACC_ITR_HAYSTACK, RANACC_ITR_HAYSTACK>
-boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_HAYSTACK>
+bsl::pair<RNDACC_ITR_HAYSTACK, RNDACC_ITR_HAYSTACK>
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                               HASH,
                               EQUAL,
                               ALLOCATOR>::operator()(
-                                        RANACC_ITR_HAYSTACK haystackFirst,
-                                        RANACC_ITR_HAYSTACK haystackLast) const
+                                        RNDACC_ITR_HAYSTACK haystackFirst,
+                                        RNDACC_ITR_HAYSTACK haystackLast) const
 {
     BSLS_ASSERT(0 <= haystackLast - haystackFirst);
 
@@ -922,12 +922,12 @@ boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
     return native_std::make_pair(haystackLast, haystackLast);
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-RANACC_ITR_NEEDLE boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+RNDACC_ITR_NEEDLE boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                                                 HASH,
                                                 EQUAL,
                                                 ALLOCATOR>::needleFirst() const
@@ -935,12 +935,12 @@ RANACC_ITR_NEEDLE boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
     return d_needleFirst;
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-RANACC_ITR_NEEDLE boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+RNDACC_ITR_NEEDLE boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                                                 HASH,
                                                 EQUAL,
                                                 ALLOCATOR>::needleLast() const
@@ -948,12 +948,12 @@ RANACC_ITR_NEEDLE boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
     return d_needleLast;
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-HASH boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+HASH boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                                    HASH,
                                    EQUAL,
                                    ALLOCATOR>::hash() const
@@ -961,9 +961,9 @@ HASH boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
     return d_imp.hash();
 }
 
-template <class RANACC_ITR_NEEDLE, class HASH, class EQUAL, class ALLOCATOR>
+template <class RNDACC_ITR_NEEDLE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-EQUAL boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+EQUAL boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                                     HASH,
                                     EQUAL,
                                     ALLOCATOR>::equal() const
@@ -971,12 +971,12 @@ EQUAL boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
     return d_imp.equal();
 }
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 inline
-ALLOCATOR boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+ALLOCATOR boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                                         HASH,
                                         EQUAL,
                                         ALLOCATOR>::allocator() const
@@ -993,38 +993,38 @@ ALLOCATOR boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
 namespace BloombergLP {
 namespace bslma {
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 struct UsesBslmaAllocator<
-    bsl::boyer_moore_horspool_searcher<RANACC_ITR_NEEDLE,
+    bsl::boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                                        HASH,
                                        EQUAL,
                                        ALLOCATOR>
     > : bsl::is_convertible<Allocator*, ALLOCATOR>
 {};
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 struct UsesBslmaAllocator<
     BloombergLP::bslstl::boyer_moore_horspool_searcher_GeneralImp<
-                                                             RANACC_ITR_NEEDLE,
+                                                             RNDACC_ITR_NEEDLE,
                                                              HASH,
                                                              EQUAL,
                                                              ALLOCATOR>
     > : bsl::is_convertible<Allocator*, ALLOCATOR>
 {};
 
-template <class RANACC_ITR_NEEDLE,
+template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL,
           class ALLOCATOR>
 struct UsesBslmaAllocator<
     BloombergLP::bslstl::boyer_moore_horspool_searcher_CharImp<
-                                                             RANACC_ITR_NEEDLE,
+                                                             RNDACC_ITR_NEEDLE,
                                                              HASH,
                                                              EQUAL,
                                                              ALLOCATOR>
