@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
         //: 1 The output operators defined in 'bsltf_streamutil' work correctly
         //:   with 'real' bsl ostreams (we could not test this in 'bsltf'
         //:   because we did not have access to 'real' bsl ostreams at that
-        //:   level.
+        //:   level).
         //
         // Plan:
         //: 1 For each 'bsltf' test type, create an object of such a type
