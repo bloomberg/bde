@@ -337,10 +337,10 @@ class default_searcher {
         // Assign to this object the state of the specified 'rhs' object, and
         // return a non-'const' reference to this object.
 
-    //! default_searcher(default_searcher&& original) = default;
-        // Create a 'default_searcher' object having the same state as the
-        // specified 'original' on entry.  The 'original' object is left in an
-        // unspecified (valid) state.
+    //! default_searcher& operator=(default_searcher&& rhs) = default;
+        // Assign to this object the state of the specified 'rhs' had on entry
+        // and return a non-'const' reference to this object.  The 'original'
+        // object is left in an unspecified (valid) state.
 
     // ACCESSORS
     template<class FORWARD_ITR_HAYSTACK>
