@@ -62,6 +62,8 @@ using bsl::flush;
 // [14] SignalerConnection::release
 // [15] SignalerConnection::swap
 // [16] SignalerConnection::isConnected
+// [16] SignalerConnectionGuard::creators
+// [16] SignalerConnectionGuard::assignment
 // [16] SignalerConnectionGuard::isConnected()
 // [16] SignalerConnectionGuard::waitOnDisconnect()
 // [16] SignalerConnectionGuard::release()
@@ -396,15 +398,17 @@ unsigned RandGen::operator()()
 }
 
 struct SleepAndPushTimestamp {
-    // This functional object is used to test the waiting behavior of
-    // waiting disconnect functions.
+    // This functional object is used to test the waiting behavior of waiting
+    // disconnect functions.
     //
     // It's call operator accepts an output synchronizable queue of
-    // 'bsls::TimeInterval' and the number of seconds to sleep. When
-    // invoked, does the following:
-    // 1. push the current timestamp to the queue (start timestamp)
-    // 2. sleeps for the specified number of seconds
-    // 3. push the current timestamp to the queue (end timestamp)
+    // 'bsls::TimeInterval' and the number of seconds to sleep.  When invoked,
+    // does the following:
+    //: 1 push the current timestamp to the queue (start timestamp)
+    //:
+    //: 2 sleeps for the specified number of seconds
+    //:
+    //: 3 push the current timestamp to the queue (end timestamp)
 
     // ACCESSORS
     void operator()(double                     sleepForSec,
@@ -422,10 +426,11 @@ struct SleepAndPushTimestamp {
 
 // Commented out due to the test requiring it (test3_signaler_callOperator) not
 // being enabled.
+//..
 // struct CondCall {
 //     // Conditionally call a specified signaler. Before calling, set the
 //     // condition to 'false'.
-
+//
 //     // ACCESSORS
 //     template <class SIGNALER>
 //     void operator()(const SIGNALER   *signaler,
@@ -437,6 +442,7 @@ struct SleepAndPushTimestamp {
 //         }
 //     }
 // };
+//..
 
 struct Connect {
     // Connects a specified slot to a specified signaler.
@@ -2412,6 +2418,8 @@ static void test16_connection_isConnected()
     //
     // Testing:
     //   bdlmt::SignalerConnection::isConnected()
+    //   bdlmt::SignalerConnectionGuard::creators
+    //   bdlmt::SignalerConnectionGuard::assignment
     //   bdlmt::SignalerConnectionGuard::isConnected()
     //   bdlmt::SignalerConnectionGuard::waitOnDisconnect()
     //   bdlmt::SignalerConnectionGuard::release()
@@ -2984,15 +2992,15 @@ struct Functor {
         return sum + sumSquares;
     }
 
-    double operator()(double a1,
-                      double a2,
-                      const double a3,
-                      const int& a4,
-                      const int a5,
+    double operator()(double        a1,
+                      double        a2,
+                      const double  a3,
+                      const int&    a4,
+                      const int     a5,
                       const double& a6,
-                      double& sum,
-                      double& sumSquared,
-                      double& sumCubed)                               // LVALUE
+                      double&       sum,
+                      double&       sumSquared,
+                      double&       sumCubed)                         // LVALUE
     {
         sum        += d_data + a1 + a2 + a3 + a4 + a5 + a6;
         sumSquared += sqr(d_data) + sqr(a1) + sqr(a2) + sqr(a3) + sqr(a4) +
@@ -3579,8 +3587,8 @@ int main(int argc, char *argv[])
     veryVerbose     = argc > 3;    (void) veryVerbose;
     veryVeryVerbose = argc > 4;
 
-    // Install an assert handler to 'gracefully' mark the test as failure
-    // in case of assert.
+    // Install an assert handler to 'gracefully' mark the test as failure in
+    // case of assert.
 
     // Global Allocator
     bslma::TestAllocator        _ga("global", veryVeryVerbose);
@@ -3595,7 +3603,9 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     // Prevent against compiler warning:
+    //..
     // error: unused function template 'operator()' [-Werror,-Wunused-template]
+    //..
 
     u::NoOp()(1);
     u::NoOp()(1, 2);

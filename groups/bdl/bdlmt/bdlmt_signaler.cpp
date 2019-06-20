@@ -33,7 +33,7 @@ Signaler_SlotNode_Base::~Signaler_SlotNode_Base()
 
 // PRIVATE CREATORS
 SignalerConnection::SignalerConnection(
-   const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr)
+     const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr) BSLS_CPP11_NOEXCEPT
 : d_slotNodeBasePtr(slotNodeBasePtr)
 {
     BSLS_ASSERT(slotNodeBasePtr);

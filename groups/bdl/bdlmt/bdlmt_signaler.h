@@ -199,6 +199,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_cpp11.h>
 #include <bsls_keyword.h>
 #include <bsls_types.h>
 
@@ -895,12 +896,12 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
                             int                                     group = 0);
         // Connect the specified 'slot', a callable object which must meet the
         // 'Slot Object Requirements' described in the component documentation,
-        // to this signaler.  Specify a 'group' used to order slots upon
-        // invocation.  Return an instance of 'SignalerConnection' representing
-        // the created connection.  This function meets the strong exception
-        // guarantee.  Note that the connected slot may be called by a signal
-        // emitted from another thread before this function completes.  Also
-        // note that it is unspecified whether connecting a slot while the
+        // to this signaler.  Optionally specify a 'group' used to order slots
+        // upon invocation.  Return an instance of 'SignalerConnection'
+        // representing the created connection.  This function meets the strong
+        // exception guarantee.  Note that the connected slot may be called by
+        // a signal emitted from another thread before this function completes.
+        // Also note that it is unspecified whether connecting a slot while the
         // signaler is emitting will result in the slot being called
         // immediately.  Note that 'FUNC' may have a return type other than
         // 'void', but in that case, when the slot is called, the return value
@@ -1022,7 +1023,8 @@ class SignalerConnection {
   private:
     // PRIVATE CREATORS
     explicit
-    SignalerConnection(const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr);
+    SignalerConnection(const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr)
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Create 'SignalerConnection' object weakly linked to the specified
         // 'slotNodeBasePtr'.
 
@@ -1117,9 +1119,9 @@ class SignalerConnectionGuard {
     explicit
     SignalerConnectionGuard(bool waitOnDisconnect = false);
         // Create a 'SignalerConnectionGuard' object having no associated slot.
-        // Upon destruction, the specified 'waitOnDisconnect' determines
-        // whether 'disconnect()' or 'disconnectAndWait()' will be called on
-        // the connection contained in this object.
+        // Upon destruction, the optionally specified 'waitOnDisconnect'
+        // determines whether 'disconnect()' or 'disconnectAndWait()' will be
+        // called on the connection contained in this object.
 
     explicit
     SignalerConnectionGuard(
@@ -1127,9 +1129,10 @@ class SignalerConnectionGuard {
                            bool                      waitOnDisconnect = false);
         // Create a 'SignalerConnectionGuard' object that refers to and assumes
         // management of the same slot (if any) as the specified 'connection'
-        // object.  Upon destruction, the specified 'waitOnDisconnect'
-        // determines whether 'disconnect' or 'disconnectAndWait' will be
-        // called on the 'SignalerConnection' held by this object.
+        // object.  Upon destruction, the optionally specified
+        // 'waitOnDisconnect' determines whether 'disconnect' or
+        // 'disconnectAndWait' will be called on the 'SignalerConnection' held
+        // by this object.
 
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
@@ -1138,9 +1141,9 @@ class SignalerConnectionGuard {
         // Create a 'SignalerConnectionGuard' object that refers to and assumes
         // management of the same slot (if any) as the specified 'connection'
         // object, and reset 'connection' to a default-constructed state.  Upon
-        // destruction, the specified 'waitOnDisconnect' determines whether
-        // 'disconnect()' or 'disconnectAndWait()' will be called on the
-        // connection contained in this object.
+        // destruction, the optionally specified 'waitOnDisconnect' determines
+        // whether 'disconnect()' or 'disconnectAndWait()' will be called on
+        // the connection contained in this object.
 
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
@@ -1169,7 +1172,7 @@ class SignalerConnectionGuard {
         // Destroy this object.  Call 'disconnect' or 'disconnectAndWait' on
         // the connection contained in this object depending on the value of
         // the 'waitOnDisconnect' 'bool' passed to the constructor or copied
-        // when this guard is move-assigned to from another guard.
+        // when this guard is move to to from another guard.
 
     // MANIPULATORS
     SignalerConnectionGuard&
@@ -1286,7 +1289,8 @@ void Signaler_Invocable<SIGNALER, void(ARG1)>::operator()(ARG1 arg1) const
 template <class SIGNALER, class ARG1,
                           class ARG2>
 inline
-void Signaler_Invocable<SIGNALER, void(ARG1, ARG2)>::operator()(ARG1 arg1,
+void Signaler_Invocable<SIGNALER, void(ARG1, ARG2)>::operator()(
+                                                               ARG1 arg1,
                                                                ARG2 arg2) const
 {
     static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
@@ -1712,11 +1716,13 @@ template <class PROT>
 inline
 void Signaler_SlotNode<PROT>::disconnect(bool wait) BSLS_KEYWORD_NOEXCEPT
 {
+    const bool wasConnected = d_isConnected.testAndSwap(true, false);
+
     // Notify the associated signaler
 
     bsl::shared_ptr<SignalerNode> signalerNodePtr = d_signalerNodePtr.lock();
     if (signalerNodePtr) {
-        if (d_isConnected.testAndSwap(true, false)) {
+        if (wasConnected) {
             signalerNodePtr->notifyDisconnected(d_slotMapKey);
         }
 
@@ -1864,19 +1870,14 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
                                      slotMapKey,
                                      d_slotMap.allocator());
 
-    // Construct the return value (which may throw) before adding the slot to
-    // the slot map, so that this function will have the strong exception
-    // guarantee.
-
-    SignalerConnection ret(slotNodePtr);
-
     // connect the slot
 
     d_slotMap.addR(slotMapKey, slotNodePtr);
 
     // return the connection
 
-    return ret;
+    return SignalerConnection(slotNodePtr);
+
 }
 
 template <class PROT>
