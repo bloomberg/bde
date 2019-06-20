@@ -59,7 +59,11 @@ namespace BSL = native_std;  // for Usage examples
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] boyer_moore_horspool_searcher(RAI f, RAI l, HASH l, EQUAL e, A a);
+// [ 4] boyer_moore_horspool_searcher(const b_m_h_s& original);
 // [ 4] boyer_moore_horspool_searcher(const b_m_h_s& original, A a);
+//
+// MANIPULATORS
+// [ 5] b_m_h& operator=(const b_m_h& rhs);
 //
 // ACCESSORS
 // [ 3] bsl::pair<RAI, RAI> operator()(RAI hsFirst, RAI hsLast) const;
@@ -70,7 +74,7 @@ namespace BSL = native_std;  // for Usage examples
 // [ 2] ALLOCATOR allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 //
 // ============================================================================
@@ -2828,7 +2832,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2852,18 +2856,19 @@ int main(int argc, char *argv[])
         usage();
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
-        // COPY CONSTRUCTOR
+        // COPY ASSIGNMENT
         //
         // Concerns:
         //: 1 The copied object has the same state as the original with respect
         //:   to the 'needleFirst', 'needleLast', 'hash', and 'equal'
         //:   attributes.
         //:
-        //: 2 The allocator installed in the copied object depends on the the
+        //: 2 The assigned to object continues to use the allocator held before
+        //:   assignment.
         //:
-        //: 3 A 'const'-qualified searcher object can be copied.
+        //: 3 The 'rhs' object can be  'const'-qualified.
         //:
         //: 4 The 'original' object is not changed when copied.
         //
@@ -2874,59 +2879,225 @@ int main(int argc, char *argv[])
         //:   state.
         //
         // Testing:
+        //   b_m_h_s& operator=(const b_m_h_s& rsh);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "COPY ASSIGNMENT"
+                            "\n" "==============" "\n");
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // COPY CONSTRUCTOR
+        //
+        // Concerns:
+        //: 1 The copied object has the same state as the original with respect
+        //:   to the 'needleFirst', 'needleLast', 'hash', and 'equal'
+        //:   attributes.
+        //:
+        //: 2 The allocator of the new object is the supplied allocator, if
+        //:   specified, and the default allocator otherwise.  The allocator of
+        //:   the original object is irrelvant.
+        //:
+        //: 3 A 'const'-qualified searcher object can be copied.
+        //:
+        //: 4 The 'original' object is not changed when copied.
+        //:
+        //: 4 The behaviors hold true for both general and optimized
+        //:   implementations.
+        //
+        // Plan:
+        //: 1 Ad hoc test: Searcher objects are created and copied.
+        //:
+        //: 2 The accessors are used at each step to confirm the expected
+        //:   state.
+        //
+        // Testing:
+        //   boyer_moore_horspool_searcher(const b_m_h_s& original);
         //   boyer_moore_horspool_searcher(const b_m_h_s& original, A a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "COPY CONSTRUCTOR"
                             "\n" "================" "\n");
 
-        CharArray<char> containerHavingRandomIterators(
-                                                 bsl::vector<char>('b', 5));
+        if (veryVerbose) printf("General Implementation\n");
+        {
+            typedef  CharHashCaseInsensitive HASH;
+            typedef CharEqualCaseInsensitive EQUAL;
 
-        CharEqualCaseInsensitive equalFunctor(42);
-        CharHashCaseInsensitive   hashFunctor(43);
+            HASH   hash;
+            EQUAL equal;
 
-        typedef CharArray<char>::const_iterator RandConstItr;
-        typedef bsl::boyer_moore_horspool_searcher<
-                                                RandConstItr,
-                                                CharHashCaseInsensitive,
-                                                CharEqualCaseInsensitive> Mech;
+            CharArray<char> containerHavingRandomIterators(
+                                                     bsl::vector<char>('b', 5));
 
-        RandConstItr needleFirst = containerHavingRandomIterators.begin();
-        RandConstItr needleLast  = containerHavingRandomIterators.end();
+            typedef CharArray<char>::const_iterator           RandConstItr;
+            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                                                       HASH,
+                                                       EQUAL> Mech;
 
-        typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-                                                                 AllocatorType;
+            RandConstItr needleFirst = containerHavingRandomIterators.begin();
+            RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-        bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-        bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-        AllocatorType         xsa(&saX);
-        AllocatorType         ysa(&saY);
+            typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
+                                                                     AllocatorType;
+            if (veryVerbose) printf("default allocator\n");
+            {
+                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
+                AllocatorType         xsa(&saX);
 
-        Mech mZ(needleFirst, needleLast, hashFunctor, equalFunctor, xsa);
-        Mech mX(needleFirst, needleLast, hashFunctor, equalFunctor, xsa);
+                bslma::TestAllocator         da("default" , veryVeryVeryVerbose);
+                AllocatorType                daa(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
-        const Mech& X  = mX;
-        const Mech& Z  = mZ;
+                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
+                Mech mX(needleFirst, needleLast, hash, equal, xsa);
 
-        Mech mY(X, ysa); const Mech& Y = mY;  // ACTION
+                const Mech& X  = mX;
+                const Mech& Z  = mZ;
 
-        // The copied object state matches 'original' except for allocator.
+                Mech mY(X); const Mech& Y = mY;  // ACTION
 
-        ASSERT(X.needleFirst() == Y.needleFirst());
-        ASSERT(X.needleLast()  == Y.needleLast());
-        ASSERT(X.hash()        == Y.hash());
-        ASSERT(X.equal()       == Y.equal());
-        ASSERT(X.allocator()   != Y.allocator());
-        ASSERT(&saY            == Y.allocator());
+                // The copied object state matches 'original' except for allocator.
 
-        // The 'original' object state unchanged since construction.
+                ASSERT(X.needleFirst() == Y.needleFirst());
+                ASSERT(X.needleLast()  == Y.needleLast());
+                ASSERT(X.hash()        == Y.hash());
+                ASSERT(X.equal()       == Y.equal());
+                ASSERT(X.allocator()   != Y.allocator());
+                ASSERT(&da             == Y.allocator());
 
-        ASSERT(Z.needleFirst() == X.needleFirst());
-        ASSERT(Z.needleLast()  == X.needleLast());
-        ASSERT(Z.hash()        == X.hash());
-        ASSERT(Z.equal()       == X.equal());
-        ASSERT(Z.allocator()   == X.allocator());
+                // The 'original' object state unchanged since construction.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleLast()  == X.needleLast());
+                ASSERT(Z.hash()        == X.hash());
+                ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+
+            if (veryVerbose) printf("supplied allocator\n");
+            {
+                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
+                AllocatorType         xsa(&saX);
+                AllocatorType         ysa(&saY);
+
+                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
+                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+
+                const Mech& X  = mX;
+                const Mech& Z  = mZ;
+
+                Mech mY(X, ysa); const Mech& Y = mY;  // ACTION
+
+                // The copied object state matches 'original' except for allocator.
+
+                ASSERT(X.needleFirst() == Y.needleFirst());
+                ASSERT(X.needleLast()  == Y.needleLast());
+                ASSERT(X.hash()        == Y.hash());
+                ASSERT(X.equal()       == Y.equal());
+                ASSERT(X.allocator()   != Y.allocator());
+                ASSERT(&saY            == Y.allocator());
+
+                // The 'original' object state unchanged since construction.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleLast()  == X.needleLast());
+                ASSERT(Z.hash()        == X.hash());
+                ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+        }
+
+        if (veryVerbose) printf("Optimized Implementation\n");
+        {
+            typedef bsl::hash<char>     HASH;   // These types lack equality
+            typedef bsl::equal_to<char> EQUAL;  // comparison operators.
+
+            HASH   hash;
+            EQUAL equal;
+
+            CharArray<char> containerHavingRandomIterators(
+                                                     bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator           RandConstItr;
+            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                                                       HASH,
+                                                       EQUAL> Mech;
+
+            RandConstItr needleFirst = containerHavingRandomIterators.begin();
+            RandConstItr needleLast  = containerHavingRandomIterators.end();
+
+            typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
+                                                                     AllocatorType;
+            if (veryVerbose) printf("default allocator\n");
+            {
+                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
+                AllocatorType         xsa(&saX);
+
+                bslma::TestAllocator         da("default" , veryVeryVeryVerbose);
+                AllocatorType                daa(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
+                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+
+                const Mech& X  = mX;
+                const Mech& Z  = mZ;
+
+                Mech mY(X); const Mech& Y = mY;  // ACTION
+
+                // The copied object state matches 'original' except for allocator.
+
+                ASSERT(X.needleFirst() == Y.needleFirst());
+                ASSERT(X.needleLast()  == Y.needleLast());
+             // ASSERT(X.hash()        == Y.hash());
+             // ASSERT(X.equal()       == Y.equal());
+                ASSERT(X.allocator()   != Y.allocator());
+                ASSERT(&da             == Y.allocator());
+
+                // The 'original' object state unchanged since construction.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleLast()  == X.needleLast());
+             // ASSERT(Z.hash()        == X.hash());
+             // ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+
+            if (veryVerbose) printf("supplied allocator\n");
+            {
+                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
+                AllocatorType         xsa(&saX);
+                AllocatorType         ysa(&saY);
+
+                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
+                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+
+                const Mech& X  = mX;
+                const Mech& Z  = mZ;
+
+                Mech mY(X, ysa); const Mech& Y = mY;  // ACTION
+
+                // The copied object state matches 'original' except for allocator.
+
+                ASSERT(X.needleFirst() == Y.needleFirst());
+                ASSERT(X.needleLast()  == Y.needleLast());
+             // ASSERT(X.hash()        == Y.hash());
+             // ASSERT(X.equal()       == Y.equal());
+                ASSERT(X.allocator()   != Y.allocator());
+                ASSERT(&saY            == Y.allocator());
+
+                // The 'original' object state unchanged since construction.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleLast()  == X.needleLast());
+             // ASSERT(Z.hash()        == X.hash());
+             // ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+        }
 
       } break;
       case 3: {

@@ -296,6 +296,8 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_pair.h>
 #include <bslstl_unorderedmap.h>
 
+#include <bslma_default.h>
+
 #include <bslmf_conditional.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
@@ -494,6 +496,16 @@ class boyer_moore_horspool_searcher {
         // the type of the values that can be obtained by dereferencing a
         // 'RNDACC_ITR_NEEDLE'
 
+    typedef bsl::hash<
+                  typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>
+                                                                   DefaultHash;
+        // the default type for the 'HASH' optional template parameter
+
+    typedef bsl::equal_to<
+                  typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>
+                                                                  DefaultEqual;
+        // the default type for the 'EQUAL' optional template parameter
+
   private:
     // PRIVATE TYPES
 #if 0
@@ -507,14 +519,6 @@ class boyer_moore_horspool_searcher {
         // a signed type that can describe the distance between
         // 'RNDACC_ITR_NEEDLE' iterators
 
-    typedef bsl::hash<
-                  typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>
-                                                                   DefaultHash;
-        // the default type for the 'HASH' optional template parameter
-    typedef bsl::equal_to<
-                  typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type>
-                                                                  DefaultEqual;
-        // the default type for the 'EQUAL' optional template parameter
 
     typedef bsl::allocator<bsl::pair<
         const typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type,
@@ -1016,11 +1020,8 @@ boyer_moore_horspool_searcher(const boyer_moore_horspool_searcher& original)
 : d_needleFirst( original.d_needleFirst)
 , d_needleLast(  original.d_needleLast)
 , d_needleLength(original.d_needleLength)
-, d_imp(original.d_needleFirst,
-        original.d_needleLast,
-        original.d_hash,
-        original.d_equal,
-        original.d_allocator)
+, d_imp(         original.d_imp,
+                 BloombergLP::bslma::Default::defaultAllocator())
 {
 }
 
