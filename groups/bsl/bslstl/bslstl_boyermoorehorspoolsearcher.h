@@ -422,8 +422,7 @@ class boyer_moore_horspool_searcher_GeneralImp {
 
   public:
     // CREATORS
-    boyer_moore_horspool_searcher_GeneralImp(
-                                             RNDACC_ITR_NEEDLE needleFirst,
+    boyer_moore_horspool_searcher_GeneralImp(RNDACC_ITR_NEEDLE needleFirst,
                                              RNDACC_ITR_NEEDLE needleLast,
                                              HASH              hash,
                                              EQUAL             equal,
@@ -1096,6 +1095,28 @@ boyer_moore_horspool_searcher(
 #endif
 
 // MANIPULATORS
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL,
+          class ALLOCATOR>
+inline
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
+                                         HASH,
+                                         EQUAL,
+                                         ALLOCATOR>&
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
+                                         HASH,
+                                         EQUAL,
+                                         ALLOCATOR>::operator=(
+                                      const boyer_moore_horspool_searcher& rhs)
+{
+    d_needleFirst  = rhs.d_needleFirst;
+    d_needleLast   = rhs.d_needleLast;
+    d_needleLength = rhs.d_needleLength;
+    d_imp          = rhs.d_imp;
+
+    return *this;
+}
 
 // ACCESSORS
 template <class RNDACC_ITR_NEEDLE,

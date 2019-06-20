@@ -33,6 +33,7 @@
 
 #include <assert.h>
 #include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
+#include <limits.h>   // for 'UCHAR_MAX'
 #include <stddef.h>   // for 'NULL'
 #include <stdio.h>    // for 'stdout'
 #include <stdlib.h>   // for 'atoi'
@@ -2816,6 +2817,26 @@ static void usage()
 }
 
 // ============================================================================
+//                               HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+
+static void convertToNonAscii(BSL::string *out, const BSL::string& input)
+{
+    ASSERT(out);
+
+    for (BSL::size_t i = 0; i < input.length(); ++i) {
+        int chOld = input.data()[i];
+        int chNew = '0' == chOld ?         0 :
+                    '1' == chOld ? UCHAR_MAX :
+                     /* else */           -1 ;
+
+        ASSERT(-1 != chNew);
+
+        out->push_back(static_cast<char>(chNew));
+    }
+}
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -3346,6 +3367,60 @@ int main(int argc, char *argv[])
                                               rndResultRndCs.second));
             ASSERT(LENGTH_CI == bsl::distance(rndResultRndCi.first,
                                               rndResultRndCi.second));
+        }
+
+        if (verbose) printf("\n" "Test Extremes of 'char' Values" "\n");
+        {
+            // Test helper function, 'convertToNonAscii'
+
+            BSL::string testString("0101");
+            BSL::string testStringNonAscii;
+            convertToNonAscii(&testStringNonAscii, testString);
+
+            ASSERT(testString.size() == testStringNonAscii.size());
+            ASSERT(0         == testStringNonAscii.data()[0]); 
+            ASSERT(UCHAR_MAX == static_cast<unsigned char>(
+                                testStringNonAscii.data()[1]));
+
+            ASSERT(0         == testStringNonAscii.data()[2]); 
+            ASSERT(UCHAR_MAX == static_cast<unsigned char>(
+                                testStringNonAscii.data()[3]));
+
+            BSL::string haystackAsString(HAYSTACK_BINARY_FIRST,
+                                         HAYSTACK_BINARY_LAST);
+                // Actually, sequence 'char' values that are either '0' or '1'.
+            
+            BSL::string haystackNonAscii;
+            convertToNonAscii(&haystackNonAscii, haystackAsString);
+
+            for (BSL::size_t i = 0; i < NUM_U_DATA_BINARY; ++i) {
+                const int          LINE     = U_DATA_BINARY[i].d_line;
+                const bool         EXPECTED = U_DATA_BINARY[i].d_expected;   
+                const char * const NEEDLE   = U_DATA_BINARY[i].d_needle_p;
+
+                BSL::string needleNonAscii;
+                convertToNonAscii(&needleNonAscii, bsl::string(NEEDLE));
+
+                const bsl::boyer_moore_horspool_searcher<const char *>
+                                               searcher(needleNonAscii.data(),
+                                                        needleNonAscii.data()
+                                                      + needleNonAscii.size());
+
+                const bsl::pair<const char *, const char *> result =
+                                             searcher(haystackNonAscii.data(),
+                                                      haystackNonAscii.data()
+                                                    + haystackNonAscii.size());
+
+                const bsl::pair<const char *, const char *> NOT_FOUND(
+                                                      haystackNonAscii.data()
+                                                    + haystackNonAscii.size(),
+                                                      haystackNonAscii.data()
+                                                    + haystackNonAscii.size());
+                
+                bool wasFound = NOT_FOUND != result;
+
+                ASSERTV(LINE, EXPECTED == wasFound);
+            }
         }
 
         if (verbose) printf("\n" "Negative Tests" "\n");
