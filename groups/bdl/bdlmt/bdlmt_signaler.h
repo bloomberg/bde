@@ -462,10 +462,10 @@ class Signaler_SlotNode_Base {
         // on the signaler by any other threads.  If 'wait' is 'false', return
         // after disconnecting without waiting.  If the slot was already
         // disconnected, this function has no effect.  Throws nothing.  The
-        // behavior is undefined if this function is invoked from a slot with
+        // behavior is undefined if this function is called from a slot with
         // 'true' passed to 'wait'.  Note that it is guaranteed that this slot
-        // will not be invoked by a call to the same signaler that begins after
-        // this function completes, whether 'wait' is 'true' or not.
+        // will not be called by a signal on the same signaler that begins
+        // after this function completes, whether 'wait' is 'true' or not.
 
     // ACCESSOR
     virtual bool isConnected() const = 0;
@@ -653,7 +653,7 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
         // disconnected, this function has no effect.  Throws nothing.  The
         // behavior is undefined if this function is called by a signal emitted
         // on the same signaler with 'true' passed to 'wait'.  Note that it is
-        // guaranteed that this slot will not be invoked by a call to the same
+        // guaranteed that this slot will not be called by a signal on the same
         // signaler that begins after this function completes, whether 'wait'
         // is 'true' or not'.
 
