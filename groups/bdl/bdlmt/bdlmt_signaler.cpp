@@ -36,6 +36,9 @@ SignalerConnection::SignalerConnection(
      const bsl::shared_ptr<SlotNode_Base>& slotNodeBasePtr) BSLS_CPP11_NOEXCEPT
 : d_slotNodeBasePtr(slotNodeBasePtr)
 {
+    // This function is called by 'Signaler::connect', which requires its not
+    // throwing for it to provide the strong exception guarantee.
+
     BSLS_ASSERT(slotNodeBasePtr);
 }
 
@@ -50,7 +53,9 @@ SignalerConnection::SignalerConnection(const SignalerConnection& original)
                                                             BSLS_CPP11_NOEXCEPT
 : d_slotNodeBasePtr(original.d_slotNodeBasePtr)
 {
-    // NOTHING
+    // Callers to 'Signaler::connect' and 'SignalerConnectionGuard::release'
+    // use this function to copy the return value, so this must not throw for
+    // the whole operation to provide the strong exception guarantee.
 }
 
 SignalerConnection::SignalerConnection(
