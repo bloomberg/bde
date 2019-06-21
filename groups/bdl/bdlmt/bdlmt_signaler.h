@@ -199,7 +199,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_cpp11.h>
 #include <bsls_keyword.h>
 #include <bsls_types.h>
 
@@ -1106,12 +1105,14 @@ class SignalerConnection {
                         // =============================
 
 class SignalerConnectionGuard {
-    // This guard type 'has a' connection to slot, and upon destruction will
-    // call 'disconnect' on that connection.  It also contains a boolean
-    // 'waitOnDisconnect', which will deterimine whether the 'disconnect' call
-    // will wait be a call to 'SignalerConnection::disconnect' or
-    // 'SignalerConnection::disconnectAndWait'.  If the connection contained in
-    // the guard refers to no slot, destruction will have no effect.
+    // This guard type 'has a' slot connection, and when it is destroyed or
+    // assigned to it will call disconnect on its connection if it still refers
+    // to one.  It also contains a boolean 'waitOnDisconnect' attribute, which
+    // determines if 'SignalerConnection::disconnect' or
+    // 'SignalerConnection::disconnectAndWait' is used to disconnect the
+    // connection.  The 'waitOnDisconnect' attribute is propagated when
+    // signaler connection guards are copied or assigned, except in
+    // constructors where a separate flag is passed.
 
     // DATA
     SignalerConnection d_connection;
@@ -1125,11 +1126,9 @@ class SignalerConnectionGuard {
   public:
     // CREATORS
     explicit
-    SignalerConnectionGuard(bool waitOnDisconnect = false);
-        // Create a 'SignalerConnectionGuard' object having no associated slot.
-        // Upon destruction, the optionally specified 'waitOnDisconnect'
-        // determines whether 'disconnect()' or 'disconnectAndWait()' will be
-        // called on the connection contained in this object.
+    SignalerConnectionGuard();
+        // Create a 'SignalerConnectionGuard' object having no associated slot
+        // with 'waitOnDisconnect' set to 'false'.
 
     explicit
     SignalerConnectionGuard(
@@ -1137,7 +1136,7 @@ class SignalerConnectionGuard {
                            bool                      waitOnDisconnect = false);
         // Create a 'SignalerConnectionGuard' object that refers to and assumes
         // management of the same slot (if any) as the specified 'connection'
-        // object.  Upon destruction, the optionally specified
+        // object.  Upon destruction or assignment, the optionally specified
         // 'waitOnDisconnect' determines whether 'disconnect' or
         // 'disconnectAndWait' will be called on the 'SignalerConnection' held
         // by this object.
@@ -1146,54 +1145,52 @@ class SignalerConnectionGuard {
     SignalerConnectionGuard(bslmf::MovableRef<
            SignalerConnection> connection,
            bool                waitOnDisconnect = false) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'SignalerConnectionGuard' object that refers to and assumes
-        // management of the same slot (if any) as the specified 'connection'
-        // object, and reset 'connection' to a default-constructed state.  Upon
-        // destruction, the optionally specified 'waitOnDisconnect' determines
-        // whether 'disconnect()' or 'disconnectAndWait()' will be called on
-        // the connection contained in this object.  Throws nothing.
+        // Create a 'SignalerConnectionGuard" that refers to the same slot
+        // connection (if any) as the specified 'connection', which is left in
+        // an unspecified state.  Optionally specify 'waitOnDisconnect'
+        // indicating whether 'disconnect()' or 'disconnectAndWait()' will be
+        // called on the connection contained in this object upon destruction
+        // or assignment.  Throws nothing.
 
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
                       SignalerConnectionGuard> original) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'SignalerConnectionGuard' that refers to and assumes
-        // management of the same slot (if any) as the specified 'original'
-        // object, and reset the connection contained in 'original' to a
-        // default-constructed state.  The 'waitOnDisconnect' state is copied
-        // from 'original' to the newly created guard.  Upon destruction, the
-        // 'waitOnDisconnect' state determines whether 'disconnect()' or
+        // Create a 'SignalerConnectionGuard" that refers to the same slot
+        // connection (if any) as the specified 'original', which is left in
+        // the default-constructed state.  Copy the 'waitOnDisconnect' state
+        // from 'original', indicating whether 'disconnect()' or
         // 'disconnectAndWait()' will be called on the connection contained in
-        // this object.  Throws nothing.
+        // this object upon destruction or assignment.  Throws nothing.
 
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
               SignalerConnectionGuard> original,
               bool                     waitOnDisconnect) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'SignalerConnectionGuard' that refers to and assumes
-        // management of the same slot (if any) as the specified 'original'
-        // object, and reset the connection contained in 'original' to a
-        // default-constructed state.  Upon destruction, the 'waitOnDisconnect'
-        // state determines whether 'disconnect()' or 'disconnectAndWait()'
-        // will be called on the connection contained in this object.  Throws
-        // nothing.
+        // Create a 'SignalerConnectionGuard" that refers to the same slot
+        // connection (if any) as the specified 'original', which is left in a
+        // the default-constructed state.  Use the specified 'waitOnDisconnect'
+        // state indicating whether 'disconnect()' or 'disconnectAndWait()'
+        // will be called on the connection contained in this object upon
+        // destruction or assignment.  Throws nothing.
 
     ~SignalerConnectionGuard();
-        // Destroy this object.  Call 'disconnect' or 'disconnectAndWait' on
-        // the connection contained in this object depending on the value of
-        // the 'waitOnDisconnect' 'bool' passed to the constructor or copied
-        // when this guard is move to to from another guard.
+        // Destroy this object.  If there is a currently referred to
+        // connection, call 'disconnect' if the 'waitOnDisconnect' state of
+        // this object is 'false', call 'disconnectAndWait' if it is 'true'.
 
     // MANIPULATORS
     SignalerConnectionGuard&
                       operator=(bslmf::MovableRef<SignalerConnectionGuard> rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Make this connection refer to and assume management of the same slot
-        // (if any) as the specified 'rhs' connection, and reset the connection
-        // contained in 'rhs' to a default-constructed state.  Set the
-        // 'waitOnDisconnect' state of this object to that of 'rhs'.  Prior to
-        // the assignment, call 'disconnect' or 'disconnectAndWait' on the
-        // connection contained in this guard, depending on the value of
-        // 'waitOnDisconnect()'.  Return '*this'.  Throws nothing.
+        // If there is a currently referred to connection, call 'disconnect' if
+        // the 'waitOnDisconnect' state of this object is 'false', call
+        // 'disconnectAndWait' if it is 'true'.  Make this connection refer to
+        // the same slot connection (if any) as the specified 'rhs', leaving
+        // 'rhs' in the default-constructed state.  Use the 'waitOnDisconnect'
+        // state of 'rhs', indicating whether 'disconnect()' or
+        // 'disconnectAndWait()' will be called on the connection contained in
+        // this object upon destruction or assignment.  Return *this.  Throws
+        // nothing.
 
     SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
         // Disassociate this guard from its associated slot, if any, and reset
@@ -2074,7 +2071,7 @@ bsl::size_t Signaler<PROT>::slotCount() const
 
 // MANIPULATORS
 inline
-void SignalerConnection::swap(SignalerConnection& other) BSLS_CPP11_NOEXCEPT
+void SignalerConnection::swap(SignalerConnection& other) BSLS_KEYWORD_NOEXCEPT
 {
     d_slotNodeBasePtr.swap(other.d_slotNodeBasePtr);
 }

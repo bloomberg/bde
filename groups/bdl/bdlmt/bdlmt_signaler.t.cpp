@@ -24,7 +24,6 @@
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
-#include <bsls_cpp11.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
@@ -201,19 +200,19 @@ struct NoOp {
     typedef void ResultType;
 
     // MANIPULATORS
-    void operator()() const BSLS_CPP11_NOEXCEPT
+    void operator()() const BSLS_KEYWORD_NOEXCEPT
     { }
 
     template <class A1>
     void
-    operator()(const A1&) const BSLS_CPP11_NOEXCEPT
+    operator()(const A1&) const BSLS_KEYWORD_NOEXCEPT
     { }
 
     template <class A1,
               class A2>
     void
     operator()(const A1&,
-               const A2&) const BSLS_CPP11_NOEXCEPT
+               const A2&) const BSLS_KEYWORD_NOEXCEPT
     { }
 
     template <class A1,
@@ -222,7 +221,7 @@ struct NoOp {
     void
     operator()(const A1&,
                const A2&,
-               const A3&) const BSLS_CPP11_NOEXCEPT
+               const A3&) const BSLS_KEYWORD_NOEXCEPT
     { }
 
     template <class A1,
@@ -233,7 +232,7 @@ struct NoOp {
     operator()(const A1&,
                const A2&,
                const A3&,
-               const A4&) const BSLS_CPP11_NOEXCEPT
+               const A4&) const BSLS_KEYWORD_NOEXCEPT
     { }
 
     template <class A1,
@@ -246,7 +245,7 @@ struct NoOp {
                const A2&,
                const A3&,
                const A4&,
-               const A5&) const BSLS_CPP11_NOEXCEPT
+               const A5&) const BSLS_KEYWORD_NOEXCEPT
     { }
 };
 
@@ -2425,11 +2424,6 @@ static void test16_connection_isConnected()
     //   bdlmt::SignalerConnectionGuard::release()
     // ------------------------------------------------------------------------
 {
-    enum AssignMode { e_MOVE_GUARD, e_MOVE_CONNECTOR, e_COPY_CONNECTOR,
-                                                          k_NUM_ASSIGN_MODES };
-    enum ConstructMode { e_NO_ARGS, e_ARG_FALSE, e_ARG_TRUE,
-                                                       k_NUM_CONSTRUCT_MODES };
-
     bslma::TestAllocator    alloc;
     bdlmt::Signaler<void()> sig(&alloc);
 
@@ -2552,8 +2546,8 @@ static void test16_connection_isConnected()
             ASSERT(def == guardA.connection());
             ASSERT(!guardA.connection().isConnected());
             ASSERT(guardB.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
-            ASSERT(rhsB == guardB.waitOnDisconnect());
+            ASSERT(false == guardA.waitOnDisconnect());
+            ASSERT(rhsB  == guardB.waitOnDisconnect());
             ASSERT(guardB.connection() == con);
             ASSERT(1 == sig.slotCount());
         }
@@ -2563,25 +2557,13 @@ static void test16_connection_isConnected()
         ASSERT(0 == sig.slotCount());
     }
 
-    // 8 Construct guard from moved default-constructed guard, single arg
-    for (int ii = k_NUM_CONSTRUCT_MODES; 0 < ii--; ) {
-        const ConstructMode cMode = static_cast<ConstructMode>(
-                                                   ii % k_NUM_CONSTRUCT_MODES);
-        const bool          rhsB  = e_ARG_TRUE == cMode;
-
-        if (veryVerbose) cout << "Construct Guard Moved Guard Single: " <<
-                                                                  rhsB << endl;
+    // 8 Construct guard from moved default-constructed guard
+    {
+        if (veryVerbose) cout << "Construct Guard Moved Guard\n";
         {
-            bdlmt::SignalerConnectionGuard *pGuardA;
-            if (e_NO_ARGS == cMode) {
-                pGuardA = new (alloc) bdlmt::SignalerConnectionGuard();
-            }
-            else {
-                pGuardA = new (alloc) bdlmt::SignalerConnectionGuard(rhsB);
-            }
-            bdlmt::SignalerConnectionGuard& guardA = *pGuardA;
+            bdlmt::SignalerConnectionGuard guardA;
             ASSERT(!guardA.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
+            ASSERT(false == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(0 == sig.slotCount());
 
@@ -2591,11 +2573,9 @@ static void test16_connection_isConnected()
             ASSERT(def == guardB.connection());
             ASSERT(!guardA.connection().isConnected());
             ASSERT(!guardB.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
-            ASSERT(rhsB == guardB.waitOnDisconnect());
+            ASSERT(false == guardA.waitOnDisconnect());
+            ASSERT(false == guardB.waitOnDisconnect());
             ASSERT(0 == sig.slotCount());
-
-            alloc.deleteObject(pGuardA);
         }
         ASSERT(0 == sig.slotCount());
     }
@@ -2629,8 +2609,8 @@ static void test16_connection_isConnected()
             ASSERT(def == guardA.connection());
             ASSERT(!guardA.connection().isConnected());
             ASSERT( guardB.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
-            ASSERT(lhsB == guardB.waitOnDisconnect());
+            ASSERT(false == guardA.waitOnDisconnect());
+            ASSERT(lhsB  == guardB.waitOnDisconnect());
             ASSERT(guardB.connection() == con);
             ASSERT(1 == sig.slotCount());
         }
@@ -2643,36 +2623,13 @@ static void test16_connection_isConnected()
     }
 
     // 10 Assign to guard
-    for (int ii = 2 * 2 * k_NUM_ASSIGN_MODES; 0 < ii--; ) {
+    for (int ii = 2 * 2; 0 < ii--; ) {
         const bool lhsB = ii & 1;
         const bool rhsB = ii & 2;
-        const AssignMode aMode = static_cast<AssignMode>(ii / 4);
+        const bool expWait = rhsB;
 
-        const bool expWait = e_MOVE_GUARD == aMode ? rhsB : lhsB;
-
-        if (e_MOVE_GUARD != aMode) {
-            continue;
-        }
-
-        if (veryVerbose) {
-            switch (aMode) {
-              case e_MOVE_GUARD: {
-                cout << "Move Assign guard to guard: " << lhsB << ", " <<
-                                                                  rhsB << endl;
-              } break;
-              case e_MOVE_CONNECTOR: {
-                cout << "Move Assign connector to guard: " << lhsB << ", " <<
-                                                                  rhsB << endl;
-              } break;
-              case e_COPY_CONNECTOR: {
-                cout << "Copy Assign connector to guard: " << lhsB << ", " <<
-                                                                  rhsB << endl;
-              } break;
-              default: {
-                ASSERT(0);
-              } break;
-            }
-        }
+        if (veryVerbose) cout << "Move Assign guard to guard: " << lhsB <<
+                                                          ", " << rhsB << endl;
 
         {
             con = sig.connect(u::NoOp());
@@ -2709,28 +2666,7 @@ static void test16_connection_isConnected()
             ASSERT(guardB.connection() == conC);
             ASSERT(2 == sig.slotCount());
 
-            switch (aMode) {
-              case e_MOVE_GUARD: {
-                guardB = bslmf::MovableRefUtil::move(guardA);
-              } break;
-#if 0
-              case e_MOVE_CONNECTOR: {
-                bdlmt::SignalerConnection conE = guardA.release();
-                ASSERT(con == conE);
-                guardB = bslmf::MovableRefUtil::move(conE);
-                ASSERT(def == conE);
-              } break;
-              case e_COPY_CONNECTOR: {
-                bdlmt::SignalerConnection conE = guardA.release();
-                ASSERT(con == conE);
-                guardB = conE;
-                ASSERT(con == conE);
-              } break;
-#endif
-              default: {
-                ASSERT(0);
-              }
-            }
+            guardB = bslmf::MovableRefUtil::move(guardA);
             ASSERT(con.isConnected());
             ASSERT(conB.isConnected());
             ASSERT(!conC.isConnected());
@@ -2738,7 +2674,7 @@ static void test16_connection_isConnected()
             ASSERT(def != conC);
             ASSERT(!guardA.connection().isConnected());
             ASSERT(guardB.connection().isConnected());
-            ASSERT(rhsB    == guardA.waitOnDisconnect());
+            ASSERT(false   == guardA.waitOnDisconnect());
             ASSERT(expWait == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(guardB.connection() == con);
@@ -2758,15 +2694,12 @@ static void test16_connection_isConnected()
 
 
     // 11 Assign to guard from default-constructed guard
-    for (int ii = k_NUM_CONSTRUCT_MODES * 2; 0 < ii--; ) {
-        const ConstructMode cMode = static_cast<ConstructMode>(
-                                                   ii % k_NUM_CONSTRUCT_MODES);
-        const bool          rhsB  = e_ARG_TRUE == cMode;
-        const bool          lhsB  = ii / k_NUM_CONSTRUCT_MODES % 2;
+    for (int ii = 2; 0 < ii--; ) {
+        const bool lhsB = ii;
 
         if (veryVerbose) {
             cout << "Move Assign guard from default constructed guard: " <<
-                                                  lhsB << ", " << rhsB << endl;
+                                                                  lhsB << endl;
         }
 
         {
@@ -2777,16 +2710,9 @@ static void test16_connection_isConnected()
             ASSERT(conC == conD);
             ASSERT(1 == sig.slotCount());
 
-            bdlmt::SignalerConnectionGuard *pGuardA;
-            if (e_NO_ARGS == cMode) {
-                pGuardA = new (alloc) bdlmt::SignalerConnectionGuard();
-            }
-            else {
-                pGuardA = new (alloc) bdlmt::SignalerConnectionGuard(rhsB);
-            }
-            bdlmt::SignalerConnectionGuard& guardA = *pGuardA;
+            bdlmt::SignalerConnectionGuard guardA;
             ASSERT(!guardA.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
+            ASSERT(false == guardA.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(1 == sig.slotCount());
 
@@ -2796,7 +2722,7 @@ static void test16_connection_isConnected()
             ASSERT(def == conD);
             ASSERT(!guardA.connection().isConnected());
             ASSERT(guardB.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
+            ASSERT(false == guardA.waitOnDisconnect());
             ASSERT(lhsB == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(guardB.connection() == conC);
@@ -2808,13 +2734,11 @@ static void test16_connection_isConnected()
             ASSERT(def != conC);
             ASSERT(!guardA.connection().isConnected());
             ASSERT(!guardB.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
-            ASSERT(rhsB == guardB.waitOnDisconnect());
+            ASSERT(false == guardA.waitOnDisconnect());
+            ASSERT(false == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(guardB.connection() == def);
             ASSERT(0 == sig.slotCount());
-
-            alloc.deleteObject(pGuardA);
         }
 
         ASSERT(!conC.isConnected());
@@ -2824,41 +2748,13 @@ static void test16_connection_isConnected()
     }
 
     // 12 Assign to default constructed guard
-    for (int ii = k_NUM_CONSTRUCT_MODES * 2 * k_NUM_ASSIGN_MODES; 0 < ii--; ) {
-        const ConstructMode cMode = static_cast<ConstructMode>(
-                                                   ii % k_NUM_CONSTRUCT_MODES);
-        const bool          lhsB  = e_ARG_TRUE == cMode;
-        const bool          rhsB  = ii / k_NUM_CONSTRUCT_MODES % 2;
-        const AssignMode    aMode = static_cast<AssignMode>(
-                                             ii / (2 * k_NUM_CONSTRUCT_MODES));
-
-        const bool          expWait = e_MOVE_GUARD == aMode ? rhsB : lhsB;
-
-        if (e_MOVE_GUARD != aMode) {
-            continue;
-        }
+    for (int ii = 2; 0 < ii--; ) {
+        const bool rhsB    = ii;
+        const bool expWait = rhsB;
 
         if (veryVerbose) {
-            switch (aMode) {
-              case e_MOVE_GUARD: {
-                cout << "Move Assign guard to default constructed guard" <<
-                               " with " << (e_NO_ARGS != cMode) << " args: " <<
-                                                  lhsB << ", " << rhsB << endl;
-              } break;
-              case e_MOVE_CONNECTOR: {
-                cout << "Move Assign connector to default constructed guard" <<
-                               " with " << (e_NO_ARGS != cMode) << " args: " <<
-                                                  lhsB << ", " << rhsB << endl;
-              } break;
-              case e_COPY_CONNECTOR: {
-                cout << "Copy Assign connector to default constructed guard" <<
-                               " with " << (e_NO_ARGS != cMode) << " args: " <<
-                                                  lhsB << ", " << rhsB << endl;
-              } break;
-              default: {
-                ASSERT(0);
-              } break;
-            }
+            cout << "Move Assign guard to default constructed guard" <<
+                                                 " from rhs: " << rhsB << endl;
         }
 
         {
@@ -2877,55 +2773,25 @@ static void test16_connection_isConnected()
             ASSERT(guardA.connection() == con);
             ASSERT(1 == sig.slotCount());
 
-            bdlmt::SignalerConnectionGuard *pGuardB;
-            if (e_NO_ARGS == cMode) {
-                pGuardB = new (alloc) bdlmt::SignalerConnectionGuard();
-            }
-            else {
-                pGuardB = new (alloc) bdlmt::SignalerConnectionGuard(lhsB);
-            }
-            bdlmt::SignalerConnectionGuard& guardB = *pGuardB;
+            bdlmt::SignalerConnectionGuard guardB;
             ASSERT(guardA.connection().isConnected());
             ASSERT(!guardB.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
-            ASSERT(lhsB == guardB.waitOnDisconnect());
+            ASSERT(rhsB  == guardA.waitOnDisconnect());
+            ASSERT(false == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == con);
             ASSERT(guardB.connection() == def);
             ASSERT(1 == sig.slotCount());
 
-            switch (aMode) {
-              case e_MOVE_GUARD: {
-                guardB = bslmf::MovableRefUtil::move(guardA);
-              } break;
-#if 0
-              case e_MOVE_CONNECTOR: {
-                bdlmt::SignalerConnection conE = guardA.release();
-                ASSERT(con == conE);
-                guardB = bslmf::MovableRefUtil::move(conE);
-                ASSERT(def == conE);
-              } break;
-              case e_COPY_CONNECTOR: {
-                bdlmt::SignalerConnection conE = guardA.release();
-                ASSERT(con == conE);
-                guardB = conE;
-                ASSERT(con == conE);
-              } break;
-#endif
-              default: {
-                ASSERT(0);
-              }
-            }
+            guardB = bslmf::MovableRefUtil::move(guardA);
             ASSERT(con.isConnected());
             ASSERT(conB.isConnected());
             ASSERT(!guardA.connection().isConnected());
             ASSERT(guardB.connection().isConnected());
-            ASSERT(rhsB    == guardA.waitOnDisconnect());
+            ASSERT(false   == guardA.waitOnDisconnect());
             ASSERT(expWait == guardB.waitOnDisconnect());
             ASSERT(guardA.connection() == def);
             ASSERT(guardB.connection() == con);
             ASSERT(1 == sig.slotCount());
-
-            alloc.deleteObject(pGuardB);
         }
 
         ASSERT(!con.isConnected());
@@ -3430,12 +3296,6 @@ static void test18_destroyGuardAndWait()
     // 1. nothing to disconnect
     {
         bdlmt::SignalerConnectionGuard g;
-    }
-    {
-        bdlmt::SignalerConnectionGuard g(true);
-    }
-    {
-        bdlmt::SignalerConnectionGuard g(false);
     }
 
     // 2. regular disconnect
