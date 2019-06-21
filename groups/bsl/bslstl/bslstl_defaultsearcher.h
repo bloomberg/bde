@@ -696,7 +696,6 @@ bsl::enable_if<
             FORWARD_ITR_NEEDLE   needleItrInner    = needleFirst;
             NeedleDifference     needleLengthInner = needleLength;
 
-#if 1
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*itr == *needleFirst)) {
                 if (1 == needleLength) {
                     return native_std::make_pair(itr, itr + needleLength);
@@ -708,46 +707,6 @@ bsl::enable_if<
             } else {
                 continue; // Avoided 'memcmp' call
             }
-
-            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           *(itr + 1) == *(needleFirst + 1))) {
-                if (2 == needleLength) {
-                    return native_std::make_pair(itr, itr + needleLength);
-                                                                      // RETURN
-                }
-                           ++itrInner;
-                     ++needleItrInner;
-                  --needleLengthInner;
-            } else {
-                continue; // Avoided 'memcmp' call
-            }
-
-            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                         *(itr + 2) == *(needleFirst + 2))) {
-                if (3 == needleLength) {
-                    return native_std::make_pair(itr, itr + needleLength);
-                                                                      // RETURN
-                }
-                           ++itrInner;
-                     ++needleItrInner;
-                  --needleLengthInner;
-            } else {
-                continue; // Avoided 'memcmp' call
-            }
-
-            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                         *(itr + 3) == *(needleFirst + 3))) {
-                if (4 == needleLength) {
-                    return native_std::make_pair(itr, itr + needleLength);
-                                                                      // RETURN
-                }
-                           ++itrInner;
-                     ++needleItrInner;
-                  --needleLengthInner;
-            } else {
-                continue; // Avoided 'memcmp' call
-            }
-#endif
 
             if (0 == native_std::memcmp(         itrInner,
                                            needleItrInner,
