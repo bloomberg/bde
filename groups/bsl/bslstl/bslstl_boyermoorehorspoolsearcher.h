@@ -507,12 +507,6 @@ class boyer_moore_horspool_searcher {
 
   private:
     // PRIVATE TYPES
-#if 0
-    typedef BloombergLP::bslmf::MovableRefUtil                MoveUtil;
-        // a convenient alias for the utility associated with movable
-        // references
-#endif
-
     typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::difference_type
                                                               difference_type;
         // a signed type that can describe the distance between
@@ -592,30 +586,6 @@ class boyer_moore_horspool_searcher {
         // to supply memory.  Note that a 'bslma::Allocator *' can be supplied
         // for 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
         // 'bsl::allocator (the default).
-
-#if 0
-    boyer_moore_horspool_searcher(
-                  BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher>
-                                                                     original);
-                                                                    // IMPLICIT
-        // Create a 'boyer_moore_horspool_searcher' object having the same
-        // state as the specified 'original' object by moving (in constant
-        // time) the contents of 'original' to the new searcher object.  The
-        // allocator associated with 'original' is propagated for use in the
-        // newly-created searcher object.  The 'original' searcher is left in
-        // an unspecified (valid) state.
-
-    boyer_moore_horspool_searcher(
-                  BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher>
-                                                               original,
-                  const ALLOCATOR&                             basicAllocator);
-        // Create a 'boyer_moore_horspool_searcher' object having the same
-        // state as the specified 'original' and using the specified
-        // 'basicAllocator' to supply memory.  The 'original' searcher is left
-        // in an unspecified (valid) state.  Note that a 'bslma::Allocator *'
-        // can be supplied for 'basicAllocator' if the (template parameter)
-        // 'ALLOCATOR' is 'bsl::allocator (the default).
-#endif
 
     //! ~boyer_moore_horspool_searcher() = default;
         // Destroy this 'boyer_moore_horspool_searcher' object.
@@ -1037,58 +1007,6 @@ boyer_moore_horspool_searcher(
 , d_imp(         original.d_imp, basicAllocator)
 {
 }
-
-#if 0
-template <class RNDACC_ITR_NEEDLE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
-                              HASH,
-                              EQUAL,
-                              ALLOCATOR>::
-boyer_moore_horspool_searcher(
-                  BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher>
-                                                                      original)
-: d_imp(MoveUtil::move(MoveUtil::access(original).d_imp),
-        original.allocator())
-{
-    
-    boyer_moore_horspool_searcher& lvalue = original;
-    d_needleFirst  = lvalue.d_needleFirst;
-    d_needleLast   = lvalue.d_needleLast;
-    d_needleLength = lvalue.d_needleLength;
-
-    lvalue.d_needleFirst  = 0;
-    lvalue.d_needleLast   = 0;
-    lvalue.d_needleLength = 0;
-}
-
-template <class RNDACC_ITR_NEEDLE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
-                              HASH,
-                              EQUAL,
-                              ALLOCATOR>::
-boyer_moore_horspool_searcher(
-                  BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher>
-                                                                original,
-                  const ALLOCATOR&                              basicAllocator)
-: d_imp(MoveUtil::move(MoveUtil::access(original).d_imp), basicAllocator)
-{
-    
-    boyer_moore_horspool_searcher& lvalue = original;
-    d_needleFirst  = lvalue.d_needleFirst;
-    d_needleLast   = lvalue.d_needleLast;
-    d_needleLength = lvalue.d_needleLength;
-
-    lvalue.d_needleFirst  = 0;
-    lvalue.d_needleLast   = 0;
-    lvalue.d_needleLength = 0;
-}
-#endif
 
 // MANIPULATORS
 template <class RNDACC_ITR_NEEDLE,

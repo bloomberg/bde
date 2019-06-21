@@ -3637,17 +3637,6 @@ int main(int argc, char *argv[])
 
         const BSL::string haystackAsString(haystackFirst, haystackLast);
 
-#if 0
-        if (isPlusHaystackOption && argc > 4) {
-            int diffPosition = BSL::atoi(argv[4]);
-            if (0 <= diffPosition
-                  && diffPosition < haystackAsString.length()) {
-                haystackAsString.data[diffPosition] = 255;
-            }
-        }
-#endif
-
-
         for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE     = DATA[ti].d_line;
             const bool        EXPECTED = DATA[ti].d_expected;
