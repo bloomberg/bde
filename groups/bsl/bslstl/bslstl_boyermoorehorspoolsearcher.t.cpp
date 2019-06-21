@@ -2993,7 +2993,7 @@ int main(int argc, char *argv[])
         //:   state.
         //
         // Testing:
-        //   b_m_h_s& operator=(const b_m_h_s& rsh);
+        //   b_m_h& operator=(const b_m_h& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "COPY ASSIGNMENT"
@@ -3227,7 +3227,7 @@ int main(int argc, char *argv[])
                     typedef CharArray<char>::const_iterator RandConstItr;
                     typedef  CharHashCaseInsensitive        HASH;
                     typedef CharEqualCaseInsensitive        EQUAL;
-            
+
                     typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
                                                                HASH,
                                                                EQUAL> Mech;
@@ -3537,7 +3537,7 @@ int main(int argc, char *argv[])
                     typedef CharArray<char>::const_iterator RandConstItr;
                     typedef  CharHashCaseInsensitive        HASH;
                     typedef CharEqualCaseInsensitive        EQUAL;
-            
+
                     typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
                                                                HASH,
                                                                EQUAL> Mech;
@@ -3764,28 +3764,34 @@ int main(int argc, char *argv[])
             convertToNonAscii(&testStringNonAscii, testString);
 
             ASSERT(testString.size() == testStringNonAscii.size());
-            ASSERT(0         == testStringNonAscii.data()[0]); 
+            ASSERT(0         == testStringNonAscii.data()[0]);
             ASSERT(UCHAR_MAX == static_cast<unsigned char>(
                                 testStringNonAscii.data()[1]));
 
-            ASSERT(0         == testStringNonAscii.data()[2]); 
+            ASSERT(0         == testStringNonAscii.data()[2]);
             ASSERT(UCHAR_MAX == static_cast<unsigned char>(
                                 testStringNonAscii.data()[3]));
 
             BSL::string haystackAsString(HAYSTACK_BINARY_FIRST,
                                          HAYSTACK_BINARY_LAST);
                 // Actually, sequence 'char' values that are either '0' or '1'.
-            
+
             BSL::string haystackNonAscii;
             convertToNonAscii(&haystackNonAscii, haystackAsString);
 
             for (BSL::size_t i = 0; i < NUM_U_DATA_BINARY; ++i) {
                 const int          LINE     = U_DATA_BINARY[i].d_line;
-                const bool         EXPECTED = U_DATA_BINARY[i].d_expected;   
+                const bool         EXPECTED = U_DATA_BINARY[i].d_expected;
                 const char * const NEEDLE   = U_DATA_BINARY[i].d_needle_p;
 
+                if (veryVerbose) {
+                    P_(LINE)
+                    P_(EXPECTED)
+                    P(NEEDLE)
+                }
+
                 BSL::string needleNonAscii;
-                convertToNonAscii(&needleNonAscii, bsl::string(NEEDLE));
+                convertToNonAscii(&needleNonAscii, BSL::string(NEEDLE));
 
                 const bsl::boyer_moore_horspool_searcher<const char *>
                                                searcher(needleNonAscii.data(),
@@ -3802,7 +3808,7 @@ int main(int argc, char *argv[])
                                                     + haystackNonAscii.size(),
                                                       haystackNonAscii.data()
                                                     + haystackNonAscii.size());
-                
+
                 bool wasFound = NOT_FOUND != result;
 
                 ASSERTV(LINE, EXPECTED == wasFound);
@@ -4059,7 +4065,7 @@ int main(int argc, char *argv[])
                   } break;
                 }
 
-                Mech& mX = *mechPtr; const Mech& X  = mX;
+                Mech&                  mX = *mechPtr; const Mech& X = mX;
                 bslma::TestAllocator&  oa = *mechAllocatorPtr;
                 bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
