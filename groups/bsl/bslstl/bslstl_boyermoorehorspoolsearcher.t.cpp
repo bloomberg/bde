@@ -3039,7 +3039,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hashX, equalX, xsa);
                 Mech mX(needleFirst, needleLast, hashX, equalX, xsa);
-                Mech mY(needleLast,  needleLast, hashY, equalY);  // unlike
+                Mech mY(needleLast,  needleLast, hashY, equalY);  // unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3075,7 +3075,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hashX, equalX, xsa);
                 Mech mX(needleFirst, needleLast, hashX, equalX, xsa);
-                Mech mY(needleLast,  needleLast, hashY, equalX, ysa); // unlike
+                Mech mY(needleLast,  needleLast, hashY, equalX, ysa); //unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3136,7 +3136,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hash, equal, xsa);
                 Mech mX(needleFirst, needleLast, hash, equal, xsa);
-                Mech mY(needleLast,  needleLast, hash, equal); // unlike
+                Mech mY(needleLast,  needleLast, hash, equal); // unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3172,7 +3172,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hash, equal, xsa);
                 Mech mX(needleFirst, needleLast, hash, equal, xsa);
-                Mech mY(needleLast,  needleLast, hash, equal, ysa); // unlike
+                Mech mY(needleLast,  needleLast, hash, equal, ysa); // unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3241,7 +3241,7 @@ int main(int argc, char *argv[])
 
                     Mech mZ(needleFirst, needleLast);
                     Mech mX(needleFirst, needleLast);
-                    Mech mY(needleFirst, needleFirst);  // unlike
+                    Mech mY(needleFirst, needleFirst);  // unalike
 
                     const Mech& Z = mZ;
                     const Mech& X = mX;
