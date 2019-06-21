@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_STRSTREAM
 #define INCLUDED_NATIVE_STRSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,13 +17,9 @@ BSLS_IDENT("$Id: $")
 // 'bos_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifndef BSL_OVERRIDES_STD
 

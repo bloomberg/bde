@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_CSTRING
 #define INCLUDED_NATIVE_CSTRING
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.

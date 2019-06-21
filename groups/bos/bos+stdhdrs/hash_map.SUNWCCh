@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_HASH_MAP
 #define INCLUDED_NATIVE_HASH_MAP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
