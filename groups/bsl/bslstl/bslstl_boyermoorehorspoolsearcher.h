@@ -304,6 +304,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
+#include <cstring>  // 'memcpy'
+
 #include <limits.h> // 'UCHAR_MAX'
 
 namespace BloombergLP {
@@ -364,8 +366,8 @@ class boyer_moore_horspool_searcher_CharImp {
     boyer_moore_horspool_searcher_CharImp(
                   const boyer_moore_horspool_searcher_CharImp& original,
                   const ALLOCATOR&                             basicAllocator);
-        // Create a 'boyer_moore_horspool_searcher_CharImp' object having
-        // the same state as the specified 'original' object but uses
+        // Create a 'boyer_moore_horspool_searcher_CharImp' object having the
+        // same state as the specified 'original' object but uses
         // 'basicAllocator' to supply memory.
 
     // MANIPULATORS
@@ -434,7 +436,7 @@ class boyer_moore_horspool_searcher_GeneralImp {
         // needle.  See {Requirements for 'HASH' and 'EQUAL'}.  The specified
         // 'basicAllocator' is used to supply memory.  The behavior is
         // undefined unless 'needleFirst' can be advanced to 'needleLast'.
- 
+
     boyer_moore_horspool_searcher_GeneralImp(
                const boyer_moore_horspool_searcher_GeneralImp& original,
                const ALLOCATOR&                                basicAllocator);
