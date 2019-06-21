@@ -749,9 +749,7 @@ boyer_moore_horspool_searcher_CharImp(
 : d_needleLength(original.d_needleLength)
 , d_allocator(basicAllocator)
 {
-    for (int i = 0; i < UCHAR_MAX + 1; ++i) {
-        d_table[i] = original.d_table[i];
-    }
+    native_std::memcpy(d_table, original.d_table, sizeof d_table);
 }
 
 // MANIPULATORS
@@ -772,9 +770,7 @@ boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
 {
     d_needleLength = rhs.d_needleLength;
 
-    for (int i = 0; i < UCHAR_MAX + 1; ++i) {
-        d_table[i] = rhs.d_table[i];
-    }
+    native_std::memcpy(d_table, rhs.d_table, sizeof d_table);
 
     return *this;
 }
