@@ -3305,12 +3305,7 @@ int main(int argc, char *argv[])
  ASSERT(OFFSET_CS == bsl::distance(haystackRnd.begin(), rndResultFwdCs.first));
 
  ASSERT(OFFSET_CS == bsl::distance(haystackFwd.begin(), fwdResultRndCs.first));
-
- int resultOffset_CS = bsl::distance(haystackRnd.begin(), rndResultRndCs.first);
- ASSERTV(LINE, OFFSET_CS, resultOffset_CS, OFFSET_CS == resultOffset_CS);
- if (OFFSET_CS != resultOffset_CS) {
-         abort();
- }
+ ASSERT(OFFSET_CS == bsl::distance(haystackRnd.begin(), rndResultRndCs.first));
 
  ASSERT(OFFSET_CI == bsl::distance(haystackFwd.begin(), fwdResultFwdCi.first));
  ASSERT(OFFSET_CI == bsl::distance(haystackRnd.begin(), rndResultFwdCi.first));
@@ -3327,11 +3322,8 @@ int main(int argc, char *argv[])
 
             ASSERT(LENGTH_CS == bsl::distance(fwdResultRndCs.first,
                                               fwdResultRndCs.second));
-            int resultLength_CS = bsl::distance(rndResultRndCs.first, rndResultRndCs.second);
-            ASSERTV(LINE, LENGTH_CS, resultLength_CS, LENGTH_CS == resultLength_CS);
-            if (LENGTH_CS != resultLength_CS) {
-                    abort();
-            }
+            ASSERT(LENGTH_CS == bsl::distance(rndResultRndCs.first,
+                                              rndResultRndCs.second));
 
             ASSERT(LENGTH_CI == bsl::distance(fwdResultFwdCi.first,
                                               fwdResultFwdCi.second));
@@ -3578,9 +3570,9 @@ int main(int argc, char *argv[])
         intHaystack.push_back(0);
         intHaystack.push_back(0);
 
-        bsl::default_searcher<const int *> myIntSearcher(intNeedle,
-                                                         intNeedle
-                                                       + numIntNeedle);
+        bsl::default_searcher<const int *>        myIntSearcher(intNeedle,
+                                                                intNeedle
+                                                              + numIntNeedle);
         bsl::pair<bsl::list<int>::const_iterator,
                   bsl::list<int>::const_iterator> resultIntSearcher =
                                     myIntSearcher(intHaystack.cbegin(),
@@ -3694,7 +3686,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) {
+            if (veryVerbose) {
                 bsls::Types::Int64 userTime = stopUser - startUser;
                 bsls::Types::Int64 wallTime = stopWall - startWall;
 

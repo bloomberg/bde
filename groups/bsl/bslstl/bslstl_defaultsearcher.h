@@ -269,6 +269,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_pair.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_issame.h>
 
@@ -477,7 +478,7 @@ struct default_searcher_ImpUtil {
         // '[haystackFirst, hastackLast)', for the specified "needle" sequence
         // of 'value_type' values, '[needleFirst, needleLast)' where the
         // 'value_type' values are compared using the specified 'equal'
-        // functor.  Return the range where the sought sequcne of values are
+        // functor.  Return the range where the sought sequence of values are
         // found, or the range '[haystackLast, haystackLast)' if that sequence
         // is not found.  The search is performed using a "naive" algorithm
         // that has time complexity of:
@@ -544,7 +545,7 @@ default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::operator()(
                                        FORWARD_ITR_HAYSTACK haystackFirst,
                                        FORWARD_ITR_HAYSTACK haystackLast) const
 {
-    BSLMF_ASSERT((bsl::is_same< 
+    BSLMF_ASSERT((bsl::is_same<
                typename bsl::iterator_traits<FORWARD_ITR_NEEDLE  >::value_type,
                typename bsl::iterator_traits<FORWARD_ITR_HAYSTACK>::value_type
                              >::value));
@@ -699,7 +700,7 @@ bsl::enable_if<
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*itr == *needleFirst)) {
                 if (1 == needleLength) {
                     return native_std::make_pair(itr, itr + needleLength);
-                                                                     // RETURN
+                                                                      // RETURN
                 }
                            ++itrInner;
                      ++needleItrInner;
@@ -712,7 +713,7 @@ bsl::enable_if<
                                            *(itr + 1) == *(needleFirst + 1))) {
                 if (2 == needleLength) {
                     return native_std::make_pair(itr, itr + needleLength);
-                                                                     // RETURN
+                                                                      // RETURN
                 }
                            ++itrInner;
                      ++needleItrInner;
@@ -725,7 +726,7 @@ bsl::enable_if<
                                          *(itr + 2) == *(needleFirst + 2))) {
                 if (3 == needleLength) {
                     return native_std::make_pair(itr, itr + needleLength);
-                                                                     // RETURN
+                                                                      // RETURN
                 }
                            ++itrInner;
                      ++needleItrInner;
@@ -733,12 +734,12 @@ bsl::enable_if<
             } else {
                 continue; // Avoided 'memcmp' call
             }
-            
+
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          *(itr + 3) == *(needleFirst + 3))) {
                 if (4 == needleLength) {
                     return native_std::make_pair(itr, itr + needleLength);
-                                                                     // RETURN
+                                                                      // RETURN
                 }
                            ++itrInner;
                      ++needleItrInner;
@@ -747,7 +748,7 @@ bsl::enable_if<
                 continue; // Avoided 'memcmp' call
             }
 #endif
-            
+
             if (0 == native_std::memcmp(         itrInner,
                                            needleItrInner,
                                         needleLengthInner)) {
