@@ -85,6 +85,20 @@ BSLS_IDENT("$Id: $")
 //
 // The comparer class is allowed to throw exceptions.
 //
+///Optimization
+///------------
+// For certain template parameters this implementation improves performance
+// by utilizing low-level operations.  The requirements to do so are:
+//: o Both supplied iterators are pointers.
+//: o The default equality comparison is allowed to default (to
+//:   'bsl::equal_to<value_type>').
+//: o The 'value_type' is bitwise-equality-comparable.
+//
+// Users supplying their own data types are advised to set the
+// 'bslmf::IsBitwiseEqualityComparable' trait when applicable so that
+// 'default_searcher' knows that the last optimization condition listed above
+// is met.  See {'bslmf_isbitwiseequalitycomparable'}.
+//
 ///Usage
 ///-----
 // In this section we show the intended usage of this component.
@@ -406,19 +420,7 @@ struct default_searcher_CanOptimize {
     enum {
 
         value = (
-#if defined(BSLSTL_DEFAULTSEARCHER_TRY_OPTIMIZE)
-#if 0
-        bsl::is_same<  // 'FORWARD_ITR_NEEDLE' is random access (TBD: needed?)
-                   typename
-                   bsl::iterator_traits<FORWARD_ITR_NEEDLE>::iterator_category,
-                   bsl::random_access_iterator_tag>::value
-    &&  bsl::is_same< // 'FORWARD_ITR_HAYSTACK' is random access
-                 typename
-                 bsl::iterator_traits<FORWARD_ITR_HAYSTACK>::iterator_category,
-                     bsl::random_access_iterator_tag>::value
-#endif
-                     // Also need test the the 'value_type' is valid for
-                     // 'bsl::memcmp'.
+
         bsl::is_pointer<FORWARD_ITR_NEEDLE>::value
     &&  bsl::is_pointer<FORWARD_ITR_HAYSTACK>::value
     &&  bsl::is_same<EQUAL, // 'EQUAL' does 'value_type::operator=='
@@ -426,9 +428,8 @@ struct default_searcher_CanOptimize {
                           typename
                           bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type>
                     >::value
-#else
-                    false
-#endif
+    &&  bslmf::IsBitwiseEqualityComparable<FORWARD_ITR_NEEDLE>::value
+    &&  bslmf::IsBitwiseEqualityComparable<FORWARD_ITR_HAYSTACK>::value
         )
     };
 };
