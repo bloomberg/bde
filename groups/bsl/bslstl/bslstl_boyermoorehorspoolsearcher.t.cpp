@@ -2477,86 +2477,92 @@ const static DATA_t U_DATA_SHORT[] = {
 const BSL::size_t NUM_U_DATA_SHORT = sizeof  U_DATA_SHORT
                                    / sizeof *U_DATA_SHORT;
 
-static const char *performanceSyntaxMessage(int test)
-{
-    switch (test) {
-      case -1: return
-          "syntax: "
-          "<numRepetitions> "
-          "<text|octal|binary|short>";
-      // case -2: return
-      //     "syntax: "
-      //     "<numRepetitions> "
-      //     "<text|octal|binary|short>";
-      default: return
-          "syntax: *UNKNOWN*";
-    }
-}
+const struct {
+    int          d_line;
+    const char  *d_haystack_p;
+    const char  *d_needle_p;
 
-static int getHaystack(const char **haystackFirstPtr,
-                       const char **haystackLastPtr,
-                       const char  *haystackOption)
-{
-    assert(haystackFirstPtr);
-    assert(haystackLastPtr);
-    assert(haystackOption);
+    // result: Case Sensitive
+    BSL::size_t  d_offsetCs;
+    BSL::size_t  d_lengthCs;
 
-    *haystackFirstPtr =
-            0 == BSL::strcmp("text",   haystackOption) ? HAYSTACK_TEXT_FIRST  :
-            0 == BSL::strcmp("octal",  haystackOption) ? HAYSTACK_OCTAL_FIRST :
-            0 == BSL::strcmp("binary", haystackOption) ? HAYSTACK_BINARY_FIRST:
-            0 == BSL::strcmp("short",  haystackOption) ? HAYSTACK_SHORT_FIRST :
-            /* unknown */                                0                    ;
+    // result: Case Insensitive
+    BSL::size_t  d_offsetCi;
+    BSL::size_t  d_lengthCi;
 
-    if (0 == *haystackFirstPtr) {
-        return -1;                                                    // RETURN
-    }
+} DATA[]  = {
+    //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
+    //---- --------     ------  ------  ------
 
-    *haystackLastPtr =
-             0 == BSL::strcmp("text",   haystackOption) ? HAYSTACK_TEXT_LAST  :
-             0 == BSL::strcmp("octal",  haystackOption) ? HAYSTACK_OCTAL_LAST :
-             0 == BSL::strcmp("binary", haystackOption) ? HAYSTACK_BINARY_LAST:
-             0 == BSL::strcmp("short",  haystackOption) ? HAYSTACK_SHORT_LAST :
-             /* unknown */                                0                   ;
+    // Degenerate combinations
+    { L_,  ""         , ""     , 0, 0,  0, 0  }
+  , { L_,  ""         , "a"    , 0, 0,  0, 0  }
+  , { L_,  ""         , "ab"   , 0, 0,  0, 0  }
+  , { L_,  ""         , "abc"  , 0, 0,  0, 0  }
 
-    if (0 == *haystackLastPtr) {
-        return -1;                                                    // RETURN
-    }
+    // No match at all.
+  , { L_,  "A"        , ""     , 0, 0,  0, 0  }
+  , { L_,  "A"        , "a"    , 1, 0,  0, 1  }
+  , { L_,  "A"        , "ab"   , 1, 0,  1, 0  }
+  , { L_,  "A"        , "abc"  , 1, 0,  1, 0  }
+  , { L_,  "AB"       , ""     , 0, 0,  0, 0  }
+  , { L_,  "AB"       , "a"    , 2, 0,  0, 1  }
+  , { L_,  "AB"       , "ab"   , 2, 0,  0, 2  }
+  , { L_,  "AB"       , "abc"  , 2, 0,  2, 0  }
+  , { L_,  "ABC"      , ""     , 0, 0,  0, 0  }
+  , { L_,  "ABC"      , "a"    , 3, 0,  0, 1  }
+  , { L_,  "ABC"      , "ab"   , 3, 0,  0, 2  }
+  , { L_,  "ABC"      , "abc"  , 3, 0,  0, 3  }
 
-    return 0;
-}
+    // Mismatch on second character (of two or more).
+  , { L_,  "AB"       , "Ab"   , 2, 0,  0, 2  }
+  , { L_,  "AB"       , "Abc"  , 2, 0,  2, 0  }
+  , { L_,  "ABC"      , "Ab"   , 3, 0,  0, 2  }
+  , { L_,  "ABC"      , "AbC"  , 3, 0,  0, 3  }
 
-int getDataForHaystack(const DATA_t **DATA,
-                       BSL::size_t   *NUM_DATA,
-                       const char    *haystackOption)
-{
-    assert(DATA);
-    assert(NUM_DATA);
-    assert(haystackOption);
+    // Mismatch on third character (of three).
+  , { L_,  "ABC"      , "ABc"  , 3, 0,  0, 3  }
 
-    *DATA = 0 == BSL::strcmp("text",   haystackOption) ? U_DATA_TEXT   :
-            0 == BSL::strcmp("octal",  haystackOption) ? U_DATA_OCTAL  :
-            0 == BSL::strcmp("binary", haystackOption) ? U_DATA_BINARY :
-            0 == BSL::strcmp("short",  haystackOption) ? U_DATA_SHORT  :
-            /* unknown */                                0             ;
+    // Match at beginning of haystack
+  , { L_,  "A"        , ""     , 0, 0,  0, 0  }
+  , { L_,  "A"        , "A"    , 0, 1,  0, 1  }
+  , { L_,  "AB"       , ""     , 0, 0,  0, 0  }
+  , { L_,  "AB"       , "A"    , 0, 1,  0, 1  }
+  , { L_,  "AB"       , "AB"   , 0, 2,  0, 2  }
+  , { L_,  "ABC"      , ""     , 0, 0,  0, 0  }
+  , { L_,  "ABC"      , "A"    , 0, 1,  0, 1  }
+  , { L_,  "ABC"      , "AB"   , 0, 2,  0, 2  }
+  , { L_,  "ABC"      , "ABC"  , 0, 3,  0, 3  }
 
-    if (0 == *DATA) {
-        return -1;                                                    // RETURN
-    }
+    // Match in middle of haystack
+  , { L_,  "xAz"      , "A"    , 1, 1,  1, 1  }
+  , { L_,  "xABz"     , "A"    , 1, 1,  1, 1  }
+  , { L_,  "xABz"     , "AB"   , 1, 2,  1, 2  }
+  , { L_,  "xABCz"    , "A"    , 1, 1,  1, 1  }
+  , { L_,  "xABCz"    , "AB"   , 1, 2,  1, 2  }
+  , { L_,  "xABCz"    , "ABC"  , 1, 3,  1, 3  }
 
-    *NUM_DATA =
-              0 == BSL::strcmp("text",   haystackOption)  ? NUM_U_DATA_TEXT   :
-              0 == BSL::strcmp("octal",  haystackOption)  ? NUM_U_DATA_OCTAL  :
-              0 == BSL::strcmp("binary", haystackOption)  ? NUM_U_DATA_BINARY :
-              0 == BSL::strcmp("short",  haystackOption)  ? NUM_U_DATA_SHORT  :
-              /* unknown */                       static_cast<BSL::size_t>(-1);
+    // Match first needle of two adjacent
+  , { L_,  "xAAz"      , "A"   , 1, 1,  1, 1  }
+  , { L_,  "xABABz"    , "AB"  , 1, 2,  1, 2  }
+  , { L_,  "xABCABCz"  , "ABC" , 1, 3,  1, 3  }
 
-    if (static_cast<BSL::size_t>(-1) == *NUM_DATA) {
-        return -1;                                                    // RETURN
-    }
+    // Match first needle of two separated
+  , { L_,  "xAyAz"     , "A"   , 1, 1,  1, 1  }
+  , { L_,  "xAByABz"   , "AB"  , 1, 2,  1, 2  }
+  , { L_,  "xABCyABCz" , "ABC" , 1, 3,  1, 3  }
 
-    return 0;
-}
+    // Match at end of haystack
+  , { L_,  "xA"        , "A"   , 1, 1,  1, 1  }
+  , { L_,  "xAB"       , "AB"  , 1, 2,  1, 2  }
+  , { L_,  "xABC"      , "ABC" , 1, 3,  1, 3  }
+
+    // False starts
+  , { L_,  "xAAB"      , "AB"  , 2, 2,  2, 2  }
+  , { L_,  "xABABC"    , "ABC" , 3, 3,  3, 3  }
+};
+
+const BSL::size_t numDATA = sizeof DATA / sizeof *DATA;
 
 // ============================================================================
 //                               USAGE EXAMPLES
@@ -2820,6 +2826,87 @@ static void usage()
 //                               HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+static const char *performanceSyntaxMessage(int test)
+{
+    switch (test) {
+      case -1: return
+          "syntax: "
+          "<numRepetitions> "
+          "<text|octal|binary|short>";
+      // case -2: return
+      //     "syntax: "
+      //     "<numRepetitions> "
+      //     "<text|octal|binary|short>";
+      default: return
+          "syntax: *UNKNOWN*";
+    }
+}
+
+static int getHaystack(const char **haystackFirstPtr,
+                       const char **haystackLastPtr,
+                       const char  *haystackOption)
+{
+    assert(haystackFirstPtr);
+    assert(haystackLastPtr);
+    assert(haystackOption);
+
+    *haystackFirstPtr =
+            0 == BSL::strcmp("text",   haystackOption) ? HAYSTACK_TEXT_FIRST  :
+            0 == BSL::strcmp("octal",  haystackOption) ? HAYSTACK_OCTAL_FIRST :
+            0 == BSL::strcmp("binary", haystackOption) ? HAYSTACK_BINARY_FIRST:
+            0 == BSL::strcmp("short",  haystackOption) ? HAYSTACK_SHORT_FIRST :
+            /* unknown */                                0                    ;
+
+    if (0 == *haystackFirstPtr) {
+        return -1;                                                    // RETURN
+    }
+
+    *haystackLastPtr =
+             0 == BSL::strcmp("text",   haystackOption) ? HAYSTACK_TEXT_LAST  :
+             0 == BSL::strcmp("octal",  haystackOption) ? HAYSTACK_OCTAL_LAST :
+             0 == BSL::strcmp("binary", haystackOption) ? HAYSTACK_BINARY_LAST:
+             0 == BSL::strcmp("short",  haystackOption) ? HAYSTACK_SHORT_LAST :
+             /* unknown */                                0                   ;
+
+    if (0 == *haystackLastPtr) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+int getDataForHaystack(const DATA_t **DATA,
+                       BSL::size_t   *NUM_DATA,
+                       const char    *haystackOption)
+{
+    assert(DATA);
+    assert(NUM_DATA);
+    assert(haystackOption);
+
+    *DATA = 0 == BSL::strcmp("text",   haystackOption) ? U_DATA_TEXT   :
+            0 == BSL::strcmp("octal",  haystackOption) ? U_DATA_OCTAL  :
+            0 == BSL::strcmp("binary", haystackOption) ? U_DATA_BINARY :
+            0 == BSL::strcmp("short",  haystackOption) ? U_DATA_SHORT  :
+            /* unknown */                                0             ;
+
+    if (0 == *DATA) {
+        return -1;                                                    // RETURN
+    }
+
+    *NUM_DATA =
+              0 == BSL::strcmp("text",   haystackOption)  ? NUM_U_DATA_TEXT   :
+              0 == BSL::strcmp("octal",  haystackOption)  ? NUM_U_DATA_OCTAL  :
+              0 == BSL::strcmp("binary", haystackOption)  ? NUM_U_DATA_BINARY :
+              0 == BSL::strcmp("short",  haystackOption)  ? NUM_U_DATA_SHORT  :
+              /* unknown */                       static_cast<BSL::size_t>(-1);
+
+    if (static_cast<BSL::size_t>(-1) == *NUM_DATA) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
 static void convertToNonAscii(BSL::string *out, const BSL::string& input)
 {
     ASSERT(out);
@@ -2833,6 +2920,13 @@ static void convertToNonAscii(BSL::string *out, const BSL::string& input)
         ASSERT(-1 != chNew);
 
         out->push_back(static_cast<char>(chNew));
+    }
+}
+
+static void loadVectorOfChars(bsl::vector<char> *dst, const char *src)
+{
+    for (const char *ptr = src; *ptr; ++ptr) {
+        dst->push_back(*ptr);
     }
 }
 
@@ -2945,7 +3039,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hashX, equalX, xsa);
                 Mech mX(needleFirst, needleLast, hashX, equalX, xsa);
-                Mech mY(needleLast,  needleLast, hashY, equalY);
+                Mech mY(needleLast,  needleLast, hashY, equalY);  // unlike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -2981,7 +3075,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hashX, equalX, xsa);
                 Mech mX(needleFirst, needleLast, hashX, equalX, xsa);
-                Mech mY(needleLast,  needleLast, hashY, equalX, ysa);
+                Mech mY(needleLast,  needleLast, hashY, equalX, ysa); // unlike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3009,7 +3103,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("Optimized Implementation\n");
+        if (veryVerbose) printf("Specialize Implementation\n");
         {
             typedef bsl::hash<char>     HASH;   // These types lack equality
             typedef bsl::equal_to<char> EQUAL;  // comparison operators.
@@ -3042,7 +3136,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hash, equal, xsa);
                 Mech mX(needleFirst, needleLast, hash, equal, xsa);
-                Mech mY(needleLast,  needleLast, hash, equal);
+                Mech mY(needleLast,  needleLast, hash, equal); // unlike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3078,7 +3172,7 @@ int main(int argc, char *argv[])
 
                 Mech mZ(needleFirst, needleLast, hash, equal, xsa);
                 Mech mX(needleFirst, needleLast, hash, equal, xsa);
-                Mech mY(needleLast,  needleLast, hash, equal, ysa);
+                Mech mY(needleLast,  needleLast, hash, equal, ysa); // unlike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3103,6 +3197,96 @@ int main(int argc, char *argv[])
              // ASSERT(Z.hash()        == X.hash());
              // ASSERT(Z.equal()       == X.equal());
                 ASSERT(Z.allocator()   == X.allocator());
+            }
+        }
+
+        if (veryVerbose) printf("Compare results\n");
+        {
+            for (BSL::size_t ti = 0; ti < numDATA; ++ti) {
+                const int         LINE      = DATA[ti].d_line;
+                const char *const HAYSTACK  = DATA[ti].d_haystack_p;
+                const char *const NEEDLE    = DATA[ti].d_needle_p;
+                const int         OFFSET_CS = DATA[ti].d_offsetCs;
+                const int         LENGTH_CS = DATA[ti].d_lengthCs;
+                const int         OFFSET_CI = DATA[ti].d_offsetCi;
+                const int         LENGTH_CI = DATA[ti].d_lengthCi;
+
+                if (veryVerbose) {
+                    P_(LINE      )
+                    P_(HAYSTACK  )
+                    P_(NEEDLE    )
+                    P_(OFFSET_CS )
+                    P_(LENGTH_CS )
+                    P_(OFFSET_CI )
+                    P (LENGTH_CI )
+                }
+
+                // General Implementation
+                {
+                    bsl::vector<char> vectorOfChars;
+                    loadVectorOfChars(&vectorOfChars, NEEDLE);
+
+                    CharArray<char> needleContent(vectorOfChars);
+
+                    typedef CharArray<char>::const_iterator RandConstItr;
+                    typedef  CharHashCaseInsensitive        HASH;
+                    typedef CharEqualCaseInsensitive        EQUAL;
+            
+                    typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                                                               HASH,
+                                                               EQUAL> Mech;
+
+                    RandConstItr needleFirst = needleContent.begin();
+                    RandConstItr needleLast  = needleContent.end();
+
+                    Mech mZ(needleFirst, needleLast);
+                    Mech mX(needleFirst, needleLast);
+                    Mech mY(needleFirst, needleFirst);  // unlike
+
+                    const Mech& Z = mZ;
+                    const Mech& X = mX;
+                    const Mech& Y = mY;
+
+                    mY = X;  // ACTION
+
+                    typedef bsl::pair<const char *, const char *> Result;
+
+                    const BSL::size_t HAYSTACK_LENGTH = BSL::strlen(HAYSTACK);
+
+                    Result resultZ = Z(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultX = X(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultY = Y(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+
+                    ASSERT(resultZ == resultX);
+                    ASSERT(resultX == resultY);
+                }
+
+                // Specialized Implementation
+                {
+                    typedef bsl::boyer_moore_horspool_searcher<const char *>
+                                                                         Mech;
+
+                    Mech mZ(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
+                    Mech mX(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
+                    Mech mY(NEEDLE, NEEDLE);
+
+                    const Mech& Z = mZ;
+                    const Mech& X = mX;
+                    const Mech& Y = mY;
+
+                    mY = X;  // ACTION
+
+                    typedef bsl::pair<const char *, const char *> Result;
+
+                    const BSL::size_t HAYSTACK_LENGTH = BSL::strlen(HAYSTACK);
+
+                    Result resultZ = Z(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultX = X(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultY = Y(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+
+                    ASSERT(resultZ == resultX);
+                    ASSERT(resultX == resultY);
+                }
             }
         }
       } break;
@@ -3233,7 +3417,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("Optimized Implementation\n");
+        if (veryVerbose) printf("Specialized Implementation\n");
         {
             typedef bsl::hash<char>     HASH;   // These types lack equality
             typedef bsl::equal_to<char> EQUAL;  // comparison operators.
@@ -3326,6 +3510,91 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (veryVerbose) printf("Compare results\n");
+        {
+            for (BSL::size_t ti = 0; ti < numDATA; ++ti) {
+                const int         LINE      = DATA[ti].d_line;
+                const char *const HAYSTACK  = DATA[ti].d_haystack_p;
+                const char *const NEEDLE    = DATA[ti].d_needle_p;
+                const int         OFFSET_CS = DATA[ti].d_offsetCs;
+                const int         LENGTH_CS = DATA[ti].d_lengthCs;
+                const int         OFFSET_CI = DATA[ti].d_offsetCi;
+                const int         LENGTH_CI = DATA[ti].d_lengthCi;
+
+                if (veryVerbose) {
+                    P_(LINE      )
+                    P_(HAYSTACK  )
+                    P_(NEEDLE    )
+                    P_(OFFSET_CS )
+                    P_(LENGTH_CS )
+                    P_(OFFSET_CI )
+                    P (LENGTH_CI )
+                }
+
+                // General Implementation
+                {
+                    bsl::vector<char> vectorOfChars;
+                    loadVectorOfChars(&vectorOfChars, NEEDLE);
+
+                    CharArray<char> needleContent(vectorOfChars);
+
+                    typedef CharArray<char>::const_iterator RandConstItr;
+                    typedef  CharHashCaseInsensitive        HASH;
+                    typedef CharEqualCaseInsensitive        EQUAL;
+            
+                    typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                                                               HASH,
+                                                               EQUAL> Mech;
+
+                    RandConstItr needleFirst = needleContent.begin();
+                    RandConstItr needleLast  = needleContent.end();
+
+                    Mech mZ(needleFirst, needleLast);
+                    Mech mX(needleFirst, needleLast);
+
+                    const Mech& Z = mZ;
+                    const Mech& X = mX;
+
+                    Mech mY(X); const Mech& Y = mY;  // ACTION
+
+                    typedef bsl::pair<const char *, const char *> Result;
+
+                    const BSL::size_t HAYSTACK_LENGTH = BSL::strlen(HAYSTACK);
+
+                    Result resultZ = Z(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultX = X(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultY = Y(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+
+                    ASSERT(resultZ == resultX);
+                    ASSERT(resultX == resultY);
+                }
+
+                // Specialized Implementation
+                {
+                    typedef bsl::boyer_moore_horspool_searcher<const char *>
+                                                                         Mech;
+
+                    Mech mZ(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
+                    Mech mX(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
+
+                    const Mech& Z = mZ;
+                    const Mech& X = mX;
+
+                    Mech mY(X); const Mech& Y = mY;  // ACTION
+
+                    typedef bsl::pair<const char *, const char *> Result;
+
+                    const BSL::size_t HAYSTACK_LENGTH = BSL::strlen(HAYSTACK);
+
+                    Result resultZ = Z(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultX = X(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultY = Y(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+
+                    ASSERT(resultZ == resultX);
+                    ASSERT(resultX == resultY);
+                }
+            }
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -3397,91 +3666,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n" "TEST 'operator()'"
                             "\n" "=================\n");
-        const struct {
-            int          d_line;
-            const char  *d_haystack_p;
-            const char  *d_needle_p;
-
-            // result: Case Insensitive
-            BSL::size_t  d_offsetCs;
-            BSL::size_t  d_lengthCs;
-
-            // result: Case Sensitive
-            BSL::size_t  d_offsetCi;
-            BSL::size_t  d_lengthCi;
-
-        } DATA[]  = {
-            //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
-            //---- --------     ------  ------  ------
-
-            // Degenerate combinations
-            { L_,  ""         , ""     , 0, 0,  0, 0  }
-          , { L_,  ""         , "a"    , 0, 0,  0, 0  }
-          , { L_,  ""         , "ab"   , 0, 0,  0, 0  }
-          , { L_,  ""         , "abc"  , 0, 0,  0, 0  }
-
-            // No match at all.
-          , { L_,  "A"        , ""     , 0, 0,  0, 0  }
-          , { L_,  "A"        , "a"    , 1, 0,  0, 1  }
-          , { L_,  "A"        , "ab"   , 1, 0,  1, 0  }
-          , { L_,  "A"        , "abc"  , 1, 0,  1, 0  }
-          , { L_,  "AB"       , ""     , 0, 0,  0, 0  }
-          , { L_,  "AB"       , "a"    , 2, 0,  0, 1  }
-          , { L_,  "AB"       , "ab"   , 2, 0,  0, 2  }
-          , { L_,  "AB"       , "abc"  , 2, 0,  2, 0  }
-          , { L_,  "ABC"      , ""     , 0, 0,  0, 0  }
-          , { L_,  "ABC"      , "a"    , 3, 0,  0, 1  }
-          , { L_,  "ABC"      , "ab"   , 3, 0,  0, 2  }
-          , { L_,  "ABC"      , "abc"  , 3, 0,  0, 3  }
-
-            // Mismatch on second character (of two or more).
-          , { L_,  "AB"       , "Ab"   , 2, 0,  0, 2  }
-          , { L_,  "AB"       , "Abc"  , 2, 0,  2, 0  }
-          , { L_,  "ABC"      , "Ab"   , 3, 0,  0, 2  }
-          , { L_,  "ABC"      , "AbC"  , 3, 0,  0, 3  }
-
-            // Mismatch on third character (of three).
-          , { L_,  "ABC"      , "ABc"  , 3, 0,  0, 3  }
-
-            // Match at beginning of haystack
-          , { L_,  "A"        , ""     , 0, 0,  0, 0  }
-          , { L_,  "A"        , "A"    , 0, 1,  0, 1  }
-          , { L_,  "AB"       , ""     , 0, 0,  0, 0  }
-          , { L_,  "AB"       , "A"    , 0, 1,  0, 1  }
-          , { L_,  "AB"       , "AB"   , 0, 2,  0, 2  }
-          , { L_,  "ABC"      , ""     , 0, 0,  0, 0  }
-          , { L_,  "ABC"      , "A"    , 0, 1,  0, 1  }
-          , { L_,  "ABC"      , "AB"   , 0, 2,  0, 2  }
-          , { L_,  "ABC"      , "ABC"  , 0, 3,  0, 3  }
-
-            // Match in middle of haystack
-          , { L_,  "xAz"      , "A"    , 1, 1,  1, 1  }
-          , { L_,  "xABz"     , "A"    , 1, 1,  1, 1  }
-          , { L_,  "xABz"     , "AB"   , 1, 2,  1, 2  }
-          , { L_,  "xABCz"    , "A"    , 1, 1,  1, 1  }
-          , { L_,  "xABCz"    , "AB"   , 1, 2,  1, 2  }
-          , { L_,  "xABCz"    , "ABC"  , 1, 3,  1, 3  }
-
-            // Match first needle of two adjacent
-          , { L_,  "xAAz"      , "A"   , 1, 1,  1, 1  }
-          , { L_,  "xABABz"    , "AB"  , 1, 2,  1, 2  }
-          , { L_,  "xABCABCz"  , "ABC" , 1, 3,  1, 3  }
-
-            // Match first needle of two separated
-          , { L_,  "xAyAz"     , "A"   , 1, 1,  1, 1  }
-          , { L_,  "xAByABz"   , "AB"  , 1, 2,  1, 2  }
-          , { L_,  "xABCyABCz" , "ABC" , 1, 3,  1, 3  }
-
-            // Match at end of haystack
-          , { L_,  "xA"        , "A"   , 1, 1,  1, 1  }
-          , { L_,  "xAB"       , "AB"  , 1, 2,  1, 2  }
-          , { L_,  "xABC"      , "ABC" , 1, 3,  1, 3  }
-
-            // False starts
-          , { L_,  "xAAB"      , "AB"  , 2, 2,  2, 2  }
-          , { L_,  "xABABC"    , "ABC" , 3, 3,  3, 3  }
-        };
-        const BSL::size_t numDATA = sizeof DATA / sizeof *DATA;
 
         for (BSL::size_t ti = 0; ti < numDATA; ++ti) {
             const int         LINE      = DATA[ti].d_line;
