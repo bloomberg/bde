@@ -2833,10 +2833,6 @@ static const char *performanceSyntaxMessage(int test)
           "syntax: "
           "<numRepetitions> "
           "<text|octal|binary|short>";
-      // case -2: return
-      //     "syntax: "
-      //     "<numRepetitions> "
-      //     "<text|octal|binary|short>";
       default: return
           "syntax: *UNKNOWN*";
     }
@@ -3614,14 +3610,14 @@ int main(int argc, char *argv[])
         //:
         //: 5 The method searches the specified range (and no further).
         //:
-        //: 6 The method returns position of the first occurrence of needle
+        //: 6 The method returns the position of the first occurrence of needle
         //:   in the specified haystack.
         //:
         //: 7 If the needle is not found in the haystack, a zero-length
         //:   range positioned at the end of the haystack is returned.
         //:
         //: 8 The returns the expected results for each combination of
-        //:   needle and haystack range:
+        //:   needle and haystack in these special cases:
         //:   o length 0, no elements
         //:   o length 1, one element that is both first and last
         //:   o length 2, separate first and last elements
@@ -3651,12 +3647,12 @@ int main(int argc, char *argv[])
         //:   searches.  Both searches are done to show that the equality
         //:   comparison functor that is shown is actually used.
         //:
-        //: 3 A pair searcher objects are created:
+        //: 3 A pair of searcher objects are created:
         //:   o Comparator type: case-sensitive (default) and case-insensitive.
         //:
         //: 4 Each of the two searcher objects are invoked.
         //:
-        //: 5 Call defined iterators are constant.
+        //: 5 All defined iterators are constant.
         //:
         //: 6 All searches are done using 'const'-qualified searcher objects.
         //
@@ -3865,7 +3861,7 @@ int main(int argc, char *argv[])
         //:
         //: 9 The object's public type, 'value_type', is the expected type.
         //:
-        //:10 Memory allocation, if any, uses the expected allocator.
+        //:10 Memory allocation, if any, uses the intended allocator.
         //:
         //:11 There is no temporary memory allocation.
         //:
@@ -3883,7 +3879,7 @@ int main(int argc, char *argv[])
         //: 3 Show that the object type is the same, irrespective of whether or
         //:   not the optional arguments are supplied.
         //:
-        //: 4 We demonstrate that the object hold copies of constructor
+        //: 4 We demonstrate that the object holds copies of constructor
         //:   arguments by changing those objects and confirming that they are
         //:   no longer equal to the values returned by the accessors.
         //:
