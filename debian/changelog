@@ -1,8 +1,15 @@
-bsl-internal (3.31.0.0) unstable; urgency=low
+bsl-internal (3.32.0.0) unstable; urgency=low
 
+  * 1537ef20b Bump version to 3.32.0.0
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 23 Jun 2019 12:10:38 -0400
+
+bsl-internal (3.31.0.0) git; urgency=low
+
+  * a8ce6480b Changelog for version 3.31.0.0
   * b6622d6eb Bump version to 3.31.0.0
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 10 Jun 2019 14:35:09 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 10 Jun 2019 14:37:47 -0400
 
 bsl-internal (3.30.0.0) git; urgency=low
 
