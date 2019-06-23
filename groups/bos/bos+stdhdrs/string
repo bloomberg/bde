@@ -1,0 +1,104 @@
+// string                                                             -*-C++-*-
+#ifndef INCLUDED_NATIVE_STRING
+#define INCLUDED_NATIVE_STRING
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
+//
+//@SEE_ALSO: package bos+stdhdrs
+//
+//@DESCRIPTION: Provide functionality of the corresponding C++ standard
+// header.  This file includes the compiler provided native standard header.
+// In addition, in 'bde-stl' mode (used by Bloomberg managed code, see
+// 'bos+stdhdrs.txt' for more information) include the corresponding header in
+// 'bsl+bslhdrs' as well as 'bos_stdhdrs_prologue.h' and
+// 'bos_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
+// places them in the 'std' namespace.
+
+#include <bsls_compilerfeatures.h>
+
+#ifndef BSL_OVERRIDES_STD
+
+# ifndef INCLUDED_BOS_STDHDRS_INCPATHS
+#   include <bos_stdhdrs_incpaths.h>
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <string>
+# else
+#   include BSL_NATIVE_CPP_LIB_HEADER(string)
+# endif
+
+#else // defined(BSL_OVERRIDES_STD)
+
+# ifndef BOS_STDHDRS_PROLOGUE_IN_EFFECT
+#   include <bos_stdhdrs_prologue.h>
+# endif
+
+# ifndef BOS_STDHDRS_RUN_EPILOGUE
+#   define BOS_STDHDRS_RUN_EPILOGUE
+#   define BOS_STDHDRS_EPILOGUE_RUN_BY_string
+# endif
+
+# include <bos_stdhdrs_incpaths.h>
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <string>
+# else
+#   include BSL_NATIVE_CPP_LIB_HEADER(string)
+# endif
+
+# ifndef BDE_OMIT_INTERNAL_DEPRECATED
+# ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+        // Permit reliance on transitive includes within robo.
+
+#   include <exception>
+#   include <limits>
+
+    // These includes causes cycles in C++11 mode with gcc.
+#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
+#     include <algorithm>
+#     include <cctype>
+#   endif
+
+    // Code in Robo depends on these headers included transitively with
+    // <string> and it fails to build otherwise in the stlport4 mode on Sun.
+#   if defined(BDE_BUILD_TARGET_STLPORT)
+#     include <stdio.h>
+#     include <stdlib.h>
+#     include <string.h>
+#   endif
+
+# endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+# ifndef BSL_INCLUDE_BSL_STRING
+#   define BSL_INCLUDE_BSL_STRING
+# endif
+
+# ifdef BOS_STDHDRS_EPILOGUE_RUN_BY_string
+#   undef BOS_STDHDRS_EPILOGUE_RUN_BY_string
+#   include <bos_stdhdrs_epilogue.h>
+# endif
+
+#endif  // BSL_OVERRIDES_STD
+
+#endif  // INCLUDED_NATIVE_STRING
+
+// ----------------------------------------------------------------------------
+// Copyright 2013 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

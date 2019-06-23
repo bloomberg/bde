@@ -6,7 +6,7 @@
 
 @DESCRIPTION: This non-conventional package provides *no* components, only
  headers which enable BDE-STL mode at Bloomberg.  See the package-level
- documentation at {'bsl+stdhdrs'} for details.
+ documentation at {'bos+stdhdrs'} for details.
 
 /Hierarchical Synopsis
 /---------------------

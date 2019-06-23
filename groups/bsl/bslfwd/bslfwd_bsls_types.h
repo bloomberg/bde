@@ -10,6 +10,8 @@
 //
 //@SEE_ALSO: bslfwd_buildtarget
 //
+//@AUTHOR: Alexei Zakharov (azakharov7)
+//
 //@DESCRIPTION: This header provides a forward-declaration for the
 // corresponding BDE type in order to enable client code to safely use a
 // forward-declaration for that type during the period where the BDE libraries

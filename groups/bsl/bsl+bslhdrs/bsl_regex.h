@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bsl+stdhdrs
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 #include <regex>
 
 namespace bsl {
-
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
     using native_std::regex_match;
     using native_std::regex_search;
     using native_std::regex_replace;

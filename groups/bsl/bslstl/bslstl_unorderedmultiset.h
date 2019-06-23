@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::unordered_multiset : STL-compliant 'unordered_multiset' container
 //
-//@SEE_ALSO: bsl+stdhdrs
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: This component defines a single class template,
 // 'bsl::unordered_multiset', implementing the standard container holding a
@@ -633,7 +633,7 @@ BSLS_IDENT("$Id: $")
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
 #error "<bslstl_unorderedmultiset.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif

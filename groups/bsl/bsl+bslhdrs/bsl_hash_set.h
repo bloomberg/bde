@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@INTERNAL_DEPRECATED: Do not use.
 //
-//@SEE_ALSO: package bsl+stdhdrs
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native

@@ -340,9 +340,9 @@ static void testLocalFunctions()
     }
 }
 
-static void split(bsl::vector< bslstl::StringRef> *result,
-                  const bslstl::StringRef&         string,
-                  char                             delimiter)
+static void split(bsl::vector<bslstl::StringRef> *result,
+                  const bslstl::StringRef&        string,
+                  char                            delimiter)
     // Load into the specified 'result' vector the parts of the specified
     // 'string' as delimited by the specified 'delimiter'.  So for '"a,b,c"'
     // return '["a", "b", "c"]'.

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::bitset: STL-compatible bitset template
 //
-//@SEE_ALSO: bsl+stdhdrs
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_bitset.h>' instead and use 'bsl::bitset' directly.  This component
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
 #error "include <bsl_bitset.h> instead of <bslstl_bitset.h> in \
 BSL_OVERRIDES_STD mode"
 #endif

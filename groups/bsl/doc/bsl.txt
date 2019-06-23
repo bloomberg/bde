@@ -27,17 +27,15 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsl' package group currently has 16 packages having 12 levels of physical
+ The 'bsl' package group currently has 15 packages having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  12. bslmt
+  11. bslmt
       bslx
 
-  11. bslim
-
-  10. bsl+stdhdrs
+  10. bslim
 
    9. bsl+bslhdrs
 
@@ -75,9 +73,6 @@
 /Package Synopsis
 /----------------
 : 'bsl+bslhdrs':
-:      Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
-:
-: 'bsl+stdhdrs':
 :      Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
 :
 : 'bsla':
@@ -138,14 +133,6 @@
  library (e.g., 'bsl_vector.h' instead of 'vector', 'bsl_algorithm.h' instead
  of 'algorithm').  Users of 'bsl' can include these headers to obtain the
  corresponding C++ STL functionalities.
-
-/'bsl+stdhdrs'
-/- - - - - - -
- The {'bsl+stdhdrs'} package provides a compatibility layer to for the
- 'BDE-STL' mode.  When users include standard C++ headers from this directory
- (e.g., 'vector', 'algorithm'), and use standard STL types such as
- 'std::vector', 'std::cout', users will be using the corresponding 'bsl'
- version instead (i.e., 'std::vector' is the same as 'bsl::vector').
 
 /'bslalg'
 / - - - -
