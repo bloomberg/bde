@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmt' package currently has 46 components having 18 levels of physical
+ The 'bslmt' package currently has 48 components having 18 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -31,6 +31,7 @@
       bslmt_meteredmutex
       bslmt_qlock
       bslmt_readerwriterlock
+      bslmt_throughputbenchmark
 
   15. bslmt_barrier
       bslmt_fastpostsemaphore
@@ -84,6 +85,7 @@
       bslmt_readerwritermuteximpl
       bslmt_readlockguard
       bslmt_threadlocalvariable
+      bslmt_throughputbenchmarkresult
       bslmt_writelockguard
 ..
 
@@ -208,6 +210,12 @@
 :
 : 'bslmt_threadutilimpl_win32':                                       !PRIVATE!
 :      Provide a win32 implementation of 'bslmt::ThreadUtil'.
+:
+: 'bslmt_throughputbenchmark':
+:      Provide a performance test harness for multi-threaded components.
+:
+: 'bslmt_throughputbenchmarkresult':
+:      Provide result repository for throughput performance test harness.
 :
 : 'bslmt_timedsemaphore':
 :      Provide a timed semaphore class.

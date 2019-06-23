@@ -27,7 +27,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsl' package group currently has 15 packages having 11 levels of physical
+ The 'bsl' package group currently has 16 packages having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.

@@ -73,7 +73,7 @@
       bsls_util
 
    6. bsls_alignmenttotype
-      bsls_annotation
+      bsls_annotation                                    !DEPRECATED!
       bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
       bsls_keyword
@@ -140,7 +140,7 @@
 : 'bsls_alignmentutil':
 :      Provide constants, types, and operations related to alignment.
 :
-: 'bsls_annotation':
+: 'bsls_annotation':                                     !DEPRECATED!
 :      Provide support for compiler annotations for compile-time safety.
 :
 : 'bsls_assert':

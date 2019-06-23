@@ -31,23 +31,23 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-   3. bsla_annotations
+  3. bsla_annotations
 
-   2. bsla_used
+  2. bsla_used
 
-   1. bsla_deprecated
-      bsla_error
-      bsla_fallthrough
-      bsla_format
-      bsla_nodiscard
-      bsla_nonnullarg
-      bsla_noreturn
-      bsla_nullterminated
-      bsla_printf
-      bsla_scanf
-      bsla_unreachable
-      bsla_unused
-      bsla_warning
+  1. bsla_deprecated
+     bsla_error
+     bsla_fallthrough
+     bsla_format
+     bsla_nodiscard
+     bsla_nonnullarg
+     bsla_noreturn
+     bsla_nullterminated
+     bsla_printf
+     bsla_scanf
+     bsla_unreachable
+     bsla_unused
+     bsla_warning
 ..
 
 /Component Synopsis
@@ -56,10 +56,10 @@
 :      Provide support for compiler annotations for compile-time safety.
 :
 : 'bsla_deprecated':
-:      Provide a compiler-hint macro to indicate deprecated entities.
+:      Provide compiler-hint macros to indicate deprecated entities.
 :
 : 'bsla_error':
-:      Provide a macro to emit an error when a function is called.
+:      Provide a macro to emit an error message when a function is called.
 :
 : 'bsla_fallthrough':
 :      Provide a macro to suppress warnings on 'switch' fall-throughs.
@@ -83,7 +83,7 @@
 :      Provide a macro to indicate 'printf'-style arguments.
 :
 : 'bsla_scanf':
-:       Provide a macro for checking 'scanf'-style format strings.
+:      Provide a macro for checking 'scanf'-style format strings.
 :
 : 'bsla_unreachable':
 :      Provide a compiler-hint macro to indicate unreachable code.

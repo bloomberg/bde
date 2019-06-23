@@ -45,7 +45,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlcc' package currently has 18 components having 4 levels of physical
+ The 'bdlcc' package currently has 20 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -60,7 +60,8 @@
      bdlcc_stripedunorderedmap
      bdlcc_stripedunorderedmultimap
 
-  1. bdlcc_cache
+  1. bdlcc_boundedqueue
+     bdlcc_cache
      bdlcc_deque
      bdlcc_fixedqueueindexmanager
      bdlcc_multipriorityqueue
@@ -68,6 +69,7 @@
      bdlcc_queue                                         !DEPRECATED!
      bdlcc_singleconsumerqueueimpl
      bdlcc_singleproducerqueueimpl
+     bdlcc_singleproducersingleconsumerboundedqueue
      bdlcc_skiplist
      bdlcc_stripedunorderedcontainerimpl
      bdlcc_timequeue
@@ -75,6 +77,9 @@
 
 /Component Synopsis
 /------------------
+: 'bdlcc_boundedqueue':
+:      Provide a thread-aware bounded queue of values.
+:
 : 'bdlcc_cache':
 :      Provide a in-process cache with configurable eviction policy.
 :
@@ -113,6 +118,9 @@
 :
 : 'bdlcc_singleproducerqueueimpl':
 :      Provide a testable thread-aware single producer queue of values.
+:
+: 'bdlcc_singleproducersingleconsumerboundedqueue':
+:      Provide a thread-aware SPSC bounded queue of values.
 :
 : 'bdlcc_skiplist':
 :      Provide a generic thread-safe Skip List.
