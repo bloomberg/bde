@@ -86,7 +86,9 @@ using namespace bslim;
 // [19] STR& operator<<(STR&, const AllocTestType&);
 // [19] STR& operator<<(STR&, const BitwiseCopyableTestType&);
 // [19] STR& operator<<(STR&, const BitwiseMoveableTestType&);
+// [19] STR& operator<<(STR&, const EmplacableTestType&);
 // [19] STR& operator<<(STR&, const EnumeratedTestType::Enum&);
+// [19] STR& operator<<(STR&, const TTF::MethodPtr&);
 // [19] STR& operator<<(STR&, const MovableAllocTestType&);
 // [19] STR& operator<<(STR&, const MovableTestType&);
 // [19] STR& operator<<(STR&, const MoveOnlyAllocTestType&);
@@ -94,8 +96,10 @@ using namespace bslim;
 // [19] STR& operator<<(STR&, const NonCopyConstructibleTestType&);
 // [19] STR& operator<<(STR&, const NonDefaultConstructibleTestType&);
 // [19] STR& operator<<(STR&, const NonEqualComparableTestType&);
+// [19] STR& operator<<(STR&, const NonOptionalAllocTestType&);
 // [19] STR& operator<<(STR&, const NonTypicalOverloadsTestType&);
 // [19] STR& operator<<(STR&, const SimpleTestType&);
+// [19] STR& operator<<(STR&, const StdAllocTestType&);
 // [19] STR& operator<<(STR&, const UnionTestType&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -1017,7 +1021,9 @@ int main(int argc, char *argv[])
         //   STR& operator<<(STR&, const AllocTestType&);
         //   STR& operator<<(STR&, const BitwiseCopyableTestType&);
         //   STR& operator<<(STR&, const BitwiseMoveableTestType&);
+        //   STR& operator<<(STR&, const EmplacableTestType&);
         //   STR& operator<<(STR&, const EnumeratedTestType::Enum&);
+        //   STR& operator<<(STR&, const TTF::MethodPtr&);
         //   STR& operator<<(STR&, const MovableAllocTestType&);
         //   STR& operator<<(STR&, const MovableTestType&);
         //   STR& operator<<(STR&, const MoveOnlyAllocTestType&);
@@ -1025,8 +1031,10 @@ int main(int argc, char *argv[])
         //   STR& operator<<(STR&, const NonCopyConstructibleTestType&);
         //   STR& operator<<(STR&, const NonDefaultConstructibleTestType&);
         //   STR& operator<<(STR&, const NonEqualComparableTestType&);
+        //   STR& operator<<(STR&, const NonOptionalAllocTestType&);
         //   STR& operator<<(STR&, const NonTypicalOverloadsTestType&);
         //   STR& operator<<(STR&, const SimpleTestType&);
+        //   STR& operator<<(STR&, const StdAllocTestType&);
         //   STR& operator<<(STR&, const UnionTestType&);
         // --------------------------------------------------------------------
 
@@ -1100,6 +1108,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) {
             P_(o1);               P_(o3);    P_(o4);    P_(o5);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            P_(o6);
+#endif
             P_(o7);    P_(o8);    P_(o9);    P_(o10);   P_(o11);   P(o12);
             P_(o13);   P_(o14);   P_(o15);   P_(o16);   P_(o17);   P_(o18);
             P_(o19);   P(o20);

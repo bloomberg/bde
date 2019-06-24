@@ -26,12 +26,13 @@
 //                              --------
 //-----------------------------------------------------------------------------
 // FREE OPERATORS
-// [ 3] STREAM& op<<(STREAM&, const TemplateTestFacility::MethodPtr);
 // [ 3] STREAM& op<<(STREAM&, const AllocBitwiseMoveableTestType&);
 // [ 3] STREAM& op<<(STREAM&, const AllocTestType&);
 // [ 3] STREAM& op<<(STREAM&, const BitwiseCopyableTestType&);
 // [ 3] STREAM& op<<(STREAM&, const BitwiseMoveableTestType&);
+// [ 3] STREAM& op<<(STREAM&, const EmplacableTestType&);
 // [ 3] STREAM& op<<(STREAM&, const EnumeratedTestType::Enum&);
+// [ 3] STREAM& op<<(STREAM&, const TTF::MethodPtr&);
 // [ 3] STREAM& op<<(STREAM&, const MovableAllocTestType&);
 // [ 3] STREAM& op<<(STREAM&, const MovableTestType&);
 // [ 3] STREAM& op<<(STREAM&, const MoveOnlyAllocTestType&);
@@ -42,6 +43,7 @@
 // [ 3] STREAM& op<<(STREAM&, const NonOptionalAllocTestType&);
 // [ 3] STREAM& op<<(STREAM&, const NonTypicalOverloadsTestType&);
 // [ 3] STREAM& op<<(STREAM&, const SimpleTestType&);
+// [ 3] STREAM& op<<(STREAM&, const StdAllocTestType&);
 // [ 3] STREAM& op<<(STREAM&, const UnionTestType&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -285,12 +287,13 @@ int main(int argc, char *argv[])
         //:   stream has the expected value.  (C-1)
         //
         // Testing:
-        //   STREAM& op<<(STREAM&, const TemplateTestFacility::MethodPtr&);
         //   STREAM& op<<(STREAM&, const AllocBitwiseMoveableTestType&);
         //   STREAM& op<<(STREAM&, const AllocTestType&);
         //   STREAM& op<<(STREAM&, const BitwiseCopyableTestType&);
         //   STREAM& op<<(STREAM&, const BitwiseMoveableTestType&);
+        //   STREAM& op<<(STREAM&, const EmplacableTestType&);
         //   STREAM& op<<(STREAM&, const EnumeratedTestType::Enum&);
+        //   STREAM& op<<(STREAM&, const TTF::MethodPtr&);
         //   STREAM& op<<(STREAM&, const MovableAllocTestType&);
         //   STREAM& op<<(STREAM&, const MovableTestType&);
         //   STREAM& op<<(STREAM&, const MoveOnlyAllocTestType&);
@@ -301,6 +304,7 @@ int main(int argc, char *argv[])
         //   STREAM& op<<(STREAM&, const NonOptionalAllocTestType&);
         //   STREAM& op<<(STREAM&, const NonTypicalOverloadsTestType&);
         //   STREAM& op<<(STREAM&, const SimpleTestType&);
+        //   STREAM& op<<(STREAM&, const StdAllocTestType&);
         //   STREAM& op<<(STREAM&, const UnionTestType&);
         // --------------------------------------------------------------------
 
