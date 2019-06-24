@@ -1155,7 +1155,7 @@ class SignalerConnectionGuard {
     SignalerConnectionGuard(bslmf::MovableRef<
            SignalerConnection> connection,
            bool                waitOnDisconnect = false) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'SignalerConnectionGuard" that refers to the same slot, if
+        // Create a 'SignalerConnectionGuard' that refers to the same slot, if
         // any, as the specified 'connection', which is left in an unspecified
         // state.  Optionally specify 'waitOnDisconnect' indicating whether
         // 'disconnect()' or 'disconnectAndWait()' will be called on the slot,
@@ -1165,7 +1165,7 @@ class SignalerConnectionGuard {
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
                       SignalerConnectionGuard> original) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'SignalerConnectionGuard" that manages the same slot, if
+        // Create a 'SignalerConnectionGuard' that manages the same slot, if
         // any, as the specified 'original', which is left in the
         // default-constructed state.  Copy the 'waitOnDisconnect' state from
         // 'original', indicating whether 'disconnect()' or
@@ -1176,7 +1176,7 @@ class SignalerConnectionGuard {
     SignalerConnectionGuard(bslmf::MovableRef<
               SignalerConnectionGuard> original,
               bool                     waitOnDisconnect) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'SignalerConnectionGuard" that refers to the same slot, if
+        // Create a 'SignalerConnectionGuard' that refers to the same slot, if
         // any, as the specified 'original', which is left in a the
         // default-constructed state.  Optionally specify 'waitOnDisconnect'
         // indicating whether 'disconnect()' or 'disconnectAndWait()' will be
