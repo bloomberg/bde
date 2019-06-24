@@ -256,7 +256,8 @@ BSLS_IDENT("$Id: $")
         // Exceptions enabled: 'throw'
         // Exceptions disabled: abort with a message
 
-#   define BSLS_EXCEPTION_SPEC(SPEC) throw SPEC
+//#   define BSLS_EXCEPTION_SPEC(SPEC) throw SPEC
+#define BSLS_EXCEPTION_SPEC(SPEC)
         // Declare the exception specification for a function.
         // Usage:
         //..

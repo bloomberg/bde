@@ -121,6 +121,9 @@ using namespace BloombergLP::bsltf;
 
 static int realTestStatus = 0;
 
+//offset between the line number in expected vs actual output
+static int lineOffset = 1;
+
 static void realaSsErT(bool b, const char *s, int i)
 {
     if (b) {
@@ -761,8 +764,8 @@ int OutputRedirector::compare(const char *expected, size_t expectedLength)
     // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer' to
     // 'expected', because 'expected' is allowed to contain embedded nulls.
 
-    return d_outputSize != static_cast<long>(expectedLength) ||
-           memcmp(d_outputBuffer, expected, expectedLength);
+    return (d_outputSize != static_cast<long>(expectedLength)) ||
+            memcmp(d_outputBuffer, expected, expectedLength);
 }
 
 const struct stat& OutputRedirector::originalStdoutStat()
@@ -1045,7 +1048,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_LOOP_ASSERT(I, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1073,7 +1076,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_ASSERTV(I, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1122,7 +1125,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_LOOP2_ASSERT(I, J, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1151,7 +1154,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_ASSERTV(I, J, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1202,7 +1205,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_LOOP3_ASSERT(I, J, K, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1232,7 +1235,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_ASSERTV(I, J, K, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1285,7 +1288,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_LOOP4_ASSERT(I, J, K, L, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1317,7 +1320,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_ASSERTV(I, J, K, L, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1373,7 +1376,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
                                            idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
@@ -1417,7 +1420,7 @@ int main(int argc, char *argv[])
                 // here, we make sure that the call to 'BDLS_TESTUTIL_ASSERTV'
                 // fit on a single line to make sure that the output is the
                 // same on all platforms.
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_ASSERTV(I, J, K, L, M, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1476,7 +1479,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
                                            idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
@@ -1511,7 +1514,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 1;
+                const int LINE = __LINE__ + lineOffset;
                 BDLS_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);

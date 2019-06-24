@@ -1818,7 +1818,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
+                const int LINE = __LINE__ + 1;
                 BSLIM_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
                                             idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
@@ -1914,7 +1914,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
+                const int LINE = __LINE__ + 1;
                 BSLIM_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
                                             idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
