@@ -275,13 +275,15 @@ void test_NULL_TERMINATED_AT3(void *, ...)
 {
 }
 
-int test_WARN_UNUSED_RESULT() BSLS_ANNOTATION_WARN_UNUSED_RESULT ;
+BSLS_ANNOTATION_WARN_UNUSED_RESULT
+int test_WARN_UNUSED_RESULT();
 int test_WARN_UNUSED_RESULT()
 {
     return 1;
 }
 
-int test_NODISCARD() BSLS_ANNOTATION_NODISCARD;
+BSLS_ANNOTATION_NODISCARD
+int test_NODISCARD();
 int test_NODISCARD()
 {
     return 1;
@@ -555,6 +557,7 @@ BSLS_ANNOTATION_NORETURN void test_NORETURN_function()                // {17fe}
 // ----------------------------------------------------------------------------
 
 using namespace BloombergLP;
+namespace std {}
 using namespace std;
 
 // ============================================================================
