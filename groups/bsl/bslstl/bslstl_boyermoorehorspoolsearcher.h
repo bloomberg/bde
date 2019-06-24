@@ -89,10 +89,10 @@ BSLS_IDENT("$Id: $")
 ///Optimization When 'value_type' is 'char'
 ///----------------------------------------
 // This implementation handles needle metadata using a fixed size array when
-// the 'value_type' is 'char'.  For needles of typical size, this choice
-// results in a larger searcher object footprint than it would have if some
-// dynamically sized container were used; however, the faster access during
-// searches warrants the tradeoff.
+// the 'value_type' is 'char' (either 'signed' or 'unsigned' flavors).  For
+// needles of typical size, this choice results in a larger searcher object
+// footprint than it would have if some dynamically sized container were used;
+// however, the faster access during searches warrants the tradeoff.
 //
 ///Usage
 ///-----
@@ -524,7 +524,7 @@ class boyer_moore_horspool_searcher {
 
     enum {
         k_CAN_OPTIMIZE_FOR_CHAR = (
-                  bsl::is_same<value_type, char>        ::value
+                  1 == sizeof(value_type)
                && bsl::is_same<HASH,       DefaultHash >::value
                && bsl::is_same<EQUAL,      DefaultEqual>::value)
     };
@@ -677,7 +677,6 @@ boyer_moore_horspool_searcher_CharImp(RNDACC_ITR_NEEDLE needleFirst,
         d_table[i] = d_needleLength;
     }
 
-#if 1
     if (0 < d_needleLength) {
         for (RNDACC_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast - 1;
@@ -688,22 +687,6 @@ boyer_moore_horspool_searcher_CharImp(RNDACC_ITR_NEEDLE needleFirst,
                                                      - (current - needleFirst);
         }
     }
-#else
-    if (0 < d_needleLength) {
-        for (RNDACC_ITR_NEEDLE current  = needleFirst,
-                               last     = needleLast;
-                               last    != current; ++current) {
-            const unsigned char   characterAtNeedleIndex = *current;
-            const difference_type needleIndex            = current
-                                                         - needleFirst;
-            const difference_type numCharactersToSkip    = d_needleLength
-                                                         - 1
-                                                         - needleIndex;
-
-            d_table[characterAtNeedleIndex] = numCharactersToSkip;
-        }
-    }
-#endif
 }
 
 template <class RNDACC_ITR_NEEDLE,
