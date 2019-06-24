@@ -96,7 +96,7 @@ void SignalerConnection::disconnect() const BSLS_KEYWORD_NOEXCEPT
 {
     bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
     if (slotNodeBasePtr) {
-        slotNodeBasePtr->disconnect(false);
+        slotNodeBasePtr->disconnect();
     }
 }
 
@@ -104,7 +104,7 @@ void SignalerConnection::disconnectAndWait() const BSLS_KEYWORD_NOEXCEPT
 {
     bsl::shared_ptr<SlotNode_Base> slotNodeBasePtr = d_slotNodeBasePtr.lock();
     if (slotNodeBasePtr) {
-        slotNodeBasePtr->disconnect(true);
+        slotNodeBasePtr->disconnectAndWait();
     }
 }
 
@@ -218,6 +218,7 @@ SignalerConnection SignalerConnectionGuard::release() BSLS_KEYWORD_NOEXCEPT
     SignalerConnection ret;
 
     d_connection.swap(ret);
+    d_waitOnDisconnect = false;
 
     return ret;
 }

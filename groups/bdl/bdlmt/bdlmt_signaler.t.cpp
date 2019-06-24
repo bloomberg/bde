@@ -1822,10 +1822,15 @@ static void test11_connection_assignment()
         bdlmt::SignalerConnectionGuard con1(con0);
         bdlmt::SignalerConnectionGuard con2(con0);
 
+        ASSERT(!con1.waitOnDisconnect());
+        ASSERT(!con2.waitOnDisconnect());
+
         // move-assign
         bdlmt::SignalerConnectionGuard con3;
                                        con3 = bslmf::MovableRefUtil::move(
                                                                      con1);
+
+        ASSERT(!con3.waitOnDisconnect());
 
         // 'con1' is now "empty"
         ASSERT_EQ(con1.connection() == def, true);
@@ -2040,6 +2045,7 @@ static void test12_connection_disconnect()
             ASSERT_EQ(con1.isConnected(), true);
             ASSERT_EQ(con3.isConnected(), true);
             ASSERT_EQ(con5.connection().isConnected(), true);
+            ASSERT(!con5.waitOnDisconnect());
 
             ASSERTV(out.str(), "1_3_5_" == out.str());
 
@@ -2229,12 +2235,30 @@ static void test14_connection_release()
         // create a connection guard
         bdlmt::SignalerConnectionGuard con2(con1);
         ASSERT_EQ(con2.connection() == def, false);
+        ASSERT(!con2.waitOnDisconnect());
 
         // release it
         ASSERT(con1 == con2.release());
+        ASSERT(!con2.waitOnDisconnect());
 
         // the connection is now "empty"
         ASSERT_EQ(con2.connection() == def, true);
+
+        // destroy the connection ...
+    }
+
+    {
+        // create a connection guard
+        bdlmt::SignalerConnectionGuard con3(con1, true);
+        ASSERT_EQ(con3.connection() == def, false);
+        ASSERT( con3.waitOnDisconnect());
+
+        // release it
+        ASSERT(con1 == con3.release());
+        ASSERT(!con3.waitOnDisconnect());
+
+        // the connection is now "empty"
+        ASSERT_EQ(con3.connection() == def, true);
 
         // destroy the connection ...
     }
