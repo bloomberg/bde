@@ -3264,20 +3264,15 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-          //typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-          //                                                     AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-             // AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-            //. AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hashX, equalX, &saX);
-                Mech mX(needleFirst, needleLast, hashX, equalX, &saX);
+                Mech mZ(needleFirst, needleLast, hashX, equalX, &sa);
+                Mech mX(needleFirst, needleLast, hashX, equalX, &sa);
                 Mech mY(needleLast,  needleLast, hashY, equalY);  // unalike
 
                 const Mech& Z = mZ;
@@ -3307,10 +3302,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-             // AllocatorType         xsa(&saX);
-             // AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
                 Mech mZ(needleFirst, needleLast, hashX, equalX, &saX);
                 Mech mX(needleFirst, needleLast, hashX, equalX, &saX);
@@ -3362,20 +3355,15 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-          //typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-          //                                                     AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-             // AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-             // AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, &saX);
-                Mech mX(needleFirst, needleLast, hash, equal, &saX);
+                Mech mZ(needleFirst, needleLast, hash, equal, &sa);
+                Mech mX(needleFirst, needleLast, hash, equal, &sa);
                 Mech mY(needleLast,  needleLast, hash, equal); // unalike
 
                 const Mech& Z = mZ;
@@ -3407,10 +3395,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-             // AllocatorType         xsa(&saX);
-             // AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
                 Mech mZ(needleFirst, needleLast, hash, equal, &saX);
                 Mech mX(needleFirst, needleLast, hash, equal, &saX);
@@ -3585,20 +3571,15 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-          //typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-          //                                                     AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-            //  AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-            //  AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, &saX);
-                Mech mX(needleFirst, needleLast, hash, equal, &saX);
+                Mech mZ(needleFirst, needleLast, hash, equal, &sa);
+                Mech mX(needleFirst, needleLast, hash, equal, &sa);
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3626,10 +3607,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-             // AllocatorType         xsa(&saX);
-             // AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
                 Mech mZ(needleFirst, needleLast, hash, equal, &saX);
                 Mech mX(needleFirst, needleLast, hash, equal, &saX);
@@ -3678,20 +3657,15 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-          //typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-          //                                                     AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-             // AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-             // AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, &saX);
-                Mech mX(needleFirst, needleLast, hash, equal, &saX);
+                Mech mZ(needleFirst, needleLast, hash, equal, &sa);
+                Mech mX(needleFirst, needleLast, hash, equal, &sa);
 
                 const Mech& X = mX;
                 const Mech& Z = mZ;
@@ -3719,10 +3693,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-             // AllocatorType         xsa(&saX);
-             // AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
                 Mech mZ(needleFirst, needleLast, hash, equal, &saX);
                 Mech mX(needleFirst, needleLast, hash, equal, &saX);
@@ -4171,28 +4143,12 @@ int main(int argc, char *argv[])
             const bsl::hash<char>&     hash  = X.hash();   (void)hash;
             const bsl::equal_to<char>& equal = X.equal();  (void)equal;
 
-#if 0
-            ASSERT((bsl::is_same<Mech,
-                                 bsl::boyer_moore_horspool_searcher<
-                                                     RandConstItr,
-                                                     bsl::hash<char>,
-                                                     bsl::equal_to<char>,
-                                                     bsl::allocator<
-                                                       bsl::pair<const char,
-                                                                 BSL::ptrdiff_t
-                                                                >
-                                                                   >
-                                                     >
-                                >() ));
-#else
             ASSERT((bsl::is_same<Mech,
                                  bsl::boyer_moore_horspool_searcher<
                                                      RandConstItr,
                                                      bsl::hash<char>,
                                                      bsl::equal_to<char> >
                                 >() ));
-#endif
-
 
             ASSERT((bsl::is_same<char, Mech::value_type>()));
         }
@@ -4269,9 +4225,6 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-          //typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-          //                                                     AllocatorType;
-
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 const char CONFIG = cfg;  // how we specify the allocator
 
@@ -4279,12 +4232,9 @@ int main(int argc, char *argv[])
                     P(CONFIG)
                 }
 
-                bslma::TestAllocator  fa("footprint", veryVeryVeryVerbose);
-
-                bslma::TestAllocator  sa("supplied",  veryVeryVeryVerbose);
-             // AllocatorType        xsa(&sa);
-
-                bslma::TestAllocator  da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
 
                 bslma::DefaultAllocatorGuard dag(&da);
 

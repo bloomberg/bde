@@ -339,7 +339,7 @@ class boyer_moore_horspool_searcher_CharImp {
     // DATA
     native_std::size_t             d_needleLength;
     difference_type                d_table[UCHAR_MAX + 1];  // skip-on-mismatch
-    BloombergLP::bslma::Allocator *d_allocator_p;
+    BloombergLP::bslma::Allocator *d_allocator_p;           // unused
 
   public:
     // CREATORS
@@ -365,7 +365,7 @@ class boyer_moore_horspool_searcher_CharImp {
                  const boyer_moore_horspool_searcher_CharImp&  original,
                  BloombergLP::bslma::Allocator                *basicAllocator);
         // Create a 'boyer_moore_horspool_searcher_CharImp' object having the
-        // same state as the specified 'original' object but uses
+        // same state as the specified 'original' object and that uses
         // 'basicAllocator' to supply memory.
 
     // MANIPULATORS
@@ -438,7 +438,7 @@ class boyer_moore_horspool_searcher_GeneralImp {
               const boyer_moore_horspool_searcher_GeneralImp&  original,
               BloombergLP::bslma::Allocator                   *basicAllocator);
         // Create a 'boyer_moore_horspool_searcher_GeneralImp' object having
-        // the same state as the specified 'original' object but uses
+        // the same state as the specified 'original' object and that uses
         // 'basicAllocator' to supply memory.
 
     // MANIPULATORS
