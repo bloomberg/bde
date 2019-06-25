@@ -2169,15 +2169,12 @@ static void test16_connection_isConnected()
     //: 8 Construct guard from moved default-constructed guard, single arg,
     //:   observe disconnect on destruction.
     //:
-    //: 9 Construct guard from moved guard, double arg, observe disconnect on
-    //:   destruction.
+    //: 9 Assign to guard, observe disconnect on assignment and destruction.
     //:
-    //: 10 Assign to guard, observe disconnect on assignment and destruction.
-    //:
-    //: 11 Assign to guard from default-constructed guard, observe disconnect
+    //: 10 Assign to guard from default-constructed guard, observe disconnect
     //:    on assignment.
     //:
-    //: 12 Assign to default constructed guard, observe disconnect on
+    //: 11 Assign to default constructed guard, observe disconnect on
     //:    destruction.
     //
     // Testing:
@@ -2345,49 +2342,7 @@ static void test16_connection_isConnected()
         ASSERT(0 == sig.slotCount());
     }
 
-    // 9 Construct guard from moved guard, double arg
-    for (int ii = 0; ii < 4; ++ii) {
-        const bool lhsB = ii & 1;
-        const bool rhsB = ii & 2;
-
-        if (veryVerbose) cout << "Construct Guard Moved Guard Double: " <<
-                                                  lhsB << ", " << rhsB << endl;
-        {
-            con = sig.connect(u::NoOp());
-            conB = con;
-            ASSERT(con.isConnected());
-            ASSERT(conB.isConnected());
-            ASSERT(con == conB);
-            bdlmt::SignalerConnectionGuard guardA(
-                                      bslmf::MovableRefUtil::move(conB), rhsB);
-            ASSERT(con.isConnected());
-            ASSERT(def == conB);
-            ASSERT(guardA.connection().isConnected());
-            ASSERT(rhsB == guardA.waitOnDisconnect());
-            ASSERT(guardA.connection() == con);
-            ASSERT(1 == sig.slotCount());
-
-            bdlmt::SignalerConnectionGuard guardB(
-                                    bslmf::MovableRefUtil::move(guardA), lhsB);
-            ASSERT(con.isConnected());
-            ASSERT(def == conB);
-            ASSERT(def == guardA.connection());
-            ASSERT(!guardA.connection().isConnected());
-            ASSERT( guardB.connection().isConnected());
-            ASSERT(false == guardA.waitOnDisconnect());
-            ASSERT(lhsB  == guardB.waitOnDisconnect());
-            ASSERT(guardB.connection() == con);
-            ASSERT(1 == sig.slotCount());
-        }
-        ASSERT(!con.isConnected());
-        ASSERT(!conB.isConnected());
-        ASSERT(def != con);
-        ASSERT(def == conB);
-
-        ASSERT(0 == sig.slotCount());
-    }
-
-    // 10 Assign to guard
+    // 9 Assign to guard
     for (int ii = 2 * 2; 0 < ii--; ) {
         const bool lhsB = ii & 1;
         const bool rhsB = ii & 2;
@@ -2458,7 +2413,7 @@ static void test16_connection_isConnected()
     }
 
 
-    // 11 Assign to guard from default-constructed guard
+    // 10 Assign to guard from default-constructed guard
     for (int ii = 2; 0 < ii--; ) {
         const bool lhsB = ii;
 
@@ -2512,7 +2467,7 @@ static void test16_connection_isConnected()
         ASSERT(0 == sig.slotCount());
     }
 
-    // 12 Assign to default constructed guard
+    // 11 Assign to default constructed guard
     for (int ii = 2; 0 < ii--; ) {
         const bool rhsB    = ii;
         const bool expWait = rhsB;
@@ -2651,7 +2606,8 @@ static void test17_guard_creators()
         bdlmt::SignalerConnection con2 = con1;
 
         // move
-        bdlmt::SignalerConnectionGuard guard(bslmf::MovableRefUtil::move(con1));
+        bdlmt::SignalerConnectionGuard guard(
+                                            bslmf::MovableRefUtil::move(con1));
 
         // 'con1' is now "empty"
         ASSERT(con1 == def);
@@ -3312,7 +3268,7 @@ void test_lvalues()
     test_lvaluesSimple();
 }
 
-}  // close namespace test17_signaler
+}  // close namespace test21_signaler
 
 static void test22_destroyGuardAndWait()
     // ------------------------------------------------------------------------

@@ -178,18 +178,6 @@ SignalerConnectionGuard::SignalerConnectionGuard(
     originalRef.d_waitOnDisconnect = false;
 }
 
-SignalerConnectionGuard::SignalerConnectionGuard(
-                   bslmf::MovableRef<SignalerConnectionGuard> original,
-                   bool                                       waitOnDisconnect)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: d_connection(bslmf::MovableRefUtil::move(
-                         bslmf::MovableRefUtil::access(original).d_connection))
-, d_waitOnDisconnect(waitOnDisconnect)
-{
-    SignalerConnectionGuard& originalRef = original;
-    originalRef.d_waitOnDisconnect = false;
-}
-
 SignalerConnectionGuard::~SignalerConnectionGuard()
 {
     d_waitOnDisconnect ? d_connection.disconnectAndWait()
@@ -215,9 +203,9 @@ SignalerConnectionGuard& SignalerConnectionGuard::operator=(
 
 SignalerConnection SignalerConnectionGuard::release() BSLS_KEYWORD_NOEXCEPT
 {
-    SignalerConnection ret;
+    SignalerConnection ret(d_connection);
 
-    d_connection.swap(ret);
+    d_connection.reset();
     d_waitOnDisconnect = false;
 
     return ret;

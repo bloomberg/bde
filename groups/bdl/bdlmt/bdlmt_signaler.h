@@ -1148,8 +1148,8 @@ class SignalerConnectionGuard {
         // management of the same slot, if any, as the specified 'connection'
         // object.  Upon destruction or assignment, the optionally specified
         // 'waitOnDisconnect' determines whether 'disconnect' or
-        // 'disconnectAndWait' will be called on the slot, if any, managed by
-        // this object.
+        // 'disconnectAndWait' will be called on the slot managed by this
+        // object, if any.
 
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
@@ -1171,17 +1171,6 @@ class SignalerConnectionGuard {
         // 'original', indicating whether 'disconnect()' or
         // 'disconnectAndWait()' will be called on the slot, if any, contained
         // in this object upon destruction or assignment.  Throws nothing.
-
-    explicit
-    SignalerConnectionGuard(bslmf::MovableRef<
-              SignalerConnectionGuard> original,
-              bool                     waitOnDisconnect) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'SignalerConnectionGuard' that refers to the same slot, if
-        // any, as the specified 'original', which is left in a the
-        // default-constructed state.  Optionally specify 'waitOnDisconnect'
-        // indicating whether 'disconnect()' or 'disconnectAndWait()' will be
-        // called on the slot, if any, managed in this object upon destruction
-        // or assignment.  Throws nothing.
 
     ~SignalerConnectionGuard();
         // Destroy this object.  If a slot is being managed by this object,
