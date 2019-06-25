@@ -368,11 +368,28 @@ class boyer_moore_horspool_searcher_CharImp {
         // same state as the specified 'original' object and that uses
         // 'basicAllocator' to supply memory.
 
+    boyer_moore_horspool_searcher_CharImp(
+        BloombergLP::bslmf::MovableRef<
+                       boyer_moore_horspool_searcher_CharImp>  original,
+                       BloombergLP::bslma::Allocator          *basicAllocator);
+        // Create a 'boyer_moore_horspool_searcher_CharImp' object having same
+        // state -- as the specified 'original' object and that uses
+        // 'basicAllocator' to supply memory.  The state of 'original' are
+        // moved (in constant time) to the new searcher if
+        // 'basicAllocator == original.allocator()', and are move-inserted (in
+        // linear time) using 'basicAllocator' otherwise.  The 'original'
+        // object is left in an unspecified (valid) state.
+
     // MANIPULATORS
     boyer_moore_horspool_searcher_CharImp& operator=(
                              const boyer_moore_horspool_searcher_CharImp& rhs);
         // Assign to this object the state of the specified 'rhs' object, and
         // return a non-'const' reference to this searcher object.
+
+    boyer_moore_horspool_searcher_CharImp& operator=(
+    BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher_CharImp> rhs);
+        // Assign to this object the state of the specified 'rhs' object --
+        // and return a non-'const' reference to this searcher.
 
     // ACCESSORS
     difference_type badCharacterSkip(const value_type& value) const;
@@ -413,7 +430,12 @@ class boyer_moore_horspool_searcher_GeneralImp {
     typedef bsl::unordered_map<value_type,      // key
                                difference_type, // value
                                HASH,
-                               EQUAL> Map;
+                               EQUAL> Map;  // skip-on-mismatch "table"
+
+     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+        // These 'typedef's are convenient aliases for the utility associated
+        // with movable references.
+
     // DATA
     difference_type d_needleLength;
     Map             d_map;
@@ -506,11 +528,14 @@ class boyer_moore_horspool_searcher {
         // a signed type that can describe the distance between
         // 'RNDACC_ITR_NEEDLE' iterators
 
-    enum {
-        k_CAN_OPTIMIZE_FOR_CHAR = (
-                  1 == sizeof(value_type)
-               && bsl::is_same<HASH,       DefaultHash >::value
-               && bsl::is_same<EQUAL,      DefaultEqual>::value)
+     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+        // This 'typedef' is a convenient alias for the utility associated with
+        // movable references.
+
+    enum { k_CAN_OPTIMIZE_FOR_CHAR = (
+                                      1 == sizeof(value_type)
+                                   && bsl::is_same<HASH,  DefaultHash >::value
+                                   && bsl::is_same<EQUAL, DefaultEqual>::value)
     };
 
     typedef typename bsl::conditional<
@@ -559,7 +584,17 @@ class boyer_moore_horspool_searcher {
         // Create a 'boyer_moore_horspool_searcher' object having same state --
         // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
         // specified 'original' object, and that uses the currently installed
-        // default to supply memory.
+        // default allocator to supply memory.
+        //
+    boyer_moore_horspool_searcher(
+        BloombergLP::bslmf::MovableRef<
+                          boyer_moore_horspool_searcher> original); // IMPLICIT
+        // Create a 'boyer_moore_horspool_searcher' object having same state --
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
+        // specified 'original' object. by moving (in constant time) the state
+        // of 'original' to the new searcher.  The allocator of 'original' is
+        // propagated for use in the newly created searcher.  The 'original'
+        // object is left in an unspecified (valid) state.
 
     boyer_moore_horspool_searcher(
                          const boyer_moore_horspool_searcher&  original,
@@ -569,14 +604,33 @@ class boyer_moore_horspool_searcher {
         // specified 'original' object and using the specified 'basicAllocator'
         // to supply memory.
 
+    boyer_moore_horspool_searcher(
+        BloombergLP::bslmf::MovableRef<
+                               boyer_moore_horspool_searcher>  original,
+                               BloombergLP::bslma::Allocator  *basicAllocator);
+        // Create a 'boyer_moore_horspool_searcher' object having same state --
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
+        // specified 'original' object and that uses 'basicAllocator' to supply
+        // memory.  The state of 'original' are moved (in constant time) to the
+        // new searcher if 'basicAllocator == original.allocator()', and are
+        // move-inserted (in linear time) using 'basicAllocator' otherwise.
+        // The 'original' object is left in an unspecified (valid) state.
+
     //! ~boyer_moore_horspool_searcher() = default;
         // Destroy this 'boyer_moore_horspool_searcher' object.
 
     // MANIPULATORS
     boyer_moore_horspool_searcher& operator=(
                                      const boyer_moore_horspool_searcher& rhs);
-        // Assign to this object the state of the specified 'rhs' object, and
-        // return a non-'const' reference to this searcher object.
+        // Assign to this object the state -- 'needleFirst()', 'needleLast()',
+        // 'hash()', and 'equal()' -- of the specified 'rhs' object, and
+        // return a non-'const' reference to this searcher.
+
+    boyer_moore_horspool_searcher& operator=(
+            BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher> rhs);
+        // Assign to this object the state of the specified 'rhs' object --
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal" -- and return
+        // a non-'const' reference to this searcher.
 
     // ACCESSORS
     template<class RNDACC_ITR_HAYSTACK>
@@ -929,6 +983,21 @@ boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                               HASH,
                               EQUAL>::
 boyer_moore_horspool_searcher(
+        BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher> original)
+: d_needleFirst( MoveUtil::move(MoveUtil::access(original).d_needleFirst))
+, d_needleLast(  MoveUtil::move(MoveUtil::access(original).d_needleLast))
+, d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
+, d_imp(         MoveUtil::move(MoveUtil::access(original).d_imp))
+{
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
+                              HASH,
+                              EQUAL>::
+boyer_moore_horspool_searcher(
                         const boyer_moore_horspool_searcher&  original,
                         BloombergLP::bslma::Allocator          *basicAllocator)
 : d_needleFirst( original.d_needleFirst)
@@ -938,17 +1007,34 @@ boyer_moore_horspool_searcher(
 {
 }
 
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
+                              HASH,
+                              EQUAL>::
+boyer_moore_horspool_searcher(
+  BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher> original,
+  BloombergLP::bslma::Allocator                                *basicAllocator)
+: d_needleFirst( MoveUtil::move(MoveUtil::access(original).d_needleFirst))
+, d_needleLast(  MoveUtil::move(MoveUtil::access(original).d_needleLast))
+, d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
+, d_imp(         MoveUtil::move(MoveUtil::access(original).d_imp,
+                 basicAllocator))
+{
+}
+
 // MANIPULATORS
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL>
 inline
 boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
-                                         HASH,
-                                         EQUAL>&
+                              HASH,
+                              EQUAL>&
 boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
-                                         HASH,
-                                         EQUAL>::operator=(
+                              HASH,
+                              EQUAL>::operator=(
                                       const boyer_moore_horspool_searcher& rhs)
 {
     d_needleFirst  = rhs.d_needleFirst;
@@ -957,6 +1043,26 @@ boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
     d_imp          = rhs.d_imp;
 
     return *this;
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
+                              HASH,
+                              EQUAL>&
+boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
+                              HASH,
+                              EQUAL>::operator=(
+             BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher> rhs)
+{
+    boyer_moore_horspool_searcher& lvalue = rhs;
+    
+    d_needleFirst  = MoveUtil::move(lvalue.d_needleFirst);
+    d_needleLast   = MoveUtil::move(lvalue.d_needleLast);
+    d_needleLength = MoveUtil::move(lvalue.d_needleLengt);
+    d_imp          = MoveUtil::move(lvalue.d_imp);
 }
 
 // ACCESSORS
