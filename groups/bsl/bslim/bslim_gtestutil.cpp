@@ -5,7 +5,7 @@
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
-#include <bsl_c_ctype.h>    // 'isprint'
+#include <bsl_cctype.h>    // 'isprint'
 
 // FREE OPERATORS
 void bsl::PrintTo(const bsl::string& value, bsl::ostream *stream)
@@ -27,7 +27,7 @@ void bsl::PrintTo(const bsl::wstring& value, bsl::ostream *stream)
         char c = 0;
         if (currentWChar > 0 && currentWChar < 128) {
             c = static_cast<char>(currentWChar);
-            if (!isprint(c)) {
+            if (!bsl::isprint(c)) {
                 c = 0;
             }
         }
