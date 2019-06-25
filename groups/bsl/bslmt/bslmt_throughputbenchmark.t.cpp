@@ -944,8 +944,8 @@ int main(int argc, char *argv[])
 
             BSLS_ASSERT(test.threadGroups().size() == 2);
             BSLS_ASSERT(test.threadGroups()[1].d_numThreads == 5);
-            // Sun and AIX allocate when assigning 'bsl::function'
-#if !defined(BSLS_PLATFORM__CMP_SUN) && !defined(BSLS_PLATFORM__CMP_IBM)
+            // 32-bit pre-c++11 platoforms has allocating 'bsl::function'
+#if defined(BSLS_PLATFORM_CPU_64_BIT) || __cplusplus >= 201103L
             BSLS_ASSERT(allocations  == defaultAllocator.numAllocations());
 #endif
             BSLS_ASSERT(sAllocations == supplied.numAllocations());
@@ -959,8 +959,8 @@ int main(int argc, char *argv[])
 
             BSLS_ASSERT(test.threadGroups().size() == 3);
             BSLS_ASSERT(test.threadGroups()[2].d_numThreads == 1);
-            // Sun and AIX allocate when assigning 'bsl::function'
-#if !defined(BSLS_PLATFORM__CMP_SUN) && !defined(BSLS_PLATFORM__CMP_IBM)
+            // 32-bit pre-c++11 platoforms has allocating 'bsl::function'
+#if defined(BSLS_PLATFORM_CPU_64_BIT) || __cplusplus >= 201103L
             BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
             BSLS_ASSERT(sAllocations == supplied.numAllocations());
@@ -1112,8 +1112,8 @@ int main(int argc, char *argv[])
             BSLS_ASSERT(static_cast<bool>(tg1.d_initialize) == false);
             BSLS_ASSERT(static_cast<bool>(tg1.d_cleanup)    == false);
             BSLS_ASSERT(static_cast<bool>(tg1.d_func)       != false);
-            // Sun and AIX allocate when assigning 'bsl::function'
-#if !defined(BSLS_PLATFORM__CMP_SUN) && !defined(BSLS_PLATFORM__CMP_IBM)
+            // 32-bit pre-c++11 platoforms has allocating 'bsl::function'
+#if defined(BSLS_PLATFORM_CPU_64_BIT) || __cplusplus >= 201103L
             BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
         }
@@ -1148,8 +1148,8 @@ int main(int argc, char *argv[])
             BSLS_ASSERT(static_cast<bool>(tg0.d_initialize) != false);
             BSLS_ASSERT(static_cast<bool>(tg0.d_cleanup)    == false);
             BSLS_ASSERT(static_cast<bool>(tg0.d_func)       == false);
-            // Sun and AIX allocate when assigning 'bsl::function'
-#if !defined(BSLS_PLATFORM__CMP_SUN) && !defined(BSLS_PLATFORM__CMP_IBM)
+            // 32-bit pre-c++11 platoforms has allocating 'bsl::function'
+#if defined(BSLS_PLATFORM_CPU_64_BIT) || __cplusplus >= 201103L
             BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
 
@@ -1172,8 +1172,8 @@ int main(int argc, char *argv[])
             BSLS_ASSERT(static_cast<bool>(tg1.d_initialize) != false);
             BSLS_ASSERT(static_cast<bool>(tg1.d_cleanup)    != false);
             BSLS_ASSERT(static_cast<bool>(tg1.d_func)       != false);
-            // Sun and AIX allocate when assigning 'bsl::function'
-#if !defined(BSLS_PLATFORM__CMP_SUN) && !defined(BSLS_PLATFORM__CMP_IBM)
+            // 32-bit pre-c++11 platoforms has allocating 'bsl::function'
+#if defined(BSLS_PLATFORM_CPU_64_BIT) || __cplusplus >= 201103L
             BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
         }
@@ -1228,8 +1228,8 @@ int main(int argc, char *argv[])
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            // Sun and AIX allocate when assigning 'bsl::function'
-#if !defined(BSLS_PLATFORM__CMP_SUN) && !defined(BSLS_PLATFORM__CMP_IBM)
+            // 32-bit pre-c++11 platoforms has allocating 'bsl::function'
+#if defined(BSLS_PLATFORM_CPU_64_BIT) || __cplusplus >= 201103L
             BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
         }
