@@ -287,8 +287,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #include <bslmf_issame.h>
 
-// #include <bslalg_rangecompare.h>
-
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 
@@ -307,7 +305,7 @@ template <class FORWARD_ITR_NEEDLE,
 class default_searcher {
     // This class template defines functors that can search for the sequence of
     // 'value_type' values defined on construction (i.e., the "needle") in
-    // sequences of 'value_type' values (i.e., "haystacks) passed to the
+    // sequences of 'value_type' values (i.e., "haystacks") passed to the
     // functor's 'operator()'.
 
     // PRIVATE TYPES
@@ -412,7 +410,7 @@ template <class FORWARD_ITR_NEEDLE,
           class FORWARD_ITR_HAYSTACK>
 struct default_searcher_CanOptimize {
     // This component-private meta-function 'struct' provides a member
-    // enumerator value that has the value 'true' if all of the specified
+    // enumerator 'value' that is 'true' if all of the specified
     // 'FORWARD_ITR_NEEDLE,' 'EQUAL,' and 'FORWARD_ITR_HAYSTACK' meet the
     // criteria for an optimization of the default searcher, and has the value
     // 'false' otherwise.
@@ -491,23 +489,15 @@ struct default_searcher_ImpUtil {
         // compared using the equality comparison functor specified on
         // construction except, possibly, if the 'default_searcher_CanOptimize'
         // metafunction indicates that the template parameters are eligible for
-        // optimization.  If the optimized overload is enabled, the call
-        // 'bslalg::RangeCompare::equal' is in that implementation uses
-        // 'bitwise' comparison, if possible.  The behavior is undefined unless
-        // 'haystackFirst' can be advanced to equal 'haystackLast'.  Note that
-        // if the "needle" sequence is empty, the range
-        // '[haystackFirst, haystackFirst)' is returned.  Also note that if the
-        // "needle" sequence is longer than the "haystack" sequence -- thus,
-        // impossible for the "needle" to be found in the "haystack" -- the
-        // range '[haystackLast, haystackLast)' is returned.
-
-    template <class FORWARD_ITR_NEEDLE,
-              class FORWARD_ITR_HAYSTACK>
-    static
-    bool equalPrefix(const FORWARD_ITR_HAYSTACK& haystackItr,
-                     const FORWARD_ITR_NEEDLE&   needleFirst,
-                     const FORWARD_ITR_NEEDLE&   needleLast);
-
+        // optimization.  The optimized overload is enabled when needle and
+        // haystack can be validly compared using 'native_std::memcmp', a
+        // low-level function that is often highly optimized for its platform.
+        // The behavior is undefined unless 'haystackFirst' can be advanced to
+        // equal 'haystackLast'.  Note that if the "needle" sequence is empty,
+        // the range '[haystackFirst, haystackFirst)' is returned.  Also note
+        // that if the "needle" sequence is longer than the "haystack" sequence
+        // -- thus, impossible for the "needle" to be found in the "haystack"
+        // -- the range '[haystackLast, haystackLast)' is returned.
 };
 
 }  // close package namespace
@@ -666,8 +656,7 @@ bsl::enable_if<
     // This specialization is used only when the 'EQUAL' template parameter
     // was specified as 'bsl::equal_to<value_type>', the default value.  We
     // ignore that argument and perform its "moral equivalent" for the various
-    // ranges via 'bslalg::RangeCompare::equal', which can optimize by
-    // 'value_type', available platform-specific instructions, etc.
+    // ranges using 'native_std::memcmp'.
 
     typedef typename bsl::iterator_traits<FORWARD_ITR_HAYSTACK>::
                                                                difference_type
@@ -719,19 +708,6 @@ bsl::enable_if<
 
     // Ran out of haystack without match.
     return native_std::make_pair(haystackLast, haystackLast);
-}
-
-template <class FORWARD_ITR_NEEDLE,
-          class FORWARD_ITR_HAYSTACK>
-inline
-bool default_searcher_ImpUtil::equalPrefix(
-                                       const FORWARD_ITR_HAYSTACK& haystackItr,
-                                       const FORWARD_ITR_NEEDLE&   needleFirst,
-                                       const FORWARD_ITR_NEEDLE&   needleLast)
-{
-    BSLS_ASSERT(0 < needleLast - needleFirst);
-
-    return *haystackItr == *needleFirst;
 }
 
 }  // close package namespace

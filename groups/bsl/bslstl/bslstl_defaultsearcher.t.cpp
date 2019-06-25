@@ -3443,8 +3443,6 @@ int main(int argc, char *argv[])
                                  bsl::default_searcher<FwdConstItr,
                                                        bsl::equal_to<char> >
                                 >()));
-
-            //ASSERT((bsl::is_same<char, Mech::value_type>()));
         }
 
         if (verbose) printf("\n" "Non-Default Equality Functor" "\n");
