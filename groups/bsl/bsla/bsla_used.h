@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //: 'BSLA_USED'
 //:     This annotation indicates that the so-annotated function, variable, or
 //:     type must be emitted even if it appears that it is not referenced.
-//
+//:
 //: 'BSLA_USED_IS_ACTIVE'
 //:     The macro 'BSLA_USED_IS_ACTIVE' is defined to 0 if 'BSLA_USED' expands
 //:     to nothing and 1 otherwise.
@@ -48,7 +48,6 @@ BSLS_IDENT("$Id: $")
 // 'main', which is in the same file and from which both variables are visible,
 // we observe that the variable marked 'BSLA_UNUSED' cannot be accessed, but
 // the variable marked 'BSLA_USED' can.
-//..
 //
 ///Example 2: Unused Functions
 ///- - - - - - - - - - - - - -
