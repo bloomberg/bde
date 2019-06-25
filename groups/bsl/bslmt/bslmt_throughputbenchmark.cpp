@@ -18,6 +18,8 @@ BSLS_IDENT_RCSID(bslmt_bslmt_throughputbenchmark_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_vector.h>
 
+#include <bslstl_sharedptr.h>
+
 namespace BloombergLP {
 namespace bslmt {
 
@@ -160,9 +162,11 @@ void ThroughputBenchmark::execute(
         }
         d_state.storeRelease(0);  // Reset the state.
 
-        bslmt::Barrier                            barrier(nThreads+1);
-        bsl::vector<bslmt::ThreadUtil::Handle>    handles(nThreads);
-        bsl::vector<ThroughputBenchmark_WorkData> functionArgs(nThreads);
+        bslmt::Barrier                                 barrier(nThreads+1);
+        bsl::vector<bslmt::ThreadUtil::Handle>         handles(nThreads);
+        bsl::vector<ThroughputBenchmark_WorkData>      functionArgs(nThreads);
+        bsl::vector<bsl::shared_ptr<ThroughputBenchmark_WorkFunction> >
+                                                       workFunctions(nThreads);
 
         // Spawn work threads.
         int threadIndex = 0;
@@ -180,9 +184,10 @@ void ThroughputBenchmark::execute(
                 functionArgs[threadIndex].d_threadIndex = j;
                 functionArgs[threadIndex].d_barrier_p = &barrier;
 
-                ThroughputBenchmark_WorkFunction
-                                       workFunction(functionArgs[threadIndex]);
-                bslmt::ThreadUtil::create(&handles[threadIndex], workFunction);
+                workFunctions[threadIndex].load(new
+                  ThroughputBenchmark_WorkFunction(functionArgs[threadIndex]));
+                bslmt::ThreadUtil::create(&handles[threadIndex],
+                                          *workFunctions[threadIndex]);
             }
         }
 
