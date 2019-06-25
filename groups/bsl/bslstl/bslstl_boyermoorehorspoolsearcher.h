@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // The problem of searching a sequence of characters for a particular
 // sub-sequence arises in many applications.  For example, one might need to
-// know of some document contains a particular word of interest.  For example,
+// know if some document contains a particular word of interest.  For example,
 // suppose we would like to know the first occurrence of the word "United" in
 // the Declaration of Independence (of the United States):
 //
