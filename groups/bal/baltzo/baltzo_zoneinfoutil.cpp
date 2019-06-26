@@ -27,7 +27,7 @@ namespace baltzo {
                              // ------------------
 
 // CLASS METHODS
-void ZoneinfoUtil::convertUtcToLocalTime(
+int ZoneinfoUtil::convertUtcToLocalTime(
                            bdlt::DatetimeTz                  *resultTime,
                            Zoneinfo::TransitionConstIterator *resultTransition,
                            const bdlt::Datetime&              utcTime,
@@ -39,17 +39,23 @@ void ZoneinfoUtil::convertUtcToLocalTime(
 
     Zoneinfo::TransitionConstIterator it =
                                     timeZone.findTransitionForUtcTime(utcTime);
-
-    BSLS_ASSERT(it != timeZone.endTransitions());
+    if (it == timeZone.endTransitions()) {
+        return -1;                                                    // RETURN
+    }
 
     *resultTransition = it;
     const int offset = it->descriptor().utcOffsetInSeconds();
     const int offsetInMinutes = offset / 60;
 
     bdlt::Datetime temp(utcTime);
-    temp.addMinutes(offsetInMinutes);
+    int rc = temp.addMinutesIfValid(offsetInMinutes);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
 
     resultTime->setDatetimeTz(temp, offsetInMinutes);
+
+    return 0;
 }
 
 void ZoneinfoUtil::loadRelevantTransitions(

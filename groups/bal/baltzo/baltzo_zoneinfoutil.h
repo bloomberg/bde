@@ -367,7 +367,7 @@ struct ZoneinfoUtil {
     // 'Zoneinfo' object.
 
     // CLASS METHODS
-    static void convertUtcToLocalTime(
+    static int convertUtcToLocalTime(
                            bdlt::DatetimeTz                  *resultTime,
                            Zoneinfo::TransitionConstIterator *resultTransition,
                            const bdlt::Datetime&              utcTime,
@@ -376,8 +376,9 @@ struct ZoneinfoUtil {
         // the specified 'timeZone', corresponding to the specified 'utcTime',
         // and load, into the specified 'resultTransition', an iterator
         // referring to the first transition in 'timeZone' whose
-        // transition-time is before 'utcTime'.  The behavior is undefined
-        // unless 'isWellFormed(timeZone)' returns 'true'.
+        // transition-time is before 'utcTime'.  Return 0 on success, and a
+        // non-zero value if 'isWellFormed(timeZone)' is not 'true' or if the
+        // resulting 'resultTime' would be out of range.
 
     static void loadRelevantTransitions(
                      Zoneinfo::TransitionConstIterator *firstResultTransition,
