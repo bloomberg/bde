@@ -1941,29 +1941,7 @@ namespace pmr {
       void reset() noexcept { this->_M_reset(); }
 
       // bloomberg extensions start here
-      template<typename _Up>
-	_Tp& makeValue(_Up&& __u)
-      {
-	memory_resource* __actual_alloc = this->_M_get_allocator();
-	if (__actual_alloc) {
-	  this->__emplace_alloc(__actual_alloc, std::forward<_Up>(__u));
-	}
-	else
-	  this->emplace(std::forward<_Up>(__u));
-
-	return *(*this);
-      }
-
-      _Tp& makeValue()
-      {
-	memory_resource* __actual_alloc = this->_M_get_allocator();
-	if (__actual_alloc) {
-	  this->__emplace_alloc(__actual_alloc);
-	}
-	else
-	  this->emplace();
-	return *(*this);
-      }
+      
 
       template <class ..._Args>
 	_Tp& makeValueInplace(_Args&&... __args)
@@ -1975,45 +1953,7 @@ namespace pmr {
 	else
 	  return this->emplace(std::forward<_Args>(__args)...);
       }
-      
-      bool isNull() const
-      {
-	return !this->has_value();
-      }
 
-      int maxSupportedBdexVersion(int versionSelector) const;
-
-      template <class _Stream>
-	_Stream& bdexStreamIn(_Stream& stream, int version);
-
-      template <class _Stream>
-	_Stream& bdexStreamOut(_Stream& stream, int version) const;
-
-      template <class _Stream>
-	auto& print(_Stream& stream, int level = 0,
-		       int spacesPerLevel = 4) const;
-      
-      typedef _Tp ValueType;
-
-      const _Tp* addressOr(const _Tp* __value) const
-      {
-	return this->isNull() ? __value : &this->value();
-      }
-
-      const _Tp* valueOrNull() const
-      {
-	return this->isNull() ? 0 : &this->value();
-      }
-
-      _Tp valueOr(const _Tp& __value) const
-      {
-	return this->isNull() ? __value : this->value();
-      }
-
-      const _Tp* valueOr(const _Tp* __value) const
-      {
-	return this->isNull() ? __value : &this->value();
-      }
 
     };
 
