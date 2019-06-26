@@ -1116,13 +1116,13 @@ class SignalerConnection {
                         // =============================
 
 class SignalerConnectionGuard {
-    // This guard type 'has a' 'SignalerConnect', through with it can manage a
-    // slot, and when it is destroyed or assigned to it will disconnect that
-    // slot.  It also contains a boolean 'waitOnDisconnect' attribute, which
-    // determines whether 'disconnect' or 'disconnectAndWait' is used to
-    // disconnect the slot.  The 'waitOnDisconnect' attribute is propagated
-    // when signaler connection guards are move-constructed or move-assigned,
-    // except in constructors where a separate flag is passed.
+    // This guard type 'has a' 'SignalerConnection', through which it can
+    // manage a slot, and when it is destroyed or assigned to it will
+    // disconnect that slot.  It also contains a boolean 'waitOnDisconnect'
+    // attribute, which determines whether 'disconnect' or 'disconnectAndWait'
+    // is used to disconnect the slot.  The 'waitOnDisconnect' attribute is set
+    // in constructors from a 'SignalerConnection' and propagated when move
+    // constructing or move assigning a guard to a different guard.
 
     // DATA
     SignalerConnection d_connection;
@@ -1131,7 +1131,7 @@ class SignalerConnectionGuard {
                                               // 'disconnect' or
                                               // 'disconnectAndWait' is called
                                               // on 'd_connection' at
-                                              // destruction
+                                              // destruction or assignment
 
   public:
     // CREATORS
@@ -1158,9 +1158,9 @@ class SignalerConnectionGuard {
         // Create a 'SignalerConnectionGuard' that refers to the same slot, if
         // any, as the specified 'connection', which is left in an unspecified
         // state.  Optionally specify 'waitOnDisconnect' indicating whether
-        // 'disconnect()' or 'disconnectAndWait()' will be called on the slot,
-        // if any, managed by this object upon destruction or assignment.
-        // Throws nothing.
+        // 'disconnect' or 'disconnectAndWait' will be called on the slot, if
+        // any, managed by this object upon destruction or assignment.  Throws
+        // nothing.
 
     explicit
     SignalerConnectionGuard(bslmf::MovableRef<
@@ -1175,20 +1175,20 @@ class SignalerConnectionGuard {
     ~SignalerConnectionGuard();
         // Destroy this object.  If a slot is being managed by this object,
         // call 'disconnect' or 'disconnectAndWait' on it, depending upon the
-        // value of 'disconnectAndWait'.
+        // value of 'waitOnDisconnect'.
 
     // MANIPULATORS
     SignalerConnectionGuard&
                       operator=(bslmf::MovableRef<SignalerConnectionGuard> rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
         // If there is a currently managed slot, call 'disconnect' or
-        // 'waitOnDisconnect' on it, depending on the value of the
-        // 'disconnectAndWait' state.  Make this connection refer to the same
+        // 'disconnectAndWait' on it, depending on the value of the
+        // 'waitOnDisconnect' state.  Make this connection refer to the same
         // slot, if any, as the specified 'rhs', leaving 'rhs' in the
         // default-constructed state.  Use the 'waitOnDisconnect' state of
         // 'rhs', indicating whether 'disconnect()' or 'disconnectAndWait()'
         // will be called on the slot managed by this object upon destruction
-        // or assignment.  Return *this.  Throws nothing.
+        // or assignment.  Return '*this'.  Throws nothing.
 
     SignalerConnection release() BSLS_KEYWORD_NOEXCEPT;
         // Disassociate this guard from its associated slot, if any, and reset
