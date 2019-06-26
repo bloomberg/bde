@@ -22,8 +22,6 @@
 #include <bsl_limits.h>
 #include <bsl_utility.h>
 
-#include <bsl_utility.h>
-
 #include <typeinfo>
 
 using namespace BloombergLP;
