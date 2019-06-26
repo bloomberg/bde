@@ -501,172 +501,153 @@ int main(int argc, char *argv[])
             ASSERT(&ts == ts_p);
         }
 
-        for (int jj = -1; jj <= +1; ++jj) {
-            for (int kk = 0; kk < 128; ++kk) {
-                int ii = kk;
+        for (int jj = 0; jj < 128; ++jj) {
+            const int ii = jj;
+            u::TestStreamer ts, *ts_p = 0;
 
-                u::TestStreamer ts, *ts_p = 0;
-
-                bt::AllocBitwiseMoveableTestType o1 =
+            bt::AllocBitwiseMoveableTestType o1 =
                              TTF::create<bt::AllocBitwiseMoveableTestType>(ii);
 
-                ts_p = &(ts << o1);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts_p = &(ts << o1);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::AllocTestType o2 = TTF::create<bt::AllocTestType>(ii);
+            bt::AllocTestType o2 = TTF::create<bt::AllocTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o2);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o2);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::BitwiseCopyableTestType o3 =
+            bt::BitwiseCopyableTestType o3 =
                                   TTF::create<bt::BitwiseCopyableTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o3);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o3);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::BitwiseMoveableTestType o4 =
+            bt::BitwiseMoveableTestType o4 =
                                   TTF::create<bt::BitwiseMoveableTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o4);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o4);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::EnumeratedTestType::Enum o5 =
+            bt::EnumeratedTestType::Enum o5 =
                                  TTF::create<bt::EnumeratedTestType::Enum>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o5);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o5);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::MovableAllocTestType o6 =
+            bt::MovableAllocTestType o6 =
                                      TTF::create<bt::MovableAllocTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o6);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o6);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::MovableTestType o7 = TTF::create<bt::MovableTestType>(ii);
+            bt::MovableTestType o7 = TTF::create<bt::MovableTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o7);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o7);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::MoveOnlyAllocTestType o8(ii);
+            bt::MoveOnlyAllocTestType o8(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o8);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o8);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::NonAssignableTestType o9 =
+            bt::NonAssignableTestType o9 =
                                     TTF::create<bt::NonAssignableTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o9);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o9);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::NonCopyConstructibleTestType o10(ii);
+            bt::NonCopyConstructibleTestType o10(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o10);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o10);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::NonDefaultConstructibleTestType o11 =
+            bt::NonDefaultConstructibleTestType o11 =
                           TTF::create<bt::NonDefaultConstructibleTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o11);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o11);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::NonEqualComparableTestType o12 =
+            bt::NonEqualComparableTestType o12 =
                                TTF::create<bt::NonEqualComparableTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o12);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o12);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::NonTypicalOverloadsTestType o13 =
+            bt::NonTypicalOverloadsTestType o13 =
                               TTF::create<bt::NonTypicalOverloadsTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o13);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o13);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::SimpleTestType o14 = TTF::create<bt::SimpleTestType>(ii);
+            bt::SimpleTestType o14 = TTF::create<bt::SimpleTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o14);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o14);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::UnionTestType o15 = TTF::create<bt::UnionTestType>(ii);
+            bt::UnionTestType o15 = TTF::create<bt::UnionTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o15);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o15);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                TTF::MethodPtr o16 = TTF::create<TTF::MethodPtr>(ii);
+            TTF::MethodPtr o16 = TTF::create<TTF::MethodPtr>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o16);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o16);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
 
-                ii = u::clip(ii + jj);
-                bt::NonOptionalAllocTestType o17 =
+            bt::NonOptionalAllocTestType o17 =
                                  TTF::create<bt::NonOptionalAllocTestType>(ii);
 
-                ts.reset();
-                ts_p = 0;
-                ts_p = &(ts << o17);
-                ASSERT(ii == ts.value());
-                ASSERT(&ts == ts_p);
-            }
+            ts.reset();
+            ts_p = 0;
+            ts_p = &(ts << o17);
+            ASSERT(ii == ts.value());
+            ASSERT(&ts == ts_p);
         }
       } break;
       case 2: {
