@@ -74,6 +74,8 @@ BSLS_IDENT("$Id: $")
 //  assert( nullableInt.isNull());
 //..
 
+#include <pmroptional>
+
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
@@ -179,7 +181,121 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
+namespace bslma {
+  template<class T> struct UsesBslmaAllocator<std::pmr::optional<T>> : bsl::true_type {};
+}
+}
+
+namespace std {
+namespace pmr {
+  template <class _Tp>
+  int optional<_Tp>::maxSupportedBdexVersion(int versionSelector) const
+  {
+    using BloombergLP::bslx::VersionFunctions::maxSupportedBdexVersion;
+
+    // We need to call the 'bslx::VersionFunctions' helper function, because we
+    // cannot guarantee that 'TYPE' implements 'maxSupportedBdexVersion' as a
+    // class method.
+    
+    return maxSupportedBdexVersion(reinterpret_cast<_Tp *>(0),
+                                   versionSelector);
+  }
+
+  template <class TYPE>
+  template <class STREAM>
+  STREAM& optional<TYPE>::bdexStreamIn(STREAM& stream, int version)
+  {
+    using BloombergLP::bslx::InStreamFunctions::bdexStreamIn;
+
+    char isNull = 0; // Redundant initialization to suppress -Werror.
+
+    stream.getInt8(isNull);
+
+    if (stream) {
+        if (!isNull) {
+            this->makeValue();
+
+            bdexStreamIn(stream, this->value(), version);
+        }
+        else {
+            this->reset();
+        }
+    }
+
+    return stream;
+  }
+
+  template <class TYPE>
+  template <class STREAM>
+  STREAM& optional<TYPE>::bdexStreamOut(STREAM& stream, int version) const
+  {
+    using BloombergLP::bslx::OutStreamFunctions::bdexStreamOut;
+    
+    const bool isNull = this->isNull();
+    
+    stream.putInt8(isNull ? 1 : 0);
+    
+    if (!isNull) {
+      bdexStreamOut(stream, this->value(), version);
+    }
+    
+    return stream;
+  }
+
+  template <class TYPE>
+  bsl::ostream& operator<<(bsl::ostream&              stream,
+			   const optional<TYPE>& object)
+  {
+    if (object.isNull()) {
+      return BloombergLP::bdlb::PrintMethods::print(stream,
+						    "NULL",
+						    0,
+						    -1);             // RETURN
+    }
+    
+    return BloombergLP::bdlb::PrintMethods::print(stream,
+						  object.value(),
+						  0,
+						  -1);
+  }
+
+  template <class TYPE>
+  template <class STREAM>
+  auto& optional<TYPE>::print(STREAM& stream, int level,
+		 int spacesPerLevel) const
+  {
+    if (this->isNull()) {
+      return (bsl::ostream&)BloombergLP::bdlb::PrintMethods::print(stream,
+						    "NULL",
+						    0,
+						    -1);             // RETURN
+    }
+    
+    return (bsl::ostream&)BloombergLP::bdlb::PrintMethods::print(stream,
+						  this->value(),
+						  0,
+						  -1);
+  }
+  
+  template <class HASHALG, class TYPE>
+  void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input)
+  {
+    using namespace BloombergLP;
+    if (!input.isNull()) {
+      hashAppend(hashAlg, true);
+      hashAppend(hashAlg, input.value());
+    }
+    else {
+      hashAppend(hashAlg, false);
+    }
+  }
+}
+}
+
+namespace BloombergLP {
 namespace bdlb {
+template <class TYPE>
+using NullableValue = std::pmr::optional<TYPE>;
 
 template <class TYPE>
 class NullableValue_WithAllocator;
@@ -187,6 +303,8 @@ class NullableValue_WithAllocator;
 template <class TYPE>
 class NullableValue_WithoutAllocator;
 
+  
+#if 0
                       // =========================
                       // class NullableValue<TYPE>
                       // =========================
@@ -2393,9 +2511,10 @@ const TYPE& NullableValue_WithoutAllocator<TYPE>::value() const
 
     return d_buffer.object();
 }
-
+#endif
 }  // close package namespace
 }  // close enterprise namespace
+
 
 #endif
 
