@@ -2,6 +2,7 @@ bdlmt_eventscheduler
 bdlmt_fixedthreadpool
 bdlmt_multiprioritythreadpool
 bdlmt_multiqueuethreadpool
+bdlmt_signaler
 bdlmt_threadmultiplexor
 bdlmt_threadpool
 bdlmt_throttle
