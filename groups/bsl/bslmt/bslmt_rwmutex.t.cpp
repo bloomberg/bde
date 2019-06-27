@@ -213,9 +213,9 @@ struct PingPongWriter
                   bslmt::Barrier   *barrier = 0)
       : d_locks(locks),
         d_readySema(readySema),
+        d_barrier(barrier),
         d_stop(stop),
-        d_score(score),
-        d_barrier(barrier)
+        d_score(score)
    {}
 
    void operator() () {
@@ -270,9 +270,9 @@ struct PingPongReader
                   bslmt::Barrier   *barrier = 0)
       : d_locks(locks),
         d_readySema(readySema),
+        d_barrier(barrier),
         d_stop(stop),
-        d_score(score),
-        d_barrier(barrier)
+        d_score(score)
    {}
 
    void operator() () {
@@ -324,9 +324,9 @@ struct ContentionWriter
                     double          *score = 0,
                     bslmt::Barrier  *barrier = 0)
       : d_locks(locks),
+        d_barrier(barrier),
         d_stop(stop),
-        d_score(score),
-        d_barrier(barrier)
+        d_score(score)
    {}
 
    void operator() () {
@@ -369,9 +369,9 @@ struct ContentionReader
                     double          *score = 0,
                     bslmt::Barrier  *barrier = 0)
       : d_locks(locks),
+        d_barrier(barrier),
         d_stop(stop),
-        d_score(score),
-        d_barrier(barrier)
+        d_score(score)
    {}
 
    void operator() () {
@@ -406,13 +406,11 @@ struct ContentionReader
 };
 
 template <class LOCK>
-int benchmarkSpeed (LOCK       *lock,
+int benchmarkSpeed (LOCK       * /* lock */,
                     const char *lockName,
-                    int         numWriters,
+                    int         /* numWriters */,
                     int         numReaders)
 {
-   int rc;
-
    // This 4-lock "ping-pong" benchmark approach is from de Supinski and May,
    // "Benchmarking PTHREADS Performance", 1999
    LOCK locks[4];
@@ -776,10 +774,15 @@ class ReaderThread {
 // ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;         // Suppressing the "unused variable" warning
+    (void) veryVeryVerbose;     // Suppressing the "unused variable" warning
+    (void) veryVeryVeryVerbose; // Suppressing the "unused variable" warning
 
     int readers = 5, writers = 1; // for negative cases
     if (argc > 2) {
