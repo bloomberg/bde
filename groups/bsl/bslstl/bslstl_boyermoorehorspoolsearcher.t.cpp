@@ -3295,11 +3295,6 @@ static void testMoveContructors()
 
             ASSERT(resultZ == resultX);
 
-            fa.deleteObject(mechDstPtr);
-
-            ASSERT(0 == fam.numBlocksInUseChange());
-            ASSERT(0 == dam.numBlocksInUseChange());
-            ASSERT(0 == zam.numBlocksInUseChange());
 
             // Is 'mZ' in a valid state?
            
@@ -3312,6 +3307,19 @@ static void testMoveContructors()
             const Result expected(HAYSTACK, HAYSTACK);
 
             ASSERT(expected == resultZafter);
+
+            mZ = X;
+
+            const Result resultZrestored = Z(HAYSTACK,
+                                             HAYSTACK + BSL::strlen(HAYSTACK));
+
+            ASSERT(resultX == resultZrestored);
+
+            fa.deleteObject(mechDstPtr);
+
+            ASSERT(0 == fam.numBlocksInUseChange());
+            ASSERT(0 == dam.numBlocksInUseChange());
+            ASSERT(0 == zam.numBlocksInUseChange());
         }
 
         ASSERT(0 == sa.numBlocksInUse()); // 'mZ' destroyed at end-of-block
@@ -3650,6 +3658,12 @@ int main(int argc, char *argv[])
 
                     ASSERT(resultZ           == resultY);
                     ASSERT(emptyNeedleResult == resultX);
+
+                    mX = Y;
+
+                    Result resultXrestored = X(HAYSTACK,
+                                               HAYSTACK + HAYSTACK_LENGTH);
+                    ASSERT(resultY == resultXrestored);
                 }
 
                 // Specialized Implementation
@@ -3680,6 +3694,12 @@ int main(int argc, char *argv[])
 
                     ASSERT(resultZ           == resultY);
                     ASSERT(emptyNeedleResult == resultX);
+
+                    mX = Y;
+
+                    Result resultXrestored = X(HAYSTACK,
+                                               HAYSTACK + HAYSTACK_LENGTH);
+                    ASSERT(resultY == resultXrestored);
                 }
             }
         }
@@ -4426,9 +4446,9 @@ int main(int argc, char *argv[])
 
             // Searcher type-space:  CaseSensitive and Case Insensitive
 
-            typedef CharArray<char>::const_iterator       RndConstItr;
-            typedef bsl::pair<RndConstItr, RndConstItr>   RndResult;
-            typedef BSL::ptrdiff_t                        RndDiff;
+            typedef CharArray<char>::const_iterator     RndConstItr;
+            typedef bsl::pair<RndConstItr, RndConstItr> RndResult;
+            typedef BSL::ptrdiff_t                      RndDiff;
 
             typedef bsl::boyer_moore_horspool_searcher<RndConstItr>  RndMechCs;
             typedef bsl::boyer_moore_horspool_searcher<
