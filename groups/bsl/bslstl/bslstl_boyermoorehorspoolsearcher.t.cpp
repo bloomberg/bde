@@ -14,10 +14,12 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_nativestd.h>
 #include <bsls_timeutil.h>  // TC -1
 #include <bsls_types.h>     // for 'bsls::Types::Int64'
@@ -29,7 +31,7 @@
 #include <cstdlib>    // for 'native_std::atoi'
 #include <cstring>    // for 'native_std::strlen'
 #include <functional> // for 'native_std::equal_to'
-#include <utility>    // for 'operator!='
+#include <utility>    // for 'operator!=' and 'make_pair'
 
 #include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
 #include <limits.h>   // for 'UCHAR_MAX'
@@ -56,12 +58,15 @@ namespace BSL = native_std;  // for Usage examples
 //
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] boyer_moore_horspool_searcher(RAI f, RAI l, HASH l, EQUAL e, A a);
+// [ 2] boyer_moore_horspool_searcher(RAI f, RAI l, HASH l, EQUAL e, *bA);
 // [ 4] boyer_moore_horspool_searcher(const b_m_h_s& original);
-// [ 4] boyer_moore_horspool_searcher(const b_m_h_s& original, A a);
+// [ 4] boyer_moore_horspool_searcher(const b_m_h_s& original, *bA);
+// [ 6] boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original);
+// [ 6] boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original, *bA);
 //
 // MANIPULATORS
 // [ 5] b_m_h& operator=(const b_m_h& rhs);
+// [ 7] b_m_h& operator=(MovableRef<b_m_h> rhs);
 //
 // ACCESSORS
 // [ 3] bsl::pair<RAI, RAI> operator()(RAI hsFirst, RAI hsLast) const;
@@ -69,10 +74,10 @@ namespace BSL = native_std;  // for Usage examples
 // [ 2] RAI needleLast() const;
 // [ 2] HASH hash() const;
 // [ 2] EQUAL equal() const;
-// [ 2] ALLOCATOR allocator() const;
+// [ 2] BloombergLP::bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 //
 // ============================================================================
@@ -2859,6 +2864,104 @@ void processTestRun(bsl::vector<float>::const_iterator first,
         }
     };
 //..
+// Notice that the hash functor must account for the definition of equality
+// provided by the equality comparison functor.  Values that are
+// case-insensitively equal must generate the same hash value.
+
+// INSERT in Example 4
+// First, we define our cache class:
+//..
+                        // ====================================
+                        // class MyCaseInsensitiveSearcherCache
+                        // ====================================
+
+    class MyCaseInsensitiveSearcherCache {
+
+        // TYPES
+      public:   
+        typedef bsl::boyer_moore_horspool_searcher<
+                                                 const char *,
+                                                 MyCaseInsensitiveCharHasher,
+                                                 MyCaseInsensitiveCharComparer>
+                                                                      Searcher;
+        // PRIVATE TYPES
+      private:   
+        typedef bsl::unordered_map<bsl::string, Searcher> Map;
+
+        // DATA
+        Map d_map;
+
+        // PRIVATE MANIPULATORS
+        const Searcher& insertSearcher(const bsl::string& key);
+            // Insert into the cache a key-value pair where the key is the
+            // specified 'key' and the value is a 'Searcher' object created to
+            // look for the needle specified by the key part.  Note that this
+            // arrangement guarantees that the iterators used by this cached
+            // searcher object remain valid for the life of the searcher
+            // object.
+
+      public:
+        // MANIPULATORS
+        const Searcher& getSearcher(const char *needle);
+            // Return a 'const'-reference to the cached server that can do a
+            // case-insensitive search for the specified 'needle'.  If such a
+            // server does not exist in the cache on entry, such a server is
+            // constructed, added to the cache, and returned (by
+            // 'const'-reference).
+    };
+//..
+// Notice that we reuse the hash functor, 'MyCaseInsensitiveCharHasher', and
+// equality comparison functor, 'MyCaseInsensitiveCharComparer', that were
+// defined in {Example 2}.
+//
+// Then, we implement the cache class private method:
+//..
+                        // ------------------------------------
+                        // class MyCaseInsensitiveSearcherCache
+                        // ------------------------------------
+
+    // PRIVATE MANIPULATORS
+    const
+    MyCaseInsensitiveSearcherCache::Searcher&
+    MyCaseInsensitiveSearcherCache::insertSearcher(const bsl::string& key)
+    {
+        Searcher        dummy(key.begin(), key.begin()); // to be overwritten
+        Map::value_type value = BSL::make_pair(key, dummy);
+
+        bsl::pair<Map::iterator, bool> insertResult = d_map.insert(value);
+        ASSERT(true == insertResult.second);
+
+        Map::iterator      iterator  = insertResult.first;
+        const bsl::string& nodeKey   = iterator->first;
+        Searcher&          nodeValue = iterator->second;
+
+        return nodeValue = Searcher(nodeKey.begin(), nodeKey.end());
+    }
+//..
+// Notice creating our element is a two step process.  First, we insert the
+// key with an arbitrary "dummy" searcher.  Once the key (a string) exists
+// in the map (at an address with will be stable for the life of the map) we
+// create a searcher object that refers to that string for the search sequence
+// and overwrite the "dummy" part of the element with the intended searcher.
+// 
+// Next, we implement our public method.
+//..
+    // MANIPULATORS
+    const
+    MyCaseInsensitiveSearcherCache::Searcher&
+    MyCaseInsensitiveSearcherCache::getSearcher(const char *needle)
+    {
+        bsl::string   key(needle);
+        Map::iterator findResult = d_map.find(key);
+
+        if (d_map.end() == findResult) {
+            return insertSearcher(key);                               // RETURN
+        } else {
+         // return (*findResult).second;                              // RETURN
+            return findResult->second;                                // RETURN
+        }
+    }
+//..
 
 static void usage()
     // Test the Usage examples.
@@ -2897,9 +3000,10 @@ static void usage()
 // Then, we create a 'default_searcher' object (a functor) using the given
 // 'word':
 //..
-    bsl::boyer_moore_horspool_searcher<const char*> searchForUnited(
-                                                     word,
-                                                     word + BSL::strlen(word));
+    bsl::boyer_moore_horspool_searcher<const char *> searchForUnited(
+                                                            word,
+                                                            word
+                                                          + BSL::strlen(word));
 //..
 // Notice that no equality comparison functor was specified so
 // 'searchForUnited' will use 'bsl::equal_to<char>' by default.
@@ -2920,6 +3024,9 @@ static void usage()
 //..
 // Finally, we notice that search correctly ignored the appearance of the word
 // "united" (all lower case) in the second sentence.
+//
+// {'bslstl_default'|Example 1} shows how the same problem is addressed using
+// 'bsl::default_searcher'.
 //
 ///Example 2: Defining a Comparator and Hash
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -2945,8 +3052,9 @@ static void usage()
                                        MyCaseInsensitiveCharHasher,
                                        MyCaseInsensitiveCharComparer>
                                                     searchForUnitedInsensitive(
-                                                     word,
-                                                     word + BSL::strlen(word));
+                                                            word,
+                                                            word 
+                                                          + BSL::strlen(word));
 //..
 // Note that the new searcher object will use defaulted constructed
 // 'MyCaseInsensitiveCharHasher' and
@@ -2984,6 +3092,9 @@ static void usage()
                == BSL::strlen(word));
 //..
 //
+// {'bslstl_default'|Example 2} shows how the same problem is addressed using
+// 'bsl::default_searcher'.
+//
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
 // The 'default_searcher' class template is not constrained to searching for
@@ -3008,7 +3119,7 @@ static void usage()
 // Next, we obtain the data to be searched.  (In this example, we will use
 // simulated data.)
 //..
-    bsl::vector<float> data;
+    bsl::vector<float> data;  // Container provides random access iterators.
     doTestRun(&data);
 //..
 // Then, we define and create our searcher object:
@@ -3047,6 +3158,122 @@ static void usage()
 
     processTestRun(startOfTestRun, endOfTestRun);
 //..
+// {'bslstl_defaultsearcher'|Example 3} shows how the same problem is addressed
+// using 'bsl::default_searcher'.  Notice that other example uses 'data' from a
+// container that provides bidirectional iterators (and forward iterators would
+// have sufficed), whereas here, random access iterators are required.
+//
+///Example 4: Caching Searcher Objects
+///- - - - - - - - - - - - - - - - - -
+// The construction of 'bsl::boyer_moore_horsepool_searcher' objects is
+// small (the needle must be scanned, meta-data calculated and saved) but
+// can be non-neglibible if one needs a great number of them.  When there is
+// a reasonable chance that one will have to repeat a given search, it can
+// be worthwhile to cache the searcher objects for reuse.
+//
+// Suppose we have a long list of names, each consisting of a given name (first
+// name) and a surname (last name), and that we wish to identify instances of
+// exact reduplication of the given name in the surname.  That is, we want to
+// identify the cases where the given name is a case-insensitive substring 
+// of the surname.  Examples, include "Durand Durand", "James Jameson",
+// "John St. John", and "Jean Valjean".
+//
+// Since we want to perform our task as efficiently as possible, and since we
+// expect many entries to have common given names (e.g., "John"), we decide to
+// create a cache of searcher objects for those first names so they need not be
+// reconstructed for each search of a surname.
+//
+// -- INSERT FROM ABOVE --
+//  
+// Now, we show how the searcher object cache can be used.  In this example,
+// a fixed array represents our source of name entries, in random order.
+//..
+    struct {
+        const char *d_givenName;
+        const char *d_surname;
+    } DATA[] = {
+        // GIVEN     SURNAME
+        // --------  ------------
+        { "Donald" , "McDonald"    }
+      , { "John"   , "Johnson"     }
+      , { "John"   , "Saint Johns" }
+      , { "Jon"    , "Literjon"    }
+      , { "Jean"   , "Valjean"     }
+      , { "James"  , "Jameson"     }
+      , { "Will"   , "Freewill"    }
+      , { "John"   , "Johns"       }
+      , { "John"   , "John"        }
+      , { "John"   , "Lakos"       }
+      , { "J'onn"  , "J'onzz"      }
+      , { "Donald" , "Donalds"     } 
+      , { "Donald" , "Mac Donald"  }
+      , { "William", "Williams"    }
+      , { "Durand" , "Durand"      }
+      , { "John"   , "Johnstown"   }
+      , { "Major"  , "Major"       }
+      , { "Donald" , "MacDonald"   }
+      , { "Sirhan" , "Sirhan"      }
+      , { "Patrick", "O'Patrick"   }
+        // ...
+      , { "Ivan"   , "Ivanovich"   }
+    };
+
+    BSL::size_t NUM_NAMES = sizeof DATA / sizeof *DATA;
+
+    typedef bsl::pair<const char *, const char *> Result;
+
+    MyCaseInsensitiveSearcherCache searcherCache;
+    bsl::string                    output;
+
+    for (BSL::size_t ti = 0; ti < NUM_NAMES; ++ti) {
+        const char * const givenName = DATA[ti].d_givenName;
+        const char * const surname   = DATA[ti].d_surname;
+
+        Result result   = searcherCache.getSearcher(givenName)(
+                                               surname,
+                                               surname + BSL::strlen(surname));
+
+        Result notFound = BSL::make_pair(surname + BSL::strlen(surname),
+                                         surname + BSL::strlen(surname));
+
+        char buffer[32];
+
+        if (notFound == result) { 
+            sprintf(buffer, "ng: %-10s %-11s\n", givenName, surname);
+        } else { 
+            sprintf(buffer, "OK: %-10s %-11s\n", givenName, surname);
+        }
+
+        output.append(buffer);
+    }
+//..
+// Finally, we examine the collected 'output' and confirm that our code
+// is properly identifying the names of interest.
+//..
+    ASSERT(0 == BSL::strcmp(output.c_str(), "OK: Donald     McDonald   \n"
+                                            "OK: John       Johnson    \n"
+                                            "OK: John       Saint Johns\n"
+                                            "OK: Jon        Literjon   \n"
+                                            "OK: Jean       Valjean    \n"
+                                            "OK: James      Jameson    \n"
+                                            "OK: Will       Freewill   \n"
+                                            "OK: John       Johns      \n"
+                                            "OK: John       John       \n"
+                                            "ng: John       Lakos      \n"
+                                            "ng: J'onn      J'onzz     \n"
+                                            "OK: Donald     Donalds    \n"
+                                            "OK: Donald     Mac Donald \n"
+                                            "OK: William    Williams   \n"
+                                            "OK: Durand     Durand     \n"
+                                            "OK: John       Johnstown  \n"
+                                            "OK: Major      Major      \n"
+                                            "OK: Donald     MacDonald  \n"
+                                            "OK: Sirhan     Sirhan     \n"
+                                            "OK: Patrick    O'Patrick  \n"
+                                            // ...
+                                            "OK: Ivan       Ivanovich  \n"));
+//..
+
 }
 
 // ============================================================================
@@ -3170,6 +3397,158 @@ static void loadVectorOfChars(bsl::vector<char> *dst, const char *src)
 }
 
 // ============================================================================
+//                               TEST CASES
+// ----------------------------------------------------------------------------
+
+template <class FUNCTOR, bool ARE_COMPARABLE>
+class CompareFunctors {
+  public:
+    bool areEqual(const FUNCTOR& lhs, const FUNCTOR& rhs);
+};
+
+template <class FUNCTOR>
+class CompareFunctors<FUNCTOR, true> {
+  public:
+    bool areEqual(const FUNCTOR& lhs, const FUNCTOR& rhs) const {
+        return lhs == rhs;
+    }
+};
+
+template <class FUNCTOR>
+class CompareFunctors<FUNCTOR, false> {
+  public:
+    bool areEqual(const FUNCTOR& , const FUNCTOR& ) const {
+        return true;
+    }
+};
+
+template <class RNDACC_ITR,
+          class HASH,
+          class EQUAL,
+          bool  ARE_FUNCTORS_COMPARABLE>
+static void testMoveContructors()
+{
+    if (veryVerbose) {
+        P(bsls::NameOf<RNDACC_ITR>())
+        P(bsls::NameOf<HASH>())
+        P(bsls::NameOf<EQUAL>())
+        bool areFunctorsComparable = ARE_FUNCTORS_COMPARABLE;
+        P(areFunctorsComparable)
+    }
+
+    typedef bsl::boyer_moore_horspool_searcher<RNDACC_ITR,
+                                               HASH,
+                                               EQUAL> Mech;
+    typedef bsl::pair<RNDACC_ITR, RNDACC_ITR>         Result;
+
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+    bslma::TestAllocator za("different", veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    for (BSL::size_t ti = 0; ti < numDATA; ++ti) {
+        const int          LINE      = DATA[ti].d_line; (void) LINE;
+        const char * const HAYSTACK  = DATA[ti].d_haystack_p;
+        const char * const NEEDLE    = DATA[ti].d_needle_p;
+
+        for (char dstCfg = 'a'; dstCfg <= 'd'; ++dstCfg) {
+            const char CONFIG = dstCfg;
+
+            Mech mZ(NEEDLE,
+                    NEEDLE + BSL::strlen(NEEDLE),
+                    HASH(),
+                    EQUAL(),
+                    &sa);  const Mech& Z = mZ;
+
+            ASSERT(NEEDLE                       == Z.needleFirst());
+            ASSERT(NEEDLE + BSL::strlen(NEEDLE) == Z.needleLast());
+
+            Result resultZ = Z(HAYSTACK,
+                               HAYSTACK + BSL::strlen(HAYSTACK));
+
+            bslma::TestAllocatorMonitor fam(&fa);
+            bslma::TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor sam(&sa);
+            bslma::TestAllocatorMonitor zam(&za);
+
+            Mech *mechDstPtr;
+
+            switch (CONFIG) {
+              case 'a': {
+                mechDstPtr = new (fa) Mech(MoveUtil::move(mZ));      // ACTIONa
+              } break;
+              case 'b': {
+                mechDstPtr = new (fa) Mech(MoveUtil::move(mZ), 0);   // ACTIONb
+              } break;
+              case 'c': {
+                mechDstPtr = new (fa) Mech(MoveUtil::move(mZ), &sa); // ACTIONc
+              } break;
+              case 'd': {
+                mechDstPtr = new (fa) Mech(MoveUtil::move(mZ), &za); // ACTIONd
+              } break;
+              default: {
+                ASSERTV(CONFIG, !"Bad allocator config.");
+              } return;                                               // RETURN
+            }
+
+            Mech& mX = *mechDstPtr;  const Mech& X = mX;
+
+            bslma::TestAllocator& oa = 'a' == CONFIG ? sa :
+                                       'b' == CONFIG ? da :
+                                       'c' == CONFIG ? sa :
+                                       /* else */      za ;
+
+            ASSERT((CompareFunctors<HASH,
+                                    ARE_FUNCTORS_COMPARABLE>().areEqual(
+                                                               HASH(),
+                                                               X.hash())));
+            ASSERT((CompareFunctors<EQUAL,
+                                    ARE_FUNCTORS_COMPARABLE>().areEqual(
+                                                              EQUAL(),
+                                                              X.equal())));
+            ASSERT(&oa == X.allocator());
+
+            Result resultX = X(HAYSTACK,
+                               HAYSTACK + BSL::strlen(HAYSTACK));
+
+            ASSERT(resultZ == resultX);
+
+
+            // Is 'mZ' in a valid state?
+           
+            ASSERT(NEEDLE == Z.needleFirst());
+            ASSERT(NEEDLE == Z.needleLast());
+
+            const Result resultZafter = Z(HAYSTACK,
+                                          HAYSTACK + BSL::strlen(HAYSTACK));
+
+            const Result expected(HAYSTACK, HAYSTACK);
+
+            ASSERT(expected == resultZafter);
+
+            mZ = X;
+
+            const Result resultZrestored = Z(HAYSTACK,
+                                             HAYSTACK + BSL::strlen(HAYSTACK));
+
+            ASSERT(resultX == resultZrestored);
+
+            fa.deleteObject(mechDstPtr);
+
+            ASSERT(0 == fam.numBlocksInUseChange());
+            ASSERT(0 == dam.numBlocksInUseChange());
+            ASSERT(0 == zam.numBlocksInUseChange());
+        }
+
+        ASSERT(0 == sa.numBlocksInUse()); // 'mZ' destroyed at end-of-block
+    }
+}
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -3186,7 +3565,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 6: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3210,6 +3589,389 @@ int main(int argc, char *argv[])
         usage();
 
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // MOVE ASSIGNMENT
+        //
+        // Concerns:
+        //: 1 The copied object has the same state as the original with respect
+        //:   to the 'needleFirst', 'needleLast', 'hash', and 'equal'
+        //:   attributes.
+        //:
+        //: 2 The assigned to object continues to use the allocator held before
+        //:   assignment.
+        //:
+        //: 3 The 'rhs' object can be 'const'-qualified.
+        //:
+        //: 4 The 'rhs' object is left in the (implementation dependent)
+        //:   expected (valid) state.
+        //:
+        //: 5 The return value of copy assignment has the expected value.
+        //:
+        //: 6 The behaviors hold true for both general and optimized
+        //:   implementations.
+        //
+        // Plan:
+        //: 1 Ad hoc test: Searcher objects are created and copied.
+        //:
+        //: 2 The accessors are used at each step to confirm the expected
+        //:   state.
+        //
+        // Testing:
+        //   b_m_h& operator=(MovableRef<b_m_h> rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "MOVE ASSIGNMENT"
+                            "\n" "==============" "\n");
+
+        if (veryVerbose) printf("General Implementation\n");
+        {
+            typedef  CharHashCaseInsensitive HASH;
+            typedef CharEqualCaseInsensitive EQUAL;
+
+            HASH   hashX(42);
+            EQUAL equalX(42);
+
+            HASH   hashY(43);
+            EQUAL equalY(43);
+
+            CharArray<char> containerHavingRandomIterators(
+                                                    bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator           RandConstItr;
+            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                                                       HASH,
+                                                       EQUAL> Mech;
+
+            RandConstItr needleFirst = containerHavingRandomIterators.begin();
+            RandConstItr needleLast  = containerHavingRandomIterators.end();
+
+            if (veryVerbose) printf("default allocator\n");
+            {
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Mech mZ(needleFirst, needleLast, hashX, equalX, &sa);
+                Mech mX(needleFirst, needleLast, hashX, equalX, &sa);
+                Mech mY(needleLast,  needleLast, hashY, equalY);  // unalike
+
+                const Mech& Z = mZ;
+                const Mech& X = mX;
+                const Mech& Y = mY;
+
+                Mech *mR = &(mY = bslmf::MovableRefUtil::move(mX));  // ACTION
+                ASSERT(mR == &mY);
+
+                // The assigned to object state matches original ('Z') except
+                // for the allocator.
+
+                ASSERT(Z.needleFirst() == Y.needleFirst());
+                ASSERT(Z.needleLast()  == Y.needleLast());
+                ASSERT(Z.hash()        == Y.hash());
+                ASSERT(Z.equal()       == Y.equal());
+                ASSERT(Z.allocator()   != Y.allocator());
+                ASSERT(&da             == Y.allocator());
+
+                // The original object ('X') in expected (implementation
+                // specific) state.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleFirst() == X.needleLast());
+                ASSERT(Z.hash()        == X.hash());
+                ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+
+            if (veryVerbose) printf("supplied allocator\n");
+            {
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
+
+                Mech mZ(needleFirst, needleLast, hashX, equalX, &saX);
+                Mech mX(needleFirst, needleLast, hashX, equalX, &saX);
+                Mech mY(needleLast,  needleLast, hashY, equalX, &saY);
+                                                                     // unalike
+
+                const Mech& Z = mZ;
+                const Mech& X = mX;
+                const Mech& Y = mY;
+
+                Mech *mR = &(mY = bslmf::MovableRefUtil::move(mX));  // ACTION
+                ASSERT(mR == &mY);
+
+                // The assigned to object state matches the 'rhs' except for
+                // the allocator.
+
+                ASSERT(Z.needleFirst() == Y.needleFirst());
+                ASSERT(Z.needleLast()  == Y.needleLast());
+                ASSERT(Z.hash()        == Y.hash());
+                ASSERT(Z.equal()       == Y.equal());
+                ASSERT(Z.allocator()   != Y.allocator());
+                ASSERT(&saY            == Y.allocator());
+
+                // The 'original' object state has the (implementation
+                // dependent) expected (valid) state.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleFirst() == X.needleLast());
+                ASSERT(Z.hash()        == X.hash());
+                ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+        }
+
+        if (veryVerbose) printf("Specialized Implementation\n");
+        {
+            typedef bsl::hash<char>     HASH;   // These types lack equality
+            typedef bsl::equal_to<char> EQUAL;  // comparison operators.
+
+            HASH   hash;
+            EQUAL equal;
+
+            CharArray<char> containerHavingRandomIterators(
+                                                    bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator           RandConstItr;
+            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                                                       HASH,
+                                                       EQUAL> Mech;
+
+            RandConstItr needleFirst = containerHavingRandomIterators.begin();
+            RandConstItr needleLast  = containerHavingRandomIterators.end();
+
+            if (veryVerbose) printf("default allocator\n");
+            {
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Mech mZ(needleFirst, needleLast, hash, equal, &sa);
+                Mech mX(needleFirst, needleLast, hash, equal, &sa);
+                Mech mY(needleLast,  needleLast, hash, equal); // unalike
+
+                const Mech& Z = mZ;
+                const Mech& X = mX;
+                const Mech& Y = mY;
+
+                ASSERT(&da             == Y.allocator());
+
+                Mech *mR = &(mY = bslmf::MovableRefUtil::move(mX));  // ACTION
+                ASSERT(mR == &mY);
+
+                // The assigned to object state matches 'rhs' except for the
+                // allocator.
+
+                ASSERT(Z.needleFirst() == Y.needleFirst());
+                ASSERT(Z.needleLast()  == Y.needleLast());
+             // ASSERT(Z.hash()        == Y.hash());
+             // ASSERT(Z.equal()       == Y.equal());
+                ASSERT(Z.allocator()   != Y.allocator());
+                ASSERT(&da             == Y.allocator());
+
+                // The 'rhs' object state has the (implementation dependent)
+                // expected (valid) state.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleFirst() == X.needleLast());
+             // ASSERT(Z.hash()        == X.hash());
+             // ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+
+            if (veryVerbose) printf("supplied allocator\n");
+            {
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
+
+                Mech mZ(needleFirst, needleLast, hash, equal, &saX);
+                Mech mX(needleFirst, needleLast, hash, equal, &saX);
+                Mech mY(needleLast,  needleLast, hash, equal, &saY); // unalike
+
+                const Mech& Z = mZ;
+                const Mech& X = mX;
+                const Mech& Y = mY;
+
+                Mech *mR = &(mY = bslmf::MovableRefUtil::move(mX));  // ACTION
+                ASSERT(mR == &mY);
+
+                // The assigned to object state matches 'rhs' except for the
+                // allocator.
+
+                ASSERT(Z.needleFirst() == Y.needleFirst());
+                ASSERT(Z.needleLast()  == Y.needleLast());
+             // ASSERT(Z.hash()        == Y.hash());
+             // ASSERT(Z.equal()       == Y.equal());
+                ASSERT(Z.allocator()   != Y.allocator());
+                ASSERT(&saY            == Y.allocator());
+
+                // The 'rhs' object has the (implementation dependent)
+                // expected (valid) state.
+
+                ASSERT(Z.needleFirst() == X.needleFirst());
+                ASSERT(Z.needleFirst() == X.needleLast());
+             // ASSERT(Z.hash()        == X.hash());
+             // ASSERT(Z.equal()       == X.equal());
+                ASSERT(Z.allocator()   == X.allocator());
+            }
+        }
+
+        if (veryVerbose) printf("Compare results\n");
+        {
+            for (BSL::size_t ti = 0; ti < numDATA; ++ti) {
+                const int         LINE      = DATA[ti].d_line;
+                const char *const HAYSTACK  = DATA[ti].d_haystack_p;
+                const char *const NEEDLE    = DATA[ti].d_needle_p;
+                const int         OFFSET_CS = DATA[ti].d_offsetCs;
+                const int         LENGTH_CS = DATA[ti].d_lengthCs;
+                const int         OFFSET_CI = DATA[ti].d_offsetCi;
+                const int         LENGTH_CI = DATA[ti].d_lengthCi;
+
+                if (veryVerbose) {
+                    P_(LINE      )
+                    P_(HAYSTACK  )
+                    P_(NEEDLE    )
+                    P_(OFFSET_CS )
+                    P_(LENGTH_CS )
+                    P_(OFFSET_CI )
+                    P (LENGTH_CI )
+                }
+
+                // General Implementation
+                {
+                    bsl::vector<char> vectorOfChars;
+                    loadVectorOfChars(&vectorOfChars, NEEDLE);
+
+                    CharArray<char> needleContent(vectorOfChars);
+
+                    typedef CharArray<char>::const_iterator RandConstItr;
+                    typedef  CharHashCaseInsensitive        HASH;
+                    typedef CharEqualCaseInsensitive        EQUAL;
+
+                    typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                                                               HASH,
+                                                               EQUAL> Mech;
+
+                    RandConstItr needleFirst = needleContent.begin();
+                    RandConstItr needleLast  = needleContent.end();
+
+                    Mech mZ(needleFirst, needleLast);
+                    Mech mX(needleFirst, needleLast);
+                    Mech mY(needleFirst, needleFirst);  // unalike
+
+                    const Mech& Z = mZ;
+                    const Mech& X = mX;
+                    const Mech& Y = mY;
+
+                    Mech *mR = &(mY = bslmf::MovableRefUtil::move(mX));  // ACT
+                    ASSERT(mR == &mY);
+
+                    typedef bsl::pair<const char *, const char *> Result;
+
+                    const BSL::size_t HAYSTACK_LENGTH = BSL::strlen(HAYSTACK);
+
+                    Result resultZ = Z(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultX = X(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultY = Y(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+
+                    Result emptyNeedleResult(HAYSTACK, HAYSTACK);
+
+                    ASSERT(resultZ           == resultY);
+                    ASSERT(emptyNeedleResult == resultX);
+
+                    mX = Y;
+
+                    Result resultXrestored = X(HAYSTACK,
+                                               HAYSTACK + HAYSTACK_LENGTH);
+                    ASSERT(resultY == resultXrestored);
+                }
+
+                // Specialized Implementation
+                {
+                    typedef bsl::boyer_moore_horspool_searcher<const char *>
+                                                                         Mech;
+
+                    Mech mZ(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
+                    Mech mX(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
+                    Mech mY(NEEDLE, NEEDLE);
+
+                    const Mech& Z = mZ;
+                    const Mech& X = mX;
+                    const Mech& Y = mY;
+
+                    Mech *mR = &(mY = bslmf::MovableRefUtil::move(mX));  // ACT
+                    ASSERT(mR == &mY);
+
+                    typedef bsl::pair<const char *, const char *> Result;
+
+                    const BSL::size_t HAYSTACK_LENGTH = BSL::strlen(HAYSTACK);
+
+                    Result resultZ = Z(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultX = X(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+                    Result resultY = Y(HAYSTACK, HAYSTACK + HAYSTACK_LENGTH);
+
+                    Result emptyNeedleResult(HAYSTACK, HAYSTACK);
+
+                    ASSERT(resultZ           == resultY);
+                    ASSERT(emptyNeedleResult == resultX);
+
+                    mX = Y;
+
+                    Result resultXrestored = X(HAYSTACK,
+                                               HAYSTACK + HAYSTACK_LENGTH);
+                    ASSERT(resultY == resultXrestored);
+                }
+            }
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // MOVE CONSTRUCTORS
+        //
+        // Concerns:
+        //: 1 The copied object has the same state as the original with respect
+        //:   to the 'needleFirst', 'needleLast', 'hash', and 'equal'
+        //:   attributes.
+        //:
+        //: 2 The allocator of the new object is the supplied allocator, if
+        //:   specified, and the default allocator otherwise.  The allocator of
+        //:   the original object is irrelvant.
+        //:
+        //: 3 A 'const'-qualified searcher object can be copied.
+        //:
+        //: 4 The 'original' object is not changed when copied.
+        //:
+        //: 5 The behaviors hold true for both general and optimized
+        //:   implementations.
+        //
+        // Plan:
+        //: 1 Ad hoc test: Searcher objects are created and copied.
+        //:
+        //: 2 The accessors are used at each step to confirm the expected
+        //:   state.
+        //
+        // Testing:
+        //   boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original);
+        //   boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original, *bA);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "MOVE CONSTRUCTORS"
+                            "\n" "=================" "\n");
+
+        typedef  CharHashCaseInsensitive  HASH_GNRL;
+        typedef CharEqualCaseInsensitive EQUAL_GNRL;
+
+        typedef bsl::hash<char>      HASH_CHAR;  // These types lack equality
+        typedef bsl::equal_to<char> EQUAL_CHAR;  // comparison operators.
+
+        typedef CharArray<char>::const_iterator RandConstItr;
+
+        testMoveContructors<RandConstItr, HASH_CHAR, EQUAL_CHAR, false>();
+        testMoveContructors<RandConstItr, HASH_GNRL, EQUAL_GNRL, true >();
+
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // COPY ASSIGNMENT
@@ -3224,9 +3986,11 @@ int main(int argc, char *argv[])
         //:
         //: 3 The 'rhs' object can be 'const'-qualified.
         //:
-        //: 4 The 'original' object is not changed when copied.
+        //: 4 The 'rhs' object is not changed when assigned from.
         //:
-        //: 5 The behaviors hold true for both general and optimized
+        //: 5 The return value of copy assignment has the expected value.
+        //:
+        //: 6 The behaviors hold true for both general and optimized
         //:   implementations.
         //
         // Plan:
@@ -3264,27 +4028,23 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-            typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-                                                                 AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-                AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hashX, equalX, xsa);
-                Mech mX(needleFirst, needleLast, hashX, equalX, xsa);
+                Mech mZ(needleFirst, needleLast, hashX, equalX, &sa);
+                Mech mX(needleFirst, needleLast, hashX, equalX, &sa);
                 Mech mY(needleLast,  needleLast, hashY, equalY);  // unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
                 const Mech& Y = mY;
 
-                mY = X;  // ACTION
+                Mech *mR = &(mY = X);  // ACTION
+                ASSERT(mR == &mY);
 
                 // The copied object state matches 'original' except for the
                 // allocator.
@@ -3307,20 +4067,20 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
-                AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
-                Mech mZ(needleFirst, needleLast, hashX, equalX, xsa);
-                Mech mX(needleFirst, needleLast, hashX, equalX, xsa);
-                Mech mY(needleLast,  needleLast, hashY, equalX, ysa); //unalike
+                Mech mZ(needleFirst, needleLast, hashX, equalX, &saX);
+                Mech mX(needleFirst, needleLast, hashX, equalX, &saX);
+                Mech mY(needleLast,  needleLast, hashY, equalX, &saY);
+                                                                     // unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
                 const Mech& Y = mY;
 
-                mY = X;  // ACTION
+                Mech *mR = &(mY = X);  // ACTION
+                ASSERT(mR == &mY);
 
                 // The copied object state matches 'original' except for the
                 // allocator.
@@ -3342,7 +4102,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("Specialize Implementation\n");
+        if (veryVerbose) printf("Specialized Implementation\n");
         {
             typedef bsl::hash<char>     HASH;   // These types lack equality
             typedef bsl::equal_to<char> EQUAL;  // comparison operators.
@@ -3361,25 +4121,22 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-            typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-                                                                 AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-                AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
-                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+                Mech mZ(needleFirst, needleLast, hash, equal, &sa);
+                Mech mX(needleFirst, needleLast, hash, equal, &sa);
                 Mech mY(needleLast,  needleLast, hash, equal); // unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
                 const Mech& Y = mY;
+
+                ASSERT(&da             == Y.allocator());
 
                 mY = X;  // ACTION
 
@@ -3404,14 +4161,12 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
-                AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
-                Mech mX(needleFirst, needleLast, hash, equal, xsa);
-                Mech mY(needleLast,  needleLast, hash, equal, ysa); // unalike
+                Mech mZ(needleFirst, needleLast, hash, equal, &saX);
+                Mech mX(needleFirst, needleLast, hash, equal, &saX);
+                Mech mY(needleLast,  needleLast, hash, equal, &saY); // unalike
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3531,7 +4286,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // COPY CONSTRUCTOR
+        // COPY CONSTRUCTORS
         //
         // Concerns:
         //: 1 The copied object has the same state as the original with respect
@@ -3557,11 +4312,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   boyer_moore_horspool_searcher(const b_m_h_s& original);
-        //   boyer_moore_horspool_searcher(const b_m_h_s& original, A a);
+        //   boyer_moore_horspool_searcher(const b_m_h_s& original, *bA);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "COPY CONSTRUCTOR"
-                            "\n" "================" "\n");
+        if (verbose) printf("\n" "COPY CONSTRUCTORS"
+                            "\n" "=================" "\n");
 
         if (veryVerbose) printf("General Implementation\n");
         {
@@ -3582,20 +4337,15 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-            typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-                                                                 AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-                AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
-                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+                Mech mZ(needleFirst, needleLast, hash, equal, &sa);
+                Mech mX(needleFirst, needleLast, hash, equal, &sa);
 
                 const Mech& Z = mZ;
                 const Mech& X = mX;
@@ -3623,18 +4373,16 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
-                AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
-                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+                Mech mZ(needleFirst, needleLast, hash, equal, &saX);
+                Mech mX(needleFirst, needleLast, hash, equal, &saX);
 
                 const Mech& X = mX;
                 const Mech& Z = mZ;
 
-                Mech mY(X, ysa); const Mech& Y = mY;  // ACTION
+                Mech mY(X, &saY); const Mech& Y = mY;  // ACTION
 
                 // The copied object state matches 'original' except for the
                 // allocator.
@@ -3675,20 +4423,15 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-            typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-                                                                 AllocatorType;
             if (veryVerbose) printf("default allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
 
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-                AllocatorType                daa(&da);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
-                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+                Mech mZ(needleFirst, needleLast, hash, equal, &sa);
+                Mech mX(needleFirst, needleLast, hash, equal, &sa);
 
                 const Mech& X = mX;
                 const Mech& Z = mZ;
@@ -3716,18 +4459,16 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("supplied allocator\n");
             {
-                bslma::TestAllocator  saX("suppliedX", veryVeryVeryVerbose);
-                bslma::TestAllocator  saY("suppliedY", veryVeryVeryVerbose);
-                AllocatorType         xsa(&saX);
-                AllocatorType         ysa(&saY);
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
 
-                Mech mZ(needleFirst, needleLast, hash, equal, xsa);
-                Mech mX(needleFirst, needleLast, hash, equal, xsa);
+                Mech mZ(needleFirst, needleLast, hash, equal, &saX);
+                Mech mX(needleFirst, needleLast, hash, equal, &saX);
 
                 const Mech& X = mX;
                 const Mech& Z = mZ;
 
-                Mech mY(X, ysa); const Mech& Y = mY;  // ACTION
+                Mech mY(X, &saY); const Mech& Y = mY;  // ACTION
 
                 // The copied object state matches 'original' except for the
                 // allocator.
@@ -3927,9 +4668,9 @@ int main(int argc, char *argv[])
 
             // Searcher type-space:  CaseSensitive and Case Insensitive
 
-            typedef CharArray<char>::const_iterator       RndConstItr;
-            typedef bsl::pair<RndConstItr, RndConstItr>   RndResult;
-            typedef BSL::ptrdiff_t                        RndDiff;
+            typedef CharArray<char>::const_iterator     RndConstItr;
+            typedef bsl::pair<RndConstItr, RndConstItr> RndResult;
+            typedef BSL::ptrdiff_t                      RndDiff;
 
             typedef bsl::boyer_moore_horspool_searcher<RndConstItr>  RndMechCs;
             typedef bsl::boyer_moore_horspool_searcher<
@@ -4136,12 +4877,12 @@ int main(int argc, char *argv[])
         //:   allocator is installed and is returned by the 'allocator' method.
         //
         // Testing:
-        //   boyer_moore_horspool_searcher(RAI f, RAI l, HASH l, EQUAL e, A a);
+        //   boyer_moore_horspool_searcher(RAI f, RAI l, HASH l, EQUAL e, *bA);
         //   RAI needleFirst() const;
         //   RAI needleLast() const;
-        //   ALLOCATOR allocator() const;
         //   HASH hash() const;
         //   EQUAL equal() const;
+        //   BloombergLP::bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "CONSTRUCTOR AND BASIC ACCESSORS"
@@ -4172,15 +4913,8 @@ int main(int argc, char *argv[])
                                  bsl::boyer_moore_horspool_searcher<
                                                      RandConstItr,
                                                      bsl::hash<char>,
-                                                     bsl::equal_to<char>,
-                                                     bsl::allocator<
-                                                       bsl::pair<const char,
-                                                                 BSL::ptrdiff_t
-                                                                >
-                                                                   >
-                                                     >
+                                                     bsl::equal_to<char> >
                                 >() ));
-
 
             ASSERT((bsl::is_same<char, Mech::value_type>()));
         }
@@ -4257,9 +4991,6 @@ int main(int argc, char *argv[])
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
 
-            typedef bsl::allocator<bsl::pair<const char, BSL::ptrdiff_t> >
-                                                                 AllocatorType;
-
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 const char CONFIG = cfg;  // how we specify the allocator
 
@@ -4267,12 +4998,9 @@ int main(int argc, char *argv[])
                     P(CONFIG)
                 }
 
-                bslma::TestAllocator  fa("footprint", veryVeryVeryVerbose);
-
-                bslma::TestAllocator  sa("supplied",  veryVeryVeryVerbose);
-                AllocatorType        xsa(&sa);
-
-                bslma::TestAllocator  da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
@@ -4292,7 +5020,7 @@ int main(int argc, char *argv[])
                                                      needleLast,
                                                      hashFunctor,
                                                      equalFunctor,
-                                                     AllocatorType(0));
+                                                     0);
                     mechAllocatorPtr = &da;
                   } break;
                   case 'c': {
@@ -4300,7 +5028,7 @@ int main(int argc, char *argv[])
                                                      needleLast,
                                                      hashFunctor,
                                                      equalFunctor,
-                                                     xsa);
+                                                     &sa);
                     mechAllocatorPtr = &sa;
                   } break;
                   default: {
@@ -4312,7 +5040,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator&  oa = *mechAllocatorPtr;
                 bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
-                AllocatorType               result   = X.allocator();
+                bslma::Allocator             *result   = X.allocator();
                 const bslma::TestAllocator *expected = &oa;
 
                 ASSERT(expected == result);
