@@ -103,8 +103,8 @@ BSLS_IDENT("$Id: $")
 // suppose we would like to know the first occurrence of the word "United" in
 // the Declaration of Independence (of the United States):
 //
-// First, we obtain the text of the document and word of interest as sequences
-// of 'char' values.
+// First, we obtain the text of document and word of interest as sequences of
+// 'char' values.
 //..
 //  const char document[] =
 //  " IN CONGRESS, July 4, 1776.\n"                // 28
@@ -149,6 +149,9 @@ BSLS_IDENT("$Id: $")
 // Finally, we notice that search correctly ignored the appearance of the word
 // "united" (all lower case) in the second sentence.
 //
+// {'bslstl_default'|Example 1} shows how the same problem is addressed using
+// 'bsl::default_searcher'.
+//
 ///Example 2: Defining a Comparator and Hash
 ///- - - - - - - - - - - - - - - - - - - - -
 // As seen in {Example 1} above, the default equality comparison functor is
@@ -164,10 +167,7 @@ BSLS_IDENT("$Id: $")
 //          return bsl::tolower(a) == bsl::tolower(b);
 //      }
 //  };
-//..
-// Then, define (again at file scope, if pre-C++11), a hash functor so that two
-// values, irrespective of their case, hash to the same value.
-//..
+//
 //  struct MyCaseInsensitiveCharHasher {
 //      bool operator()(const char& value) const {
 //          static bsl::hash<char> s_hash;
@@ -175,7 +175,16 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Now, specify a 'bsl::boyer_moore_horspool_searcher' type for, and create a
+// Notice that the hash functor must account for the definition of equality
+// provided by the equality comparison functor.  Values that are
+// case-insensitively equal must generate the same hash value.
+//
+// Then, define (again at file scope, if pre-C++11), a hash functor so that
+// two values, irrespective of their case, hash to the same value.
+//..
+//  [INSERT FROM ABOVE]
+//..
+// Now, specify 'bsl::boyer_moore_horspool_searcher' type for and create a
 // searcher object to search for 'word':
 //..
 //  bsl::boyer_moore_horspool_searcher<const char *,
@@ -186,12 +195,12 @@ BSLS_IDENT("$Id: $")
 //                                                   word + bsl::strlen(word));
 //..
 // Note that the new searcher object will use defaulted constructed
-// 'MyCaseInsensitiveCharHasher' and 'MyCaseInsensitiveCharComparer' classes.
-// If stateful functors are required such objects can be passed in the optional
-// constructor arguments.
+// 'MyCaseInsensitiveCharHasher' and
+// 'MyCaseInsensitiveCharComparer' classes.  If stateful functors are
+// required such objects can be passed in the optional constructor arguments.
 //
-// Now, we invoke our new functor, specifying the same document searched in
-// {Example 1}:
+// Now, we invoke our new functor, specifying that the same document searched
+// in {Example 1}:
 //..
 //  bsl::pair<const char *, const char *> resultInsensitive =
 //                                                  searchForUnitedInsensitive(
@@ -206,9 +215,9 @@ BSLS_IDENT("$Id: $")
 //                                - resultInsensitive.first)
 //             == bsl::strlen(word));
 //..
-// Finally, we find the next occurrence of 'word' by *reusing* the same
-// searcher object, this time instructing it to begin its search just after the
-// previous occurrence of 'word' was found:
+// Finally, we find the next occurence of 'word' by *reusing* the same searcher
+// object, this time instructing it to begin its search just after the previous
+// occurrence of 'word' was found:
 //..
 //  resultInsensitive = searchForUnitedInsensitive(resultInsensitive.second,
 //                                                 document + sizeof document);
@@ -221,6 +230,9 @@ BSLS_IDENT("$Id: $")
 //             == bsl::strlen(word));
 //..
 //
+// {'bslstl_default'|Example 2} shows how the same problem is addressed using
+// 'bsl::default_searcher'.
+//
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
 // The 'default_searcher' class template is not constrained to searching for
@@ -230,13 +242,13 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose one has data from an instrument that reports 'float' values and that
 // inserts the sequence '{ FLT_MAX, FLT_MIN, FLT_MAX }' as a marker for the
-// start and end of a test run.  We can assume the probability of the
-// instrument reporting this sequence of readings is negligible and that data
-// reported outside of the test runs is random noise.  Here is how we can
-// search for the first test run data in the data sequence.
+// start and end of a test run.  We can assume the probably of the instrument
+// reporting this sequence as readings is negligible and that data reported
+// outside of the test runs is random noise.  Here is how we can search for the
+// first test run data in the data sequence.
 //
-// First, we create a representation of the sequence that denotes the limit of
-// a test run.
+// First, we create a representation of the sequence that denotes the limit
+// of a test run.
 //..
 //  const float       markerSequence[]     = { FLT_MAX , FLT_MIN , FLT_MAX };
 //  const bsl::size_t markerSequenceLength = sizeof  markerSequence
@@ -245,7 +257,7 @@ BSLS_IDENT("$Id: $")
 // Next, we obtain the data to be searched.  (In this example, we will use
 // simulated data.)
 //..
-//  bsl::vector<float> data;
+//  bsl::vector<float> data;  // Container provides random access iterators.
 //  doTestRun(&data);
 //..
 // Then, we define and create our searcher object:
@@ -284,6 +296,10 @@ BSLS_IDENT("$Id: $")
 //
 //  processTestRun(startOfTestRun, endOfTestRun);
 //..
+// {'bslstl_defaultsearcher'|Example 3} shows how the same problem is addressed
+// using 'bsl::default_searcher'.  Notice that other example uses 'data' from a
+// container that provides bidirectional iterators (and forward iterators would
+// have sufficed), whereas here, random access iterators are required.
 
 #include <bslscm_version.h>
 
