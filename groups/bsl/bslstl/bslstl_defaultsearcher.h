@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // The problem of searching a sequence of characters for a particular
 // sub-sequence arises in many applications.  For example, one might need to
-// know if some document contains a particular word of interest.  For example,
+// know of some document contains a particular word of interest.  For example,
 // suppose we would like to know the first occurrence of the word "United" in
 // the Declaration of Independence (of the United States):
 //
@@ -156,6 +156,9 @@ BSLS_IDENT("$Id: $")
 // Finally, we notice that search correctly ignored the appearance of the word
 // "united" (all lower case) in the second sentence.
 //
+// {'bslstl_boyermoorehorspoolsearcher'|Example 1} shows how the same problem
+// is addressed using 'bsl::boyer_moore_horspool_searcher'.
+//
 ///Example 2: Defining a Comparator
 /// - - - - - - - - - - - - - - - -
 // As seen in {Example 1} above, the default equality comparison functor is
@@ -177,8 +180,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::default_searcher<const char *,
 //                        struct MyCaseInsensitiveCharComparer>
 //                                                  searchForUnitedInsensitive(
-//                                                   word,
-//                                                   word + bsl::strlen(word));
+//                                                  word,
+//                                                  word + bsl::strlen(word));
 //..
 // Note that the new searcher object will used a default constructed
 // 'MyCaseInsensitiveCharComparer' class.  If a equality comparison object
@@ -216,6 +219,9 @@ BSLS_IDENT("$Id: $")
 //             == bsl::strlen(word));
 //..
 //
+// {'bslstl_boyermoorehorspoolsearcher'|Example 2} shows how the same problem
+// is addressed using 'bsl::boyer_moore_horspool_searcher'.
+//
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
 // The 'default_searcher' class template is not constrained to searching for
@@ -240,7 +246,7 @@ BSLS_IDENT("$Id: $")
 // Next, we obtain the data to be searched.  (In this example, we will use
 // simulated data.)
 //..
-//  bsl::list<float> data;
+//  bsl::list<float> data;  // Container provides bidirectional iterators.
 //  doTestRun(&data);
 //..
 // Then, we define and create our searcher object:
@@ -278,6 +284,12 @@ BSLS_IDENT("$Id: $")
 //
 //  processTestRun(startOfTestRun, endOfTestRun);
 //..
+//
+// {'bslstl_boyermoorehorspoolsearcher'|Example 3} shows how the same problem
+// is addressed using 'bsl::boyer_moore_horspool_searcher'.  Notice that other
+// example uses 'data' from a container that provides random access iterators;
+// whereas here, bidirectional iterators are used (and forward iterators would
+// have sufficed).
 
 #include <bslstl_equalto.h>
 #include <bslstl_iterator.h>

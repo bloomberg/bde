@@ -2864,6 +2864,9 @@ void processTestRun(bsl::vector<float>::const_iterator first,
         }
     };
 //..
+// Notice that the hash functor must account for the definition of equality
+// provided by the equality comparison functor.  Values that are
+// case-insensitively equal must generate the same hash value.
 
 static void usage()
     // Test the Usage examples.
@@ -2925,6 +2928,9 @@ static void usage()
 //..
 // Finally, we notice that search correctly ignored the appearance of the word
 // "united" (all lower case) in the second sentence.
+//
+// {'bslstl_default'|Example 1} shows how the same problem is addressed using
+// 'bsl::default_searcher'.
 //
 ///Example 2: Defining a Comparator and Hash
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -2989,6 +2995,9 @@ static void usage()
                == BSL::strlen(word));
 //..
 //
+// {'bslstl_default'|Example 2} shows how the same problem is addressed using
+// 'bsl::default_searcher'.
+//
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
 // The 'default_searcher' class template is not constrained to searching for
@@ -3013,7 +3022,7 @@ static void usage()
 // Next, we obtain the data to be searched.  (In this example, we will use
 // simulated data.)
 //..
-    bsl::vector<float> data;
+    bsl::vector<float> data;  // Container provides random access iterators.
     doTestRun(&data);
 //..
 // Then, we define and create our searcher object:
@@ -3052,6 +3061,10 @@ static void usage()
 
     processTestRun(startOfTestRun, endOfTestRun);
 //..
+// {'bslstl_defaultsearcher'|Example 3} shows how the same problem is addressed
+// using 'bsl::default_searcher'.  Notice that other example uses 'data' from a
+// container that provides bidirectional iterators (and forward iterators would
+// have sufficed), whereas here, random access iterators are required.
 }
 
 // ============================================================================

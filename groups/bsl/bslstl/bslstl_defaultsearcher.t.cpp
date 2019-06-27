@@ -2882,6 +2882,9 @@ static void usage()
 // Finally, we notice that search correctly ignored the appearance of the word
 // "united" (all lower case) in the second sentence.
 //
+// {'bslstl_boyermoorehorspoolsearcher'|Example 1} shows how the same problem
+// is addressed using 'bsl::boyer_moore_horspool_searcher'.
+//
 ///Example 2: Defining a Comparator
 /// - - - - - - - - - - - - - - - -
 // As seen in {Example 1} above, the default equality comparison functor is
@@ -2899,8 +2902,8 @@ static void usage()
     bsl::default_searcher<const char *,
                           struct MyCaseInsensitiveCharComparer>
                                                     searchForUnitedInsensitive(
-                                                     word,
-                                                     word + BSL::strlen(word));
+                                                    word,
+                                                    word + BSL::strlen(word));
 //..
 // Note that the new searcher object will used a default constructed
 // 'MyCaseInsensitiveCharComparer' class.  If a equality comparison object
@@ -2938,6 +2941,9 @@ static void usage()
                == BSL::strlen(word));
 //..
 //
+// {'bslstl_boyermoorehorspoolsearcher'|Example 2} shows how the same problem
+// is addressed using 'bsl::boyer_moore_horspool_searcher'.
+//
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
 // The 'default_searcher' class template is not constrained to searching for
@@ -2962,7 +2968,7 @@ static void usage()
 // Next, we obtain the data to be searched.  (In this example, we will use
 // simulated data.)
 //..
-    bsl::list<float> data;
+    bsl::list<float> data;  // Container provides bidirectional iterators.
     doTestRun(&data);
 //..
 // Then, we define and create our searcher object:
@@ -3000,6 +3006,12 @@ static void usage()
 
     processTestRun(startOfTestRun, endOfTestRun);
 //..
+//
+// {'bslstl_boyermoorehorspoolsearcher'|Example 3} shows how the same problem
+// is addressed using 'bsl::boyer_moore_horspool_searcher'.  Notice that other
+// example uses 'data' from a container that provides random access iterators;
+// whereas here, bidirectional iterators are used (and forward iterators would
+// have sufficed).
 }
 
 // ============================================================================
