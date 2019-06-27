@@ -51,7 +51,7 @@ bsls::Types::Int64 ThroughputBenchmark::estimateBusyWorkAmount(
     // amount, take an end time stamp, and calculate number of nanoseconds.
 
     bsls::TimeInterval startTime = bsls::SystemTime::nowMonotonicClock();
-    static const int   k_ESTIMATED_WORK_AMOUNT = 300;
+    static const int   k_ESTIMATED_WORK_AMOUNT = 5000000;
     int                busyWorkAmount          = k_ESTIMATED_WORK_AMOUNT;
     busyWork(k_ESTIMATED_WORK_AMOUNT);
     bsls::TimeInterval endTime     = bsls::SystemTime::nowMonotonicClock();
