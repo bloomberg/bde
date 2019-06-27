@@ -323,6 +323,11 @@ class boyer_moore_horspool_searcher_CharImp {
     // is stored/accessed from a fixed size array, not a dynamically-sized
     // container.
 
+    // PRIVATE TYPES
+     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+        // This 'typedef' is a convenient alias for the utility associated with
+        // movable references.
+
   public:
     // TYPES
     typedef typename bsl::iterator_traits<RNDACC_ITR_NEEDLE>::value_type
@@ -450,8 +455,8 @@ class boyer_moore_horspool_searcher_GeneralImp {
                                EQUAL> Map;  // skip-on-mismatch "table"
 
      typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
-        // These 'typedef's are convenient aliases for the utility associated
-        // with movable references.
+        // This 'typedef' is a convenient alias for the utility associated with
+        // movable references.
 
     // DATA
     difference_type d_needleLength;
@@ -636,7 +641,7 @@ class boyer_moore_horspool_searcher {
         // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
         // specified 'original' object, and that uses the currently installed
         // default allocator to supply memory.
-        //
+
     boyer_moore_horspool_searcher(
        BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher> original); 
                                                                     // IMPLICIT
@@ -783,9 +788,27 @@ boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
 boyer_moore_horspool_searcher_CharImp(
                          const boyer_moore_horspool_searcher_CharImp& original)
 : d_needleLength(original.d_needleLength)
-, d_allocator_p(original.allocator())
+, d_allocator_p(original.d_allocator_p)
 {
     native_std::memcpy(d_table, original.d_table, sizeof d_table);
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
+                                      HASH,
+                                      EQUAL>::
+boyer_moore_horspool_searcher_CharImp(
+          BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher_CharImp>
+                                                                      original)
+: d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
+, d_allocator_p(MoveUtil::access(original).d_allocator_p)
+{
+    native_std::memcpy(d_table,
+                       MoveUtil::access(original).d_table,
+                       sizeof d_table);
 }
 
 template <class RNDACC_ITR_NEEDLE,
@@ -804,6 +827,25 @@ boyer_moore_horspool_searcher_CharImp(
     native_std::memcpy(d_table, original.d_table, sizeof d_table);
 }
 
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
+                                      HASH,
+                                      EQUAL>::
+boyer_moore_horspool_searcher_CharImp(
+          BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher_CharImp>
+                                                                original,
+          BloombergLP::bslma::Allocator                        *basicAllocator)
+: d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    native_std::memcpy(d_table,
+                       MoveUtil::access(original).d_table,
+                       sizeof d_table);
+}
+
 // MANIPULATORS
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
@@ -820,6 +862,28 @@ boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
     d_needleLength = rhs.d_needleLength;
 
     native_std::memcpy(d_table, rhs.d_table, sizeof d_table);
+
+    return *this;
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
+                                      HASH,
+                                      EQUAL>&
+boyer_moore_horspool_searcher_CharImp<RNDACC_ITR_NEEDLE,
+                                      HASH,
+                                      EQUAL>::operator=(
+          BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher_CharImp>
+                                                                           rhs)
+{
+    d_needleLength = MoveUtil::move(MoveUtil::access(rhs).d_needleLength);
+
+    native_std::memcpy(d_table,
+                       MoveUtil::access(rhs).d_table,
+                       sizeof d_table);
 
     return *this;
 }
@@ -936,7 +1000,7 @@ boyer_moore_horspool_searcher_GeneralImp(
        BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher_GeneralImp>
                                                                       original)
 : d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
-, d_map(         MoveUtil::move(MoveUtil::access(original).d_imp))
+, d_map(         MoveUtil::move(MoveUtil::access(original).d_map))
 {
 }
 
@@ -967,7 +1031,7 @@ boyer_moore_horspool_searcher_GeneralImp(
                                                                 original,
        BloombergLP::bslma::Allocator                           *basicAllocator)
 : d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
-, d_map(         MoveUtil::move(MoveUtil::access(original).d_imp),
+, d_map(         MoveUtil::move(MoveUtil::access(original).d_map),
                  basicAllocator)
 {
 }
@@ -1004,10 +1068,10 @@ boyer_moore_horspool_searcher_GeneralImp<RNDACC_ITR_NEEDLE,
        BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher_GeneralImp>
                                                                            rhs)
 {
-    boyer_moore_horspool_searcher_GeneralImp& lvalue = rhs;
-    
-    d_needleLength = MoveUtil::move(lvalue.d_needleLength);
-    d_map          = MoveUtil::move(lvalue.d_map);
+    d_needleLength = MoveUtil::move(MoveUtil::access(rhs).d_needleLength);
+    d_map          = MoveUtil::move(MoveUtil::access(rhs).d_map);
+
+    return *this;
 }
 
 // ACCESSORS
@@ -1120,6 +1184,9 @@ boyer_moore_horspool_searcher(
 , d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
 , d_imp(         MoveUtil::move(MoveUtil::access(original).d_imp))
 {
+    MoveUtil::access(original).d_needleFirst  = d_needleFirst; 
+    MoveUtil::access(original).d_needleLast   = d_needleFirst; 
+    MoveUtil::access(original).d_needleLength = 0;
 }
 
 template <class RNDACC_ITR_NEEDLE,
@@ -1129,8 +1196,8 @@ boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                               HASH,
                               EQUAL>::
 boyer_moore_horspool_searcher(
-                        const boyer_moore_horspool_searcher&  original,
-                        BloombergLP::bslma::Allocator          *basicAllocator)
+                          const boyer_moore_horspool_searcher&  original,
+                          BloombergLP::bslma::Allocator        *basicAllocator)
 : d_needleFirst( original.d_needleFirst)
 , d_needleLast(  original.d_needleLast)
 , d_needleLength(original.d_needleLength)
@@ -1150,9 +1217,12 @@ boyer_moore_horspool_searcher(
 : d_needleFirst( MoveUtil::move(MoveUtil::access(original).d_needleFirst))
 , d_needleLast(  MoveUtil::move(MoveUtil::access(original).d_needleLast))
 , d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
-, d_imp(         MoveUtil::move(MoveUtil::access(original).d_imp,
-                 basicAllocator))
+, d_imp(         MoveUtil::move(MoveUtil::access(original).d_imp),
+                 basicAllocator)
 {
+    MoveUtil::access(original).d_needleFirst  = d_needleFirst; 
+    MoveUtil::access(original).d_needleLast   = d_needleFirst; 
+    MoveUtil::access(original).d_needleLength = 0;
 }
 
 // MANIPULATORS
@@ -1188,12 +1258,16 @@ boyer_moore_horspool_searcher<RNDACC_ITR_NEEDLE,
                               EQUAL>::operator=(
              BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher> rhs)
 {
-    boyer_moore_horspool_searcher& lvalue = rhs;
-    
-    d_needleFirst  = MoveUtil::move(lvalue.d_needleFirst);
-    d_needleLast   = MoveUtil::move(lvalue.d_needleLast);
-    d_needleLength = MoveUtil::move(lvalue.d_needleLength);
-    d_imp          = MoveUtil::move(lvalue.d_imp);
+    d_needleFirst  = MoveUtil::move(MoveUtil::access(rhs).d_needleFirst);
+    d_needleLast   = MoveUtil::move(MoveUtil::access(rhs).d_needleLast);
+    d_needleLength = MoveUtil::move(MoveUtil::access(rhs).d_needleLength);
+    d_imp          = MoveUtil::move(MoveUtil::access(rhs).d_imp);
+
+    MoveUtil::access(rhs).d_needleFirst  = d_needleFirst; 
+    MoveUtil::access(rhs).d_needleLast   = d_needleFirst; 
+    MoveUtil::access(rhs).d_needleLength = 0;
+
+    return *this;
 }
 
 // ACCESSORS
