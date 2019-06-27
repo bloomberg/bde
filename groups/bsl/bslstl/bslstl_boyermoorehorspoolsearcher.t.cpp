@@ -31,7 +31,7 @@
 #include <cstdlib>    // for 'native_std::atoi'
 #include <cstring>    // for 'native_std::strlen'
 #include <functional> // for 'native_std::equal_to'
-#include <utility>    // for 'operator!='
+#include <utility>    // for 'operator!=' and 'make_pair'
 
 #include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
 #include <limits.h>   // for 'UCHAR_MAX'
@@ -2868,6 +2868,101 @@ void processTestRun(bsl::vector<float>::const_iterator first,
 // provided by the equality comparison functor.  Values that are
 // case-insensitively equal must generate the same hash value.
 
+// INSERT in Example 4
+// First, we define our cache class:
+//..
+                        // ====================================
+                        // class MyCaseInsensitiveSearcherCache
+                        // ====================================
+
+    class MyCaseInsensitiveSearcherCache {
+
+        // TYPES
+      public:   
+        typedef bsl::boyer_moore_horspool_searcher<
+                                                 const char *,
+                                                 MyCaseInsensitiveCharHasher,
+                                                 MyCaseInsensitiveCharComparer>
+                                                                      Searcher;
+        // PRIVATE TYPES
+      private:   
+        typedef bsl::unordered_map<bsl::string, Searcher> Map;
+
+        // DATA
+        Map d_map;
+
+        // PRIVATE MANIPULATORS
+        const Searcher& insertSearcher(const bsl::string& key);
+            // Insert into the cache a key-value pair where the key is the
+            // specified 'key' and the value is a 'Searcher' object created to
+            // look for the needle specified by the key part.  Note that this
+            // arrangement guarantees that the iterators used by this cached
+            // searcher object remain valid for the life of the searcher
+            // object.
+
+      public:
+        // MANIPULATORS
+        const Searcher& getSearcher(const char *needle);
+            // Return a 'const'-reference to the cached server that can do a
+            // case-insensitive search for the specified 'needle'.  If such a
+            // server does not exist in the cache on entry, such a server is
+            // constructed, added to the cache, and returned (by
+            // 'const'-reference).
+    };
+//..
+// Notice that we reuse the hash functor, 'MyCaseInsensitiveCharHasher', and
+// equality comparison functor, 'MyCaseInsensitiveCharComparer', that were
+// defined in {Example 2}.
+//
+// Then, we implement the cache class private method:
+//..
+                        // ------------------------------------
+                        // class MyCaseInsensitiveSearcherCache
+                        // ------------------------------------
+
+    // PRIVATE MANIPULATORS
+    const
+    MyCaseInsensitiveSearcherCache::Searcher&
+    MyCaseInsensitiveSearcherCache::insertSearcher(const bsl::string& key)
+    {
+        Searcher        dummy(key.begin(), key.begin()); // to be overwritten
+        Map::value_type value = BSL::make_pair(key, dummy);
+
+        bsl::pair<Map::iterator, bool> insertResult = d_map.insert(value);
+        ASSERT(true == insertResult.second);
+
+        Map::iterator      iterator  = insertResult.first;
+        const bsl::string& nodeKey   = iterator->first;
+        Searcher&          nodeValue = iterator->second;
+
+        return nodeValue = Searcher(nodeKey.begin(), nodeKey.end());
+    }
+//..
+// Notice creating our element is a two step process.  First, we insert the
+// key with an arbitrary "dummy" searcher.  Once the key (a string) exists
+// in the map (at an address with will be stable for the life of the map) we
+// create a searcher object that refers to that string for the search sequence
+// and overwrite the "dummy" part of the element with the intended searcher.
+// 
+// Next, we implement our public method.
+//..
+    // MANIPULATORS
+    const
+    MyCaseInsensitiveSearcherCache::Searcher&
+    MyCaseInsensitiveSearcherCache::getSearcher(const char *needle)
+    {
+        bsl::string   key(needle);
+        Map::iterator findResult = d_map.find(key);
+
+        if (d_map.end() == findResult) {
+            return insertSearcher(key);                               // RETURN
+        } else {
+         // return (*findResult).second;                              // RETURN
+            return findResult->second;                                // RETURN
+        }
+    }
+//..
+
 static void usage()
     // Test the Usage examples.
 {
@@ -2905,9 +3000,10 @@ static void usage()
 // Then, we create a 'default_searcher' object (a functor) using the given
 // 'word':
 //..
-    bsl::boyer_moore_horspool_searcher<const char*> searchForUnited(
-                                                     word,
-                                                     word + BSL::strlen(word));
+    bsl::boyer_moore_horspool_searcher<const char *> searchForUnited(
+                                                            word,
+                                                            word
+                                                          + BSL::strlen(word));
 //..
 // Notice that no equality comparison functor was specified so
 // 'searchForUnited' will use 'bsl::equal_to<char>' by default.
@@ -2956,8 +3052,9 @@ static void usage()
                                        MyCaseInsensitiveCharHasher,
                                        MyCaseInsensitiveCharComparer>
                                                     searchForUnitedInsensitive(
-                                                     word,
-                                                     word + BSL::strlen(word));
+                                                            word,
+                                                            word 
+                                                          + BSL::strlen(word));
 //..
 // Note that the new searcher object will use defaulted constructed
 // 'MyCaseInsensitiveCharHasher' and
@@ -3065,6 +3162,118 @@ static void usage()
 // using 'bsl::default_searcher'.  Notice that other example uses 'data' from a
 // container that provides bidirectional iterators (and forward iterators would
 // have sufficed), whereas here, random access iterators are required.
+//
+///Example 4: Caching Searcher Objects
+///- - - - - - - - - - - - - - - - - -
+// The construction of 'bsl::boyer_moore_horsepool_searcher' objects is
+// small (the needle must be scanned, meta-data calculated and saved) but
+// can be non-neglibible if one needs a great number of them.  When there is
+// a reasonable chance that one will have to repeat a given search, it can
+// be worthwhile to cache the searcher objects for reuse.
+//
+// Suppose we have a long list of names, each consisting of a given name (first
+// name) and a surname (last name), and that we wish to identify instances of
+// exact reduplication of the given name in the surname.  That is, we want to
+// identify the cases where the given name is a case-insensitive substring 
+// of the surname.  Examples, include "Durand Durand", "James Jameson",
+// "John St. John", and "Jean Valjean".
+//
+// Since we want to perform our task as efficiently as possible, and since we
+// expect many entries to have common given names (e.g., "John"), we decide to
+// create a cache of searcher objects for those first names so they need not be
+// reconstructed for each search of a surname.
+//
+// -- INSERT FROM ABOVE --
+//  
+// Now, we show how the searcher object cache can be used.  In this example,
+// a fixed array represents our source of name entries, in random order.
+//..
+    struct {
+        const char *d_givenName;
+        const char *d_surname;
+    } DATA[] = {
+        // GIVEN     SURNAME
+        // --------  ------------
+        { "Donald" , "McDonald"    }
+      , { "John"   , "Johnson"     }
+      , { "John"   , "Saint Johns" }
+      , { "Jon"    , "Literjon"    }
+      , { "Jean"   , "Valjean"     }
+      , { "James"  , "Jameson"     }
+      , { "Will"   , "Freewill"    }
+      , { "John"   , "Johns"       }
+      , { "John"   , "John"        }
+      , { "John"   , "Lakos"       }
+      , { "J'onn"  , "J'onzz"      }
+      , { "Donald" , "Donalds"     } 
+      , { "Donald" , "Mac Donald"  }
+      , { "William", "Williams"    }
+      , { "Durand" , "Durand"      }
+      , { "John"   , "Johnstown"   }
+      , { "Major"  , "Major"       }
+      , { "Donald" , "MacDonald"   }
+      , { "Sirhan" , "Sirhan"      }
+      , { "Patrick", "O'Patrick"   }
+        // ...
+      , { "Ivan"   , "Ivanovich"   }
+    };
+
+    BSL::size_t NUM_NAMES = sizeof DATA / sizeof *DATA;
+
+    typedef bsl::pair<const char *, const char *> Result;
+
+    MyCaseInsensitiveSearcherCache searcherCache;
+    bsl::string                    output;
+
+    for (BSL::size_t ti = 0; ti < NUM_NAMES; ++ti) {
+        const char * const givenName = DATA[ti].d_givenName;
+        const char * const surname   = DATA[ti].d_surname;
+
+        Result result   = searcherCache.getSearcher(givenName)(
+                                               surname,
+                                               surname + BSL::strlen(surname));
+
+        Result notFound = BSL::make_pair(surname + BSL::strlen(surname),
+                                         surname + BSL::strlen(surname));
+
+        char buffer[32];
+
+        if (notFound == result) { 
+            sprintf(buffer, "ng: %-10s %-11s\n", givenName, surname);
+        } else { 
+            sprintf(buffer, "OK: %-10s %-11s\n", givenName, surname);
+        }
+
+        output.append(buffer);
+    }
+//..
+// Finally, we examine the collected 'output' and confirm that our code
+// is properly identifying the names of interest.
+//..
+    ASSERT(0 == BSL::strcmp(output.c_str(), "OK: Donald     McDonald   \n"
+                                            "OK: John       Johnson    \n"
+                                            "OK: John       Saint Johns\n"
+                                            "OK: Jon        Literjon   \n"
+                                            "OK: Jean       Valjean    \n"
+                                            "OK: James      Jameson    \n"
+                                            "OK: Will       Freewill   \n"
+                                            "OK: John       Johns      \n"
+                                            "OK: John       John       \n"
+                                            "ng: John       Lakos      \n"
+                                            "ng: J'onn      J'onzz     \n"
+                                            "OK: Donald     Donalds    \n"
+                                            "OK: Donald     Mac Donald \n"
+                                            "OK: William    Williams   \n"
+                                            "OK: Durand     Durand     \n"
+                                            "OK: John       Johnstown  \n"
+                                            "OK: Major      Major      \n"
+                                            "OK: Donald     MacDonald  \n"
+                                            "OK: Sirhan     Sirhan     \n"
+                                            "OK: Patrick    O'Patrick  \n"
+                                            // ...
+                                            "OK: Ivan       Ivanovich  \n"));
+//..
+
 }
 
 // ============================================================================
