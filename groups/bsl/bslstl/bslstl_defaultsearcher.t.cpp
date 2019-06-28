@@ -38,7 +38,7 @@ namespace BSL = native_std;  // for Usage examples
 //                             Overview
 //                             --------
 // This component defines a template for a mechanism class,
-// 'bsl::default_search' in which two iterators define the range of values
+// 'bslstl::DefaultSearcher' in which two iterators define the range of values
 // being sought (the "needle") and another two iterators define the range of
 // values being sought.  Note that the two pairs of iterators must refer to the
 // same value type, but otherwise need not be the same type.  Thus, a sequences
@@ -2856,10 +2856,10 @@ static void usage()
 
     const char *word = "United";
 //..
-// Then, we create a 'bslstl::DefaultSearcher' object (a functor) using the
+// Then, we create a 'bsl::default_searcher' object (a functor) using the
 // given 'word':
 //..
-    bslstl::DefaultSearcher<const char*> searchForUnited(
+    bsl::default_searcher<const char*> searchForUnited(
                                                      word,
                                                      word + BSL::strlen(word));
 //..
@@ -2896,10 +2896,10 @@ static void usage()
 //..
 //  [INSERT FROM ABOVE]
 //..
-// Then, define a new 'bslstl::DefaultSearcher' type and create a searcher
+// Then, define a new 'bsl::default_searcher' type and create a searcher
 // object to search for 'word':
 //..
-    bslstl::DefaultSearcher<const char *,
+    bsl::default_searcher<const char *,
                           struct MyCaseInsensitiveCharComparer>
                                                     searchForUnitedInsensitive(
                                                     word,
@@ -2946,7 +2946,7 @@ static void usage()
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The 'bslstl::DefaultSearcher' class template is not constrained to searching
+// The 'bsl::default_searcher' class template is not constrained to searching
 // for 'char' values.  Searches can be done on other types (see {Iterator
 // Requirements}).  Moreover the container of the sequence being sought (the
 // "needle") need not the same as the sequence being searched (the "haystack").
@@ -2973,8 +2973,7 @@ static void usage()
 //..
 // Then, we define and create our searcher object:
 //..
-    bslstl::DefaultSearcher<const float *> searchForMarker(
-                                                         markerSequence,
+    bsl::default_searcher<const float *> searchForMarker(markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
 //..
