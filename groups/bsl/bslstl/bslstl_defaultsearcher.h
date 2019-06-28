@@ -385,12 +385,13 @@ class default_searcher {
         // Values of the "needle" sequence and the "haystack" sequence are
         // compared using the equality comparison functor specified on
         // construction.  The behavior is undefined unless 'haystackFirst' can
-        // be advanced to equal 'haystackLast'.  Note that if the "needle"
-        // sequence is empty, the range '[haystackFirst, haystackFirst)' is
-        // returned.  Also note that if the "needle" sequence is longer than
-        // the "haystack" sequence -- thus, impossible for the "needle" to be
-        // found in the "haystack" -- the range '[haystackLast, haystackLast)'
-        // is returned.
+        // be advanced to equal 'haystackLast' and the iterators used to
+        // construct this object, 'needleFirst()' and 'needleLast()', are still
+        // valid.  Note that if the "needle" sequence is empty, the range
+        // '[haystackFirst, haystackFirst)' is returned.  Also note that if the
+        // "needle" sequence is longer than the "haystack" sequence -- thus,
+        // impossible for the "needle" to be found in the "haystack" -- the
+        // range '[haystackLast, haystackLast)' is returned.
 
                         // Non-Standard Accessors
 
