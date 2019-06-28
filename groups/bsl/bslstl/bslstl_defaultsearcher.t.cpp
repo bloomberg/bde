@@ -49,7 +49,7 @@ namespace BSL = native_std;  // for Usage examples
 //
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] default_searcher(FIN needleFirst, FIN needleLast, EQUAL equal);
+// [ 2] DefaultSearcher(FIN needleFirst, FIN needleLast, EQUAL equal);
 //
 // ACCESSORS
 // [ 3] bsl::pair<FIH, FIH> operator()(FIH hsFirst, FIH hsLast) const;
@@ -2856,10 +2856,10 @@ static void usage()
 
     const char *word = "United";
 //..
-// Then, we create a 'default_searcher' object (a functor) using the given
-// 'word':
+// Then, we create a 'bslstl::DefaultSearcher' object (a functor) using the
+// given 'word':
 //..
-    bsl::default_searcher<const char*> searchForUnited(
+    bslstl::DefaultSearcher<const char*> searchForUnited(
                                                      word,
                                                      word + BSL::strlen(word));
 //..
@@ -2896,10 +2896,10 @@ static void usage()
 //..
 //  [INSERT FROM ABOVE]
 //..
-// Then, define a new 'default_searcher' type and create a searcher object to
-// search for 'word':
+// Then, define a new 'bslstl::DefaultSearcher' type and create a searcher
+// object to search for 'word':
 //..
-    bsl::default_searcher<const char *,
+    bslstl::DefaultSearcher<const char *,
                           struct MyCaseInsensitiveCharComparer>
                                                     searchForUnitedInsensitive(
                                                     word,
@@ -2946,8 +2946,8 @@ static void usage()
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The 'default_searcher' class template is not constrained to searching for
-// 'char' values.  Searches can be done on other types (see {Iterator
+// The 'bslstl::DefaultSearcher' class template is not constrained to searching
+// for 'char' values.  Searches can be done on other types (see {Iterator
 // Requirements}).  Moreover the container of the sequence being sought (the
 // "needle") need not the same as the sequence being searched (the "haystack").
 //
@@ -2973,7 +2973,8 @@ static void usage()
 //..
 // Then, we define and create our searcher object:
 //..
-    bsl::default_searcher<const float *> searchForMarker(markerSequence,
+    bslstl::DefaultSearcher<const float *> searchForMarker(
+                                                         markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
 //..
@@ -3251,12 +3252,14 @@ int main(int argc, char *argv[])
             typedef FwdConstItr::difference_type          FwdDiff;
             typedef BSL::ptrdiff_t                        RndDiff; // TBD
 
-            typedef bsl::default_searcher<FwdConstItr>              FwdMechCs;
-            typedef bsl::default_searcher<RndConstItr>              RndMechCs;
-            typedef bsl::default_searcher<FwdConstItr,
-                                          CharEqualCaseInsensitive> FwdMechCi;
-            typedef bsl::default_searcher<RndConstItr,
-                                          CharEqualCaseInsensitive> RndMechCi;
+            typedef bslstl::DefaultSearcher<FwdConstItr>             FwdMechCs;
+            typedef bslstl::DefaultSearcher<RndConstItr>             RndMechCs;
+            typedef bslstl::DefaultSearcher<
+                                           FwdConstItr,
+                                           CharEqualCaseInsensitive> FwdMechCi;
+            typedef bslstl::DefaultSearcher<
+                                           RndConstItr,
+                                           CharEqualCaseInsensitive> RndMechCi;
 
             // Construct needles having Fwd and Rnd Iterators.
 
@@ -3353,8 +3356,8 @@ int main(int argc, char *argv[])
 
             const CharList< char> needle  (bsl::vector<char>('a', 3));
 
-            typedef CharList<char>::const_iterator     FwdConstItr;
-            typedef bsl::default_searcher<FwdConstItr> Mech;
+            typedef CharList<char>::const_iterator       FwdConstItr;
+            typedef bslstl::DefaultSearcher<FwdConstItr> Mech;
 
             Mech mX(needle.begin(), needle.end()); const Mech& X = mX;
 
@@ -3422,7 +3425,7 @@ int main(int argc, char *argv[])
         //:   by changes in the object returned by the accessor.
         //
         // Testing:
-        //   default_searcher(FIN needleFirst, FIN needleLast, EQUAL equal);
+        //   DefaultSearcher(FIN needleFirst, FIN needleLast, EQUAL equal);
         //   FIN needleFirst() const;
         //   FIN needleLast() const;
         //   EQUAL equal() const;
@@ -3436,8 +3439,8 @@ int main(int argc, char *argv[])
             CharList<char> containerHavingForwardIterators(
                                                     bsl::vector<char>('a', 3));
 
-            typedef CharList<char>::const_iterator     FwdConstItr;
-            typedef bsl::default_searcher<FwdConstItr> Mech;
+            typedef CharList<char>::const_iterator       FwdConstItr;
+            typedef bslstl::DefaultSearcher<FwdConstItr> Mech;
 
             FwdConstItr needleFirst = containerHavingForwardIterators.begin();
             FwdConstItr needleLast  = containerHavingForwardIterators.end();
@@ -3452,8 +3455,8 @@ int main(int argc, char *argv[])
             const bsl::equal_to<char>& equal = X.equal();  (void)equal;
 
             ASSERT((bsl::is_same<Mech,
-                                 bsl::default_searcher<FwdConstItr,
-                                                       bsl::equal_to<char> >
+                                 bslstl::DefaultSearcher<FwdConstItr,
+                                                         bsl::equal_to<char> >
                                 >()));
         }
 
@@ -3465,8 +3468,8 @@ int main(int argc, char *argv[])
             CharEqualCaseInsensitive functor(42);
 
             typedef CharArray<char>::const_iterator RandConstItr;
-            typedef bsl::default_searcher<RandConstItr,
-                                          CharEqualCaseInsensitive> Mech;
+            typedef bslstl::DefaultSearcher<RandConstItr,
+                                           CharEqualCaseInsensitive> Mech;
 
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
@@ -3519,8 +3522,8 @@ int main(int argc, char *argv[])
             CharArray<char> containerHavingRandomIterators(
                                                     bsl::vector<char>('b', 5));
 
-            typedef CharArray<char>::const_iterator     RandConstItr;
-            typedef bsl::default_searcher<RandConstItr> Mech;
+            typedef CharArray<char>::const_iterator       RandConstItr;
+            typedef bslstl::DefaultSearcher<RandConstItr> Mech;
 
             RandConstItr middle = containerHavingRandomIterators.begin() + 2;
 
@@ -3563,8 +3566,8 @@ int main(int argc, char *argv[])
         {
             const char *haystack = "Hello, world!";
 
-            bsl::default_searcher<const char *> mySearcher(haystack + 5,
-                                                           haystack + 7);
+            bslstl::DefaultSearcher<const char *> mySearcher(haystack + 5,
+                                                             haystack + 7);
 
             bsl::pair<const char *, const char *> result =
                                              mySearcher(haystack,
@@ -3596,9 +3599,9 @@ int main(int argc, char *argv[])
             intHaystack.push_back(0);
             intHaystack.push_back(0);
 
-            bsl::default_searcher<const int *> myIntSearcher(intNeedle,
-                                                             intNeedle
-                                                           + numIntNeedle);
+            bslstl::DefaultSearcher<const int *> myIntSearcher(intNeedle,
+                                                               intNeedle
+                                                             + numIntNeedle);
 
             bsl::pair<bsl::list<int>::const_iterator,
                       bsl::list<int>::const_iterator> resultIntSearcher =
@@ -3679,9 +3682,10 @@ int main(int argc, char *argv[])
                 }
             }
 
-            const bsl::default_searcher<const char *> searcher(
-                                                 NEEDLE,
-                                                 NEEDLE + BSL::strlen(NEEDLE));
+            const bslstl::DefaultSearcher<const char *> searcher(
+                                                          NEEDLE,
+                                                          NEEDLE
+                                                        + BSL::strlen(NEEDLE));
 
             const char * const HAYSTACK_FIRST = haystackFirst;
             const char * const HAYSTACK_LAST  = haystackLast;
