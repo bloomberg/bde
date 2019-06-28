@@ -3009,7 +3009,7 @@ static void usage()
 // Then, we create a 'default_searcher' object (a functor) using the given
 // 'word':
 //..
-    bslstl::BoyerMooreHorspoolSearcher<const char *> searchForUnited(
+    bsl::boyer_moore_horspool_searcher<const char *> searchForUnited(
                                                             word,
                                                             word
                                                           + BSL::strlen(word));
@@ -3049,26 +3049,26 @@ static void usage()
 //..
 //  [INSERT FROM ABOVE]
 //..
-// Then, define (again at file scope, if pre-C++11), a hash functor so that
-// two values, irrespective of their case, hash to the same value.
+// Then, define (again at file scope, if pre-C++11), a hash functor so that two
+// values, irrespective of their case, hash to the same value.
 //..
 //  [INSERT FROM ABOVE]
 //..
-// Now, specify 'bslstl::BoyerMooreHorspoolSearcher' type for and create a
+// Now, specify 'bsl::boyer_moore_horspool_searcher' type for and create a
 // searcher object to search for 'word':
 //..
-    bslstl::BoyerMooreHorspoolSearcher<const char *,
+    bsl::boyer_moore_horspool_searcher<const char *,
                                        MyCaseInsensitiveCharHasher,
                                        MyCaseInsensitiveCharComparer>
                                                     searchForUnitedInsensitive(
                                                             word,
-                                                            word 
+                                                            word
                                                           + BSL::strlen(word));
 //..
 // Note that the new searcher object will use defaulted constructed
-// 'MyCaseInsensitiveCharHasher' and
-// 'MyCaseInsensitiveCharComparer' classes.  If stateful functors are
-// required such objects can be passed in the optional constructor arguments.
+// 'MyCaseInsensitiveCharHasher' and 'MyCaseInsensitiveCharComparer' classes.
+// If stateful functors are required such objects can be passed in the optional
+// constructor arguments.
 //
 // Now, we invoke our new functor, specifying that the same document searched
 // in {Example 1}:
@@ -3118,8 +3118,8 @@ static void usage()
 // outside of the test runs is random noise.  Here is how we can search for the
 // first test run data in the data sequence.
 //
-// First, we create a representation of the sequence that denotes the limit
-// of a test run.
+// First, we create a representation of the sequence that denotes the limit of
+// a test run.
 //..
     const float       markerSequence[]     = { FLT_MAX , FLT_MIN , FLT_MAX };
     const BSL::size_t markerSequenceLength = sizeof  markerSequence
@@ -3133,7 +3133,7 @@ static void usage()
 //..
 // Then, we define and create our searcher object:
 //..
-    bslstl::BoyerMooreHorspoolSearcher<const float *>
+    bsl::boyer_moore_horspool_searcher<const float *>
                                          searchForMarker(markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
@@ -3174,11 +3174,11 @@ static void usage()
 //
 ///Example 4: Caching Searcher Objects
 ///- - - - - - - - - - - - - - - - - -
-// The construction of 'bsl::boyer_moore_horsepool_searcher' objects is
-// small (the needle must be scanned, meta-data calculated and saved) but
-// can be non-neglibible if one needs a great number of them.  When there is
-// a reasonable chance that one will have to repeat a given search, it can
-// be worthwhile to cache the searcher objects for reuse.
+// The construction of 'bsl::boyer_moore_horspool_searcher' objects is small
+// (the needle must be scanned, meta-data calculated and saved) but can be
+// non-neglibible if one needs a great number of them.  When there is a
+// reasonable chance that one will have to repeat a given search, it can be
+// worthwhile to cache the searcher objects for reuse.
 //
 // Suppose we have a long list of names, each consisting of a given name (first
 // name) and a surname (last name), and that we wish to identify instances of
@@ -3195,9 +3195,9 @@ static void usage()
 // reconstructed for each search of a surname.
 //
 // -- INSERT FROM ABOVE --
-//  
-// Now, we show how the searcher object cache can be used.  In this example,
-// a fixed array represents our source of name entries, in random order.
+//
+// Now, we show how the searcher object cache can be used.  In this example, a
+// fixed array represents our source of name entries, in random order.
 //..
     struct {
         const char *d_givenName;
@@ -3216,7 +3216,7 @@ static void usage()
       , { "John"   , "John"        }
       , { "John"   , "Jones"       }
       , { "J'onn"  , "J'onzz"      }
-      , { "Donald" , "Donalds"     } 
+      , { "Donald" , "Donalds"     }
       , { "Donald" , "Mac Donald"  }
       , { "William", "Williams"    }
       , { "Durand" , "Durand"      }
@@ -3250,17 +3250,17 @@ static void usage()
 
         char buffer[32];
 
-        if (notFound == result) { 
+        if (notFound == result) {
             sprintf(buffer, "ng: %-10s %-11s\n", givenName, surname);
-        } else { 
+        } else {
             sprintf(buffer, "OK: %-10s %-11s\n", givenName, surname);
         }
 
         output.append(buffer);
     }
 //..
-// Finally, we examine the collected 'output' and confirm that our code
-// is properly identifying the names of interest.
+// Finally, we examine the collected 'output' and confirm that our code is
+// properly identifying the names of interest.
 //..
     ASSERT(0 == BSL::strcmp(output.c_str(),
                             "OK: Donald     McDonald   \n"

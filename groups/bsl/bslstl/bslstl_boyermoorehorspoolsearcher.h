@@ -8,6 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an STL-compliant 'boyer_moore_horspool_searcher' class.
 //
 //@CLASSES:
+//  bsl::boyer_moore_horspool_searcher: class template to search via BMH
 //  bslstl::BoyerMooreHorspoolSearcher: class template to search via BMH
 //
 //@SEE_ALSO: bslstl_defaultsearcher
@@ -961,9 +962,74 @@ class BoyerMooreHorspoolSearcher {
         // Return the allocator used by this object to supply memory.
 };
 
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <class RandomAccessIterator1,
+          class Hash = hash<
+                typename iterator_traits<RandomAccessIterator1>::value_type>,
+          class BinaryPredicate = equal_to<
+                typename iterator_traits<RandomAccessIterator1>::value_type> >
+class boyer_moore_horspool_searcher {
+    // This class template implements an STL-compliant searcher object that
+    // uses the Boyer, Moore, Horsepool Algorithm.
+
+  private:
+    // DATA
+    BloombergLP::bslstl::BoyerMooreHorspoolSearcher<RandomAccessIterator1,
+                                                    Hash,
+                                                    BinaryPredicate> d_imp;
+
+  public:
+    // CREATORS
+    boyer_moore_horspool_searcher(RandomAccessIterator1 pat_first,
+                                  RandomAccessIterator1 pat_last,
+                                  Hash                  hf   = Hash(),
+                                  BinaryPredicate       pred =
+                                                            BinaryPredicate());
+        // Create a 'BoyerMooreHorspoolSearcher' object that can search for the
+        // sequence of 'value_type' values found in the specified range
+        // '[needleFirst, needleLast)'.  Generate meta-data and save for use by
+        // 'operator()'.  The complexity of of this process is O(M) where M is
+        // the length of the "needle".  Optionally specify a 'hash' functor
+        // mapping mis-matched values to the size of the next step in the
+        // search -- as large as, 'needleLast - needleFirst'.  Optionally
+        // specify an 'equal' functor for use with 'hash' and for use by
+        // 'operator()'.  See {Requirements for 'HASH' and 'EQUAL'}.
+        // Optionally specify 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless 'needleFirst' can be
+        // advanced to equal 'needleLast'.
+
+    // ACCESSORS
+    template <class RandomAccessIterator2>
+    pair<RandomAccessIterator2,
+         RandomAccessIterator2> operator()(RandomAccessIterator2 first,
+                                           RandomAccessIterator2 last) const;
+        // Search the specified range '[first, last)' for the first sequence of
+        // 'value_type' values specified on construction.  Return the range
+        // where those values are found, or the range '[last, last)' if that
+        // sequence is not found.  The search is performed using an
+        // implementation of the Boyer Moore Horspool algorithm and has a
+        // complexity of O(N) for random text. construction.  The behavior is
+        // undefined unless 'first' can be advanced to equal 'last' and the
+        // iterators used to construct this object are still valid.  Note that
+        // if the sought sequence is empty, the range '[first, first)' is
+        // returned.  Also note that if the sought sequence is longer than the
+        // searched sequence -- thus, the sought sequence cannot be found --
+        // the range '[last, last)' is returned.
+};
+
+}  // close namespace 'bsl'
+
 // ----------------------------------------------------------------------------
 //                      TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslstl {
 
                 // -------------------------------------------
                 // class BoyerMooreHorspoolSearcher_CharImp
@@ -1592,6 +1658,44 @@ BloombergLP::bslma::Allocator *BoyerMooreHorspoolSearcher<
 
 }  // close package namespace
 }  // close enterprise namespace
+
+namespace bsl {
+
+// CREATORS
+template <class RandomAccessIterator1,
+          class Hash,
+          class BinaryPredicate>
+inline
+boyer_moore_horspool_searcher<RandomAccessIterator1,
+                              Hash, 
+                              BinaryPredicate>::boyer_moore_horspool_searcher(
+                                               RandomAccessIterator1 pat_first,
+                                               RandomAccessIterator1 pat_last,
+                                               Hash                  hf,
+                                               BinaryPredicate       pred)
+: d_imp(pat_first, pat_last, hf, pred)
+{
+}
+
+        // ACCESSORS
+template <class RandomAccessIterator1,
+          class Hash,
+          class BinaryPredicate>
+template <class RandomAccessIterator2>
+inline
+pair<RandomAccessIterator2,
+     RandomAccessIterator2> boyer_moore_horspool_searcher<
+                                                  RandomAccessIterator1,
+                                                  Hash,
+                                                  BinaryPredicate>::operator()(
+                                                   RandomAccessIterator2 first,
+                                                   RandomAccessIterator2 last)
+                                                                          const
+{
+    return d_imp(first, last);
+}
+
+}  // close namespace 'bsl'
 
 // ============================================================================
 //                                TYPE TRAITS
