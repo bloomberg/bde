@@ -8,6 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an STL-compliant 'default_searcher' class.
 //
 //@CLASSES:
+//  bsl::default_searcher:   class template to search via the "naive" algorithm
 //  bslstl::DefaultSearcher: class template to search via the "naive" algorithm
 //
 //@SEE_ALSO: bslstl_boyermoorehorspoolsearcher
@@ -123,10 +124,10 @@ BSLS_IDENT("$Id: $")
 //
 //  const char *word = "United";
 //..
-// Then, we create a 'bslstl::DefaultSearcher' object (a functor) using the
+// Then, we create a 'bsl::default_searcher' object (a functor) using the
 // given 'word':
 //..
-//  bslstl::DefaultSearcher<const char*> searchForUnited(
+//  bsl::default_searcher<const char*> searchForUnited(
 //                                                   word,
 //                                                   word + bsl::strlen(word));
 //..
@@ -167,11 +168,11 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Then, define a new 'bslstl::DefaultSearcher' type and create a searcher
+// Then, define a new 'bsl::default_searcher' type and create a searcher
 // object to search for 'word':
 //..
-//  bslstl::DefaultSearcher<const char *,
-//                          struct MyCaseInsensitiveCharComparer>
+//  bsl::default_searcher<const char *,
+//                        struct MyCaseInsensitiveCharComparer>
 //                                                  searchForUnitedInsensitive(
 //                                                  word,
 //                                                  word + bsl::strlen(word));
@@ -211,13 +212,12 @@ BSLS_IDENT("$Id: $")
 //                                - resultInsensitive.first)
 //             == bsl::strlen(word));
 //..
-//
 // {'bslstl_boyermoorehorspoolsearcher'|Example 2} shows how the same problem
 // is addressed using 'bsl::boyer_moore_horspool_searcher'.
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The 'bslstl::DefaultSearcher' class template is not constrained to searching
+// The 'bsl::default_searcher' class template is not constrained to searching
 // for 'char' values.  Searches can be done on other types (see {Iterator
 // Requirements}).  Moreover the container of the sequence being sought (the
 // "needle") need not the same as the sequence being searched (the "haystack").
@@ -244,8 +244,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we define and create our searcher object:
 //..
-//  bslstl::DefaultSearcher<const float *> searchForMarker(
-//                                                       markerSequence,
+//  bsl::default_searcher<const float *> searchForMarker(markerSequence,
 //                                                       markerSequence
 //                                                     + markerSequenceLength);
 //..
@@ -294,6 +293,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>  // for 'BSLS_KEYWORD_CONSTEXPR'
 #include <bsls_performancehint.h>
 
 #include <cstring>  // for 'native_std::memcmp'
@@ -332,8 +332,8 @@ class DefaultSearcher {
   public:
     // CREATORS
     DefaultSearcher(FORWARD_ITR_NEEDLE needleFirst,
-                     FORWARD_ITR_NEEDLE needleLast,
-                     EQUAL              equal = EQUAL());
+                    FORWARD_ITR_NEEDLE needleLast,
+                    EQUAL              equal = EQUAL());
         // Create a 'DefaultSearcher' object that can search for the sequence
         // of 'value_type' values found in the specified range
         // '[needleFirst, needleLast)'.  Optionally supply a 'equal' functor
@@ -365,8 +365,8 @@ class DefaultSearcher {
     // ACCESSORS
     template<class FORWARD_ITR_HAYSTACK>
     bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK> operator()(
-                                      FORWARD_ITR_HAYSTACK haystackFirst,
-                                      FORWARD_ITR_HAYSTACK haystackLast) const;
+                                    FORWARD_ITR_HAYSTACK haystackFirst,
+                                    FORWARD_ITR_HAYSTACK haystackLast) const;
         // Search the specified range '[haystackFirst, haystackLast)' for the
         // first sequence of 'value_type' values specified on construction.
         // Return the range where those values are found, or the range
@@ -488,7 +488,7 @@ struct DefaultSearcher_ImpUtil {
         //    bsl::distance(needleFirst(), needleLast())
         //  * bsl::distance(haystackFirst, haystackLast);
         //..
-        // Values of the "needle" sequence and the "haystack" sequence are
+        // Values of the "needle" sequence and the "haystack" sequences are
         // compared using the equality comparison functor specified on
         // construction except, possibly, if the 'DefaultSearcher_CanOptimize'
         // metafunction indicates that the template parameters are eligible for
@@ -503,21 +503,81 @@ struct DefaultSearcher_ImpUtil {
         // -- the range '[haystackLast, haystackLast)' is returned.
 };
 
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template<class ForwardIterator1,
+         class BinaryPredicate = equal_to<
+            typename bsl::iterator_traits<ForwardIterator1>::value_type> >
+class default_searcher {
+    // This class template defines functors that can search for the sequence of
+    // 'value_type' values defined on construction in sequences of 'value_type'
+    // values passed to the functor's 'operator()'.
+
+    //DATA 
+    BloombergLP::bslstl::DefaultSearcher<ForwardIterator1,
+                                         BinaryPredicate> d_imp;
+
+  public:
+    // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
+    default_searcher(ForwardIterator1 pat_first,
+                     ForwardIterator1 pat_last,
+                     BinaryPredicate  pred = BinaryPredicate());
+        // Create a 'default_searcher' object that can search for the sequence
+        // of 'value_type' values found in the specified range
+        // '[pat_first, pat_last)'.  Optionally supply a 'pred' functor
+        // for use by 'operator()'.  The behavior is undefined unless
+        // 'pat_first' can be advanced to equal 'pat_last'.
+
+    // ACCESSORS
+    template<class ForwardIterator2>
+    BSLS_KEYWORD_CONSTEXPR
+    pair<ForwardIterator2, ForwardIterator2> operator()(
+                                                  ForwardIterator2 first,
+                                                  ForwardIterator2 last) const;
+        // Search the specified range '[first, last)' for the first sequence of
+        // 'value_type' values specified on construction.  Return the range
+        // where those values are found, or the range '[last, last)' if that
+        // sequence is not found.  The search is performed using a "naive"
+        // algorithm that has time complexity of:
+        //..
+        //    bsl::distance(pat_first, pat_last) * bsl::distance(first, last);
+        //..
+        // Values of the two sequences are compared using the equality
+        // comparison functor specified on construction.  The behavior is
+        // undefined unless 'first' can be advanced to equal 'last' and the
+        // iterators used to construct this object are still valid.  Note that
+        // if the sought sequence is empty, the range '[first, first)' is
+        // returned.  Also note that if the sequence sought is longer than the
+        // sequence searched -- thus the sought sequence cannot be found -- the
+        // range '[last, last)' is returned.
+};
+    
+}  // close namespace 'bsl'
+
 // ----------------------------------------------------------------------------
-//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+//                      TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslstl {
 
                         // ---------------------
                         // class DefaultSearcher
                         // ---------------------
 
 //CREATORS
-template  <class FORWARD_ITR_NEEDLE, class EQUAL>
+template  <class FORWARD_ITR_NEEDLE,
+           class EQUAL>
 inline
-DefaultSearcher<FORWARD_ITR_NEEDLE, EQUAL>::
+DefaultSearcher<FORWARD_ITR_NEEDLE,
+                EQUAL>::
 DefaultSearcher(FORWARD_ITR_NEEDLE needleFirst,
-                 FORWARD_ITR_NEEDLE needleLast,
-                 EQUAL              equal)
+                FORWARD_ITR_NEEDLE needleLast,
+                EQUAL              equal)
 : d_needleFirst(needleFirst)
 , d_needleLast( needleLast)
 , d_equal(equal)
@@ -706,6 +766,39 @@ bsl::enable_if<
 
 }  // close package namespace
 }  // close enterprise namespace
+
+namespace bsl {
+
+// CREATORS
+template <class ForwardIterator1,
+          class BinaryPredicate>
+inline
+BSLS_KEYWORD_CONSTEXPR
+default_searcher<ForwardIterator1,
+                 BinaryPredicate>::default_searcher(ForwardIterator1 pat_first,
+                                                    ForwardIterator1 pat_last,
+                                                    BinaryPredicate  pred)
+: d_imp(pat_first, pat_last, pred)
+{
+}
+
+        // ACCESSORS
+template <class ForwardIterator1,
+          class BinaryPredicate>
+template <class ForwardIterator2>
+inline
+BSLS_KEYWORD_CONSTEXPR
+pair<ForwardIterator2,
+     ForwardIterator2> default_searcher<ForwardIterator1,
+                                        BinaryPredicate>::operator()(
+                                                   ForwardIterator2 first,
+                                                   ForwardIterator2 last) const
+{
+    return d_imp(first, last);
+}
+
+}  // close namespace 'bsl'
+
 
 #endif
 
