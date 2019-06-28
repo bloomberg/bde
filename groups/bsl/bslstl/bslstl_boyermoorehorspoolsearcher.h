@@ -313,10 +313,12 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose we have a long list of names, each consisting of a given name (first
 // name) and a surname (last name), and that we wish to identify instances of
-// exact reduplication of the given name in the surname.  That is, we want to
-// identify the cases where the given name is a case-insensitive substring 
-// of the surname.  Examples, include "Durand Durand", "James Jameson",
-// "John St. John", and "Jean Valjean".
+// reduplication of the given name in the surname.  That is, we want to
+// identify the cases where the given name is a case-insensitive substring of
+// the surname.  Examples include "Durand Durand", "James Jameson", "John St.
+// John", and "Jean Valjean".  In this example we will not accept nicknames and
+// other approximate name forms as matches (e.g.  "Joe Joseph", "Jack
+// Johnson").
 //
 // Since we want to perform our task as efficiently as possible, and since we
 // expect many entries to have common given names (e.g., "John"), we decide to
@@ -334,7 +336,7 @@ BSLS_IDENT("$Id: $")
 //      // TYPES
 //    public:   
 //      typedef bsl::boyer_moore_horspool_searcher<
-//                                               const char *,
+//                                               bsl::string::const_iterator,
 //                                               MyCaseInsensitiveCharHasher,
 //                                               MyCaseInsensitiveCharComparer>
 //                                                                    Searcher;
@@ -362,6 +364,10 @@ BSLS_IDENT("$Id: $")
 //          // server does not exist in the cache on entry, such a server is
 //          // constructed, added to the cache, and returned (by
 //          // 'const'-reference).
+//
+//      // ACCESSORS
+//      bsl::size_t numSearchers() const;
+//          // Return the number of searcher objects in this cache.
 //  };
 //..
 // Notice that we reuse the hash functor, 'MyCaseInsensitiveCharHasher', and
@@ -385,20 +391,20 @@ BSLS_IDENT("$Id: $")
 //      bsl::pair<Map::iterator, bool> insertResult = d_map.insert(value);
 //      assert(true == insertResult.second);
 //
-//      Map::iterator      iterator  = insertResult.first;
-//      const bsl::string& nodeKey   = iterator->first;
-//      Searcher&          nodeValue = iterator->second;
+//      Map::iterator iterator  = insertResult.first;
 //
-//      return nodeValue = Searcher(nodeKey.begin(), nodeKey.end());
+//      iterator->second = Searcher(iterator->first.begin(),
+//                                  iterator->first.end());
+//      return iterator->second;
 //  }
 //..
-// Notice creating our element is a two step process.  First, we insert the
-// key with an arbitrary "dummy" searcher.  Once the key (a string) exists
-// in the map (at an address with will be stable for the life of the map) we
-// create a searcher object that refers to that string for the search sequence
-// and overwrite the "dummy" part of the element with the intended searcher.
-//
-// Next, we implement our public method.
+// Notice creating our element is a two step process.  First, we insert the key
+// with an arbitrary "dummy" searcher.  Once the key (a string) exists in the
+// map (at an address with will be stable for the life of the map) we create a
+// searcher object that refers to that key string for the search sequence and
+// overwrite the "dummy" part of the element with the intended searcher.
+// 
+// Next, we implement our public methods:
 //..
 //  // MANIPULATORS
 //  const
@@ -413,6 +419,12 @@ BSLS_IDENT("$Id: $")
 //      } else {
 //          return findResult->second;                                // RETURN
 //      }
+//  }
+//
+//  // ACCESSORS
+//  bsl::size_t MyCaseInsensitiveSearcherCache::numSearchers() const
+//  {
+//      return d_map.size();
 //  }
 //..
 // Now, we show how the searcher object cache can be used.  In this example,
@@ -433,7 +445,7 @@ BSLS_IDENT("$Id: $")
 //    , { "Will"   , "Freewill"    }
 //    , { "John"   , "Johns"       }
 //    , { "John"   , "John"        }
-//    , { "John"   , "Lakos"       }
+//    , { "John"   , "Jones"       }
 //    , { "J'onn"  , "J'onzz"      }
 //    , { "Donald" , "Donalds"     } 
 //    , { "Donald" , "Mac Donald"  }
@@ -442,8 +454,9 @@ BSLS_IDENT("$Id: $")
 //    , { "John"   , "Johnstown"   }
 //    , { "Major"  , "Major"       }
 //    , { "Donald" , "MacDonald"   }
-//    , { "Sirhan" , "Sirhan"      }
 //    , { "Patrick", "O'Patrick"   }
+//    , { "Chris",   "Christie"    }
+//    , { "Don",     "London"      }
 //      // ...
 //    , { "Ivan"   , "Ivanovich"   }
 //  };
@@ -480,28 +493,31 @@ BSLS_IDENT("$Id: $")
 // Finally, we examine the collected 'output' and confirm that our code
 // is properly identifying the names of interest.
 //..
-//  assert(0 == bsl::strcmp(output.c_str(), "OK: Donald     McDonald   \n"
-//                                          "OK: John       Johnson    \n"
-//                                          "OK: John       Saint Johns\n"
-//                                          "OK: Jon        Literjon   \n"
-//                                          "OK: Jean       Valjean    \n"
-//                                          "OK: James      Jameson    \n"
-//                                          "OK: Will       Freewill   \n"
-//                                          "OK: John       Johns      \n"
-//                                          "OK: John       John       \n"
-//                                          "ng: John       Lakos      \n"
-//                                          "ng: J'onn      J'onzz     \n"
-//                                          "OK: Donald     Donalds    \n"
-//                                          "OK: Donald     Mac Donald \n"
-//                                          "OK: William    Williams   \n"
-//                                          "OK: Durand     Durand     \n"
-//                                          "OK: John       Johnstown  \n"
-//                                          "OK: Major      Major      \n"
-//                                          "OK: Donald     MacDonald  \n"
-//                                          "OK: Sirhan     Sirhan     \n"
-//                                          "OK: Patrick    O'Patrick  \n"
-//                                          // ...
-//                                          "OK: Ivan       Ivanovich  \n"));
+//  assert(0 == bsl::strcmp(output.c_str(),
+//                          "OK: Donald     McDonald   \n"
+//                          "OK: John       Johnson    \n"
+//                          "OK: John       Saint Johns\n"
+//                          "OK: Jon        Literjon   \n"
+//                          "OK: Jean       Valjean    \n"
+//                          "OK: James      Jameson    \n"
+//                          "OK: Will       Freewill   \n"
+//                          "OK: John       Johns      \n"
+//                          "OK: John       John       \n"
+//                          "ng: John       Jones      \n"
+//                          "ng: J'onn      J'onzz     \n"
+//                          "OK: Donald     Donalds    \n"
+//                          "OK: Donald     Mac Donald \n"
+//                          "OK: William    Williams   \n"
+//                          "OK: Durand     Durand     \n"
+//                          "OK: John       Johnstown  \n"
+//                          "OK: Major      Major      \n"
+//                          "OK: Donald     MacDonald  \n"
+//                          "OK: Patrick    O'Patrick  \n"
+//                          "OK: Chris      Christie   \n"
+//                          "OK: Don        London     \n"
+//                          "OK: Ivan       Ivanovich  \n"));
+//
+//  assert(searcherCache.numSearchers() < NUM_NAMES);
 //..
 
 #include <bslscm_version.h>
