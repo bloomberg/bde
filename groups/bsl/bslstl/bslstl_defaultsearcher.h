@@ -8,14 +8,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an STL-compliant 'default_searcher' class.
 //
 //@CLASSES:
-//  bsl::default_searcher: class template to search via the "naive" algorithm
+//  bslstl::DefaultSearcher: class template to search via the "naive" algorithm
 //
 //@SEE_ALSO: bslstl_boyermoorehorspoolsearcher
 //
 //@AUTHOR: Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component defines a single class template,
-// 'bsl::default_searcher', that is compliant with section
+// 'bslstl::DefaultSearcher', that is compliant with section
 // '[func.search.default]' of the C++ Standard.
 //
 // This class has two template parameters:
@@ -31,16 +31,16 @@ BSLS_IDENT("$Id: $")
 // The class also provides a functor-style interface that accepts two iterators
 // that define the range of values to be searched (the "haystack").  The
 // iterators defining the haystack need not be of the same type as those that
-// define the needle.  Once constructed, a single 'bsl::default_searcher'
+// define the needle.  Once constructed, a single 'bslstl::DefaultSearcher'
 // object can be used to search multiple haystacks (for the same needle)
 // without additional overhead.
 //
 ///Algorithm
 ///---------
-// The 'bsl::default_searcher' class uses the classic, "naive" algorithm.  The
-// needle is sought at the beginning of the haystack and, if not found there,
-// the start position in the haystack is incremented.  That is repeated until
-// the needle is found in the haystack or the end of the haystack is
+// The 'bslstl::DefaultSearcher' class uses the classic, "naive" algorithm.
+// The needle is sought at the beginning of the haystack and, if not found
+// there, the start position in the haystack is incremented.  That is repeated
+// until the needle is found in the haystack or the end of the haystack is
 // encountered.  The time complexity is 'O(M * N)', where 'M' is the length of
 // the needle and 'N' is the length of the haystack.
 //
@@ -50,16 +50,9 @@ BSLS_IDENT("$Id: $")
 // naive algorithm may be faster than generating that metadata, especially if
 // the search is one-time and the metadata cost cannot be amortized.
 //
-// Another advantage of 'bsl::default_searcher' is that it accepts (relatively
-// simple) *ForwardIterator*s whereas more sophisticated algorithms typically
-// require (full-featured) *RandomIterator*s.
-//
-// TBD: The Standard suggests but does not state that this is the algorithm
-// used by 'default_searcher'; however, a component without this information is
-// of limited use.  The plan is to rename this component (e.g.,
-// 'bslstl_naivesearcher', 'bslst_bruteforcesearcher') to something
-// non-standard, which we are free to document as we see it, and have
-// 'bslst_defaultseacher' forward to the new component.
+// Another advantage of 'bslstl::DefaultSearcher' is that it accepts
+// (relatively simple) *ForwardIterator*s whereas more sophisticated algorithms
+// typically require (full-featured) *RandomIterator*s.
 //
 ///Iterator Requirements
 ///---------------------
@@ -96,8 +89,8 @@ BSLS_IDENT("$Id: $")
 //
 // Users supplying their own data types are advised to set the
 // 'bslmf::IsBitwiseEqualityComparable' trait when applicable so that
-// 'default_searcher' knows that the last optimization condition listed above
-// is met.  See {'bslmf_isbitwiseequalitycomparable'}.
+// 'bslstl::DefaultSearcher' knows that the last optimization condition listed
+// above is met.  See {'bslmf_isbitwiseequalitycomparable'}.
 //
 ///Usage
 ///-----
@@ -130,10 +123,10 @@ BSLS_IDENT("$Id: $")
 //
 //  const char *word = "United";
 //..
-// Then, we create a 'default_searcher' object (a functor) using the given
-// 'word':
+// Then, we create a 'bslstl::DefaultSearcher' object (a functor) using the
+// given 'word':
 //..
-//  bsl::default_searcher<const char*> searchForUnited(
+//  bslstl::DefaultSearcher<const char*> searchForUnited(
 //                                                   word,
 //                                                   word + bsl::strlen(word));
 //..
@@ -174,11 +167,11 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Then, define a new 'default_searcher' type and create a searcher object to
-// search for 'word':
+// Then, define a new 'bslstl::DefaultSearcher' type and create a searcher
+// object to search for 'word':
 //..
-//  bsl::default_searcher<const char *,
-//                        struct MyCaseInsensitiveCharComparer>
+//  bslstl::DefaultSearcher<const char *,
+//                          struct MyCaseInsensitiveCharComparer>
 //                                                  searchForUnitedInsensitive(
 //                                                  word,
 //                                                  word + bsl::strlen(word));
@@ -224,8 +217,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The 'default_searcher' class template is not constrained to searching for
-// 'char' values.  Searches can be done on other types (see {Iterator
+// The 'bslstl::DefaultSearcher' class template is not constrained to searching
+// for 'char' values.  Searches can be done on other types (see {Iterator
 // Requirements}).  Moreover the container of the sequence being sought (the
 // "needle") need not the same as the sequence being searched (the "haystack").
 //
@@ -251,7 +244,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we define and create our searcher object:
 //..
-//  bsl::default_searcher<const float *> searchForMarker(markerSequence,
+//  bslstl::DefaultSearcher<const float *> searchForMarker(
+//                                                       markerSequence,
 //                                                       markerSequence
 //                                                     + markerSequenceLength);
 //..
@@ -305,16 +299,17 @@ BSLS_IDENT("$Id: $")
 #include <cstring>  // for 'native_std::memcmp'
 #include <utility>  // for 'native_std::make_pair'
 
-namespace bsl {
+namespace BloombergLP {
+namespace bslstl {
 
-                        // ======================
-                        // class default_searcher
-                        // ======================
+                        // =====================
+                        // class DefaultSearcher
+                        // =====================
 
 template <class FORWARD_ITR_NEEDLE,
           class EQUAL = bsl::equal_to<
                typename bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type> >
-class default_searcher {
+class DefaultSearcher {
     // This class template defines functors that can search for the sequence of
     // 'value_type' values defined on construction (i.e., the "needle") in
     // sequences of 'value_type' values (i.e., "haystacks") passed to the
@@ -336,33 +331,33 @@ class default_searcher {
 
   public:
     // CREATORS
-    default_searcher(FORWARD_ITR_NEEDLE needleFirst,
+    DefaultSearcher(FORWARD_ITR_NEEDLE needleFirst,
                      FORWARD_ITR_NEEDLE needleLast,
                      EQUAL              equal = EQUAL());
-        // Create a 'default_searcher' object that can search for the sequence
+        // Create a 'DefaultSearcher' object that can search for the sequence
         // of 'value_type' values found in the specified range
         // '[needleFirst, needleLast)'.  Optionally supply a 'equal' functor
         // for use by 'operator()'.  The behavior is undefined unless
         // 'needleFirst' can be advanced to equal 'needleLast'.
 
-    //! default_searcher(const default_searcher& original) = default;
-        // Create a 'default_searcher' object that has the same state as the
+    //! DefaultSearcher(const DefaultSearcher& original) = default;
+        // Create a 'DefaultSearcher' object that has the same state as the
         // specified 'original' object.
 
-    //! default_searcher(default_searcher&& original) = default;
+    //! DefaultSearcher(DefaultSearcher&& original) = default;
         // Create a 'boyer_moore_horspool_searcher' object having the same
         // state as the specified 'original' on entry.  The 'original' object
         // is left in an unspecified (valid) state.
 
-    //! ~default_searcher() = default;
-        // Destroy this 'default_searcher' object.
+    //! ~DefaultSearcher() = default;
+        // Destroy this 'DefaultSearcher' object.
 
     // MANIPULATORS
-    //! default_searcher& operator=(const default_searcher& rhs) = default;
+    //! DefaultSearcher& operator=(const DefaultSearcher& rhs) = default;
         // Assign to this object the state of the specified 'rhs' object, and
         // return a non-'const' reference to this object.
 
-    //! default_searcher& operator=(default_searcher&& rhs) = default;
+    //! DefaultSearcher& operator=(DefaultSearcher&& rhs) = default;
         // Assign to this object the state of the specified 'rhs' had on entry
         // and return a non-'const' reference to this object.  The 'original'
         // object is left in an unspecified (valid) state.
@@ -409,19 +404,14 @@ class default_searcher {
         // 'value_type' values.
 };
 
-}  // close namespace bsl
-
-namespace BloombergLP {
-namespace bslstl {
-
                         // ===================================
-                        // struct default_searcher_CanOptimize
+                        // struct DefaultSearcher_CanOptimize
                         // ===================================
 
 template <class FORWARD_ITR_NEEDLE,
           class EQUAL,
           class FORWARD_ITR_HAYSTACK>
-struct default_searcher_CanOptimize {
+struct DefaultSearcher_CanOptimize {
     // This component-private meta-function 'struct' provides a member
     // enumerator 'value' that is 'true' if all of the specified
     // 'FORWARD_ITR_NEEDLE,' 'EQUAL,' and 'FORWARD_ITR_HAYSTACK' meet the
@@ -446,21 +436,21 @@ struct default_searcher_CanOptimize {
 };
 
                         // ===============================
-                        // struct default_searcher_ImpUtil
+                        // struct DefaultSearcher_ImpUtil
                         // ===============================
 
-struct default_searcher_ImpUtil {
+struct DefaultSearcher_ImpUtil {
     // This component-private utility 'struct' provides two mutually exclusive
     // overloads of the 'doSearch' method -- i.e., just one of the two methods
     // is enabled at any time.  Enablement is decided by the
-    // 'default_searcher_CanOptimize' meta-function.
+    // 'DefaultSearcher_CanOptimize' meta-function.
 
     template <class FORWARD_ITR_NEEDLE,
               class EQUAL,
               class FORWARD_ITR_HAYSTACK>
     static
     typename
-    bsl::enable_if< default_searcher_CanOptimize<FORWARD_ITR_NEEDLE,
+    bsl::enable_if< DefaultSearcher_CanOptimize<FORWARD_ITR_NEEDLE,
                                                   EQUAL,
                                                   FORWARD_ITR_HAYSTACK>::value
                   , bsl::pair<FORWARD_ITR_HAYSTACK,
@@ -476,7 +466,7 @@ struct default_searcher_ImpUtil {
               class FORWARD_ITR_HAYSTACK>
     static
     typename
-    bsl::enable_if<!default_searcher_CanOptimize<FORWARD_ITR_NEEDLE,
+    bsl::enable_if<!DefaultSearcher_CanOptimize<FORWARD_ITR_NEEDLE,
                                                   EQUAL,
                                                   FORWARD_ITR_HAYSTACK>::value
                   , bsl::pair<FORWARD_ITR_HAYSTACK,
@@ -500,7 +490,7 @@ struct default_searcher_ImpUtil {
         //..
         // Values of the "needle" sequence and the "haystack" sequence are
         // compared using the equality comparison functor specified on
-        // construction except, possibly, if the 'default_searcher_CanOptimize'
+        // construction except, possibly, if the 'DefaultSearcher_CanOptimize'
         // metafunction indicates that the template parameters are eligible for
         // optimization.  The optimized overload is enabled when needle and
         // haystack can be validly compared using 'native_std::memcmp', a
@@ -513,23 +503,19 @@ struct default_searcher_ImpUtil {
         // -- the range '[haystackLast, haystackLast)' is returned.
 };
 
-}  // close package namespace
-}  // close enterprise namespace
-
 // ----------------------------------------------------------------------------
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ----------------------------------------------------------------------------
 
-namespace bsl {
-                        // ----------------------
-                        // class default_searcher
-                        // ----------------------
+                        // ---------------------
+                        // class DefaultSearcher
+                        // ---------------------
 
 //CREATORS
 template  <class FORWARD_ITR_NEEDLE, class EQUAL>
 inline
-default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::
-default_searcher(FORWARD_ITR_NEEDLE needleFirst,
+DefaultSearcher<FORWARD_ITR_NEEDLE, EQUAL>::
+DefaultSearcher(FORWARD_ITR_NEEDLE needleFirst,
                  FORWARD_ITR_NEEDLE needleLast,
                  EQUAL              equal)
 : d_needleFirst(needleFirst)
@@ -545,7 +531,7 @@ template <class FORWARD_ITR_NEEDLE,
 template <class FORWARD_ITR_HAYSTACK>
 inline
 bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK>
-default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::operator()(
+DefaultSearcher<FORWARD_ITR_NEEDLE, EQUAL>::operator()(
                                        FORWARD_ITR_HAYSTACK haystackFirst,
                                        FORWARD_ITR_HAYSTACK haystackLast) const
 {
@@ -555,7 +541,7 @@ default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::operator()(
                              >::value));
 
     return BloombergLP::bslstl::
-           default_searcher_ImpUtil::doSearch<FORWARD_ITR_NEEDLE,
+           DefaultSearcher_ImpUtil::doSearch<FORWARD_ITR_NEEDLE,
                                               EQUAL,
                                               FORWARD_ITR_HAYSTACK>(
                                                                  haystackFirst,
@@ -568,7 +554,7 @@ default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::operator()(
 
 template <class FORWARD_ITR_NEEDLE, class EQUAL>
 inline
-FORWARD_ITR_NEEDLE default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::needleFirst()
+FORWARD_ITR_NEEDLE DefaultSearcher<FORWARD_ITR_NEEDLE, EQUAL>::needleFirst()
                                                                           const
 {
     return d_needleFirst;
@@ -576,7 +562,7 @@ FORWARD_ITR_NEEDLE default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::needleFirst()
 
 template <class FORWARD_ITR_NEEDLE, class EQUAL>
 inline
-FORWARD_ITR_NEEDLE default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::needleLast()
+FORWARD_ITR_NEEDLE DefaultSearcher<FORWARD_ITR_NEEDLE, EQUAL>::needleLast()
                                                                           const
 {
     return d_needleLast;
@@ -584,30 +570,25 @@ FORWARD_ITR_NEEDLE default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::needleLast()
 
 template <class FORWARD_ITR_NEEDLE, class EQUAL>
 inline
-EQUAL default_searcher<FORWARD_ITR_NEEDLE, EQUAL>::equal() const
+EQUAL DefaultSearcher<FORWARD_ITR_NEEDLE, EQUAL>::equal() const
 {
     return d_equal;
 }
 
-}  // close namespace bsl
-
-namespace BloombergLP {
-namespace bslstl {
-
-                        // ------------------------------
-                        // class default_searcher_ImpUtil
-                        // ------------------------------
+                        // -----------------------------
+                        // class DefaultSearcher_ImpUtil
+                        // -----------------------------
 
 // CLASS METHODS
 template <class FORWARD_ITR_NEEDLE, class EQUAL, class FORWARD_ITR_HAYSTACK>
 inline
 typename
 bsl::enable_if<
-    ! default_searcher_CanOptimize<FORWARD_ITR_NEEDLE,
+    ! DefaultSearcher_CanOptimize<FORWARD_ITR_NEEDLE,
                                    EQUAL,
                                    FORWARD_ITR_HAYSTACK>::value
     , bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK>
->::type default_searcher_ImpUtil::doSearch(
+>::type DefaultSearcher_ImpUtil::doSearch(
                                      const FORWARD_ITR_HAYSTACK& haystackFirst,
                                      const FORWARD_ITR_HAYSTACK& haystackLast,
                                      const FORWARD_ITR_NEEDLE&   needleFirst,
@@ -653,11 +634,11 @@ template <class FORWARD_ITR_NEEDLE, class EQUAL, class FORWARD_ITR_HAYSTACK>
 inline
 typename
 bsl::enable_if<
-      default_searcher_CanOptimize<FORWARD_ITR_NEEDLE,
+      DefaultSearcher_CanOptimize<FORWARD_ITR_NEEDLE,
                                    EQUAL,
                                    FORWARD_ITR_HAYSTACK>::value
     , bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK>
->::type default_searcher_ImpUtil::doSearch(
+>::type DefaultSearcher_ImpUtil::doSearch(
                                      const FORWARD_ITR_HAYSTACK& haystackFirst,
                                      const FORWARD_ITR_HAYSTACK& haystackLast,
                                      const FORWARD_ITR_NEEDLE&   needleFirst,
