@@ -46,7 +46,7 @@ namespace BSL = native_std;  // for Usage examples
 //                             Overview
 //                             --------
 // This component defines a template for a mechanism class,
-// 'bsl::boyer_moore_horspool_searcher' in which two iterators define the range
+// 'bslstl::BoyerMooreHorspoolSearcher' in which two iterators define the range
 // of values being sought (the "needle") and another two iterators define the
 // range of values being sought.  Note that the two pairs of iterators must
 // refer to the same value type and must be random access iterators, but
@@ -58,11 +58,11 @@ namespace BSL = native_std;  // for Usage examples
 //
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] boyer_moore_horspool_searcher(RAI f, RAI l, HASH l, EQUAL e, *bA);
-// [ 4] boyer_moore_horspool_searcher(const b_m_h_s& original);
-// [ 4] boyer_moore_horspool_searcher(const b_m_h_s& original, *bA);
-// [ 6] boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original);
-// [ 6] boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original, *bA);
+// [ 2] BoyerMooreHorspoolSearcher(RAI f, RAI l, HASH l, EQUAL e, *bA);
+// [ 4] BoyerMooreHorspoolSearcher(const b_m_h_s& original);
+// [ 4] BoyerMooreHorspoolSearcher(const b_m_h_s& original, *bA);
+// [ 6] BoyerMooreHorspoolSearcher(MovableRef<b_m_h_s> original);
+// [ 6] BoyerMooreHorspoolSearcher(MovableRef<b_m_h_s> original, *bA);
 //
 // MANIPULATORS
 // [ 5] b_m_h& operator=(const b_m_h& rhs);
@@ -2879,7 +2879,7 @@ void processTestRun(bsl::vector<float>::const_iterator first,
 
         // TYPES
       public:   
-        typedef bsl::boyer_moore_horspool_searcher<
+        typedef bslstl::BoyerMooreHorspoolSearcher<
                                                  bsl::string::const_iterator,
                                                  MyCaseInsensitiveCharHasher,
                                                  MyCaseInsensitiveCharComparer>
@@ -3009,7 +3009,7 @@ static void usage()
 // Then, we create a 'default_searcher' object (a functor) using the given
 // 'word':
 //..
-    bsl::boyer_moore_horspool_searcher<const char *> searchForUnited(
+    bslstl::BoyerMooreHorspoolSearcher<const char *> searchForUnited(
                                                             word,
                                                             word
                                                           + BSL::strlen(word));
@@ -3054,10 +3054,10 @@ static void usage()
 //..
 //  [INSERT FROM ABOVE]
 //..
-// Now, specify 'bsl::boyer_moore_horspool_searcher' type for and create a
+// Now, specify 'bslstl::BoyerMooreHorspoolSearcher' type for and create a
 // searcher object to search for 'word':
 //..
-    bsl::boyer_moore_horspool_searcher<const char *,
+    bslstl::BoyerMooreHorspoolSearcher<const char *,
                                        MyCaseInsensitiveCharHasher,
                                        MyCaseInsensitiveCharComparer>
                                                     searchForUnitedInsensitive(
@@ -3133,7 +3133,7 @@ static void usage()
 //..
 // Then, we define and create our searcher object:
 //..
-    bsl::boyer_moore_horspool_searcher<const float *>
+    bslstl::BoyerMooreHorspoolSearcher<const float *>
                                          searchForMarker(markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
@@ -3451,7 +3451,7 @@ static void testMoveContructors()
         P(areFunctorsComparable)
     }
 
-    typedef bsl::boyer_moore_horspool_searcher<RNDACC_ITR,
+    typedef bslstl::BoyerMooreHorspoolSearcher<RNDACC_ITR,
                                                HASH,
                                                EQUAL> Mech;
     typedef bsl::pair<RNDACC_ITR, RNDACC_ITR>         Result;
@@ -3654,7 +3654,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator           RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                        HASH,
                                                        EQUAL> Mech;
 
@@ -3749,7 +3749,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator           RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                        HASH,
                                                        EQUAL> Mech;
 
@@ -3865,7 +3865,7 @@ int main(int argc, char *argv[])
                     typedef  CharHashCaseInsensitive        HASH;
                     typedef CharEqualCaseInsensitive        EQUAL;
 
-                    typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                    typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                                HASH,
                                                                EQUAL> Mech;
 
@@ -3905,7 +3905,7 @@ int main(int argc, char *argv[])
 
                 // Specialized Implementation
                 {
-                    typedef bsl::boyer_moore_horspool_searcher<const char *>
+                    typedef bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                                          Mech;
 
                     Mech mZ(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
@@ -3968,8 +3968,8 @@ int main(int argc, char *argv[])
         //:   state.
         //
         // Testing:
-        //   boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original);
-        //   boyer_moore_horspool_searcher(MovableRef<b_m_h_s> original, *bA);
+        //   BoyerMooreHorspoolSearcher(MovableRef<b_m_h_s> original);
+        //   BoyerMooreHorspoolSearcher(MovableRef<b_m_h_s> original, *bA);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "MOVE CONSTRUCTORS"
@@ -4036,7 +4036,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator           RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                        HASH,
                                                        EQUAL> Mech;
 
@@ -4129,7 +4129,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator           RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                        HASH,
                                                        EQUAL> Mech;
 
@@ -4241,7 +4241,7 @@ int main(int argc, char *argv[])
                     typedef  CharHashCaseInsensitive        HASH;
                     typedef CharEqualCaseInsensitive        EQUAL;
 
-                    typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                    typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                                HASH,
                                                                EQUAL> Mech;
 
@@ -4272,7 +4272,7 @@ int main(int argc, char *argv[])
 
                 // Specialized Implementation
                 {
-                    typedef bsl::boyer_moore_horspool_searcher<const char *>
+                    typedef bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                                          Mech;
 
                     Mech mZ(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
@@ -4326,8 +4326,8 @@ int main(int argc, char *argv[])
         //:   state.
         //
         // Testing:
-        //   boyer_moore_horspool_searcher(const b_m_h_s& original);
-        //   boyer_moore_horspool_searcher(const b_m_h_s& original, *bA);
+        //   BoyerMooreHorspoolSearcher(const b_m_h_s& original);
+        //   BoyerMooreHorspoolSearcher(const b_m_h_s& original, *bA);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "COPY CONSTRUCTORS"
@@ -4345,7 +4345,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator           RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                        HASH,
                                                        EQUAL> Mech;
 
@@ -4431,7 +4431,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator           RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                        HASH,
                                                        EQUAL> Mech;
 
@@ -4537,7 +4537,7 @@ int main(int argc, char *argv[])
                     typedef  CharHashCaseInsensitive        HASH;
                     typedef CharEqualCaseInsensitive        EQUAL;
 
-                    typedef bsl::boyer_moore_horspool_searcher<RandConstItr,
+                    typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
                                                                HASH,
                                                                EQUAL> Mech;
 
@@ -4566,7 +4566,7 @@ int main(int argc, char *argv[])
 
                 // Specialized Implementation
                 {
-                    typedef bsl::boyer_moore_horspool_searcher<const char *>
+                    typedef bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                                          Mech;
 
                     Mech mZ(NEEDLE, NEEDLE + BSL::strlen(NEEDLE));
@@ -4687,8 +4687,8 @@ int main(int argc, char *argv[])
             typedef bsl::pair<RndConstItr, RndConstItr> RndResult;
             typedef BSL::ptrdiff_t                      RndDiff;
 
-            typedef bsl::boyer_moore_horspool_searcher<RndConstItr>  RndMechCs;
-            typedef bsl::boyer_moore_horspool_searcher<
+            typedef bslstl::BoyerMooreHorspoolSearcher<RndConstItr>  RndMechCs;
+            typedef bslstl::BoyerMooreHorspoolSearcher<
                                                       RndConstItr,
                                                       CharHashCaseInsensitive,
                                                       CharEqualCaseInsensitive>
@@ -4792,7 +4792,7 @@ int main(int argc, char *argv[])
                 BSL::string needleNonAscii;
                 convertToNonAscii(&needleNonAscii, BSL::string(NEEDLE));
 
-                const bsl::boyer_moore_horspool_searcher<const char *>
+                const bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                searcher(needleNonAscii.data(),
                                                         needleNonAscii.data()
                                                       + needleNonAscii.size());
@@ -4822,7 +4822,7 @@ int main(int argc, char *argv[])
             const CharArray< char> needle  (bsl::vector<char>('a', 3));
 
 
-            typedef bsl::boyer_moore_horspool_searcher<RndConstItr> Mech;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RndConstItr> Mech;
 
             Mech mX(needle.begin(), needle.end()); const Mech& X = mX;
 
@@ -4892,7 +4892,7 @@ int main(int argc, char *argv[])
         //:   allocator is installed and is returned by the 'allocator' method.
         //
         // Testing:
-        //   boyer_moore_horspool_searcher(RAI f, RAI l, HASH l, EQUAL e, *bA);
+        //   BoyerMooreHorspoolSearcher(RAI f, RAI l, HASH l, EQUAL e, *bA);
         //   RAI needleFirst() const;
         //   RAI needleLast() const;
         //   HASH hash() const;
@@ -4909,7 +4909,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator    RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr> Mech;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
 
             RandConstItr needleFirst = containerHavingRandomIterators.begin();
             RandConstItr needleLast  = containerHavingRandomIterators.end();
@@ -4925,7 +4925,7 @@ int main(int argc, char *argv[])
             const bsl::equal_to<char>& equal = X.equal();  (void)equal;
 
             ASSERT((bsl::is_same<Mech,
-                                 bsl::boyer_moore_horspool_searcher<
+                                 bslstl::BoyerMooreHorspoolSearcher<
                                                      RandConstItr,
                                                      bsl::hash<char>,
                                                      bsl::equal_to<char> >
@@ -4951,7 +4951,7 @@ int main(int argc, char *argv[])
             CharHashCaseInsensitive   hashFunctor(43);
 
             typedef CharArray<char>::const_iterator RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<
+            typedef bslstl::BoyerMooreHorspoolSearcher<
                                                 RandConstItr,
                                                 CharHashCaseInsensitive,
                                                 CharEqualCaseInsensitive> Mech;
@@ -4998,7 +4998,7 @@ int main(int argc, char *argv[])
             CharHashCaseInsensitive   hashFunctor(43);
 
             typedef CharArray<char>::const_iterator RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<
+            typedef bslstl::BoyerMooreHorspoolSearcher<
                                                 RandConstItr,
                                                 CharHashCaseInsensitive,
                                                 CharEqualCaseInsensitive> Mech;
@@ -5074,7 +5074,7 @@ int main(int argc, char *argv[])
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator    RandConstItr;
-            typedef bsl::boyer_moore_horspool_searcher<RandConstItr> Mech;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
 
             RandConstItr middle = containerHavingRandomIterators.begin() + 2;
 
@@ -5118,7 +5118,7 @@ int main(int argc, char *argv[])
         {
             const char *haystack = "Hello, world!";
 
-            bsl::boyer_moore_horspool_searcher<const char *> mySearcher(
+            bslstl::BoyerMooreHorspoolSearcher<const char *> mySearcher(
                                                                  haystack + 5,
                                                                  haystack + 7);
 
@@ -5152,7 +5152,7 @@ int main(int argc, char *argv[])
             intHaystack.push_back(0);
             intHaystack.push_back(0);
 
-            bsl::boyer_moore_horspool_searcher<const int *>
+            bslstl::BoyerMooreHorspoolSearcher<const int *>
                                                    myIntSearcher(intNeedle,
                                                                  intNeedle
                                                                + numIntNeedle);
@@ -5230,7 +5230,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            const bsl::boyer_moore_horspool_searcher<const char *>
+            const bslstl::BoyerMooreHorspoolSearcher<const char *>
                                         searcher(NEEDLE,
                                                  NEEDLE + BSL::strlen(NEEDLE));
 
