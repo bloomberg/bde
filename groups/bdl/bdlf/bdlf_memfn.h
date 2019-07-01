@@ -174,9 +174,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_forwardingtype.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_memberfunctionpointertraits.h>
-#include <bslmf_metaint.h>
 #include <bslmf_typelist.h>
 
 
@@ -198,19 +198,19 @@ struct MemFn_Dereference {
     // the result of '*OBJECT' is returned, where 'OBJECT' is the pointer or
     // object reference.
 
-    static inline OBJTYPE& derefImp(OBJTYPE& obj, bslmf::MetaInt<0> *)
+    static inline OBJTYPE& derefImp(OBJTYPE& obj, bsl::false_type *)
     {
         return obj;
     }
 
     template <class TYPE>
-    static inline OBJTYPE& derefImp(TYPE& obj, bslmf::MetaInt<1> *)
+    static inline OBJTYPE& derefImp(TYPE& obj, bsl::true_type *)
     {
         return *obj;
     }
 
     template <class TYPE>
-    static inline OBJTYPE& derefImp(const TYPE& obj, bslmf::MetaInt<1> *)
+    static inline OBJTYPE& derefImp(const TYPE& obj, bsl::true_type *)
     {
         return *obj;
     }
@@ -218,19 +218,13 @@ struct MemFn_Dereference {
     template <class TYPE>
     static inline OBJTYPE& deref(TYPE& obj)
     {
-        enum { k_POINTER_SEMANTICS = bslmf::IsPointer<TYPE>::VALUE
-                                  || bslmf::HasPointerSemantics<TYPE>::value};
-
-        return derefImp(obj, (bslmf::MetaInt<k_POINTER_SEMANTICS> *)0);
+        return derefImp(obj, (bslmf::HasPointerSemantics<TYPE> *)0);
     }
 
     template <class TYPE>
     static inline OBJTYPE& deref(const TYPE& obj)
     {
-        enum { k_POINTER_SEMANTICS = bslmf::IsPointer<TYPE>::VALUE
-                                  || bslmf::HasPointerSemantics<TYPE>::value};
-
-        return derefImp(obj, (bslmf::MetaInt<k_POINTER_SEMANTICS> *)0);
+        return derefImp(obj, (bslmf::HasPointerSemantics<TYPE> *)0);
     }
 };
 

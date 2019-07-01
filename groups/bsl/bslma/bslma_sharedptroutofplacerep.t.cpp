@@ -35,11 +35,11 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrRep
 //--------------------
-// [ 2] bslma::SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_ALLOCATOR_PTR>);
-// [ 3] bslma::SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_FACTORY_PTR>);
-// [ 3] bslma::SharedPtrOutofplaceRep(TYPE *ptr, ...BCEMA_FUNCTOR_WITH_ALLOC>);
-// [ 3] bslma::SharedPtrOutofplaceRep(TYPE *pt...BCEMA_FUNCTOR_WITHOUT_ALLOC>);
-// [ 2] bslma::SharedPtrOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(...);
+// [ 4] SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_ALLOCATOR_PTR>);
+// [ 4] SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_FACTORY_PTR>);
+// [ 4] SharedPtrOutofplaceRep(TYPE *ptr, ...BCEMA_FUNCTOR_WITH_ALLOC>);
+// [ 4] SharedPtrOutofplaceRep(TYPE *pt...BCEMA_FUNCTOR_WITHOUT_ALLOC>);
+// [ 4] SharedPtrOutofplaceRep<TYPE, DELETER> *makeOutofplaceRep(...);
 // [ 2] void disposeRep();
 // [ 2] void disposeObject();
 // [  ] void *getDeleter(const std::type_info& type);
@@ -49,6 +49,11 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
+// [ 2] BOOTSTRAP SharedPtrOutofplaceRep(...);
+// [ 2] BOOTSTRAP makeOutofplaceRep(...);
+// [ 3] void releaseRef();
+// [ 3] void releaseWeakRef();
+
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -455,30 +460,11 @@ int main(int argc, char *argv[])
         //:   object.
         //
         // Testing:
-        //   bslma::SharedPtrOutofplaceRep(
-        //                   TYPE             *ptr,
-        //                   const DELETER&    deleter,
-        //                   bslma::Allocator *basicAllocator,
-        //                   bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
-        //   bslma::SharedPtrOutofplaceRep(
-        //                     TYPE             *ptr,
-        //                     const DELETER&    deleter,
-        //                     bslma::Allocator *basicAllocator,
-        //                     bslmf::MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
-        //   bslma::SharedPtrOutofplaceRep(
-        //              TYPE             *ptr,
-        //              const DELETER&    deleter,
-        //              bslma::Allocator *basicAllocator,
-        //              bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
-        //   bslma::SharedPtrOutofplaceRep(
-        //           TYPE             *ptr,
-        //           const DELETER&    deleter,
-        //           bslma::Allocator *basicAllocator,
-        //           bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
-        //   bslma::SharedPtrOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(
-        //                                TYPE             *ptr,
-        //                                const DELETER&    deleter,
-        //                                bslma::Allocator *basicAllocator=0);
+        //   SharedPtrOutofplaceRep<TYPE, DELETER> *makeOutofplaceRep(...);
+        //   SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_ALLOCATOR_PTR>);
+        //   SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_FACTORY_PTR>);
+        //   SharedPtrOutofplaceRep(TYPE *ptr, ...BCEMA_FUNCTOR_WITH_ALLOC>);
+        //   SharedPtrOutofplaceRep(TYPE *pt...BCEMA_FUNCTOR_WITHOUT_ALLOC>);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CREATORS"
@@ -504,9 +490,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Factory Deleter"
                             "\n-----------------------\n");
         {
-            enum { DELETER_TYPE = bslma::
-                                   SharedPtrOutofplaceRep_DeleterDiscriminator<
-                                                        MyTestFactory *>::VALUE
+            enum { DELETER_TYPE =
+            bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyTestFactory *>
+                                                                        ::VALUE
             };
 
             MyTestFactory factory = MyTestFactory();
@@ -580,8 +566,8 @@ int main(int argc, char *argv[])
                             "\n----------------------------------\n");
         {
             enum { DELETER_TYPE =
-                            bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<
-                                                     MyAllocTestDeleter>::VALUE
+         bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyAllocTestDeleter>
+                                                                        ::VALUE
             };
 
             TObj* t = new(ta) TObj();
@@ -604,6 +590,10 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'releaseRef' AND 'releaseWeakRef'
+        //   Note that this test is essentially reconfirming the base class
+        //   implementation has not been broken by this derived class; these
+        //   non-virtual methods should be fully tested already by the base
+        //   class.
         //
         // Concerns:
         //: 1 'releaseRef' and 'releaseWeakRef' decrement the reference count
@@ -709,15 +699,8 @@ int main(int argc, char *argv[])
         //:   and check the that the destructor for the held object is called.
         //
         // Testing:
-        //   bslma::SharedPtrOutofplaceRep(
-        //                   TYPE             *ptr,
-        //                   const DELETER&    deleter,
-        //                   bslma::Allocator *basicAllocator,
-        //                   bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
-        //   bslma::SharedPtrOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(
-        //                                TYPE             *ptr,
-        //                                const DELETER&    deleter,
-        //                                bslma::Allocator *basicAllocator=0);
+        //   BOOTSTRAP SharedPtrOutofplaceRep(...);
+        //   BOOTSTRAP makeOutofplaceRep(...);
         //   void disposeObject();
         //   void disposeRep();
         //   void *originalPtr() const;

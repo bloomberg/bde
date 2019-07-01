@@ -76,10 +76,12 @@
 #include <bslma_destructionutil.h>
 #include <bslma_stdallocator.h>
 
+#include <bslmf_isfundamental.h>
+#include <bslmf_integralconstant.h>
+
 #include <bsls_exceptionutil.h>
 #include <bsls_objectbuffer.h>
 
-#include <bslma_stdallocator.h>
 
 #include <bsls_util.h>
 
@@ -314,22 +316,17 @@ public:
   template <class _InputIterator>
   void assign(_InputIterator __first, _InputIterator __last) {
 
-    // MODIFIED BY ARTHUR
-    // typedef typename _Is_integer<_InputIterator>::_Integral _Integral;
-
-    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::value };
-    _M_assign_dispatch(__first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *)0);
-
+    // SIMPLIFIED BY ALISDAIR
+    _M_assign_dispatch(__first, __last, (bsl::is_fundamental<_InputIterator> *)0);
   }
 
   template <class _Integer>
-  void _M_assign_dispatch(_Integer __n, _Integer __val, BloombergLP::bslmf::MetaInt<1> *)
+  void _M_assign_dispatch(_Integer __n, _Integer __val, bsl::true_type *)
     { _M_fill_assign((size_type) __n, (_Tp) __val); }
 
   template <class _InputIter>
   void
-  _M_assign_dispatch(_InputIter __first, _InputIter __last,
-                     BloombergLP::bslmf::MetaInt<0> *) {
+  _M_assign_dispatch(_InputIter __first, _InputIter __last, bsl::false_type *) {
     _Node_base* __prev = &this->_M_head._M_data;
     _Node* __node = (_Node*) this->_M_head._M_data._M_next;
     while (__node != 0 && __first != __last) {
@@ -413,22 +410,20 @@ private:
   template <class _InIter>
   void _M_insert_after_range(_Node_base *__pos,
                              _InIter __first, _InIter __last) {
-    // MODIFIED BY ARTHUR
-    // typedef typename _Is_integer<_InIter>::_Integral _Integral;
-    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InIter>::value };
-    _M_insert_after_range(__pos, __first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *) 0);
+    // SIMPLIFIED BY ALISDAIR
+    _M_insert_after_range(__pos, __first, __last, (bsl::is_fundamental<_InIter> *) 0);
   }
 
   template <class _Integer>
   void _M_insert_after_range(_Node_base* __pos, _Integer __n, _Integer __x,
-                             BloombergLP::bslmf::MetaInt<1> *) {
+                             bsl::true_type *) {
     _M_insert_after_fill(__pos, __n, __x);
   }
 
   template <class _InIter>
   void _M_insert_after_range(_Node_base *__pos,
                              _InIter __first, _InIter __last,
-                             BloombergLP::bslmf::MetaInt<0> *) {
+                             bsl::false_type *) {
     while (__first != __last) {
       __pos = __slist_make_link(__pos, _M_create_node(*__first));
       ++__first;
