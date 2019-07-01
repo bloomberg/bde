@@ -13,6 +13,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bslmt_lockguard.h>
@@ -22,19 +23,17 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 
-#include <bsls_review.h>
-#include <bsls_timeinterval.h>
-#include <bsls_types.h>
-
 #include <bdlf_bind.h>
-#include <bslma_defaultallocatorguard.h>
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_datetime.h>
-#include <bsls_platform.h>
-#include <bsls_stopwatch.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_c_stdlib.h>  // 'rand_r'
@@ -97,6 +96,7 @@ bslmt::Mutex coutMutex;
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
+static int veryVeryVeryVerbose;
 
 // ============================================================================
 //                            SOME HELPFUL EXTRAS
@@ -173,21 +173,29 @@ class CountedDelete
     static bsls::AtomicInt deleteCount;
     bool isTemp;
 
-public:
-    CountedDelete() : isTemp(true) {}
-    CountedDelete(const CountedDelete&) : isTemp(false) {}
+  public:
+    CountedDelete() : isTemp(true)
+    {}
 
-    ~CountedDelete() {
+    CountedDelete(const CountedDelete& original) : isTemp(false)
+    {
+        (void) original;
+    }
+
+    ~CountedDelete()
+    {
         if (!isTemp) {
             ++deleteCount;
         }
     }
 
-    static int getDeleteCount() {
+    static int getDeleteCount()
+    {
         return deleteCount;
     }
 
-    CountedDelete& operator= (const CountedDelete&) {
+    CountedDelete& operator= (const CountedDelete&)
+    {
         isTemp = false;
         return *this;
     }
@@ -312,7 +320,7 @@ class SimpleScheduler
     bslmt::Mutex                                             d_condMutex;
     volatile int                                            d_doneFlag;
 
-    // PRIVATE METHODS
+    // PRIVATE MANIPULATORS
     void dispatcherThread()
     {
         d_startBarrier.wait();
@@ -357,11 +365,12 @@ class SimpleScheduler
     }
 
   private:
-    // Not implemented:
+    // NOT IMPLEMENTED:
     SimpleScheduler(const SimpleScheduler&);
 
   public:
-    //CREATORS
+    // CREATORS
+    explicit
     SimpleScheduler(bslma::Allocator *basicAllocator = 0)
     : d_list(basicAllocator)
     , d_startBarrier(2)
@@ -380,7 +389,8 @@ class SimpleScheduler
         stop();
     }
 
-    void stop() {
+    void stop()
+    {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
         if (bslmt::ThreadUtil::invalidHandle() != d_dispatcher) {
             bslmt::ThreadUtil::Handle dispatcher = d_dispatcher;
@@ -412,6 +422,40 @@ class SimpleScheduler
         }
     }
 };
+
+// ============================================================================
+//                         CASE 28 DRQS 144652915
+// ----------------------------------------------------------------------------
+
+namespace SKIPLIST_TEST_CASE_DRQS_144652915 {
+
+struct Payload { char d_data[140]; };
+typedef bdlcc::SkipList<int, Payload> SkipList;
+bsls::AtomicInt index(0);
+
+SkipList *g_skipList_p = 0;
+
+int numThreads = 16;
+int numEventsPerThread = 1000;
+
+void scheduleEvents()
+{
+    static bslmt::Barrier barrier(numThreads);
+    barrier.wait();
+
+    Payload payload;
+    bsl::memset(&payload, 0xaf, sizeof(payload));
+    for (int i = 0; i < numEventsPerThread; ++i) {
+        SkipList::PairHandle handle;
+        bool newtop;
+        g_skipList_p->addR(&handle, ++index, payload, &newtop);
+        if (newtop) {
+            cout << "Newtop\n";
+        }
+    }
+}
+
+}  // close namespace SKIPLIST_TEST_CASE_DRQS_144652915
 
 struct DATA {
     int         l;
@@ -782,6 +826,7 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -789,6 +834,40 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 28: {
+        // --------------------------------------------------------------------
+        // REPRODUCE BUG FROM DRQS 144652915
+        // --------------------------------------------------------------------
+
+        using namespace SKIPLIST_TEST_CASE_DRQS_144652915;
+
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        SkipList skipList(&ta);
+        g_skipList_p = &skipList;
+
+        P_(numThreads);    P(numEventsPerThread);
+
+        bslmt::ThreadUtil::setThreadName("Main Thread");
+
+        bsl::vector<bslmt::ThreadUtil::Handle> handles(&ta);
+        for (int ii = 0; ii < 16; ++ii) {
+            bslmt::ThreadAttributes attr(&ta);
+            bsl::ostringstream oss(&ta);
+            oss << "Thread " << ii;
+            attr.setThreadName(oss.str());
+            bslmt::ThreadUtil::Handle handle;
+            int rc = bslmt::ThreadUtil::create(&handle, attr, &scheduleEvents);
+            ASSERT(0 == rc);
+            handles.push_back(handle);
+        }
+
+        for (int ii = 0; ii < 16; ++ii) {
+            bslmt::ThreadUtil::join(handles[ii]);
+        }
+
+        P(skipList.length());
+        P(ta.numBytesMax());
+      } break;
       case 27: {
         // --------------------------------------------------------------------
         // TESTING 'allocator' ACCESSOR

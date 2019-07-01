@@ -23,6 +23,7 @@ BSLS_IDENT_RCSID(bdlcc_skiplist_cpp,"$Id$ $CSID$")
 #include <bsl_limits.h>
 
 namespace BloombergLP {
+namespace {
 
 enum {
       k_REF_COUNT_NUM_BITS = bdlcc::SkipList_Control::k_NUM_REFERENCE_BITS
@@ -46,6 +47,8 @@ enum {
                                k_RELEASE_FLAG_NUM_BITS -
                                k_REF_COUNT_NUM_BITS
 };
+
+}  // close unnamed namespace
 
 namespace bdlcc {
 
@@ -147,31 +150,6 @@ int SkipList_RandomLevelGenerator::randomLevel()
 
 }  // close package namespace
 
-                        // ============================
-                        // class bcec_SkipList_PoolNode
-                        // ============================
-
-struct bcec_SkipList_PoolNode {
-    typedef bdlcc::SkipList_Control  Control;
-    typedef bcec_SkipList_PoolNode Node;
-
-    Control         d_control; // must be first!
-    Node *volatile  d_next_p;
-};
-
-                          // ========================
-                          // class bcec_SkipList_Pool
-                          // ========================
-
-struct bcec_SkipList_Pool {
-    typedef bcec_SkipList_PoolNode Node;
-
-    bsls::AtomicPointer<Node> d_freeList;
-    int                       d_objectSize;
-    int                       d_numObjectsToAllocate;
-    int                       d_level;
-};
-
 namespace bdlcc {
 
                          // ==========================
@@ -179,36 +157,52 @@ namespace bdlcc {
                          // ==========================
 
 class SkipList_PoolManager {
+    // PRIVATE TYPES
     enum {
         k_MAX_POOLS                       =  32,
 
         k_INITIAL_NUM_OBJECTS_TO_ALLOCATE =   1,
 
-        k_GROWTH_FACTOR                   =  2
+        k_GROWTH_FACTOR                   =   2
     };
 
-    typedef bcec_SkipList_PoolNode  Node;
-    typedef bcec_SkipList_Pool      Pool;
+    struct Node {
+        typedef bdlcc::SkipList_Control  Control;
 
+        Control         d_control; // must be first!
+        Node *volatile  d_next_p;
+    };
+
+    struct Pool {
+        bsls::AtomicPointer<Node> d_freeList;
+        int                       d_objectSize;
+        int                       d_numObjectsToAllocate;
+        int                       d_level;
+    };
+
+    // DATA
     bdlma::InfrequentDeleteBlockList   d_blockList;  // supplies free memory
     bslmt::Mutex                       d_mutex;      // protects the block list
 
-    Pool                              d_pools[k_MAX_POOLS];
-
-    void initPool(Pool *pool, int level, int objectSize);
-    void replenish(Pool *pool);
-    void *allocate(Pool *pool);
-    void deallocate(Pool *pool, void *node);
+    Pool                               d_pools[k_MAX_POOLS];
 
   private:
-    // Not implemented:
+    // NOT IMPLEMENTED:
     SkipList_PoolManager(const SkipList_PoolManager&);
 
   public:
+    // CREATORS
     explicit SkipList_PoolManager(int              *objectSizes,
                                   int               numPools,
                                   bslma::Allocator *basicAllocator);
     ~SkipList_PoolManager();
+
+  public:
+    // MANIPULATORS
+    void initPool(Pool *pool, int level, int objectSize);
+    void replenish(Pool *pool);
+    void *allocate(Pool *pool);
+    void deallocate(Pool *pool, void *node);
 
     void *allocate(int level);
     void deallocate(void *node);
@@ -217,6 +211,13 @@ class SkipList_PoolManager {
 void SkipList_PoolManager::replenish(Pool *pool)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    if (pool->d_freeList) {
+        // We were blocked acquiring the mutex while another thread was
+        // replenishing.
+
+        return;                                                       // RETURN
+    }
 
     int objectSize = pool->d_objectSize;
     int numObjects = pool->d_numObjectsToAllocate;
@@ -261,6 +262,7 @@ void *SkipList_PoolManager::allocate(Pool *pool)
                 // complete the pop.  Wait for a few cycles until he does.  If
                 // he does not complete then go on and try to acquire it
                 // ourselves.
+
                 if (pool->d_freeList != p) {
                     break;
                 }
@@ -272,7 +274,7 @@ void *SkipList_PoolManager::allocate(Pool *pool)
         // therefore *both* of these 'testAndSwap's are required).
 
         if (pool->d_freeList.testAndSwap(0,0) == p
-         && pool->d_freeList.testAndSwap(p,p->d_next_p) == p) {
+         && pool->d_freeList.testAndSwap(p, p->d_next_p) == p) {
             return p;                                                 // RETURN
         }
         else {
@@ -285,6 +287,7 @@ void *SkipList_PoolManager::allocate(Pool *pool)
                                 controlBits^k_RELEASE_FLAG_MASK)) {
                         // The node is now free but not on the free list.  Take
                         // it.
+
                         return p;                                     // RETURN
                     }
                 }
@@ -302,7 +305,6 @@ void *SkipList_PoolManager::allocate(Pool *pool)
 
 void SkipList_PoolManager::deallocate(Pool *pool, void *node)
 {
-    Node *old;
     Node *p = reinterpret_cast<Node *>(node);
 
     int controlBits;
@@ -321,14 +323,14 @@ void SkipList_PoolManager::deallocate(Pool *pool, void *node)
                   (controlBits - k_ACQUIRE_COUNT_INC) | k_RELEASE_FLAG_MASK)) {
             // Someone else is still trying to pop this item.  Just let them
             // have it.
+
             return;                                                   // RETURN
         }
     }
-
     for (;;) {
-        old = pool->d_freeList;
-        p->d_next_p = old;
-        if (pool->d_freeList.testAndSwap(old, p) == old) {
+        Node *freeList = pool->d_freeList;
+        p->d_next_p = freeList;
+        if (pool->d_freeList.testAndSwap(freeList, p) == freeList) {
             break;
         }
     }
@@ -352,6 +354,7 @@ SkipList_PoolManager::SkipList_PoolManager(int              *objectSizes,
     BSLS_ASSERT(numPools <= k_MAX_POOLS);
 
     // sanity-check
+
     BSLMF_ASSERT(4 == RESERVED_NUM_BITS);
 
     for (int i = 0; i < numPools; ++i) {

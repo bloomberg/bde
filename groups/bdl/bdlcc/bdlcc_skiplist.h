@@ -997,6 +997,7 @@ class SkipList {
         // 'e_NOT_FOUND' (with no effect on the value of 'node') if 'node' is
         // no longer in the list.  This method acquires and releases the lock.
 
+  private:
     // NOT IMPLEMENTED
     void addPairReferenceRaw(const PairHandle&);
     void releaseReferenceRaw(const PairHandle&);
@@ -1888,6 +1889,7 @@ template<class KEY, class DATA>
 void SkipList<KEY, DATA>::initialize()
 {
     // Assert that this method has not been invoked.
+
     BSLS_ASSERT(0 == d_poolManager_p);
 
     int nodeSizes[k_MAX_NUM_LEVELS];
@@ -1981,6 +1983,7 @@ void SkipList<KEY, DATA>::moveImp(bool *newFrontFlag,
         if (newP == node || newQ == node) {
             // The node's already in the right place.  Since we started at
             // level 0, there's no more work to do.
+
             break;
         }
 
@@ -2140,6 +2143,7 @@ int SkipList<KEY, DATA>::updateNode(bool       *newFrontFlag,
     node->d_key = newKey;  // may throw
 
     // now we are committed: change the list!
+
     moveImp(newFrontFlag, location, node);
 
     return 0;
@@ -2172,6 +2176,7 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *newFrontFlag,
     node->d_key = newKey;  // may throw
 
     // now we are committed: change the list!
+
     moveImp(newFrontFlag, location, node);
 
     return 0;
@@ -2427,6 +2432,7 @@ int SkipList<KEY, DATA>::skipBackward(Node **node) const
 
     if (0 == current->d_ptrs[0].d_next_p) {
         // The node is no longer on the list.
+
         return e_NOT_FOUND;                                           // RETURN
     }
 
@@ -2459,6 +2465,7 @@ int SkipList<KEY, DATA>::skipForward(Node **node) const
 
     if (0 == current->d_ptrs[0].d_next_p) {
         // The node is no longer on the list.
+
         return e_NOT_FOUND;                                           // RETURN
     }
 
@@ -2538,6 +2545,7 @@ SkipList<KEY, DATA>::operator=(const SkipList& rhs)
     }
 
     // first empty this list
+
     LockGuard guard(&d_lock);
     removeAllImp(0, false);
 
@@ -3368,6 +3376,7 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
 
     // Lock the lock with the lower address first, to force the order of
     // locking, and avoid deadlock.
+
     bslmt::Mutex *firstLock_p =
         &lhs.d_lock < &rhs.d_lock ? &lhs.d_lock : &rhs.d_lock;
     bslmt::Mutex *lastLock_p =
@@ -3379,6 +3388,7 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
     // nextNode) will lock the mutex.
+
     for (SkipList_Node<KEY, DATA>
               *lhsNode = lhs.d_head_p->d_ptrs[0].d_next_p,
               *rhsNode = rhs.d_head_p->d_ptrs[0].d_next_p;
@@ -3389,11 +3399,13 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
         if ((!lhsNode && !rhsNode)
          || (lhsNode == lhs.d_tail_p && rhsNode == rhs.d_tail_p)) {
             // we reached the end of both lists at the same time
+
             return true;                                              // RETURN
         }
         if (!lhsNode || !rhsNode
          || lhsNode == lhs.d_tail_p || rhsNode == rhs.d_tail_p) {
             // We reached the end of one list before the other
+
             return false;                                             // RETURN
         }
 
@@ -3418,6 +3430,7 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
 
     // Lock the lock with the lower address first, to force the order of
     // locking, and avoid deadlock.
+
     bslmt::Mutex *firstLock_p =
         &lhs.d_lock < &rhs.d_lock ? &lhs.d_lock : &rhs.d_lock;
     bslmt::Mutex *lastLock_p =
@@ -3429,6 +3442,7 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
     // nextNode) will lock the mutex.
+
     for (SkipList_Node<KEY, DATA>
               *lhsNode = lhs.d_head_p->d_ptrs[0].d_next_p,
               *rhsNode = rhs.d_head_p->d_ptrs[0].d_next_p;
@@ -3439,11 +3453,13 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
         if ((!lhsNode && !rhsNode)
          || (lhsNode == lhs.d_tail_p && rhsNode == rhs.d_tail_p)) {
             // we reached the end of both lists at the same time
+
             return false;                                             // RETURN
         }
         if (!lhsNode || !rhsNode
          || lhsNode == lhs.d_tail_p || rhsNode == rhs.d_tail_p) {
             // We reached the end of one list before the other
+
             return true;                                              // RETURN
         }
 
