@@ -465,6 +465,40 @@ int main(int argc, char *argv[])
         ASSERT_RVALUE_REF_SAME (F*&&);
 #endif
 
+        typedef int Array1D[5];
+        typedef int Array2D[13][42];
+
+        typedef int ArrayUnknownBound1D[];
+        typedef int ArrayUnknownBound2D[][8];
+
+        ASSERT_RVALUE_REF_TRUE (Array1D);
+        ASSERT_RVALUE_REF_FALSE(Array1D);
+        ASSERT_RVALUE_REF_SAME (Array1D&&);
+        ASSERT_RVALUE_REF_TRUE (Array1D*);
+        ASSERT_RVALUE_REF_FALSE(Array1D*);
+        ASSERT_RVALUE_REF_SAME (Array1D*&&);
+
+        ASSERT_RVALUE_REF_TRUE (Array2D);
+        ASSERT_RVALUE_REF_FALSE(Array2D);
+        ASSERT_RVALUE_REF_SAME (Array2D&&);
+        ASSERT_RVALUE_REF_TRUE (Array2D*);
+        ASSERT_RVALUE_REF_FALSE(Array2D*);
+        ASSERT_RVALUE_REF_SAME (Array2D*&&);
+
+        ASSERT_RVALUE_REF_TRUE (ArrayUnknownBound1D);
+        ASSERT_RVALUE_REF_FALSE(ArrayUnknownBound1D);
+        ASSERT_RVALUE_REF_SAME (ArrayUnknownBound1D&&);
+        ASSERT_RVALUE_REF_TRUE (ArrayUnknownBound1D*);
+        ASSERT_RVALUE_REF_FALSE(ArrayUnknownBound1D*);
+        ASSERT_RVALUE_REF_SAME (ArrayUnknownBound1D*&&);
+
+        ASSERT_RVALUE_REF_TRUE (ArrayUnknownBound2D);
+        ASSERT_RVALUE_REF_FALSE(ArrayUnknownBound2D);
+        ASSERT_RVALUE_REF_SAME (ArrayUnknownBound2D&&);
+        ASSERT_RVALUE_REF_TRUE (ArrayUnknownBound2D*);
+        ASSERT_RVALUE_REF_FALSE(ArrayUnknownBound2D*);
+        ASSERT_RVALUE_REF_SAME (ArrayUnknownBound2D*&&);
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
         if (verbose) printf("bsl::add_lvalue_reference_t\n"

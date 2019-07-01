@@ -8,11 +8,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_addcv.h>                     // for testing only
 #include <bslmf_addlvaluereference.h>        // for testing only
 #include <bslmf_addpointer.h>                // for testing only
+#include <bslmf_addrvaluereference.h>        // for testing only
 #include <bslmf_addvolatile.h>               // for testing only
+#include <bslmf_isclass.h>                   // for testing only
+#include <bslmf_issame.h>                    // for testing only
+#include <bslmf_istriviallycopyable.h>       // for testing only
 #include <bslmf_nestedtraitdeclaration.h>    // for testing only
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

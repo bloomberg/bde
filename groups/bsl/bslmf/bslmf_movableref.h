@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // elements could be accessed using 'x.first' and 'x.second'.  For a C++03
 // implementation 'MovableRef<bsl::pair<A, B> >' is a class type and 'x.first'
 // and 'x.second' are not available.  Instead, a reference to the pair needs to
-// be obtained which could be done using 'static_cast<bsl::pair<A, B >&>(x)' or
+// be obtained that could be done using 'static_cast<bsl::pair<A, B >&>(x)' or
 // by using a named variable.  To unify the notation between the C++03 and
 // C++11 implementation, simultaneously simplifying the C++03 use
 // 'MovableRefUtil::access(x)' can be used.
@@ -136,17 +136,19 @@ BSLS_IDENT("$Id: $")
 //:   not available with C++03.
 //
 // The usage example below demonstrate both use cases using a simplified
-// version of 'std::vector<T>'.  The class template is simplified to
+// version of 'std::Vector<T>'.  The class template is simplified to
 // concentrate on the aspects relevant to 'bslmf::MovableRef<T>'.  Most of the
 // operations are just normal implementations to create a container.  The last
 // two operations described are using move operations.
 //
-// The definition of the 'vector<TYPE>' class template is rather straight
-// forward.  For simplicity a few trivial operations are implemented directly
-// in the class definition:
+// Assume we want to implement a class template similar to the standard library
+// 'vector' facility.  First we declare the class template 'Vector<TYPE>'.  The
+// definition of the this class template is rather straight forward, and for
+// simplicity a few trivial operations are implemented directly in the class
+// definition:
 //..
 //  template <class TYPE>
-//  class vector
+//  class Vector
 //  {
 //      TYPE *d_begin;
 //      TYPE *d_end;
@@ -156,25 +158,25 @@ BSLS_IDENT("$Id: $")
 //          // Swap the specified pointers 'a' and 'b'.
 //
 //    public:
-//      vector();
-//          // Create an empty vector.
+//      Vector();
+//          // Create an empty Vector.
 //
-//      vector(bslmf::MovableRef<vector> other);                    // IMPLICIT
-//          // Create a vector by transfering the content of the specified
+//      Vector(bslmf::MovableRef<Vector> other);                    // IMPLICIT
+//          // Create a Vector by transfering the content of the specified
 //          // 'other'.
 //
-//      vector(const vector& other);
-//          // Create a vector by copying the content of the specified 'other'.
+//      Vector(const Vector& other);
+//          // Create a Vector by copying the content of the specified 'other'.
 //
-//      vector& operator= (vector other);
-//          // Assign a vector by copying the content of the specified 'other'
+//      Vector& operator= (Vector other);
+//          // Assign a Vector by copying the content of the specified 'other'
 //          // and return a reference to this object.  Note that 'other' is
 //          // passed by value to have the copy or move already be done, or
 //          // even elided.  Within the body of the assignment operator the
 //          // content of 'this' and 'other' are simply swapped.
 //
-//      ~vector();
-//          // Destroy the vector's elements and release any allocated memory.
+//      ~Vector();
+//          // Destroy the Vector's elements and release any allocated memory.
 //
 //      TYPE&       operator[](int index)      { return this->d_begin[index]; }
 //          // Return a reference to the object at the specified 'index'.
@@ -189,10 +191,10 @@ BSLS_IDENT("$Id: $")
 //          // Return a pointer to the first element.
 //
 //      int capacity() const { return int(this->d_endBuffer - this->d_begin); }
-//          // Return the capacity of the vector.
+//          // Return the capacity of the Vector.
 //
 //      bool empty() const { return this->d_begin == this->d_end; }
-//          // Return 'true' if the vector is empty and 'false' otherwise.
+//          // Return 'true' if the Vector is empty and 'false' otherwise.
 //
 //      TYPE       *end()       { return this->d_end; }
 //          // Return a pointer to the end of the range.
@@ -201,7 +203,7 @@ BSLS_IDENT("$Id: $")
 //          // Return a pointer to the end of the range.
 //
 //      void push_back(const TYPE& value);
-//          // Append a copy of the specified 'value' to the vector.
+//          // Append a copy of the specified 'value' to the Vector.
 //
 //      void push_back(bslmf::MovableRef<TYPE> value);
 //          // Append an object moving the specified 'value' to the new
@@ -214,20 +216,20 @@ BSLS_IDENT("$Id: $")
 //      int size() const { return int(this->d_end - this->d_begin); }
 //          // Return the size of the object.
 //
-//      void swap(vector& other);
-//          // Swap the content of the vector with the specified 'other'.
+//      void swap(Vector& other);
+//          // Swap the content of the Vector with the specified 'other'.
 //  };
 //..
 // The class stores pointers to the begin and the end of the elements as well
 // as a pointer to the end of the allocated buffer.  If there are no elements,
 // null pointers are stored.  There a number of accessors similar to the
-// accessors used by 'std::vector<TYPE>'.
+// accessors used by 'std::Vector<TYPE>'.
 //
-// The default constructor creates an empty 'vector<TYPE>' by simply
+// The default constructor creates an empty 'Vector<TYPE>' by simply
 // initializing all member pointers to be null pointers:
 //..
 //  template <class TYPE>
-//  vector<TYPE>::vector()
+//  Vector<TYPE>::Vector()
 //      : d_begin()
 //      , d_end()
 //      , d_endBuffer()
@@ -235,39 +237,39 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // To leverage already implemented functionality some of the member functions
-// operate on a temporary 'vector<TYPE>' and move the result into place using
+// operate on a temporary 'Vector<TYPE>' and move the result into place using
 // the 'swap()' member function that simply does a memberwise 'swap()' (the
 // function swapping pointers is implemented here to avoid any dependency on
 // functions defined in another level):
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::swap(TYPE*& a, TYPE*& b)
+//  void Vector<TYPE>::swap(TYPE*& a, TYPE*& b)
 //  {
 //      TYPE *tmp = a;
 //      a = b;
 //      b = tmp;
 //  }
 //  template <class TYPE>
-//  void vector<TYPE>::swap(vector& other)
+//  void Vector<TYPE>::swap(Vector& other)
 //  {
 //      this->swap(this->d_begin, other.d_begin);
 //      this->swap(this->d_end, other.d_end);
 //      this->swap(this->d_endBuffer, other.d_endBuffer);
 //  }
 //..
-// The member function 'reserve()' arranges for the 'vector<TYPE>' to have
+// The member function 'reserve()' arranges for the 'Vector<TYPE>' to have
 // enough capacity for the number of elements specified as argument.  The
-// function first creates an empty 'vector<TYPE>' called 'tmp' and sets 'tmp'
+// function first creates an empty 'Vector<TYPE>' called 'tmp' and sets 'tmp'
 // up to have enough capacity by allocating sufficient memory and assigning the
 // different members to point to the allocated buffer.  The function then
 // iterates over the elements of 'this' and for each element it constructs a
 // new element in 'tmp'.
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::reserve(int newCapacity)
+//  void Vector<TYPE>::reserve(int newCapacity)
 //  {
 //      if (this->capacity() < newCapacity) {
-//          vector tmp;
+//          Vector tmp;
 //          int    size = int(sizeof(TYPE) * newCapacity);
 //          tmp.d_begin = static_cast<TYPE*>(operator new(size));
 //          tmp.d_end = tmp.d_begin;
@@ -287,7 +289,7 @@ BSLS_IDENT("$Id: $")
 // the buffer is released:
 //..
 //  template <class TYPE>
-//  vector<TYPE>::~vector()
+//  Vector<TYPE>::~Vector()
 //  {
 //      if (this->d_begin) {
 //          while (this->d_begin != this->d_end) {
@@ -301,14 +303,14 @@ BSLS_IDENT("$Id: $")
 // Using 'reserve()' and constructing the elements it is straight forward to
 // implement the copy constructor.  First the member pointers are initialed to
 // null.  If 'other' is empty there is nothing further to do as it is desirable
-// to not allocate a buffer for an empty 'vector'.  If there are elements to
+// to not allocate a buffer for an empty 'Vector'.  If there are elements to
 // copy the buffer is set up by calling 'reserve()' to create sufficient
 // capacity.  Once that is done elements are copied by iterating over the
 // elements of 'other' and constructing elements using placement new in the
 // appropriate location.
 //..
 //  template <class TYPE>
-//  vector<TYPE>::vector(const vector& other)
+//  Vector<TYPE>::Vector(const Vector& other)
 //      : d_begin()
 //      , d_end()
 //      , d_endBuffer()
@@ -334,19 +336,19 @@ BSLS_IDENT("$Id: $")
 // former representation of 'this' when 'other' is destroyed':
 //..
 //  template <class TYPE>
-//  vector<TYPE>& vector<TYPE>::operator= (vector other)
+//  Vector<TYPE>& Vector<TYPE>::operator= (Vector other)
 //  {
 //      this->swap(other);
 //      return *this;
 //  }
 //..
-// To complete the normal C++03 operations of 'vector<TYPE>' the only remaining
+// To complete the normal C++03 operations of 'Vector<TYPE>' the only remaining
 // member function is 'push_back()'.  This function calls 'reserve()' to obtain
 // more capacity if the current capacity is filled and then constructs the new
 // element at the location pointed to by 'd_end':
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::push_back(const TYPE& value)
+//  void Vector<TYPE>::push_back(const TYPE& value)
 //  {
 //      if (this->d_end == this->d_endBuffer) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
@@ -360,25 +362,25 @@ BSLS_IDENT("$Id: $")
 // the move constructor:
 //..
 //  template <class TYPE>
-//  vector<TYPE>::vector(bslmf::MovableRef<vector> other)
+//  Vector<TYPE>::Vector(bslmf::MovableRef<Vector> other)
 //      : d_begin(bslmf::MovableRefUtil::access(other).d_begin)
 //      , d_end(bslmf::MovableRefUtil::access(other).d_end)
 //      , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer)
 //  {
-//      vector& reference(other);
+//      Vector& reference(other);
 //      reference.d_begin = 0;
 //      reference.d_end = 0;
 //      reference.d_endBuffer = 0;
 //  }
 //..
-// This constructor gets an 'MovableRef<vector<TYPE> >' passed as argument that
+// This constructor gets an 'MovableRef<Vector<TYPE> >' passed as argument that
 // indicates that the referenced objects can be modified as long as it is left
 // in a state meeting the class invariants.  The implementation of this
 // constructor first copies the 'd_begin', 'd_end', and 'd_capacity' members of
 // 'other'.  Since 'other' is either an object of type
-// 'MovableRef<vector<TYPE> >' (when compiling using a C++03 compiler) or an
-// r-value reference 'vector<TYPE>&&' the members are accessed using
-// 'MovableRefUtil::access(other)' to get a reference to a 'vector<TYPE>'.
+// 'MovableRef<Vector<TYPE> >' (when compiling using a C++03 compiler) or an
+// r-value reference 'Vector<TYPE>&&' the members are accessed using
+// 'MovableRefUtil::access(other)' to get a reference to a 'Vector<TYPE>'.
 // Within the body of the constructor an l-value reference is obtained either
 // via the conversion operator of 'MovableRef<T>' or directly as 'other' is
 // just an l-value when compiling with a C++11 compiler.  This reference is
@@ -388,11 +390,11 @@ BSLS_IDENT("$Id: $")
 // Finally, a move version of 'push_back()' is provided: it takes an
 // 'MovableRef<TYPE>' as argument.  The type of this argument indicates that
 // the state can be transferred and after arranging enough capacity in the
-// 'vector<TYPE>' object a new element is move constructed at the position
+// 'Vector<TYPE>' object a new element is move constructed at the position
 // 'd_end':
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value)
+//  void Vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value)
 //  {
 //      if (this->d_end == this->d_endBuffer) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
@@ -409,10 +411,10 @@ BSLS_IDENT("$Id: $")
 // C++11 implementation the argument 'value' is an l-value and using it
 // directly would result in a copy.
 //
-// To demonstrate the newly created 'vector<TYPE>' class in action, first a
-// 'vector<int>' is created and filled with a few elements:
+// To demonstrate the newly created 'Vector<TYPE>' class in action, first a
+// 'Vector<int>' is created and filled with a few elements:
 //..
-//  vector<int> vector0;
+//  Vector<int> vector0;
 //  for (int i = 0; i != 5; ++i) {
 //      vector0.push_back(i);
 //  }
@@ -420,9 +422,9 @@ BSLS_IDENT("$Id: $")
 //      assert(vector0[i] == i);
 //  }
 //..
-// To verify that copying of 'vector<TYPE>' objects works, a copy is created:
+// To verify that copying of 'Vector<TYPE>' objects works, a copy is created:
 //..
-//  vector<int> vector1(vector0);
+//  Vector<int> vector1(vector0);
 //  assert(vector1.size() == 5);
 //  assert(vector1.size() == vector0.size());
 //  for (int i = 0; i != vector1.size(); ++i) {
@@ -433,21 +435,21 @@ BSLS_IDENT("$Id: $")
 // When using moving this 'vector0' to a new location the representation of the
 // new object should use the original 'begin()':
 //..
-//  const int *first = vector0.begin();
-//  vector<int> vector2(bslmf::MovableRefUtil::move(vector0));
+//  const int   *first = vector0.begin();
+//  Vector<int>  vector2(bslmf::MovableRefUtil::move(vector0));
 //  assert(first == vector2.begin());
 //..
-// When create a 'vector<vector<int> >' and using 'push_back()' on this object
+// When create a 'Vector<Vector<int> >' and using 'push_back()' on this object
 // with 'vector2' a copy should be inserted:
 //..
-//  vector<vector<int> > vvector;
-//  vvector.push_back(vector2);                          // copy
+//  Vector<Vector<int> > vVector;
+//  vVector.push_back(vector2);                          // copy
 //  assert(vector2.size() == 5);
-//  assert(vvector.size() == 1);
-//  assert(vvector[0].size() == vector2.size());
-//  assert(vvector[0].begin() != first);
+//  assert(vVector.size() == 1);
+//  assert(vVector[0].size() == vector2.size());
+//  assert(vVector[0].begin() != first);
 //  for (int i = 0; i != 5; ++i) {
-//      assert(vvector[0][i] == i);
+//      assert(vVector[0][i] == i);
 //      assert(vector2[i] == i);
 //  }
 //..
@@ -455,10 +457,10 @@ BSLS_IDENT("$Id: $")
 // inserted element will be the same as 'first', i.e., the representation is
 // transferred:
 //..
-//  vvector.push_back(bslmf::MovableRefUtil::move(vector2)); // move
-//  assert(vvector.size() == 2);
-//  assert(vvector[1].begin() == first);
-//  assert(vvector[1].size() == 5);
+//  vVector.push_back(bslmf::MovableRefUtil::move(vector2)); // move
+//  assert(vVector.size() == 2);
+//  assert(vVector[1].begin() == first);
+//  assert(vVector[1].size() == 5);
 //..
 // Compiling this code with both C++03 and C++11 compilers shows that there is
 // no need for conditional compilation in when using 'MovableRef<TYPE>' while
@@ -483,8 +485,8 @@ namespace bslmf {
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
-         && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-#    define BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#   define BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
     // This macro indicates whether the component uses C++11 r-value references
     // to implement 'bslmf::MovableRef<TYPE>'.  It will evaluate to 'false' for
     // C++03 implementations and to 'true' for proper C++11 implementations.
@@ -499,6 +501,10 @@ struct MovableRef_Helper {
     // The class template 'MovableRef_Helper' just defines a nested type
     // 'type' that is used by an alias template.  Using this indirection the
     // template argument of the alias template is prevented from being deduced.
+
+  public:
+    // PUBLIC TYPES
+
     using type = TYPE&&;
         // The type 'type' defined to be an r-value reference to the argument
         // type of 'MovableRef_Helper.
@@ -554,6 +560,8 @@ struct MovableRefUtil {
     // to create a consistent notation for using the C++03 'MovableRef<TYPE>'
     // objects and the C++11 'TYPE&&' r-value references.
 
+  public:
+    // CLASS METHODS
     template <class TYPE>
     static TYPE& access(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT;
         // Return a reference to the specified 'lvalue'.  This overload of
@@ -592,13 +600,13 @@ struct MovableRefUtil {
     static
     MovableRef<typename bsl::remove_reference<TYPE>::type>
     move(MovableRef<TYPE> reference) BSLS_KEYWORD_NOEXCEPT;
-#else
+#else // support r-value references and alias templates
     template <class TYPE>
     static
     BSLS_KEYWORD_CONSTEXPR
     MovableRef<typename bsl::remove_reference<TYPE>::type>
     move(TYPE&& reference) BSLS_KEYWORD_NOEXCEPT;
-#endif // support r-value references and alias templates
+#endif
         // Return a movable reference to the object referred to by the
         // specified 'reference'.
 
@@ -628,7 +636,7 @@ struct MovableRefUtil {
         // is used.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         return static_cast<typename bsl::remove_reference<TYPE>::type&&>(
-                                       lvalue);
+                                                                       lvalue);
 #else
         return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
 #endif
