@@ -6,6 +6,8 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstdlib.h>       // 'atoi'
 #include <bsl_cstring.h>       // 'strcmp', 'memcmp', 'memcpy'
 #include <bsl_ios.h>
@@ -50,7 +52,8 @@ using namespace bsl;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -107,14 +110,20 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef baltzo::ErrorCode::Enum Enum;
 typedef baltzo::ErrorCode       Obj;
+typedef bsls::Types::IntPtr     IntPtr;
 
 // ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-const int NUM_ENUMERATORS = 1;
+const int NUM_ENUMERATORS = 2;
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
+
+Enum e(int x)
+{
+    return static_cast<Enum>(x);
+}
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -247,10 +256,10 @@ if (veryVerbose)
             //---- ----- --- ---------------------------  ------------------
             { L_,    0,   4, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
 
-            { L_,    0,   4, (Enum)(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT NL  },
-            { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL  },
-            { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL  },
-            { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL  },
+            { L_,    0,   4, e(NUM_ENUMERATORS + 1),      UNKNOWN_FORMAT NL  },
+            { L_,    0,   4, e(-1),                       UNKNOWN_FORMAT NL  },
+            { L_,    0,   4, e(-5),                       UNKNOWN_FORMAT NL  },
+            { L_,    0,   4, e(99),                       UNKNOWN_FORMAT NL  },
 
             { L_,    0,  -1, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID"    },
             { L_,    0,   0, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
@@ -261,6 +270,16 @@ if (veryVerbose)
             { L_,   -2,   1, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
             { L_,    2,   1, Obj::k_UNSUPPORTED_ID,    "  UNSUPPORTED_ID" NL },
             { L_,    1,   3, Obj::k_UNSUPPORTED_ID,   "   UNSUPPORTED_ID" NL },
+
+            { L_,    0,  -1, Obj::k_OUT_OF_RANGE,        "OUT_OF_RANGE"      },
+            { L_,    0,   0, Obj::k_OUT_OF_RANGE,        "OUT_OF_RANGE"   NL },
+            { L_,    0,   2, Obj::k_OUT_OF_RANGE,        "OUT_OF_RANGE"   NL },
+            { L_,    1,   1, Obj::k_OUT_OF_RANGE,       " OUT_OF_RANGE"   NL },
+            { L_,    1,   2, Obj::k_OUT_OF_RANGE,      "  OUT_OF_RANGE"   NL },
+            { L_,   -1,   2, Obj::k_OUT_OF_RANGE,        "OUT_OF_RANGE"   NL },
+            { L_,   -2,   1, Obj::k_OUT_OF_RANGE,        "OUT_OF_RANGE"   NL },
+            { L_,    2,   1, Obj::k_OUT_OF_RANGE,      "  OUT_OF_RANGE"   NL },
+            { L_,    1,   3, Obj::k_OUT_OF_RANGE,     "   OUT_OF_RANGE"   NL },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -273,7 +292,7 @@ if (veryVerbose)
         const char *CTRL = mCtrl;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        ASSERT(Obj::k_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
+        ASSERT(Obj::k_UNSUPPORTED_ID == Obj::BAETZO_UNSUPPORTED_ID);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "\nTesting 'print'." << endl;
@@ -296,7 +315,7 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
 
-            const int SZ = strlen(EXP) + 1;
+            const IntPtr SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
             LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
@@ -398,10 +417,12 @@ if (veryVerbose)
             //----    ----------------------          -----------------
             { L_,     Obj::k_UNSUPPORTED_ID,          "UNSUPPORTED_ID"   },
 
-            { L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
-            { L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
-            { L_,     (Enum)-5,                       UNKNOWN_FORMAT     },
-            { L_,     (Enum)99,                       UNKNOWN_FORMAT     },
+            { L_,     Obj::k_OUT_OF_RANGE,            "OUT_OF_RANGE"     },
+
+            { L_,     e(NUM_ENUMERATORS + 1),         UNKNOWN_FORMAT     },
+            { L_,     e(-1),                          UNKNOWN_FORMAT     },
+            { L_,     e(-5),                          UNKNOWN_FORMAT     },
+            { L_,     e(99),                          UNKNOWN_FORMAT     },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -430,7 +451,7 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
 
-            const int SZ = strlen(EXP) + 1;
+            const IntPtr SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
             LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
@@ -508,11 +529,12 @@ if (veryVerbose)
             // line         enumerator value            expected result
             // ----    ---------------------------     -----------------
             {  L_,     Obj::k_UNSUPPORTED_ID,          "UNSUPPORTED_ID"   },
+            {  L_,     Obj::k_OUT_OF_RANGE,            "OUT_OF_RANGE"     },
 
-            {  L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
-            {  L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
-            {  L_,     (Enum)-5,                       UNKNOWN_FORMAT     },
-            {  L_,     (Enum)99,                       UNKNOWN_FORMAT     }
+            {  L_,     e(NUM_ENUMERATORS + 1),         UNKNOWN_FORMAT     },
+            {  L_,     e(-1),                          UNKNOWN_FORMAT     },
+            {  L_,     e(-5),                          UNKNOWN_FORMAT     },
+            {  L_,     e(99),                          UNKNOWN_FORMAT     }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -520,7 +542,7 @@ if (veryVerbose)
                           << endl;
 
         for (int ti = 1; ti <= NUM_ENUMERATORS; ++ti) {
-            const Enum VALUE = DATA[ti - 1].d_value;  // TBD
+            const Enum VALUE = DATA[ti - 1].d_value;
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 

@@ -39,6 +39,7 @@ const char *ErrorCode::toAscii(ErrorCode::Enum value)
 
     switch (value) {
       CASE(UNSUPPORTED_ID)
+      CASE(OUT_OF_RANGE)
       default: return "(* UNKNOWN *)";
     }
 
