@@ -26,6 +26,7 @@
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
@@ -1048,7 +1049,28 @@ static void test4_signaler_connect()
     }
 }
 
-static void test5_signaler_disconnectGroup()
+namespace test5_signaler {
+
+struct GroupDisconnector {
+    // DATA
+    bdlmt::Signaler<void()> *d_signaler_p;
+    int                      d_group;
+
+    // CREATOR
+    GroupDisconnector(bdlmt::Signaler<void()> *signaler_p,
+                      int                      group)
+    : d_signaler_p(signaler_p)
+    , d_group(group)
+    {}
+
+    // ACCESSOR
+    void operator()() const
+    {
+        d_signaler_p->disconnectGroup(d_group);
+    }
+};
+
+static void disconnectGroup()
     // ------------------------------------------------------------------------
     // SIGNALER DISCONNECT GROUP
     //
@@ -1139,19 +1161,13 @@ static void test5_signaler_disconnectGroup()
         // connect slots with group '1'
         // the first slot in this group disconnects group '0'
         // the second slot in this group disconnects group '2'
-        bdlmt::SignalerConnection con3 = sig.connect(
-                                bdlf::BindUtil::bind(
-                                     &bdlmt::Signaler<void()>::disconnectGroup,
-                                     &sig,
-                                     0),
-                                1);
+        bdlmt::SignalerConnection con3 = sig.connect(GroupDisconnector(&sig,
+                                                                       0),
+                                                     1);
 
-        bdlmt::SignalerConnection con4 = sig.connect(
-                                bdlf::BindUtil::bind(
-                                     &bdlmt::Signaler<void()>::disconnectGroup,
-                                     &sig,
-                                     2),
-                                1);
+        bdlmt::SignalerConnection con4 = sig.connect(GroupDisconnector(&sig,
+                                                                       2),
+                                                     1);
 
         // connect slots with group '2'
         bdlmt::SignalerConnection con5 = sig.connect(u::NoOp(), 2);
@@ -1184,12 +1200,9 @@ static void test5_signaler_disconnectGroup()
         // the second slot disconnect group '1' (which it belongs to)
         bdlmt::SignalerConnection con3 = sig.connect(u::NoOp(), 1);
 
-        bdlmt::SignalerConnection con4 = sig.connect(
-                                bdlf::BindUtil::bind(
-                                     &bdlmt::Signaler<void()>::disconnectGroup,
-                                     &sig,
-                                     1),
-                                1);
+        bdlmt::SignalerConnection con4 = sig.connect(GroupDisconnector(&sig,
+                                                                       1),
+                                                     1);
 
         // connect slots with group '2'
         bdlmt::SignalerConnection con5 = sig.connect(u::NoOp(), 2);
@@ -1210,6 +1223,8 @@ static void test5_signaler_disconnectGroup()
         ASSERT_EQ(con6.isConnected(), true);
     }
 }
+
+}  // close namespace test5_signaler
 
 static void test6_signaler_disconnectGroupAndWait()
     // ------------------------------------------------------------------------
@@ -1353,7 +1368,26 @@ static void test6_signaler_disconnectGroupAndWait()
     }
 }
 
-static void test7_signaler_disconnectAllSlots()
+namespace test7_signaler {
+
+struct AllSlotsDisconnector {
+    // DATA
+    bdlmt::Signaler<void()> *d_signaler_p;
+
+    // CREATOR
+    explicit
+    AllSlotsDisconnector(bdlmt::Signaler<void()> *signaler_p)
+    : d_signaler_p(signaler_p)
+    {}
+
+    // ACCESSOR
+    void operator()() const
+    {
+        d_signaler_p->disconnectAllSlots();
+    }
+};
+
+static void disconnectAllSlots()
     // ------------------------------------------------------------------------
     // SIGNALER DISCONNECT ALL SLOTS
     //
@@ -1397,6 +1431,8 @@ static void test7_signaler_disconnectAllSlots()
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
         bdlmt::SignalerConnection con2 = sig.connect(u::NoOp());
 
+        ASSERT_EQ(sig.slotCount(),    2u);
+
         // disconnect all
         sig.disconnectAllSlots();
 
@@ -1413,12 +1449,12 @@ static void test7_signaler_disconnectAllSlots()
         // connect 3 slots, the seconds one calls 'disconnectAllSlots()'
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
 
-        bdlmt::SignalerConnection con2 = sig.connect(
-                             bdlf::BindUtil::bind(
-                                  &bdlmt::Signaler<void()>::disconnectAllSlots,
-                                  &sig));
+        bdlmt::SignalerConnection con2 = sig.connect(AllSlotsDisconnector(
+                                                                        &sig));
 
         bdlmt::SignalerConnection con3 = sig.connect(u::NoOp());
+
+        ASSERT_EQ(sig.slotCount(),    3u);
 
         // invoke signaler
         sig();
@@ -1430,6 +1466,8 @@ static void test7_signaler_disconnectAllSlots()
         ASSERT_EQ(con3.isConnected(), false);
     }
 }
+
+}  // close namespace test7_signaler
 
 static void test8_signaler_disconnectAllSlotsAndWait()
     // ------------------------------------------------------------------------
@@ -1703,7 +1741,26 @@ static void test11_connection_assignment()
     }
 }
 
-static void test12_connection_disconnect()
+namespace test12 {
+
+struct ConnectionDisconnector {
+    // DATA
+    bdlmt::SignalerConnection *d_connection;
+
+    // CREATOR
+    explicit
+    ConnectionDisconnector(bdlmt::SignalerConnection *connection)
+    : d_connection(connection)
+    {}
+
+    // ACCESSOR
+    void operator()() const
+    {
+        d_connection->disconnect();
+    }
+};
+
+static void connection_disconnect()
     // -----------------------------------------------------------------------
     // CONNECTION DISCONNECT
     //
@@ -1821,14 +1878,10 @@ static void test12_connection_disconnect()
                                                        "1_"));
 
         // slot #2, disconnects slot #1
-        con2 = sig.connect(bdlf::BindUtil::bind(
-                                 &bdlmt::SignalerConnection::disconnect,
-                                 &con1));
+        con2 = sig.connect(ConnectionDisconnector(&con1));
 
         // slot #3, disconnects slot #4
-        con3 = sig.connect(bdlf::BindUtil::bind(
-                                 &bdlmt::SignalerConnection::disconnect,
-                                 &con4));
+        con3 = sig.connect(ConnectionDisconnector(&con4));
 
         // slot #4, prints "4_"
         con4 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
@@ -1867,9 +1920,7 @@ static void test12_connection_disconnect()
                                                        "1_"));
 
         // slot #2, disconnects itself
-        con2 = sig.connect(bdlf::BindUtil::bind(
-                                 &bdlmt::SignalerConnection::disconnect,
-                                 &con2));
+        con2 = sig.connect(ConnectionDisconnector(&con2));
 
         // slot #3, prints "3_"
         con3 = sig.connect(bdlf::BindUtil::bindR<void>(u::PrintStr1(),
@@ -1877,9 +1928,7 @@ static void test12_connection_disconnect()
                                                        "3_"));
 
         // slot #2, disconnects itself
-        con4 = sig.connect(bdlf::BindUtil::bind(
-                                 &bdlmt::SignalerConnection::disconnect,
-                                 &con4));
+        con4 = sig.connect(ConnectionDisconnector(&con4));
 
         {
             // slot #5, prints "5_"
@@ -1922,6 +1971,8 @@ static void test12_connection_disconnect()
         ASSERTV(out.str(), "1_3_" == out.str());
     }
 }
+
+}  // close namespace test12
 
 static void test13_connection_disconnectAndWait()
 {
@@ -2809,14 +2860,7 @@ static void test20_guard_swap()
 
 namespace test21_signaler {
 
-inline
-double ratio(int ii)
-{
-    double ret = ii;
-    ret /= (ii + 1);
-
-    return ret;
-}
+typedef bsls::Types::Int64 Int64;
 
 template <class TYPE>
 inline
@@ -2834,7 +2878,7 @@ TYPE cube(TYPE x)
 
 struct Functor {
     // DATA
-    double d_data;
+    Int64 d_fib;
 
   private:
     // NOT IMPLEMENTED
@@ -2843,40 +2887,40 @@ struct Functor {
   public:
     // CREATOR
     explicit
-    Functor(double data) : d_data(data)
+    Functor(Int64 fib) : d_fib(fib)
     {
         // NOTHING
     }
 
     Functor(const Functor& original)
-    : d_data(original.d_data)
+    : d_fib(original.d_fib)
     {
         // NOTHING
     }
 
     // MANIPULATOR
-    double operator()(double& sum, double& sumSquares)                // LVALUE
+    Int64 operator()(Int64& sum, Int64& sumSquares)                   // LVALUE
     {
-        sum        += d_data;
-        sumSquares += d_data * d_data;
+        sum        += d_fib;
+        sumSquares += d_fib * d_fib;
 
         return sum + sumSquares;
     }
 
-    double operator()(double        a1,
-                      double        a2,
-                      const double  a3,
-                      const int&    a4,
-                      const int     a5,
-                      const double& a6,
-                      double&       sum,
-                      double&       sumSquared,
-                      double&       sumCubed)                         // LVALUE
+    Int64 operator()(Int64        a1,
+                     Int64        a2,
+                     const Int64  a3,
+                     const int&   a4,
+                     const int    a5,
+                     const Int64& a6,
+                     Int64&       sum,
+                     Int64&       sumSquared,
+                     Int64&       sumCubed)                           // LVALUE
     {
-        sum        += d_data + a1 + a2 + a3 + a4 + a5 + a6;
-        sumSquared += sqr(d_data) + sqr(a1) + sqr(a2) + sqr(a3) + sqr(a4) +
+        sum        += d_fib + a1 + a2 + a3 + a4 + a5 + a6;
+        sumSquared += sqr(d_fib) + sqr(a1) + sqr(a2) + sqr(a3) + sqr(a4) +
                                                              sqr(a5) + sqr(a6);
-        sumCubed   += cube(d_data) + cube(a1) + cube(a2) + cube(a3) +
+        sumCubed   += cube(d_fib) + cube(a1) + cube(a2) + cube(a3) +
                                                 cube(a4) + cube(a5) + cube(a6);
 
         return sum + sumSquared + sumCubed;
@@ -2886,29 +2930,29 @@ struct Functor {
 void test_lvaluesComplex()
 {
     bslma::TestAllocator                      alloc;
-    const double data[] = { 0.1, -78.2, 31e5, -43.2e2, 0.99, 43.4 };
-    enum { k_NUM_DATA = sizeof data / sizeof *data };
+    const Int64 fibs[] = { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233 };
+    enum { k_NUM_FIBS = sizeof fibs / sizeof *fibs };
 
     if (verbose) cout << "Complex multi-args passed by lvalues cases\n";
 
     if (veryVerbose) cout << "Two arg case:\n";
     {
-        bdlmt::Signaler<void(double&, double&)> sig(&alloc);
+        bdlmt::Signaler<void(Int64&, Int64&)> sig(&alloc);
 
-        for (int ii = 0; ii < k_NUM_DATA; ++ii) {
-            (void) sig.connect(Functor(data[ii]));
+        for (int ii = 0; ii < k_NUM_FIBS; ++ii) {
+            (void) sig.connect(Functor(fibs[ii]));
         }
 
-        double sumA = 0, sumSquaresA = 0;
+        Int64 sumA = 0, sumSquaresA = 0;
         sig(sumA, sumSquaresA);
 
         ASSERT(0 != sumA);
         ASSERT(0 != sumSquaresA);
 
-        double sumB = 0, sumSquaresB = 0;
-        for (int ii = 0; ii < k_NUM_DATA; ++ii) {
-            sumB        += data[ii];
-            sumSquaresB += data[ii] * data[ii];
+        Int64 sumB = 0, sumSquaresB = 0;
+        for (int ii = 0; ii < k_NUM_FIBS; ++ii) {
+            sumB        += fibs[ii];
+            sumSquaresB += fibs[ii] * fibs[ii];
         }
 
         ASSERT(sumA == sumB);
@@ -2917,24 +2961,24 @@ void test_lvaluesComplex()
 
     if (veryVerbose) cout << "Nine arg case:\n";
     {
-        bdlmt::Signaler<void(double,
-                             double,
-                             const double,
+        bdlmt::Signaler<void(Int64,
+                             Int64,
+                             const Int64,
                              const int&,
                              const int,
-                             const double&,
-                             double&,
-                             double&,
-                             double&)>          sig(&alloc);
+                             const Int64&,
+                             Int64&,
+                             Int64&,
+                             Int64&)>          sig(&alloc);
 
-        for (int ii = 0; ii < k_NUM_DATA; ++ii) {
-            (void) sig.connect(Functor(data[ii]));
+        for (int ii = 0; ii < k_NUM_FIBS; ++ii) {
+            (void) sig.connect(Functor(fibs[ii]));
         }
 
-        double sumA = 0, sumSquaredA = 0, sumCubedA = 0;
+        Int64 sumA = 0, sumSquaredA = 0, sumCubedA = 0;
 
         for (int ii = 5; ii < 100; ii += 5) {
-            sig(ratio(ii+1), ratio(ii+2), ratio(ii+3), ii+4, ii+5, ratio(ii+6),
+            sig(ii+1, ii+2, ii+3, ii+4, ii+5, ii+6,
                                                  sumA, sumSquaredA, sumCubedA);
         }
 
@@ -2942,22 +2986,22 @@ void test_lvaluesComplex()
         ASSERT(0 != sumSquaredA);
         ASSERT(0 != sumCubedA);
 
-        double sumB = 0, sumSquaredB = 0, sumCubedB = 0;
+        Int64 sumB = 0, sumSquaredB = 0, sumCubedB = 0;
 
         for (int ii = 5; ii < 100; ii += 5) {
-            double a1 = ratio(ii + 1);
-            double a2 = ratio(ii + 2);
-            double a3 = ratio(ii + 3);
-            int    a4 = ii + 4;
-            int    a5 = ii + 5;
-            double a6 = ratio(ii + 6);
+            Int64 a1 = ii + 1;
+            Int64 a2 = ii + 2;
+            Int64 a3 = ii + 3;
+            int   a4 = ii + 4;
+            int   a5 = ii + 5;
+            Int64 a6 = ii + 6;
 
-            for (int jj = 0; jj < k_NUM_DATA; ++jj) {
-                double d = data[jj];
-                sumB        += d + a1 + a2 + a3 + a4 + a5 + a6;
-                sumSquaredB += sqr(d) + sqr(a1) + sqr(a2) + sqr(a3) + sqr(a4) +
+            for (int jj = 0; jj < k_NUM_FIBS; ++jj) {
+                Int64 f = fibs[jj];
+                sumB        += f + a1 + a2 + a3 + a4 + a5 + a6;
+                sumSquaredB += sqr(f) + sqr(a1) + sqr(a2) + sqr(a3) + sqr(a4) +
                                                              sqr(a5) + sqr(a6);
-                sumCubedB   += cube(d) + cube(a1) + cube(a2) + cube(a3) +
+                sumCubedB   += cube(f) + cube(a1) + cube(a2) + cube(a3) +
                                                 cube(a4) + cube(a5) + cube(a6);
             }
         }
@@ -3010,7 +3054,7 @@ struct MultiFunctor {
         a4 *= 2;
     }
 
-    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5)    // LVALUE
+    Int64 operator()(int& a1, int& a2, int& a3, int& a4, int& a5)    // LVALUE
     {
         ASSERT(1 == a1);
         ASSERT(2 == a2);
@@ -3026,7 +3070,7 @@ struct MultiFunctor {
         return a1;
     }
 
-    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5,
+    Int64 operator()(int& a1, int& a2, int& a3, int& a4, int& a5,
                                                              int& a6) // LVALUE
     {
         ASSERT(1 == a1);
@@ -3045,7 +3089,7 @@ struct MultiFunctor {
         return a1;
     }
 
-    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
+    Int64 operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
                                                              int& a7) // LVALUE
     {
         ASSERT(1 == a1);
@@ -3066,7 +3110,7 @@ struct MultiFunctor {
         return a1;
     }
 
-    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
+    Int64 operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
                                                     int& a7, int& a8) // LVALUE
     {
         ASSERT(1 == a1);
@@ -3089,7 +3133,7 @@ struct MultiFunctor {
         return a1;
     }
 
-    double operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
+    Int64 operator()(int& a1, int& a2, int& a3, int& a4, int& a5, int& a6,
                                            int& a7, int& a8, int& a9) // LVALUE
     {
         ASSERT(1 == a1);
@@ -3484,14 +3528,14 @@ int main(int argc, char *argv[])
       case  2:  { test2_signaler_destructor();                } break;
       case  3:  { test3_signaler::callOperator();             } break;
       case  4:  { test4_signaler_connect();                   } break;
-      case  5:  { test5_signaler_disconnectGroup();           } break;
+      case  5:  { test5_signaler::disconnectGroup();          } break;
       case  6:  { test6_signaler_disconnectGroupAndWait();    } break;
-      case  7:  { test7_signaler_disconnectAllSlots();        } break;
+      case  7:  { test7_signaler::disconnectAllSlots();       } break;
       case  8:  { test8_signaler_disconnectAllSlotsAndWait(); } break;
       case  9:  { test9_signaler_slotCount();                 } break;
       case  10: { test10_connection_creators();               } break;
       case  11: { test11_connection_assignment();             } break;
-      case  12: { test12_connection_disconnect();             } break;
+      case  12: { test12::connection_disconnect();            } break;
       case  13: { test13_connection_disconnectAndWait();      } break;
       case  14: { test14_connection_reset();                  } break;
       case  15: { test15_connection_swap();                   } break;
