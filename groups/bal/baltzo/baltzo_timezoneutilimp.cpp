@@ -226,7 +226,7 @@ int TimeZoneUtilImp::convertUtcToLocalTime(
                                              utcTime,
                                              *timeZone);
     if (0 != rc) {
-        return -1;                                                    // RETURN
+        return rc;                                                    // RETURN
     }
     return 0;
 }

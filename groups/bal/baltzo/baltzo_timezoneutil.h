@@ -483,7 +483,9 @@ struct TimeZoneUtil {
         // the time zone is rounded down to minute precision.  Return 0 on
         // success, and a non-zero value with no effect otherwise.  A return
         // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that
-        // 'targetTimeZoneId' was not recognized.
+        // 'targetTimeZoneId' was not recognized, and a return value of
+        // 'ErrorCode::k_OUT_OF_RANGE' indicates that an out of range value of
+        // 'result' would have occurred.
 
     static int convertLocalToLocalTime(LocalDatetime        *result,
                                        const char           *targetTimeZoneId,

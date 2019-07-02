@@ -195,6 +195,7 @@ void addTransitions(baltzo::Zoneinfo            *result,
     // 'descriptions', of length 'numDescriptions'.
 {
     BSLS_ASSERT(result);
+
     for (int i = 0; i < numDescriptions; ++i) {
         const char *TRANS = descriptions[i].d_transitionTime;
         baltzo::LocalTimeDescriptor desc(descriptions[i].d_offsetMins * 60,
@@ -663,11 +664,11 @@ int main(int argc, char *argv[])
             addTransitions(&tz, TZ_DATA, NUM_TZ_DATA);
 
             struct {
-               int             d_line;
-               const char     *d_testTime;
-               Validity::Enum  d_validity;
-               int             d_firstIdx;
-               int             d_secondIdx;
+                int             d_line;
+                const char     *d_testTime;
+                Validity::Enum  d_validity;
+                int             d_firstIdx;
+                int             d_secondIdx;
             } DATA[] = {
                 { L_, "0001-01-01T00:00:00.000", U, 0, 0 },
                 // Transition idx 1: 0002-01-01T12:00:00.000, offset: -11:59
