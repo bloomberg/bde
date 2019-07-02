@@ -248,10 +248,102 @@ public:
 	// for 'TYPE'.  'HasPrintMethod' is always true for 'NullableValue'.
 
 	// CREATORS
-	using std::pmr::optional<TYPE>::optional;
+	NullableValue();
+		// Create a nullable object having the null value.  If 'TYPE' takes an
+		// optional allocator at construction, use the currently installed
+		// default allocator to supply memory.
 
-	constexpr NullableValue(const NullableValue&) = default;
-	constexpr NullableValue(NullableValue&&) = default;
+	explicit NullableValue(bslma::Allocator *basicAllocator);
+		// Create a nullable object that has the null value and that uses the
+		// specified 'basicAllocator' to supply memory.  Note that this method
+		// will fail to compile if 'TYPE' does not take an optional allocator
+		// at construction.
+
+	NullableValue(const NullableValue&) = default;
+	NullableValue(NullableValue&&) = default;
+/*	    NullableValue(const NullableValue& original);
+		// Create a nullable object having the value of the specified
+		// 'original' object.  If 'TYPE' takes an optional allocator at
+		// construction, use the currently installed default allocator to
+		// supply memory.
+
+	NullableValue(bslmf::MovableRef<NullableValue> original);
+		// Create a nullable object having the same value as the specified
+		// 'original' object by moving the contents of 'original' to the
+		// newly-created object.  If 'TYPE' takes an optional allocator at
+		// construction, the allocator associated with 'original' is propagated
+		// for use in the newly-created object.  'original' is left in a valid
+		// but unspecified state.
+*/
+	NullableValue(const NullableValue&  original,
+				  bslma::Allocator     *basicAllocator);
+		// Create a nullable object that has the value of the specified
+		// 'original' object and that uses the specified 'basicAllocator' to
+		// supply memory.  Note that this method will fail to compile if 'TYPE'
+		// does not take an optional allocator at construction.
+
+	NullableValue(bslmf::MovableRef<NullableValue>  original,
+				  bslma::Allocator                 *basicAllocator);
+		// Create a nullable object having the same value as the specified
+		// 'original' object that uses the specified 'basicAllocator' to supply
+		// memory.  If 'basicAllocator' is 0, the default allocator is used.
+		// The contents of 'original' are moved to the newly-created object.
+		// 'original' is left in a valid but unspecified state.  Note that this
+		// method will fail to compile if 'TYPE' does not take an optional
+		// allocator at construction.
+
+	template <class BDE_OTHER_TYPE>
+	NullableValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
+				  typename bsl::enable_if<
+					  bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value
+					  &&
+					  !bsl::is_convertible<BDE_OTHER_TYPE,
+										   bslma::Allocator *>::value,
+					  void>::type * = 0);                           // IMPLICIT
+		// Create a nullable object having the specified 'value' (of
+		// 'BDE_OTHER_TYPE') converted to 'TYPE'.  If 'TYPE' takes an optional
+		// allocator at construction, use the currently installed default
+		// allocator to supply memory.  Note that this constructor does not
+		// participate in overload resolution unless 'BDE_OTHER_TYPE' is
+		// convertible to 'TYPE' and not convertible to 'bslma::Allocator *'.
+
+	template <class BDE_OTHER_TYPE>
+	NullableValue(
+			 BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE)  value,
+			 bslma::Allocator                                  *basicAllocator,
+			 typename bsl::enable_if<
+				 bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
+				 void>::type * = 0);
+		// Create a nullable object that has the specified 'value' (of
+		// 'BDE_OTHER_TYPE') converted to 'TYPE', and that uses the specified
+		// 'basicAllocator' to supply memory.  Note that this method will fail
+		// to compile if 'TYPE' does not take an optional allocator at
+		// construction.  Also note that this constructor does not participate
+		// in overload resolution unless 'BDE_OTHER_TYPE' is convertible to
+		// 'TYPE'.
+
+	template <class BDE_OTHER_TYPE>
+	explicit NullableValue(const NullableValue<BDE_OTHER_TYPE>& original);
+		// Create a nullable object having the null value if the specified
+		// 'original' object is null, and the value of 'original.value()' (of
+		// 'BDE_OTHER_TYPE') converted to 'TYPE' otherwise.  If 'TYPE' takes an
+		// optional allocator at construction, use the currently installed
+		// default allocator to supply memory.  Note that this method will fail
+		// to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
+
+	template <class BDE_OTHER_TYPE>
+	NullableValue(const NullableValue<BDE_OTHER_TYPE>&  original,
+				  bslma::Allocator                     *basicAllocator);
+		// Create a nullable object that has the null value if the specified
+		// 'original' object is null, and the value of 'original.value()' (of
+		// 'BDE_OTHER_TYPE') converted to 'TYPE' otherwise; use the specified
+		// 'basicAllocator' to supply memory.  Note that this method will fail
+		// to compile if 'TYPE' does not take an optional allocator at
+		// construction, or if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
+
+	// ~NullableValue();
+		// Destroy this object.  Note that this destructor is generated by the
+		// compiler.
 
 	// MANIPULATORS
     NullableValue<TYPE>& operator=(const NullableValue& rhs);
@@ -607,6 +699,113 @@ STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 
     return stream;
 }
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                      // -------------------------
+                      // class NullableValue<TYPE>
+                      // -------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+NullableValue<TYPE>::NullableValue()
+:std::pmr::optional<TYPE>(std::allocator_arg_t{},
+		std::pmr::polymorphic_allocator<void>(
+						(std::pmr::memory_resource*)(bslma::Default::allocator(nullptr))))
+{
+}
+
+template <class TYPE>
+inline
+NullableValue<TYPE>::NullableValue(bslma::Allocator *basicAllocator)
+: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+		std::pmr::polymorphic_allocator<void>(
+				(std::pmr::memory_resource*)(bslma::Default::allocator(basicAllocator))))
+{
+}
+
+template <class TYPE>
+inline
+NullableValue<TYPE>::NullableValue(const NullableValue&  original,
+                                   bslma::Allocator     *basicAllocator)
+: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+		                   (std::pmr::polymorphic_allocator<void>)(
+		                		   (std::pmr::memory_resource*)(bslma::Default::allocator(basicAllocator))))
+{
+	if (!original.isNull()) {
+	   this->makeValue(original.value());
+	}
+}
+
+template <class TYPE>
+inline
+NullableValue<TYPE>::NullableValue(
+                              bslmf::MovableRef<NullableValue>  original,
+                              bslma::Allocator                 *basicAllocator)
+: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+  		                   std::pmr::polymorphic_allocator<void>(
+  		                		   (std::pmr::memory_resource*)(bslma::Default::allocator(basicAllocator))))
+{
+	if (!original.isNull()) {
+	   this->makeValue( MoveUtil::move(original.value()));
+	}
+}
+
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+inline
+NullableValue<TYPE>::NullableValue(
+    BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
+    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value
+                            &&
+                            !bsl::is_convertible<BDE_OTHER_TYPE,
+                                                 bslma::Allocator *>::value,
+                            void>::type *)
+: std::pmr::optional<TYPE>(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
+{
+}
+
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+inline
+NullableValue<TYPE>::NullableValue(
+    BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE)  value,
+    bslma::Allocator                                  *basicAllocator,
+    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
+                            void>::type *)
+: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+          std::pmr::polymorphic_allocator<void>((std::pmr::memory_resource*)
+        		  (bslma::Default::allocator(basicAllocator))),
+		  BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
+{
+}
+
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+inline
+NullableValue<TYPE>::NullableValue(
+                                 const NullableValue<BDE_OTHER_TYPE>& original)
+: std::pmr::optional<TYPE>((std::pmr::optional<BDE_OTHER_TYPE>)original)
+{
+}
+
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+inline
+NullableValue<TYPE>::NullableValue(
+                          const NullableValue<BDE_OTHER_TYPE>&  original,
+                          bslma::Allocator                     *basicAllocator)
+: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+        std::pmr::polymorphic_allocator<void>((std::pmr::memory_resource*)
+        		(bslma::Default::allocator(basicAllocator))))
+{
+	if (!original.isNull()) {
+		   this->makeValue( MoveUtil::move(original.value()));
+	}
+}
+
 
 // ACCESSORS
 template <class TYPE>
@@ -689,12 +888,11 @@ template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                       const NullableValue<BDE_OTHER_TYPE>& rhs)
 {
-	const std::pmr::optional<BDE_OTHER_TYPE>& rhs_base = rhs;
 	if (rhs.isNull()) {
     	this->reset();
     }
     else {
-    	this->makeValue(rhs_base.value());
+    	this->makeValue(rhs.value());
     }
     return *this;
 }

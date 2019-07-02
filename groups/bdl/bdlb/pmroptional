@@ -59,39 +59,26 @@ namespace pmr {
     class optional;
 
   // Payload for optionals with non-trivial destructor.
-  template <typename _Tp,
-	    bool /*_HasTrivialDestructor*/ =
-	      is_trivially_destructible_v<_Tp>,
-	    bool /*_HasTrivialCopyAssignment*/ =
-	      is_trivially_copy_assignable_v<_Tp>,
-	    bool /*_HasTrivialMoveAssignment*/ =
-	      is_trivially_move_assignable_v<_Tp>>
+  template <typename _Tp>
     struct _Optional_payload
     {
       constexpr _Optional_payload() noexcept : _M_empty() { }
 
-      template <typename... _Args>
-	constexpr
-	_Optional_payload(in_place_t, _Args&&... __args)
-	: _M_payload(std::forward<_Args>(__args)...), _M_engaged(true) { }
 
       template<typename _Up, typename... _Args>
 	constexpr
 	_Optional_payload(std::initializer_list<_Up> __il,
 			  _Args&&... __args)
-	: _M_payload(__il, std::forward<_Args>(__args)...),
-	  _M_engaged(true)
-	{ }
+	{ 
+	  _M_construct(__il, std::forward<_Args>(__args)...);
+	  }
 
       template <typename... _Args>
 	constexpr
 	_Optional_payload(memory_resource* __pmr, _Args&&... __args)
         {
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
-	  _M_construct(std::forward<_Args>(__args)...);
+	   _M_pmr = __pmr;
+	   _M_construct(std::forward<_Args>(__args)...);
 	}
 
       template<typename _Up, typename... _Args>
@@ -99,22 +86,12 @@ namespace pmr {
         _Optional_payload(memory_resource* __pmr, std::initializer_list<_Up> __il,
 			  _Args&&... __args)
 	{
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
+
+      _M_pmr = __pmr;
 	  _M_construct(__il, std::forward<_Args>(__args)...);
 	}
 
-      constexpr
-      _Optional_payload(bool __engaged, const _Optional_payload& __other)
-      : _Optional_payload(__other)
-      { }
-
-      constexpr
-      _Optional_payload(bool __engaged, _Optional_payload&& __other)
-      : _Optional_payload(std::move(__other))
-      { }
+      
 
       constexpr
       _Optional_payload(const _Optional_payload& __other)
@@ -221,564 +198,6 @@ namespace pmr {
       }
     };
 
-  // Payload for potentially-constexpr optionals.
-  template <typename _Tp>
-    struct _Optional_payload<_Tp, true, true, true>
-    {
-      constexpr _Optional_payload() noexcept
-      : _M_empty(), _M_engaged(false), _M_pmr(nullptr) { }
-
-      template<typename... _Args>
-	constexpr
-	_Optional_payload(in_place_t, _Args&&... __args)
-	: _M_payload(std::forward<_Args>(__args)...), _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template<typename _Up, typename... _Args>
-	constexpr
-	_Optional_payload(std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	: _M_payload(__il, std::forward<_Args>(__args)...),
-	  _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template<typename... _Args>
-	constexpr
-	_Optional_payload(memory_resource* __pmr, _Args&&... __args)
-	: _M_payload(std::forward<_Args>(__args)...), _M_engaged(true),
-	  _M_pmr(__pmr ? __pmr : std::pmr::get_default_resource())
-	{ }
-
-      template<typename _Up, typename... _Args>
-	constexpr
-        _Optional_payload(memory_resource* __pmr, std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	: _M_payload(__il, std::forward<_Args>(__args)...),
-	  _M_engaged(true),
-	  _M_pmr(__pmr ? __pmr : std::pmr::get_default_resource())
-	{ }
-
-      template <class _Up> struct __ctor_tag {};
-
-      constexpr
-      _Optional_payload(__ctor_tag<bool>, const _Tp& __other)
-      : _M_payload(__other), _M_engaged(true), _M_pmr(__other._M_pmr)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<void>) noexcept
-      : _M_empty(), _M_engaged(false), _M_pmr(nullptr)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<bool>, _Tp&& __other)
-      : _M_payload(std::move(__other)), _M_engaged(true), _M_pmr(__other._M_pmr)
-      { }
-
-      constexpr
-      _Optional_payload(bool __engaged, const _Optional_payload& __other)
-      : _Optional_payload(__engaged ?
-			  _Optional_payload(__ctor_tag<bool>{},
-					    __other._M_payload) :
-			  _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      constexpr
-      _Optional_payload(bool __engaged, _Optional_payload&& __other)
-      : _Optional_payload(__engaged
-			  ? _Optional_payload(__ctor_tag<bool>{},
-					      std::move(__other._M_payload))
-			  : _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      using _Stored_type = remove_const_t<_Tp>;
-
-      struct _Empty_byte { };
-
-      union {
-	  _Empty_byte _M_empty;
-          _Stored_type _M_payload;
-      };
-      bool _M_engaged;
-      memory_resource* _M_pmr;
-    };
-
-  // Payload for optionals with non-trivial copy assignment.
-  template <typename _Tp>
-    struct _Optional_payload<_Tp, true, false, true>
-    {
-      constexpr _Optional_payload() noexcept
-      : _M_empty(), _M_engaged(false), _M_pmr(nullptr) { }
-
-      template<typename... _Args>
-	constexpr
-	_Optional_payload(in_place_t, _Args&&... __args)
-	: _M_payload(std::forward<_Args>(__args)...), _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template<typename _Up, typename... _Args>
-	constexpr
-	_Optional_payload(std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	: _M_payload(__il, std::forward<_Args>(__args)...),
-	  _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template <typename... _Args>
-	constexpr
-	_Optional_payload(memory_resource* __pmr, _Args&&... __args)
-        {
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
-
-	  _M_construct(std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Up, typename... _Args>
-	constexpr
-        _Optional_payload(memory_resource* __pmr, std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	{
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
-	  _M_construct(__il, std::forward<_Args>(__args)...);
-	}
-
-      template <class _Up> struct __ctor_tag {};
-
-      constexpr _Optional_payload(__ctor_tag<bool>, const _Tp& __other)
-      : _M_payload(__other),
-	_M_engaged(true),
-	_M_pmr(__other._M_pmr)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<void>) noexcept
-      : _M_empty(), _M_engaged(false), _M_pmr(nullptr)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<bool>, _Tp&& __other)
-      : _M_payload(std::move(__other)),
-	_M_engaged(true),
-	_M_pmr(__other._M_pmr)
-      { }
-
-      constexpr
-      _Optional_payload(bool __engaged, const _Optional_payload& __other)
-      : _Optional_payload(__engaged ?
-			  _Optional_payload(__ctor_tag<bool>{},
-					    __other._M_payload) :
-			  _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      constexpr
-      _Optional_payload(bool __engaged, _Optional_payload&& __other)
-      : _Optional_payload(__engaged
-			  ? _Optional_payload(__ctor_tag<bool>{},
-					      std::move(__other._M_payload))
-			  : _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      _Optional_payload(const _Optional_payload&) = default;
-      _Optional_payload(_Optional_payload&&) = default;
-
-      _Optional_payload&
-      operator=(const _Optional_payload& __other)
-      {
-        if (this->_M_engaged && __other._M_engaged)
-          this->_M_get() = __other._M_get();
-        else
-	  {
-	    if (__other._M_engaged)
-	      this->_M_construct(__other._M_get());
-	    else
-	      this->_M_reset();
-	  }
-	return *this;
-      }
-
-      _Optional_payload&
-      operator=(_Optional_payload&& __other) = default;
-
-      using _Stored_type = remove_const_t<_Tp>;
-
-      struct _Empty_byte { };
-
-      union {
-          _Empty_byte _M_empty;
-          _Stored_type _M_payload;
-      };
-      bool _M_engaged;
-      memory_resource* _M_pmr;
-
-      template<typename... _Args>
-        void
-        _M_construct(_Args&&... __args)
-        noexcept(is_nothrow_constructible_v<_Stored_type, _Args...>)
-        {
-	  if (_M_pmr)
-	    {
-	      __uses_allocator_construct(polymorphic_allocator<_Stored_type>(_M_pmr),
-					 std::__addressof(this->_M_payload),
-					 std::forward<_Args>(__args)...);
-	    }
-          else
-	    {
-	      ::new ((void *) std::__addressof(this->_M_payload))
-	      _Stored_type(std::forward<_Args>(__args)...);
-	    }
-          this->_M_engaged = true;
-        }
-
-      // The _M_get operations have _M_engaged as a precondition.
-      constexpr _Tp&
-      _M_get() noexcept
-      { return this->_M_payload; }
-
-      constexpr const _Tp&
-      _M_get() const noexcept
-      { return this->_M_payload; }
-
-      // _M_reset is a 'safe' operation with no precondition.
-      void
-      _M_reset() noexcept
-      {
-	if (this->_M_engaged)
-	  {
-	    this->_M_engaged = false;
-	    this->_M_payload.~_Stored_type();
-	  }
-      }
-    };
-
-  // Payload for optionals with non-trivial move assignment.
-  template <typename _Tp>
-    struct _Optional_payload<_Tp, true, true, false>
-    {
-      constexpr _Optional_payload() noexcept
-      : _M_empty(), _M_engaged(false), _M_pmr(nullptr) { }
-
-      template<typename... _Args>
-	constexpr
-	_Optional_payload(in_place_t, _Args&&... __args)
-	: _M_payload(std::forward<_Args>(__args)...),
-	  _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template<typename _Up, typename... _Args>
-	constexpr
-	_Optional_payload(std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	: _M_payload(__il, std::forward<_Args>(__args)...),
-	  _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template <typename... _Args>
-	constexpr
-	_Optional_payload(memory_resource* __pmr, _Args&&... __args)
-        {
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
-	  _M_construct(std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Up, typename... _Args>
-	constexpr
-        _Optional_payload(memory_resource* __pmr, std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	{
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
-	  _M_construct(__il, std::forward<_Args>(__args)...);
-	}
-
-      template <class _Up> struct __ctor_tag {};
-
-      constexpr
-      _Optional_payload(__ctor_tag<bool>, const _Tp& __other)
-      : _M_payload(__other),
-	_M_engaged(true),
-	_M_pmr(__other._M_pmr)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<void>) noexcept
-      : _M_empty(), _M_engaged(false)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<bool>, _Tp&& __other)
-      : _M_payload(std::move(__other)),
-	_M_engaged(true),
-	_M_pmr(__other._M_pmr)
-      { }
-
-      constexpr
-      _Optional_payload(bool __engaged, const _Optional_payload& __other)
-      : _Optional_payload(__engaged ?
-			  _Optional_payload(__ctor_tag<bool>{},
-					    __other._M_payload) :
-			  _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      constexpr
-      _Optional_payload(bool __engaged, _Optional_payload&& __other)
-      : _Optional_payload(__engaged
-			  ? _Optional_payload(__ctor_tag<bool>{},
-					      std::move(__other._M_payload))
-			  : _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      _Optional_payload(const _Optional_payload&) = default;
-      _Optional_payload(_Optional_payload&&) = default;
-
-      _Optional_payload&
-      operator=(const _Optional_payload& __other) = default;
-
-      _Optional_payload&
-      operator=(_Optional_payload&& __other)
-      noexcept(__and_v<is_nothrow_move_constructible<_Tp>,
-		       is_nothrow_move_assignable<_Tp>>)
-      {
-	if (this->_M_engaged && __other._M_engaged)
-	  this->_M_get() = std::move(__other._M_get());
-	else
-	  {
-	    if (__other._M_engaged)
-	      this->_M_construct(std::move(__other._M_get()));
-	    else
-	      this->_M_reset();
-	  }
-	return *this;
-      }
-
-      using _Stored_type = remove_const_t<_Tp>;
-
-      struct _Empty_byte { };
-
-      union {
-          _Empty_byte _M_empty;
-          _Stored_type _M_payload;
-      };
-      bool _M_engaged;
-      memory_resource* _M_pmr;
-
-      template<typename... _Args>
-        void
-        _M_construct(_Args&&... __args)
-        noexcept(is_nothrow_constructible_v<_Stored_type, _Args...>)
-        {
-	  if (_M_pmr)
-	    {
-	      __uses_allocator_construct(polymorphic_allocator<_Stored_type>(_M_pmr),
-					 std::__addressof(this->_M_payload),
-					 std::forward<_Args>(__args)...);
-	    }
-          else
-	    {
-	      ::new ((void *) std::__addressof(this->_M_payload))
-	      _Stored_type(std::forward<_Args>(__args)...);
-	    }
-          this->_M_engaged = true;
-        }
-
-      // The _M_get operations have _M_engaged as a precondition.
-      constexpr _Tp&
-      _M_get() noexcept
-      { return this->_M_payload; }
-
-      constexpr const _Tp&
-      _M_get() const noexcept
-      { return this->_M_payload; }
-
-      // _M_reset is a 'safe' operation with no precondition.
-      void
-      _M_reset() noexcept
-      {
-	if (this->_M_engaged)
-	  {
-	    this->_M_engaged = false;
-	    this->_M_payload.~_Stored_type();
-	  }
-      }
-    };
-
-  // Payload for optionals with non-trivial copy and move assignment.
-  template <typename _Tp>
-    struct _Optional_payload<_Tp, true, false, false>
-    {
-      constexpr _Optional_payload() noexcept
-      : _M_empty(), _M_engaged(false), _M_pmr(nullptr) {}
-
-      template<typename... _Args>
-	constexpr
-	_Optional_payload(in_place_t, _Args&&... __args)
-	: _M_payload(std::forward<_Args>(__args)...),
-	  _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template<typename _Up, typename... _Args>
-	constexpr
-	_Optional_payload(std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	: _M_payload(__il, std::forward<_Args>(__args)...),
-	  _M_engaged(true),
-	  _M_pmr(nullptr)
-	{ }
-
-      template <typename... _Args>
-	constexpr
-	_Optional_payload(memory_resource* __pmr, _Args&&... __args)
-        {
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
-	  _M_construct(std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Up, typename... _Args>
-	constexpr
-        _Optional_payload(memory_resource* __pmr, std::initializer_list<_Up> __il,
-			  _Args&&... __args)
-	{
-	  if (!__pmr)
-	    _M_pmr = std::pmr::get_default_resource();
-	  else
-	    _M_pmr = __pmr;
-	  _M_construct(__il, std::forward<_Args>(__args)...);
-	}
-
-      template <class _Up> struct __ctor_tag {};
-
-      constexpr _Optional_payload(__ctor_tag<bool>, const _Tp& __other)
-      : _M_payload(__other),
-	_M_engaged(true),
-	_M_pmr(__other._M_pmr)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<void>) noexcept
-      : _M_empty(), _M_engaged(false), _M_pmr(nullptr)
-      { }
-
-      constexpr _Optional_payload(__ctor_tag<bool>, _Tp&& __other)
-      : _M_payload(std::move(__other)),
-	_M_engaged(true),
-	_M_pmr(__other._M_pmr)
-      { }
-
-      constexpr
-      _Optional_payload(bool __engaged, const _Optional_payload& __other)
-      : _Optional_payload(__engaged ?
-			  _Optional_payload(__ctor_tag<bool>{},
-					    __other._M_payload) :
-			  _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      constexpr
-      _Optional_payload(bool __engaged, _Optional_payload&& __other)
-      : _Optional_payload(__engaged
-			  ? _Optional_payload(__ctor_tag<bool>{},
-					      std::move(__other._M_payload))
-			  : _Optional_payload(__ctor_tag<void>{}))
-      { _M_pmr = __other._M_pmr; }
-
-      _Optional_payload(const _Optional_payload&) = default;
-      _Optional_payload(_Optional_payload&&) = default;
-
-      _Optional_payload&
-      operator=(const _Optional_payload& __other)
-      {
-        if (this->_M_engaged && __other._M_engaged)
-          this->_M_get() = __other._M_get();
-        else
-	  {
-	    if (__other._M_engaged)
-	      this->_M_construct(__other._M_get());
-	    else
-	      this->_M_reset();
-	  }
-	return *this;
-      }
-
-      _Optional_payload&
-      operator=(_Optional_payload&& __other)
-      noexcept(__and_v<is_nothrow_move_constructible<_Tp>,
-		       is_nothrow_move_assignable<_Tp>>)
-      {
-	if (this->_M_engaged && __other._M_engaged)
-	  this->_M_get() = std::move(__other._M_get());
-	else
-	  {
-	    if (__other._M_engaged)
-	      this->_M_construct(std::move(__other._M_get()));
-	    else
-	      this->_M_reset();
-	  }
-	return *this;
-      }
-
-      using _Stored_type = remove_const_t<_Tp>;
-
-      struct _Empty_byte { };
-
-      union {
-          _Empty_byte _M_empty;
-          _Stored_type _M_payload;
-      };
-      bool _M_engaged;
-      memory_resource* _M_pmr;
-
-      template<typename... _Args>
-        void
-        _M_construct(_Args&&... __args)
-        noexcept(is_nothrow_constructible_v<_Stored_type, _Args...>)
-        {
-	  if (_M_pmr)
-	    {
-	      __uses_allocator_construct(polymorphic_allocator<_Stored_type>(_M_pmr),
-					 std::__addressof(this->_M_payload),
-					 std::forward<_Args>(__args)...);
-	    }
-          else
-	    {
-	      ::new ((void *) std::__addressof(this->_M_payload))
-	      _Stored_type(std::forward<_Args>(__args)...);
-	    }
-          this->_M_engaged = true;
-        }
-
-      // The _M_get operations have _M_engaged as a precondition.
-      constexpr _Tp&
-      _M_get() noexcept
-      { return this->_M_payload; }
-
-      constexpr const _Tp&
-      _M_get() const noexcept
-      { return this->_M_payload; }
-
-      // _M_reset is a 'safe' operation with no precondition.
-      void
-      _M_reset() noexcept
-      {
-	if (this->_M_engaged)
-	  {
-	    this->_M_engaged = false;
-	    this->_M_payload.~_Stored_type();
-	  }
-      }
-    };
-
   template<typename _Tp, typename _Dp>
     class _Optional_base_impl
     {
@@ -787,16 +206,6 @@ namespace pmr {
       
       // The _M_construct operation has !_M_engaged as a precondition
       // while _M_destruct has _M_engaged as a precondition.
-      template<typename... _Args>
-	void
-        _M_construct(memory_resource* __pmr, _Args&&... __args)
-	noexcept(is_nothrow_constructible_v<_Stored_type, _Args...>)
-	{
-	  __uses_allocator_construct(polymorphic_allocator<void>(__pmr),
-				     std::__addressof(static_cast<_Dp*>(this)->_M_payload._M_payload),
-				     std::forward<_Args>(__args)...);
-	  static_cast<_Dp*>(this)->_M_payload._M_engaged = true;
-	}
       
       template<typename... _Args>
 	void
@@ -835,16 +244,14 @@ namespace pmr {
 
       void _M_set_allocator(memory_resource* __pmr) noexcept
       {
-	if (__pmr)
 	  static_cast<_Dp*>(this)->_M_payload._M_pmr = __pmr;
-	else
-	  static_cast<_Dp*>(this)->_M_payload._M_pmr = std::pmr::get_default_resource();
-      }
+	 }
       memory_resource* _M_get_allocator() noexcept
       {
 	return static_cast<_Dp*>(this)->_M_payload._M_pmr;
       }
   };
+  
 
   /**
     * @brief Class template that takes care of copy/move constructors
@@ -854,9 +261,7 @@ namespace pmr {
     * conditionally make copy/move constructors trivial.
     * @see optional, _Enable_special_members
     */
-  template<typename _Tp,
-	   bool = is_trivially_copy_constructible_v<_Tp>,
-	   bool = is_trivially_move_constructible_v<_Tp>>
+  template<typename _Tp>
     class _Optional_base
     // protected inheritance because optional needs to reach that base too
       : protected _Optional_base_impl<_Tp, _Optional_base<_Tp>>
@@ -869,39 +274,20 @@ namespace pmr {
 
       // Constructors for engaged optionals.
       template<typename... _Args,
-	       enable_if_t<is_constructible_v<_Tp, _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t, _Args&&... __args)
-        : _M_payload(in_place,
-		     std::forward<_Args>(__args)...) { }
-
-      // Constructors for engaged optionals.
-      template<typename... _Args,
       enable_if_t<__is_uses_allocator_constructible_v<_Tp, polymorphic_allocator<void>, _Args&&...>, bool> = false>
         constexpr explicit _Optional_base(memory_resource* __pmr, _Args&&... __args)
         : _M_payload(__pmr,
 		     std::forward<_Args>(__args)...) { }
 
-      template<typename _Up, typename... _Args,
-               enable_if_t<is_constructible_v<_Tp,
-					      initializer_list<_Up>&,
-					      _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t,
-                                          initializer_list<_Up> __il,
-                                          _Args&&... __args)
-        : _M_payload(in_place,
-		     __il, std::forward<_Args>(__args)...)
-        { }
 
       // Copy and move constructors.
       constexpr _Optional_base(const _Optional_base& __other)
-	: _M_payload(__other._M_payload._M_engaged,
-		     __other._M_payload)
+	: _M_payload(__other._M_payload)
       { }
 
       constexpr _Optional_base(_Optional_base&& __other)
       noexcept(is_nothrow_move_constructible_v<_Tp>)
-	: _M_payload(__other._M_payload._M_engaged,
-		     std::move(__other._M_payload))
+	: _M_payload(std::move(__other._M_payload))
       { }
 
       // Assignment operators.
@@ -932,214 +318,7 @@ namespace pmr {
       _Optional_payload<_Tp> _M_payload;
     };
 
-  template<typename _Tp>
-    class _Optional_base<_Tp, false, true>
-      : protected _Optional_base_impl<_Tp, _Optional_base<_Tp>>
-    {
-      friend class _Optional_base_impl<_Tp, _Optional_base<_Tp>>;
-    public:
-
-      // Constructors for disengaged optionals.
-      constexpr _Optional_base() = default;
-
-      // Constructors for engaged optionals.
-      template<typename... _Args,
-	       enable_if_t<is_constructible_v<_Tp, _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t, _Args&&... __args)
-        : _M_payload(in_place,
-		     std::forward<_Args>(__args)...) { }
-
-      // Constructors for engaged optionals.
-      template<typename... _Args,
-	       enable_if_t<__is_uses_allocator_constructible_v<_Tp, polymorphic_allocator<_Tp>, _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(memory_resource* __pmr, _Args&&... __args)
-        : _M_payload(__pmr,
-		     std::forward<_Args>(__args)...) { }
-
-      template<typename _Up, typename... _Args,
-               enable_if_t<is_constructible_v<_Tp,
-					      initializer_list<_Up>&,
-					      _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t,
-                                          initializer_list<_Up> __il,
-                                          _Args&&... __args)
-        : _M_payload(in_place,
-		     __il, std::forward<_Args>(__args)...)
-        { }
-
-      // Copy and move constructors.
-      constexpr _Optional_base(const _Optional_base& __other)
-	: _M_payload(__other._M_payload._M_engaged,
-		     __other._M_payload)
-      { }
-
-      constexpr _Optional_base(_Optional_base&& __other) = default;
-
-      // Assignment operators.
-      _Optional_base& operator=(const _Optional_base&) = default;
-      _Optional_base& operator=(_Optional_base&&) = default;
-
-    protected:
-
-      constexpr bool _M_is_engaged() const noexcept
-      { return this->_M_payload._M_engaged; }
-
-      // The _M_get operations have _M_engaged as a precondition.
-      constexpr _Tp&
-	_M_get() noexcept
-      {
-	__glibcxx_assert(this->_M_is_engaged());
-	return this->_M_payload._M_payload;
-      }
-
-      constexpr const _Tp&
-	_M_get() const noexcept
-      {
-	__glibcxx_assert(this->_M_is_engaged());
-	return this->_M_payload._M_payload;
-      }
-
-    private:
-      _Optional_payload<_Tp> _M_payload;
-    };
-
-  template<typename _Tp>
-    class _Optional_base<_Tp, true, false>
-      : protected _Optional_base_impl<_Tp, _Optional_base<_Tp>>
-    {
-      friend class _Optional_base_impl<_Tp, _Optional_base<_Tp>>;
-    public:
-
-      // Constructors for disengaged optionals.
-      constexpr _Optional_base() = default;
-
-      // Constructors for engaged optionals.
-      template<typename... _Args,
-	       enable_if_t<is_constructible_v<_Tp, _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t, _Args&&... __args)
-        : _M_payload(in_place,
-		     std::forward<_Args>(__args)...) { }
-
-      template<typename... _Args,
-	       enable_if_t<__is_uses_allocator_constructible_v<_Tp, polymorphic_allocator<_Tp>, _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(memory_resource* __pmr, _Args&&... __args)
-        : _M_payload(__pmr,
-		     std::forward<_Args>(__args)...) { }
-
-      template<typename _Up, typename... _Args,
-               enable_if_t<is_constructible_v<_Tp,
-					      initializer_list<_Up>&,
-					      _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t,
-                                          initializer_list<_Up> __il,
-                                          _Args&&... __args)
-        : _M_payload(in_place,
-		     __il, std::forward<_Args>(__args)...)
-        { }
-
-      // Copy and move constructors.
-      constexpr _Optional_base(const _Optional_base& __other) = default;
-
-      constexpr _Optional_base(_Optional_base&& __other)
-      noexcept(is_nothrow_move_constructible_v<_Tp>)
-	: _M_payload(__other._M_payload._M_engaged,
-		     std::move(__other._M_payload))
-      { }
-
-      // Assignment operators.
-      _Optional_base& operator=(const _Optional_base&) = default;
-      _Optional_base& operator=(_Optional_base&&) = default;
-
-    protected:
-
-      constexpr bool _M_is_engaged() const noexcept
-      { return this->_M_payload._M_engaged; }
-
-      // The _M_get operations have _M_engaged as a precondition.
-      constexpr _Tp&
-	_M_get() noexcept
-      {
-	__glibcxx_assert(this->_M_is_engaged());
-	return this->_M_payload._M_payload;
-      }
-
-      constexpr const _Tp&
-	_M_get() const noexcept
-      {
-	__glibcxx_assert(this->_M_is_engaged());
-	return this->_M_payload._M_payload;
-      }
-
-    private:
-      _Optional_payload<_Tp> _M_payload;
-    };
-
-  template<typename _Tp>
-    class _Optional_base<_Tp, true, true>
-      : protected _Optional_base_impl<_Tp, _Optional_base<_Tp>>
-    {
-      friend class _Optional_base_impl<_Tp, _Optional_base<_Tp>>;
-    public:
-
-      // Constructors for disengaged optionals.
-      constexpr _Optional_base() = default;
-
-      // Constructors for engaged optionals.
-      template<typename... _Args,
-	       enable_if_t<is_constructible_v<_Tp, _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t, _Args&&... __args)
-        : _M_payload(in_place,
-		     std::forward<_Args>(__args)...) { }
-
-      template<typename... _Args,
-	       enable_if_t<__is_uses_allocator_constructible_v<_Tp, polymorphic_allocator<_Tp>, _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(memory_resource* __pmr, _Args&&... __args)
-        : _M_payload(__pmr,
-		     std::forward<_Args>(__args)...) { }
-
-      template<typename _Up, typename... _Args,
-               enable_if_t<is_constructible_v<_Tp,
-					      initializer_list<_Up>&,
-					      _Args&&...>, bool> = false>
-        constexpr explicit _Optional_base(in_place_t,
-                                          initializer_list<_Up> __il,
-                                          _Args&&... __args)
-        : _M_payload(in_place,
-		     __il, std::forward<_Args>(__args)...)
-        { }
-
-      // Copy and move constructors.
-      constexpr _Optional_base(const _Optional_base& __other) = default;
-      constexpr _Optional_base(_Optional_base&& __other) = default;
-
-      // Assignment operators.
-      _Optional_base& operator=(const _Optional_base&) = default;
-      _Optional_base& operator=(_Optional_base&&) = default;
-
-    protected:
-
-      constexpr bool _M_is_engaged() const noexcept
-      { return this->_M_payload._M_engaged; }
-
-      // The _M_get operations have _M_engaged as a precondition.
-      constexpr _Tp&
-	_M_get() noexcept
-      {
-	__glibcxx_assert(this->_M_is_engaged());
-	return this->_M_payload._M_payload;
-      }
-
-      constexpr const _Tp&
-	_M_get() const noexcept
-      {
-	__glibcxx_assert(this->_M_is_engaged());
-	return this->_M_payload._M_payload;
-      }
-
-    private:
-      _Optional_payload<_Tp> _M_payload;
-    };
-
+ 
   template<typename _Tp>
   class optional;
 
@@ -1205,8 +384,9 @@ namespace pmr {
         optional<_Tp>>
     {
       static_assert(!is_same_v<remove_cv_t<_Tp>, nullopt_t>);
-      static_assert(!is_same_v<remove_cv_t<_Tp>, in_place_t>);
       static_assert(!is_reference_v<_Tp>);
+      
+      template<typename _Up> friend class optional;
 
     private:
       using _Base = _Optional_base<_Tp>;
@@ -1214,8 +394,6 @@ namespace pmr {
       // SFINAE helpers
       template<typename _Up>
 	using __not_self = __not_<is_same<optional, __remove_cvref_t<_Up>>>;
-      template<typename _Up>
-	using __not_tag = __not_<is_same<in_place_t, __remove_cvref_t<_Up>>>;
       template<typename... _Cond>
 	using _Requires = enable_if_t<__and_v<_Cond...>, bool>;
 
@@ -1225,32 +403,34 @@ namespace pmr {
 	typename __has_allocator_type<_Tp>::__alloc_param_type;
       */
       using value_type = _Tp;
+      using __Allocator_type = std::pmr::polymorphic_allocator<void>;
 
       constexpr optional()
       {
-	this->_M_set_allocator(std::pmr::get_default_resource());
       }
 
       constexpr optional(nullopt_t) noexcept { }
 
       // Converting constructors for engaged optionals.
       template<typename _Up = _Tp,
-	       _Requires<__not_self<_Up>, __not_tag<_Up>,
+	       _Requires<__not_self<_Up>, 
 			 __not_<is_base_of<memory_resource, remove_pointer_t<__remove_cvref_t<_Up>>>>,
 			 is_constructible<_Tp, _Up&&>,
 			 is_convertible<_Up&&, _Tp>> = true>
 	constexpr
 	optional(_Up&& __t)
-	: _Base(std::in_place, std::forward<_Up>(__t)) { }
+	{ emplace(std::forward<_Up>(__t));
+	};
 
       template<typename _Up = _Tp,
-	       _Requires<__not_self<_Up>, __not_tag<_Up>,
+	       _Requires<__not_self<_Up>, 
 			 __not_<is_base_of<memory_resource, remove_pointer_t<__remove_cvref_t<_Up>>>>,
 			 is_constructible<_Tp, _Up&&>,
 			 __not_<is_convertible<_Up&&, _Tp>>> = false>
 	explicit constexpr
 	optional(_Up&& __t)
-        : _Base(std::in_place, std::forward<_Up>(__t)) { }
+     { emplace(std::forward<_Up>(__t));
+	};
 
       template<typename _Up,
 	       _Requires<__not_<is_same<_Tp, _Up>>,
@@ -1260,6 +440,7 @@ namespace pmr {
 	constexpr
 	optional(const optional<_Up>& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(*__t);
 	}
@@ -1272,6 +453,7 @@ namespace pmr {
 	explicit constexpr
 	optional(const optional<_Up>& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(*__t);
 	}
@@ -1284,6 +466,7 @@ namespace pmr {
 	constexpr
 	optional(optional<_Up>&& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(std::move(*__t));
 	}
@@ -1296,6 +479,7 @@ namespace pmr {
 	explicit constexpr
 	optional(optional<_Up>&& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(std::move(*__t));
 	}
@@ -1308,6 +492,7 @@ namespace pmr {
 	constexpr
 	optional(const std::optional<_Up>& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(*__t);
 	}
@@ -1320,6 +505,7 @@ namespace pmr {
 	explicit constexpr
 	optional(const std::optional<_Up>& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(*__t);
 	}
@@ -1332,6 +518,7 @@ namespace pmr {
 	constexpr
 	optional(std::optional<_Up>&& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(std::move(*__t));
 	}
@@ -1344,6 +531,7 @@ namespace pmr {
 	explicit constexpr
 	optional(std::optional<_Up>&& __t)
 	{
+	this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(std::move(*__t));
 	}
@@ -1351,47 +539,44 @@ namespace pmr {
       constexpr
 	optional(const std::optional<_Tp>& __t)
         {
+        this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
-	    emplace(std::move(*__t));
+	    emplace(*__t);
 	}
 
       constexpr
 	optional(std::optional<_Tp>&& __t)
         {
+        this->_M_set_allocator(__t._M_get_allocator());
 	  if (__t)
 	    emplace(std::move(*__t));
 	}
       // Converting memory-resource-constructors for engaged optionals.
 
-      optional(memory_resource* __pmr)
+      optional(allocator_arg_t, const __Allocator_type& __a)
 	{
-	  if (!__pmr)
-	    this->_M_set_allocator(std::pmr::get_default_resource());
-	  else
-	    this->_M_set_allocator(__pmr);
+	    this->_M_set_allocator(__a.resource());
 	}
       template<typename _Up = _Tp,
-	       _Requires<__not_self<_Up>, __not_tag<_Up>,
+	       _Requires<__not_self<_Up>, 
 			 is_constructible<_Tp, _Up&&>,
 			 is_convertible<_Up&&, _Tp>> = true>
 	constexpr
-	optional(_Up&& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a,_Up&& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
-	  __emplace_alloc(__actual_alloc, std::forward<_Up>(__t));
+	    this->_M_set_allocator(__a.resource());
+	  emplace(std::forward<_Up>(__t));
 	}
 
       template<typename _Up = _Tp,
-	       _Requires<__not_self<_Up>, __not_tag<_Up>,
+	       _Requires<__not_self<_Up>, 
 			 is_constructible<_Tp, _Up&&>,
 			 __not_<is_convertible<_Up&&, _Tp>>> = false>
 	explicit constexpr
-	optional(_Up&& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, _Up&& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
-	  __emplace_alloc(__actual_alloc, std::forward<_Up>(__t));
+		this->_M_set_allocator(__a.resource());
+	  emplace(std::forward<_Up>(__t));
 	}
 
       template<typename _Up,
@@ -1400,11 +585,10 @@ namespace pmr {
 			 is_convertible<const _Up&, _Tp>,
 			 __not_<__converts_from_optional<_Tp, _Up>>> = true>
 	constexpr
-	optional(const optional<_Up>& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, const optional<_Up>& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
-	  __emplace_alloc(__actual_alloc, *__t);
+	    this->_M_set_allocator(__a.resource());
+	  emplace(*__t);
 	}
 
       template<typename _Up,
@@ -1413,12 +597,11 @@ namespace pmr {
 			 __not_<is_convertible<const _Up&, _Tp>>,
 			 __not_<__converts_from_optional<_Tp, _Up>>> = false>
 	explicit constexpr
-	optional(const optional<_Up>& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, const optional<_Up>& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
+	  this->_M_set_allocator(__a.resource());
 	  if (__t)
-	  this->_M_set_allocator(__actual_alloc);
-	  __emplace_alloc(__actual_alloc, *__t);
+	  emplace(*__t);
 	}
 
       template <typename _Up,
@@ -1427,12 +610,11 @@ namespace pmr {
 			  is_convertible<_Up&&, _Tp>,
 			  __not_<__converts_from_optional<_Tp, _Up>>> = true>
 	constexpr
-	optional(optional<_Up>&& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, optional<_Up>&& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
+	  this->_M_set_allocator(__a.resource());
 	  if (__t)
-	    __emplace_alloc(__actual_alloc, std::move(*__t));
+	    emplace(std::move(*__t));
 	}
 
       template <typename _Up,
@@ -1441,30 +623,27 @@ namespace pmr {
 			  __not_<is_convertible<_Up&&, _Tp>>,
 			  __not_<__converts_from_optional<_Tp, _Up>>> = false>
 	explicit constexpr
-	optional(optional<_Up>&& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, optional<_Up>&& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
+	  this->_M_set_allocator(__a.resource());
 	  if (__t)
-	    __emplace_alloc(__actual_alloc, std::move(*__t));
+	    emplace(std::move(*__t));
 	}
 
       constexpr
-      optional(const optional& __t, memory_resource* __pmr)
+      optional(allocator_arg_t, const __Allocator_type& __a, const optional& __t)
       {
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	this->_M_set_allocator(__actual_alloc);
+	  this->_M_set_allocator(__a.resource());
 	if (__t)
-	  __emplace_alloc(__actual_alloc, *__t);
+	  emplace(*__t);
       }
 
       constexpr
-      optional(optional&& __t, memory_resource* __pmr)
+      optional(allocator_arg_t, const __Allocator_type& __a, optional&& __t)
       {
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	this->_M_set_allocator(__actual_alloc);
-	if (__t)
-	  __emplace_alloc(__actual_alloc, std::move(*__t));
+	  memory_resource* __actual_alloc = __a.resource();
+	  if (__t)
+	  emplace(std::move(*__t));
       }
 
       template<typename _Up,
@@ -1472,12 +651,11 @@ namespace pmr {
 			 is_convertible<const _Up&, _Tp>,
 			 __not_<__converts_from_optional<_Tp, _Up>>> = true>
 	constexpr
-	optional(const std::optional<_Up>& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, const std::optional<_Up>& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
+	  this->_M_set_allocator(__a.resource());
 	  if (__t) 
-	    __emplace_alloc(__actual_alloc, *__t);
+	    emplace(*__t);
 	}
 
       template<typename _Up,
@@ -1485,12 +663,11 @@ namespace pmr {
 			 __not_<is_convertible<const _Up&, _Tp>>,
 			 __not_<__converts_from_optional<_Tp, _Up>>> = false>
 	explicit constexpr
-	optional(const std::optional<_Up>& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, const std::optional<_Up>& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
+	  this->_M_set_allocator(__a.resource());
 	  if (__t)
-	    __emplace_alloc(__actual_alloc, *__t);
+	    emplace(*__t);
 	}
 
       template <typename _Up,
@@ -1498,12 +675,11 @@ namespace pmr {
 			  is_convertible<_Up&&, _Tp>,
 			  __not_<__converts_from_optional<_Tp, _Up>>> = true>
 	constexpr
-	optional(std::optional<_Up>&& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, std::optional<_Up>&& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
+	  this->_M_set_allocator(__a.resource());
 	  if (__t)
-	    __emplace_alloc(__actual_alloc, std::move(*__t));
+	    emplace(std::move(*__t));
 	}
 
       template <typename _Up,
@@ -1511,160 +687,14 @@ namespace pmr {
 			  __not_<is_convertible<_Up&&, _Tp>>,
 			  __not_<__converts_from_optional<_Tp, _Up>>> = false>
 	explicit constexpr
-	optional(std::optional<_Up>&& __t, memory_resource* __pmr)
+	optional(allocator_arg_t, const __Allocator_type& __a, std::optional<_Up>&& __t)
 	{
-	  memory_resource* __actual_alloc = __pmr ? __pmr : std::pmr::get_default_resource();
-	  this->_M_set_allocator(__actual_alloc);
+	  this->_M_set_allocator(__a.resource());
 	  if (__t)
-	    __emplace_alloc(__actual_alloc, std::move(*__t));
+	    emplace(std::move(*__t));
 	}
 
-      // Converting allocator-constructors for engaged optionals.
-      template<typename _Up = _Tp,
-	       _Requires<__not_self<_Up>, __not_tag<_Up>,
-			 is_constructible<_Tp, _Up&&>,
-			 is_convertible<_Up&&, _Tp>> = true>
-	constexpr
-	optional(_Up&& __t, const polymorphic_allocator<void>& __pmr)
-	: _Base(__pmr.resource(), std::forward<_Up>(__t)) { }
 
-      template<typename _Up = _Tp,
-	       _Requires<__not_self<_Up>, __not_tag<_Up>,
-			 is_constructible<_Tp, _Up&&>,
-			 __not_<is_convertible<_Up&&, _Tp>>> = false>
-	explicit constexpr
-	optional(_Up&& __t, const polymorphic_allocator<void>& __pmr)
-        : _Base(__pmr.resource(), std::forward<_Up>(__t)) { }
-
-      template<typename _Up,
-	       _Requires<__not_<is_same<_Tp, _Up>>,
-			 is_constructible<_Tp, const _Up&>,
-			 is_convertible<const _Up&, _Tp>,
-			 __not_<__converts_from_optional<_Tp, _Up>>> = true>
-	constexpr
-	optional(const optional<_Up>& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, *__t);
-	}
-
-      template<typename _Up,
-	       _Requires<__not_<is_same<_Tp, _Up>>,
-			 is_constructible<_Tp, const _Up&>,
-			 __not_<is_convertible<const _Up&, _Tp>>,
-			 __not_<__converts_from_optional<_Tp, _Up>>> = false>
-	explicit constexpr
-	optional(const optional<_Up>& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, *__t);
-	}
-
-      template <typename _Up,
-		_Requires<__not_<is_same<_Tp, _Up>>,
-			  is_constructible<_Tp, _Up&&>,
-			  is_convertible<_Up&&, _Tp>,
-			  __not_<__converts_from_optional<_Tp, _Up>>> = true>
-	constexpr
-	optional(optional<_Up>&& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, std::move(*__t));
-	}
-
-      template <typename _Up,
-		_Requires<__not_<is_same<_Tp, _Up>>,
-			  is_constructible<_Tp, _Up&&>,
-			  __not_<is_convertible<_Up&&, _Tp>>,
-			  __not_<__converts_from_optional<_Tp, _Up>>> = false>
-	explicit constexpr
-	optional(optional<_Up>&& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, std::move(*__t));
-	}
-
-      template<typename _Up,
-	       _Requires<is_constructible<_Tp, const _Up&>,
-			 is_convertible<const _Up&, _Tp>,
-			 __not_<__converts_from_optional<_Tp, _Up>>> = true>
-	constexpr
-	optional(const std::optional<_Up>& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, *__t);
-	}
-
-      template<typename _Up,
-	       _Requires<is_constructible<_Tp, const _Up&>,
-			 __not_<is_convertible<const _Up&, _Tp>>,
-			 __not_<__converts_from_optional<_Tp, _Up>>> = false>
-	explicit constexpr
-	optional(const std::optional<_Up>& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, *__t);
-	}
-
-      template <typename _Up,
-		_Requires<is_constructible<_Tp, _Up&&>,
-			  is_convertible<_Up&&, _Tp>,
-			  __not_<__converts_from_optional<_Tp, _Up>>> = true>
-	constexpr
-	optional(std::optional<_Up>&& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, std::move(*__t));
-	}
-
-      template <typename _Up,
-		_Requires<is_constructible<_Tp, _Up&&>,
-			  __not_<is_convertible<_Up&&, _Tp>>,
-			  __not_<__converts_from_optional<_Tp, _Up>>> = false>
-	explicit constexpr
-	optional(std::optional<_Up>&& __t, const polymorphic_allocator<void>& __pmr)
-	{
-	  this->_M_set_allocator(__pmr.resource());
-	  if (__t)
-	    __emplace_alloc(__pmr, std::move(*__t));
-	}
-
-      constexpr
-      optional(const optional& __t, const polymorphic_allocator<void>& __pmr)
-      {
-	this->_M_set_allocator(__pmr.resource());
-	if (__t)
-	  __emplace_alloc(__pmr, *__t);
-      }
-
-      constexpr
-      optional(optional&& __t, const polymorphic_allocator<void>& __pmr)
-      {
-	this->_M_set_allocator(__pmr.resource());
-	if (__t)
-	  __emplace_alloc(__pmr, std::move(*__t));
-      }
-
-      template<typename... _Args,
-	       _Requires<is_constructible<_Tp, _Args&&...>> = false>
-	explicit constexpr
-	optional(in_place_t, _Args&&... __args)
-	: _Base(std::in_place, std::forward<_Args>(__args)...) { }
-
-      template<typename _Up, typename... _Args,
-	       _Requires<is_constructible<_Tp,
-					  initializer_list<_Up>&,
-					  _Args&&...>> = false>
-	explicit constexpr
-	optional(in_place_t, initializer_list<_Up> __il, _Args&&... __args)
-	: _Base(std::in_place, __il, std::forward<_Args>(__args)...) { }
 
       // Assignment operators.
       optional&
@@ -1790,26 +820,6 @@ namespace pmr {
 	{
 	  this->_M_reset();
 	  this->_M_construct(std::forward<_Args>(__args)...);
-	  return this->_M_get();
-	}
-
-      template<typename... _Args>
-	//enable_if_t<__is_uses_allocator_constructible_v<_Tp, polymorphic_allocator<void>, _Args&&...>, _Tp&>
-	_Tp&
-	__emplace_alloc(memory_resource* __pmr, _Args&&... __args)
-	{
-	  this->_M_reset();
-	  this->_M_construct(__pmr, std::forward<_Args>(__args)...);
-	  return this->_M_get();
-	}
-
-      template<typename... _Args>
-	//enable_if_t<__is_uses_allocator_constructible_v<_Tp, polymorphic_allocator<void>, _Args&&...>, _Tp&>
-	_Tp&
-	__emplace_alloc(const polymorphic_allocator<void>& __pmr, _Args&&... __args)
-	{
-	  this->_M_reset();
-	  this->_M_construct(__pmr.resource(), std::forward<_Args>(__args)...);
 	  return this->_M_get();
 	}
 
@@ -1946,12 +956,8 @@ namespace pmr {
       template <class ..._Args>
 	_Tp& makeValueInplace(_Args&&... __args)
       {
-	memory_resource* __actual_alloc = this->_M_get_allocator();
-	if (__actual_alloc)
-	  return this->__emplace_alloc(__actual_alloc,
-				       std::forward<_Args>(__args)...);
-	else
 	  return this->emplace(std::forward<_Args>(__args)...);
+
       }
 
 
