@@ -387,7 +387,7 @@ BSLS_IDENT("$Id: $")
 //  MyCaseInsensitiveSearcherCache::insertSearcher(const bsl::string& key)
 //  {
 //      Searcher        dummy(key.begin(), key.begin()); // to be overwritten
-//      Map::value_type value = bsl::make_pair(key, dummy);
+//      Map::value_type value(key, dummy);
 //
 //      bsl::pair<Map::iterator, bool> insertResult = d_map.insert(value);
 //      assert(true == insertResult.second);
@@ -429,7 +429,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Now, we show how the searcher object cache can be used.  In this example, a
-// fixed array represents our source of name entries, in random order.
+// fixed array represents our source of name entries, in random order:
 //..
 //  struct {
 //      const char *d_givenName;
@@ -1667,7 +1667,7 @@ template <class RandomAccessIterator1,
           class BinaryPredicate>
 inline
 boyer_moore_horspool_searcher<RandomAccessIterator1,
-                              Hash, 
+                              Hash,
                               BinaryPredicate>::boyer_moore_horspool_searcher(
                                                RandomAccessIterator1 pat_first,
                                                RandomAccessIterator1 pat_last,

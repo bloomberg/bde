@@ -2930,7 +2930,7 @@ void processTestRun(bsl::vector<float>::const_iterator first,
     MyCaseInsensitiveSearcherCache::insertSearcher(const bsl::string& key)
     {
         Searcher        dummy(key.begin(), key.begin()); // to be overwritten
-        Map::value_type value = BSL::make_pair(key, dummy);
+        Map::value_type value(key, dummy);
 
         bsl::pair<Map::iterator, bool> insertResult = d_map.insert(value);
         ASSERT(true == insertResult.second);
