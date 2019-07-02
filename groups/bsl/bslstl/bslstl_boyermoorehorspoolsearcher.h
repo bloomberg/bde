@@ -603,7 +603,7 @@ class BoyerMooreHorspoolSearcher_CharImp {
         // 'needleLast'.
 
     BoyerMooreHorspoolSearcher_CharImp(
-            const BoyerMooreHorspoolSearcher_CharImp& original); // IMPLICIT
+            const BoyerMooreHorspoolSearcher_CharImp& original);
         // Create a 'BoyerMooreHorspoolSearcher_CharImp' object having same
         // state as the specified 'original' object.  The allocator of
         // 'original' is propagated to the new object.  The 'original' object
@@ -611,7 +611,7 @@ class BoyerMooreHorspoolSearcher_CharImp {
 
     BoyerMooreHorspoolSearcher_CharImp(
           BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
-                                                         original); // IMPLICIT
+                                                                     original);
         // Create a 'BoyerMooreHorspoolSearcher_CharImp' object having same
         // state as the specified 'original' object by moving (in constant
         // time) the state of the original object to the new object.  The
@@ -715,7 +715,7 @@ class BoyerMooreHorspoolSearcher_GeneralImp {
         // undefined unless 'needleFirst' can be advanced to 'needleLast'.
 
     BoyerMooreHorspoolSearcher_GeneralImp(
-            const BoyerMooreHorspoolSearcher_GeneralImp& original); // IMPLICIT
+            const BoyerMooreHorspoolSearcher_GeneralImp& original);
         // Create a 'BoyerMooreHorspoolSearcher_GeneralImp' object having same
         // state as the specified 'original' object.  The allocator of
         // 'original' is propagated to the new object.  The 'original' object
@@ -723,7 +723,7 @@ class BoyerMooreHorspoolSearcher_GeneralImp {
 
     BoyerMooreHorspoolSearcher_GeneralImp(
          BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_GeneralImp>
-                                                        original);  // IMPLICIT
+                                                                     original);
         // Create a 'BoyerMooreHorspoolSearcher_GeneralImp' object having same
         // state as the specified 'original' object by moving (in constant
         // time) the state of the original object to the new object.  The
@@ -867,7 +867,7 @@ class BoyerMooreHorspoolSearcher {
         // advanced to equal 'needleLast'.
 
     BoyerMooreHorspoolSearcher(
-                      const BoyerMooreHorspoolSearcher& original); // IMPLICIT
+                      const BoyerMooreHorspoolSearcher& original);
         // Create a 'BoyerMooreHorspoolSearcher' object having same state --
         // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
         // specified 'original' object, and that uses the currently installed
@@ -875,7 +875,6 @@ class BoyerMooreHorspoolSearcher {
 
     BoyerMooreHorspoolSearcher(
           BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher> original);
-                                                                    // IMPLICIT
         // Create a 'BoyerMooreHorspoolSearcher' object having same state --
         // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
         // specified 'original' object. by moving (in constant time) the state
