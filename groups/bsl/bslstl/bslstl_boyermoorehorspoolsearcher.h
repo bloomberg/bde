@@ -918,6 +918,9 @@ class BoyerMooreHorspoolSearcher {
         // 'needleFirst()', 'needleLast()', 'hash()', and 'equal" -- and return
         // a non-'const' reference to this searcher.
 
+    //! ~BoyerMooreHorspoolSearcher() = default;
+        // Destroy this 'BoyerMooreHorspoolSearcher' object.
+
     // ACCESSORS
     template<class RNDACC_ITR_HAYSTACK>
     bsl::pair<RNDACC_ITR_HAYSTACK, RNDACC_ITR_HAYSTACK> operator()(
@@ -988,19 +991,47 @@ class boyer_moore_horspool_searcher {
                                   Hash                  hf   = Hash(),
                                   BinaryPredicate       pred =
                                                             BinaryPredicate());
-        // Create a 'BoyerMooreHorspoolSearcher' object that can search for the
-        // sequence of 'value_type' values found in the specified range
-        // '[needleFirst, needleLast)'.  Generate meta-data and save for use by
+        // Create a 'boyer_moore_horspool_searcher' object that can search for
+        // the sequence of 'value_type' values found in the specified range
+        // '[pat_first, pat_last)'.  Generate meta-data and save for use by
         // 'operator()'.  The complexity of of this process is O(M) where M is
-        // the length of the "needle".  Optionally specify a 'hash' functor
-        // mapping mis-matched values to the size of the next step in the
-        // search -- as large as, 'needleLast - needleFirst'.  Optionally
-        // specify an 'equal' functor for use with 'hash' and for use by
-        // 'operator()'.  See {Requirements for 'HASH' and 'EQUAL'}.
-        // Optionally specify 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'needleFirst' can be
-        // advanced to equal 'needleLast'.
+        // 'pat_last - pat_first'.  Optionally specify 'hf', a hash functor,
+        // that maps mis-matched values to the size of the next step in the
+        // search -- as large as, 'pat_Last - pat_First'.  Optionally specify
+        // 'pred', an equality comparison functor for use with 'hash' and for
+        // use by 'operator()'.  See {Requirements for 'HASH' and 'EQUAL'}.
+        // The behavior is undefined unless 'pat_First' can be advanced to
+        // 'pat_Last'.
+
+    //! boyer_moore_horspool_searcher(
+    //!                          const boyer_moore_horspool_searcher& original)
+    //!                                                              = default;
+        // Create a 'boyer_moore_horspool_searcher' object having same state
+        // -- as the
+        // specified 'original' object.
+
+    //! boyer_moore_horspool_searcher(
+    //!           BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher>
+    //!                                                    original) = default;
+        // Create a 'boyer_moore_horspool_searcher' object having same state as
+        // the specified 'original' object. by moving (in constant time) the
+        // state of 'original' to the new searcher.  The 'original' object is
+        // left in an unspecified (valid) state.
+
+    //! ~boyer_moore_horspool_searcher() = default;
+        // Destroy this 'boyer_moore_horspool_searcher' object.
+
+    // MANIPULATORS
+    //! boyer_moore_horspool_searcher& operator=(
+    //!                    const boyer_moore_horspool_searcher& rhs) = default;
+        // Assign to this object the state of the specified 'rhs' object, and
+        // return a non-'const' reference to this searcher.
+
+    //! boyer_moore_horspool_searcher& operator=(
+    //!           BloombergLP::bslmf::MovableRef<boyer_moore_horspool_searcher>
+    //!                                                         rhs) = default;
+        // Assign to this object the state of the specified 'rhs' object and
+        // return a non-'const' reference to this searcher.
 
     // ACCESSORS
     template <class RandomAccessIterator2>
