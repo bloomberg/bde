@@ -376,9 +376,10 @@ struct ZoneinfoUtil {
         // the specified 'timeZone', corresponding to the specified 'utcTime',
         // and load, into the specified 'resultTransition', an iterator
         // referring to the first transition in 'timeZone' whose
-        // transition-time is before 'utcTime'.  Return 0 on success, and a
-        // non-zero value if 'isWellFormed(timeZone)' is not 'true' or if the
-        // resulting 'resultTime' would be out of range.
+        // transition-time is before 'utcTime'.  Return 0 on success, and
+        // 'baltzo::ErrorCode::k_OUT_OF_RANGE' if 'resultTime' would be outside
+        // of the legal range that a 'bdlt::DatetimeTz' can represent.  The
+        // behavior is undefined unless 'isWellFormed(timeZone)' is 'true'.
 
     static void loadRelevantTransitions(
                      Zoneinfo::TransitionConstIterator *firstResultTransition,
