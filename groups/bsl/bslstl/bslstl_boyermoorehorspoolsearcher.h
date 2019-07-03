@@ -40,9 +40,19 @@ BSLS_IDENT("$Id: $")
 // constructed, a single 'bslstl::BoyerMooreHorspoolSearcher' object can be
 // re-used to search multiple haystacks (for the same needle value).
 //
+///The 'bsl::boyer_moore_horspool_searcher' Class
+///-----------------------------------------------
+// The 'bslslt::BoyerMoreHorspoolSearcher' class provides several interfaces
+// that are not mentioned in the C++ Standard.  Moreover, the class supported
+// BDE allocators while the Standard class is not allocator aware.  (See
+// {Example 5} below.)  The 'bsl::default_searcher' class provides a facade
+// that is strictly limited to the Standard and is provided for clients for
+// whom standard compliance is a priority.  When using the facade class the
+// currently installed default allocator is used to supply memory.
+//
 ///Algorithm
 ///---------
-// The 'bsl::default_searcher' class provides an implementation of the
+// The 'bsl::BoyerMoreHorspoolSearcher' class provides an implementation of the
 // well-known Boyer, Moore, Horspool Algorithm for string matching (see
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm).
 // The algorithm offers complexity of 'O(N)' for a haystack of length 'N' in
@@ -60,6 +70,9 @@ BSLS_IDENT("$Id: $")
 //
 // The operations of either of the iterator types are allowed to throw
 // exceptions.
+//
+// Iterators defining needles are required to remain valid as long as the
+// searcher object might be used.
 //
 ///Requirements for 'HASH' and 'EQUAL'
 ///-----------------------------------

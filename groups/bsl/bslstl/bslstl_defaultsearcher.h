@@ -36,6 +36,13 @@ BSLS_IDENT("$Id: $")
 // object can be used to search multiple haystacks (for the same needle)
 // without additional overhead.
 //
+///The 'bsl::default_searcher' Class
+///---------------------------------
+// The 'bslslt::DefaultSearcher' class provides several interfaces (accessors)
+// that are not mentioned in the C++ Standard.  The 'bsl::default_searcher'
+// class provides a facade that is strictly limited to the Standard and is
+// provided for clients for whom standard compliance is a priority.
+//
 ///Algorithm
 ///---------
 // The 'bslstl::DefaultSearcher' class uses the classic, "naive" algorithm.
@@ -66,6 +73,9 @@ BSLS_IDENT("$Id: $")
 //: o When dereferenced, they must both refer to the same value type.
 //
 // Either of the iterator types are allowed to throw exceptions.
+//
+// Iterators defining needles are required to remain valid as long as the
+// searcher object might be used.
 //
 ///Comparer Functor Requirements
 ///-----------------------------
