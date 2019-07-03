@@ -67,8 +67,8 @@ BSLS_IDENT("$Id: $")
 //
 // Either of the iterator types are allowed to throw exceptions.
 //
-///Comparer Class Requirements
-///---------------------------
+///Comparer Functor Requirements
+///-----------------------------
 // The comparer class must meet the requirements of *BinaryPredicate*:
 //: o The class defines an 'operator()' method, which, given an
 //:   *ForwardIterator*, 'iterator', may be invoked as
@@ -507,6 +507,9 @@ struct DefaultSearcher_ImpUtil {
 }  // close enterprise namespace
 
 namespace bsl {
+                        // ======================
+                        // class default_searcher
+                        // ======================
 
 template<class ForwardIterator1,
          class BinaryPredicate = equal_to<
@@ -528,9 +531,34 @@ class default_searcher {
                      BinaryPredicate  pred = BinaryPredicate());
         // Create a 'default_searcher' object that can search for the sequence
         // of 'value_type' values found in the specified range
-        // '[pat_first, pat_last)'.  Optionally supply a 'pred' functor
-        // for use by 'operator()'.  The behavior is undefined unless
-        // 'pat_first' can be advanced to equal 'pat_last'.
+        // '[pat_first, pat_last)'.  Optionally supply a 'pred' functor for use
+        // by 'operator()'.  See {Comparer Functor Requirements}.  The behavior
+        // is undefined unless 'pat_first' can be advanced to equal 'pat_last'.
+
+    //! default_searcher(const default_searcher& original) = default;
+        // Create a 'default_searcher' object having same state as the
+        // specified 'original' object.
+
+    //! default_searcher(BloombergLP::bslmf::MovableRef<default_searcher>
+    //!                                                    original) = default;
+        // Create a 'default_searcher' object having same state as
+        // the specified 'original' object. by moving (in constant time) the
+        // state of 'original' to the new searcher.  The 'original' object is
+        // left in an unspecified (valid) state.
+
+    //! ~default_searcher() = default;
+        // Destroy this 'default_searcher' object.
+
+    // MANIPULATORS
+    //! default_searcher& operator=(const default_searcher& rhs) = default;
+        // Assign to this object the state of the specified 'rhs' object, and
+        // return a non-'const' reference to this searcher.
+
+    //! default_searcher& operator=(
+    //!                        BloombergLP::bslmf::MovableRef<default_searcher>
+    //!                                                         rhs) = default;
+        // Assign to this object the state of the specified 'rhs' object and
+        // return a non-'const' reference to this searcher.
 
     // ACCESSORS
     template<class ForwardIterator2>
@@ -768,6 +796,9 @@ bsl::enable_if<
 }  // close enterprise namespace
 
 namespace bsl {
+                        // ----------------------
+                        // class default_searcher
+                        // ----------------------
 
 // CREATORS
 template <class ForwardIterator1,
