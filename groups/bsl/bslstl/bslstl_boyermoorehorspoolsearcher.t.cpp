@@ -77,7 +77,10 @@ namespace BSL = native_std;  // for Usage examples
 // [ 2] BloombergLP::bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
+// [ 8] boyer_moore_horspool_searcher: facade forwards correctly
+// [ 9] TRAITS
+// [ 9] PUBLIC TYPES
 // ----------------------------------------------------------------------------
 //
 // ============================================================================
@@ -3580,7 +3583,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 8: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3603,6 +3606,333 @@ int main(int argc, char *argv[])
                             "\n" "=============" "\n");
         usage();
 
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TRAITS & PUBLIC TYPES
+        // 
+        // Concerns:
+        //: 1 The 'bslma::UsesBslmaAllocator' trait is set for each
+        //:   allocating class defined in this component.
+        //:
+        //: 2 Each public, user facing type is correct.
+        //
+        // Plan:
+        //: 1 Check the required trait for each allocating type.
+        //:
+        //: 2 Check each public type against an independent definition.
+        //
+        // Testing:
+        //   TRAITS
+        //   PUBLIC TYPES
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TRAITS"
+                            "\n" "======" "\n");
+
+        typedef CharArray<char>::const_iterator RndAccConstItr;
+        typedef bsl::hash<    char>             DefaultHash;
+        typedef bsl::equal_to<char>             DefaultEqual;
+
+        typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr,
+                                                   DefaultHash,
+                                                   DefaultEqual> MechBsl;
+
+        typedef bslstl::BoyerMooreHorspoolSearcher<RndAccConstItr,
+                                                   DefaultHash,
+                                                   DefaultEqual> MechChar;
+
+        typedef bslstl::BoyerMooreHorspoolSearcher_CharImp<
+                                                   RndAccConstItr,
+                                                   DefaultHash,
+                                                   DefaultEqual> MechCharImp;
+
+        typedef bslstl::BoyerMooreHorspoolSearcher<
+                                    RndAccConstItr,
+                                    MyCaseInsensitiveCharHasher,
+                                    MyCaseInsensitiveCharComparer> MechGnrl;
+
+        typedef bslstl::BoyerMooreHorspoolSearcher_GeneralImp<
+                                    RndAccConstItr,
+                                    MyCaseInsensitiveCharHasher,
+                                    MyCaseInsensitiveCharComparer> MechGnrlImp;
+
+        ASSERT((bslma::UsesBslmaAllocator<MechBsl    >::VALUE));
+        ASSERT((bslma::UsesBslmaAllocator<MechChar   >::VALUE));
+        ASSERT((bslma::UsesBslmaAllocator<MechCharImp>::VALUE));
+        ASSERT((bslma::UsesBslmaAllocator<MechGnrl   >::VALUE));
+        ASSERT((bslma::UsesBslmaAllocator<MechGnrlImp>::VALUE));
+
+        ASSERT((bsl::is_same<char,         MechChar::value_type  >()));
+        ASSERT((bsl::is_same<DefaultHash,  MechChar::DefaultHash >()));
+        ASSERT((bsl::is_same<DefaultEqual, MechChar::DefaultEqual>()));
+        ASSERT((bsl::is_same<char,         MechGnrl::value_type  >()));
+        ASSERT((bsl::is_same<DefaultHash,  MechGnrl::DefaultHash >()));
+        ASSERT((bsl::is_same<DefaultEqual, MechGnrl::DefaultEqual>()));
+                                  
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TEST 'boyer_moore_horspool_seacher' FACADE
+        //   The 'boyer_moore_horspool_searcher' class is a facade that
+        //   forwards to selected interfaces of
+        //   'BoyerMooreHorsepoolSearcher', a class that has been thoroughly
+        //   tested below.  Our concerns are largely those of correct
+        //   forwarding of arguments.
+        //
+        // Concerns:
+        //: 1 The (non-'default') constructor has the expected default
+        //:   parameters for 'hf' and 'pred'.
+        //:
+        //: 2 Constructor arguments are forwarded in correct order to the
+        //:   'BoyerMooreHorspoolSearcher' implementation.
+        //:
+        //: 3 The search 'operator()' forwards its arguments in the correct
+        //:   order to the 'BoyerMooreHorspoolSearcher' implementation.
+        //:
+        //: 4 QoI: Any allocated memory comes the default allocator.
+        //:
+        //: 5 QoI: Precondition violations are detected in appropriate build
+        //:   modes.
+        //
+        // Plan:
+        //: 1 Use the 'bsl::is_same' meta-function to confirm that a searcher
+        //:   type defined without optional parameters matches one declared
+        //:   with the known defualt types.  (C-1)
+        //:
+        //: 2 Install a test allocator as the default allocator, then create
+        //:   searcher objects, and confirm that the test allocator is used
+        //:   when expected, and not otherwise.  (C-4)
+        //:
+        //: 3 Confirm proper forwarding of range arguments (both for the CTOR
+        //:   and 'operator()') by creating a series of sets that would produce
+        //:   noticeably different results if the range beginning or end was
+        //:   off by even one position.  (C-2, C-3)
+        //:
+        //: 4 Confirm proper forwarding the functors by creating cases that
+        //:   would produce noticeably different results if the intended
+        //:   functors were not used.  Note that switching the two functors is
+        //:   not a concern as that would produce a compile error.  (C-2)
+        //:
+        //: 5 Use the conventional Negative testing idiom to confirm that
+        //:   pre-conditions are tested in the appropriate build modes.  (C-5)
+        //
+        // Testing:
+        //   boyer_moore_horspool_searcher: facade forwards correctly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                        "\n" "TEST 'boyer_moore_horspool_seacher' FACADE"
+                        "\n" "==========================================" "\n");
+
+        typedef CharArray<char>::const_iterator    RndAccConstItr;
+        typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr>    MechChar;
+        typedef bsl::boyer_moore_horspool_searcher<
+                                       RndAccConstItr,
+                                       MyCaseInsensitiveCharHasher,
+                                       MyCaseInsensitiveCharComparer> MechGnrl;
+
+        typedef bsl::pair<RndAccConstItr, RndAccConstItr> Result;
+        typedef bsl::hash<    char>                       DefaultHash;
+        typedef bsl::equal_to<char>                       DefaultEqual;
+
+        if (verbose) printf("\n" "Default Functors" "\n");
+        {
+            ASSERT((bsl::is_same<MechChar,
+                                 bsl::boyer_moore_horspool_searcher<
+                                                     RndAccConstItr,
+                                                     bsl::hash<char>,
+                                                     bsl::equal_to<char> >
+                                >() ));
+        }
+
+        if (verbose) printf("\n" "Allocator Tests" "\n");
+        {
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            bsl::vector<char>  vectorOfChars;
+            loadVectorOfChars(&vectorOfChars, "zzzzzzzzzzzzzz");
+
+            CharArray<char> needleSource(vectorOfChars);
+
+            bslma::TestAllocatorMonitor dam(&da);
+
+            MechChar mXC(needleSource.begin(), needleSource.end());
+
+            ASSERT(dam.isTotalSame()); // Special case uses fixed size array
+                                       // and does not allocate.
+
+            MechGnrl mXG(needleSource.begin(), needleSource.end());
+
+            ASSERT(dam.isTotalUp());   // General case uses 'unordered_map'
+                                       // and allocatoes for non-empty neede.
+        }
+
+        if (verbose) printf("\n" "Range Tests" "\n");
+        {
+            const struct {
+                int          d_line;
+
+                const char  *d_needleSource;
+                BSL::size_t  d_idxNeedleFirst;
+                BSL::size_t  d_idxNeedleLast;
+
+                const char  *d_hstckSource;
+                BSL::size_t  d_idxHstckFirst;
+                BSL::size_t  d_idxHstckLast;
+
+                BSL::size_t  d_idxExpectFirst;
+                BSL::size_t  d_idxExpectLast;
+
+            } DATA[] = {
+                  //LINE NS    NF  NL  HS   HF  HL  EF  EL
+                  //---- ---   --  --  --   --  --  --  --
+                  { L_,  "ab",  1,  2, "bb", 0,  2,  0,  1 }  // needle   first
+                , { L_,  "ba",  0,  1, "bb", 0,  2,  0,  1 }  // needle   last
+                , { L_ , "A",   0,  1, "Ab", 1,  2,  2,  2 }  // haystack first
+                , { L_ , "A",   0,  1, "bA", 0,  1,  1,  1 }  // haystack last
+            };
+
+            BSL::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE             = DATA[ti].d_line;
+                const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource;
+                const BSL::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
+                const BSL::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
+                const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource;
+                const BSL::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
+                const BSL::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
+                const BSL::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
+                const BSL::size_t IDX_EXPECT_LAST  = DATA[ti].d_idxExpectLast;
+
+                if (veryVerbose) {
+                    P(LINE)
+                    P_(NEEDLE_SOURCE)
+                    P_(IDX_NEEDLE_FIRST)
+                     P(IDX_NEEDLE_LAST)
+                    P_(HSTCK_SOURCE)
+                    P_(IDX_HSTCK_FIRST)
+                     P(IDX_HSTCK_LAST)
+                    P_(IDX_EXPECT_FIRST)
+                     P(IDX_EXPECT_LAST)
+                }
+
+                MechChar mXC(NEEDLE_SOURCE + IDX_NEEDLE_FIRST,
+                             NEEDLE_SOURCE + IDX_NEEDLE_LAST);
+                MechGnrl mXG(NEEDLE_SOURCE + IDX_NEEDLE_FIRST,
+                             NEEDLE_SOURCE + IDX_NEEDLE_LAST);
+
+                const MechChar& XC = mXC;
+                const MechGnrl& XG = mXG;
+
+                RndAccConstItr haystackFirst = HSTCK_SOURCE
+                                             + IDX_HSTCK_FIRST;
+                RndAccConstItr haystackLast  = HSTCK_SOURCE
+                                             + IDX_HSTCK_LAST;
+
+                const Result expected = BSL::make_pair(
+                                               HSTCK_SOURCE + IDX_EXPECT_FIRST,
+                                               HSTCK_SOURCE + IDX_EXPECT_LAST);
+
+                const Result resultXC = XC(haystackFirst, haystackLast);
+                const Result resultXG = XG(haystackFirst, haystackLast);
+
+                ASSERTV(LINE, expected == resultXC);
+                ASSERTV(LINE, expected == resultXG);
+            }
+        }
+
+        if (verbose) printf("\n" "Functor Forwarding" "\n");
+        {
+            typedef bsl::boyer_moore_horspool_searcher<const char *,
+                                                       DefaultHash,
+                                                       DefaultEqual> Sensitive;
+
+            typedef bsl::boyer_moore_horspool_searcher<
+                                    const char *,
+                                    MyCaseInsensitiveCharHasher,
+                                    MyCaseInsensitiveCharComparer> InSensitive;
+
+            typedef bsl::pair<const char *, const char*> Result;
+
+            const char *haystack =
+              "When 'polish' starts a sentence I confuse it with 'Polish'.";
+            // ----^----|----^----|----^----|----^----|----^----|----^----|
+            // 1     | 10        20        30        40        50 |      60
+             
+            const char *needle = "Polish"; // length 6
+
+            const Result expectedSensitive(haystack + 51,
+                                           haystack + 51 + 6);
+
+            const Result expectedInSensitive(haystack + 6,
+                                             haystack + 6 + 6);
+
+            Sensitive caseSensitiveSearcher(needle,
+                                            needle + BSL::strlen(needle));
+
+            InSensitive caseInSensitiveSearcher(needle,
+                                                needle + BSL::strlen(needle));
+
+            const Result resultSensitive = caseSensitiveSearcher(
+                                             haystack,
+                                             haystack + BSL::strlen(haystack));
+
+            const Result resultInSensitive = caseInSensitiveSearcher(
+                                             haystack,
+                                             haystack + BSL::strlen(haystack));
+            if (veryVerbose) {
+                BSL::size_t offsetSensitive = resultSensitive.first
+                                            - haystack;
+                BSL::size_t lengthSensitive = resultSensitive.second
+                                            - resultSensitive.first;
+
+                BSL::size_t offsetInSensitive = resultInSensitive.first
+                                              - haystack;
+                BSL::size_t lengthInSensitive = resultInSensitive.second
+                                              - resultInSensitive.first;
+
+                P_(  offsetSensitive) P(  lengthSensitive)
+                P_(offsetInSensitive) P(lengthInSensitive)
+            }
+
+            ASSERT(  expectedSensitive ==   resultSensitive);
+            ASSERT(expectedInSensitive == resultInSensitive);
+        }
+
+        if (verbose) printf("\n" "Negative Tests" "\n");
+        {
+            CharArray<char> containerHavingRndAccIterators(
+                                                    bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator    RndAccConstItr;
+            typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr> Mech;
+
+            RndAccConstItr middleNeedle =
+                                    containerHavingRndAccIterators.begin() + 2;
+
+            bsls::AssertTestHandlerGuard hG;
+
+            ASSERT_FAIL(Mech(middleNeedle, middleNeedle - 1));
+            ASSERT_PASS(Mech(middleNeedle, middleNeedle + 0));
+            ASSERT_PASS(Mech(middleNeedle, middleNeedle + 1));
+
+            // Create arbitrary "needle".
+            Mech mX(containerHavingRndAccIterators.begin(),
+                    containerHavingRndAccIterators.end()); const Mech& X = mX;
+
+            // Create arbitrary "haystack".
+
+            const CharArray<char> haystack(bsl::vector<char>('a', 5));
+
+            RndAccConstItr middleHaystack = haystack.begin() + 2;
+
+            ASSERT_FAIL(X(middleHaystack, middleHaystack - 1));
+            ASSERT_PASS(X(middleHaystack, middleHaystack + 0));
+            ASSERT_PASS(X(middleHaystack, middleHaystack + 1));
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
