@@ -27,6 +27,7 @@
 #include <bsls_types.h>     // For 'BloombergLP::bsls::Types::Int64'
 
 #include <bdlf_bind.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
 #include <bsl_fstream.h>
@@ -116,7 +117,8 @@ using namespace BloombergLP;
 // [29] DRQS 138890062: 'deleteQueueCb' running after destructor
 // [30] DRQS 140150365: resume fails immediately after pause
 // [31] DRQS 140403279: pause can deadlock with delete and create
-// [32] USAGE EXAMPLE 1
+// [32] DRQS 143578129: 'numElements' stress test
+// [33] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -586,6 +588,11 @@ void case29Job()
 
     ASSERT(0 != s_case29Barrier_p->timedWait(
                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(100)));
+}
+
+void case32Job()
+{
+    bslmt::ThreadUtil::microSleep(10000);
 }
 
 // ============================================================================
@@ -1450,7 +1457,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1531,6 +1538,75 @@ int main(int argc, char *argv[]) {
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
+      case 32: {
+        // --------------------------------------------------------------------
+        // DRQS 143578129: 'numElements' stress test
+        //
+        // Concerns:
+        //: 1 The value returned by 'numElements' is non-negative.
+        //
+        // Plan:
+        //: 1 Stress test 'bdlmt::MultiQueueThreadPool' and frequently verify
+        //:   'numElements() >= 0'.
+        //
+        // Testing:
+        //   DRQS 143578129: 'numElements' stress test
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 143578129: 'numElements' stress test\n"
+                 << "=========================================\n";
+        }
+
+        Obj mX(bslmt::ThreadAttributes(), 4, 4, 1000);  const Obj& X = mX;
+
+        mX.start();
+
+        bsl::vector<int> queueId;
+        {
+            for (int i = 0; i < 5; ++i) {
+                queueId.push_back(mX.createQueue());
+            }
+        }
+
+        int max = 0;
+        for (int iter = 0; iter < 1000; ++iter) {
+            if (0 == iter % 9) {
+                queueId.push_back(mX.createQueue());
+            }
+            if (0 == iter % 11) {
+                mX.deleteQueue(queueId.front());
+                queueId.erase(queueId.begin());
+            }
+            for (bsl::size_t i = 0; i < queueId.size(); ++i) {
+                int n = X.numElements(queueId[i]);
+                ASSERT(0 <= n);
+
+                mX.enqueueJob(queueId[i], case32Job);
+                ++max;
+                if (0 == (n + iter + i) % 3) {
+                    mX.enqueueJob(queueId[i], case32Job);
+                    ++max;
+                }
+            }
+            int n = X.numElements();
+            ASSERT(0   <= n);
+            ASSERT(max >= n);
+            if (n < max) {
+                max = n;
+            }
+        }
+
+        for (bsl::size_t i = 0; i < queueId.size(); ++i) {
+            mX.deleteQueue(queueId[i]);
+            ASSERT(0 <= X.numElements());
+        }
+
+        mX.drain();
+        ASSERT(0 == X.numElements());
+
+        mX.stop();
+      } break;
       case 31: {
         // --------------------------------------------------------------------
         // DRQS 140403279: pause can deadlock with delete and create

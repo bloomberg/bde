@@ -158,7 +158,13 @@ void MultiQueueThreadPool_Queue::drainWaitWhilePausing()
 
 void MultiQueueThreadPool_Queue::executeFront()
 {
-    ++d_multiQueueThreadPool_p->d_numExecuted;
+    // If the queue is being deleted, the functor about to be popped is
+    // 'deleteQueueCb' and is not counted in 'd_numEnqueued' so must not be
+    // counted in 'd_numExecuted'.
+
+    if (e_DELETING != d_enqueueState) {
+        ++d_multiQueueThreadPool_p->d_numExecuted;
+    }
 
     Job functor;
     {
@@ -252,6 +258,10 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
         BSLS_ASSERT(0 == rc);  (void)rc;
     }
     else {
+        // Note that under no circumstance is 'd_numExecuted' incremented when
+        // the callback about to be pushed executes so 'd_numEnqueued' must not
+        // be incremented here.
+
         d_runState = e_PAUSING;
 
         d_list.push_front(job);
