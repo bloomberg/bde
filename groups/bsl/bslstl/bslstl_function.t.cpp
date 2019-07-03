@@ -6412,7 +6412,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(numArgs,0 && "Exception should have been thrown");
             }
-            catch (bsl::bad_function_call ex) {
+            catch (const bsl::bad_function_call& ex) {
                 LOOP_ASSERT(numArgs,
                             0 == strcmp("bad_function_call", ex.what()));
             }

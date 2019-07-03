@@ -58,6 +58,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isreference.h>
 #include <bslmf_isrvaluereference.h>
 #include <bslmf_memberfunctionpointertraits.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nthparameter.h>
 #include <bslmf_removeconst.h>
@@ -87,14 +88,14 @@ BSL_OVERRIDES_STD mode"
 
 #include <utility>
 
-namespace BloombergLP {
 // 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+namespace BloombergLP {
 extern const char s_bslstl_function_h[];
 #undef BSLS_ASSERTIMPUTIL_FILE
 #define BSLS_ASSERTIMPUTIL_FILE BloombergLP::s_bslstl_function_h
+}  // close enterprise namespace
 #endif
-}
 
                         // ---------------------
                         // COMPILER DEFECT FLAGS
@@ -163,19 +164,18 @@ struct Function_IsReferenceCompatible : is_same<FROM_TYPE, TO_TYPE>
     // to yield 'true_type for other parameters that have compatible
     // references.  This metafunction is used within an 'enable_if' to prevent
     // types that are reference compatible with 'bsl::function' from matching
-    // template parameters in 'function' constructors and assignment
-    // operators, preferring, instead, the non-template overloads for copy and
-    // move construction and assignment.  In practice, this metafunction is
-    // used to detect types supplied to generic functions that are identical
-    // to 'bsl::function' or a type wrapping 'bsl::function' with no
-    // additional data members (i.e., interface wrappers around
-    // 'bsl::function' would specialize this trait to derive from
-    // 'true_type'). Note that reference qualifiers on 'TO_TYPE' will cause
-    // instantiation to fail.
+    // template parameters in 'function' constructors and assignment operators,
+    // preferring, instead, the non-template overloads for copy and move
+    // construction and assignment.  In practice, this metafunction is used to
+    // detect types supplied to generic functions that are identical to
+    // 'bsl::function' or a type wrapping 'bsl::function' with no additional
+    // data members (i.e., interface wrappers around 'bsl::function' would
+    // specialize this trait to derive from 'true_type'). Note that reference
+    // qualifiers on 'TO_TYPE' will cause instantiation to fail.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // 'bdef_Function' should specialize this template to yield 'true_type'
-    // when 'FROM_TYPE' is an instantiation of 'bdef_Function' and 'TO_TYPE'
-    // is the corresponding instantiation of 'bsl::function' with the same
+    // when 'FROM_TYPE' is an instantiation of 'bdef_Function' and 'TO_TYPE' is
+    // the corresponding instantiation of 'bsl::function' with the same
     // function prototype.
 #endif
 
@@ -190,13 +190,13 @@ struct Function_IsReferenceCompatible<FROM_TYPE, const TO_TYPE>
           typename bsl::remove_const<TO_TYPE>::type
     >
 {
-    // Partial specialization of 'Function_IsReferenceCompatible' for
-    // 'TO_TYPE' being const. The evaluation is forwarded to other
-    // specializations after stripping the const qualifiers.  Note that if
-    // 'FROM_TYPE' is const and 'TO_TYPE' is mutable, this partial
-    // specialization will not be selected and the resulting evaluation will
-    // yield 'false_type', reflecting the fact that a reference to const type
-    // cannot be bound to reference to mutable type.
+    // Partial specialization of 'Function_IsReferenceCompatible' for 'TO_TYPE'
+    // being const.  The evaluation is forwarded to other specializations after
+    // stripping the const qualifiers.  Note that if 'FROM_TYPE' is const and
+    // 'TO_TYPE' is mutable, this partial specialization will not be selected
+    // and the resulting evaluation will yield 'false_type', reflecting the
+    // fact that a reference to const type cannot be bound to reference to
+    // mutable type.
 };
 
 template <class FROM_TYPE, class TO_TYPE>
@@ -204,7 +204,7 @@ struct Function_IsReferenceCompatible<FROM_TYPE&, TO_TYPE>
     : Function_IsReferenceCompatible<FROM_TYPE, TO_TYPE>
 {
     // Partial specialization of 'Function_IsReferenceCompatible' for
-    // 'FROM_TYPE' being an lvalue reference. The evaluation is forwarded to
+    // 'FROM_TYPE' being an lvalue reference.  The evaluation is forwarded to
     // other specializations after stripping the reference from 'FROM_TYPE'.
 };
 
@@ -216,7 +216,7 @@ struct Function_IsReferenceCompatible<FROM_TYPE&, const TO_TYPE>
     >
 {
     // Partial specialization of 'Function_IsReferenceCompatible' for
-    // 'FROM_TYPE' being an lvalue reference and 'TO_TYPE' being const. The
+    // 'FROM_TYPE' being an lvalue reference and 'TO_TYPE' being const.  The
     // evaluation is forwarded to other specializations after stripping the
     // reference and const qualifiers.  Note that if 'FROM_TYPE' is const and
     // 'TO_TYPE' is mutable, this partial specialization will not be selected
@@ -231,7 +231,7 @@ struct Function_IsReferenceCompatible<FROM_TYPE&&, TO_TYPE>
     : Function_IsReferenceCompatible<FROM_TYPE, TO_TYPE>
 {
     // Partial specialization of 'Function_IsReferenceCompatible' for
-    // 'FROM_TYPE' being an rvalue reference. The evaluation is forwarded to
+    // 'FROM_TYPE' being an rvalue reference.  The evaluation is forwarded to
     // other specializations after stripping the reference from 'FROM_TYPE'.
 };
 
@@ -243,7 +243,7 @@ struct Function_IsReferenceCompatible<FROM_TYPE&&, const TO_TYPE>
     >
 {
     // Partial specialization of 'Function_IsReferenceCompatible' for
-    // 'FROM_TYPE' being an rvalue reference and 'TO_TYPE' being const. The
+    // 'FROM_TYPE' being an rvalue reference and 'TO_TYPE' being const.  The
     // evaluation is forwarded to other specializations after stripping the
     // reference and const qualifiers.  Note that if 'FROM_TYPE' is const and
     // 'TO_TYPE' is mutable, this partial specialization will not be selected
@@ -296,9 +296,11 @@ class bad_function_call : public native_std::exception {
     // function object.
 
   public:
+    // CREATORS
     bad_function_call() BSLS_NOTHROW_SPEC;
         // Constructs this exception object.
 
+    // ACCESSORS
     const char* what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
         // Returns "bad_function_call".
 };
@@ -326,7 +328,7 @@ class Function_NothrowWrapper
     // that, in the unlikely event that moving the wrapped object *does* throw
     // at runtime, the result will likely be a call to 'terminate()'.
 
-    // This primary template is instatiated for 'FUNC' types that do not take
+    // This primary template is instantiated for 'FUNC' types that do not take
     // an allocator.
 
     // DATA
@@ -350,11 +352,12 @@ class Function_NothrowWrapper
 
     // CREATORS
     Function_NothrowWrapper(const FUNC&                    func,
-                            BloombergLP::bslma::Allocator* a = 0); // IMPLICIT
+                            BloombergLP::bslma::Allocator *a = 0);  // IMPLICIT
         // Wrap the specified 'func', using 'FUNC's [extended] copy
         // constructor.
 
     Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC> func);
+                                                                    // IMPLICIT
         // Wrap the specified 'func', using 'FUNC's move constructor.
 
     Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC>  func,
@@ -366,7 +369,7 @@ class Function_NothrowWrapper
         // copy constructor.
 
     Function_NothrowWrapper(
-        BloombergLP::bslmf::MovableRef<Function_NothrowWrapper> other);
+                BloombergLP::bslmf::MovableRef<Function_NothrowWrapper> other);
         // Move construct from the specified 'other' wrapper using 'FUNC's
         // move constructor.
 
@@ -425,6 +428,7 @@ class Function_SmallObjectOptimization {
         // object on most platforms will be 10 pointers, which matches the
         // sizes of previous implementations of 'bdef_Function'.
 
+        // PUBLIC DATA
         void                *d_object_p;     // pointer to external rep
         void               (*d_func_p)();    // pointer to function
         void        (Dummy::*d_memFunc_p)(); // pointer to member function
@@ -472,8 +476,8 @@ class Function_SmallObjectOptimization {
         template <class SOME_TYPE>
         static typename bsl::add_rvalue_reference<SOME_TYPE>::type myDeclVal()
                                                                       noexcept;
-            // The older versions of clang on OS/X do not provide declval even
-            // in c++11 mode.
+            // The older versions of clang on OS/X do not provide 'declval'
+            // even in c++11 mode.
 #endif
 
         static const bool k_AVOID_SOO =
@@ -536,21 +540,32 @@ class Function_Rep {
     // compiler emits an error when trying to do syntactic checking on template
     // code even though it does not instantiate template).
 
-    // TYPES
+    // FRIENDS
+    template <class FUNC>
+    friend class bsl::Function_Imp;
+
+    template <class ALLOC>
+    friend struct Function_AllocTraits;
+
+  private:
+    // PRIVATE TYPES
 
     union PtrOrSize_t {
         // This union stores either a pointer to const void or a size_t.  It
         // is used as the input argument and return type for manager functions
         // (below).
       private:
+        // DATA
         std::size_t  d_asSize_t;
         void        *d_asPtr;
 
       public:
+        // CREATORS
         PtrOrSize_t(std::size_t s) : d_asSize_t(s) { }              // IMPLICIT
         PtrOrSize_t(void *p) : d_asPtr(p) { }                       // IMPLICIT
         PtrOrSize_t() : d_asPtr(0) { }
 
+        // ACCESSORS
         void *asPtr() const { return d_asPtr; }
         std::size_t asSize_t() const { return d_asSize_t; }
     };
@@ -613,19 +628,14 @@ class Function_Rep {
             // already set.
     };
 
-  public:
+    typedef Function_SmallObjectOptimization Soo;
+        // Type alias for convenience.
 
-    // Not really public: made public to work around a Sun compiler bug.
-    enum AllocCategory {
-        // Category of allocator supplied to a constructor.
+    typedef Soo::InplaceBuffer InplaceBuffer;
+        // Type alias for convenience.
 
-        e_BSLMA_ALLOC_PTR        // Ptr to type derived from 'bslma::Allocator'
-      , e_BSL_ALLOCATOR          // Instantiation of 'bsl::allocator'
-      , e_ERASED_STATEFUL_ALLOC  // C++03 STL-style stateful allocator
-      , e_ERASED_STATELESS_ALLOC // C++03 STL-style stateless allocator
-    };
-
-  private:
+    typedef BloombergLP::bslma::Allocator Allocator;
+        // Type alias for convenience.
 
     typedef PtrOrSize_t (*Manager)(ManagerOpCode  opCode,
                                    Function_Rep  *rep,
@@ -641,28 +651,76 @@ class Function_Rep {
         // over the C++ virtual-function mechanism, especially when the number
         // of different instantiations of 'bsl::function' is large.
 
-    typedef Function_SmallObjectOptimization Soo;
-        // Type alias for convenience.
+#if defined(BSLS_PLATFORM_CMP_SUN)
+  public:
+    // Not really public: made public to work around a Sun compiler bug.
+#endif
+    enum AllocCategory {
+        // Category of allocator supplied to a constructor.
 
-    typedef Soo::InplaceBuffer InplaceBuffer;
-        // Type alias for convenience.
+        e_BSLMA_ALLOC_PTR        // Ptr to type derived from 'bslma::Allocator'
+      , e_BSL_ALLOCATOR          // Instantiation of 'bsl::allocator'
+      , e_ERASED_STATEFUL_ALLOC  // C++03 STL-style stateful allocator
+      , e_ERASED_STATELESS_ALLOC // C++03 STL-style stateless allocator
+    };
 
-    typedef BloombergLP::bslma::Allocator Allocator;
-        // Type alias for convenience.
 
     static const size_t k_NON_SOO_SMALL_SIZE = Soo::k_NON_SOO_SMALL_SIZE;
         // Constant alias for convenience.
 
+
+    // PRIVATE CLASS METHODS
+    static void destructiveMove(Function_Rep *to,
+                                Function_Rep *from) BSLS_NOTHROW_SPEC;
+        // Move the state from the specified 'from' location to the specified
+        // 'to' location, where 'to' points to uninitialized storage.  After
+        // the move, 'from' points to uninitialized storage.  The move is
+        // performed using only non-throwing operations.
+
+    template <class FUNC, bool IS_INPLACE>
+    static PtrOrSize_t functionManager(ManagerOpCode  opCode,
+                                       Function_Rep  *rep,
+                                       PtrOrSize_t    input);
+
     template <class FUNC>
-    friend class bsl::Function_Imp;
+    static Manager getFunctionManager();
+
+    static void nothing(...);
+        // A function that does nothing but can be called to avoid an inlining
+        // error in gcc 4.3.5 64-bit mode.
 
     template <class ALLOC>
-    friend struct Function_AllocTraits;
+    static PtrOrSize_t ownedAllocManager(ManagerOpCode  opCode,
+                                         Function_Rep  *rep,
+                                         PtrOrSize_t    input);
+
+    static PtrOrSize_t unownedAllocManager(ManagerOpCode  opCode,
+                                           Function_Rep  *rep,
+                                           PtrOrSize_t    input);
+        // Note that this function is not a template.  It is defined in the
+        // component .cpp file.
+
+    // PRIVATE MANIPULATORS
+    void assignRep(ManagerOpCode moveOrCopy, Function_Rep *from);
+        // Move or copy the value of the specified '*from' object into '*this',
+        // depending on the value of the specified 'moveOrCopy' argument.  The
+        // previous value of '*this' is discarded.  The behavior is undefined
+        // unless 'moveOrCopy' is either 'e_MOVE_CONSTRUCT' or
+        // 'e_COPY_CONSTRUCT'.
 
     template <class ALLOC>
     void copyInit(const ALLOC& alloc, const Function_Rep& other);
         // Using the specified 'alloc', copy-initialize this rep from the
         // specified 'other' rep.
+
+    template <class ALLOC, AllocCategory ATP>
+    void copyRep(const Function_Rep&                   other,
+                 const ALLOC&                          alloc,
+                 integral_constant<AllocCategory, ATP> atp);
+       // TBD: This private imp-detail function is missing documentation.  It
+       // makes a copy of the specific 'other' representation using the
+       // specified 'alloc', but need need clarify details on the specified
+       // 'atp' tag dispatch argument.
 
     void moveInit(Function_Rep& other);
         // Move-initialize this rep from the specified 'other' rep, leaving
@@ -674,16 +732,19 @@ class Function_Rep {
         // but will point to an allocator with the same type managing the same
         // memory resource.
 
-    void *initRep(std::size_t sooFuncSize, Allocator* basicAllocator,
-                  integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>);
     void *initRep(std::size_t sooFuncSize,
+                  Allocator*  basicAllocator,
+                  integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>);
+    void *initRep(std::size_t                 sooFuncSize,
                   const bsl::allocator<char>& basicAllocator,
                   integral_constant<AllocCategory, e_BSL_ALLOCATOR>);
     template <class ALLOC>
-    void *initRep(std::size_t sooFuncSize, const ALLOC& basicAllocator,
+    void *initRep(std::size_t  sooFuncSize,
+                  const ALLOC& basicAllocator,
                   integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>);
     template <class ALLOC>
-    void *initRep(std::size_t sooFuncSize, const ALLOC& basicAllocator,
+    void *initRep(std::size_t  sooFuncSize,
+                  const ALLOC& basicAllocator,
                   integral_constant<AllocCategory, e_ERASED_STATELESS_ALLOC>);
         // Initialize this object's 'd_objbuf', 'd_allocator_p', and
         // 'd_allocManager_p' fields, allocating (if necessary) enough storage
@@ -695,6 +756,7 @@ class Function_Rep {
         // including 'bsl::allocator', the element type should be rebound to
         // 'char' before calling 'initRep'.
 
+    // PRIVATE ACCESSORS
     bool equalAlloc(Allocator* alloc,
                     integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>) const;
     template <class T>
@@ -709,48 +771,6 @@ class Function_Rep {
         // Return true if the specified 'alloc' can be used to free memory
         // from the allocator stored in this object and vice versa, and false
         // otherwise.
-
-    template <class ALLOC, AllocCategory ATP>
-    void copyRep(const Function_Rep&                   other,
-                 const ALLOC&                          alloc,
-                 integral_constant<AllocCategory, ATP> atp);
-
-    void assignRep(ManagerOpCode moveOrCopy, Function_Rep *from);
-        // Move or copy the value of the specified '*from' object into '*this',
-        // depending on the value of the specified 'moveOrCopy' argument.  The
-        // previous value of '*this' is discarded.  The behavior is undefined
-        // unless 'moveOrCopy' is either 'e_MOVE_CONSTRUCT' or
-        // 'e_COPY_CONSTRUCT'.
-
-    static void destructiveMove(Function_Rep *to,
-                                Function_Rep *from) BSLS_NOTHROW_SPEC;
-        // Move the state from the specified 'from' location to the specified
-        // 'to' location, where 'to' points to uninitialized storage.  After
-        // the move, 'from' points to uninitialized storage.  The move is
-        // performed using only non-throwing operations.
-
-    template <class FUNC, bool IS_INPLACE>
-    static PtrOrSize_t functionManager(ManagerOpCode  opCode,
-                                       Function_Rep  *rep,
-                                       PtrOrSize_t    input);
-
-    static PtrOrSize_t unownedAllocManager(ManagerOpCode  opCode,
-                                           Function_Rep  *rep,
-                                           PtrOrSize_t    input);
-        // Note that this function is not a template.  It is defined in the
-        // component .cpp file.
-
-    template <class ALLOC>
-    static PtrOrSize_t ownedAllocManager(ManagerOpCode  opCode,
-                                         Function_Rep  *rep,
-                                         PtrOrSize_t    input);
-
-    template <class FUNC>
-    static Manager getFunctionManager();
-
-    static void nothing(...);
-        // A function that does nothing but can be called to avoid an inlining
-        // error in gcc 4.3.5 64-bit mode.
 
   private:
     // DATA
@@ -784,7 +804,6 @@ class Function_Rep {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
   public:
 #endif
-
     bool isInplace() const BSLS_NOTHROW_SPEC;
         // Return true if the wrapped functor is allocated in place within the
         // footprint of this 'function' object; otherwise return false.
@@ -796,12 +815,12 @@ class Function_Rep {
 
     // MANIPULATORS
     void swap(Function_Rep& other) BSLS_NOTHROW_SPEC;
+    template<class TP> TP* target() BSLS_NOTHROW_SPEC;
 
     // ACCESSORS
-    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
-    template<class TP> TP*       target()       BSLS_NOTHROW_SPEC;
-    template<class TP> const TP* target() const BSLS_NOTHROW_SPEC;
     Allocator *allocator() const;
+    template<class TP> const TP* target() const BSLS_NOTHROW_SPEC;
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
 };
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
@@ -826,16 +845,58 @@ class Function_Imp<RET(ARGS...)> :
     using Function_Rep::d_objbuf; // Make this member accessible to my friends.
 
     // PRIVATE TYPES
-    typedef RET Invoker(const Function_Rep* rep,
-              typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args);
+    typedef RET Invoker(
+             const Function_Rep                                         *rep,
+             typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args);
         // A function of this type is used to invoke the wrapped functor.
 
-    // PRIVATE MEMBER FUNCTIONS
+    template <class FUNC>
+    struct FunctionPtrInvoker {
+        // Invoker for plain pointer-to-function objects.
+        // CLASS METHODS
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
+
+    template <class FUNC>
+    struct MemFuncPtrInvoker {
+        // Invoker for pointer-to-member-function objects.
+        // CLASS METHODS
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
+
+    template <class FUNC>
+    struct InplaceFunctorInvoker {
+        // Invoker for functor-class objects that are suitable for the
+        // small-object optimization and are thus allocated inplace.
+        // CLASS METHODS
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC>
+    struct OutofplaceFunctorInvoker {
+        // Invoker for functor-class objects that are not suitable for the
+        // small-object optimization and are thus allocated from the allocator.
+        // CLASS METHODS
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    // FRIENDS
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
+
+    // PRIVATE MANIPULATORS
     void setInvoker(Invoker *p);
         // Set the invoker to the address in the specified 'p' argument.
-
-    Invoker *invoker() const;
-        // Return the current invoker.
 
     template<class FUNC, class ALLOC>
     void initFromTarget(FUNC *func, const ALLOC& alloc);
@@ -851,45 +912,6 @@ class Function_Imp<RET(ARGS...)> :
         // 'moveOrCopy' is either 'e_MOVE_CONSTRUCT' or 'e_COPY_CONSTRUCT'.
         // Note that, for the copy case, 'FUNC' might be a 'const'-qualified
         // type.
-
-    template <class FUNC>
-    struct FunctionPtrInvoker {
-        // Invoker for plain pointer-to-function objects.
-        static RET exec(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-        static bool isNull(FUNC f) { return NULL == f; }
-    };
-
-    template <class FUNC>
-    struct MemFuncPtrInvoker {
-        // Invoker for pointer-to-member-function objects.
-        static RET exec(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-        static bool isNull(FUNC f) { return NULL == f; }
-    };
-
-    template <class FUNC>
-    struct InplaceFunctorInvoker {
-        // Invoker for functor-class objects that are suitable for the
-        // small-object optimization and are thus allocated inplace.
-        static RET exec(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-        static bool isNull(const FUNC&) { return false; }
-    };
-
-    template <class FUNC>
-    struct OutofplaceFunctorInvoker {
-        // Invoker for functor-class objects that are not suitable for the
-        // small-object optimization and are thus allocated from the allocator.
-        static RET exec(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-        static bool isNull(const FUNC&) { return false; }
-    };
-
-    template <class FUNC> friend struct FunctionPtrInvoker;
-    template <class FUNC> friend struct MemFuncPtrInvoker;
-    template <class FUNC> friend struct InplaceFunctorInvoker;
-    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -942,6 +964,10 @@ class Function_Imp<RET(ARGS...)> :
         return &InvokerClass::exec;
     }
 
+    // PRIVATE ACCESSORS
+    Invoker *invoker() const;
+        // Return the current invoker.
+
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     // UNSPECIFIED BOOL
 
@@ -991,6 +1017,7 @@ class Function_Imp<RET(ARGS...)> :
     //     // object is inconsistent with the rest of the standard.
     //     // This function does not appear in C++17.
 
+    // ACCESSORS
     RET operator()(ARGS...) const;
 
     // ACCESSORS
@@ -4073,10 +4100,12 @@ class function : public Function_Imp<PROTOTYPE> {
     // indirection prevents argument deduction errors in the SunCC compiler.
 
   private:
+    // PRIVATE TYPES
     typedef Function_Imp<PROTOTYPE>            Base;
     typedef BloombergLP::bslmf::MovableRefUtil MovableRefUtil;
         // Create a type aliases to simplify rendering.
 
+    // PRIVATE CLASS METHODS
     static Base& upcast(function& f);
     static const Base& upcast(const function& f);
         // Upcast specified  'function' reference to 'Function_Imp' reference.
@@ -4101,10 +4130,10 @@ class function : public Function_Imp<PROTOTYPE> {
     function(BloombergLP::bslmf::MovableRef<function> other);
 
     template <class FUNC>
-    function(
-        FUNC func,
-        typename enable_if<! Function_IsReferenceCompatible<FUNC,
-                             function>::value, int>::type = 0) // IMPLICIT
+    function(FUNC func,
+             typename enable_if<
+                        !Function_IsReferenceCompatible<FUNC, function>::value,
+                        int>::type = 0)                             // IMPLICIT
         : Base(BloombergLP::bslma::Default::defaultAllocator(), &func)
     {
         // Must be in-place inline because the use of 'enable_if' will
@@ -4165,6 +4194,13 @@ class function : public Function_Imp<PROTOTYPE> {
         return *this;
     }
 
+    void swap(function& other) BSLS_NOTHROW_SPEC;
+        // Exchange the invokable object held by the specified 'other' function
+        // with the invokable object held by this function.  The behavior is
+        // undefined unless both 'function' objects where created with the same
+        // allocator.  Note that the ISO standard 'function' template does not
+        // support allocators, and so has no undefined behavior in 'swap'.
+
     function& operator=(nullptr_t) BSLS_NOTHROW_SPEC;
 };
 
@@ -4183,6 +4219,11 @@ bool operator!=(nullptr_t, const function<PROTOTYPE>&) BSLS_NOTHROW_SPEC;
 
 template <class PROTOTYPE>
 void swap(function<PROTOTYPE>& a, function<PROTOTYPE>& b) BSLS_NOTHROW_SPEC;
+    // Exchange the invokable object held by the specified 'a' function with
+    // the invokable object held by the specified 'b' function.  The behavior
+    // is undefined unless both 'function' objects where created with the same
+    // allocator.  Note that the ISO standard 'function' template does not
+    // support allocators, and so has no undefined behavior in 'swap'.
 
 
 #ifndef BSLS_PLATFORM_CMP_SUN
@@ -4220,6 +4261,7 @@ template <class R, class ARG>
 struct Function_ArgTypes<R(ARG)> {
     // Specialization for functions that take exactly one argument.
 
+    // PUBLIC TYPES
     typedef ARG argument_type;
 };
 
@@ -4227,6 +4269,7 @@ template <class R, class ARG1, class ARG2>
 struct Function_ArgTypes<R(ARG1, ARG2)> {
     // Specialization for functions that take exactly two arguments.
 
+    // PUBLIC TYPES
     typedef ARG1 first_argument_type;
     typedef ARG2 second_argument_type;
 };
@@ -4241,14 +4284,16 @@ template <class FUNC>
 inline
 Function_NothrowWrapper<FUNC>::
 Function_NothrowWrapper(const FUNC&                    func,
-                        BloombergLP::bslma::Allocator* a) {
+                        BloombergLP::bslma::Allocator* a)
+{
     ConstructionUtil::construct(d_func.address(), a, func);
 }
 
 template <class FUNC>
 inline
 Function_NothrowWrapper<FUNC>::
-Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC> func) {
+Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC> func)
+{
     // We don't need (and can't use) 'ConstructionUtil' when not passing
     // allocator as a separate object.
     ::new(static_cast<void*>(d_func.address()))
@@ -4259,7 +4304,8 @@ template <class FUNC>
 inline
 Function_NothrowWrapper<FUNC>::
 Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC>  func,
-                        BloombergLP::bslma::Allocator        *a) {
+                        BloombergLP::bslma::Allocator        *a)
+{
     ConstructionUtil::construct(d_func.address(), a,
                                 MovableRefUtil::move(func));
 }
@@ -4267,7 +4313,8 @@ Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC>  func,
 template <class FUNC>
 inline
 Function_NothrowWrapper<FUNC>::
-Function_NothrowWrapper(const Function_NothrowWrapper& other) {
+Function_NothrowWrapper(const Function_NothrowWrapper& other)
+{
     // We don't need (and can't use) 'ConstructionUtil' when not passing
     // allocator as a separate object.
     ::new(static_cast<void*>(d_func.address())) FUNC(other.unwrap());
@@ -4277,7 +4324,8 @@ template <class FUNC>
 inline
 Function_NothrowWrapper<FUNC>::
 Function_NothrowWrapper(
-    BloombergLP::bslmf::MovableRef<Function_NothrowWrapper> other) {
+                 BloombergLP::bslmf::MovableRef<Function_NothrowWrapper> other)
+{
     // We don't need (and can't use) 'ConstructionUtil' when not passing
     // allocator as a separate object.
     ::new(static_cast<void*>(d_func.address()))
@@ -4286,21 +4334,24 @@ Function_NothrowWrapper(
 
 template <class FUNC>
 inline
-Function_NothrowWrapper<FUNC>::~Function_NothrowWrapper() {
+Function_NothrowWrapper<FUNC>::~Function_NothrowWrapper()
+{
     d_func.object().~FUNC();
 }
 
 // MANIPULATORS
 template <class FUNC>
 inline
-FUNC& Function_NothrowWrapper<FUNC>::unwrap() {
+FUNC& Function_NothrowWrapper<FUNC>::unwrap()
+{
     return d_func.object();
 }
 
 // ACCESSORS
 template <class FUNC>
 inline
-FUNC const& Function_NothrowWrapper<FUNC>::unwrap() const {
+FUNC const& Function_NothrowWrapper<FUNC>::unwrap() const
+{
     return d_func.object();
 }
 
@@ -4314,11 +4365,13 @@ struct Function_NothrowWrapperUtil {
     //
     // Namesapace for 'Function_NothrowWrapper' traits and utilities.
 
+    // PUBLIC TYPES
     typedef FUNC UnwrappedType;
 
     enum { IS_WRAPPED = false };
          // True for specializations of 'Function_NothrowWrapper', else false.
 
+    // PUBLIC CLASS METHODS
     static FUNC&       unwrap(typename bsl::remove_cv<FUNC>::type&       f)
         { return f; }
     static FUNC const& unwrap(typename bsl::remove_cv<FUNC>::type const& f)
@@ -4332,12 +4385,14 @@ struct  Function_NothrowWrapperUtil<Function_NothrowWrapper<FUNC> > {
     // Namesapace for 'Function_NothrowWrapper' traits and utilities,
     // specialized for instantiations of 'Function_NothrowWrapper<FUNC>'.
 
+    // PUBLIC TYPES
     typedef Function_NothrowWrapper<FUNC> WrappedType;
     typedef FUNC                          UnwrappedType;
 
     enum { IS_WRAPPED = true };
          // True for specializations of 'Function_NothrowWrapper', else false.
 
+    // PUBLIC CLASS METHODS
     static FUNC&       unwrap(WrappedType&       f) { return f.unwrap(); }
     static FUNC const& unwrap(WrappedType const& f) { return f.unwrap(); }
 };
@@ -4348,23 +4403,31 @@ struct  Function_NothrowWrapperUtil<Function_NothrowWrapper<FUNC> > {
                     // class template Function_MemFuncInvoke
                     // -------------------------------------
 
-template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE,
-          class RET, class... ARGS>
+template <class    FUNC,
+          class    OBJ_TYPE,
+          class    OBJ_ARG_TYPE,
+          class    RET,
+          class... ARGS>
 struct Function_MemFuncInvokeImp {
     // This is a component-private class template.  Do not use.
     //
 
+    // PUBLIC TYPES
     typedef typename is_convertible<
-            typename remove_reference<OBJ_ARG_TYPE>::type*,
-            OBJ_TYPE*
-        >::type DirectInvoke;
+                                typename remove_reference<OBJ_ARG_TYPE>::type*,
+                                OBJ_TYPE*
+                                >::type DirectInvoke;
 
     enum { NUM_ARGS = sizeof...(ARGS) };
 
+    // PUBLIC CLASS METHODS
     static
-    RET invoke_imp(true_type /* DirectInvoke */, FUNC f,
-           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-           typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args) {
+    RET invoke_imp(
+          true_type                                         /* DirectInvoke */,
+          FUNC                                                            f,
+          typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+          typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...      args)
+    {
         // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
         // forwarded as a const reference, instead.  In order to call a
         // potentially non-const member function on it, we must cast the
@@ -4375,9 +4438,12 @@ struct Function_MemFuncInvokeImp {
     }
 
     static
-    RET invoke_imp(false_type /* DirectInvoke */, FUNC f,
-           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-           typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args) {
+    RET invoke_imp(
+          false_type                                        /* DirectInvoke */,
+          FUNC                                                            f,
+          typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+          typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...      args)
+    {
         // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
         // forwarded as a const reference, instead.  In order to call a
         // potentially non-const member function on it, we must cast the
@@ -4389,9 +4455,10 @@ struct Function_MemFuncInvokeImp {
 
   public:
     static
-    RET invoke(FUNC f,
-           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-           typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
+    RET invoke(
+          FUNC                                                            f,
+          typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+          typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...      args)
         { return invoke_imp(DirectInvoke(), f, obj, args...); }
 
 };
@@ -7544,6 +7611,7 @@ class Function_PairBufDesc {
     // the members of the same data types and, in practice, the layout will
     // often differ from 'std::pair'.
 
+    // DATA
     std::size_t d_totalSize;    // Total size of the buffer
     std::size_t d_secondOffset; // Offset within the buffer of the 2nd object
 
@@ -7590,6 +7658,7 @@ struct Function_AllocTraits
     // for allocators that belong to the same family.
 
   private:
+    // PRIVATE TYPES
     typedef Function_Rep::AllocCategory         AllocCategory;
 
   public:
@@ -7598,6 +7667,7 @@ struct Function_AllocTraits
          Function_Rep::e_ERASED_STATELESS_ALLOC :
          Function_Rep::e_ERASED_STATEFUL_ALLOC);
 
+    // PUBLIC TYPES
     typedef bsl::integral_constant<AllocCategory, k_CATEGORY> Category;
     typedef typename ALLOC::template rebind<char>::other      Type;
 };
@@ -7608,6 +7678,7 @@ struct Function_AllocTraits<ALLOC *>
     // Specialization for pointer to type derived from 'bslma::Allocator'.
 
   private:
+    // PRIVATE TYPES
     typedef BloombergLP::bslma::Allocator Allocator;
 
     BSLMF_ASSERT((bsl::is_convertible<ALLOC *, Allocator*>::value));
@@ -7617,6 +7688,7 @@ struct Function_AllocTraits<ALLOC *>
   public:
     static const AllocCategory k_CATEGORY = Function_Rep::e_BSLMA_ALLOC_PTR;
 
+    // PUBLIC TYPES
     typedef bsl::integral_constant<AllocCategory, k_CATEGORY>  Category;
     typedef Allocator                                         *Type;
 };
@@ -7627,11 +7699,13 @@ struct Function_AllocTraits<bsl::allocator<TYPE> >
     // Specialization for 'bsl::allocator<TYPE>'
 
   private:
+    // PRIVATE TYPES
     typedef Function_Rep::AllocCategory AllocCategory;
 
   public:
     static const AllocCategory k_CATEGORY = Function_Rep::e_BSL_ALLOCATOR;
 
+    // PUBLIC TYPES
     typedef bsl::integral_constant<AllocCategory, k_CATEGORY> Category;
     typedef bsl::allocator<char>                              Type;
 };
@@ -7769,9 +7843,10 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
 {
     using namespace BloombergLP;
 
-    static const std::size_t k_SOO_FUNC_SIZE =
-        IS_INPLACE ? sizeof(FUNC) : Soo::SooFuncSize<FUNC>::VALUE;
-    static const bool k_IS_INPLACE = IS_INPLACE;
+    static const std::size_t k_SOO_FUNC_SIZE = IS_INPLACE
+                                             ? sizeof(FUNC)
+                                             : Soo::SooFuncSize<FUNC>::VALUE;
+    static const bool        k_IS_INPLACE    = IS_INPLACE;
 
     // If a function manager exists, then functor must have non-zero size.
     BSLMF_ASSERT(0 != k_SOO_FUNC_SIZE);
@@ -7780,9 +7855,10 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
     // its heap-allocated address is found in 'd_objbuf.d_object_p'.  There is
     // no need to computed this using metaprogramming; the compiler will
     // optimize away the conditional test.
-    void *wrappedFuncBuf_p =
-        k_IS_INPLACE ? &rep->d_objbuf : rep->d_objbuf.d_object_p;
-    FUNC *wrappedFunc_p = static_cast<FUNC*>(wrappedFuncBuf_p);
+    void *wrappedFuncBuf_p = k_IS_INPLACE
+                           ? &rep->d_objbuf
+                           : rep->d_objbuf.d_object_p;
+    FUNC *wrappedFunc_p    = static_cast<FUNC*>(wrappedFuncBuf_p);
 
     switch (opCode) {
 
@@ -7871,7 +7947,7 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
       case e_DESTROY: {
         // Allocator cannot deallocate itself, so make a copy of the allocator
         // on the stack and use the copy for deallocation.
-        Adaptor allocCopy(*static_cast<Adaptor*>(rep->d_allocator_p));
+        Adaptor     allocCopy(*static_cast<Adaptor*>(rep->d_allocator_p));
         std::size_t sooFuncSize = input.asSize_t();
 
         rep->d_allocator_p->~Allocator();  // destroy allocator
@@ -7927,9 +8003,11 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
 
       case e_IS_EQUAL: {
         const Allocator *inputAlloc =
-            static_cast<const Allocator *>(input.asPtr());
+                                 static_cast<const Allocator *>(input.asPtr());
+
         const Adaptor *inputAdaptor = dynamic_cast<const Adaptor*>(inputAlloc);
-        Adaptor *thisAdaptor = static_cast<Adaptor*>(rep->d_allocator_p);
+        Adaptor       *thisAdaptor = static_cast<Adaptor*>(rep->d_allocator_p);
+
         return inputAdaptor ?
             inputAdaptor->adaptedAllocator() == thisAdaptor->adaptedAllocator()
             : false;                                                  // RETURN
@@ -8026,6 +8104,7 @@ void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
         // Not in-place.  Allocate (from the allocator) a single block to hold
         // the function and allocator adaptor.
         Function_PairBufDesc pairDesc(funcSize, allocSize);
+
         void *pair_p = Adaptor(basicAllocator).allocate(pairDesc.totalSize());
         d_objbuf.d_object_p = pair_p;
         function_p = pairDesc.first(pair_p);
@@ -8042,7 +8121,7 @@ void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
 
 template <class ALLOC>
 inline
-void *bsl::Function_Rep::initRep(std::size_t sooFuncSize,
+void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
                                  const ALLOC& basicAllocator,
                                  integral_constant<AllocCategory,
                                                    e_ERASED_STATELESS_ALLOC>)
@@ -8192,12 +8271,12 @@ RET bsl::Function_Imp<RET(ARGS...)>::FunctionPtrInvoker<FUNC>::exec(
               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
     typedef Function_Imp<RET(ARGS...)> Imp;
-    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
 
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+    FUNC       f     = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
     // Note that 'FUNC' might be different than 'RET(*)(ARGS...)'. All that is
     // required is that it be Callable with 'ARGS...' and return something
     // convertible to 'RET'.
-    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
@@ -8210,21 +8289,23 @@ template <class RET, class... ARGS>
 template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS...)>::MemFuncPtrInvoker<FUNC>::exec(
-               const Function_Rep *rep,
-               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
+              const Function_Rep                                         *rep,
+              typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
     using namespace BloombergLP;
 
     typedef Function_Imp<RET(ARGS...)> Imp;
-    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
 
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
     // Workaround Sun compiler issue - it thinks we're trying to cast away
     // const or volatile if we use reinterpret_cast.
-    // FUNC f = reinterpret_cast<const FUNC&>(imp_p->d_objbuf.d_memFunc_p);
-    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
+    // FUNC    f = reinterpret_cast<const FUNC&>(imp_p->d_objbuf.d_memFunc_p);
+    FUNC       f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
+
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
+
     return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args...));
 }
 
@@ -8232,13 +8313,13 @@ template <class RET, class... ARGS>
 template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS...)>::InplaceFunctorInvoker<FUNC>::exec(
-               const Function_Rep                                        *rep,
-               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
+              const Function_Rep                                         *rep,
+              typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
     typedef Function_Imp<RET(ARGS...)> Imp;
-    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
 
-    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+    FUNC&      f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
@@ -8250,15 +8331,16 @@ template <class FUNC>
 inline
 RET
 bsl::Function_Imp<RET(ARGS...)>::OutofplaceFunctorInvoker<FUNC>::exec(
-               const Function_Rep                                        *rep,
-               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
+              const Function_Rep                                         *rep,
+              typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
     typedef Function_Imp<RET(ARGS...)> Imp;
-    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
 
-    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+    FUNC&      f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
+
     return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
 
@@ -8299,7 +8381,7 @@ bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC& alloc)
 template <class RET, class... ARGS>
 template<class ALLOC>
 inline
-bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC&    alloc,
+bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC&        alloc,
                                               const Function_Imp& other)
 {
     copyInit(alloc, other);
@@ -8350,8 +8432,8 @@ template <class RET, class... ARGS>
 template <class ALLOC>
 inline
 bsl::Function_Imp<RET(ARGS...)>::Function_Imp(
-    const ALLOC&                                 alloc,
-    BloombergLP::bslmf::MovableRef<Function_Imp> other)
+                            const ALLOC&                                 alloc,
+                            BloombergLP::bslmf::MovableRef<Function_Imp> other)
 {
     typedef Function_AllocTraits<ALLOC> AllocTraits;
 
@@ -19253,7 +19335,7 @@ inline bsl::function<PROTOTYPE>::function(allocator_arg_t,
 
 template <class PROTOTYPE>
 inline bsl::function<PROTOTYPE>::function(
-                               BloombergLP::bslmf::MovableRef<function> other)
+                                BloombergLP::bslmf::MovableRef<function> other)
     : Base(MovableRefUtil::move(upcast(MovableRefUtil::access(other)))) {}
 
 template <class PROTOTYPE>
@@ -19278,16 +19360,25 @@ bsl::function<PROTOTYPE>::operator=(const function& rhs)
 template <class PROTOTYPE>
 inline bsl::function<PROTOTYPE>&
 bsl::function<PROTOTYPE>::operator=(
-                                BloombergLP::bslmf::MovableRef<function> rhs) {
+                                  BloombergLP::bslmf::MovableRef<function> rhs)
+{
     Base::operator=(MovableRefUtil::move(upcast(MovableRefUtil::access(rhs))));
     return *this;
 }
 
 template <class PROTOTYPE>
 inline bsl::function<PROTOTYPE>&
-bsl::function<PROTOTYPE>::operator=(nullptr_t) BSLS_NOTHROW_SPEC {
+bsl::function<PROTOTYPE>::operator=(nullptr_t) BSLS_NOTHROW_SPEC
+{
     Base::operator=(nullptr_t());
     return *this;
+}
+
+template <class PROTOTYPE>
+inline
+void bsl::function<PROTOTYPE>::swap(function& other) BSLS_NOTHROW_SPEC
+{
+    Base::swap(other);
 }
 
 // FREE FUNCTIONS
