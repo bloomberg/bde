@@ -864,7 +864,7 @@ class BoyerMooreHorspoolSearcher {
         // Optionally specify 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless 'needleFirst' can be
-        // advanced to equal 'needleLast'.
+        // advanced to 'needleLast'.
 
     BoyerMooreHorspoolSearcher(
                       const BoyerMooreHorspoolSearcher& original);
@@ -935,9 +935,9 @@ class BoyerMooreHorspoolSearcher {
         // Values of the "needle" sequence and the "haystack" sequence are
         // compared using the equality comparison functor specified on
         // construction.  The behavior is undefined unless 'haystackFirst' can
-        // be advanced to equal 'haystackLast' and the iterators used to
-        // construct this object, 'needleFirst()' and 'needleLast()', are still
-        // valid.  Note that if the "needle" sequence is empty, the range
+        // be advanced to 'haystackLast' and the iterators used to construct
+        // this object, 'needleFirst()' and 'needleLast()', are still valid.
+        // Note that if the "needle" sequence is empty, the range
         // '[haystackFirst, haystackFirst)' is returned.  Also note that if the
         // "needle" sequence is longer than the "haystack" sequence -- thus,
         // impossible for the "needle" to be found in the "haystack" -- the
@@ -968,6 +968,10 @@ class BoyerMooreHorspoolSearcher {
 }  // close enterprise namespace
 
 namespace bsl {
+
+                        // ===================================
+                        // class boyer_moore_horspool_searcher
+                        // ===================================
 
 template <class RandomAccessIterator1,
           class Hash = hash<
@@ -1044,12 +1048,12 @@ class boyer_moore_horspool_searcher {
         // sequence is not found.  The search is performed using an
         // implementation of the Boyer Moore Horspool algorithm and has a
         // complexity of O(N) for random text. construction.  The behavior is
-        // undefined unless 'first' can be advanced to equal 'last' and the
-        // iterators used to construct this object are still valid.  Note that
-        // if the sought sequence is empty, the range '[first, first)' is
-        // returned.  Also note that if the sought sequence is longer than the
-        // searched sequence -- thus, the sought sequence cannot be found --
-        // the range '[last, last)' is returned.
+        // undefined unless 'first' can be advanced to 'last' and the iterators
+        // used to construct this object are still valid.  Note that if the
+        // sought sequence is empty, the range '[first, first)' is returned.
+        // Also note that if the sought sequence is longer than the searched
+        // sequence -- thus, the sought sequence cannot be found -- the range
+        // '[last, last)' is returned.
 };
 
 }  // close namespace 'bsl'
@@ -1691,6 +1695,10 @@ BloombergLP::bslma::Allocator *BoyerMooreHorspoolSearcher<
 
 namespace bsl {
 
+                        // -----------------------------------
+                        // class boyer_moore_horspool_searcher
+                        // -----------------------------------
+
 // CREATORS
 template <class RandomAccessIterator1,
           class Hash,
@@ -1705,9 +1713,10 @@ boyer_moore_horspool_searcher<RandomAccessIterator1,
                                                BinaryPredicate       pred)
 : d_imp(pat_first, pat_last, hf, pred)
 {
+    BSLS_ASSERT(pat_first <= pat_last);
 }
 
-        // ACCESSORS
+// ACCESSORS
 template <class RandomAccessIterator1,
           class Hash,
           class BinaryPredicate>
@@ -1722,6 +1731,8 @@ pair<RandomAccessIterator2,
                                                    RandomAccessIterator2 last)
                                                                           const
 {
+    BSLS_ASSERT(first <= last);
+
     return d_imp(first, last);
 }
 
@@ -1765,7 +1776,17 @@ struct UsesBslmaAllocator<
     > : bsl::true_type
 {};
 
-}  // close namespace bslma
+template <class RandomAccessIterator1,
+          class Hash,
+          class BinaryPredicate>
+struct UsesBslmaAllocator<
+                      bsl::boyer_moore_horspool_searcher<RandomAccessIterator1,
+                                                         Hash,
+                                                         BinaryPredicate>
+    > : bsl::true_type
+{};
+
+}  // close namespace 'bslma'
 }  // close enterprise namespace
 
 #endif
