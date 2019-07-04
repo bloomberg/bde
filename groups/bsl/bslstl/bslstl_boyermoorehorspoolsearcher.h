@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 // Then, we create a 'default_searcher' object (a functor) using the given
 // 'word':
 //..
-//  bslstl::BoyerMooreHorspoolSearcher<const char *> searchForUnited(
+//  bsl::boyer_moore_horspool_searcher<const char *> searchForUnited(
 //                                                          word,
 //                                                          word
 //                                                        + bsl::strlen(word));
@@ -182,7 +182,10 @@ BSLS_IDENT("$Id: $")
 //          return bsl::tolower(a) == bsl::tolower(b);
 //      }
 //  };
-//
+//..
+// Then, define (again at file scope, if pre-C++11), a hash functor so that two
+// values, irrespective of their case, hash to the same value.
+//..
 //  struct MyCaseInsensitiveCharHasher {
 //      bool operator()(const char& value) const {
 //          static bsl::hash<char> s_hash;
@@ -194,15 +197,10 @@ BSLS_IDENT("$Id: $")
 // provided by the equality comparison functor.  Values that are
 // case-insensitively equal must generate the same hash value.
 //
-// Then, define (again at file scope, if pre-C++11), a hash functor so that two
-// values, irrespective of their case, hash to the same value.
-//..
-//  [INSERT FROM ABOVE]
-//..
-// Now, specify 'bslstl::BoyerMooreHorspoolSearcher' type for and create a
+// Now, specify 'bsl::boyer_moore_horspool_searcher' type for and create a
 // searcher object to search for 'word':
 //..
-//  bslstl::BoyerMooreHorspoolSearcher<const char *,
+//  bsl::boyer_moore_horspool_searcher<const char *,
 //                                     MyCaseInsensitiveCharHasher,
 //                                     MyCaseInsensitiveCharComparer>
 //                                                  searchForUnitedInsensitive(
@@ -278,7 +276,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we define and create our searcher object:
 //..
-//  bslstl::BoyerMooreHorspoolSearcher<const float *>
+//  bsl::boyer_moore_horspool_searcher<const float *>
 //                                       searchForMarker(markerSequence,
 //                                                       markerSequence
 //                                                     + markerSequenceLength);
@@ -319,7 +317,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 4: Caching Searcher Objects
 ///- - - - - - - - - - - - - - - - - -
-// The construction of 'bsl::boyer_moore_horsepool_searcher' objects is small
+// The construction of 'bsl::boyer_moore_horspool_searcher' objects is small
 // (the needle must be scanned, meta-data calculated and saved) but can be
 // non-neglibible if one needs a great number of them.  When there is a
 // reasonable chance that one will have to repeat a given search, it can be
@@ -349,7 +347,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // TYPES
 //    public:
-//      typedef bslstl::BoyerMooreHorspoolSearcher<
+//      typedef bsl::boyer_moore_horspool_searcher<
 //                                               bsl::string::const_iterator,
 //                                               MyCaseInsensitiveCharHasher,
 //                                               MyCaseInsensitiveCharComparer>
@@ -357,6 +355,11 @@ BSLS_IDENT("$Id: $")
 //      // PRIVATE TYPES
 //    private:
 //      typedef bsl::unordered_map<bsl::string, Searcher> Map;
+//          // !Caveat!: 'bsl::boyer_moore_horspool_searcher' is not entirely
+//          // compatible with allocator enabled 'bsl::unordered_map'.
+//          // Although the usage shown below is valid, there are scenarios
+//          // (e.g., creating our cache in memory from a local allocator and
+//          // the "winking" it out) in which memory can be leaked.
 //
 //      // DATA
 //      Map d_map;
@@ -532,6 +535,139 @@ BSLS_IDENT("$Id: $")
 //                          "OK: Ivan       Ivanovich  \n"));
 //
 //  assert(searcherCache.numSearchers() < NUM_NAMES);
+//..
+//
+///Example 5: Using 'bslstl::BoyerMooreHorspoolSearcher'
+///-----------------------------------------------------
+// We saw in {Example 4} above that caching can improve the performance of
+// applications that must deal with many searcher objects.  If we are serious
+// about caching, we might then ask if the cachine can be made more performant
+// tuning the memory allocation done by the cache.  The
+// 'bsl::boyer_moore_horspool_searcher' class does allow control of its memory
+// allocation; fortunately, the underlying 'bslstl::BoyerMooreHorspoolSearcher'
+// is "plumbed" to accept BDE-style allocators.  This example will demonstrate
+// how to modify the preceding example to work with user-defined allocators.
+// Moreover, this time, we will make our searcher case sensitive.
+//
+// First, we define our allocating aware (AA) cache class.  Other than defining
+// an allocator compatible constructor (the compiler-generated contructor does
+// not suffice here), most details are not materially different from what was
+// seen in {Example 4}.  An elided view of the new class is provided here:
+//..
+//                      // ====================================
+//                      // class MyCaseSensitiveAaSearcherCache
+//                      // ====================================
+//
+//  class MyCaseSensitiveAaSearcherCache {
+//
+//      // TYPES
+//    public:
+//      typedef bslstl::BoyerMooreHorspoolSearcher<
+//                                       bsl::string::const_iterator> Searcher;
+//          // The default types for hashing and comparison provide case
+//          // senstive searches.
+//
+//    // ...
+//
+//    public:
+//      // CREATORS
+//      explicit MyCaseSensitiveAaSearcherCache(
+//                                       bslma::Allocator *basicAllocator = 0);
+//          // Create a 'MyCaseSensitiveAaSearcherCache' cache that will
+//          // provide existing 'Searcher' objects for specificed ASCII strings
+//          // and add such objects if not found.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0 or not supplied, the currently installed default allocator is
+//          // used.
+//
+//    // ..
+//  };
+//                      // ------------------------------------
+//                      // class MyCaseSensitiveAaSearcherCache
+//                      // ------------------------------------
+//  // .,.
+//
+//  // CREATORS
+//  MyCaseSensitiveAaSearcherCache::
+//  MyCaseSensitiveAaSearcherCache(bslma::Allocator *basicAllocator)
+//  : d_map(basicAllocator)  // <-- pass 'basicAllocator' to map.
+//  {
+//  }
+//
+//  // .,.
+//..
+//
+// Now, we show how the allocator aware searcher object cache can be used.  In
+// this example, our data source will be same fixed array ('DATA[]') that was
+// used in {Example 4}.
+//
+// This time we create a custom allocator object and pass it to our searcher
+// object cache on construction.
+//..
+//  MyAllocator myAllocator;
+//  MyCaseSensitiveAaSearcherCache searcherAaCache(&myAllocator);
+//
+//  bsl::string                    outputCaseSensitive;
+//
+//  for (bsl::size_t ti = 0; ti < NUM_NAMES; ++ti) {
+//      const char * const givenName = DATA[ti].d_givenName;
+//      const char * const surname   = DATA[ti].d_surname;
+//
+//      const MyCaseSensitiveAaSearcherCache::Searcher& searcher =
+//                                      searcherAaCache.getSearcher(givenName);
+//
+//      assert(&myAllocator == searcher.allocator());
+//..
+// Notice that each searcher object in the cache (correctly) uses the same
+// allocator as we specified for the cache itself.
+//
+// The rest of of this application is unchanged.
+//..
+//      Result result   = searcher(surname,
+//                                 surname + bsl::strlen(surname));
+//
+//      Result notFound = bsl::make_pair(surname + bsl::strlen(surname),
+//                                       surname + bsl::strlen(surname));
+//
+//      char buffer[32];
+//
+//      if (notFound == result) {
+//          sprintf(buffer, "ng: %-10s %-11s\n", givenName, surname);
+//      } else {
+//          sprintf(buffer, "OK: %-10s %-11s\n", givenName, surname);
+//      }
+//
+//      outputCaseSensitive.append(buffer);
+//  }
+//..
+// Finally, we examine the collected 'outputCaseSensitive' and see that this
+// stricter rule produces fewer "OK" results from the same data.
+//..
+//  assert(0 == bsl::strcmp(outputCaseSensitive.c_str(),
+//                          "OK: Donald     McDonald   \n"
+//                          "OK: John       Johnson    \n"
+//                          "OK: John       Saint Johns\n"
+//                          "ng: Jon        Literjon   \n"
+//                          "ng: Jean       Valjean    \n"
+//                          "OK: James      Jameson    \n"
+//                          "ng: Will       Freewill   \n"
+//                          "OK: John       Johns      \n"
+//                          "OK: John       John       \n"
+//                          "ng: John       Jones      \n"
+//                          "ng: J'onn      J'onzz     \n"
+//                          "OK: Donald     Donalds    \n"
+//                          "OK: Donald     Mac Donald \n"
+//                          "OK: William    Williams   \n"
+//                          "OK: Durand     Durand     \n"
+//                          "OK: John       Johnstown  \n"
+//                          "OK: Major      Major      \n"
+//                          "OK: Donald     MacDonald  \n"
+//                          "OK: Patrick    O'Patrick  \n"
+//                          "OK: Chris      Christie   \n"
+//                          "ng: Don        London     \n"
+//                          "OK: Ivan       Ivanovich  \n"));
+//
+//  assert(searcherAaCache.numSearchers() < NUM_NAMES);
 //..
 
 #include <bslscm_version.h>
@@ -1786,16 +1922,6 @@ struct UsesBslmaAllocator<
     BloombergLP::bslstl::BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                                             HASH,
                                                             EQUAL>
-    > : bsl::true_type
-{};
-
-template <class RandomAccessIterator1,
-          class Hash,
-          class BinaryPredicate>
-struct UsesBslmaAllocator<
-                      bsl::boyer_moore_horspool_searcher<RandomAccessIterator1,
-                                                         Hash,
-                                                         BinaryPredicate>
     > : bsl::true_type
 {};
 
