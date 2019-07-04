@@ -2882,7 +2882,7 @@ void processTestRun(bsl::vector<float>::const_iterator first,
 
         // TYPES
       public:   
-        typedef bslstl::BoyerMooreHorspoolSearcher<
+        typedef bsl::boyer_moore_horspool_searcher<
                                                  bsl::string::const_iterator,
                                                  MyCaseInsensitiveCharHasher,
                                                  MyCaseInsensitiveCharComparer>
@@ -2890,6 +2890,11 @@ void processTestRun(bsl::vector<float>::const_iterator first,
         // PRIVATE TYPES
       private:   
         typedef bsl::unordered_map<bsl::string, Searcher> Map;
+            // !Caveat!: 'bsl::boyer_moore_horspool_searcher' is not entirely
+            // compatible with allocator enabled 'bsl::unordered_map'.
+            // Although the usage shown below is valid, there are scenarios
+            // (e.g., creating our cache in memory from a local allocator and
+            // the "winking" it out) in which memory can be leaked.
 
         // DATA
         Map d_map;
@@ -2973,6 +2978,150 @@ void processTestRun(bsl::vector<float>::const_iterator first,
     {
         return d_map.size();
     }
+//..
+
+// INSERT in Example 5
+
+typedef bslma::TestAllocator MyAllocator;
+
+
+// First, we define our allocating aware (AA) cache class.  Other than defining
+// an allocator compatible constructor (the compiler-generated contructor does
+// not suffice here), most details are not materially different from what was
+// seen in {Example 4}.  An elided view of the new class is provided here:
+//..
+                        // ====================================
+                        // class MyCaseSensitiveAaSearcherCache
+                        // ====================================
+
+    class MyCaseSensitiveAaSearcherCache {
+
+        // TYPES
+      public:   
+        typedef bslstl::BoyerMooreHorspoolSearcher<
+                                         bsl::string::const_iterator> Searcher;
+//          // The default types for hashing and comparison provide case
+//          // senstive searches.
+
+// -- ELIDE -- START
+        // PRIVATE TYPES
+      private:   
+        typedef bsl::unordered_map<bsl::string, Searcher> Map;
+
+        // DATA
+        Map d_map;
+
+        // PRIVATE MANIPULATORS
+        const Searcher& insertSearcher(const bsl::string& key);
+            // Insert into the cache a key-value pair where the key is the
+            // specified 'key' and the value is a 'Searcher' object created to
+            // look for the needle specified by the key part.  Note that this
+            // arrangement guarantees that the iterators used by this cached
+            // searcher object remain valid for the life of the searcher
+            // object.
+// -- ELIDE -- STOP
+//
+      public:
+        // CREATORS
+        explicit MyCaseSensitiveAaSearcherCache(
+                                         bslma::Allocator *basicAllocator = 0);
+            // Create a 'MyCaseSensitiveAaSearcherCache' cache that will
+            // provide existing 'Searcher' objects for specificed ASCII strings
+            // and add such objects if not found.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0 or not supplied, the currently installed default allocator is
+            // used.
+
+// -- ELIDE -- START
+        // MANIPULATORS
+        const Searcher& getSearcher(const char *needle);
+            // Return a 'const'-reference to the cached server that can do a
+            // case-insensitive search for the specified 'needle'.  If such a
+            // server does not exist in the cache on entry, such a server is
+            // constructed, added to the cache, and returned (by
+            // 'const'-reference).
+
+        // ACCESSORS
+        BSL::size_t numSearchers() const;
+            // Return the number of searcher objects in this cache.
+// -- ELIDE -- STOP
+    };
+//..
+// Notice that this time, the compiler supplied constructor does not suffice,
+// we must declare (and later implement) an (allocator aware)  contructor.
+//
+// Notice that we use the default and equality comparison functor defined
+// by 'bslslt::BoyerMooreHorspoolSearcher'.  These functors will provide
+// case sensitive searchs.
+//
+// Then, we implement the constructor.  The implementation of the other
+// methods (elided) are not materially different from {Example 4}.
+//..
+                        // ------------------------------------
+                        // class MyCaseSensitiveAaSearcherCache
+                        // ------------------------------------
+
+    // CREATORS
+    MyCaseSensitiveAaSearcherCache::
+    MyCaseSensitiveAaSearcherCache(bslma::Allocator *basicAllocator)
+    : d_map(basicAllocator)
+    {
+    }
+//..
+// Notice that the 'basicAllocator' argument is passed to map we are using
+// to contain our search objects.
+//..
+
+// -- ELIDE -- START
+    // PRIVATE MANIPULATORS
+    const
+    MyCaseSensitiveAaSearcherCache::Searcher&
+    MyCaseSensitiveAaSearcherCache::insertSearcher(const bsl::string& key)
+    {
+        Searcher        dummy(key.begin(),
+                              key.begin());
+        Map::value_type value(key, dummy);
+
+        bsl::pair<Map::iterator, bool> insertResult = d_map.insert(value);
+        ASSERT(true == insertResult.second);
+
+        Map::iterator iterator  = insertResult.first;
+
+        iterator->second = Searcher(iterator->first.begin(),
+                                    iterator->first.end());
+
+        return iterator->second;
+    }
+//..
+// Notice creating our element is a two step process.  First, we insert the key
+// with an arbitrary "dummy" searcher.  Once the key (a string) exists in the
+// map (at an address with will be stable for the life of the map) we create a
+// searcher object that refers to that key string for the search sequence and
+// overwrite the "dummy" part of the element with the intended searcher.
+// 
+// Next, we implement our public methods:
+//..
+    // MANIPULATORS
+    const
+    MyCaseSensitiveAaSearcherCache::Searcher&
+    MyCaseSensitiveAaSearcherCache::getSearcher(const char *needle)
+    {
+        bsl::string   key(needle);
+        Map::iterator findResult = d_map.find(key);
+
+        if (d_map.end() == findResult) {
+            return insertSearcher(key);                               // RETURN
+        } else {
+            return findResult->second;                                // RETURN
+        }
+    }
+
+    // ACCESSORS
+    BSL::size_t MyCaseSensitiveAaSearcherCache::numSearchers() const
+    {
+        return d_map.size();
+    }
+// -- ELIDE -- STOP
 //..
 
 static void usage()
@@ -3175,6 +3324,12 @@ static void usage()
 // container that provides bidirectional iterators (and forward iterators would
 // have sufficed), whereas here, random access iterators are required.
 //
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocatorMonitor  dam(&da);
+
+    {
+
 ///Example 4: Caching Searcher Objects
 ///- - - - - - - - - - - - - - - - - -
 // The construction of 'bsl::boyer_moore_horspool_searcher' objects is small
@@ -3291,7 +3446,96 @@ static void usage()
 
     ASSERT(searcherCache.numSearchers() < NUM_NAMES);
 //..
+//
+///Example 5: Using 'bslstl::BoyerMooreHorspoolSearcher'
+///-----------------------------------------------------
+// We saw in {Example 4} above that caching can improve the performance of
+// applications that must deal with many searcher objects.  If we are serious
+// about caching, we might then ask if the cachine can be made more performant
+// tuning the memory allocation done by the cache.  The
+// 'bsl::boyer_moore_horspool_searcher' class does allow control of its memory
+// allocation; fortunately, the underlying 'bslstl::BoyerMooreHorspoolSearcher'
+// is "plumbed" to accept BDE-style allocators.  This example will demonstrate
+// how to modify the preceding example to work with user-defined allocators.
+// Moreover, this time, we will make our searcher case sensitive.
+//
+// -- INSERT From above --
+//
+// Now, we show how the allocator aware searcher object cache can be used.  In
+// this example, our data source will be same fixed array ('DATA[]') that was
+// used in {Example 4}.
+//
+// This time we create a custom allocator object and pass it to our searcher
+// object cache on construction.
+//..
+    MyAllocator myAllocator;
+    MyCaseSensitiveAaSearcherCache searcherAaCache(&myAllocator);
 
+    bsl::string                    outputCaseSensitive;
+
+    for (BSL::size_t ti = 0; ti < NUM_NAMES; ++ti) {
+        const char * const givenName = DATA[ti].d_givenName;
+        const char * const surname   = DATA[ti].d_surname;
+
+        const MyCaseSensitiveAaSearcherCache::Searcher& searcher =
+                                        searcherAaCache.getSearcher(givenName);
+
+        ASSERT(&myAllocator == searcher.allocator());
+//..
+// Notice that each searcher object in the cache (correctly) uses the same
+// allocator as we specified for the cache itself.
+//
+// The rest of of this application is unchanged.
+//..
+        Result result   = searcher(surname,
+                                   surname + BSL::strlen(surname));
+
+        Result notFound = BSL::make_pair(surname + BSL::strlen(surname),
+                                         surname + BSL::strlen(surname));
+
+        char buffer[32];
+
+        if (notFound == result) {
+            sprintf(buffer, "ng: %-10s %-11s\n", givenName, surname);
+        } else {
+            sprintf(buffer, "OK: %-10s %-11s\n", givenName, surname);
+        }
+
+        outputCaseSensitive.append(buffer);
+    }
+//..
+// Finally, we examine the collected 'outputCaseSensitive' and see that this
+// stricter rule produces fewer "OK" results from the same data.
+//..
+    ASSERT(0 == BSL::strcmp(outputCaseSensitive.c_str(),
+                            "OK: Donald     McDonald   \n"
+                            "OK: John       Johnson    \n"
+                            "OK: John       Saint Johns\n"
+                            "ng: Jon        Literjon   \n"
+                            "ng: Jean       Valjean    \n"
+                            "OK: James      Jameson    \n"
+                            "ng: Will       Freewill   \n"
+                            "OK: John       Johns      \n"
+                            "OK: John       John       \n"
+                            "ng: John       Jones      \n"
+                            "ng: J'onn      J'onzz     \n"
+                            "OK: Donald     Donalds    \n"
+                            "OK: Donald     Mac Donald \n"
+                            "OK: William    Williams   \n"
+                            "OK: Durand     Durand     \n"
+                            "OK: John       Johnstown  \n"
+                            "OK: Major      Major      \n"
+                            "OK: Donald     MacDonald  \n"
+                            "OK: Patrick    O'Patrick  \n"
+                            "OK: Chris      Christie   \n"
+                            "ng: Don        London     \n"
+                            "OK: Ivan       Ivanovich  \n"));
+
+    ASSERT(searcherAaCache.numSearchers() < NUM_NAMES);
+//..
+    }
+
+    ASSERT(dam.isInUseSame());
 }
 
 // ============================================================================
@@ -3634,10 +3878,6 @@ int main(int argc, char *argv[])
         typedef bsl::hash<    char>             DefaultHash;
         typedef bsl::equal_to<char>             DefaultEqual;
 
-        typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr,
-                                                   DefaultHash,
-                                                   DefaultEqual> MechBsl;
-
         typedef bslstl::BoyerMooreHorspoolSearcher<RndAccConstItr,
                                                    DefaultHash,
                                                    DefaultEqual> MechChar;
@@ -3657,7 +3897,6 @@ int main(int argc, char *argv[])
                                     MyCaseInsensitiveCharHasher,
                                     MyCaseInsensitiveCharComparer> MechGnrlImp;
 
-        ASSERT((bslma::UsesBslmaAllocator<MechBsl    >::VALUE));
         ASSERT((bslma::UsesBslmaAllocator<MechChar   >::VALUE));
         ASSERT((bslma::UsesBslmaAllocator<MechCharImp>::VALUE));
         ASSERT((bslma::UsesBslmaAllocator<MechGnrl   >::VALUE));
@@ -5045,7 +5284,7 @@ int main(int argc, char *argv[])
             ASSERT(static_cast<RndDiff>(BSL::strlen(HAYSTACK))
                 == bsl::distance(haystackRnd.begin(), haystackRnd.end()));
 
-            bslma::TestAllocator         da("default" , veryVeryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
             bslma::TestAllocatorMonitor  dam(&da);
 
