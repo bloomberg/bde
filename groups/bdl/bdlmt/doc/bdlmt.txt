@@ -32,18 +32,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlmt' package currently has 8 components having 2 levels of physical
+ The 'bdlmt' package currently has 9 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   2. bdlmt_multiqueuethreadpool
-     bdlmt_signaler
      bdlmt_threadmultiplexor
 
   1. bdlmt_eventscheduler
      bdlmt_fixedthreadpool
      bdlmt_multiprioritythreadpool
+     bdlmt_signaler
      bdlmt_threadpool
      bdlmt_throttle
      bdlmt_timereventscheduler
@@ -64,7 +64,7 @@
 :      Provide a pool of queues, each processed serially by a thread pool.
 :
 : 'bdlmt_signaler':
-:      Provide a container for collectively callable function objects.
+:      Provide an implementation of a managed signals and slots system.
 :
 : 'bdlmt_threadmultiplexor':
 :      Provide a mechanism for partitioning a collection of threads.

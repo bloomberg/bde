@@ -276,7 +276,7 @@
 :      Provide a compile-time check for non-static member pointer types.
 :
 : 'bslmf_isnothrowmoveconstructible':
-:      Provide meta-function for determining types with nothrow move ctor.
+:      Provide metafunction to identify no-throw move-constructible types.
 :
 : 'bslmf_ispair':
 :      Provide a compile-time check for the bsl::pair type.
