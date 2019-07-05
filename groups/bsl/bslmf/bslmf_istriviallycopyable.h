@@ -121,6 +121,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #include <bslmf_ismemberpointer.h>
 #include <bslmf_ispointer.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -226,6 +227,18 @@ struct IsTriviallyCopyable_Intrinsic<void> : bsl::false_type {
 };
 #endif
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION >= 0x5130
+template <class NON_CV_TYPE, class = void>
+struct IsTriviallyCopyable_Solaris
+     : bsl::false_type {
+    // describe solaris workaround here...
+};
+
+template <class NON_CV_TYPE>
+struct IsTriviallyCopyable_Solaris<NON_CV_TYPE, BSLMF_VOIDTYPE(NON_CV_TYPE[])>
+     : bsl::is_trivially_copyable<NON_CV_TYPE>::type {
+};
+#endif
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -289,6 +302,7 @@ struct is_trivially_copyable<BloombergLP::bslmf::Nil> : bsl::true_type {
 };
 #endif
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION >= 0x5130
 template <class TYPE>
 struct is_trivially_copyable<const TYPE>
     :  is_trivially_copyable<TYPE>::type {
@@ -309,6 +323,36 @@ struct is_trivially_copyable<const volatile TYPE>
     // This partial specialization ensures that const-volatile-qualified types
     // have the same result as their element type.
 };
+#else
+// Solaris CC compiler will erroneously match a cv-qualified abominable
+// function type with a partial specialization for cv-qualified types, and then
+// infinitely recurse when the cv-qualifier is not stripped when instantiating
+// the base class.  As this is only a problem for abominable function types
+// that are never trivially copyable, the following workaround (preserving lazy
+// evaluation of the recursive template instantiation) is ugly, but suffices.
+// Compiler fix verified for the CC 12.4 compiler.
+
+template <class TYPE>
+struct is_trivially_copyable<const TYPE>
+    :  BloombergLP::bslmf::IsTriviallyCopyable_Solaris<TYPE>::type {
+    // This partial specialization ensures that const-qualified types have the
+    // same result as their element type.
+};
+
+template <class TYPE>
+struct is_trivially_copyable<volatile TYPE>
+    :  BloombergLP::bslmf::IsTriviallyCopyable_Solaris<TYPE>::type {
+    // This partial specialization ensures that volatile-qualified types have
+    // the same result as their element type.
+};
+
+template <class TYPE>
+struct is_trivially_copyable<const volatile TYPE>
+    :  BloombergLP::bslmf::IsTriviallyCopyable_Solaris<TYPE>::type {
+    // This partial specialization ensures that const-volatile-qualified types
+    // have the same result as their element type.
+};
+#endif
 
 template <class TYPE, size_t LEN>
 struct is_trivially_copyable<TYPE[LEN]>
@@ -392,7 +436,7 @@ struct is_trivially_copyable<TYPE &&> :  false_type {
 #endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
