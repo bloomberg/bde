@@ -353,6 +353,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
 #include <bsls_review.h>
+#include <bsls_types.h>
 
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
@@ -366,14 +367,6 @@ namespace bdlcc {
 
 template <class KEY, class DATA>
 class SkipList;
-
-template <class KEY, class DATA>
-bool operator==(const SkipList<KEY, DATA>& lhs,
-                const SkipList<KEY, DATA>& rhs);
-
-template <class KEY, class DATA>
-bool operator!=(const SkipList<KEY, DATA>& lhs,
-                const SkipList<KEY, DATA>& rhs);
 
                         // ============================
                         // local class SkipList_Control
@@ -392,26 +385,26 @@ struct SkipList_Control {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    // DATA
+    // PUBLIC DATA
     bsls::AtomicInt d_cw;   // control word; reference count, release flag, and
                            // acquire count for a node in the list
 
     unsigned char  d_level;
 
     // MANIPULATORS
-    void init(int level);
-        // Set the value of this control word to the initial state for a node
-        // at the specified 'level'.
+    int decrementRefCount();
+        // Subtract 1 from the reference count portion of this control word.
+        // Return the new reference count.  The behavior is undefined if the
+        // reference count is 0.
 
     int incrementRefCount();
         // Add 1 to the reference count portion of this control word.  Return
         // the new reference count.  The behavior is undefined if the reference
         // count is at the implementation-defined maximum.
 
-    int decrementRefCount();
-        // Subtract 1 from the reference count portion of this control word.
-        // Return the new reference count.  The behavior is undefined if the
-        // reference count is 0.
+    void init(int level);
+        // Set the value of this control word to the initial state for a node
+        // at the specified 'level'.
 
     // ACCESSORS
     int level() const;
@@ -436,7 +429,7 @@ struct SkipList_Node {
         Node *d_prev_p;
     };
 
-    // DATA
+    // PUBLIC DATA
     Control        d_control;    // must be first!
 
     DATA           d_data;
@@ -448,11 +441,17 @@ struct SkipList_Node {
 
     // MANIPULATORS
     int  decrementRefCount();
+        // Decrement the reference count.
+
     int  incrementRefCount();
+        // Increment the reference count.
+
     void initControlWord(int level);
+        // Initialize the control word, set to the specified 'level'.
 
     // ACCESSORS
     int level() const;
+        // Return the 'level' field from the control word..
 };
 
                  // =========================================
@@ -513,11 +512,6 @@ struct SkipList_PoolUtil {
         // the specified 'poolManager', and return the address of the reserved
         // memory.
 
-    static void deallocate(PoolManager *poolManager, void *address);
-        // Return the node at the specified 'address' to the specified
-        // 'poolManager'.  The behavior is undefined if 'address' was not
-        // allocated from 'poolManager'.
-
     static PoolManager *createPoolManager(int              *objectSizes,
                                           int               numLevels,
                                           bslma::Allocator *basicAllocator);
@@ -527,6 +521,11 @@ struct SkipList_PoolUtil {
         // 'objectSizes[i]' bytes.  Use the specified 'basicAllocator' to
         // supply memory.  Return the address of the new allocator.  Note that
         // the behavior is undefined if 'basicAllocator' is 0.
+
+    static void deallocate(PoolManager *poolManager, void *address);
+        // Return the node at the specified 'address' to the specified
+        // 'poolManager'.  The behavior is undefined if 'address' was not
+        // allocated from 'poolManager'.
 
     static void deletePoolManager(bslma::Allocator *basicAllocator,
                                   PoolManager      *poolManager);
@@ -555,6 +554,9 @@ class SkipList_NodeCreationHelper {
     PoolManager      *d_poolManager_p; // pool from which node was allocated
     bool              d_keyFlag;       // 'true' if the key was constructed
     bslma::Allocator *d_allocator_p;   // held
+
+    BSLMF_NESTED_TRAIT_DECLARATION(SkipList_NodeCreationHelper,
+                                                    bslma::UsesBslmaAllocator);
 
   public:
     // CREATORS
@@ -610,11 +612,11 @@ class SkipListPair {
 
   public:
     // ACCESSORS
-    const KEY& key() const;
-        // Return a reference to the non-modifiable "key" value of this pair.
-
     DATA& data() const;
         // Return a reference to the modifiable "data" of this pair.
+
+    const KEY& key() const;
+        // Return a reference to the non-modifiable "key" value of this pair.
 };
 
                           // ========================
@@ -680,24 +682,24 @@ class SkipListPairHandle {
         // 'SkipListPairHandle'.
 
     // ACCESSORS
-    bool isValid() const;
-        // Return 'true' if this PairHandle currently refers to a pair, and
-        // 'false' otherwise.
-
-    const KEY& key() const;
-        // Return a reference to the non-modifiable "key" value of the pair
-        // referred to by this object.  The behavior is undefined unless
-        // 'isValid' returns 'true'.
+    operator const Pair*() const;
+        // Return the address of the pair referred to by this
+        // 'SkipListPairHandle', or 0 if this handle does not manage a
+        // reference.
 
     DATA& data() const;
         // Return a reference to the "data" value of the pair referred to by
         // this object.  The behavior is undefined unless 'isValid' returns
         //  'true'.
 
-    operator const Pair*() const;
-        // Return the address of the pair referred to by this
-        // 'SkipListPairHandle', or 0 if this handle does not manage a
-        // reference.
+    const KEY& key() const;
+        // Return a reference to the non-modifiable "key" value of the pair
+        // referred to by this object.  The behavior is undefined unless
+        // 'isValid' returns 'true'.
+
+    bool isValid() const;
+        // Return 'true' if this PairHandle currently refers to a pair, and
+        // 'false' otherwise.
 };
 
                                // ==============
@@ -773,19 +775,27 @@ class SkipList {
     // FRIENDS
     friend class SkipListPair<KEY, DATA>;
     friend class SkipListPairHandle<KEY, DATA>;
-    friend bool operator==<> (const SkipList<KEY, DATA>& lhs,
-                              const SkipList<KEY, DATA>& rhs);
-    friend bool operator!=<> (const SkipList<KEY, DATA>& lhs,
-                              const SkipList<KEY, DATA>& rhs);
+    template <class KEY2, class DATA2>
+    friend bool operator==(const SkipList<KEY2, DATA2>&,
+                           const SkipList<KEY2, DATA2>&);
+    template <class KEY2, class DATA2>
+    friend bool operator!=(const SkipList<KEY2, DATA2>&,
+                           const SkipList<KEY2, DATA2>&);
 
     // PRIVATE CLASS METHODS
+    static DATA& data(const Pair *reference);
+        // Return a non-'const' reference to the "data" value of the pair
+        // identified by the specified 'reference'.
+
     static const KEY& key(const Pair *reference);
         // Return a 'const' reference to the "key" value of the pair identified
         // by the specified 'reference'.
 
-    static DATA& data(const Pair *reference);
-        // Return a non-'const' reference to the "data" value of the pair
-        // identified by the specified 'reference'.
+    static Node *pairToNode(Pair *reference);
+        // Cast the specified 'reference' to a 'Node *'.
+
+    static Node *pairToNode(const Pair *reference);
+        // Const-cast the specified 'reference' to a 'Node *'.
 
     // PRIVATE MANIPULATORS
     void addNode(bool *newFrontFlag, Node *newNode);
@@ -806,7 +816,15 @@ class SkipList {
         // Invoke 'addNodeImpR' with lock='true'.  IMPLEMENTATION NOTE: this
         // *particular* flavor of "addNode" is factored into an
         // optionally-non-locking version to facilitate writing the assignment
-        // operator.
+        // operator.  If the specified 'newFrontFlag' is not 0, load into it a
+        // 'true' value if the node is at the front of the list, and a 'false'
+        // value otherwise.
+        //
+        // Acquire the lock, add the specified 'newNode' to the list, and
+        // release the lock (if acquired).  Search for the correct position for
+        // 'newNode' from the back of the list (in descending order by key
+        // value).  If 'newFrontFlag' is not 0, load into it a 'true' value if
+        // the node is at the front of the list, and a 'false' value otherwise.
 
     int addNodeUnique(bool *newFrontFlag, Node *newNode);
         // Acquire the lock, add the specified 'newNode' to the list, and
@@ -848,8 +866,15 @@ class SkipList {
         // called under the lock.
 
     void moveImp(bool *newFrontFlag, Node *location[], Node *node);
-        // Like 'insert', but the specified 'node' must already be present in
-        // the list.  This internal method must be called under the lock.
+        // Insert the specified 'node' into this list immediately before the
+        // specified 'location' (which is populated by either
+        // 'lookupImpLowerBound' or 'lookupImpLowerBoundR').  Load into the
+        // specified 'newFrontFlag' a 'true' value if the node is inserted at
+        // the front of the list, and 'false' otherwise.  This method must be
+        // called under the lock.
+        //
+        // Like 'insertImp', but 'node' must already be present in the list.
+        // This internal method must be called under the lock.
 
     Node *popFrontImp();
         // Acquire the lock, remove the front of the list, and release the
@@ -911,6 +936,9 @@ class SkipList {
         // This method acquires and releases the lock.
 
     Node *findNode(const KEY& key) const;
+        // Return the node with the specified 'key', or 0 if no node could be
+        // found.  This method acquires and releases the lock.
+
     Node *findNodeR(const KEY& key) const;
         // Return the node with the specified 'key', or 0 if no node could be
         // found.  This method acquires and releases the lock.
@@ -1131,24 +1159,6 @@ class SkipList {
 
                          // Insertion Methods (Reverse Search)
 
-    void addR(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
-        // Add the specified 'key' / 'data' pair to this list.  Search for the
-        // correct position for 'key' from the back of the list (in descending
-        // order by key value).  Load into the optionally specified
-        // 'newFrontFlag' a 'true' value if the pair is at the front of the
-        // list, and a 'false' value otherwise.
-
-    void addR(PairHandle  *result,
-              const KEY&   key,
-              const DATA&  data,
-              bool        *newFrontFlag = 0);
-        // Add the specified 'key' / 'data' pair to this list, and load into
-        // the specified 'result' a reference to the pair in the list.  Search
-        // for the correct position for 'key' from the back of the list (in
-        // descending order by key value).  Load into the optionally specified
-        // 'newFrontFlag' a 'true' value if the pair is at the front of the
-        // list, and a 'false' value otherwise.
-
     void addAtLevelRawR(Pair        **result,
                         int           level,
                         const KEY&    key,
@@ -1183,6 +1193,24 @@ class SkipList {
         // this class, or if 'level' is negative.  Return 0 on success, and a
         // non-zero value (with no effect on the list) if 'key' is already in
         // the list.  Note that this method is provided for testing purposes.
+
+    void addR(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
+        // Add the specified 'key' / 'data' pair to this list.  Search for the
+        // correct position for 'key' from the back of the list (in descending
+        // order by key value).  Load into the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.
+
+    void addR(PairHandle  *result,
+              const KEY&   key,
+              const DATA&  data,
+              bool        *newFrontFlag = 0);
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  Search
+        // for the correct position for 'key' from the back of the list (in
+        // descending order by key value).  Load into the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.
 
     void addRawR(Pair        **result,
                  const KEY&    key,
@@ -1320,100 +1348,6 @@ class SkipList {
         // Return 'true' if there is a pair in the list with the specified
         // 'key', and 'false' otherwise.
 
-    int find(PairHandle *item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the element in this
-        // list with the specified 'key' found by searching the list from the
-        // front (in ascending order of key value).  Return 0 on success, and a
-        // non-zero value (with no effect on 'item') if no such element exists.
-        // If there are multiple elements in the list with the 'key', it is
-        // undefined which one is returned.
-
-    int findR(PairHandle *item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the element in this
-        // list with the specified 'key' found by searching the list from the
-        // back (in descending order of key value).  Return 0 on success, and a
-        // non-zero value (with no effect on 'item') if no such element exists.
-        // If there are multiple elements in the list with the 'key', it is
-        // undefined which one is returned.
-
-    int findRaw(Pair **item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the element in this
-        // list with the specified 'key' found by searching the list from the
-        // front (in ascending order of key value).  Return 0 on success, and a
-        // non-zero value (with no effect on 'item') if no such element exists.
-        // If there are multiple elements in the list with the 'key', it is
-        // undefined which one is returned.  The 'item' reference must be
-        // released (using 'releaseReferenceRaw') when it is no longer needed.
-
-    int findRRaw(Pair **item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the element in this
-        // list with the specified 'key' found by searching the list from the
-        // back (in descending order of key value).  Return 0 on success, and a
-        // non-zero value (with no effect on 'item') if no such element exists.
-        // If there are multiple elements in the list with the 'key', it is
-        // undefined which one is returned.  The 'item' reference must be
-        // released (using 'releaseReferenceRaw') when it is no longer needed.
-
-    int findLowerBound(PairHandle *item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is not less than the specified 'key' found
-        // by searching the list from the front (in ascending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.
-
-    int findLowerBoundRaw(Pair **item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is not less than the specified 'key' found
-        // by searching the list from the front (in ascending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.  The 'item' reference must be
-        // released (using 'releaseReferenceRaw') when it is no longer needed.
-
-    int findLowerBoundR(PairHandle *item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is not less than the specified 'key' found
-        // by searching the list from the back (in descending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.
-
-    int findLowerBoundRRaw(Pair **item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is not less than the specified 'key' found
-        // by searching the list from the back (in descending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.  The 'item' reference must be
-        // released (using 'releaseReferenceRaw') when it is no longer needed.
-
-    int findUpperBound(PairHandle *item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is greater than the specified 'key' found
-        // by searching the list from the front (in ascending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.
-
-    int findUpperBoundRaw(Pair **item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is greater than the specified 'key' found
-        // by searching the list from the front (in ascending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.  The 'item' reference must be
-        // released (using 'releaseReferenceRaw') when it is no longer needed.
-
-    int findUpperBoundR(PairHandle *item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is greater than the specified 'key' found
-        // by searching the list from the back (in descending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.
-
-    int findUpperBoundRRaw(Pair **item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the first element in
-        // this list whose key value is greater than the specified 'key' found
-        // by searching the list from the back (in descending order of key
-        // value).  Return 0 on success, and a non-zero value (with no effect
-        // on 'item') if no such element exists.  The 'item' reference must be
-        // released (using 'releaseReferenceRaw') when it is no longer needed.
-
     int front(PairHandle *front) const;
         // Load into the specified 'front' a reference to the first item in the
         // list.  Return 0 on success, and a non-zero value (with no effect on
@@ -1430,6 +1364,127 @@ class SkipList {
 
     int length() const;
         // Return the number of items in this list.
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this list object to the specified output 'stream' at the
+        // (absolute value of) the optionally specified indentation 'level' and
+        // return a reference to 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, suppress all indentation AND format the entire output on
+        // one line.  If 'stream' is not valid on entry, this operation has no
+        // effect.
+
+                            // simple forward finds
+
+    int find(PairHandle *item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the element in this
+        // list with the specified 'key' found by searching the list from the
+        // front (in ascending order of key value).  Return 0 on success, and a
+        // non-zero value (with no effect on 'item') if no such element exists.
+        // If there are multiple elements in the list with the 'key', it is
+        // undefined which one is returned.
+
+    int findRaw(Pair **item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the element in this
+        // list with the specified 'key' found by searching the list from the
+        // front (in ascending order of key value).  Return 0 on success, and a
+        // non-zero value (with no effect on 'item') if no such element exists.
+        // If there are multiple elements in the list with the 'key', it is
+        // undefined which one is returned.  The 'item' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+
+                            // simple reverse finds
+
+    int findR(PairHandle *item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the element in this
+        // list with the specified 'key' found by searching the list from the
+        // back (in descending order of key value).  Return 0 on success, and a
+        // non-zero value (with no effect on 'item') if no such element exists.
+        // If there are multiple elements in the list with the 'key', it is
+        // undefined which one is returned.
+
+    int findRRaw(Pair **item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the element in this
+        // list with the specified 'key' found by searching the list from the
+        // back (in descending order of key value).  Return 0 on success, and a
+        // non-zero value (with no effect on 'item') if no such element exists.
+        // If there are multiple elements in the list with the 'key', it is
+        // undefined which one is returned.  The 'item' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+
+                        // find lower bound
+
+    int findLowerBound(PairHandle *item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is not less than the specified 'key' found
+        // by searching the list from the front (in ascending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.
+
+    int findLowerBoundRaw(Pair **item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is not less than the specified 'key' found
+        // by searching the list from the front (in ascending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.  The 'item' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+
+                        // find lower bound reverse
+
+    int findLowerBoundR(PairHandle *item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is not less than the specified 'key' found
+        // by searching the list from the back (in descending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.
+
+    int findLowerBoundRRaw(Pair **item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is not less than the specified 'key' found
+        // by searching the list from the back (in descending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.  The 'item' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+
+                        // find upper bound
+
+    int findUpperBound(PairHandle *item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is greater than the specified 'key' found
+        // by searching the list from the front (in ascending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.
+
+    int findUpperBoundRaw(Pair **item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is greater than the specified 'key' found
+        // by searching the list from the front (in ascending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.  The 'item' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+
+                        // find upper bound reverse
+
+    int findUpperBoundR(PairHandle *item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is greater than the specified 'key' found
+        // by searching the list from the back (in descending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.
+
+    int findUpperBoundRRaw(Pair **item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the first element in
+        // this list whose key value is greater than the specified 'key' found
+        // by searching the list from the back (in descending order of key
+        // value).  Return 0 on success, and a non-zero value (with no effect
+        // on 'item') if no such element exists.  The 'item' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+
+                            // next, previous, & skip*
 
     int next(PairHandle *next, const Pair *reference) const;
         // Load into the specified 'next' a reference to the item that appears
@@ -1457,19 +1512,6 @@ class SkipList {
         // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
         // success, or a non-zero value if 'reference' refers to the front of
         // the list.
-
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Format this list object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level' and
-        // return a reference to 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, suppress all indentation AND format the entire output on
-        // one line.  If 'stream' is not valid on entry, this operation has no
-        // effect.
 
     int skipBackward(PairHandle *item) const;
     int skipBackwardRaw(Pair **item) const;
@@ -1534,16 +1576,16 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 // ACCESSORS
 template <class KEY, class DATA>
 inline
-const KEY& SkipListPair<KEY, DATA>::key() const
+DATA& SkipListPair<KEY, DATA>::data() const
 {
-    return SkipList<KEY, DATA>::key(this);
+    return SkipList<KEY, DATA>::data(this);
 }
 
 template <class KEY, class DATA>
 inline
-DATA& SkipListPair<KEY, DATA>::data() const
+const KEY& SkipListPair<KEY, DATA>::key() const
 {
-    return SkipList<KEY, DATA>::data(this);
+    return SkipList<KEY, DATA>::key(this);
 }
 
                           // ------------------------
@@ -1590,6 +1632,16 @@ SkipListPairHandle<KEY, DATA>::~SkipListPairHandle()
 // MANIPULATORS
 template <class KEY, class DATA>
 inline
+SkipListPairHandle<KEY, DATA>&
+SkipListPairHandle<KEY, DATA>::operator=(const SkipListPairHandle& rhs)
+{
+    reset(rhs.d_list_p, 0);
+    d_node_p = rhs.d_node_p ? d_list_p->addPairReferenceRaw(rhs.d_node_p) : 0;
+    return *this;
+}
+
+template <class KEY, class DATA>
+inline
 void SkipListPairHandle<KEY, DATA>::release()
 {
     if (d_node_p) {
@@ -1598,16 +1650,6 @@ void SkipListPairHandle<KEY, DATA>::release()
         d_list_p->releaseReferenceRaw(d_node_p);
         d_node_p = 0;
     }
-}
-
-template <class KEY, class DATA>
-inline
-SkipListPairHandle<KEY, DATA>&
-SkipListPairHandle<KEY, DATA>::operator=(const SkipListPairHandle& rhs)
-{
-    reset(rhs.d_list_p, 0);
-    d_node_p = rhs.d_node_p ? d_list_p->addPairReferenceRaw(rhs.d_node_p) : 0;
-    return *this;
 }
 
 template <class KEY, class DATA>
@@ -1637,6 +1679,15 @@ void SkipListPairHandle<KEY, DATA>::reset(const SkipList<KEY, DATA> *list,
 // ACCESSORS
 template <class KEY, class DATA>
 inline
+DATA& SkipListPairHandle<KEY, DATA>::data() const
+{
+    BSLS_ASSERT_SAFE(isValid());
+
+    return SkipList<KEY, DATA>::data(d_node_p);
+}
+
+template <class KEY, class DATA>
+inline
 bool SkipListPairHandle<KEY, DATA>::isValid() const
 {
     return d_node_p != 0 && d_list_p != 0;
@@ -1651,14 +1702,6 @@ const KEY& SkipListPairHandle<KEY, DATA>::key() const
     return SkipList<KEY, DATA>::key(d_node_p);
 }
 
-template <class KEY, class DATA>
-inline
-DATA& SkipListPairHandle<KEY, DATA>::data() const
-{
-    BSLS_ASSERT_SAFE(isValid());
-
-    return SkipList<KEY, DATA>::data(d_node_p);
-}
 }  // close package namespace
 
 // The scoping of "Pair" below should not be necessary, but xlC (versions 8 and
@@ -1762,23 +1805,43 @@ void SkipList_NodeCreationHelper<KEY, DATA>::construct(const KEY&  key,
 // PRIVATE CLASS METHODS
 template<class KEY, class DATA>
 inline
+DATA& SkipList<KEY, DATA>::data(const Pair *reference)
+{
+    BSLS_ASSERT(reference);
+
+    Node *node = static_cast<Node *>(static_cast<void *>(
+                                               const_cast<Pair *>(reference)));
+    return node->d_data;
+}
+
+template<class KEY, class DATA>
+inline
 const KEY& SkipList<KEY, DATA>::key(const Pair *reference)
 {
     BSLS_ASSERT(reference);
 
-    const Node *node = (const Node *)(const void *)(reference);
+    const Node *node = static_cast<const Node *>(
+                                         static_cast<const void *>(reference));
     return node->d_key;
 }
 
 template<class KEY, class DATA>
 inline
-DATA& SkipList<KEY, DATA>::data(const Pair *reference)
+typename SkipList<KEY, DATA>::Node
+                              *SkipList<KEY, DATA>::pairToNode(Pair *reference)
 {
-    BSLS_ASSERT(reference);
-
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
-    return node->d_data;
+    return static_cast<Node *>(static_cast<void *>(reference));
 }
+
+template<class KEY, class DATA>
+inline
+typename SkipList<KEY, DATA>::Node
+                        *SkipList<KEY, DATA>::pairToNode(const Pair *reference)
+{
+    return static_cast<Node *>(static_cast<void *>(
+                                               const_cast<Pair *>(reference)));
+}
+
 
 // PRIVATE MANIPULATORS
 template<class KEY, class DATA>
@@ -1888,6 +1951,11 @@ SkipList<KEY, DATA>::allocateNode(int level, const KEY& key, const DATA& data)
 template<class KEY, class DATA>
 void SkipList<KEY, DATA>::initialize()
 {
+    typedef bsls::Types::IntPtr IntPtr;
+
+    static const int alignMask = bsls::AlignmentFromType<Node>::VALUE - 1;
+    static Node      dummyNode;
+
     // Assert that this method has not been invoked.
 
     BSLS_ASSERT(0 == d_poolManager_p);
@@ -1896,14 +1964,12 @@ void SkipList<KEY, DATA>::initialize()
 
     // We can't use address 0, because it generates a warning with gcc.
 
-    const int offsetofPtrs = static_cast<int>(
-                                   (char *)&(((Node *)1)->d_ptrs) - (char *)1);
+    const IntPtr offsetofPtrs = reinterpret_cast<char *>(&dummyNode.d_ptrs) -
+                                          reinterpret_cast<char *>(&dummyNode);
     for (int i = 0; i < k_MAX_NUM_LEVELS; ++i) {
-        int nodeSize = static_cast<int>(
-                           offsetofPtrs + (i + 1)*sizeof(typename Node::Ptrs));
-        nodeSize = (nodeSize + bsls::AlignmentFromType<Node>::VALUE - 1) &
-                                   ~(bsls::AlignmentFromType<Node>::VALUE - 1);
-        nodeSizes[i] = nodeSize;
+        IntPtr nodeSize  = offsetofPtrs + (i + 1) * sizeof(dummyNode.d_ptrs);
+        nodeSize = (nodeSize + alignMask) & ~alignMask;
+        nodeSizes[i] = static_cast<int>(nodeSize);
     }
 
     d_poolManager_p = PoolUtil::createPoolManager(nodeSizes,
@@ -2491,7 +2557,7 @@ int SkipList<KEY, DATA>::level(const Pair *reference)
 {
     BSLS_ASSERT(reference);
 
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
+    Node *node = pairToNode(reference);
     return node->level();
 }
 
@@ -2585,47 +2651,9 @@ SkipList<KEY, DATA>::operator=(const SkipList& rhs)
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::popFront(PairHandle *item)
-{
-    Node *node = popFrontImp();
-    if (!node) {
-        return e_NOT_FOUND;                                           // RETURN
-    }
-
-    if (item) {
-        item->reset(this, reinterpret_cast<Pair *>(node));
-    }
-    else {
-        releaseNode(node);
-    }
-
-    return 0;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::popFrontRaw(Pair **item)
-{
-    Node *node = popFrontImp();
-    if (!node) {
-        return e_NOT_FOUND;                                           // RETURN
-    }
-
-    if (item) {
-        *item = reinterpret_cast<Pair *>(node);
-    }
-    else {
-        releaseNode(node);
-    }
-
-    return 0;
-}
-
-template<class KEY, class DATA>
-inline
 void SkipList<KEY, DATA>::releaseReferenceRaw(const Pair *reference)
 {
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
+    Node *node = pairToNode(reference);
     releaseNode(node);
 }
 
@@ -2649,7 +2677,8 @@ void SkipList<KEY, DATA>::add(const KEY&   key,
                               const DATA&  data,
                               bool        *newFrontFlag)
 {
-    addRaw((Pair **)0, key, data, newFrontFlag);
+    Pair **zeroPair = 0;
+    addRaw(zeroPair, key, data, newFrontFlag);
 }
 
 template<class KEY, class DATA>
@@ -2727,7 +2756,9 @@ int SkipList<KEY, DATA>::addUnique(const KEY&   key,
                                    const DATA&  data,
                                    bool        *newFrontFlag)
 {
-    return addUniqueRaw((Pair **)0, key, data, newFrontFlag);
+
+    Pair **zeroPair = 0;
+    return addUniqueRaw(zeroPair, key, data, newFrontFlag);
 }
 
 template<class KEY, class DATA>
@@ -2742,6 +2773,49 @@ int SkipList<KEY, DATA>::addUniqueRaw(Pair        **result,
 }
 
                          // Insertion Methods (Reverse Search)
+
+template<class KEY, class DATA>
+inline
+void SkipList<KEY, DATA>::addAtLevelRawR(Pair        **result,
+                                         int           level,
+                                         const KEY&    key,
+                                         const DATA&   data,
+                                         bool         *newFrontFlag)
+{
+    Node *node = allocateNode(level, key, data);
+    if (result) {
+        node->incrementRefCount();
+        *result = reinterpret_cast<Pair *>(node);
+    }
+
+    addNodeR(newFrontFlag, node);
+}
+
+template<class KEY, class DATA>
+int SkipList<KEY, DATA>::addAtLevelUniqueRawR(Pair        **result,
+                                              int           level,
+                                              const KEY&    key,
+                                              const DATA&   data,
+                                              bool         *newFrontFlag)
+{
+    Node *node = allocateNode(level, key, data);
+    if (result) {
+        node->incrementRefCount();
+        *result = reinterpret_cast<Pair *>(node);
+    }
+
+    int ret = addNodeUniqueR(newFrontFlag, node);
+    if (ret) {
+        if (result) {
+            node->decrementRefCount();
+            *result = 0;
+        }
+        releaseNode(node);
+        return ret;                                                   // RETURN
+    }
+
+    return 0;
+}
 
 template<class KEY, class DATA>
 inline
@@ -2761,24 +2835,8 @@ void SkipList<KEY, DATA>::addR(const KEY&   key,
                                const DATA&  data,
                                bool        *newFrontFlag)
 {
-    addRawR((Pair **)0, key, data, newFrontFlag);
-}
-
-template<class KEY, class DATA>
-inline
-void SkipList<KEY, DATA>::addAtLevelRawR(Pair        **result,
-                                         int           level,
-                                         const KEY&    key,
-                                         const DATA&   data,
-                                         bool         *newFrontFlag)
-{
-    Node *node = allocateNode(level, key, data);
-    if (result) {
-        node->incrementRefCount();
-        *result = reinterpret_cast<Pair *>(node);
-    }
-
-    addNodeR(newFrontFlag, node);
+    Pair **zeroPair = 0;
+    addRawR(zeroPair, key, data, newFrontFlag);
 }
 
 template<class KEY, class DATA>
@@ -2813,7 +2871,8 @@ int SkipList<KEY, DATA>::addUniqueR(const KEY&   key,
                                     const DATA&  data,
                                     bool        *newFrontFlag)
 {
-    return addUniqueRawR((Pair **)0, key, data, newFrontFlag);
+    Pair **zeroPair = 0;
+    return addUniqueRawR(zeroPair, key, data, newFrontFlag);
 }
 
 template<class KEY, class DATA>
@@ -2827,33 +2886,45 @@ int SkipList<KEY, DATA>::addUniqueRawR(Pair        **result,
                                 newFrontFlag);
 }
 
+                             // Removal Methods
+
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::addAtLevelUniqueRawR(Pair        **result,
-                                              int           level,
-                                              const KEY&    key,
-                                              const DATA&   data,
-                                              bool         *newFrontFlag)
+inline
+int SkipList<KEY, DATA>::popFront(PairHandle *item)
 {
-    Node *node = allocateNode(level, key, data);
-    if (result) {
-        node->incrementRefCount();
-        *result = reinterpret_cast<Pair *>(node);
+    Node *node = popFrontImp();
+    if (!node) {
+        return e_NOT_FOUND;                                           // RETURN
     }
 
-    int ret = addNodeUniqueR(newFrontFlag, node);
-    if (ret) {
-        if (result) {
-            node->decrementRefCount();
-            *result = 0;
-        }
+    if (item) {
+        item->reset(this, reinterpret_cast<Pair *>(node));
+    }
+    else {
         releaseNode(node);
-        return ret;                                                   // RETURN
     }
 
     return 0;
 }
 
-                         // Removal Methods
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::popFrontRaw(Pair **item)
+{
+    Node *node = popFrontImp();
+    if (!node) {
+        return e_NOT_FOUND;                                           // RETURN
+    }
+
+    if (item) {
+        *item = reinterpret_cast<Pair *>(node);
+    }
+    else {
+        releaseNode(node);
+    }
+
+    return 0;
+}
 
 template<class KEY, class DATA>
 inline
@@ -2863,7 +2934,7 @@ int SkipList<KEY, DATA>::remove(const Pair *reference)
         return e_INVALID;                                             // RETURN
     }
 
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
+    Node *node = pairToNode(reference);
 
     int ret = removeNode(node);
     if (ret) {
@@ -2917,7 +2988,7 @@ int SkipList<KEY, DATA>::update(const Pair *reference,
         return e_INVALID;                                             // RETURN
     }
 
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
+    Node *node = pairToNode(reference);
     return updateNode(newFrontFlag, node, newKey, allowDuplicates);
 }
 
@@ -2932,7 +3003,7 @@ int SkipList<KEY, DATA>::updateR(const Pair *reference,
         return e_INVALID;                                             // RETURN
     }
 
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
+    Node *node = pairToNode(reference);
     return updateNodeR(newFrontFlag, node, newKey, allowDuplicates);
 }
 
@@ -2942,7 +3013,7 @@ inline
 SkipListPair<KEY, DATA> *
 SkipList<KEY, DATA>::addPairReferenceRaw(const Pair *reference) const
 {
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
+    Node *node = pairToNode(reference);
     node->incrementRefCount();
     return const_cast<Pair *>(reference);
 }
@@ -2985,153 +3056,6 @@ bool SkipList<KEY, DATA>::exists(const KEY& key) const
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::find(PairHandle *item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    Pair *itemPtr = reinterpret_cast<Pair *>(findNode(key));
-    if (itemPtr) {
-        item->reset(this, itemPtr);
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findR(PairHandle *item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeR(key));
-    if (itemPtr) {
-        item->reset(this, itemPtr);
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findRaw(Pair **item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    *item = reinterpret_cast<Pair *>(findNode(key));
-    return *item ? 0 : -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findRRaw(Pair **item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    *item = reinterpret_cast<Pair *>(findNodeR(key));
-    return *item ? 0 : -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findLowerBound(PairHandle *item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeLowerBound(key));
-    if (itemPtr) {
-        item->reset(this, itemPtr);
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findLowerBoundR(PairHandle *item,
-                                         const KEY&  key) const
-{
-    BSLS_ASSERT(item);
-
-    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeLowerBoundR(key));
-    if (itemPtr) {
-        item->reset(this, itemPtr);
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findLowerBoundRaw(Pair **item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    *item = reinterpret_cast<Pair *>(findNodeLowerBound(key));
-    return *item ? 0 : -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findLowerBoundRRaw(Pair **item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    *item = reinterpret_cast<Pair *>(findNodeLowerBoundR(key));
-    return *item ? 0 : -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findUpperBound(PairHandle *item,
-                                        const KEY&  key) const
-{
-    BSLS_ASSERT(item);
-
-    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeUpperBound(key));
-    if (itemPtr) {
-        item->reset(this, itemPtr);
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findUpperBoundR(PairHandle *item,
-                                         const KEY&  key) const
-{
-    BSLS_ASSERT(item);
-
-    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeUpperBoundR(key));
-    if (itemPtr) {
-        item->reset(this, itemPtr);
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findUpperBoundRaw(Pair **item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    *item = reinterpret_cast<Pair *>(findNodeUpperBound(key));
-    return *item ? 0 : -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::findUpperBoundRRaw(Pair **item, const KEY& key) const
-{
-    BSLS_ASSERT(item);
-
-    *item = reinterpret_cast<Pair *>(findNodeUpperBoundR(key));
-    return *item ? 0 : -1;
-}
-
-template<class KEY, class DATA>
-inline
 int SkipList<KEY, DATA>::front(PairHandle *front) const
 {
     BSLS_ASSERT(front);
@@ -3170,67 +3094,6 @@ int SkipList<KEY, DATA>::length() const
     LockGuard guard(&d_lock);
 
     return d_length;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::next(PairHandle *next, const Pair *reference) const
-{
-    if (0 == reference) {
-        return e_INVALID;                                             // RETURN
-    }
-
-    Node *node  = (Node *)(void *)const_cast<Pair *>(reference);
-    Node *nNode = nextNode(node);
-    if (nNode) {
-        next->reset(this, reinterpret_cast<Pair *>(nNode));
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::nextRaw(Pair **next, const Pair *reference) const
-{
-    BSLS_ASSERT(next);
-    BSLS_ASSERT(reference);
-
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
-    *next = reinterpret_cast<Pair *>(nextNode(node));
-
-    return *next ? 0 : -1;
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::previous(PairHandle *prevPair,
-                                  const Pair *reference) const
-{
-    if (0 == reference) {
-        return e_INVALID;                                             // RETURN
-    }
-
-    Node *node  = (Node *)(void *)const_cast<Pair *>(reference);
-    Node *pNode = prevNode(node);
-    if (pNode) {
-        prevPair->reset(this, reinterpret_cast<Pair *>(pNode));
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-template<class KEY, class DATA>
-inline
-int
-SkipList<KEY, DATA>::previousRaw(Pair **prevPair, const Pair *reference) const
-{
-    BSLS_ASSERT(prevPair);
-    BSLS_ASSERT(reference);
-
-    Node *node = (Node *)(void *)const_cast<Pair *>(reference);
-    *prevPair = prevNode(node);
-    return *prevPair ? 0 : -1;
 }
 
 template<class KEY, class DATA>
@@ -3312,6 +3175,227 @@ SkipList<KEY, DATA>::print(bsl::ostream& stream,
     }
 
     return stream << bsl::flush;
+}
+
+                            // simple forward finds
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::find(PairHandle *item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    Pair *itemPtr = reinterpret_cast<Pair *>(findNode(key));
+    if (itemPtr) {
+        item->reset(this, itemPtr);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findRaw(Pair **item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    *item = reinterpret_cast<Pair *>(findNode(key));
+    return *item ? 0 : -1;
+}
+
+                            // simple reverse finds
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findR(PairHandle *item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeR(key));
+    if (itemPtr) {
+        item->reset(this, itemPtr);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findRRaw(Pair **item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    *item = reinterpret_cast<Pair *>(findNodeR(key));
+    return *item ? 0 : -1;
+}
+
+                        // find lower bound
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findLowerBound(PairHandle *item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeLowerBound(key));
+    if (itemPtr) {
+        item->reset(this, itemPtr);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findLowerBoundRaw(Pair **item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    *item = reinterpret_cast<Pair *>(findNodeLowerBound(key));
+    return *item ? 0 : -1;
+}
+
+                        // find lower bound reverse
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findLowerBoundR(PairHandle *item,
+                                         const KEY&  key) const
+{
+    BSLS_ASSERT(item);
+
+    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeLowerBoundR(key));
+    if (itemPtr) {
+        item->reset(this, itemPtr);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findLowerBoundRRaw(Pair **item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    *item = reinterpret_cast<Pair *>(findNodeLowerBoundR(key));
+    return *item ? 0 : -1;
+}
+
+                        // find upper bound
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findUpperBound(PairHandle *item,
+                                        const KEY&  key) const
+{
+    BSLS_ASSERT(item);
+
+    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeUpperBound(key));
+    if (itemPtr) {
+        item->reset(this, itemPtr);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findUpperBoundRaw(Pair **item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    *item = reinterpret_cast<Pair *>(findNodeUpperBound(key));
+    return *item ? 0 : -1;
+}
+
+                        // find upper bound reverse
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findUpperBoundR(PairHandle *item,
+                                         const KEY&  key) const
+{
+    BSLS_ASSERT(item);
+
+    Pair *itemPtr = reinterpret_cast<Pair *>(findNodeUpperBoundR(key));
+    if (itemPtr) {
+        item->reset(this, itemPtr);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::findUpperBoundRRaw(Pair **item, const KEY& key) const
+{
+    BSLS_ASSERT(item);
+
+    *item = reinterpret_cast<Pair *>(findNodeUpperBoundR(key));
+    return *item ? 0 : -1;
+}
+
+                            // next, previous, & skip*
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::next(PairHandle *next, const Pair *reference) const
+{
+    if (0 == reference) {
+        return e_INVALID;                                             // RETURN
+    }
+
+    Node *node  = pairToNode(reference);
+    Node *nNode = nextNode(node);
+    if (nNode) {
+        next->reset(this, reinterpret_cast<Pair *>(nNode));
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::nextRaw(Pair **next, const Pair *reference) const
+{
+    BSLS_ASSERT(next);
+    BSLS_ASSERT(reference);
+
+    Node *node = pairToNode(reference);
+    *next = reinterpret_cast<Pair *>(nextNode(node));
+
+    return *next ? 0 : -1;
+}
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::previous(PairHandle *prevPair,
+                                  const Pair *reference) const
+{
+    if (0 == reference) {
+        return e_INVALID;                                             // RETURN
+    }
+
+    Node *node  = pairToNode(reference);
+    Node *pNode = prevNode(node);
+    if (pNode) {
+        prevPair->reset(this, reinterpret_cast<Pair *>(pNode));
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+template<class KEY, class DATA>
+inline
+int
+SkipList<KEY, DATA>::previousRaw(Pair **prevPair, const Pair *reference) const
+{
+    BSLS_ASSERT(prevPair);
+    BSLS_ASSERT(reference);
+
+    Node *node = pairToNode(reference);
+    *prevPair = prevNode(node);
+    return *prevPair ? 0 : -1;
 }
 
 template<class KEY, class DATA>

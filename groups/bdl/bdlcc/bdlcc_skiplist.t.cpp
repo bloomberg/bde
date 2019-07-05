@@ -20,6 +20,7 @@
 #include <bslmt_barrier.h>
 #include <bslmt_condition.h>
 #include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 
@@ -170,34 +171,42 @@ void case18(bdlcc::SkipList<int, int>* list,
 
 class CountedDelete
 {
+    // DATA
     static bsls::AtomicInt deleteCount;
     bool isTemp;
 
   public:
+    // CREATORS
     CountedDelete() : isTemp(true)
+        // Default c'tor
     {}
 
     CountedDelete(const CountedDelete& original) : isTemp(false)
+        // Copy c'tor
     {
         (void) original;
     }
 
     ~CountedDelete()
+        // d'tor
     {
         if (!isTemp) {
             ++deleteCount;
         }
     }
 
-    static int getDeleteCount()
-    {
-        return deleteCount;
-    }
-
+    // MANIPULATORS
     CountedDelete& operator= (const CountedDelete&)
+        // Assignment.
     {
         isTemp = false;
         return *this;
+    }
+
+    static int getDeleteCount()
+        // Yield the number of times this object has been destroyed.
+    {
+        return deleteCount;
     }
 };
 
@@ -310,18 +319,25 @@ void case19(bdlcc::SkipList<int, int>* list,
 
 class SimpleScheduler
 {
-    // DATA
+    // TYPES
     typedef bdlcc::SkipList<bdlt::Datetime, bsl::function<void()> > List;
 
-    List                                                    d_list;
-    bslmt::ThreadUtil::Handle                                d_dispatcher;
-    bslmt::Condition                                         d_notEmptyCond;
-    bslmt::Barrier                                           d_startBarrier;
-    bslmt::Mutex                                             d_condMutex;
-    volatile int                                            d_doneFlag;
+    // DATA
+    List                       d_list;
+    bslmt::ThreadUtil::Handle  d_dispatcher;
+    bslmt::Condition           d_notEmptyCond;
+    bslmt::Barrier             d_startBarrier;
+    bslmt::Mutex               d_condMutex;
+    volatile int               d_doneFlag;
 
+  private:
+    // NOT IMPLEMENTED
+    SimpleScheduler(const SimpleScheduler&);
+
+  private:
     // PRIVATE MANIPULATORS
     void dispatcherThread()
+        // Run a thread that executes functions off 'd_list'.
     {
         d_startBarrier.wait();
 
@@ -364,10 +380,6 @@ class SimpleScheduler
         }
     }
 
-  private:
-    // NOT IMPLEMENTED:
-    SimpleScheduler(const SimpleScheduler&);
-
   public:
     // CREATORS
     explicit
@@ -375,6 +387,7 @@ class SimpleScheduler
     : d_list(basicAllocator)
     , d_startBarrier(2)
     , d_doneFlag(false)
+        // Creator.
     {
         int rc = bslmt::ThreadUtil::create(
                     &d_dispatcher,
@@ -385,27 +398,15 @@ class SimpleScheduler
     }
 
     ~SimpleScheduler()
+        // d'tor
     {
         stop();
     }
 
-    void stop()
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
-        if (bslmt::ThreadUtil::invalidHandle() != d_dispatcher) {
-            bslmt::ThreadUtil::Handle dispatcher = d_dispatcher;
-            d_doneFlag = true;
-            d_notEmptyCond.signal();
-            {
-                bslmt::LockGuardUnlock<bslmt::Mutex> g(&d_condMutex);
-                bslmt::ThreadUtil::join(dispatcher);
-            }
-            d_dispatcher = bslmt::ThreadUtil::invalidHandle();
-        }
-    }
-
+    // MANIPULATORS
     void scheduleEvent(const bsl::function<void()>& event,
                        const bdlt::Datetime&        when)
+        // Schedule the specified 'event' to occur at the specified 'when'.
     {
         // Use 'addR' since this event will probably be placed near the end of
         // the list.
@@ -419,6 +420,22 @@ class SimpleScheduler
             d_condMutex.lock();
             d_notEmptyCond.signal();
             d_condMutex.unlock();
+        }
+    }
+
+    void stop()
+        // Stop the scheduler.
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
+        if (bslmt::ThreadUtil::invalidHandle() != d_dispatcher) {
+            bslmt::ThreadUtil::Handle dispatcher = d_dispatcher;
+            d_doneFlag = true;
+            d_notEmptyCond.signal();
+            {
+                bslmt::LockGuardUnlock<bslmt::Mutex> g(&d_condMutex);
+                bslmt::ThreadUtil::join(dispatcher);
+            }
+            d_dispatcher = bslmt::ThreadUtil::invalidHandle();
         }
     }
 };
@@ -435,17 +452,20 @@ bsls::AtomicInt index(0);
 
 SkipList *g_skipList_p = 0;
 
-int numThreads = 16;
-int numEventsPerThread = 1000;
+int numThreads        =   16;
+int numNodesPerThread = 1000;
 
-void scheduleEvents()
+void addNodes()
+    // Add 'numNodesPerThread' nodes to the skip list.
 {
     static bslmt::Barrier barrier(numThreads);
     barrier.wait();
 
     Payload payload;
-    bsl::memset(&payload, 0xaf, sizeof(payload));
-    for (int i = 0; i < numEventsPerThread; ++i) {
+    for (unsigned uu = 0; uu < sizeof(Payload); ++uu) {
+        payload.d_data[uu] = static_cast<char>(0xaf);
+    }
+    for (int i = 0; i < numNodesPerThread; ++i) {
         SkipList::PairHandle handle;
         bool newtop;
         g_skipList_p->addR(&handle, ++index, payload, &newtop);
@@ -472,6 +492,8 @@ struct IDATA {
 };
 
 void case16Produce (bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
+    // While the specified 'done' is 'false', produce nodes on the specified
+    // 'list'.
 {
     int count = 0;
     while (!(*done)) {
@@ -486,6 +508,8 @@ void case16Produce (bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
 }
 
 void case16Consume(bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
+    // While the specified 'done' is 'false', from nodes from the specified
+    // 'list'.
 {
     while (!(*done)) {
         bdlcc::SkipList<int, int>::Pair *h1;
@@ -502,6 +526,8 @@ void case16Consume(bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
 
 template<class SKIPLIST, class ARRAY>
 void populate(SKIPLIST *list, const ARRAY& array, int length)
+    // Add the specified 'length' items from the specified 'array' to the
+    // specified 'list'.
 {
     for (int i=0; i<length; i++) {
         list->add(array[i].key, array[i].data);
@@ -510,6 +536,8 @@ void populate(SKIPLIST *list, const ARRAY& array, int length)
 
 template<class SKIPLIST, class ARRAY>
 void populateEx(SKIPLIST *list, const ARRAY& array, int length)
+    // Add the specified 'length' items from the specified 'array' to the
+    // specified 'list', taking the 'level' field into account.
 {
     for (int i=0; i<length; i++) {
         list->addAtLevelRaw(0, array[i].level, array[i].key, array[i].data);
@@ -518,6 +546,9 @@ void populateEx(SKIPLIST *list, const ARRAY& array, int length)
 
 template<class SKIPLIST, class ARRAY>
 void verify(SKIPLIST *list, const ARRAY& array, int length, int line)
+    // Verify that the contents of the specified 'list' match those of the
+    // specified 'array' of the specified 'length'.  If a mismatch occurs,
+    // have the asserts show the specified 'line' in the trace.
 {
     // scan forward using 'raw' and 'skip' methods; and also using 'front' and
     // 'next' (non-raw) methods, in parallel.
@@ -555,6 +586,10 @@ void verifyReverse(const SKIPLIST& list,
                    const ARRAY&    array,
                    int             length,
                    int             line)
+    // Verify that the contents of the specified 'list' match those of the
+    // specified 'array' of the specified 'length' by doing a backward
+    // traversal of both.  If a mismatch occurs, have the asserts show the
+    // specified 'line' in the trace.
 {
     // scan backward using 'skip' and also 'previous', in parallel
 
@@ -584,6 +619,9 @@ void verifyReverse(const SKIPLIST& list,
 
 template<class SKIPLIST, class ARRAY>
 void verifyEx(SKIPLIST* list, const ARRAY& array, int length, int line)
+    // Verify that the contents of the specified 'list' match those of the
+    // specified 'array' of the specified 'length'.  If a mismatch occurs,
+    // have the asserts show the specified 'line' in the trace.
 {
     typename SKIPLIST::Pair *p;
     list->frontRaw(&p);
@@ -718,6 +756,10 @@ void threadFunc(TimeQ *timeQueue,
                 int    sendCount,
                 int    receiveCount,
                 int    delay)
+    // Thread function, operate on the specified 'timeQueue' for the specified
+    // 'numIterations', each iteration adding 'sendCount' objects to
+    // 'timeQueue' and removing 'releaseCount' objects.  Add the specified
+    // 'delay' to the 'value' elements in the skiplist nodes.
 {
     bsl::vector<TimeQ::Pair*> timers;
     timers.resize(sendCount);
@@ -781,6 +823,7 @@ void threadFunc(TimeQ *timeQueue,
 }
 
 void run()
+    // run
 {
     if (verbose) cout << endl
                       << "The router simulation (kind of) test" << endl
@@ -811,6 +854,7 @@ void run()
 namespace {
 
 void pushBackWrapper(bsl::vector<int> *vector, int item)
+    // Push the specified 'item' onto the specified 'vector'.
 {
     vector->push_back(item);
 }
@@ -822,10 +866,10 @@ void pushBackWrapper(bsl::vector<int> *vector, int item)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
@@ -837,7 +881,21 @@ int main(int argc, char *argv[])
       case 28: {
         // --------------------------------------------------------------------
         // REPRODUCE BUG FROM DRQS 144652915
+        //
+        // Concerns:
+        //: 1 DRQS illustrated a problem when many threads were adding items
+        //:   simultaneously
+        //
+        // Plan:
+        //: 1 Have 16 threads each simultaneously add 1000 items to the skip
+        //:   list, and observe whether any of the threads throws
+        //:   'std::bad_alloc'.
+        //
+        // Testing:
+        //   DRQS 144652915
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "REPRODUCE BUG FROM DRQS 144652915\n";
 
         using namespace SKIPLIST_TEST_CASE_DRQS_144652915;
 
@@ -845,7 +903,7 @@ int main(int argc, char *argv[])
         SkipList skipList(&ta);
         g_skipList_p = &skipList;
 
-        P_(numThreads);    P(numEventsPerThread);
+        P_(numThreads);    P(numNodesPerThread);
 
         bslmt::ThreadUtil::setThreadName("Main Thread");
 
@@ -856,7 +914,7 @@ int main(int argc, char *argv[])
             oss << "Thread " << ii;
             attr.setThreadName(oss.str());
             bslmt::ThreadUtil::Handle handle;
-            int rc = bslmt::ThreadUtil::create(&handle, attr, &scheduleEvents);
+            int rc = bslmt::ThreadUtil::create(&handle, attr, &addNodes);
             ASSERT(0 == rc);
             handles.push_back(handle);
         }
