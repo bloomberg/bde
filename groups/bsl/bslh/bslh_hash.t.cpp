@@ -493,20 +493,17 @@ static void printAsHex(const char *data, size_t size)
 
 static size_t findNumberOfBytesBeforePadding(long double *d1, long double *d2)
     // Return the number of bytes from the begining of the specified 'd1' and
-    // 'd2' until the first byte at which they differ or at which they are both
-    // 0.
+    // 'd2' until the first byte at which they differ.
 {
-    size_t size = sizeof(long double);
-    const char *c1 = reinterpret_cast<const char *>(d1);
-    const char *c2 = reinterpret_cast<const char *>(d2);
-
-    for (size_t i = 0; i < size; ++i) {
-        if (c1[i] != c2[i] || c1[i] == 0) {
-            return i;                                                 // RETURN
-        }
+    const volatile unsigned char *c1 =
+        reinterpret_cast<const volatile unsigned char *>(d1);
+    const volatile unsigned char *c2 =
+        reinterpret_cast<const volatile unsigned char *>(d2);
+    size_t i = 0;
+    while (i < sizeof(long double) && c1[i] == c2[i]) {
+        ++i;
     }
-
-    return size;
+    return i;
 }
 
 static bool binaryCompare(const char *first, const char *second, size_t size)
