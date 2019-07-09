@@ -15,11 +15,19 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Steven Breitstein (sbreitstein)
 //
-//@DESCRIPTION: This component defines a single class template,
-// 'bslstl::DefaultSearcher', that is compliant with section
-// '[func.search.default]' of the C++ Standard.
+//@DESCRIPTION: This component defines a two class templates,
+// 'bsl::default_searcher' and 'bslstl::DefaultSearcher'.  Both are compliant
+// with section '[func.search.default]' of the C++ Standard (C++17 and later).
 //
-// This class has two template parameters:
+// 'bsl::default_searcher' is strictly limied to the Standard and is provided
+// for clients for whom standard compliance is a priority.
+// 'bslstl::DefaultSearcher' provides several additional interfaces (accessors)
+// that are not mentioned in the Standard.
+//
+// Except where there is a relevant difference, both are described below as if
+// they were one.
+//
+// This class template has two parameters:
 //
 //: 'FORWARD_ITR_NEEDLE':
 //:   The iterator type that defines on construction the range of values to be
@@ -30,18 +38,15 @@ BSLS_IDENT("$Id: $")
 //:   values.
 //
 // The class also provides a functor-style interface that accepts two iterators
-// that define the range of values to be searched (the "haystack").  The
-// iterators defining the haystack need not be of the same type as those that
-// define the needle.  Once constructed, a single 'bslstl::DefaultSearcher'
-// object can be used to search multiple haystacks (for the same needle)
-// without additional overhead.
+// that define the range of values to be searched (the "haystack").  Once
+// constructed the searcher object can be re-used to search multiple haystacks
+// (for the same needle).
 //
-///The 'bsl::default_searcher' Class
-///---------------------------------
-// The 'bslslt::DefaultSearcher' class provides several interfaces (accessors)
-// that are not mentioned in the C++ Standard.  The 'bsl::default_searcher'
-// class provides a facade that is strictly limited to the Standard and is
-// provided for clients for whom standard compliance is a priority.
+// The iterators defining the haystack need not be of the same type as those
+// that define the needle.  Moreover, the search method of the searcher can be
+// overloaded for an arbitrary different haystack iterators (subject to
+// {Iterator Requirements}). object can be used to search multiple haystacks
+// (for the same needle).
 //
 ///Algorithm
 ///---------
@@ -58,9 +63,9 @@ BSLS_IDENT("$Id: $")
 // naive algorithm may be faster than generating that metadata, especially if
 // the search is one-time and the metadata cost cannot be amortized.
 //
-// Another advantage of 'bslstl::DefaultSearcher' is that it accepts
-// (relatively simple) *ForwardIterator*s whereas more sophisticated algorithms
-// typically require (full-featured) *RandomIterator*s.
+// Another advantage of the "default" searcher is that it accepts (relatively
+// simple) *ForwardIterator*s whereas more sophisticated algorithms typically
+// require (more fully-featured) *RandomIterator*s.
 //
 ///Iterator Requirements
 ///---------------------
@@ -89,10 +94,10 @@ BSLS_IDENT("$Id: $")
 //
 // The comparer class is allowed to throw exceptions.
 //
-///Optimization
-///------------
-// For certain template parameters this implementation improves performance
-// by utilizing low-level operations.  The requirements to do so are:
+///Optimizations for 'bslstl::DefaultSearcher'
+///-------------------------------------------
+// For certain template parameters this implementation improves performance by
+// utilizing low-level operations.  The requirements to do so are:
 //: o Both supplied iterators are pointers.
 //: o The default equality comparison is allowed to default (to
 //:   'bsl::equal_to<value_type>').
@@ -134,8 +139,8 @@ BSLS_IDENT("$Id: $")
 //
 //  const char *word = "United";
 //..
-// Then, we create a 'bsl::default_searcher' object (a functor) using the
-// given 'word':
+// Then, we create a 'bsl::default_searcher' object (a functor) using the given
+// 'word':
 //..
 //  bsl::default_searcher<const char*> searchForUnited(
 //                                                   word,
@@ -178,8 +183,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Then, define a new 'bsl::default_searcher' type and create a searcher
-// object to search for 'word':
+// Then, define a new 'bsl::default_searcher' type and create a searcher object
+// to search for 'word':
 //..
 //  bsl::default_searcher<const char *,
 //                        struct MyCaseInsensitiveCharComparer>
@@ -227,8 +232,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The 'bsl::default_searcher' class template is not constrained to searching
-// for 'char' values.  Searches can be done on other types (see {Iterator
+// The "default" searcher class template is not constrained to searching for
+// 'char' values.  Searches can be done on other types (see {Iterator
 // Requirements}).  Moreover the container of the sequence being sought (the
 // "needle") need not the same as the sequence being searched (the "haystack").
 //

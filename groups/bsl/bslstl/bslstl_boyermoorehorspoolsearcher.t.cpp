@@ -2990,7 +2990,7 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
         return d_map.size();
     }
 //..
-// Then, to complete our class,  we implement the cache class private method:
+// Then, to complete our class, we implement the cache class private method:
 //..
     // PRIVATE MANIPULATORS
     const
@@ -3151,10 +3151,10 @@ static void usage()
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The 'default_searcher' class template is not constrained to searching for
-// 'char' values.  Searches can be done on other types (see {Iterator
-// Requirements}).  Moreover the container of the sequence being sought (the
-// "needle") need not the same as the sequence being searched (the "haystack").
+// The BMH searcher class template is not constrained to searching for 'char'
+// values.  Searches can be done on other types (see {Iterator Requirements}).
+// Moreover the container of the sequence being sought (the "needle") need not
+// the same as the sequence being searched (the "haystack").
 //
 // Suppose one has data from an instrument that reports 'float' values and that
 // inserts the sequence '{ FLT_MAX, FLT_MIN, FLT_MAX }' as a marker for the
@@ -3215,7 +3215,7 @@ static void usage()
 // {'bslstl_defaultsearcher'|Example 3} shows how the same problem is addressed
 // using 'bsl::default_searcher'.  Notice that other example uses 'data' from a
 // container that provides bidirectional iterators (and forward iterators would
-// have sufficed), whereas here, random access iterators are required.
+// have sufficed), whereas here random access iterators are required.
 //
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);

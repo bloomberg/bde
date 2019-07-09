@@ -17,19 +17,19 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines two class templates,
 // 'bsl::boyer_moore_horspool_searcher' and
-// 'bslstl::BoyerMooreHorspoolSearcher'. Both are compliant with section
+// 'bslstl::BoyerMooreHorspoolSearcher'.  Both are compliant with section
 // '[func.search.bmh]' of the C++ Standard (C++17 and later).
 //
-// The 'bsl::boyer_moore_horspool_searcher' class is strictly limited to the
-// Standard and is provided for clients for whom standard compliance is a
-// priority.  The 'bslslt::BoyerMoreHorspoolSearcher' class provides several
-// interfaces that are not mentioned in the C++ Standard.  Moreover, the class
-// supports BDE allocators and can be used with BDE standard containers whereas
-// the compliant strict class always uses the currently installed allocator
-// (see {Example 4} below).
+// 'bsl::boyer_moore_horspool_searcher' is strictly limited to the Standard and
+// is provided for clients for whom standard compliance is a priority.
+// 'bslslt::BoyerMoreHorspoolSearcher' provides several interfaces (accessors)
+// that are not mentioned in the Standard.  Moreover,
+// 'bslslt::BoyerMoreHorspoolSearcher' is "plumbed" for BDE allocators and can
+// be used with BDE standard containers whereas the compliant strict class
+// always uses the currently installed allocator.  See {Example 4} below.
 //
-// Except where there is a relevant difference, both classes are documented as
-// if they were a single class.
+// Except where there is a relevant difference, both are described below as if
+// they were one.
 //
 // This class has several template parameters:
 //
@@ -46,12 +46,14 @@ BSLS_IDENT("$Id: $")
 //:    metadata.  See {Requirements for 'HASH' and 'EQUAL'}.
 //
 // The class also provides a functor-style interface that accepts two iterators
-// that define the range of values to be searched (the "haystack").  The
-// iterators defining the haystack need not be of the same type as those that
-// define the needle.  Moreover, the "search" method of the needle can be
-// overloaded for an arbitrary number of different haystack iterators.  Once
-// constructed, a single 'bslstl::BoyerMooreHorspoolSearcher' object can be
-// re-used to search multiple haystacks (for the same needle value).
+// that define the range of values to be searched (the "haystack").  Once
+// constructed, a single searcher object can be re-used to search multiple
+// haystacks (for the same needle value).
+//
+// The iterators defining the haystack need not be of the same type as those
+// that define the needle.  Moreover, the search method of the searcher can be
+// overloaded for an arbitrary number of different haystack iterators (subject
+// to {Iterator Requirements}).
 //
 ///Algorithm
 ///---------
@@ -100,8 +102,8 @@ BSLS_IDENT("$Id: $")
 //  searcher.hash()(a) == searcher.hash()(b);
 //..
 //
-///Optimization When 'value_type' is 'char'
-///----------------------------------------
+///Optimizations for 'bslstl::BoyerMooreHorspoolSearcher'
+///------------------------------------------------------
 // This implementation handles needle metadata using a fixed size array when
 // the 'value_type' is 'char' (either 'signed' or 'unsigned' flavors).  For
 // needles of typical size, this choice results in a larger searcher object
@@ -248,7 +250,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The 'default_searcher' class template is not constrained to searching for
+// The BMH searcher class template is not constrained to searching for
 // 'char' values.  Searches can be done on other types (see {Iterator
 // Requirements}).  Moreover the container of the sequence being sought (the
 // "needle") need not the same as the sequence being searched (the "haystack").
@@ -312,7 +314,7 @@ BSLS_IDENT("$Id: $")
 // {'bslstl_defaultsearcher'|Example 3} shows how the same problem is addressed
 // using 'bsl::default_searcher'.  Notice that other example uses 'data' from a
 // container that provides bidirectional iterators (and forward iterators would
-// have sufficed), whereas here, random access iterators are required.
+// have sufficed), whereas here random access iterators are required.
 //
 ///Example 4: Caching Searcher Objects
 ///- - - - - - - - - - - - - - - - - -
