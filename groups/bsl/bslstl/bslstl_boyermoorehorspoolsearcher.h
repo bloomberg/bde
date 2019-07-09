@@ -15,10 +15,23 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Steven Breitstein (sbreitstein)
 //
-//@DESCRIPTION: This component defines a single class template,
-// 'bslstl::BoyerMooreHorspoolSearcher', that is compliant with section
-// '[func.search.bmh]' of the C++ Standard (C++17 and later).  This class has
-// several template parameters:
+//@DESCRIPTION: This component defines two class templates,
+// 'bsl::boyer_moore_horspool_searcher' and
+// 'bslstl::BoyerMooreHorspoolSearcher'. Both are compliant with section
+// '[func.search.bmh]' of the C++ Standard (C++17 and later).
+//
+// The 'bsl::boyer_moore_horspool_searcher' class is strictly limited to the
+// Standard and is provided for clients for whom standard compliance is a
+// priority.  The 'bslslt::BoyerMoreHorspoolSearcher' class provides several
+// interfaces that are not mentioned in the C++ Standard.  Moreover, the class
+// supports BDE allocators and can be used with BDE standard containers whereas
+// the compliant strict class always uses the currently installed allocator
+// (see {Example 4} below).
+//
+// Except where there is a relevant difference, both classes are documented as
+// if they were a single class.
+//
+// This class has several template parameters:
 //
 //: 'RNDACC_ITR_NEEDLE':
 //:    The type used to specify (on construction) the range of values
@@ -40,23 +53,13 @@ BSLS_IDENT("$Id: $")
 // constructed, a single 'bslstl::BoyerMooreHorspoolSearcher' object can be
 // re-used to search multiple haystacks (for the same needle value).
 //
-///The 'bsl::boyer_moore_horspool_searcher' Class
-///-----------------------------------------------
-// The 'bslslt::BoyerMoreHorspoolSearcher' class provides several interfaces
-// that are not mentioned in the C++ Standard.  Moreover, the class supported
-// BDE allocators while the Standard class is not allocator aware.  (See
-// {Example 4} below.)  The 'bsl::default_searcher' class provides a facade
-// that is strictly limited to the Standard and is provided for clients for
-// whom standard compliance is a priority.  When using the facade class the
-// currently installed default allocator is used to supply memory.
-//
 ///Algorithm
 ///---------
-// The 'bsl::BoyerMoreHorspoolSearcher' class provides an implementation of the
-// well-known Boyer, Moore, Horspool Algorithm for string matching (see
+// The search algorith used is an implementation of the well-known Boyer,
+// Moore, Horspool Algorithm for string matching (see
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm).
-// The algorithm offers complexity of 'O(N)' for a haystack of length 'N' in
-// the typical case.
+// In the typical case, this algorithm offers complexity of 'O(N)' for a
+// haystack of length 'N'.
 //
 ///Iterator Requirements
 ///---------------------
@@ -85,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //: o The supplied iterators can be constant.
 //: o The class must be copyable.
 //
-// The comparer class is allowed to throw exceptions.
+// Comparer classes are allowed to throw exceptions.
 //
 // The behavior is undefined unless two values that are deemed equal by the
 // 'EQUAL' functor generate the same value by the 'HASH' functor.  That is:
@@ -525,6 +528,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that each searcher object in the cache (correctly) uses the same
 // allocator as we specified for the cache itself.
+//
+// The rest of application 
 //..
 //      const Result result   = searcher(surname,
 //                                       surname + bsl::strlen(surname));
