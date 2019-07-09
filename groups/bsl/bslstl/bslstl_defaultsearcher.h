@@ -299,6 +299,8 @@ BSLS_IDENT("$Id: $")
 // whereas here, bidirectional iterators are used (and forward iterators would
 // have sufficed).
 
+#include <bslscm_version.h>
+
 #include <bslstl_equalto.h>
 #include <bslstl_iterator.h>
 #include <bslstl_pair.h>
@@ -534,7 +536,7 @@ class default_searcher {
     // 'value_type' values defined on construction in sequences of 'value_type'
     // values passed to the functor's 'operator()'.
 
-    //DATA 
+    //DATA
     BloombergLP::bslstl::DefaultSearcher<ForwardIterator1,
                                          BinaryPredicate> d_imp;
 
@@ -598,7 +600,7 @@ class default_searcher {
         // sequence searched -- thus the sought sequence cannot be found -- the
         // range '[last, last)' is returned.
 };
-    
+
 }  // close namespace 'bsl'
 
 // ----------------------------------------------------------------------------

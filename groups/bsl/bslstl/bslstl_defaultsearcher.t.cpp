@@ -18,16 +18,16 @@
 #include <bsls_timeutil.h>  // TC -1
 #include <bsls_types.h>     // for 'bsls::Types::Int64'
 
-#include <cassert>
 #include <cctype>     // for 'native_std::tolower'
 #include <cstddef>    // for 'native_std::size_t'
-#include <cstdio>     // for 'printf'
 #include <cstdlib>    // for 'native_std::atoi'
 #include <cstring>    // for 'native_std::strlen'
 #include <functional> // for 'native_std::equal_to'
 
+#include <assert.h>
 #include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
 #include <stddef.h>   // for 'NULL'
+#include <stdio.h>    // for 'stdout' and 'printf'
 
 using namespace BloombergLP;
 namespace BSL = native_std;  // for Usage examples
@@ -2874,6 +2874,7 @@ static void usage()
                                                               document,
                                                               document
                                                             + sizeof document);
+
     BSL::size_t offset = result.first - document;
 
     ASSERT(120 == offset);
@@ -3218,41 +3219,16 @@ int main(int argc, char *argv[])
                                 >() ));
         }
 
-#if 0
-        if (verbose) printf("\n" "Allocator Tests" "\n");
-        {
-            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-            bslma::DefaultAllocatorGuard dag(&da);
-
-            bsl::vector<char>  vectorOfChars;
-            loadVectorOfChars(&vectorOfChars, "zzzzzzzzzzzzzz");
-
-            CharArray<char> needleSource(vectorOfChars);
-
-            bslma::TestAllocatorMonitor dam(&da);
-
-            MechChar mXC(needleSource.begin(), needleSource.end());
-
-            ASSERT(dam.isTotalSame()); // Special case uses fixed size array
-                                       // and does not allocate.
-
-            MechGnrl mXG(needleSource.begin(), needleSource.end());
-
-            ASSERT(dam.isTotalUp());   // General case uses 'unordered_map'
-                                       // and allocatoes for non-empty neede.
-        }
-#endif
-
         if (verbose) printf("\n" "Range Tests" "\n");
         {
             const struct {
                 int          d_line;
 
-                const char  *d_needleSource;
+                const char  *d_needleSource_p;
                 BSL::size_t  d_idxNeedleFirst;
                 BSL::size_t  d_idxNeedleLast;
 
-                const char  *d_hstckSource;
+                const char  *d_hstckSource_p;
                 BSL::size_t  d_idxHstckFirst;
                 BSL::size_t  d_idxHstckLast;
 
@@ -3272,10 +3248,10 @@ int main(int argc, char *argv[])
 
             for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE             = DATA[ti].d_line;
-                const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource;
+                const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource_p;
                 const BSL::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
                 const BSL::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
-                const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource;
+                const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource_p;
                 const BSL::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
                 const BSL::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
                 const BSL::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
@@ -3333,7 +3309,7 @@ int main(int argc, char *argv[])
               "When 'polish' starts a sentence I confuse it with 'Polish'.";
             // ----^----|----^----|----^----|----^----|----^----|----^----|
             // 1     | 10        20        30        40        50 |      60
-             
+
             const char *needle = "Polish"; // length 6
 
             const Result expectedSensitive(haystack + 51,
@@ -3715,7 +3691,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n" "Non-Default Equality Functor" "\n");
         {
-            CharArray<char> containerHavingRandomIterators(
+            CharArray<char> containerHavingRndAccIterators(
                                                     bsl::vector<char>('b', 5));
 
             CharEqualCaseInsensitive functor(42);
@@ -3724,8 +3700,8 @@ int main(int argc, char *argv[])
             typedef bslstl::DefaultSearcher<RandConstItr,
                                            CharEqualCaseInsensitive> Mech;
 
-            RandConstItr needleFirst = containerHavingRandomIterators.begin();
-            RandConstItr needleLast  = containerHavingRandomIterators.end();
+            RandConstItr needleFirst = containerHavingRndAccIterators.begin();
+            RandConstItr needleLast  = containerHavingRndAccIterators.end();
 
             Mech mX(needleFirst, needleLast, functor); const Mech& X = mX;
 
@@ -3772,13 +3748,13 @@ int main(int argc, char *argv[])
         {
 
             // Arbitrary needle.
-            CharArray<char> containerHavingRandomIterators(
+            CharArray<char> containerHavingRndAccIterators(
                                                     bsl::vector<char>('b', 5));
 
             typedef CharArray<char>::const_iterator       RandConstItr;
             typedef bslstl::DefaultSearcher<RandConstItr> Mech;
 
-            RandConstItr middle = containerHavingRandomIterators.begin() + 2;
+            RandConstItr middle = containerHavingRndAccIterators.begin() + 2;
 
             bsls::AssertTestHandlerGuard hG;
 
