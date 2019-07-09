@@ -2857,8 +2857,8 @@ static void usage()
 
     const char *word = "United";
 //..
-// Then, we create a 'bsl::default_searcher' object (a functor) using the
-// given 'word':
+// Then, we create a 'bsl::default_searcher' object (a functor) using the given
+// 'word':
 //..
     bsl::default_searcher<const char*> searchForUnited(
                                                      word,
@@ -2897,8 +2897,8 @@ static void usage()
 //..
 //  [INSERT FROM ABOVE]
 //..
-// Then, define a new 'bsl::default_searcher' type and create a searcher
-// object to search for 'word':
+// Then, define a new 'bsl::default_searcher' type and create a searcher object
+// to search for 'word':
 //..
     bsl::default_searcher<const char *,
                           struct MyCaseInsensitiveCharComparer>
