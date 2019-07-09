@@ -24,17 +24,17 @@
 #include <bsls_timeutil.h>  // TC -1
 #include <bsls_types.h>     // for 'bsls::Types::Int64'
 
-#include <cassert>
 #include <cctype>     // for 'native_std::tolower'
 #include <cstddef>    // for 'native_std::size_t'
-#include <cstdio>     // for 'printf'
 #include <cstdlib>    // for 'native_std::atoi'
 #include <cstring>    // for 'native_std::strlen'
 #include <functional> // for 'native_std::equal_to'
 #include <utility>    // for 'operator!=' and 'make_pair'
 
+#include <assert.h>
 #include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
 #include <limits.h>   // for 'UCHAR_MAX'
+#include <stdio.h>    // for 'stdio' and 'printf'
 #include <stddef.h>   // for 'NULL'
 
 using namespace BloombergLP;
@@ -2904,14 +2904,14 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
     class MyCaseInsensitiveSearcherCache {
 
         // TYPES
-      public:   
+      public:
         typedef bslstl::BoyerMooreHorspoolSearcher<
                                                  bsl::string::const_iterator,
                                                  MyCaseInsensitiveCharHasher,
                                                  MyCaseInsensitiveCharComparer>
                                                                       Searcher;
         // PRIVATE TYPES
-      private:   
+      private:
         typedef bsl::unordered_map<bsl::string, Searcher> Map;
 
         // DATA
@@ -2952,6 +2952,11 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
 // 'MyCaseInsensitiveCharHasher', and equality comparison functor,
 // 'MyCaseInsensitiveCharComparer', that were defined in {Example 2}.
 //
+// Note that 'MyCaseInsensitiveSearcherCache' itself is an allocating type.  If
+// we needed to make it compatible with BDE containers (e.g., to allow a cache
+// of caches) a few additional features are needed.  As we have no such need,
+// those features are deferred.
+//
 // Then, we implement the constructor:
 //..
                         // ------------------------------------
@@ -2964,7 +2969,7 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
     : d_map(basicAllocator)
     {
     }
-                      
+
 // Notice that 'basicAllocator' is simply forwarded to 'd_map'.
 //
 // Next, we implement the public methods:
@@ -3131,9 +3136,9 @@ static void usage()
                                   - resultInsensitive.first)
                == BSL::strlen(word));
 //..
-// Finally, we find the next occurence of 'word' by *reusing* the same searcher
-// object, this time instructing it to begin its search just after the previous
-// occurrence of 'word' was found:
+// Finally, we find the next occurrence of 'word' by *reusing* the same
+// searcher object, this time instructing it to begin its search just after the
+// previous occurrence of 'word' was found:
 //..
     resultInsensitive = searchForUnitedInsensitive(resultInsensitive.second,
                                                    document + sizeof document);
@@ -3251,8 +3256,8 @@ static void usage()
 // fixed array represents our source of name entries, in random order.
 //..
     struct {
-        const char *d_givenName;
-        const char *d_surname;
+        const char *d_givenName_p;
+        const char *d_surname_p;
     } DATA[] = {
         // GIVEN     SURNAME
         // --------  ------------
@@ -3290,8 +3295,8 @@ static void usage()
     bsl::string                    output;
 
     for (BSL::size_t ti = 0; ti < NUM_NAMES; ++ti) {
-        const char * const givenName = DATA[ti].d_givenName;
-        const char * const surname   = DATA[ti].d_surname;
+        const char * const givenName = DATA[ti].d_givenName_p;
+        const char * const surname   = DATA[ti].d_surname_p;
 
         const MyCaseInsensitiveSearcherCache::Searcher& searcher =
                                           searcherCache.getSearcher(givenName);
@@ -3300,6 +3305,8 @@ static void usage()
 //..
 // Notice that each searcher object in the cache (correctly) uses the same
 // allocator as we specified for the cache itself.
+//
+// The rest of the application:
 //..
         const Result result   = searcher(surname,
                                          surname + BSL::strlen(surname));
@@ -3595,7 +3602,7 @@ static void testMoveContructors()
 
 
             // Is 'mZ' in a valid state?
-           
+
             ASSERT(NEEDLE == Z.needleFirst());
             ASSERT(NEEDLE == Z.needleLast());
 
@@ -3630,7 +3637,7 @@ static void testMoveContructors()
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? BSL::atoi(argv[1]) : 0;
                      verbose = argc > 2; (void)             verbose;
                  veryVerbose = argc > 3; (void)         veryVerbose;
              veryVeryVerbose = argc > 4; (void)     veryVeryVerbose;
@@ -3668,7 +3675,7 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TRAITS & PUBLIC TYPES
-        // 
+        //
         // Concerns:
         //: 1 The 'bslma::UsesBslmaAllocator' trait is set for each
         //:   allocating class defined in this component.
@@ -3722,7 +3729,7 @@ int main(int argc, char *argv[])
         ASSERT((bsl::is_same<char,         MechGnrl::value_type  >()));
         ASSERT((bsl::is_same<DefaultHash,  MechGnrl::DefaultHash >()));
         ASSERT((bsl::is_same<DefaultEqual, MechGnrl::DefaultEqual>()));
-                                  
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -3827,11 +3834,11 @@ int main(int argc, char *argv[])
             const struct {
                 int          d_line;
 
-                const char  *d_needleSource;
+                const char  *d_needleSource_p;
                 BSL::size_t  d_idxNeedleFirst;
                 BSL::size_t  d_idxNeedleLast;
 
-                const char  *d_hstckSource;
+                const char  *d_hstckSource_p;
                 BSL::size_t  d_idxHstckFirst;
                 BSL::size_t  d_idxHstckLast;
 
@@ -3851,10 +3858,10 @@ int main(int argc, char *argv[])
 
             for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE             = DATA[ti].d_line;
-                const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource;
+                const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource_p;
                 const BSL::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
                 const BSL::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
-                const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource;
+                const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource_p;
                 const BSL::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
                 const BSL::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
                 const BSL::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
@@ -3914,7 +3921,7 @@ int main(int argc, char *argv[])
               "When 'polish' starts a sentence I confuse it with 'Polish'.";
             // ----^----|----^----|----^----|----^----|----^----|----^----|
             // 1     | 10        20        30        40        50 |      60
-             
+
             const char *needle = "Polish"; // length 6
 
             const Result expectedSensitive(haystack + 51,

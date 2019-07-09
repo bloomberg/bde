@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Algorithm
 ///---------
-// The search algorith used is an implementation of the well-known Boyer,
-// Moore, Horspool Algorithm for string matching (see
+// The search algorithm used is an implementation of the well-known Boyer,
+// Moore, Horspool (BMH) Algorithm for string matching (see
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm).
 // In the typical case, this algorithm offers complexity of 'O(N)' for a
 // haystack of length 'N'.
@@ -214,8 +214,8 @@ BSLS_IDENT("$Id: $")
 // If stateful functors are required such objects can be passed in the optional
 // constructor arguments.
 //
-// Now, we invoke our searcher functor, specifying that the same document searched
-// in {Example 1}:
+// Now, we invoke our searcher functor, specifying that the same document
+// searched in {Example 1}:
 //..
 //  bsl::pair<const char *, const char *> resultInsensitive =
 //                                                  searchForUnitedInsensitive(
@@ -230,9 +230,9 @@ BSLS_IDENT("$Id: $")
 //                                - resultInsensitive.first)
 //             == bsl::strlen(word));
 //..
-// Finally, we find the next occurence of 'word' by *reusing* the same searcher
-// object, this time instructing it to begin its search just after the previous
-// occurrence of 'word' was found:
+// Finally, we find the next occurrence of 'word' by *reusing* the same
+// searcher object, this time instructing it to begin its search just after the
+// previous occurrence of 'word' was found:
 //..
 //  resultInsensitive = searchForUnitedInsensitive(resultInsensitive.second,
 //                                                 document + sizeof document);
@@ -250,10 +250,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
-// The BMH searcher class template is not constrained to searching for
-// 'char' values.  Searches can be done on other types (see {Iterator
-// Requirements}).  Moreover the container of the sequence being sought (the
-// "needle") need not the same as the sequence being searched (the "haystack").
+// The BMH searcher class template is not constrained to searching for 'char'
+// values.  Searches can be done on other types (see {Iterator Requirements}).
+// Moreover the container of the sequence being sought (the "needle") need not
+// the same as the sequence being searched (the "haystack").
 //
 // Suppose one has data from an instrument that reports 'float' values and that
 // inserts the sequence '{ FLT_MAX, FLT_MIN, FLT_MAX }' as a marker for the
@@ -393,8 +393,8 @@ BSLS_IDENT("$Id: $")
 //                                                        *basicAllocator = 0);
 //          // Create an empty 'MyCaseInsensitiveSearcherCache' object.
 //          // Optionally supply 'basicAllocator' to supply memory.  If
-//          // 'basicAllocator' is 0, the currently installed default allocator
-//          // is used.
+//          // 'basicAllocator' is 0 or not supplied, the currently installed
+//          // default allocator is used.
 //
 //      // MANIPULATORS
 //      const Searcher& getSearcher(const char *needle);
@@ -412,6 +412,12 @@ BSLS_IDENT("$Id: $")
 // Notice (see the 'typedef' for 'Searcher') that we reuse the hash functor,
 // 'MyCaseInsensitiveCharHasher', and equality comparison functor,
 // 'MyCaseInsensitiveCharComparer', that were defined in {Example 2}.
+//
+// Note that 'MyCaseInsensitiveSearcherCache' itself is an allocating type.
+// If we needed to make it compatible with BDE containers (e.g., to allow a
+// cache of caches) a few additional features are needed.  As we have no such
+// need, those features are deferred.
+//
 //
 // Then, we implement the constructor:
 //..
@@ -481,8 +487,8 @@ BSLS_IDENT("$Id: $")
 // fixed array represents our source of name entries, in random order:
 //..
 //  struct {
-//      const char *d_givenName;
-//      const char *d_surname;
+//      const char *d_givenName_p;
+//      const char *d_surname_p;
 //  } DATA[] = {
 //      // GIVEN     SURNAME
 //      // --------  ------------
@@ -520,8 +526,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::string                    output;
 //
 //  for (bsl::size_t ti = 0; ti < NUM_NAMES; ++ti) {
-//      const char * const givenName = DATA[ti].d_givenName;
-//      const char * const surname   = DATA[ti].d_surname;
+//      const char * const givenName = DATA[ti].d_givenName_p;
+//      const char * const surname   = DATA[ti].d_surname_p;
 //
 //      const MyCaseInsensitiveSearcherCache::Searcher& searcher =
 //                                        searcherCache.getSearcher(givenName);
@@ -531,7 +537,7 @@ BSLS_IDENT("$Id: $")
 // Notice that each searcher object in the cache (correctly) uses the same
 // allocator as we specified for the cache itself.
 //
-// The rest of application 
+// The rest of the application:
 //..
 //      const Result result   = searcher(surname,
 //                                       surname + bsl::strlen(surname));
@@ -833,7 +839,7 @@ class BoyerMooreHorspoolSearcher_GeneralImp {
         // Return the equality comparison functor supplied on construction.
 
     BloombergLP::bslma::Allocator *allocator() const;
-        // Return the allocator used by thos object to supply memory.
+        // Return the allocator used by this object to supply memory.
 };
 
                         // ================================
@@ -921,9 +927,9 @@ class BoyerMooreHorspoolSearcher {
         // specify an 'equal' functor for use with 'hash' and for use by
         // 'operator()'.  See {Requirements for 'HASH' and 'EQUAL'}.
         // Optionally specify 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'needleFirst' can be
-        // advanced to 'needleLast'.
+        // 'basicAllocator' is 0 or not supplied, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // 'needleFirst' can be advanced to 'needleLast'.
 
     BoyerMooreHorspoolSearcher(
                       const BoyerMooreHorspoolSearcher& original);
