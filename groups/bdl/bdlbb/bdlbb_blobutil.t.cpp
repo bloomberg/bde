@@ -327,6 +327,42 @@ static bool bad_jk(int j, int k, bdlbb::Blob& blob)
 }
 
 // ============================================================================
+//                                CASE 11
+// ----------------------------------------------------------------------------
+
+namespace {
+namespace APPEND_MEMORY_COONSUMPTION_TEST {
+
+class SimpleBlobBufferFactory : public bdlbb::BlobBufferFactory {
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+    int               d_bufferSize;
+
+  public:
+    // CREATORS
+    SimpleBlobBufferFactory(int bufferSize, bslma::Allocator *allocator)
+    : d_allocator_p(allocator)
+    , d_bufferSize(bufferSize)
+    {
+    }
+
+    // MANIPULATORS
+    void allocate(bdlbb::BlobBuffer *buffer)
+    {
+        buffer->reset(
+            bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(
+                d_bufferSize,
+                d_allocator_p),
+            d_bufferSize);
+    }
+};
+
+}  // close namespace append_memory_coonsumption_test
+}  // close unnamed namespace
+
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -346,6 +382,66 @@ int main(int argc, char *argv[]) {
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING FIX TO DRQS 144543867
+        //
+        // Concerns:
+        //: 1 That the bug outlined in DRQS 144543867 has been fixed.
+        //
+        // Plan:
+        //: 1 Create 'blob' with many buffer, and then use 'append' to copy a
+        //:   very small part of it to a second blob, and observe that only a
+        //:   small amount of memory is allocated by the 'vector' in the new
+        //:   blob.
+        //
+        // Testing:
+        //   append(Blob *, const Blob&, int, int);
+        // --------------------------------------------------------------------
+
+        namespace TEST = APPEND_MEMORY_COONSUMPTION_TEST;
+
+        const int dataSize   = 40000000;
+        const int bufferSize = 256;
+        const int sliceSize  = 50000;
+
+        bslma::TestAllocator          bbfAllocator("bbf");
+        TEST::SimpleBlobBufferFactory bbf(bufferSize, &bbfAllocator);
+
+        bslma::TestAllocator          srcAllocator("src");
+        bdlbb::Blob                   src(&bbf, &srcAllocator);
+
+        char buf[bufferSize] = { '\0' };
+        while (src.length() < dataSize) {
+            bdlbb::BlobUtil::append(&src, buf, bufferSize);
+        }
+
+        if (verbose) {
+            cout << "After filling Blob with 40MB of data:\n";
+            P(bbfAllocator.numBytesInUse());
+            P(srcAllocator.numBytesInUse());
+            P(src.numBuffers());
+            cout << endl;
+        }
+
+        bslma::TestAllocator dstAllocator("dst");
+        bdlbb::Blob          dst(&dstAllocator);
+
+        bdlbb::BlobUtil::append(&dst, src, 0, sliceSize);
+        ASSERTV(dstAllocator.numBytesInUse(), srcAllocator.numBytesInUse(),
+                dstAllocator.numBytesInUse() * 100 <
+                                                 srcAllocator.numBytesInUse());
+
+        if (verbose) {
+            cout << "After test:\n";
+            P(bbfAllocator.numBytesInUse());
+            P(srcAllocator.numBytesInUse());
+            P(src.numBuffers());
+            P(dstAllocator.numBytesInUse());
+            P(dst.numBuffers());
+            cout << endl;
+        }
+      } break;
       case 10: {
         // -------------------------------------------------------------------
         // TESTING 'copy' FUNCTIONS WRITING TO BLOB

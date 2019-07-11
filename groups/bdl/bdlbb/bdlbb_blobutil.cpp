@@ -77,20 +77,28 @@ void BlobUtil::append(Blob *dest, const Blob& source, int offset, int length)
         return;                                                       // RETURN
     }
 
-    bsl::pair<int, int> place = findBufferIndexAndOffset(source, offset);
-    int                 sourceBufferIndex  = place.first;
-    int                 offsetInThisBuffer = place.second;
+    bsl::pair<int, int> beginPlace = findBufferIndexAndOffset(source, offset);
+    int                 sourceBufferIndex  = beginPlace.first;
+    int                 offsetInThisBuffer = beginPlace.second;
 
     const int destStartLength = dest->length();
 
     dest->trimLastDataBuffer();
 
-    const int destBufferIndex = dest->numDataBuffers();
-    while (destBufferIndex < dest->numBuffers()) {
-        dest->removeBuffer(dest->numBuffers() - 1);
+    {
+        const int destBufferIndex = dest->numDataBuffers();
+        while (destBufferIndex < dest->numBuffers()) {
+            dest->removeBuffer(dest->numBuffers() - 1);
+        }
+
+        const int endPlaceOffset = bsl::min(source.length() - 1,
+                                            offset + length);
+        bsl::pair<int, int> endPlace =
+                     bdlbb::BlobUtil::findBufferIndexAndOffset(source,
+                                                               endPlaceOffset);
+        dest->reserveBufferCapacity(dest->numDataBuffers() + 
+                                         (endPlace.first - sourceBufferIndex));
     }
-    dest->reserveBufferCapacity(dest->numDataBuffers() +
-                                source.numDataBuffers() - sourceBufferIndex);
 
     // Add aliased source buffer.
 
