@@ -180,30 +180,155 @@ BSLS_IDENT("$Id: $")
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-namespace BloombergLP {
-namespace bslma {
-  template<class T> struct UsesBslmaAllocator<std::pmr::optional<T>> : bsl::true_type {};
-}
+
+template <class TYPE>
+struct bb_optional_wrap :  private std::_Enable_copy_move<
+	// Copy constructor.
+	std::is_copy_constructible_v<TYPE>,
+	// Copy assignment.
+	std::is_copy_assignable_v<TYPE>,
+	// Move constructor.
+	std::is_move_constructible_v<TYPE>,
+	// Move assignment.
+	std::is_move_assignable_v<TYPE>,
+	// Unique tag type.
+	bb_optional_wrap<TYPE>>
+{
+	 template<typename... _Cond>
+		using _Requires = std::enable_if_t<std::__and_v<_Cond...>, bool>;
+
+	bb_optional_wrap(const bb_optional_wrap& other):value(other.value){};
+	bb_optional_wrap(bb_optional_wrap&& other): value(std::move(other.value)){};
+
+	bb_optional_wrap&
+	operator=(const bb_optional_wrap& other)
+	{
+		this->value = other.value;
+		return *this;
+	}
+
+
+	bb_optional_wrap&
+	operator=(bb_optional_wrap&& other)
+		  noexcept(std::__and_v<std::is_nothrow_move_constructible<TYPE>,
+					   std::is_nothrow_move_assignable<TYPE>>)
+	{
+		this->value = std::move(other.value);
+		return *this;
+	}
+
+   template <class BDE_OTHER_TYPE,
+   _Requires<std::is_constructible<TYPE, BDE_OTHER_TYPE&&>,
+	   	   	   std::is_convertible<BDE_OTHER_TYPE&&, TYPE>> = false>
+   bb_optional_wrap(BDE_OTHER_TYPE&& other)
+	{
+	   BSLS_ASSERT(false);// "this function should never be called.");
+	}
+
+   template <class BDE_OTHER_TYPE,
+   _Requires<std::is_constructible<TYPE, BDE_OTHER_TYPE&&>,
+   	   	   	 std::__not_<std::is_convertible<BDE_OTHER_TYPE&&,TYPE>>> = true>
+   explicit bb_optional_wrap(BDE_OTHER_TYPE&& other)
+	{
+	   BSLS_ASSERT(false);// "this function should never be called.");
+	}
+
+   template <typename... _Args,
+   _Requires<std::is_constructible<TYPE, _Args&&...>> = false>
+   bb_optional_wrap(_Args&&... __args)
+   {
+   	   BSLS_ASSERT(false);// "this function should never be called.");
+   	}
+
+	bb_optional_wrap(std::allocator_arg_t,  const std::pmr::polymorphic_allocator<void>& __a,
+			const bb_optional_wrap<TYPE>& other)
+	{
+		BloombergLP::bslma::ConstructionUtil::construct(
+				std::__addressof(this->value),
+				(BloombergLP::bslma::Allocator *)(__a.resource()),
+				other.value);
+	}
+	bb_optional_wrap(std::allocator_arg_t,  const std::pmr::polymorphic_allocator<void>& __a,
+				 bb_optional_wrap<TYPE>&& other)
+	{
+		BloombergLP::bslma::ConstructionUtil::construct(
+				std::__addressof(this->value),
+				(BloombergLP::bslma::Allocator *)(__a.resource()),
+				std::move(other.value));
+	}
+
+	template< typename... _Args>
+	bb_optional_wrap(std::allocator_arg_t,  const std::pmr::polymorphic_allocator<void>& __a, _Args&&... __args)
+	{
+		BloombergLP::bslma::ConstructionUtil::construct(
+				std::__addressof(this->value),
+				(BloombergLP::bslma::Allocator *)(__a.resource()),
+				std::forward<_Args>(__args)...);
+	}
+
+
+	template<typename _Up,	typename... _Args>
+	bb_optional_wrap(std::allocator_arg_t,  const std::pmr::polymorphic_allocator<void>& __a,
+			std::initializer_list<_Up> __il,_Args&&... __args)
+	{
+		BloombergLP::bslma::ConstructionUtil::construct(
+				std::__addressof(this->value),
+				(BloombergLP::bslma::Allocator *)(__a.resource()),
+				__il,
+				std::forward<_Args>(__args)...);
+	}
+
+	 template <class BDE_OTHER_TYPE,
+	   _Requires<std::is_assignable<TYPE&, BDE_OTHER_TYPE&>> = true>
+	   bb_optional_wrap& operator=(const BDE_OTHER_TYPE& other)
+	 {
+		 this->value = other;
+	 }
+
+
+	 template <class BDE_OTHER_TYPE,
+	_Requires<std::is_assignable<TYPE&, BDE_OTHER_TYPE&&>> = true>
+	bb_optional_wrap& operator=(BDE_OTHER_TYPE&& other)
+	{
+		 this->value = std::move(other);
+	}
+
+	~bb_optional_wrap() { value.~TYPE(); }
+
+	struct _Empty_byte { };
+
+	union {
+	  _Empty_byte _M_empty;
+	   TYPE value;
+	};
+ };
+
+
+
+namespace std
+{
+  template <typename T, typename _Alloc>
+  struct uses_allocator<bb_optional_wrap<T>, _Alloc> : true_type {};
 }
 
 
 namespace BloombergLP {
 namespace bdlb {
 
-template <class TYPE>
-class NullableValue_WithAllocator;
 
-template <class TYPE>
-class NullableValue_WithoutAllocator;
 
 
 // =========================
 // class NullableValue<TYPE>
 // =========================
 
+template<typename TYPE>
+using optional_base = std::conditional_t<bslma::UsesBslmaAllocator<TYPE>::value,
+		std::pmr::optional<bb_optional_wrap<TYPE>> ,
+		std::pmr::optional<TYPE> >;
 
 template <class TYPE>
-class NullableValue : public std::pmr::optional<TYPE>
+class NullableValue : public optional_base<TYPE>
 {
 
 	// This template class extends the set of values of its value-semantic
@@ -248,7 +373,22 @@ public:
 	// for 'TYPE'.  'HasPrintMethod' is always true for 'NullableValue'.
 
 	// CREATORS
-	NullableValue();
+	template< typename DUMMY = TYPE>
+	NullableValue(typename bsl::enable_if<
+			bslma::UsesBslmaAllocator<DUMMY>::value,
+	        void>::type * = 0)
+	:optional_base<DUMMY>(std::allocator_arg_t{},
+			std::pmr::polymorphic_allocator<void>(
+							(std::pmr::memory_resource*)(bslma::Default::allocator(nullptr))))
+	{
+	}
+	template< typename DUMMY = TYPE>
+	NullableValue(typename bsl::enable_if<
+			!bslma::UsesBslmaAllocator<DUMMY>::value,
+	        void>::type * = 0)
+	:optional_base<DUMMY>()
+	{
+	}
 		// Create a nullable object having the null value.  If 'TYPE' takes an
 		// optional allocator at construction, use the currently installed
 		// default allocator to supply memory.
@@ -260,7 +400,7 @@ public:
 		// at construction.
 
 	NullableValue(const NullableValue&) = default;
-	NullableValue(NullableValue&&) = default;
+	NullableValue(NullableValue&&) = default ;
 /*	    NullableValue(const NullableValue& original);
 		// Create a nullable object having the value of the specified
 		// 'original' object.  If 'TYPE' takes an optional allocator at
@@ -395,6 +535,14 @@ public:
 		// reference providing modifiable access to the underlying 'TYPE'
 		// object.
 
+	 template <class ..._Args>
+	TYPE& makeValueInplace(_Args&&... __args)
+	  {
+	  this->emplace(std::forward<_Args>(__args)...);
+	  return this->value();
+	  }
+
+
 	template <class STREAM>
 	STREAM& bdexStreamIn(STREAM& stream, int version);
 		// Assign to this object the value read from the specified input
@@ -413,8 +561,27 @@ public:
 		// the null value).
 	    // Provided by std::pmr::optional base class.
 
-	//TYPE& value();
-		// Return a reference providing modifiable access to the underlying
+	//
+
+	template<typename DUMMY = TYPE>
+	typename bsl::enable_if<bslma::UsesBslmaAllocator<DUMMY>::value,
+	DUMMY>::type &value()  { return optional_base<DUMMY>::value().value;}
+
+	template<typename DUMMY = TYPE>
+	typename bsl::enable_if<!(bslma::UsesBslmaAllocator<DUMMY>::value),
+	DUMMY>::type &
+	 value()  { return optional_base<DUMMY>::value();}
+
+
+	template<typename DUMMY = TYPE>
+	const  typename bsl::enable_if<bslma::UsesBslmaAllocator<DUMMY>::value,
+	DUMMY>::type& value() const { return optional_base<DUMMY>::value().value;}
+
+	template<typename DUMMY = TYPE>
+	const typename bsl::enable_if<!(bslma::UsesBslmaAllocator<DUMMY>::value),
+	DUMMY>::type &
+	 value() const { return optional_base<DUMMY>::value();}
+	// Return a reference providing modifiable access to the underlying
 		// 'TYPE' object.  The behavior is undefined unless this object is
 		// non-null.
 	// Provided by std::pmr::optional base class.
@@ -708,10 +875,12 @@ STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
                       // -------------------------
 
 // CREATORS
-template <class TYPE>
+/*template <class TYPE>
 inline
-NullableValue<TYPE>::NullableValue()
-:std::pmr::optional<TYPE>(std::allocator_arg_t{},
+NullableValue<TYPE>::NullableValue(typename bsl::enable_if<
+		bslma::UsesBslmaAllocator<TYPE>::value,
+        void>::type * = 0)
+:optional_base<TYPE>(std::allocator_arg_t{},
 		std::pmr::polymorphic_allocator<void>(
 						(std::pmr::memory_resource*)(bslma::Default::allocator(nullptr))))
 {
@@ -719,8 +888,16 @@ NullableValue<TYPE>::NullableValue()
 
 template <class TYPE>
 inline
+NullableValue<TYPE>::NullableValue(typename bsl::enable_if<
+		!bslma::UsesBslmaAllocator<TYPE>::value,
+        void>::type * = 0)
+{
+}
+*/
+template <class TYPE>
+inline
 NullableValue<TYPE>::NullableValue(bslma::Allocator *basicAllocator)
-: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+: optional_base<TYPE>(std::allocator_arg_t{},
 		std::pmr::polymorphic_allocator<void>(
 				(std::pmr::memory_resource*)(bslma::Default::allocator(basicAllocator))))
 {
@@ -730,7 +907,7 @@ template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullableValue&  original,
                                    bslma::Allocator     *basicAllocator)
-: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+: optional_base<TYPE>(std::allocator_arg_t{},
 		                   (std::pmr::polymorphic_allocator<void>)(
 		                		   (std::pmr::memory_resource*)(bslma::Default::allocator(basicAllocator))))
 {
@@ -744,7 +921,7 @@ inline
 NullableValue<TYPE>::NullableValue(
                               bslmf::MovableRef<NullableValue>  original,
                               bslma::Allocator                 *basicAllocator)
-: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+: optional_base<TYPE>(std::allocator_arg_t{},
   		                   std::pmr::polymorphic_allocator<void>(
   		                		   (std::pmr::memory_resource*)(bslma::Default::allocator(basicAllocator))))
 {
@@ -763,7 +940,7 @@ NullableValue<TYPE>::NullableValue(
                             !bsl::is_convertible<BDE_OTHER_TYPE,
                                                  bslma::Allocator *>::value,
                             void>::type *)
-: std::pmr::optional<TYPE>(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
+: optional_base<TYPE>(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
 {
 }
 
@@ -775,7 +952,7 @@ NullableValue<TYPE>::NullableValue(
     bslma::Allocator                                  *basicAllocator,
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             void>::type *)
-: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+: optional_base<TYPE>(std::allocator_arg_t{},
           std::pmr::polymorphic_allocator<void>((std::pmr::memory_resource*)
         		  (bslma::Default::allocator(basicAllocator))),
 		  BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
@@ -787,7 +964,7 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                                  const NullableValue<BDE_OTHER_TYPE>& original)
-: std::pmr::optional<TYPE>((std::pmr::optional<BDE_OTHER_TYPE>)original)
+: optional_base<TYPE>((std::pmr::optional<BDE_OTHER_TYPE>)original)
 {
 }
 
@@ -797,7 +974,7 @@ inline
 NullableValue<TYPE>::NullableValue(
                           const NullableValue<BDE_OTHER_TYPE>&  original,
                           bslma::Allocator                     *basicAllocator)
-: std::pmr::optional<TYPE>(std::allocator_arg_t{},
+: optional_base<TYPE>(std::allocator_arg_t{},
         std::pmr::polymorphic_allocator<void>((std::pmr::memory_resource*)
         		(bslma::Default::allocator(basicAllocator))))
 {
@@ -869,7 +1046,7 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullableValue& rhs)
 {
-	std::pmr::optional<TYPE>::operator=(rhs);
+	optional_base<TYPE>::operator=(rhs);
     return *this;
 }
 
@@ -878,8 +1055,8 @@ inline
 NullableValue<TYPE>&
 NullableValue<TYPE>::operator=(bslmf::MovableRef<NullableValue> rhs)
 {
-    std::pmr::optional<TYPE>& rhs_base = rhs;
-    std::pmr::optional<TYPE>::operator=(MoveUtil::move(rhs_base));
+    optional_base<TYPE>& rhs_base = rhs;
+    optional_base<TYPE>::operator=(MoveUtil::move(rhs_base));
     return *this;
 }
 
@@ -933,7 +1110,7 @@ TYPE& NullableValue<TYPE>::makeValue(
                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
 {
     this->emplace(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-	return *(*this);
+	return this->value();
 }
 
 template <class TYPE>
@@ -941,7 +1118,7 @@ inline
 TYPE& NullableValue<TYPE>::makeValue()
 {
     this->emplace();
-	return *(*this);
+	return this->value();
 }
 
 template <class TYPE>
