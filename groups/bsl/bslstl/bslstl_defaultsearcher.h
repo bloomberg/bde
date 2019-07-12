@@ -15,14 +15,14 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Steven Breitstein (sbreitstein)
 //
-//@DESCRIPTION: This component defines a two class templates,
+//@DESCRIPTION: This component defines two class templates,
 // 'bsl::default_searcher' and 'bslstl::DefaultSearcher'.  Both are compliant
 // with section '[func.search.default]' of the C++ Standard (C++17 and later).
 //
 // 'bsl::default_searcher' is strictly limied to the Standard and is provided
 // for clients for whom standard compliance is a priority.
-// 'bslstl::DefaultSearcher' provides several additional interfaces (accessors)
-// that are not mentioned in the Standard.
+// 'bslstl::DefaultSearcher' provides several additional accessors that are not
+// mentioned in the Standard.
 //
 // Except where there is a relevant difference, both are described below as if
 // they were one.
@@ -45,8 +45,7 @@ BSLS_IDENT("$Id: $")
 // The iterators defining the haystack need not be of the same type as those
 // that define the needle.  Moreover, the search method of the searcher can be
 // overloaded for an arbitrary different haystack iterators (subject to
-// {Iterator Requirements}). object can be used to search multiple haystacks
-// (for the same needle).
+// {Iterator Requirements}).
 //
 ///Algorithm
 ///---------
@@ -82,9 +81,9 @@ BSLS_IDENT("$Id: $")
 // Iterators defining needles are required to remain valid as long as the
 // searcher object might be used.
 //
-///Comparer Functor Requirements
-///-----------------------------
-// The comparer class must meet the requirements of *BinaryPredicate*:
+///Comparitor Requirements
+///-----------------------
+// The compitor class must meet the requirements of *BinaryPredicate*:
 //: o The class defines an 'operator()' method, which, given an
 //:   *ForwardIterator*, 'iterator', may be invoked as
 //:   'operator()(*iterator, *iterator)'.
@@ -92,11 +91,11 @@ BSLS_IDENT("$Id: $")
 //: o The supplied iterators can be constant.
 //: o The class must be copyable.
 //
-// The comparer class is allowed to throw exceptions.
+// The compitor class is allowed to throw exceptions.
 //
 ///Optimizations for 'bslstl::DefaultSearcher'
 ///-------------------------------------------
-// For certain template parameters this implementation improves performance by
+// For certain template arguments this implementation improves performance by
 // utilizing low-level operations.  The requirements to do so are:
 //: o Both supplied iterators are pointers.
 //: o The default equality comparison is allowed to default (to
@@ -116,7 +115,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // The problem of searching a sequence of characters for a particular
 // sub-sequence arises in many applications.  For example, one might need to
-// know of some document contains a particular word of interest.  For example,
+// know if some document contains a particular word of interest.  For example,
 // suppose we would like to know the first occurrence of the word "United" in
 // the Declaration of Independence (of the United States):
 //
@@ -177,7 +176,7 @@ BSLS_IDENT("$Id: $")
 // First, define (at file scope if using a pre-C++11 compiler) an equality
 // comparison class that provides the required functor interface:
 //..
-//  struct MyCaseInsensitiveCharComparer {
+//  struct MyCaseInsensitiveCharComparitor {
 //      bool operator()(const char& a, const char& b) const {
 //          return bsl::tolower(a) == bsl::tolower(b);
 //      }
@@ -187,13 +186,13 @@ BSLS_IDENT("$Id: $")
 // to search for 'word':
 //..
 //  bsl::default_searcher<const char *,
-//                        struct MyCaseInsensitiveCharComparer>
+//                        struct MyCaseInsensitiveCharComparitor>
 //                                                  searchForUnitedInsensitive(
 //                                                  word,
 //                                                  word + bsl::strlen(word));
 //..
 // Note that the new searcher object will used a default constructed
-// 'MyCaseInsensitiveCharComparer' class.  If a equality comparison object
+// 'MyCaseInsensitiveCharComparitor' class.  If an equality comparison object
 // requires state supplied on construction, such an object be explicitly
 // created and supplied as the final constructor argument.
 //
@@ -263,8 +262,8 @@ BSLS_IDENT("$Id: $")
 //                                                       markerSequence
 //                                                     + markerSequenceLength);
 //..
-// Notice that no equality comparison functor was specified so
-// 'searchForMarker' will use 'bsl::equal_to<float>' by default.
+// Notice that no equality comparitor was specified so 'searchForMarker' will
+// use 'bsl::equal_to<float>' by default.
 //
 // Now, we invoke our searcher on the instrument data.
 //..
@@ -353,7 +352,7 @@ class DefaultSearcher {
                     EQUAL              equal = EQUAL());
         // Create a 'DefaultSearcher' object that can search for the sequence
         // of 'value_type' values found in the specified range
-        // '[needleFirst, needleLast)'.  Optionally supply a 'equal' functor
+        // '[needleFirst, needleLast)'.  Optionally supply an 'equal' functor
         // for use by 'operator()'.  The behavior is undefined unless
         // 'needleFirst' can be advanced to equal 'needleLast'.
 
@@ -362,9 +361,9 @@ class DefaultSearcher {
         // specified 'original' object.
 
     //! DefaultSearcher(DefaultSearcher&& original) = default;
-        // Create a 'boyer_moore_horspool_searcher' object having the same
-        // state as the specified 'original' on entry.  The 'original' object
-        // is left in an unspecified (valid) state.
+        // Create a 'DefaultSeacher' object having the same state as the
+        // specified 'original' on entry.  The 'original' object is left in an
+        // unspecified (valid) state.
 
     //! ~DefaultSearcher() = default;
         // Destroy this 'DefaultSearcher' object.
@@ -443,11 +442,18 @@ struct DefaultSearcher_CanOptimize {
     &&  bsl::is_pointer<FORWARD_ITR_HAYSTACK>::value
     &&  bsl::is_same<EQUAL, // 'EQUAL' does 'value_type::operator=='
                      bsl::equal_to<
-                          typename
-                          bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type>
+                           typename
+                           bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type
+                                 >
                     >::value
-    &&  bslmf::IsBitwiseEqualityComparable<FORWARD_ITR_NEEDLE>::value
-    &&  bslmf::IsBitwiseEqualityComparable<FORWARD_ITR_HAYSTACK>::value
+    &&  bslmf::IsBitwiseEqualityComparable<
+                           typename
+                           bsl::iterator_traits<FORWARD_ITR_NEEDLE>::value_type
+                                          >::value
+    &&  bslmf::IsBitwiseEqualityComparable<
+                         typename
+                         bsl::iterator_traits<FORWARD_ITR_HAYSTACK>::value_type
+                                          >::value
         )
     };
 };
@@ -549,8 +555,8 @@ class default_searcher {
         // Create a 'default_searcher' object that can search for the sequence
         // of 'value_type' values found in the specified range
         // '[pat_first, pat_last)'.  Optionally supply a 'pred' functor for use
-        // by 'operator()'.  See {Comparer Functor Requirements}.  The behavior
-        // is undefined unless 'pat_first' can be advanced to equal 'pat_last'.
+        // by 'operator()'.  See {Compitor Requirements}.  The behavior is
+        // undefined unless 'pat_first' can be advanced to equal 'pat_last'.
 
     //! default_searcher(const default_searcher& original) = default;
         // Create a 'default_searcher' object having same state as the
@@ -604,7 +610,7 @@ class default_searcher {
 }  // close namespace 'bsl'
 
 // ----------------------------------------------------------------------------
-//                      TEMPLATE AND INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 namespace BloombergLP {

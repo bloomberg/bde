@@ -39,13 +39,14 @@ namespace BSL = native_std;  // for Usage examples
 //                             --------
 // This component defines a template for a mechanism class,
 // 'bslstl::DefaultSearcher' in which two iterators define the range of values
-// being sought (the "needle") and another two iterators define the range of
-// values being sought.  Note that the two pairs of iterators must refer to the
-// same value type, but otherwise need not be the same type.  Thus, a sequences
-// in one type of container (e.g., a list) can be sought in another type of
-// container (e.g., a set).  Our test concerns will focus on the attributes of
-// the iterators -- forward or random; 'const' or not -- rather than on the
-// value types (which we assume are tested elsewhere).
+// being sought for (the "needle") and another two iterators define the range
+// of values being sought through (the "haystack").  Note that the two pairs of
+// iterators must refer to the same value type, but otherwise need not be the
+// same type.  Thus, a sequences in one type of container (e.g., a list) can be
+// sought in another type of container (e.g., a set).  Our test concerns will
+// focus on the attributes of the iterators -- forward or random; 'const' or
+// not -- rather than on the value types (which we assume are tested
+// elsewhere).
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -254,9 +255,6 @@ class CharEqualCaseInsensitive
     // CREATORS
     CharEqualCaseInsensitive();
     explicit CharEqualCaseInsensitive(int id);
-
-    // CharEqualCaseInsensitive(const CharEqualCaseInsensitive& original) =
-    //                                                                 default;
 
     // ACCESSORS
     bool operator()(const char& a, const char& b) const;
@@ -2816,7 +2814,7 @@ void processTestRun(bsl::list<float>::const_iterator first,
 
 // INSERT in Example 1.
 //..
-    struct MyCaseInsensitiveCharComparer {
+    struct MyCaseInsensitiveCharComparitor {
         bool operator()(const char& a, const char& b) const {
             return BSL::tolower(a) == BSL::tolower(b);
         }
@@ -2834,7 +2832,7 @@ static void usage()
 /// - - - - - - - - - - -
 // The problem of searching a sequence of characters for a particular
 // sub-sequence arises in many applications.  For example, one might need to
-// know of some document contains a particular word of interest.  For example,
+// know if some document contains a particular word of interest.  For example,
 // suppose we would like to know the first occurrence of the word "United" in
 // the Declaration of Independence (of the United States):
 //
@@ -2902,13 +2900,13 @@ static void usage()
 // to search for 'word':
 //..
     bsl::default_searcher<const char *,
-                          struct MyCaseInsensitiveCharComparer>
+                          struct MyCaseInsensitiveCharComparitor>
                                                     searchForUnitedInsensitive(
                                                     word,
                                                     word + BSL::strlen(word));
 //..
 // Note that the new searcher object will used a default constructed
-// 'MyCaseInsensitiveCharComparer' class.  If a equality comparison object
+// 'MyCaseInsensitiveCharComparitor' class.  If a equality comparison object
 // requires state supplied on construction, such an object be explicitly
 // created and supplied as the final constructor argument.
 //
@@ -3203,9 +3201,10 @@ int main(int argc, char *argv[])
 
         typedef CharArray<char>::const_iterator                RndAccConstItr;
 
-        typedef bsl::default_searcher<RndAccConstItr>                MechChar;
+        typedef bsl::default_searcher<RndAccConstItr>                 MechChar;
         typedef bsl::default_searcher<RndAccConstItr,
-                                      MyCaseInsensitiveCharComparer> MechGnrl;
+                                      MyCaseInsensitiveCharComparitor>
+                                                                      MechGnrl;
 
         typedef bsl::pair<RndAccConstItr, RndAccConstItr> Result;
      // typedef bsl::hash<    char>                       DefaultHash;
@@ -3300,8 +3299,8 @@ int main(int argc, char *argv[])
                                           DefaultEqual> Sensitive;
 
             typedef bsl::default_searcher<
-                                    const char *,
-                                    MyCaseInsensitiveCharComparer> InSensitive;
+                                  const char *,
+                                  MyCaseInsensitiveCharComparitor> InSensitive;
 
             typedef bsl::pair<const char *, const char*> Result;
 
