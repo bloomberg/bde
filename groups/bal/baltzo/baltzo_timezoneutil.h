@@ -487,16 +487,16 @@ struct TimeZoneUtil {
         // 'ErrorCode::k_OUT_OF_RANGE' indicates that an out of range value of
         // 'result' would have occurred.
 
-    static int convertLocalToLocalTime(LocalDatetime        *result,
-                                       const char           *targetTimeZoneId,
-                                       const LocalDatetime&  srcTime);
+    static int convertLocalToLocalTime(LocalDatetime         *result,
+                                       const char            *targetTimeZoneId,
+                                       const LocalDatetime&   srcTime);
     static int convertLocalToLocalTime(
                                      LocalDatetime           *result,
                                      const char              *targetTimeZoneId,
                                      const bdlt::DatetimeTz&  srcTime);
-    static int convertLocalToLocalTime(bdlt::DatetimeTz     *result,
-                                       const char           *targetTimeZoneId,
-                                       const LocalDatetime&  srcTime);
+    static int convertLocalToLocalTime(bdlt::DatetimeTz      *result,
+                                       const char            *targetTimeZoneId,
+                                       const LocalDatetime&   srcTime);
     static int convertLocalToLocalTime(
                                      bdlt::DatetimeTz        *result,
                                      const char              *targetTimeZoneId,
@@ -508,7 +508,8 @@ struct TimeZoneUtil {
         // to minute precision.  Return 0 on success, and a non-zero value with
         // no effect otherwise.  A return value of
         // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'targetTimeZoneId' was
-        // not recognized.
+        // not recognized, while a return value of 'ErrorCode::k_OUT_OF_RANGE'
+        // indicate that 'result' would have been out of range.
 
     static int convertLocalToLocalTime(LocalDatetime         *result,
                                        const char            *targetTimeZoneId,
