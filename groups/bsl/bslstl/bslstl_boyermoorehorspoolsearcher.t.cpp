@@ -5619,6 +5619,11 @@ int main(int argc, char *argv[])
                                         searcher(NEEDLE,
                                                  NEEDLE + BSL::strlen(NEEDLE));
 
+            if (veryVerbose) {
+                const BSL::size_t searcherFootprint = sizeof searcher;
+                P(searcherFootprint)
+            }
+
             const char * const HAYSTACK_FIRST = haystackFirst;
             const char * const HAYSTACK_LAST  = haystackLast;
 
