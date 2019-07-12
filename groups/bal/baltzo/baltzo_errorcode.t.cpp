@@ -121,6 +121,7 @@ const int NUM_ENUMERATORS = 2;
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
 Enum e(int x)
+    // Return the specified 'x' converted to a 'baltzo::ErrorCode::Enum' type.
 {
     return static_cast<Enum>(x);
 }

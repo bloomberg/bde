@@ -67,7 +67,8 @@ using namespace bsl;
 // [ 9] validateLocalTime(bool * result, const LclDatetm& lcTime);
 // [ 9] validateLocalTime(bool * result, const DatetmTz&, const char *TZ);
 // ----------------------------------------------------------------------------
-// [11] USAGE EXAMPLE
+// [11] TESTING TIME CONVERSION OUT OF RANGE
+// [12] USAGE EXAMPLE
 // ============================================================================
 
 // ============================================================================
@@ -1194,6 +1195,9 @@ int main(int argc, char *argv[])
         //:   range do a time zone shit on it from UTC to NY time, which will
         //:   put it out of range, and observe that the status returned is
         //:   non-zero.
+        //
+        // Testing:
+        //   TESTING TIME CONVERSION OUT OF RANGE
         // --------------------------------------------------------------------
 
         const bdlt::Datetime defaultDT;

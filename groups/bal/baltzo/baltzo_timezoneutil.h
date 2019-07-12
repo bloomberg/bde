@@ -470,7 +470,6 @@ struct TimeZoneUtil {
         // converting the result into the local time of
         // 'originalTime.timeZoneId()'.
 
-
     static int convertUtcToLocalTime(LocalDatetime         *result,
                                      const char            *targetTimeZoneId,
                                      const bdlt::Datetime&  utcTime);
@@ -484,8 +483,9 @@ struct TimeZoneUtil {
         // success, and a non-zero value with no effect otherwise.  A return
         // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that
         // 'targetTimeZoneId' was not recognized, and a return value of
-        // 'ErrorCode::k_OUT_OF_RANGE' indicates that an out of range value of
-        // 'result' would have occurred.
+        // 'ErrorCode::k_OUT_OF_RANGE' indicates that the result of the
+        // operation would have been outside the range of valid values for the
+        // type of 'result'.
 
     static int convertLocalToLocalTime(LocalDatetime         *result,
                                        const char            *targetTimeZoneId,
