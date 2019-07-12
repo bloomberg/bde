@@ -77,20 +77,27 @@ void BlobUtil::append(Blob *dest, const Blob& source, int offset, int length)
         return;                                                       // RETURN
     }
 
-    bsl::pair<int, int> place = findBufferIndexAndOffset(source, offset);
-    int                 sourceBufferIndex  = place.first;
-    int                 offsetInThisBuffer = place.second;
+    bsl::pair<int, int> beginPlace = findBufferIndexAndOffset(source, offset);
+    int                 sourceBufferIndex  = beginPlace.first;
+    int                 offsetInThisBuffer = beginPlace.second;
 
     const int destStartLength = dest->length();
 
     dest->trimLastDataBuffer();
+    dest->removeUnusedBuffers();
 
-    const int destBufferIndex = dest->numDataBuffers();
-    while (destBufferIndex < dest->numBuffers()) {
-        dest->removeBuffer(dest->numBuffers() - 1);
+    // Calculate how much room will be need in the buffer vector in 'dest' to
+    // accomodate the new buffers that will be appended.
+
+    {
+        const int endPlaceOffset = bsl::min(source.length() - 1,
+                                            offset + length);
+        bsl::pair<int, int> endPlace =
+                     bdlbb::BlobUtil::findBufferIndexAndOffset(source,
+                                                               endPlaceOffset);
+        dest->reserveBufferCapacity(dest->numDataBuffers() +
+                                     (endPlace.first - sourceBufferIndex) + 1);
     }
-    dest->reserveBufferCapacity(dest->numDataBuffers() +
-                                source.numDataBuffers() - sourceBufferIndex);
 
     // Add aliased source buffer.
 
@@ -221,6 +228,7 @@ void BlobUtil::erase(Blob *blob, int offset, int length)
         // the leading buffer that we just prepended and increment
         // currBufferIdx to show that the next buffer to be deleted should be
         // after the prepended buffer.
+
         ++currBufferIdx;
         length += leadingBufferLen;
     }
@@ -274,8 +282,9 @@ void BlobUtil::insert(Blob        *dest,
                       int          sourceOffset,
                       int          sourceLength)
 {
-    // TBD: optimize this also
     BSLS_ASSERT(0 != dest);
+
+    // TBD: optimize this also
 
     Blob result;
 

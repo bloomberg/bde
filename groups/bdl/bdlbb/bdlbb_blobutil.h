@@ -47,7 +47,8 @@ namespace bdlbb {
                               // ===============
 
 struct BlobUtil {
-    // TBD: doc
+    // This 'struct' is a namespace for a collection of static methods used
+    // for manipulating and accessing 'Blob' objects.
 
     // CLASS METHODS
     static void append(Blob *dest, const Blob& source, int offset, int length);
@@ -338,6 +339,7 @@ void BlobUtil::append(Blob *dest, const char *source, int length)
 {
     BSLS_ASSERT(0 != dest);
     BSLS_ASSERT(0 != source || 0 == length);
+
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(dest->numDataBuffers())) {
         const int         lastDataBufIdx = dest->numDataBuffers() - 1;
         const BlobBuffer& lastBuf        = dest->buffer(lastDataBufIdx);
@@ -399,7 +401,7 @@ STREAM& BlobUtil::read(STREAM& stream, Blob *dest, int numBytes)
         numBytesRemaining -= bytesToRead;
     }
 
-    return stream;                                                    // RETURN
+    return stream;
 }
 
 template <class STREAM>
@@ -421,7 +423,7 @@ STREAM& BlobUtil::write(STREAM& stream, const Blob& source)
         numBytesRemaining -= bytesToWrite;
     }
 
-    return stream;                                                    // RETURN
+    return stream;
 }
 
 template <class STREAM>

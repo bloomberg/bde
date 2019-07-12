@@ -38,7 +38,6 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 // [10] Testing copy to a blob
 // [ 9] Testing getContiguousRangeOrCopy
 // [ 8] Testing getContiguousDataBuffer
@@ -49,6 +48,9 @@ using namespace bsl;  // automatically added by script
 // [ 3] Testing HexDump
 // [ 2] Testing compare
 // [ 1] Testing "write special cases"
+//-----------------------------------------------------------------------------
+// [11] CONCERN: append doesn't do excessive 'reserveBufferCapacity'.
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -112,16 +114,17 @@ void aSsErT(bool condition, const char *message, int line)
 class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     // TBD: doc
 
-    // PRIVATE DATA MEMBERS
+    // PRIVATE DATA
     int               d_size;
     bslma::Allocator *d_allocator_p;
 
   private:
-    // Not implemented:
+    // NOT IMPLEMENTED:
     BlobBufferFactory(const BlobBufferFactory&);
 
   public:
     // CREATORS
+    explicit
     BlobBufferFactory(int initialSize, bslma::Allocator *basicAllocator = 0)
     : d_size(initialSize)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -157,8 +160,9 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
 //                              GLOBAL TYPEDEF
 // ----------------------------------------------------------------------------
 
-typedef bdlbb::BlobUtil Util;
-typedef bdlbb::Blob     Blob;
+typedef bdlbb::BlobUtil    Util;
+typedef bdlbb::Blob        Blob;
+typedef bsls::Types::Int64 Int64;
 
 int verbose;
 int veryVerbose;
@@ -327,14 +331,47 @@ static bool bad_jk(int j, int k, bdlbb::Blob& blob)
 }
 
 // ============================================================================
+//                                CASE 11
+// ----------------------------------------------------------------------------
+
+namespace {
+namespace APPEND_MEMORY_COONSUMPTION_TEST {
+
+class SimpleBlobBufferFactory : public bdlbb::BlobBufferFactory {
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+    int               d_bufferSize;
+
+  public:
+    // CREATORS
+    SimpleBlobBufferFactory(int bufferSize, bslma::Allocator *allocator)
+    : d_allocator_p(allocator)
+    , d_bufferSize(bufferSize)
+    {
+    }
+
+    // MANIPULATORS
+    void allocate(bdlbb::BlobBuffer *buffer)
+    {
+        buffer->reset(
+            bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(
+                d_bufferSize,
+                d_allocator_p),
+            d_bufferSize);
+    }
+};
+
+}  // close namespace APPEND_MEMORY_COONSUMPTION_TEST
+}  // close unnamed namespace
+
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
-    bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
-    // The line above will not be needed once 'bsls' is updated.
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
@@ -346,6 +383,80 @@ int main(int argc, char *argv[]) {
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING FIX TO DRQS 144543867
+        //
+        // Concerns:
+        //: 1 That the bug outlined in DRQS 144543867 has been fixed.  The
+        //:   problem was that the call to 'reserveBufferCapacity' was, under
+        //:   some circumstances, reserving excessive, unneeded capacity.
+        //
+        // Plan:
+        //: 1 Create 'blob' with many buffer, and then use 'append' to copy a
+        //:   very small part of it to a second blob, and observe that only a
+        //:   small amount of memory is allocated by the 'vector' in the new
+        //:   blob.
+        //:
+        //: 2 Also do the case where the destination blob has some data but a
+        //:   bunch of unused buffers at the end.
+        //
+        // Testing:
+        //   CONCERN: append doesn't do excessive 'reserveBufferCapacity'.
+        // --------------------------------------------------------------------
+
+        namespace TEST = APPEND_MEMORY_COONSUMPTION_TEST;
+
+        const int dataSize   = 40000000;
+        const int bufferSize = 256;
+        const int sliceSize  = 50000;
+        const int shortSize  = sliceSize / 4;
+
+        bslma::TestAllocator          bbfAllocator("bbf");
+        TEST::SimpleBlobBufferFactory bbf(bufferSize, &bbfAllocator);
+
+        bslma::TestAllocator          srcAllocator("src");
+        bdlbb::Blob                   src(&bbf, &srcAllocator);
+
+        src.setLength(dataSize);
+
+        if (verbose) {
+            cout << "After filling Blob with 40MB of data:\n";
+            P(bbfAllocator.numBytesInUse());
+            P(srcAllocator.numBytesInUse());
+            P(src.numBuffers());
+            cout << endl;
+        }
+
+        bslma::TestAllocator dstAllocator("dst");
+        bdlbb::Blob          dst(&dstAllocator);
+
+        bdlbb::BlobUtil::append(&dst, src, 0, sliceSize);
+        ASSERTV(dstAllocator.numBytesInUse(), srcAllocator.numBytesInUse(),
+                dstAllocator.numBytesInUse() * 100 <
+                                                 srcAllocator.numBytesInUse());
+        ASSERTV(dst.length() == sliceSize);
+        const Int64 initialDstBytes = dstAllocator.numBytesInUse();
+
+        if (verbose) {
+            cout << "After test:\n";
+            P(bbfAllocator.numBytesInUse());
+            P(srcAllocator.numBytesInUse());
+            P(src.numBuffers());
+            P(dstAllocator.numBytesInUse());
+            P(dst.numBuffers());
+            cout << endl;
+        }
+
+        dst.setLength(shortSize);
+        bdlbb::BlobUtil::append(&dst, src, 0, sliceSize);
+        ASSERTV(dst.length(), sliceSize + shortSize,
+                                        dst.length() == sliceSize + shortSize);
+        ASSERTV(dstAllocator.numBytesInUse(), initialDstBytes,
+                               initialDstBytes < dstAllocator.numBytesInUse());
+        ASSERTV(dstAllocator.numBytesInUse(), initialDstBytes,
+                           dstAllocator.numBytesInUse() < 3 * initialDstBytes);
+      } break;
       case 10: {
         // -------------------------------------------------------------------
         // TESTING 'copy' FUNCTIONS WRITING TO BLOB
@@ -994,6 +1105,9 @@ int main(int argc, char *argv[]) {
                          || BLOB.totalSize() - POS < SIZE || SIZE <= 0) {
 
                             veryVeryVerbose && (bsl::cout << " BAD ARG\n");
+
+                            bsls::AssertFailureHandlerGuard guard(
+                                                     &bsls::Assert::failThrow);
                             BSLS_ASSERTTEST_ASSERT_FAIL(
                                 bdlbb::BlobUtil::getContiguousRangeOrCopy(
                                               copyBufP, BLOB, POS, SIZE, ALN));
@@ -1072,6 +1186,9 @@ int main(int argc, char *argv[]) {
                     " LEN="  << LEN << ","
                     " ALN="  << ALN << ")\n";
             }
+
+            bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
+
             BSLS_ASSERTTEST_ASSERT_FAIL(
                                    bdlbb::BlobUtil::getContiguousRangeOrCopy(
                                                     BUF, BLOB, POS, LEN, ALN));
@@ -1316,6 +1433,8 @@ int main(int argc, char *argv[]) {
             }
 
         }
+
+        bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
 
         bdlbb::Blob BLOB;
 
@@ -1613,6 +1732,8 @@ int main(int argc, char *argv[]) {
                 ASSERT(EXPECTOFFSET == PLACE.second);
                 ASSERT(0 != BLOB.buffer(PLACE.first).size());
             } else {
+                bsls::AssertFailureHandlerGuard guard(
+                                                     &bsls::Assert::failThrow);
 
                 BSLS_ASSERTTEST_ASSERT_FAIL(PLACE =
                        bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB, POS));
