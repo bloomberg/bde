@@ -14,9 +14,9 @@
 
 #===
 
-*                   _       STL_DEFINES     = $(BSL_STD_FLAG)
+*                   _       STL_DEFINES     =
 
-!! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG)
+!! windows          shr     STL_DEFINES     =
 
 #windows             _       STL_DEFINES     = /DBDE_OMIT_INTERNAL_DEPRECATED
 
