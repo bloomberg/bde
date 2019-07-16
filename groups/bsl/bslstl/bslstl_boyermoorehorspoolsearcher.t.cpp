@@ -2728,9 +2728,11 @@ const struct {
 } DATA[]  = {
     //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
     //---- --------     ------  ------  ------
+  
+    { L_,  "A"        , "a"    , 1, 0,  0, 1  }  // TEST FAILURE
 
     // Degenerate combinations
-    { L_,  ""         , ""     , 0, 0,  0, 0  }
+  , { L_,  ""         , ""     , 0, 0,  0, 0  }
   , { L_,  ""         , "a"    , 0, 0,  0, 0  }
   , { L_,  ""         , "ab"   , 0, 0,  0, 0  }
   , { L_,  ""         , "abc"  , 0, 0,  0, 0  }
@@ -3509,7 +3511,7 @@ template <class RNDACC_ITR,
           class HASH,
           class EQUAL,
           bool  ARE_FUNCTORS_COMPARABLE>
-static void testMoveContructors()
+static void testMoveConstructors()
 {
     if (veryVerbose) {
         P(bsls::NameOf<RNDACC_ITR>())
@@ -3538,8 +3540,17 @@ static void testMoveContructors()
         const char * const HAYSTACK  = DATA[ti].d_haystack_p;
         const char * const NEEDLE    = DATA[ti].d_needle_p;
 
-        for (char dstCfg = 'a'; dstCfg <= 'd'; ++dstCfg) {
+        if (veryVerbose) {
+            P_(LINE) P_(HAYSTACK) P(NEEDLE)
+        }
+
+     // for (char dstCfg = 'a'; dstCfg <= 'd'; ++dstCfg) {
+        for (char dstCfg = 'b'; dstCfg <= 'd'; ++dstCfg) {
             const char CONFIG = dstCfg;
+
+            if (veryVerbose) {
+                P(CONFIG)
+            }
 
             Mech mZ(NEEDLE,
                     NEEDLE + BSL::strlen(NEEDLE),
@@ -3820,13 +3831,13 @@ int main(int argc, char *argv[])
 
             MechChar mXC(needleSource.begin(), needleSource.end());
 
-            ASSERT(dam.isTotalSame()); // Special case uses fixed size array
-                                       // and does not allocate.
+            ASSERT(dam.isTotalUp());   // Special case allocates a fixed-sized
+            dam.reset();               // table.
 
             MechGnrl mXG(needleSource.begin(), needleSource.end());
 
             ASSERT(dam.isTotalUp());   // General case uses 'unordered_map'
-                                       // and allocatoes for non-empty neede.
+                                       // and allocates for non-empty neede.
         }
 
         if (verbose) printf("\n" "Range Tests" "\n");
@@ -4373,8 +4384,8 @@ int main(int argc, char *argv[])
 
         typedef CharArray<char>::const_iterator RandConstItr;
 
-        testMoveContructors<RandConstItr, HASH_CHAR, EQUAL_CHAR, false>();
-        testMoveContructors<RandConstItr, HASH_GNRL, EQUAL_GNRL, true >();
+        testMoveConstructors<RandConstItr, HASH_CHAR, EQUAL_CHAR, false>();
+        testMoveConstructors<RandConstItr, HASH_GNRL, EQUAL_GNRL, true >();
 
       } break;
       case 5: {
@@ -5112,9 +5123,27 @@ int main(int argc, char *argv[])
             // Create the set of objects to be tested.
             const RndMechCs rndMechCs(needleRnd.begin(), needleRnd.end());
 
+            if (veryVeryVerbose) {
+                P_(da.numAllocations())
+                P_(da.numBlocksInUse())
+                P_(da.numBytesInUse())
+            }
+
+#if PRIOR
             ASSERT(dam.isTotalSame()); // Optimization uses fixed size array.
+#else
+            ASSERT(dam.isTotalUp()); 
+            dam.reset();
+#endif
 
             const RndMechCi rndMechCi(needleRnd.begin(), needleRnd.end());
+
+            if (veryVeryVerbose) {
+                P_(da.numAllocations())
+                P_(da.numBlocksInUse())
+                P_(da.numBytesInUse())
+            }
+
             if (1 < BSL::strlen(NEEDLE)) {
                 ASSERT(dam.isTotalUp());
             } else {
