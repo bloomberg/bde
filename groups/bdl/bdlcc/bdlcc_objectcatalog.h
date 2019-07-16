@@ -666,7 +666,7 @@ int ObjectCatalog<TYPE>::add(const TYPE& object)
         // If 'd_nodes' grows as big as the flags used to indicate BUSY and
         // generations, then the handle will be all mixed up!
 
-        BSLS_ASSERT(d_nodes.size() < k_BUSY_INDICATOR);
+        BSLS_REVIEW_OPT(d_nodes.size() < k_BUSY_INDICATOR);
 
         node = (Node *)d_nodePool.allocate();
         proctor.manageNode(node, true);
