@@ -643,21 +643,11 @@ class BoyerMooreHorspoolSearcher_CharImp {
         // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
 
-      typedef union {
-          difference_type LargeNeedleSkipTableElement;
-          unsigned char   SmallNeedleSkipTableElement;
-      } SkipTable;  // TBD: Needed?
-
     // DATA
     native_std::size_t             d_needleLength;
-#ifdef PRIOR
-    difference_type                d_table[UCHAR_MAX + 1];  // skip-on-mismatch
-    BloombergLP::bslma::Allocator *d_allocator_p;  // not used
-#else
     unsigned char                 *d_table_p;
     native_std::size_t             d_bytesPerElement;
-    BloombergLP::bslma::Allocator *d_allocator_p;  // used now
-#endif
+    BloombergLP::bslma::Allocator *d_allocator_p;
 
   public:
     // CREATORS
@@ -726,11 +716,8 @@ class BoyerMooreHorspoolSearcher_CharImp {
         // Assign to this object the state of the specified 'rhs' object and
         // return a non-'const' reference to this searcher.
 
-#ifdef PRIOR
-#else
     ~BoyerMooreHorspoolSearcher_CharImp();
         // Destroy this object;
-#endif
 
     // ACCESSORS
     difference_type badCharacterSkip(const value_type& value) const;
@@ -1153,41 +1140,6 @@ namespace bslstl {
                 // ----------------------------------------
 
 // CREATORS
-#ifdef PRIOR
-template <class RNDACC_ITR_NEEDLE,
-          class HASH,
-          class EQUAL>
-inline
-BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
-                                   HASH,
-                                   EQUAL>::
-BoyerMooreHorspoolSearcher_CharImp(
-                                 RNDACC_ITR_NEEDLE              needleFirst,
-                                 RNDACC_ITR_NEEDLE              needleLast,
-                                 HASH                           ,
-                                 EQUAL                          ,
-                                 BloombergLP::bslma::Allocator *basicAllocator)
-: d_needleLength(needleLast - needleFirst)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    BSLS_ASSERT(needleFirst <= needleLast);
-
-    for (int i = 0; i < UCHAR_MAX + 1; ++i) {
-        d_table[i] = d_needleLength;
-    }
-
-    if (0 < d_needleLength) {
-        for (RNDACC_ITR_NEEDLE current  = needleFirst,
-                               last     = needleLast - 1;
-                               last    != current; ++current) {
-            d_table[static_cast<unsigned char>(*current)]
-                                                     = d_needleLength
-                                                     - 1
-                                                     - (current - needleFirst);
-        }
-    }
-}
-#else
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL>
@@ -1246,9 +1198,7 @@ BoyerMooreHorspoolSearcher_CharImp(
         }
     }
 }
-#endif
 
-#ifdef PRIOR
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL>
@@ -1259,22 +1209,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 BoyerMooreHorspoolSearcher_CharImp(
                             const BoyerMooreHorspoolSearcher_CharImp& original)
 : d_needleLength(original.d_needleLength)
-, d_allocator_p(original.d_allocator_p)
-{
-    native_std::memcpy(d_table, original.d_table, sizeof d_table);
-}
-#else
-template <class RNDACC_ITR_NEEDLE,
-          class HASH,
-          class EQUAL>
-inline
-BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
-                                   HASH,
-                                   EQUAL>::
-BoyerMooreHorspoolSearcher_CharImp(
-                            const BoyerMooreHorspoolSearcher_CharImp& original)
-: d_needleLength(original.d_needleLength)
-, d_table_p(0) // warning
+, d_table_p(0) // silence warning
 , d_bytesPerElement(original.d_numBytesPerElement)
 , d_allocator_p(original.d_allocator_p)
 {
@@ -1285,9 +1220,7 @@ BoyerMooreHorspoolSearcher_CharImp(
                        original.d_table_p,
                        (UCHAR_MAX + 1) * d_bytesPerElement);
 }
-#endif
 
-#ifdef PRIOR
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL>
@@ -1299,25 +1232,7 @@ BoyerMooreHorspoolSearcher_CharImp(
              BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
                                                                       original)
 : d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
-, d_allocator_p (MoveUtil::access(original).d_allocator_p)
-{
-    native_std::memcpy(d_table,
-                       MoveUtil::access(original).d_table,
-                       sizeof d_table);
-}
-#else
-template <class RNDACC_ITR_NEEDLE,
-          class HASH,
-          class EQUAL>
-inline
-BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
-                                   HASH,
-                                   EQUAL>::
-BoyerMooreHorspoolSearcher_CharImp(
-             BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
-                                                                      original)
-: d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
-, d_table_p(0)  // warning
+, d_table_p(0)  // silence warning
 , d_bytesPerElement(MoveUtil::access(original).d_bytesPerElement)
 , d_allocator_p (MoveUtil::access(original).d_allocator_p)
 {
@@ -1329,9 +1244,7 @@ BoyerMooreHorspoolSearcher_CharImp(
                        MoveUtil::access(original).d_table_p,
                        (UCHAR_MAX + 1) * d_bytesPerElement);
 }
-#endif
 
-#ifdef PRIOR
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL>
@@ -1343,23 +1256,7 @@ BoyerMooreHorspoolSearcher_CharImp(
                      const BoyerMooreHorspoolSearcher_CharImp&  original,
                      BloombergLP::bslma::Allocator             *basicAllocator)
 : d_needleLength(original.d_needleLength)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    native_std::memcpy(d_table, original.d_table, sizeof d_table);
-}
-#else
-template <class RNDACC_ITR_NEEDLE,
-          class HASH,
-          class EQUAL>
-inline
-BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
-                                   HASH,
-                                   EQUAL>::
-BoyerMooreHorspoolSearcher_CharImp(
-                     const BoyerMooreHorspoolSearcher_CharImp&  original,
-                     BloombergLP::bslma::Allocator             *basicAllocator)
-: d_needleLength(original.d_needleLength)
-, d_table_p(0) //warning
+, d_table_p(0) //silence warning
 , d_bytesPerElement(original.d_bytesPerElement)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1374,28 +1271,7 @@ BoyerMooreHorspoolSearcher_CharImp(
                        (UCHAR_MAX + 1) * d_bytesPerElement);
     printf("Leave: Copy Move CTOR with allocator\n");
 }
-#endif
 
-#ifdef PRIOR
-template <class RNDACC_ITR_NEEDLE,
-          class HASH,
-          class EQUAL>
-inline
-BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
-                                   HASH,
-                                   EQUAL>::
-BoyerMooreHorspoolSearcher_CharImp(
-             BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
-                                                                original,
-             BloombergLP::bslma::Allocator                     *basicAllocator)
-: d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    native_std::memcpy(d_table,
-                       MoveUtil::access(original).d_table,
-                       sizeof d_table);
-}
-#else
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL>
@@ -1419,10 +1295,7 @@ BoyerMooreHorspoolSearcher_CharImp(
                        MoveUtil::access(original).d_table_p,
                        (UCHAR_MAX + 1) * d_bytesPerElement);
 }
-#endif
 
-#ifdef PRIOR
-#else
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
           class EQUAL>
@@ -1434,7 +1307,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 {
     d_allocator_p->deallocate(d_table_p);
 }
-#endif
 
 // MANIPULATORS
 template <class RNDACC_ITR_NEEDLE,
@@ -1451,9 +1323,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 {
     d_needleLength = rhs.d_needleLength;
 
-#ifdef PRIOR
-    native_std::memcpy(d_table, rhs.d_table, sizeof d_table);
-#else
     if (d_bytesPerElement != rhs.d_bytesPerElement) {
         d_allocator_p->deallocate(d_table_p);
         d_table_p = static_cast<unsigned char *>(
@@ -1464,8 +1333,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                        rhs.d_table_p,
                        (UCHAR_MAX + 1) * rhs.d_bytesPerElement);
     d_bytesPerElement = rhs.d_bytesPerElement;
-#endif
-
 
     return *this;
 }
@@ -1485,11 +1352,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 {
     d_needleLength = MoveUtil::move(MoveUtil::access(rhs).d_needleLength);
 
-#ifdef PRIOR
-    native_std::memcpy(d_table,
-                       MoveUtil::access(rhs).d_table,
-                       sizeof d_table);
-#else
     if (d_bytesPerElement != MoveUtil::access(rhs).d_bytesPerElement) {
         d_allocator_p->deallocate(d_table_p);
         d_table_p = static_cast<unsigned char *>(
@@ -1500,7 +1362,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                     MoveUtil::access(rhs).d_table_p,
                     (UCHAR_MAX + 1) * MoveUtil::access(rhs).d_bytesPerElement);
     d_bytesPerElement = MoveUtil::access(rhs).d_bytesPerElement;
-#endif
 
     return *this;
 }
@@ -1520,9 +1381,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                                        const value_type& value)
                                                                           const
 {
-#ifdef PRIOR
-    return d_table[static_cast<unsigned char>(value)];
-#else
     if (1 == d_bytesPerElement) {
         return static_cast<difference_type>(
                       d_table_p[static_cast<unsigned char>(value)]);  // RETURN
@@ -1531,7 +1389,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                        static_cast<unsigned char>(value) * d_bytesPerElement]);
                                                                       // RETURN
     }
-#endif
 }
 
 template <class RNDACC_ITR_NEEDLE,

@@ -5129,12 +5129,8 @@ int main(int argc, char *argv[])
                 P_(da.numBytesInUse())
             }
 
-#if PRIOR
-            ASSERT(dam.isTotalSame()); // Optimization uses fixed size array.
-#else
             ASSERT(dam.isTotalUp()); 
             dam.reset();
-#endif
 
             const RndMechCi rndMechCi(needleRnd.begin(), needleRnd.end());
 
