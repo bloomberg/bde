@@ -605,6 +605,7 @@ BSLS_IDENT("$Id: $")
 #include <cstring>  // 'memcpy'
 
 #include <limits.h> // 'UCHAR_MAX'
+#include <stdio.h>  // 'printf' DEBUG
 
 namespace BloombergLP {
 namespace bslstl {
@@ -640,8 +641,8 @@ class BoyerMooreHorspoolSearcher_CharImp {
      typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
         // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
-        
-      typedef union { 
+
+      typedef union {
           difference_type LargeNeedleSkipTableElement;
           unsigned char   SmallNeedleSkipTableElement;
       } SkipTable;  // TBD: Needed?
@@ -654,8 +655,8 @@ class BoyerMooreHorspoolSearcher_CharImp {
 #else
     unsigned char                 *d_table_p;
     native_std::size_t             d_bytesPerElement;
-#endif
     BloombergLP::bslma::Allocator *d_allocator_p;  // used now
+#endif
 
   public:
     // CREATORS
@@ -1212,8 +1213,8 @@ BoyerMooreHorspoolSearcher_CharImp(
                                  EQUAL                          ,
                                  BloombergLP::bslma::Allocator *basicAllocator)
 : d_needleLength(needleLast - needleFirst)
-, d_table_p(0)           // stop warning
-, d_bytesPerElement(0)   // stop warning
+, d_table_p(0)           // silence warning
+, d_bytesPerElement(0)   // silence warning
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(needleFirst <= needleLast);
@@ -1242,13 +1243,16 @@ BoyerMooreHorspoolSearcher_CharImp(
         for (RNDACC_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast - 1;
                                last    != current; ++current) {
-            if (d_needleLength <= UCHAR_MAX) { 
-                   d_table_p[static_cast<unsigned char>(*current)]
-                                  = static_cast<unsigned char>(
-                                                      d_needleLength
+            if (d_needleLength <= UCHAR_MAX) {
+                d_table_p[static_cast<unsigned char>(*current)]
+                         = static_cast<unsigned char>(d_needleLength
                                                     - 1
                                                     - (current - needleFirst));
             } else {
+                d_table_p[static_cast<difference_type>(*current)]
+                       = static_cast<difference_type>(d_needleLength
+                                                    - 1
+                                                    - (current - needleFirst));
             }
         }
     }
@@ -1285,7 +1289,12 @@ BoyerMooreHorspoolSearcher_CharImp(
 , d_bytesPerElement(original.d_numBytesPerElement)
 , d_allocator_p(original.d_allocator_p)
 {
-    // TBD: reimplement
+    d_table_p = static_cast<unsigned char *>(
+                                   d_allocator_p->allocate((UCHAR_MAX + 1) *
+                                                           d_bytesPerElement));
+    native_std::memcpy(d_table_p,
+                       original.d_table_p,
+                       (UCHAR_MAX + 1) * d_bytesPerElement);
 }
 #endif
 
@@ -1323,7 +1332,6 @@ BoyerMooreHorspoolSearcher_CharImp(
 , d_bytesPerElement(MoveUtil::access(original).d_bytesPerElement)
 , d_allocator_p (MoveUtil::access(original).d_allocator_p)
 {
-    // TBD: reimplement
     d_allocator_p->deallocate(d_table_p);
     d_table_p = static_cast<unsigned char *>(
                                    d_allocator_p->allocate((UCHAR_MAX + 1) *
@@ -1364,16 +1372,18 @@ BoyerMooreHorspoolSearcher_CharImp(
 : d_needleLength(original.d_needleLength)
 , d_table_p(0) //warning
 , d_bytesPerElement(original.d_bytesPerElement)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    // TBD: reimplement
-    d_allocator_p->deallocate(d_table_p);
+    printf("Enter: Copy Move CTOR with allocator\n");
+    printf("Allocatate 256 * %d\n", d_bytesPerElement);
     d_table_p = static_cast<unsigned char *>(
                                    d_allocator_p->allocate((UCHAR_MAX + 1) *
                                                            d_bytesPerElement));
+    printf("Copy 256 * %d\n", d_bytesPerElement);
     native_std::memcpy(d_table_p,
                        original.d_table_p,
                        (UCHAR_MAX + 1) * d_bytesPerElement);
+    printf("Leave: Copy Move CTOR with allocator\n");
 }
 #endif
 
@@ -1409,12 +1419,10 @@ BoyerMooreHorspoolSearcher_CharImp(
                                                                 original,
              BloombergLP::bslma::Allocator                     *basicAllocator)
 : d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
-, d_table_p(0)
-, d_bytesPerElement(0)
+, d_table_p(0)    // silence warning
+, d_bytesPerElement(MoveUtil::access(original).d_bytesPerElement)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    // TBD: reimplement
-    d_allocator_p->deallocate(d_table_p);
     d_table_p = static_cast<unsigned char *>(
                                    d_allocator_p->allocate((UCHAR_MAX + 1) *
                                                            d_bytesPerElement));
@@ -1457,8 +1465,18 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 #ifdef PRIOR
     native_std::memcpy(d_table, rhs.d_table, sizeof d_table);
 #else
-    // TBD: reimplement
+    if (d_bytesPerElement != rhs.d_bytesPerElement) {
+        d_allocator_p->deallocate(d_table_p);
+        d_table_p = static_cast<unsigned char *>(
+                                   d_allocator_p->allocate((UCHAR_MAX + 1) *
+                                                       rhs.d_bytesPerElement));
+    }
+    native_std::memcpy(d_table_p,
+                       rhs.d_table_p,
+                       (UCHAR_MAX + 1) * rhs.d_bytesPerElement);
+    d_bytesPerElement = rhs.d_bytesPerElement;
 #endif
+
 
     return *this;
 }
@@ -1483,7 +1501,16 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                        MoveUtil::access(rhs).d_table,
                        sizeof d_table);
 #else
-    // TBD: reimplement
+    if (d_bytesPerElement != MoveUtil::access(rhs).d_bytesPerElement) {
+        d_allocator_p->deallocate(d_table_p);
+        d_table_p = static_cast<unsigned char *>(
+                                     d_allocator_p->allocate((UCHAR_MAX + 1) *
+                                     MoveUtil::access(rhs).d_bytesPerElement));
+    }
+    native_std::memcpy(d_table_p,
+                    MoveUtil::access(rhs).d_table_p,
+                    (UCHAR_MAX + 1) * MoveUtil::access(rhs).d_bytesPerElement);
+    d_bytesPerElement = MoveUtil::access(rhs).d_bytesPerElement;
 #endif
 
     return *this;
