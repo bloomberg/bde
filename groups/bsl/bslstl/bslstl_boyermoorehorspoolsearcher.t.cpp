@@ -4249,7 +4249,7 @@ int main(int argc, char *argv[])
                     P (LENGTH_CI )
                 }
 
-                // General Implementation
+                if (veryVerbose) printf("General Implementation\n");
                 {
                     bsl::vector<char> vectorOfChars;
                     loadVectorOfChars(&vectorOfChars, NEEDLE);
@@ -4298,7 +4298,7 @@ int main(int argc, char *argv[])
                     ASSERT(resultY == resultXrestored);
                 }
 
-                // Specialized Implementation
+                if (veryVerbose) printf("Specialized Implementation\n");
                 {
                     typedef bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                                          Mech;
@@ -4625,7 +4625,7 @@ int main(int argc, char *argv[])
                     P (LENGTH_CI )
                 }
 
-                // General Implementation
+                if (veryVerbose) printf("General Implementation\n");
                 {
                     bsl::vector<char> vectorOfChars;
                     loadVectorOfChars(&vectorOfChars, NEEDLE);
@@ -4665,7 +4665,7 @@ int main(int argc, char *argv[])
                     ASSERT(resultX == resultY);
                 }
 
-                // Specialized Implementation
+                if (veryVerbose) printf("Specialized Implementation\n");
                 {
                     typedef bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                                          Mech;
@@ -4921,7 +4921,7 @@ int main(int argc, char *argv[])
                     P (LENGTH_CI )
                 }
 
-                // General Implementation
+                if (veryVerbose) printf("General Implementation\n");
                 {
                     bsl::vector<char> vectorOfChars;
                     loadVectorOfChars(&vectorOfChars, NEEDLE);
@@ -4959,7 +4959,7 @@ int main(int argc, char *argv[])
                     ASSERT(resultX == resultY);
                 }
 
-                // Specialized Implementation
+                if (veryVerbose) printf("Specialized Implementation\n");
                 {
                     typedef bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                                          Mech;
@@ -5480,6 +5480,60 @@ int main(int argc, char *argv[])
 
                 fa.deleteObject(mechPtr);
             }
+        }
+
+        if (verbose) printf(
+                           "\n" "Special Implementation Exception Tests" "\n");
+        {
+            CharArray<char> containerHavingRandomIterators(
+                                                    bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator    RandConstItr;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
+
+            bslma::TestAllocator        sa("supplied", veryVeryVeryVerbose);
+
+            int loopCount = 0;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {                  
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+                ++loopCount;
+
+                Mech mechEmpty(containerHavingRandomIterators.begin(),
+                               containerHavingRandomIterators.begin(), // empty
+                               Mech::DefaultHash(),
+                               Mech::DefaultEqual(),
+                               &sa);
+                ASSERT(0 == bsl::distance(mechEmpty.needleFirst(),
+                                          mechEmpty.needleLast()));
+                ASSERT(0 == sa.numBlocksInUse());
+                ASSERT(0 == sa.numBytesInUse());
+                
+                Mech mechShort(containerHavingRandomIterators.begin(),
+                               containerHavingRandomIterators.end(),
+                               Mech::DefaultHash(),
+                               Mech::DefaultEqual(),
+                               &sa);
+                ASSERT(  0 <  bsl::distance(mechShort.needleFirst(),
+                                            mechShort.needleLast()));
+                ASSERT(256 >  bsl::distance(mechShort.needleFirst(),
+                                            mechShort.needleLast()));
+                ASSERT(  1 == sa.numBlocksInUse());
+                ASSERT(256 == sa.numBytesInUse());
+                ASSERT(  2 <= loopCount);
+
+                Mech mechLong(HAYSTACK_TEXT_FIRST,
+                              HAYSTACK_TEXT_LAST,
+                              Mech::DefaultHash(),
+                              Mech::DefaultEqual(),
+                              &sa);
+                ASSERT(256 <= bsl::distance(mechLong.needleFirst(),
+                                            mechLong.needleLast()));
+                ASSERT(   1 +   1 == sa.numBlocksInUse());
+                ASSERT(1024 + 256 == sa.numBytesInUse());
+                ASSERT(         3 == loopCount);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            ASSERT(0 == sa.numBlocksInUse());
+            ASSERT(0 == sa.numBytesInUse());
         }
 
         if (verbose) printf("\n" "Negative Tests" "\n");
