@@ -3544,8 +3544,7 @@ static void testMoveConstructors()
             P_(LINE) P_(HAYSTACK) P(NEEDLE)
         }
 
-     // for (char dstCfg = 'a'; dstCfg <= 'd'; ++dstCfg) {
-        for (char dstCfg = 'b'; dstCfg <= 'd'; ++dstCfg) {
+        for (char dstCfg = 'a'; dstCfg <= 'd'; ++dstCfg) {
             const char CONFIG = dstCfg;
 
             if (veryVerbose) {
@@ -5174,8 +5173,12 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n" "Test Extremes of 'char' Values" "\n");
         {
-            // Test helper function, 'convertToNonAscii'
 
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocatorMonitor  dam(&da);
+
+            // Test helper function, 'convertToNonAscii'
             BSL::string testString("0101");
             BSL::string testStringNonAscii;
             convertToNonAscii(&testStringNonAscii, testString);
