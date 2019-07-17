@@ -106,9 +106,9 @@ BSLS_IDENT("$Id: $")
 ///------------------------------------------------------
 // This implementation handles needle metadata using a fixed size array when
 // the 'value_type' is 'char' (either 'signed' or 'unsigned' flavors).  For
-// needles of typical size, this choice results in a larger searcher object
-// footprint than it would have if some dynamically sized container were used;
-// however, the faster access during searches warrants the tradeoff.
+// needles of typical size, this choice results in somewhat more memory use
+// than it would have if some dynamically sized container were used; however,
+// the faster access during searches warrants the tradeoff.
 //
 ///Usage
 ///-----
@@ -715,9 +715,9 @@ class BoyerMooreHorspoolSearcher_CharImp {
         // state as the specified 'original' object and that uses
         // 'basicAllocator' to supply memory.  The state of 'original' are
         // moved (in constant time) to the new searcher if
-        // 'basicAllocator == original.allocator()', and are move-inserted (in
-        // linear time) using 'basicAllocator' otherwise.  The 'original'
-        // object is left in an unspecified (valid) state.
+        // 'basicAllocator == original.allocator()', and are copied using
+        // 'basicAllocator' otherwise.  The 'original' object is left in an
+        // unspecified (valid) state.
 
     // MANIPULATORS
     BoyerMooreHorspoolSearcher_CharImp& operator=(
@@ -830,9 +830,9 @@ class BoyerMooreHorspoolSearcher_GeneralImp {
         // state as the specified 'original' object and that uses
         // 'basicAllocator' to supply memory.  The state of 'original' are
         // moved (in constant time) to the new searcher if
-        // 'basicAllocator == original.allocator()', and are move-inserted (in
-        // linear time) using 'basicAllocator' otherwise.  The 'original'
-        // object is left in an unspecified (valid) state.
+        // 'basicAllocator == original.allocator()', and are copied using
+        // 'basicAllocator' otherwise.  The 'original' object is left in an
+        // unspecified (valid) state.
 
     // MANIPULATORS
     BoyerMooreHorspoolSearcher_GeneralImp& operator=(
