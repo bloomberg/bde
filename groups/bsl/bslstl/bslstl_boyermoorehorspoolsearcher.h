@@ -106,9 +106,9 @@ BSLS_IDENT("$Id: $")
 ///------------------------------------------------------
 // This implementation handles needle metadata using a fixed size array when
 // the 'value_type' is 'char' (either 'signed' or 'unsigned' flavors).  For
-// needles of typical size, this choice results in a larger searcher object
-// footprint than it would have if some dynamically sized container were used;
-// however, the faster access during searches warrants the tradeoff.
+// needles of typical size, this choice results in somewhat more memory use
+// than it would have if some dynamically sized container were used; however,
+// the faster access during searches warrants the tradeoff.
 //
 ///Usage
 ///-----
@@ -713,10 +713,11 @@ class BoyerMooreHorspoolSearcher_CharImp {
                           BloombergLP::bslma::Allocator       *basicAllocator);
         // Create a 'BoyerMooreHorspoolSearcher_CharImp' object having the same
         // state as the specified 'original' object and that uses
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.  The 'original'
-        // object is left in an unspecified (valid) state.  Note that this
-        // implementation does not allocate memory.
+        // 'basicAllocator' to supply memory.  The state of 'original' are
+        // moved (in constant time) to the new searcher if
+        // 'basicAllocator == original.allocator()', and are copied using
+        // 'basicAllocator' otherwise.  The 'original' object is left in an
+        // unspecified (valid) state.
 
     // MANIPULATORS
     BoyerMooreHorspoolSearcher_CharImp& operator=(
@@ -829,9 +830,9 @@ class BoyerMooreHorspoolSearcher_GeneralImp {
                        BoyerMooreHorspoolSearcher_GeneralImp>  original,
                        BloombergLP::bslma::Allocator          *basicAllocator);
         // Create a 'BoyerMooreHorspoolSearcher_GeneralImp' object having same
-        // state as the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The state of
+        // state as the specified 'original' object.  The specified
+        // 'basicAllocator' is used to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.  The state of
         // 'original' is moved (in constant time) to the new searcher if
         // 'basicAllocator == original.allocator()', and is move-inserted (in
         // linear time) using 'basicAllocator' otherwise.  The 'original'
