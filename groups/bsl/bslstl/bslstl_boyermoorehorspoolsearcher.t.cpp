@@ -5129,7 +5129,11 @@ int main(int argc, char *argv[])
                 P_(da.numBytesInUse())
             }
 
-            ASSERT(dam.isTotalUp()); 
+            if (0 == BSL::strlen(NEEDLE)) {
+                ASSERT(dam.isTotalSame());
+            } else {
+                ASSERT(dam.isTotalUp());
+            }
             dam.reset();
 
             const RndMechCi rndMechCi(needleRnd.begin(), needleRnd.end());
@@ -5145,7 +5149,6 @@ int main(int argc, char *argv[])
             } else {
                 ASSERT(dam.isTotalSame());
             }
-
             dam.reset();
 
             // Invoke each using both kinds of haystack
