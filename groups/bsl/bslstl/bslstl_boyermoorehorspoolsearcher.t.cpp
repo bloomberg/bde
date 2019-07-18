@@ -140,6 +140,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
+//                       GLOBAL TYPEDEFS
+// ----------------------------------------------------------------------------
+
+typedef bsls::Types::Int64 Int64;
+
+// ============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -4402,12 +4408,18 @@ int main(int argc, char *argv[])
         //:
         //: 6 The behaviors hold true for both general and optimized
         //:   implementations.
+        //:
+        //: 7 All memory allocation by the special implementation (for
+        //:   'char *') is exception safe.
         //
         // Plan:
         //: 1 Ad hoc test: Searcher objects are created and copied.
         //:
         //: 2 The accessors are used at each step to confirm the expected
         //:   state.
+        //:
+        //: 3 Exception safety of memory allocations is tested using the
+        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros.
         //
         // Testing:
         //   b_m_h& operator=(const b_m_h& rhs);
@@ -4691,6 +4703,137 @@ int main(int argc, char *argv[])
                     ASSERT(resultZ == resultX);
                     ASSERT(resultX == resultY);
                 }
+            }
+        }
+
+        if (verbose) printf("Special Implementation Exception Test\n");
+        {
+            CharArray<char> containerHavingRandomIterators(
+                                                    bsl::vector<char>('b', 5));
+
+
+            typedef CharArray<char>::const_iterator    RandConstItr;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
+
+            RandConstItr begin = containerHavingRandomIterators.begin();
+            RandConstItr end   = containerHavingRandomIterators.end();
+
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            for (char srcCfg = 'a'; srcCfg <= 'c'; ++srcCfg) {
+            for (char dstCfg = 'a'; dstCfg <= 'c'; ++dstCfg) {
+
+                if (veryVerbose) { P_(srcCfg) P(dstCfg) }
+
+                Mech *srcMechPtr;
+
+                switch (srcCfg) {
+                  case 'a': {
+                    srcMechPtr          = new (fa) Mech(begin,
+                                                        begin,  // empty
+                                                        Mech::DefaultHash(),
+                                                        Mech::DefaultEqual(),
+                                                        &sa);
+                  } break;
+                  case 'b': {
+                    srcMechPtr          = new (fa) Mech(begin,
+                                                        end, // short
+                                                        Mech::DefaultHash(),
+                                                        Mech::DefaultEqual(),
+                                                        &sa);
+                  } break;
+                  case 'c': {
+                    srcMechPtr          = new (fa) Mech(HAYSTACK_TEXT_FIRST,
+                                                        HAYSTACK_TEXT_LAST,
+                                                        Mech::DefaultHash(),
+                                                        Mech::DefaultEqual(),
+                                                        &sa);  // long
+                  } break;
+                  default: {
+                    ASSERTV(srcCfg, !"Bad allocsator config.");
+                  } break;
+                }
+
+                Mech& mS = *srcMechPtr; const Mech& S = mS;
+
+                Mech *dstMechPtr;
+
+                switch (dstCfg) {
+                  case 'a': {
+                    dstMechPtr          = new (fa) Mech(begin,
+                                                        begin,  // empty
+                                                        Mech::DefaultHash(),
+                                                        Mech::DefaultEqual(),
+                                                        &sa);
+                  } break;
+                  case 'b': {
+                    dstMechPtr          = new (fa) Mech(begin,
+                                                        end, // short
+                                                        Mech::DefaultHash(),
+                                                        Mech::DefaultEqual(),
+                                                        &sa);
+                  } break;
+                  case 'c': {
+                    dstMechPtr          = new (fa) Mech(HAYSTACK_TEXT_FIRST,
+                                                        HAYSTACK_TEXT_LAST,
+                                                        Mech::DefaultHash(),
+                                                        Mech::DefaultEqual(),
+                                                        &sa);  // long
+                  } break;
+                  default: {
+                    ASSERTV(dstCfg, !"Bad allocsator config.");
+                  } break;
+                }
+
+                Mech& mD = *dstMechPtr;
+
+                char expected =  srcCfg > dstCfg ? '+' :
+                                 srcCfg < dstCfg ? '-' :
+                                 /* equal */       '0' ;
+
+                if (veryVerbose) { P(expected) }
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    bslma::TestAllocatorMonitor sam(&sa);
+
+                    Int64 numBytesInUseAfore  = sa.numBytesInUse();
+
+                    mD = S; // ACTION
+
+                    Int64 numBytesInUseAfter  = sa.numBytesInUse();
+
+                    Int64 numBytesInUseChange  = numBytesInUseAfter
+                                               - numBytesInUseAfore;
+
+                    if (veryVeryVerbose) {
+                        P_(numBytesInUseAfore)
+                        P_(numBytesInUseAfter)
+                         P(numBytesInUseChange);
+                    }
+
+                    switch (expected) {
+                      case '-': ASSERT(0 >  numBytesInUseChange); break;
+                      case '0': ASSERT(0 == numBytesInUseChange); break;
+                      case '+': ASSERT(0 <  numBytesInUseChange); break;
+                      default: {
+                        ASSERTV(dstCfg, !"Expected memory change.");
+                      } break;
+                    };
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                fa.deleteObject(srcMechPtr);
+                fa.deleteObject(dstMechPtr);
+
+                ASSERTV(srcCfg, dstCfg, 0 == sa.numBlocksInUse());
+                ASSERTV(srcCfg, dstCfg, 0 == sa.numBytesInUse());
+
+                ASSERTV(srcCfg, dstCfg, 0 == fa.numBlocksInUse());
+                ASSERTV(srcCfg, dstCfg, 0 == fa.numBytesInUse());
+            }
             }
         }
       } break;
@@ -5024,18 +5167,18 @@ int main(int argc, char *argv[])
                                Mech::DefaultEqual(),
                                &sa);
 
-                bsls::Types::Int64 numBlocksInUseAfore = da.numBlocksInUse();
-                bsls::Types::Int64 numBytesInUseAfore  = da.numBytesInUse();
+                Int64 numBlocksInUseAfore = da.numBlocksInUse();
+                Int64 numBytesInUseAfore  = da.numBytesInUse();
 
                 Mech mechShortCopy(mechShort);   // ACTION
 
-                bsls::Types::Int64 numBlocksInUseAfter = da.numBlocksInUse();
-                bsls::Types::Int64 numBytesInUseAfter  = da.numBytesInUse();
+                Int64 numBlocksInUseAfter = da.numBlocksInUse();
+                Int64 numBytesInUseAfter  = da.numBytesInUse();
 
-                bsls::Types::Int64 numBlocksInUseChange = numBlocksInUseAfter
-                                                        - numBlocksInUseAfore;
-                bsls::Types::Int64 numBytesInUseChange  = numBytesInUseAfter
-                                                        - numBytesInUseAfore;
+                Int64 numBlocksInUseChange = numBlocksInUseAfter
+                                           - numBlocksInUseAfore;
+                Int64 numBytesInUseChange  = numBytesInUseAfter
+                                           - numBytesInUseAfore;
 
                 ASSERTV(numBlocksInUseChange,  1 == numBlocksInUseChange);
                 ASSERTV(numBytesInUseChange, 256 == numBytesInUseChange);
@@ -5083,18 +5226,18 @@ int main(int argc, char *argv[])
                                Mech::DefaultEqual(),
                                &sa);
 
-                bsls::Types::Int64 numBlocksInUseAfore = sa.numBlocksInUse();
-                bsls::Types::Int64 numBytesInUseAfore  = sa.numBytesInUse();
+                Int64 numBlocksInUseAfore = sa.numBlocksInUse();
+                Int64 numBytesInUseAfore  = sa.numBytesInUse();
 
                 Mech mechShortCopy(mechShort, &sa);   // ACTION
 
-                bsls::Types::Int64 numBlocksInUseAfter = sa.numBlocksInUse();
-                bsls::Types::Int64 numBytesInUseAfter  = sa.numBytesInUse();
+                Int64 numBlocksInUseAfter = sa.numBlocksInUse();
+                Int64 numBytesInUseAfter  = sa.numBytesInUse();
 
-                bsls::Types::Int64 numBlocksInUseChange = numBlocksInUseAfter
-                                                        - numBlocksInUseAfore;
-                bsls::Types::Int64 numBytesInUseChange  = numBytesInUseAfter
-                                                        - numBytesInUseAfore;
+                Int64 numBlocksInUseChange = numBlocksInUseAfter
+                                           - numBlocksInUseAfore;
+                Int64 numBytesInUseChange  = numBytesInUseAfter
+                                           - numBytesInUseAfore;
 
                 ASSERTV(numBlocksInUseChange,  1 == numBlocksInUseChange);
                 ASSERTV(numBytesInUseChange, 256 == numBytesInUseChange);
@@ -5863,10 +6006,8 @@ int main(int argc, char *argv[])
                                                                 HAYSTACK_LAST,
                                                                 HAYSTACK_LAST);
 
-            bsls::Types::Int64 startUser =
-                                         bsls::TimeUtil::getProcessUserTimer();
-            bsls::Types::Int64 startWall =
-                                         bsls::TimeUtil::getTimer();
+            Int64 startUser = bsls::TimeUtil::getProcessUserTimer();
+            Int64 startWall = bsls::TimeUtil::getTimer();
 
             bsl::pair<const char *, const char *> result;
 
@@ -5876,10 +6017,8 @@ int main(int argc, char *argv[])
 
             }
 
-            bsls::Types::Int64 stopUser  =
-                                         bsls::TimeUtil::getProcessUserTimer();
-            bsls::Types::Int64 stopWall  =
-                                         bsls::TimeUtil::getTimer();
+            Int64 stopUser = bsls::TimeUtil::getProcessUserTimer();
+            Int64 stopWall = bsls::TimeUtil::getTimer();
 
             if (0 < numRepetitions) {
                 const bool wasFound = NOT_FOUND != result;
@@ -5896,8 +6035,8 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                bsls::Types::Int64 userTime = stopUser - startUser;
-                bsls::Types::Int64 wallTime = stopWall - startWall;
+                Int64 userTime = stopUser - startUser;
+                Int64 wallTime = stopWall - startWall;
 
                 BSL::size_t needleLength = BSL::strlen(NEEDLE);
                 BSL::size_t searchLength
