@@ -2722,7 +2722,7 @@ const struct {
 } DATA[]  = {
     //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
     //---- --------     ------  ------  ------
-  
+
     { L_,  "A"        , "a"    , 1, 0,  0, 1  }  // TEST FAILURE
 
     // Degenerate combinations
@@ -4713,12 +4713,18 @@ int main(int argc, char *argv[])
         //:
         //: 5 The behaviors hold true for both general and optimized
         //:   implementations.
+        //:
+        //: 6 All memory allocation by the special implementation (for
+        //:   'char *') is exception safe.
         //
         // Plan:
         //: 1 Ad hoc test: Searcher objects are created and copied.
         //:
         //: 2 The accessors are used at each step to confirm the expected
         //:   state.
+        //:
+        //: 3 Exception safety of memory allocations is tested using the
+        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros.
         //
         // Testing:
         //   BoyerMooreHorspoolSearcher(const b_m_h_s& original);
@@ -4984,6 +4990,141 @@ int main(int argc, char *argv[])
                     ASSERT(resultX == resultY);
                 }
             }
+        }
+
+        if (verbose) printf("\n" "Special Implementation Exception Test" "\n");
+        {
+            CharArray<char> containerHavingRandomIterators(
+                                                    bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator    RandConstItr;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
+
+            bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocatorMonitor  dam(&da);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(da) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody: default) }
+
+                Mech mechEmpty(containerHavingRandomIterators.begin(),
+                               containerHavingRandomIterators.begin(), // empty
+                               Mech::DefaultHash(),
+                               Mech::DefaultEqual(),
+                               &sa);
+
+                Mech mechEmptyCopy(mechEmpty);   // ACTION
+                ASSERT(0 == da.numBlocksInUse());
+                ASSERT(0 == da.numBytesInUse());
+
+                Mech mechShort(containerHavingRandomIterators.begin(),
+                               containerHavingRandomIterators.end(),
+                               Mech::DefaultHash(),
+                               Mech::DefaultEqual(),
+                               &sa);
+
+                bsls::Types::Int64 numBlocksInUseAfore = da.numBlocksInUse();
+                bsls::Types::Int64 numBytesInUseAfore  = da.numBytesInUse();
+
+                Mech mechShortCopy(mechShort);   // ACTION
+
+                bsls::Types::Int64 numBlocksInUseAfter = da.numBlocksInUse();
+                bsls::Types::Int64 numBytesInUseAfter  = da.numBytesInUse();
+
+                bsls::Types::Int64 numBlocksInUseChange = numBlocksInUseAfter
+                                                        - numBlocksInUseAfore;
+                bsls::Types::Int64 numBytesInUseChange  = numBytesInUseAfter
+                                                        - numBytesInUseAfore;
+
+                ASSERTV(numBlocksInUseChange,  1 == numBlocksInUseChange);
+                ASSERTV(numBytesInUseChange, 256 == numBytesInUseChange);
+
+                Mech mechLong(HAYSTACK_TEXT_FIRST,
+                              HAYSTACK_TEXT_LAST,
+                              Mech::DefaultHash(),
+                              Mech::DefaultEqual(),
+                              &sa);
+
+                numBlocksInUseAfore = da.numBlocksInUse();
+                numBytesInUseAfore  = da.numBytesInUse();
+
+                Mech mechLongCopy(mechLong);   // ACTION
+
+                numBlocksInUseAfter = da.numBlocksInUse();
+                numBytesInUseAfter  = da.numBytesInUse();
+
+                numBlocksInUseChange = numBlocksInUseAfter
+                                     - numBlocksInUseAfore;
+                numBytesInUseChange  = numBytesInUseAfter
+                                     - numBytesInUseAfore;
+
+                ASSERTV(numBlocksInUseChange,    1 == numBlocksInUseChange);
+                ASSERTV(numBytesInUseChange,  1024 == numBytesInUseChange);
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody: supplied) }
+
+                Mech mechEmpty(containerHavingRandomIterators.begin(),
+                               containerHavingRandomIterators.begin(), // empty
+                               Mech::DefaultHash(),
+                               Mech::DefaultEqual(),
+                               &sa);
+
+                Mech mechEmptyCopy(mechEmpty, &sa);   // ACTION
+                ASSERT(0 == sa.numBlocksInUse());
+                ASSERT(0 == sa.numBytesInUse());
+
+                Mech mechShort(containerHavingRandomIterators.begin(),
+                               containerHavingRandomIterators.end(),
+                               Mech::DefaultHash(),
+                               Mech::DefaultEqual(),
+                               &sa);
+
+                bsls::Types::Int64 numBlocksInUseAfore = sa.numBlocksInUse();
+                bsls::Types::Int64 numBytesInUseAfore  = sa.numBytesInUse();
+
+                Mech mechShortCopy(mechShort, &sa);   // ACTION
+
+                bsls::Types::Int64 numBlocksInUseAfter = sa.numBlocksInUse();
+                bsls::Types::Int64 numBytesInUseAfter  = sa.numBytesInUse();
+
+                bsls::Types::Int64 numBlocksInUseChange = numBlocksInUseAfter
+                                                        - numBlocksInUseAfore;
+                bsls::Types::Int64 numBytesInUseChange  = numBytesInUseAfter
+                                                        - numBytesInUseAfore;
+
+                ASSERTV(numBlocksInUseChange,  1 == numBlocksInUseChange);
+                ASSERTV(numBytesInUseChange, 256 == numBytesInUseChange);
+
+                Mech mechLong(HAYSTACK_TEXT_FIRST,
+                              HAYSTACK_TEXT_LAST,
+                              Mech::DefaultHash(),
+                              Mech::DefaultEqual(),
+                              &sa);
+
+                numBlocksInUseAfore = sa.numBlocksInUse();
+                numBytesInUseAfore  = sa.numBytesInUse();
+
+                Mech mechLongCopy(mechLong, &sa);   // ACTION
+
+                numBlocksInUseAfter = sa.numBlocksInUse();
+                numBytesInUseAfter  = sa.numBytesInUse();
+
+                numBlocksInUseChange = numBlocksInUseAfter
+                                     - numBlocksInUseAfore;
+                numBytesInUseChange  = numBytesInUseAfter
+                                     - numBytesInUseAfore;
+
+                ASSERTV(numBlocksInUseChange,    1 == numBlocksInUseChange);
+                ASSERTV(numBytesInUseChange,  1024 == numBytesInUseChange);
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERT(0 == sa.numBlocksInUse());
+            ASSERT(0 == sa.numBytesInUse());
         }
       } break;
       case 3: {
@@ -5287,8 +5428,8 @@ int main(int argc, char *argv[])
         //:11 There is no temporary memory allocation.
         //:
         //:12 All memory allocation by the special implementation (for
-        //:   'char *') does is exception neutral.
-        //
+        //:   'char *') is exception safe.
+        //:
         //:13 QoI: Precondition violations are detected in appropriate build
         //:   modes.
         //
@@ -5488,8 +5629,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf(
-                           "\n" "Special Implementation Exception Tests" "\n");
+        if (verbose) printf("\n" "Special Implementation Exception Test" "\n");
         {
             CharArray<char> containerHavingRandomIterators(
                                                     bsl::vector<char>('b', 5));
@@ -5500,7 +5640,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator        sa("supplied", veryVeryVeryVerbose);
 
             int loopCount = 0;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {                  
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                 if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
                 ++loopCount;
 
@@ -5513,7 +5653,7 @@ int main(int argc, char *argv[])
                                           mechEmpty.needleLast()));
                 ASSERT(0 == sa.numBlocksInUse());
                 ASSERT(0 == sa.numBytesInUse());
-                
+
                 Mech mechShort(containerHavingRandomIterators.begin(),
                                containerHavingRandomIterators.end(),
                                Mech::DefaultHash(),
@@ -5538,6 +5678,7 @@ int main(int argc, char *argv[])
                 ASSERT(1024 + 256 == sa.numBytesInUse());
                 ASSERT(         3 == loopCount);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
             ASSERT(0 == sa.numBlocksInUse());
             ASSERT(0 == sa.numBytesInUse());
         }

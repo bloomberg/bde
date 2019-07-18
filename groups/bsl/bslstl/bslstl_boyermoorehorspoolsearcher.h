@@ -1856,11 +1856,11 @@ BoyerMooreHorspoolSearcher<RNDACC_ITR_NEEDLE,
 
         // Check in reverse order for match.
 
-        EQUAL equalityFunctor = equal();
+        const EQUAL comparator(equal());
 
         for (native_std::size_t idx = d_needleLength - 1;
-             equalityFunctor(haystackFirst[possibleMatch + idx],
-                             d_needleFirst[idx]);
+             comparator(haystackFirst[possibleMatch + idx],
+                        d_needleFirst[idx]);
              --idx) {
 
             if (0 == idx) { // No difference found
