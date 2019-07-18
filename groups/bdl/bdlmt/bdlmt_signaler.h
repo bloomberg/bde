@@ -1135,7 +1135,6 @@ class SignalerConnectionGuard {
 
   public:
     // CREATORS
-    explicit
     SignalerConnectionGuard();
         // Create a 'SignalerConnectionGuard' object having no associated slot
         // with 'waitOnDisconnect' set to 'false'.
@@ -1162,9 +1161,8 @@ class SignalerConnectionGuard {
         // any, managed by this object upon destruction or assignment.  Throws
         // nothing.
 
-    explicit
-    SignalerConnectionGuard(bslmf::MovableRef<
-                      SignalerConnectionGuard> original) BSLS_KEYWORD_NOEXCEPT;
+    SignalerConnectionGuard(bslmf::MovableRef<SignalerConnectionGuard>
+                                               original) BSLS_KEYWORD_NOEXCEPT;
         // Create a 'SignalerConnectionGuard' that manages the same slot, if
         // any, as the specified 'original', which is left in the
         // default-constructed state.  Copy the 'waitOnDisconnect' state from
