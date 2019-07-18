@@ -5291,7 +5291,10 @@ int main(int argc, char *argv[])
         //:
         //:11 There is no temporary memory allocation.
         //:
-        //:12 QoI: Precondition violations are detected in appropriate build
+        //:12 All memory allocation by the special implementation (for
+        //:   'char *') does is exception neutral.
+        //
+        //:13 QoI: Precondition violations are detected in appropriate build
         //:   modes.
         //
         // Plan:
@@ -5311,6 +5314,9 @@ int main(int argc, char *argv[])
         //:
         //: 5 Use the "footprint" idiom to demonstrate that the intended
         //:   allocator is installed and is returned by the 'allocator' method.
+        //:
+        //: 6 Exception safety of memory allocations is tested using the
+        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros.
         //
         // Testing:
         //   BoyerMooreHorspoolSearcher(RAI f, RAI l, HASH l, EQUAL e, *bA);

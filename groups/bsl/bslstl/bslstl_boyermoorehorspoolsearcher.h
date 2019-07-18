@@ -1296,10 +1296,10 @@ BoyerMooreHorspoolSearcher_CharImp(
 {
     if (0 < d_needleLength) {
         d_table_p = d_allocator_p->allocate((UCHAR_MAX + 1) *
-                                                            d_bytesPerElement);
+                                                   original.d_bytesPerElement);
         native_std::memcpy(d_table_p,
                            original.d_table_p,
-                           (UCHAR_MAX + 1) * d_bytesPerElement);
+                           (UCHAR_MAX + 1) * original.d_bytesPerElement);
     }
 }
 
@@ -1325,10 +1325,11 @@ BoyerMooreHorspoolSearcher_CharImp(
     } else {
         if (0 < d_needleLength) {
             d_table_p = d_allocator_p->allocate((UCHAR_MAX + 1) *
-                                                            d_bytesPerElement);
+                                 MoveUtil::access(original).d_bytesPerElement);
             native_std::memcpy(d_table_p,
                                MoveUtil::access(original).d_table_p,
-                               (UCHAR_MAX + 1) * d_bytesPerElement);
+                               (UCHAR_MAX + 1) *
+                                 MoveUtil::access(original).d_bytesPerElement);
         }
     }
 }
