@@ -4362,11 +4362,17 @@ int main(int argc, char *argv[])
         //: 5 The behaviors hold true for both general and optimized
         //:   implementations.
         //
+        //: 6 All memory allocation by the special implementation (for
+        //:   'char *') is exception safe.
+        //
         // Plan:
         //: 1 Ad hoc test: Searcher objects are created and copied.
         //:
         //: 2 The accessors are used at each step to confirm the expected
         //:   state.
+        //:
+        //: 3 Exception safety of memory allocations is tested using the
+        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros.
         //
         // Testing:
         //   BoyerMooreHorspoolSearcher(MovableRef<b_m_h_s> original);
@@ -4387,6 +4393,193 @@ int main(int argc, char *argv[])
         testMoveConstructors<RandConstItr, HASH_CHAR, EQUAL_CHAR, false>();
         testMoveConstructors<RandConstItr, HASH_GNRL, EQUAL_GNRL, true >();
 
+        if (verbose) printf("Special Implementation Exception Test\n");
+        {
+            CharArray<char> containerHavingRandomIterators(
+                                                    bsl::vector<char>('b', 5));
+
+
+            typedef CharArray<char>::const_iterator    RandConstItr;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
+            typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+            RandConstItr begin = containerHavingRandomIterators.begin();
+            RandConstItr end   = containerHavingRandomIterators.end();
+
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("source",    veryVeryVeryVerbose);
+            bslma::TestAllocator ta("target",    veryVeryVeryVerbose);
+
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                if (veryVerbose) { P_(cfg) }
+
+                Mech *mechPtr;
+
+                switch (cfg) {
+                  case 'a': {
+                    mechPtr = new (fa) Mech(begin,
+                                            begin,  // empty
+                                            Mech::DefaultHash(),
+                                            Mech::DefaultEqual(),
+                                            &sa);
+                  } break;
+                  case 'b': {
+                    mechPtr = new (fa) Mech(begin,
+                                            end, // short
+                                            Mech::DefaultHash(),
+                                            Mech::DefaultEqual(),
+                                            &sa);
+                  } break;
+                  case 'c': {
+                    mechPtr  = new (fa) Mech(HAYSTACK_TEXT_FIRST,
+                                             HAYSTACK_TEXT_LAST, // long
+                                             Mech::DefaultHash(),
+                                             Mech::DefaultEqual(),
+                                             &sa);
+                  } break;
+                  default: {
+                    ASSERTV(cfg, !"Bad allocator config.");
+                  } break;
+                }
+
+                Mech& mS = *mechPtr; const Mech& S = mS;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody: 1 arg) }
+
+                    bslma::Allocator *srcAllocator = S.allocator();
+
+                    Int64 numBytesInUseAfore = sa.numBytesInUse();
+
+                    Mech mechCopy(MoveUtil::move(mS)); // ACTION
+
+                    Int64 numBytesInUseAfter = sa.numBytesInUse();
+
+                    Int64 numBytesInUseChange = numBytesInUseAfter
+                                              - numBytesInUseAfore;
+
+                    if (veryVeryVerbose) {
+                        P_(numBytesInUseAfore)
+                        P_(numBytesInUseAfter)
+                         P(numBytesInUseChange);
+                    }
+
+                    ASSERT(0            == numBytesInUseChange);
+                    ASSERT(srcAllocator == mechCopy.allocator());
+                    ASSERT(srcAllocator == S.allocator());
+
+                    fa.deleteObject(mechPtr);
+
+                    ASSERTV(0 == fa.numBlocksInUse());
+                    ASSERTV(0 == fa.numBytesInUse());
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(0 == sa.numBlocksInUse());
+                ASSERTV(0 == sa.numBytesInUse());
+            }
+
+            for (char cfg = 'a'; cfg <= 'f'; ++cfg) {
+
+                if (veryVerbose) { P_(cfg) }
+
+                Mech *mechPtr;
+
+                switch (cfg) {
+                  case 'a': {
+                    mechPtr = new (fa) Mech(begin,
+                                            begin,  // empty
+                                            Mech::DefaultHash(),
+                                            Mech::DefaultEqual(),
+                                            &sa);
+                  } break;
+                  case 'b': {
+                    mechPtr = new (fa) Mech(begin,
+                                            end, // short
+                                            Mech::DefaultHash(),
+                                            Mech::DefaultEqual(),
+                                            &sa);
+                  } break;
+                  case 'c': {
+                    mechPtr  = new (fa) Mech(HAYSTACK_TEXT_FIRST,
+                                             HAYSTACK_TEXT_LAST,  // long
+                                             Mech::DefaultHash(),
+                                             Mech::DefaultEqual(),
+                                             &sa);
+                  } break;
+                  case 'd': {
+                    mechPtr = new (fa) Mech(begin,
+                                            begin,  // empty
+                                            Mech::DefaultHash(),
+                                            Mech::DefaultEqual(),
+                                            &ta);  // same allocator as target
+                  } break;
+                  case 'e': {
+                    mechPtr = new (fa) Mech(begin,
+                                            end,  // short
+                                            Mech::DefaultHash(),
+                                            Mech::DefaultEqual(),
+                                            &ta);  // same allocator as target
+                  } break;
+                  case 'f': {
+                    mechPtr  = new (fa) Mech(HAYSTACK_TEXT_FIRST,
+                                             HAYSTACK_TEXT_LAST, // long
+                                             Mech::DefaultHash(),
+                                             Mech::DefaultEqual(),
+                                             &ta);  // same allocator as target
+                  } break;
+                  default: {
+                    ASSERTV(cfg, !"Bad allocator config.");
+                  } break;
+                }
+
+                Mech& mS = *mechPtr; const Mech& S = mS;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody: 2 arg) }
+
+                    bslma::Allocator *srcAllocator = S.allocator();
+
+                    Int64 numBytesInUseAfore = ta.numBytesInUse();
+
+                    Mech mechCopy(MoveUtil::move(mS), &ta); // ACTION
+
+                    Int64 numBytesInUseAfter = ta.numBytesInUse();
+
+                    Int64 numBytesInUseChange = numBytesInUseAfter
+                                              - numBytesInUseAfore;
+
+                    if (veryVeryVerbose) {
+                        P_(numBytesInUseAfore)
+                        P_(numBytesInUseAfter)
+                         P(numBytesInUseChange);
+                    }
+
+                    bool expectNumBytesInUseSame =
+                                        'a' == cfg            // empty needle
+                                     || 'd' == cfg            // empty needle
+                                     || &ta == srcAllocator;  // same allocator
+
+                    if (expectNumBytesInUseSame) {
+                        ASSERTV(cfg, 0 == numBytesInUseChange);
+                    } else {
+                        ASSERT(0 <  numBytesInUseChange);
+                    }
+                    ASSERT(&ta          == mechCopy.allocator());
+                    ASSERT(srcAllocator == S.allocator());
+
+                    fa.deleteObject(mechPtr);
+
+                    ASSERTV(0 == fa.numBlocksInUse());
+                    ASSERTV(0 == fa.numBytesInUse());
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(0 == sa.numBlocksInUse());
+                ASSERTV(0 == sa.numBytesInUse());
+            }
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -4730,28 +4923,28 @@ int main(int argc, char *argv[])
 
                 switch (srcCfg) {
                   case 'a': {
-                    srcMechPtr          = new (fa) Mech(begin,
-                                                        begin,  // empty
-                                                        Mech::DefaultHash(),
-                                                        Mech::DefaultEqual(),
-                                                        &sa);
+                    srcMechPtr = new (fa) Mech(begin,
+                                               begin,  // empty
+                                               Mech::DefaultHash(),
+                                               Mech::DefaultEqual(),
+                                               &sa);
                   } break;
                   case 'b': {
-                    srcMechPtr          = new (fa) Mech(begin,
-                                                        end, // short
-                                                        Mech::DefaultHash(),
-                                                        Mech::DefaultEqual(),
-                                                        &sa);
+                    srcMechPtr  = new (fa) Mech(begin,
+                                                end, // short
+                                                Mech::DefaultHash(),
+                                                Mech::DefaultEqual(),
+                                                &sa);
                   } break;
                   case 'c': {
-                    srcMechPtr          = new (fa) Mech(HAYSTACK_TEXT_FIRST,
-                                                        HAYSTACK_TEXT_LAST,
-                                                        Mech::DefaultHash(),
-                                                        Mech::DefaultEqual(),
-                                                        &sa);  // long
+                    srcMechPtr  = new (fa) Mech(HAYSTACK_TEXT_FIRST,
+                                                HAYSTACK_TEXT_LAST, // long
+                                                Mech::DefaultHash(),
+                                                Mech::DefaultEqual(),
+                                                &sa);
                   } break;
                   default: {
-                    ASSERTV(srcCfg, !"Bad allocsator config.");
+                    ASSERTV(srcCfg, !"Bad allocator config.");
                   } break;
                 }
 
@@ -4761,28 +4954,28 @@ int main(int argc, char *argv[])
 
                 switch (dstCfg) {
                   case 'a': {
-                    dstMechPtr          = new (fa) Mech(begin,
-                                                        begin,  // empty
-                                                        Mech::DefaultHash(),
-                                                        Mech::DefaultEqual(),
-                                                        &sa);
+                    dstMechPtr = new (fa) Mech(begin,
+                                               begin,  // empty
+                                               Mech::DefaultHash(),
+                                               Mech::DefaultEqual(),
+                                               &sa);
                   } break;
                   case 'b': {
-                    dstMechPtr          = new (fa) Mech(begin,
-                                                        end, // short
-                                                        Mech::DefaultHash(),
-                                                        Mech::DefaultEqual(),
-                                                        &sa);
+                    dstMechPtr = new (fa) Mech(begin,
+                                               end, // short
+                                               Mech::DefaultHash(),
+                                               Mech::DefaultEqual(),
+                                               &sa);
                   } break;
                   case 'c': {
-                    dstMechPtr          = new (fa) Mech(HAYSTACK_TEXT_FIRST,
-                                                        HAYSTACK_TEXT_LAST,
-                                                        Mech::DefaultHash(),
-                                                        Mech::DefaultEqual(),
-                                                        &sa);  // long
+                    dstMechPtr = new (fa) Mech(HAYSTACK_TEXT_FIRST,
+                                               HAYSTACK_TEXT_LAST, // long
+                                               Mech::DefaultHash(),
+                                               Mech::DefaultEqual(),
+                                               &sa);
                   } break;
                   default: {
-                    ASSERTV(dstCfg, !"Bad allocsator config.");
+                    ASSERTV(dstCfg, !"Bad allocator config.");
                   } break;
                 }
 
@@ -4797,16 +4990,14 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    bslma::TestAllocatorMonitor sam(&sa);
-
-                    Int64 numBytesInUseAfore  = sa.numBytesInUse();
+                    Int64 numBytesInUseAfore = sa.numBytesInUse();
 
                     mD = S; // ACTION
 
-                    Int64 numBytesInUseAfter  = sa.numBytesInUse();
+                    Int64 numBytesInUseAfter = sa.numBytesInUse();
 
-                    Int64 numBytesInUseChange  = numBytesInUseAfter
-                                               - numBytesInUseAfore;
+                    Int64 numBytesInUseChange = numBytesInUseAfter
+                                              - numBytesInUseAfore;
 
                     if (veryVeryVerbose) {
                         P_(numBytesInUseAfore)
@@ -5753,7 +5944,7 @@ int main(int argc, char *argv[])
                     mechAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocsator config.");
+                    ASSERTV(CONFIG, !"Bad allocator config.");
                   } break;
                 }
 
