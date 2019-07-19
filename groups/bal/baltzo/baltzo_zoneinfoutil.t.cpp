@@ -1,6 +1,7 @@
 // baltzo_zoneinfoutil.t.cpp                                          -*-C++-*-
 #include <baltzo_zoneinfoutil.h>
 
+#include <baltzo_errorcode.h>
 #include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
@@ -9,6 +10,8 @@
 #include <bdlt_dateutil.h>
 #include <bdlt_dateutil.h>
 #include <bdlt_epochutil.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -63,42 +66,48 @@ using namespace std;
 //=============================================================================
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X)  cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X)  cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_    cout << "\t" << flush;          // Print a tab (w/o newline)
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -139,9 +148,8 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
     // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
-    int rc = bdlt::Iso8601Util::parse(&time,
-                                  iso8601TimeString,
-                                  bsl::strlen(iso8601TimeString));
+    int len = static_cast<int>(bsl::strlen(iso8601TimeString));
+    int rc = bdlt::Iso8601Util::parse(&time, iso8601TimeString, len);
     BSLS_ASSERT(0 == rc);
     return time;
 }
@@ -164,7 +172,7 @@ int toOffsetInMilliseconds(const char *iso8601Value)
         ++iso8601Value;
     }
 
-    int length = strlen(iso8601Value);
+    int length = static_cast<int>(strlen(iso8601Value));
 
     bdlt::Time time;
     int rc = bdlt::Iso8601Util::parse(&time, iso8601Value, length);
@@ -716,9 +724,10 @@ int main(int argc, char *argv[])
                 const bsl::string inputStr(DATA[i].d_testTime);
 
                 bdlt::Datetime    inputTime;
+                int               len = static_cast<int>(inputStr.size());
                 ASSERT(0 == bdlt::Iso8601Util::parse(&inputTime,
-                                                 inputStr.c_str(),
-                                                 inputStr.size()));
+                                                     inputStr.c_str(),
+                                                     len));
 
                 TzIt           resultIt1, resultIt2;
                 Validity::Enum resultValidity;
@@ -1219,6 +1228,8 @@ int main(int argc, char *argv[])
         //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for argument values (using the 'BSLS_ASSERTTEST_*'
         //:   macros).  (C-4)
+        //:
+        //: 5 Do a test that provokes a return code of 'k_OUT_OF_RANGE'.
         //
         // Testing:
         //   void convertUtcToLocalTime(DatetimeTz *, Transition *, UTC, Zone);
@@ -1415,6 +1426,25 @@ int main(int argc, char *argv[])
                                                    TZ));
         }
 
+        {
+            if (veryVerbose) cout << "\tTesting out of range\n";
+            {
+                const int OFFSET = - 5 * 60 + 4;        // New York
+
+                const bdlt::Datetime TIME(1, 1, 1);     // beginning of time
+
+                Tz tz(Z); const Tz& TZ = tz;
+                tz.addTransition(MIN_DATETIME, Desc(OFFSET, false, ""));
+
+                bdlt::DatetimeTz result;
+                TzIt             resultIt;
+                int rc = Obj::convertUtcToLocalTime(&result,
+                                                    &resultIt,
+                                                    TIME,
+                                                    TZ);
+                ASSERTV(rc, baltzo::ErrorCode::k_OUT_OF_RANGE == rc);
+            }
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1990,9 +2020,10 @@ int main(int argc, char *argv[])
                 }
 
                 bdlt::Datetime input;
+                int len = static_cast<int>(inputStr.size());
                 ASSERT(0 == bdlt::Iso8601Util::parse(&input,
                                                  inputStr.c_str(),
-                                                 inputStr.size()));
+                                                 len));
 
                 baltzo::Zoneinfo::TransitionConstIterator y;
                 const baltzo::Zoneinfo::TransitionConstIterator& Y = y;
