@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an enumeration of named errors for the 'baltzo' package.
+//@PURPOSE: Enumerate the set of named errors for the 'baltzo' package.
 //
 //@CLASSES:
 //  baltzo::ErrorCode: namespace for error status 'enum'
