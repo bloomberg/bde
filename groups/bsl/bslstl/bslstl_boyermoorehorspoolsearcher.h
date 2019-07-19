@@ -604,10 +604,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 
 #include <cstring>  // 'memcpy'
-#include <cassert>  // TBD
 
 #include <limits.h> // 'UCHAR_MAX'
-#include <stdio.h>  // 'printf'
 
 namespace BloombergLP {
 namespace bslstl {
@@ -647,7 +645,7 @@ class BoyerMooreHorspoolSearcher_CharImp {
      typedef unsigned char   ShortNeedleDifference;
                                                // 'd_needleLength <= UCHAR_MAX'
 
-     typedef difference_type  LongNeedleDifference; 
+     typedef difference_type  LongNeedleDifference;
                                                // 'UCHAR_MAX' < 'd_needleLength
 
     // PRIVATE METHODS
@@ -1202,7 +1200,7 @@ BoyerMooreHorspoolSearcher_CharImp(
 : d_needleLength(needleLast - needleFirst)
 , d_bytesPerElement(d_needleLength <= UCHAR_MAX
                     ? sizeof (ShortNeedleDifference)
-                    : sizeof ( LongNeedleDifference)) 
+                    : sizeof ( LongNeedleDifference))
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_table_p(0)
 {
@@ -1236,7 +1234,6 @@ BoyerMooreHorspoolSearcher_CharImp(
                  = static_cast<ShortNeedleDifference>(d_needleLength
                                                     - 1
                                                     - (current - needleFirst));
-                                                   
         } else {
             reinterpret_cast<LongNeedleDifference *>(d_table_p)
                                          [static_cast<unsigned char>(*current)]
@@ -1416,13 +1413,13 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
         if (0 < MoveUtil::access(rhs).d_needleLength) {
             if (d_bytesPerElement != MoveUtil::access(rhs).d_bytesPerElement
              || 0 == d_table_p) {
-                
+
                 void *newTableSpace = d_allocator_p->allocate((UCHAR_MAX + 1) *
                                       MoveUtil::access(rhs).d_bytesPerElement);
                 d_allocator_p->deallocate(d_table_p);
                 d_table_p = newTableSpace;
             }
-    
+
             native_std::memcpy(d_table_p,
                                MoveUtil::access(rhs).d_table_p,
                                (UCHAR_MAX + 1) *
