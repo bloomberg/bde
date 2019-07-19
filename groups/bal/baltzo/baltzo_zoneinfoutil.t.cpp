@@ -1182,6 +1182,9 @@ int main(int argc, char *argv[])
         //:   Zoneinfo specifies an offset in seconds).
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //:
+        //: 5 That the function returns 'ErrorCode::k_OUT_OF_RANGE' when
+        //:   'result' would be out of range.
         //
         // Plan:
         //: 1 Using a table-driven approach (C-1):
@@ -1229,7 +1232,7 @@ int main(int argc, char *argv[])
         //:   triggered for argument values (using the 'BSLS_ASSERTTEST_*'
         //:   macros).  (C-4)
         //:
-        //: 5 Do a test that provokes a return code of 'k_OUT_OF_RANGE'.
+        //: 5 Do a test that provokes a return code of 'k_OUT_OF_RANGE'.  (C-5)
         //
         // Testing:
         //   void convertUtcToLocalTime(DatetimeTz *, Transition *, UTC, Zone);
