@@ -1470,16 +1470,10 @@ int main(int argc, char *argv[])
         // name will always have a value of the empty string.
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
-        bsl::string defaultThreadName("bslmt_threadutil.t", &oa);
+        bsl::string defaultThreadName("bslmt_threadutil.t", 15, &oa);
                                                          // basename of process
-
-        // Crop it down to 15 chars as that is max thread name length that
-        // Linux and Darwin supports.
-
-        defaultThreadName.resize(
-                        bsl::min<bsl::size_t>(defaultThreadName.length(), 15));
-#elif defined(BSLS_PLATFORM_OS_DARWIN) || defined(BSLS_PLATFORM_OS_WINDOWS)
-        const bsl::string defaultThreadName;    // empty string
+#else
+        const bsl::string defaultThreadName(&oa);    // empty string
 #endif
 
         u::Mutex mutex;
@@ -1621,16 +1615,7 @@ int main(int argc, char *argv[])
 #endif
               } break;
               default: {
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||    \
-    defined(BSLS_PLATFORM_OS_WINDOWS)
-                // All platforms that support thread names.
-
                 LOOP2_ASSERT(cm, threadName, defaultThreadName == threadName);
-#else
-                // Platforms that don't support thread names.
-
-                LOOP2_ASSERT(cm, threadName, threadName.empty());
-#endif
               }
             }
 
