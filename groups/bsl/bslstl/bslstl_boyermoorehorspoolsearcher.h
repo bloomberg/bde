@@ -1396,6 +1396,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                                                            rhs)
 {
     if (d_allocator_p == MoveUtil::access(rhs).d_allocator_p) {
+        d_allocator_p->deallocate(d_table_p);
+
         d_needleLength     = MoveUtil::access(rhs).d_needleLength;
         d_bytesPerElement  = MoveUtil::access(rhs).d_bytesPerElement;
         d_table_p          = MoveUtil::access(rhs).d_table_p;
