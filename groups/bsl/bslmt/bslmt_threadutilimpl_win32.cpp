@@ -106,6 +106,114 @@ struct ThreadSpecificDestructor {
     ThreadSpecificDestructor                                  *d_next;
 };
 
+                                // =============
+                                // ThreadNameAPI
+                                // =============
+
+class ThreadNameAPI {
+    // This 'class' manages dynamic loading of the 'Kernel32.dll' and access to
+    // the functions for setting and getting thread names in that dll.  Note
+    // that prior to Windows 10 version 1067, these functions are not
+    // available, in which case the thread name will just appear to be the
+    // empty string.
+
+    // PRIVATE TYPES
+    typedef HRESULT (WINAPI *GetThreadDescriptionType)(HANDLE, PWSTR *);
+    typedef HRESULT (WINAPI* SetThreadDescriptionType)(HANDLE, PCWSTR);
+
+    // DATA
+    GetThreadDescriptionType d_gtdFuncPtr;
+    SetThreadDescriptionType d_stdFuncPtr;
+
+    // PRIVATE CREATOR
+    ThreadNameAPI();
+        // Dynamically load the dll and set the two function pointers in this
+        
+  public:
+    // CLASS METHOD
+    static ThreadNameAPI& singleton();
+        // Return a reference to the thread name API singleton, creating it if
+        // necessary.
+
+    // ACCESSORS
+    void getThreadName(bsl::string *threadName) const;
+        // Set the specified 'threadName' to the thread name.
+
+    void setThreadName(const bslstl::StringRef& threadName) const;
+        // Set the thread name to the specified 'threadName'.
+};
+
+                                // -------------
+                                // ThreadNameAPI
+                                // -------------
+
+ThreadNameAPI::ThreadNameAPI()
+{
+    HMODULE handle = ::GetModuleHandle("Kernel32.dll");
+    if (handle) {
+        d_gtdFuncPtr = reinterpret_cast<GetThreadDescriptionType>(
+                             ::GetProcAddress(handle, "GetThreadDescription"));
+        d_stdFuncPtr = reinterpret_cast<SetThreadDescriptionType>(
+                             ::GetProcAddress(handle, "SetThreadDescription"));
+    }
+}
+
+ThreadNameAPI& ThreadNameAPI::singleton()
+{
+    static ThreadNameAPI *object_p = 0;
+    static bsls::BslOnce  once = BSLS_BSLONCE_INITIALIZER;
+    bsls::BslOnceGuard    onceGuard;
+    if (onceGuard.enter(&once)) {
+        static ThreadNameAPI object;
+        object_p = &object;
+    }
+    return *object_p;
+}
+
+void ThreadNameAPI::getThreadName(bsl::string *threadName) const
+{
+    BSLS_ASSERT(threadName);
+
+    threadName->clear();
+
+    if (d_gtdFuncPtr) {
+        wchar_t *utf16Result = 0;
+        HRESULT rc = (*d_gtdFuncPtr)(::GetCurrentThread(), &utf16Result);
+
+        // 'GetThreadDescription' returned us a UTF-16 string, while our caller
+        // wants a 'bsl::string'.  The BDE UTF-16 -> UTF-8 translation
+        // compoonent is in 'bdlde', which is above here, so we will just
+        // translate all non-ascii characters to '?'.
+
+        if (SUCCEEDED(rc) && utf16Result) {
+            const wchar_t mask = ~ static_cast<wchar_t>(0x7f);
+            for (const wchar_t *pwc = utf16Result; *pwc; ++pwc) {
+                threadName->push_back(*pwc & mask ? '?'
+                                                  : static_cast<char>(*pwc));
+            }
+            LocalFree(utf16Result);
+        }
+    }
+}
+
+void ThreadNameAPI::setThreadName(const bslstl::StringRef& threadName) const
+{
+    if (d_stdFuncPtr) {
+        // The Windows 'SetThreadDescription' takes its argument in UTF-16.
+        // Our BDE UTF8 -> UTF16 translation component is in 'bdlde', which is
+        // above 'bslmt'.  So we will just translate any non-ascii characters
+        // to '?'.
+
+        bsl::wstring utf16String;
+        const char *end = threadName.data() + threadName.length();
+        for (const char *pc = threadName.data(); pc < end; ++pc) {
+            utf16String.push_back((*pc & 0x80) ? '?' : *pc);
+        }
+
+        (*d_stdFuncPtr)(::GetCurrentThread(), utf16String.c_str());
+    }
+}
+
 struct Win32Initializer {
     // This structure is used to initialize and de-initialize the BCE threading
     // environment.  At creation, 'bslmt_threadutil_win32_Initialize' is called
@@ -126,7 +234,6 @@ enum InitializationState {
   , e_DEINITIALIZED = -1  // threading environment has been de-initialized
 };
 
-static HMODULE                   Kernel32DllHandle;
 static void *volatile            startupInfoCache = 0;
 static DWORD                     threadInfoTLSIndex = 0;
 static ThreadSpecificDestructor *destructors = 0;
@@ -136,10 +243,10 @@ static volatile long             initializationState = e_UNINITIALIZED;
 #ifdef BSLMT_USE_RETURN_VALUE_MAP
 static CRITICAL_SECTION          returnValueMapLock;
 
-// Access to this map will be serialized with 'returnValueMapLock'.  It must
-// be declared before 's_initializer' - the 's_initializer' destructor will
-// empty the map.  'returnValueMapValid' will be false if this module's
-// static initialization has not run, or static cleanup has occurred.
+// Access to this map will be serialized with 'returnValueMapLock'.  It must be
+// declared before 'initializer' - the 'initializer' destructor will empty the
+// map.  'returnValueMapValid' will be false if this module's static
+// initialization has not run, or static cleanup has occurred.
 
 static volatile bool                      returnValueMapValid = false;
 typedef bsl::unordered_map<DWORD, void *> TReturnValueMap;
@@ -542,86 +649,13 @@ bool bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::areEqual(
 void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::getThreadName(
                                                        bsl::string *threadName)
 {
-    BSLS_ASSERT(threadName);
-
-    threadName->clear();    // Not implemented on Windows, but does clear the
-                            // passed 'bsl::string'.
-
-    typedef HRESULT (WINAPI *GetThreadDescriptionType)(HANDLE, PWSTR *);
-
-    static GetThreadDescriptionType gtdFuncPtr = 0;
-    static bsls::BslOnce            once       = BSLS_BSLONCE_INITIALIZER;
-    bsls::BslOnceGuard              onceGuard;
-    if (onceGuard.enter(&once)) {
-        if (!u::Kernel32DllHandle) {
-            u::Kernel32DllHandle = ::GetModuleHandle("Kernel32.dll");
-        }
-
-        if (u::Kernel32DllHandle) {
-            gtdFuncPtr = reinterpret_cast<GetThreadDescriptionType>(
-                                      ::GetProcAddress(u::Kernel32DllHandle,
-                                                      "GetThreadDescription"));
-        }
-    }
-
-    if (gtdFuncPtr) {
-        wchar_t *utf16Result = 0;
-        (void) (*gtdFuncPtr)(::GetCurrentThread(), &utf16Result);
-
-        // 'GetThreadDescription' returned us a UTF-16 string, while our caller
-        // wants a 'bsl::string'.  The BDE UTF-16 -> UTF-8 translation
-        // compoonent is in 'bdlde', which is above here, so we will just
-        // translate all non-ascii characters to '?'.
-
-        if (utf16Result) {
-            const wchar_t mask = ~ static_cast<wchar_t>(0x7f);
-            for (const wchar_t *pwc = utf16Result; *pwc; ++pwc) {
-                threadName->push_back(*pwc & mask ? '?'
-                                                 : static_cast<char>(*pwc));
-            }
-        }
-    }
+    u::ThreadNameAPI::singleton().getThreadName(threadName);
 }
 
 void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::setThreadName(
                                            const bslstl::StringRef& threadName)
 {
-    typedef HRESULT(WINAPI* SetThreadDescriptionType)(HANDLE hThread,
-                                                      PCWSTR wideThreadName);
-
-    // The SetThreadDescription API works even if no debugger is attached, but
-    // is only available on Windows version at or after Windows 10 version
-    // 1607.
-
-    static SetThreadDescriptionType stdFuncPtr = 0;
-    static bsls::BslOnce            once       = BSLS_BSLONCE_INITIALIZER;
-    bsls::BslOnceGuard              onceGuard;
-    if (onceGuard.enter(&once)) {
-        if (!u::Kernel32DllHandle) {
-            u::Kernel32DllHandle = ::GetModuleHandle("Kernel32.dll");
-        }
-
-        if (u::Kernel32DllHandle) {
-            stdFuncPtr = reinterpret_cast<SetThreadDescriptionType>(
-                                      ::GetProcAddress(u::Kernel32DllHandle,
-                                                      "SetThreadDescription"));
-        }
-    }
-
-    if (stdFuncPtr) {
-        // The Windows 'SetThreadDescription' takes its argument in UTF-16.
-        // Our BDE UTF8 -> UTF16 translation component is in 'bdlde', which is
-        // above 'bslmt'.  So we will just translate any non-ascii characters
-        // to '?'.
-
-        bsl::wstring utf16String;
-        const char *end = threadName.data() + threadName.length();
-        for (const char *pc = threadName.data(); pc < end; ++pc) {
-            utf16String.push_back(*pc & 0x80 ? '?' : *pc);
-        }
-
-        (*stdFuncPtr)(::GetCurrentThread(), utf16String.c_str());
-    }
+    u::ThreadNameAPI::singleton().setThreadName(threadName);
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
