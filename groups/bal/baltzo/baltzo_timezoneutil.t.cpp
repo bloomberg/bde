@@ -14,6 +14,8 @@
 #include <bdlt_datetimetz.h>
 #include <bdlt_iso8601util.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -65,46 +67,53 @@ using namespace bsl;
 // [ 9] validateLocalTime(bool * result, const LclDatetm& lcTime);
 // [ 9] validateLocalTime(bool * result, const DatetmTz&, const char *TZ);
 // ----------------------------------------------------------------------------
-// [11] USAGE EXAMPLE
+// [11] TESTING TIME CONVERSION OUT OF RANGE
+// [12] USAGE EXAMPLE
 // ============================================================================
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_  cout << "\t" << flush;          // Print a tab (w/o newline)
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -834,10 +843,11 @@ static bdlt::DatetimeTz toDatetimeTz(const char *iso8601TimeString)
     // 'iso8601TimeString' is a null-terminated C-string containing a time
     // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
+    const int len = static_cast<int>(bsl::strlen(iso8601TimeString));
     bdlt::DatetimeTz time;
     int rc = bdlt::Iso8601Util::parse(&time,
                                   iso8601TimeString,
-                                  bsl::strlen(iso8601TimeString));
+                                  len);
     BSLS_ASSERT(0 == rc);
     return time;
 }
@@ -848,10 +858,11 @@ static bdlt::Datetime toDatetime(const char *iso8601TimeString)
     // 'iso8601TimeString' is a null-terminated C-string containing a time
     // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
+    const int len = static_cast<int>(bsl::strlen(iso8601TimeString));
     bdlt::Datetime time;
     int rc = bdlt::Iso8601Util::parse(&time,
                                   iso8601TimeString,
-                                  bsl::strlen(iso8601TimeString));
+                                  len);
     BSLS_ASSERT(0 == rc);
     return time;
 }
@@ -909,7 +920,7 @@ int main(int argc, char *argv[])
     baltzo::DefaultZoneinfoCache::setDefaultCache(&testCache);
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -1171,6 +1182,38 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // REPRODUCE BUG FROM DRQS 144183882
+        //
+        // Concerns:
+        //: 1 That 'convertUtcToLocalTime' correctly returns an invalid status
+        //:   if called in such a way as to produce an invalid result.
+        //
+        // Plan:
+        //: 1 Create a datatime object at the beginning of the valid time
+        //:   range do a time zone shit on it from UTC to NY time, which will
+        //:   put it out of range, and observe that the status returned is
+        //:   non-zero.
+        //
+        // Testing:
+        //   TESTING TIME CONVERSION OUT OF RANGE
+        // --------------------------------------------------------------------
+
+        const bdlt::Datetime defaultDT;
+        const char *timeZoneName = "America/New_York";
+        baltzo::LocalDatetime result;
+
+        int rc = baltzo::TimeZoneUtil::convertUtcToLocalTime(&result,
+                                                             timeZoneName,
+                                                             defaultDT);
+        ASSERT(0 != rc);
+        ASSERTV(rc, baltzo::ErrorCode::k_OUT_OF_RANGE   == rc);
+        ASSERTV(rc, baltzo::ErrorCode::k_UNSUPPORTED_ID != rc);
+        if (verbose) {
+            P_(rc);    P_(defaultDT);    P(result);
+        }
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'now'
@@ -1202,6 +1245,7 @@ int main(int argc, char *argv[])
         //   'now(DatetmTz *, const char *TZ);'
         //   'now(LclDatetm *, const char *TZ);'
         // --------------------------------------------------------------------
+
         if (verbose) cout << "CLASS METHOD 'now.'" << endl
                           << "===================" << endl;
 
@@ -3006,14 +3050,17 @@ int main(int argc, char *argv[])
                 const bsl::string inputStr(VALUES[i].d_input);
                 const bsl::string expResultStr(VALUES[i].d_expectedResult);
 
+                const int inputLen     = static_cast<int>(inputStr.size());
+                const int expResultLen = static_cast<int>(expResultStr.size());
+
                 bdlt::Datetime    inputTime;
                 bdlt::DatetimeTz  expResultTime;
                 ASSERT(0 == bdlt::Iso8601Util::parse(&inputTime,
                                                  inputStr.c_str(),
-                                                 inputStr.size()));
+                                                 inputLen));
                 ASSERT(0 == bdlt::Iso8601Util::parse(&expResultTime,
                                                  expResultStr.c_str(),
-                                                 expResultStr.size()));
+                                                 expResultLen));
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(timeZoneId); P_(inputTime); P(expResultTime);
@@ -3119,14 +3166,17 @@ int main(int argc, char *argv[])
                 const bsl::string inputStr(VALUES[i].d_input);
                 const bsl::string expResultStr(VALUES[i].d_expectedResult);
 
+                const int inputLen     = static_cast<int>(inputStr.size());
+                const int expResultLen = static_cast<int>(expResultStr.size());
+
                 bdlt::Datetime    inputTime;
                 bdlt::DatetimeTz  expResultTime;
                 ASSERT(0 == bdlt::Iso8601Util::parse(&inputTime,
                                                  inputStr.c_str(),
-                                                 inputStr.size()));
+                                                 inputLen));
                 ASSERT(0 == bdlt::Iso8601Util::parse(&expResultTime,
                                                  expResultStr.c_str(),
-                                                 expResultStr.size()));
+                                                 expResultLen));
                 baltzo::LocalDatetime expLocalTime(
                                                  expResultTime, timeZoneId, Z);
 
@@ -3258,17 +3308,21 @@ int main(int argc, char *argv[])
                 const bsl::string startStr(VALUES[i].d_start);
                 const bsl::string endStr(VALUES[i].d_end);
 
+                const int inputLen = static_cast<int>(inputStr.size());
+                const int startLen = static_cast<int>(startStr.size());
+                const int endLen   = static_cast<int>(endStr.size());
+
                 bdlt::DatetimeTz inputTz;
                 bdlt::Datetime   start, end;
                 ASSERT(0 == bdlt::Iso8601Util::parse(&inputTz,
                                                  inputStr.c_str(),
-                                                 inputStr.size()));
+                                                 inputLen));
                 ASSERT(0 == bdlt::Iso8601Util::parse(&start,
                                                  startStr.c_str(),
-                                                 startStr.size()));
+                                                 startLen));
                 ASSERT(0 == bdlt::Iso8601Util::parse(&end,
                                                  endStr.c_str(),
-                                                 endStr.size()));
+                                                 endLen));
 
                 baltzo::LocalTimePeriod result;
 
@@ -3401,16 +3455,20 @@ int main(int argc, char *argv[])
                 const bsl::string startStr(VALUES[i].d_start);
                 const bsl::string endStr(VALUES[i].d_end);
 
+                const int inputLen = static_cast<int>(inputStr.size());
+                const int startLen = static_cast<int>(startStr.size());
+                const int endLen   = static_cast<int>(endStr.size());
+
                 bdlt::Datetime input, start, end;
                 ASSERT(0 == bdlt::Iso8601Util::parse(&input,
                                                  inputStr.c_str(),
-                                                 inputStr.size()));
+                                                 inputLen));
                 ASSERT(0 == bdlt::Iso8601Util::parse(&start,
                                                  startStr.c_str(),
-                                                 startStr.size()));
+                                                 startLen));
                 ASSERT(0 == bdlt::Iso8601Util::parse(&end,
                                                  endStr.c_str(),
-                                                 endStr.size()));
+                                                 endLen));
 
                 baltzo::LocalTimePeriod result;
                 ASSERT(0 == Obj::loadLocalTimePeriodForUtc(&result,

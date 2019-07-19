@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 
+#include <baltzo_errorcode.h>
 #include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
@@ -27,7 +28,7 @@ namespace baltzo {
                              // ------------------
 
 // CLASS METHODS
-void ZoneinfoUtil::convertUtcToLocalTime(
+int ZoneinfoUtil::convertUtcToLocalTime(
                            bdlt::DatetimeTz                  *resultTime,
                            Zoneinfo::TransitionConstIterator *resultTransition,
                            const bdlt::Datetime&              utcTime,
@@ -39,7 +40,6 @@ void ZoneinfoUtil::convertUtcToLocalTime(
 
     Zoneinfo::TransitionConstIterator it =
                                     timeZone.findTransitionForUtcTime(utcTime);
-
     BSLS_ASSERT(it != timeZone.endTransitions());
 
     *resultTransition = it;
@@ -47,9 +47,14 @@ void ZoneinfoUtil::convertUtcToLocalTime(
     const int offsetInMinutes = offset / 60;
 
     bdlt::Datetime temp(utcTime);
-    temp.addMinutes(offsetInMinutes);
+    int rc = temp.addMinutesIfValid(offsetInMinutes);
+    if (0 != rc) {
+        return ErrorCode::k_OUT_OF_RANGE;                             // RETURN
+    }
 
     resultTime->setDatetimeTz(temp, offsetInMinutes);
+
+    return 0;
 }
 
 void ZoneinfoUtil::loadRelevantTransitions(

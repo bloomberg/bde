@@ -215,16 +215,19 @@ int TimeZoneUtilImp::convertUtcToLocalTime(
     BSLS_ASSERT(cache);
 
     const Zoneinfo *timeZone;
-    const int rc = lookupTimeZone(&timeZone, resultTimeZoneId, cache);
+    int rc = lookupTimeZone(&timeZone, resultTimeZoneId, cache);
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
 
     Zoneinfo::TransitionConstIterator it;
-    ZoneinfoUtil::convertUtcToLocalTime(result,
-                                               &it,
-                                               utcTime,
-                                               *timeZone);
+    rc = ZoneinfoUtil::convertUtcToLocalTime(result,
+                                             &it,
+                                             utcTime,
+                                             *timeZone);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
     return 0;
 }
 

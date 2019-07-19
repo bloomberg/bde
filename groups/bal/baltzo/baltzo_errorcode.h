@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of named errors for the 'baltzo' package.
+//@PURPOSE: Provide an enumeration of named errors for the 'baltzo' package.
 //
 //@CLASSES:
 //  baltzo::ErrorCode: namespace for error status 'enum'
@@ -22,6 +22,9 @@ BSLS_IDENT("$Id: $")
 //  Name               Description
 //  ----------------   --------------------------------------
 //  k_UNSUPPORTED_ID   Time zone identifier is not supported.
+//
+//  k_OUT_OF_RANGE     A conversion would have resulted in a value outside of
+//                     the valid range
 //..
 //
 ///Usage
@@ -79,7 +82,10 @@ struct ErrorCode {
   public:
     // TYPES
     enum Enum {
-        k_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
+        k_UNSUPPORTED_ID = 1,     // Time zone identifier is not supported.
+
+        k_OUT_OF_RANGE   = 2      // A calulation would have resulted in a
+                                  // value outside of the valid range.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAETZO_UNSUPPORTED_ID = k_UNSUPPORTED_ID

@@ -169,7 +169,9 @@ struct TimeZoneUtilImp {
         // information supplied by the specified 'cache'.  Return 0 on success,
         // and a non-zero value otherwise.  A return status of
         // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'resultTimeZoneId' is
-        // not recognized.
+        // not recognized, and a return status of 'ErrorCode::k_OUT_OF_RANGE'
+        // indicates that an out of range value of 'result' would have
+        // occurred.
 
     static void createLocalTimePeriod(
                           LocalTimePeriod                          *result,
