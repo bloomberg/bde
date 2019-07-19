@@ -464,8 +464,11 @@ struct TimeZoneUtil {
         // specified 'interval' in the future of the specified 'originalTime'
         // (in the time zone 'originalTime.timeZoneId()').  Return 0 on
         // success, and a non-zero value with no effect otherwise.  A return
-        // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
-        // was not recognized.  The resulting local-time is equivalent to
+        // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that
+        // 'targetTimeZoneId' was not recognized, and a return value of
+        // 'ErrorCode::k_OUT_OF_RANGE' indicates that the result of the
+        // operation would have been outside the range of values representable
+        // by the 'result' type.  The resulting local-time is equivalent to
         // adding 'interval' to 'originalTime.datetimeTz().utcDatetime()' and
         // converting the result into the local time of
         // 'originalTime.timeZoneId()'.
@@ -484,8 +487,8 @@ struct TimeZoneUtil {
         // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that
         // 'targetTimeZoneId' was not recognized, and a return value of
         // 'ErrorCode::k_OUT_OF_RANGE' indicates that the result of the
-        // operation would have been outside the range of valid values for the
-        // type of 'result'.
+        // operation would have been outside the range of values representable
+        // by the 'result' type.
 
     static int convertLocalToLocalTime(LocalDatetime         *result,
                                        const char            *targetTimeZoneId,
@@ -508,8 +511,9 @@ struct TimeZoneUtil {
         // to minute precision.  Return 0 on success, and a non-zero value with
         // no effect otherwise.  A return value of
         // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'targetTimeZoneId' was
-        // not recognized, while a return value of 'ErrorCode::k_OUT_OF_RANGE'
-        // indicate that 'result' would have been out of range.
+        // not recognized, and a return value of 'ErrorCode::k_OUT_OF_RANGE'
+        // indicates that the result of the operation would have been outside
+        // the range of values representable by the 'result' type.
 
     static int convertLocalToLocalTime(LocalDatetime         *result,
                                        const char            *targetTimeZoneId,
