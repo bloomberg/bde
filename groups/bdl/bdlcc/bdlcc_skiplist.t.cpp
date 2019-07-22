@@ -441,7 +441,7 @@ class SimpleScheduler
 };
 
 // ============================================================================
-//                         CASE 29 DRQS 145745492
+//             CASE 29 REPRODUCE BUG / VERIFY FIX OF DRQS 145745492
 // ----------------------------------------------------------------------------
 
 namespace SKIPLIST_TEST_CASE_NO_DEFAULT_CTOR_KEY_VALUE {
@@ -453,12 +453,13 @@ class KeyValue {
   public:
     // CREATOR
     explicit
-    KeyValue(int i) : d_i(i)
+    KeyValue(int i)
+    : d_i(i)
         // Create an object whose value is the specified 'i'.
     {}
 
     // ACCESSOR
-    bool operator<(const KeyValue rhs)
+    bool operator<(const KeyValue rhs) const
         // Return 'true' if this object is less than the specified 'rhs' and
         // 'false' otherwise.
     {
@@ -908,21 +909,27 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 29: {
         // --------------------------------------------------------------------
-        // REPRODUCE BUG FROM DRQS 145745492
+        // REPRODUCE BUG / VERIFY FIX OF DRQS 145745492
         //
         // Concern:
         //: 1 The DRQS complains that recent changes to skiplist made it
         //:   require default c'tors for the key and value types.  Reproduce
         //:   bug.
         //
-        //: Plan:
+        // Plan:
         //: 1 Declare a 'KeyValue' type with no default and use it to create
-        //:   a 'Skiplist'.
+        //:   a 'SkipList'.
+        //
+        // Testing:
+        //   REPRODUCE BUG / VERIFY FIX OF DRQS 145745492
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "REPRODUCE BUG / VERIFY FIX OF DRQS 145745492\n"
+                             "============================================\n";
 
         namespace Test = SKIPLIST_TEST_CASE_NO_DEFAULT_CTOR_KEY_VALUE;
 
-        bdlcc::SkipList<Test::KeyValue, Test::KeyValue> sl;
+        bdlcc::SkipList<Test::KeyValue, Test::KeyValue> sl;    (void) sl;
       } break;
       case 28: {
         // --------------------------------------------------------------------
