@@ -110,6 +110,7 @@
 #include <bsl_valarray.h>
 #include <bsl_vector.h>
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // stlport containers are deprecated and are not forwarded in the opensource
 // distribution
@@ -118,6 +119,7 @@
 #include <bsl_hash_set.h>
 #include <bsl_slist.h>
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <bsl_atomic.h>

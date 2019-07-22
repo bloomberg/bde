@@ -2,6 +2,7 @@
 #include <bdlde_sha2.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_climits.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {

@@ -5712,9 +5712,11 @@ if (veryVerbose)
             ASSERT(2 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 VERSION_SELECTOR));
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(1 == Obj::maxSupportedBdexVersion());
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OPENSOURCE_PUBLICATION
         }
 
         const int VERSIONS[] = { 1, 2 };
