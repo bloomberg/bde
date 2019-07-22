@@ -441,6 +441,34 @@ class SimpleScheduler
 };
 
 // ============================================================================
+//                         CASE 29 DRQS 145745492
+// ----------------------------------------------------------------------------
+
+namespace SKIPLIST_TEST_CASE_NO_DEFAULT_CTOR_KEY_VALUE {
+
+class KeyValue {
+    // DATA
+    int d_i;
+
+  public:
+    // CREATOR
+    explicit
+    KeyValue(int i) : d_i(i)
+        // Create an object whose value is the specified 'i'.
+    {}
+
+    // ACCESSOR
+    bool operator<(const KeyValue rhs)
+        // Return 'true' if this object is less than the specified 'rhs' and
+        // 'false' otherwise.
+    {
+        return d_i < rhs.d_i;
+    }
+};
+
+}  // close namespace SKIPLIST_TEST_CASE_NO_DEFAULT_CTOR_KEY_VALUE
+
+// ============================================================================
 //                         CASE 28 DRQS 144652915
 // ----------------------------------------------------------------------------
 
@@ -878,6 +906,24 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 29: {
+        // --------------------------------------------------------------------
+        // REPRODUCE BUG FROM DRQS 145745492
+        //
+        // Concern:
+        //: 1 The DRQS complains that recent changes to skiplist made it
+        //:   require default c'tors for the key and value types.  Reproduce
+        //:   bug.
+        //
+        //: Plan:
+        //: 1 Declare a 'KeyValue' type with no default and use it to create
+        //:   a 'Skiplist'.
+        // --------------------------------------------------------------------
+
+        namespace Test = SKIPLIST_TEST_CASE_NO_DEFAULT_CTOR_KEY_VALUE;
+
+        bdlcc::SkipList<Test::KeyValue, Test::KeyValue> sl;
+      } break;
       case 28: {
         // --------------------------------------------------------------------
         // REPRODUCE BUG FROM DRQS 144652915
