@@ -1959,7 +1959,7 @@ void SkipList<KEY, DATA>::initialize()
     // 'Node', because if 'KEY' or 'DATA' lack default c'ttors, then 'Node' has
     // no default c'tor.
 
-    static Node     *dummyNode_p = 0;
+    static Node * volatile dummyNode_p = 0;
 
     // Assert that this method has not been invoked.
 
@@ -1967,10 +1967,7 @@ void SkipList<KEY, DATA>::initialize()
 
     int nodeSizes[k_MAX_NUM_LEVELS];
 
-    // We can't use address 0, because it generates a warning with gcc.
-
-    const IntPtr offsetofPtrs = reinterpret_cast<char*>(&dummyNode_p->d_ptrs) -
-                                                        static_cast<char *>(0);
+    const IntPtr offsetofPtrs = reinterpret_cast<IntPtr>(&dummyNode_p->d_ptrs);
     for (int i = 0; i < k_MAX_NUM_LEVELS; ++i) {
         IntPtr nodeSize = offsetofPtrs + (i + 1) * sizeof(dummyNode_p->d_ptrs);
         nodeSize = (nodeSize + alignMask) & ~alignMask;
