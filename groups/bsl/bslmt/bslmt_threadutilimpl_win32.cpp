@@ -128,7 +128,7 @@ class ThreadNameAPI {
     // PRIVATE CREATOR
     ThreadNameAPI();
         // Dynamically load the dll and set the two function pointers in this
-        
+
   public:
     // CLASS METHOD
     static ThreadNameAPI& singleton();
@@ -186,11 +186,42 @@ void ThreadNameAPI::getThreadName(bsl::string *threadName) const
         // translate all non-ascii characters to '?'.
 
         if (SUCCEEDED(rc) && utf16Result) {
-            const wchar_t mask = ~ static_cast<wchar_t>(0x7f);
-            for (const wchar_t *pwc = utf16Result; *pwc; ++pwc) {
-                threadName->push_back(*pwc & mask ? '?'
-                                                  : static_cast<char>(*pwc));
+            // The 0th pass through this loop will just set 'rc' to the number
+            // of bytes needed to store the result without outputting any bytes
+            // of UTF-8.  The 1th pass will actually output to the buffer.
+
+            // Because 'utf16Result' is null-terminated, the length calculated
+            // will include room for a terminating '\0' which will be output
+            // and which we will have to trim afterward.
+
+            int lenPlusOne = 0;
+            for (int pass = 0; pass < 2; ++pass) {
+                int rc = ::WideCharToMultiByte(CP_UTF8,
+                                               0,
+                                               utf16Result,
+                                               -1,
+                                               pass ? &(*threadName)[0] : NULL,
+                                               pass ? lenPlusOne : 0,
+                                               NULL,
+                                               NULL);
+                if (0 == rc) {
+                    // Translation failed.
+
+                    return;                                           // RETURN
+                }
+
+                if (0 == pass) {
+                    lenPlusOne = rc;
+                    BSLS_ASSERT(0 < lenPlusOne);
+                    threadName->resize(lenPlusOne);
+                }
+                else {
+                    BSLS_ASSERT(lenPlusOne == rc);
+                }
             }
+            BSLS_ASSERT('\0' == (*threadName)[lenPlusOne - 1]);
+            threadName->resize(lenPlusOne - 1);
+
             LocalFree(utf16Result);
         }
     }
@@ -199,15 +230,34 @@ void ThreadNameAPI::getThreadName(bsl::string *threadName) const
 void ThreadNameAPI::setThreadName(const bslstl::StringRef& threadName) const
 {
     if (d_stdFuncPtr) {
-        // The Windows 'SetThreadDescription' takes its argument in UTF-16.
-        // Our BDE UTF8 -> UTF16 translation component is in 'bdlde', which is
-        // above 'bslmt'.  So we will just translate any non-ascii characters
-        // to '?'.
-
         bsl::wstring utf16String;
-        const char *end = threadName.data() + threadName.length();
-        for (const char *pc = threadName.data(); pc < end; ++pc) {
-            utf16String.push_back((*pc & 0x80) ? '?' : *pc);
+
+        const int threadNameLen = static_cast<int>(threadName.length());
+        int len = 0;
+        for (int pass = 0; pass < 2; ++pass) {
+            // The 0th pass through this loop will just set 'rc' to the number
+            // of bytes needed to store the result without outputting any bytes
+            // of UTF-8.  The 1th pass will actually output to the buffer.
+
+            int rc = ::MultiByteToWideChar(CP_UTF8,
+                                           0,
+                                           threadName.data(),
+                                           threadNameLen,
+                                           pass ? &utf16String[0] : NULL,
+                                           pass ? len : 0);
+            if (0 == rc) {
+                // Translation failed.
+
+                return;                                               // RETURN
+            }
+            if (0 == pass) {
+                len = rc;
+                BSLS_ASSERT(0 < len);
+                utf16String.resize(len);
+            }
+            else {
+                BSLS_ASSERT(len == rc);
+            }
         }
 
         (*d_stdFuncPtr)(::GetCurrentThread(), utf16String.c_str());
@@ -220,6 +270,7 @@ struct Win32Initializer {
     // to initialize the environment.  When the object is destroyed, it calls
     // 'bslmt_threadutil_win32_Deinitialize' to cleanup the environment.
 
+    // CREATORS
     Win32Initializer();
         // Initialize the BCE threading environment.
 
@@ -290,7 +341,7 @@ int bslmt_threadutil_win32_Initialize()
 #endif
             InterlockedExchange(&u::initializationState, e_INITIALIZED);
         }
-        return e_INITIALIZED == u::initializationState ? 0 : 1;     // RETURN
+        return e_INITIALIZED == u::initializationState ? 0 : 1;       // RETURN
     }
 }
 
@@ -670,6 +721,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
 
     // This implementation is very sensitive to the 'clockType'.  For safety,
     // we will assert the value is one of the two currently expected values.
+
     BSLS_ASSERT(bsls::SystemClockType::e_REALTIME ==  clockType ||
                 bsls::SystemClockType::e_MONOTONIC == clockType);
 
@@ -722,8 +774,9 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
 
         bsls::TimeInterval relativeTime =
                           absoluteTime - bsls::SystemTime::nowMonotonicClock();
-        if (relativeTime > bsls::TimeInterval(0, 0)) sleep(relativeTime);
-
+        if (relativeTime > bsls::TimeInterval(0, 0)) {
+            sleep(relativeTime);
+        }
     }
 
     return 0;
