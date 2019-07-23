@@ -126,7 +126,6 @@ enum { PLAT_EXC = 0 };
 // [19] void forcePushBack(T&&); - st
 // [19] void forcePushFront(T&&); - st
 // [19] void removeAll(vector<T> *); - st
-// [19] void removeAll(vector<T> *, bool); - st - move semantics
 // [ 2] void pushFront(const TYPE&); - st
 // [ 2] void pushBack(const TYPE&); - st
 // [ 2] TYPE popFront(); - st
@@ -164,11 +163,11 @@ enum { PLAT_EXC = 0 };
 // [ 6] int timedPushBack(const T&, const TimeInterval &);
 // [ 6] int timedPushFront(const T&,  const TimeInterval &);
 // [ 8] removeAll();
-// [ 8] removeAll(bsl::vector<T>& buffer);
-// [ 9] int tryPopFront(TYPE *, bool); - st
-// [ 9] void tryPopFront(size_t, vector<TYPE> *, bool); - st
-// [ 9] int tryPopBack(TYPE *, bool); - st
-// [ 9] void tryPopBack(size_t, vector<TYPE> *, bool); - st
+// [ 8] removeAll(bsl::vector<T> *buffer);
+// [ 9] int tryPopFront(TYPE *); - st
+// [ 9] void tryPopFront(size_t, vector<TYPE> *); - st
+// [ 9] int tryPopBack(TYPE *); - st
+// [ 9] void tryPopBack(size_t, vector<TYPE> *); - st
 // [12] int tryPopFront(TYPE *); - mt
 // [12] void tryPopFront(size_t, vector<TYPE> *); - mt
 // [12] void tryPopFront(size_t, vector<TYPE> *, bool); - mt
@@ -355,19 +354,26 @@ class MoveCopyAllocTestType {
         // used.
 
     explicit MoveCopyAllocTestType(int data,
-                                  bslma::Allocator *basicAllocator = 0);
+                                   bslma::Allocator *basicAllocator = 0);
         // Create a 'MoveCopyAllocTestType' object having the specified 'data'
         // attribute value.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    MoveCopyAllocTestType(bslmf::MovableRef<MoveCopyAllocTestType>  original);
-    MoveCopyAllocTestType(bslmf::MovableRef<MoveCopyAllocTestType>  original,
-                          bslma::Allocator *basicAllocator);
-        // TBD: comment this
+    MoveCopyAllocTestType(
+                     bslmf::MovableRef<MoveCopyAllocTestType>  original);
+    MoveCopyAllocTestType(
+                     bslmf::MovableRef<MoveCopyAllocTestType>  original,
+                     bslma::Allocator                         *basicAllocator);
+        // Move-construct this objectt from the specified 'original'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If no
+        // allocator is specified or if 'basicAllocator' matches the allocator
+        // of 'original', then 'original' is left in a valid but unspecified
+        // state, if 'basicAllocator' is specified and does not match
+        // 'original', the 'original' is copied without modification.
 
     MoveCopyAllocTestType(const MoveCopyAllocTestType&  original,
-                          bslma::Allocator      *basicAllocator = 0);
+                          bslma::Allocator             *basicAllocator = 0);
         // Create a 'MoveCopyAllocTestType' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -383,7 +389,11 @@ class MoveCopyAllocTestType {
 
     MoveCopyAllocTestType& operator=(
                                  bslmf::MovableRef<MoveCopyAllocTestType> rhs);
-        // TBD: comment this
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  If
+        // the allocators of '*this' and 'rhs' match, 'rhs' is left in a valid
+        // but unspecified state, otherwise 'rhs' is copied without
+        // modification.
 
     void setData(int value);
         // Set the 'data' attribute of this object to the specified 'value'.
@@ -502,8 +512,8 @@ MoveCopyAllocTestType::MoveCopyAllocTestType(bslma::Allocator *basicAllocator)
     *d_data_p = 0;
 }
 
-MoveCopyAllocTestType::MoveCopyAllocTestType(int data,
-                                           bslma::Allocator *basicAllocator)
+MoveCopyAllocTestType::MoveCopyAllocTestType(int               data,
+                                             bslma::Allocator *basicAllocator)
 : d_data_p(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_self_p(this)
@@ -525,12 +535,11 @@ MoveCopyAllocTestType::MoveCopyAllocTestType(
     MoveCopyAllocTestType& lvalue = original;
 
     if (lvalue.d_data_p) {
-        d_data_p = lvalue.d_data_p;
+        d_data_p        = lvalue.d_data_p;
         lvalue.d_data_p = 0;
     }
     else {
-        d_data_p =
-                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+        d_data_p  = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
         *d_data_p = 0;
     }
     lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
@@ -552,18 +561,17 @@ MoveCopyAllocTestType::MoveCopyAllocTestType(
             lvalue.d_data_p = 0;
         }
         else {
-            d_data_p =
-                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+            d_data_p  =
+                      static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
             *d_data_p = 0;
         }
         lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
         d_movedInto        = bsltf::MoveState::e_MOVED;
     }
     else {
-        d_data_p =
-                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-        *d_data_p = lvalue.data();
-        d_movedInto        = bsltf::MoveState::e_NOT_MOVED;
+        d_data_p    = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+        *d_data_p   = lvalue.data();
+        d_movedInto = bsltf::MoveState::e_NOT_MOVED;
     }
 }
 
@@ -667,7 +675,7 @@ void MoveCopyAllocTestType::setData(int value)
     d_movedInto = bsltf::MoveState::e_NOT_MOVED;
 }
 
-}  // close package namespace
+}  // close namespace bsltf
 
 // FREE OPERATORS
 inline
@@ -941,6 +949,11 @@ int getData<MCElement>(const MCElement& src)
     return src.data();
 }
 
+const void *p(long unsigned u)
+{
+    return reinterpret_cast<const void *>(u);
+}
+
 struct BreakTestAllocator : public bslma::TestAllocator {
     // This 'struct' enables us to have an allocator with all the functionality
     // of a test allocator with a different place to put breakpoints on
@@ -1076,6 +1089,11 @@ unsigned RandGen::operator()()
 }
 
 class RandChar {
+    // Provide random, alpha numeric characters for values for test cases.  All
+    // the types employed in numerous test cases can have their values set to
+    // values analogous to ascii characters, this 'class' will provide random,
+    // human-readable ascii values for these test cases.
+
     // DATA
     RandGen d_randGen;
 
@@ -1083,7 +1101,7 @@ class RandChar {
     explicit
     RandChar(int startSeed = 12345)
     : d_randGen(startSeed)
-        // Initialize the generator with the specified 'startSeed'.
+        // Initialize the generator with the optionally specified 'startSeed'.
     {
         (void) d_randGen();
         (void) d_randGen();
@@ -1237,17 +1255,17 @@ class Rand1To8 {
 
 template <class ELEMENT>
 class ObjChecker {
-    // This 'class' will, upon destruction, compare the two containers passed
-    // to it upon construction and assert that they are equal, unless the
-    // 'release' method has been called, in which case the c'tor becomes a
-    // no-op.
+    // This 'class' will, upon destruction, compare the two 'Deque<ELEMENT>'s
+    // passed to it upon construction and assert that they are equal, unless
+    // the 'release' method has been called, in which case the c'tor becomes a
+    // no-op.  The
 
     // TYPES
     typedef typename bdlcc::Deque<ELEMENT>::ConstProctor ConstProctor;
 
     // DATA
-    const bdlcc::Deque<ELEMENT> *d_toBeModified;
-    const bdlcc::Deque<ELEMENT> *d_toBeCompared;
+    const bdlcc::Deque<ELEMENT> *d_toBeModified_p;
+    const bdlcc::Deque<ELEMENT> *d_toBeCompared_p;
     int                          d_line;
 
   public:
@@ -1259,8 +1277,8 @@ class ObjChecker {
         // contained in the specified 'toBeModified' and 'toBeCompared'.  Store
         // 'line', the line number where the checker is created, to be part of
         // the warning message if the comparison fails.
-    : d_toBeModified(&toBeModified)
-    , d_toBeCompared(&toBeCompared)
+    : d_toBeModified_p(&toBeModified)
+    , d_toBeCompared_p(&toBeCompared)
     , d_line(line)
     {}
 
@@ -1268,9 +1286,9 @@ class ObjChecker {
         // Unless the 'release' method has been called in the lifetime of this
         // object, compare the two containers tracked by this object.
     {
-        if (d_toBeModified) {
-            ConstProctor               tbmProc(d_toBeModified);
-            ConstProctor               tbcProc(d_toBeCompared);
+        if (d_toBeModified_p) {
+            ConstProctor               tbmProc(d_toBeModified_p);
+            ConstProctor               tbcProc(d_toBeCompared_p);
             const bsl::deque<ELEMENT>& tbm = *tbmProc;
             const bsl::deque<ELEMENT>& tbc = *tbcProc;
 
@@ -1282,23 +1300,23 @@ class ObjChecker {
     void release()
         // Cancel the checking this object will do at destruction.
     {
-        d_toBeModified = 0;
+        d_toBeModified_p = 0;
     }
 };
 
 template <class ELEMENT>
 struct VecChecker {
     // DATA
-    const bsl::vector<ELEMENT> *d_toBeModified;
-    const bsl::vector<ELEMENT> *d_toBeCompared;
+    const bsl::vector<ELEMENT> *d_toBeModified_p;
+    const bsl::vector<ELEMENT> *d_toBeCompared_p;
     int                         d_line;
 
     // CREATORS
     VecChecker(const bsl::vector<ELEMENT>& toBeModified,
                const bsl::vector<ELEMENT>& toBeCompared,
                int                         line)
-    : d_toBeModified(&toBeModified)
-    , d_toBeCompared(&toBeCompared)
+    : d_toBeModified_p(&toBeModified)
+    , d_toBeCompared_p(&toBeCompared)
     , d_line(line)
         // Create a checker that will compare the values of the specified
         // 'toBeModified' and 'toBeCompared'.  Store 'line', the line number
@@ -1310,10 +1328,10 @@ struct VecChecker {
         // Unless the 'release' method has been called in the lifetime of this
         // object, compare the two containers tracked by this object.
     {
-        if (d_toBeModified) {
-            if (*d_toBeModified != *d_toBeCompared) {
-                const bsl::vector<ELEMENT>& M = *d_toBeModified;
-                const bsl::vector<ELEMENT>& C = *d_toBeCompared;
+        if (d_toBeModified_p) {
+            if (*d_toBeModified_p != *d_toBeCompared_p) {
+                const bsl::vector<ELEMENT>& M = *d_toBeModified_p;
+                const bsl::vector<ELEMENT>& C = *d_toBeCompared_p;
 
                 cout << "*d_toBeModified:";
                 IntPtr s = M.size();
@@ -1335,7 +1353,7 @@ struct VecChecker {
     void release()
         // Cancel the checking this object will do at destruction.
     {
-        d_toBeModified = 0;
+        d_toBeModified_p = 0;
     }
 };
 
@@ -1633,6 +1651,10 @@ namespace TEST_CASE_26 {
 
 template <class ELEMENT>
 class TimedPopRecordBack {
+    // Functor to do a couple of 'timedPopBack' on the 'Deque<ELEMENT>' passed
+    // at construction.  Sometimes the main thread will push an item to the
+    // 'Deque' for us to pop, other times it won't so that we will time out.
+
     // DATA
     bdlcc::Deque<ELEMENT> *d_deque_p;
     bslmt::Barrier        *d_barrier_p;
@@ -1651,7 +1673,8 @@ class TimedPopRecordBack {
     , d_expected(value)
         // Create a test object that will access the specified '*deque' and
         // with the specified 'val' and the specified 'timeout' and block on
-        // the specified '*barrier'.
+        // the specified '*barrier'.  After popping, confirm the value popped
+        // equals 'value'.
     {
     }
 
@@ -1714,6 +1737,10 @@ class TimedPopRecordBack {
 
 template <class ELEMENT>
 class TimedPopRecordFront {
+    // Functor to do a couple of 'timedPopFront' on the 'Deque<ELEMENT>' passed
+    // at construction.  Sometimes the main thread will push an item to the
+    // 'Deque' for us to pop, other times it won't so that we will time out.
+
     // DATA
     bdlcc::Deque<ELEMENT> *d_deque_p;
     bslmt::Barrier        *d_barrier_p;
@@ -1732,7 +1759,8 @@ class TimedPopRecordFront {
     , d_expected(value)
         // Create a test object that will access the specified '*deque' and
         // with the specified 'val' and the specified 'timeout' and block on
-        // the specified '*barrier'.
+        // the specified '*barrier'.  After popping, confirm the value popped
+        // equals 'value'.
     {
     }
 
@@ -3077,13 +3105,25 @@ class MultiThreadedForcePushTest {
         if (veryVerbose) bsl::printf(
                                "Producer %u forward pass start\n", d_id >> 30);
 
+
+        // Do pushes of 'unsigned's to the back of the container.  3 Types of
+        // pushes will be made:
+        //: o A move-push of a single item3725
+        //: o A copy-push of a single item
+        //: o A range-copy-push of 2-7 items
+        // The nature of the push is determined by 'len', then number of items,
+        // and 'move', if it's a move.
+        //
+        // We push the loop counter as the value, bitwise-ored with a 2-bit
+        // thread id.
+
         long unsigned visitFlags = 0;   // Make sure we do pushes of all
                                         // possible lengths.
 
         for (unsigned u = 0; u < 0x10000; ) {
             unsigned len = bsl::min(0x10000 - u, d_rand1To8());
             bool move = false;
-            if (2 == len) {
+            if (8 == len) {
                 move = true;
                 len = 1;
             }
@@ -3091,12 +3131,8 @@ class MultiThreadedForcePushTest {
 
             if (1 == len) {
                 unsigned uu = d_id | u++;
-                if (move) {
-                    d_container_p->forcePushBack(MUtil::move(uu));
-                }
-                else {
-                    d_container_p->forcePushBack(uu);
-                }
+                move ? d_container_p->forcePushBack(MUtil::move(uu))
+                     : d_container_p->forcePushBack(uu);
             }
             else {
                 for (unsigned ii = 0; ii < len; ++ii, ++u) {
@@ -3109,8 +3145,7 @@ class MultiThreadedForcePushTest {
             }
         }
 
-        ASSERTV(reinterpret_cast<void *>(visitFlags), (d_id >> 30),
-                                      (0x1ff & ~((1 << 2) | 1)) == visitFlags);
+        ASSERTV(u::p(visitFlags), (d_id >> 30), 0xfe == visitFlags);
         if (veryVerbose) bsl::printf(
                               "Producer %u forward pass finish\n", d_id >> 30);
         visitFlags = 0;
@@ -3120,10 +3155,21 @@ class MultiThreadedForcePushTest {
         if (veryVerbose) bsl::printf(
                               "Producer %u backward pass start\n", d_id >> 30);
 
+        // Do pushes of 'unsigned's to the back of the container.  3 Types of
+        // pushes will be made:
+        //: o A move-push of a single item
+        //: o A copy-push of a single item
+        //: o A range-copy-push of 2-7 items
+        // The nature of the push is determined by 'len', then number of items,
+        // and 'move', if it's a move.
+        //
+        // We push the loop counter as the value, bitwise-ored with a 2-bit
+        // thread id.
+
         for (unsigned u = 0; u < 0x10000; ) {
             unsigned len = bsl::min(0x10000 - u, d_rand1To8());
             bool move = false;
-            if (2 == len) {
+            if (8 == len) {
                 move = true;
                 len = 1;
             }
@@ -3131,12 +3177,8 @@ class MultiThreadedForcePushTest {
 
             if (1 == len) {
                 unsigned uu = d_id | u++;
-                if (move) {
-                    d_container_p->forcePushFront(MUtil::move(uu));
-                }
-                else {
-                    d_container_p->forcePushFront(uu);
-                }
+                move ? d_container_p->forcePushFront(MUtil::move(uu))
+                     : d_container_p->forcePushFront(uu);
             }
             else {
                 for (unsigned ii = 0; ii < len; ++ii, ++u) {
@@ -3149,8 +3191,7 @@ class MultiThreadedForcePushTest {
             }
         }
 
-        ASSERTV(reinterpret_cast<void *>(visitFlags), (d_id >> 30),
-                                      (0x1ff & ~((1 << 2) | 1)) == visitFlags);
+        ASSERTV(u::p(visitFlags), (d_id >> 30), 0xfe == visitFlags);
         if (veryVerbose) bsl::printf(
                              "Producer %u backward pass finish\n", d_id >> 30);
     }
@@ -3601,17 +3642,14 @@ class TestPopFront {
 
     bdlcc::Deque<ELEMENT> *d_mX_p;
     bslma::TestAllocator  *d_alloc_p;
-    bool                   d_moveFlag;
 
   public:
     TestPopFront(bdlcc::Deque<ELEMENT> *mX,
-                 bslma::TestAllocator  *alloc,
-                 bool                   moveFlag)
+                 bslma::TestAllocator  *alloc)
         // Create a 'TestPopFront' object accessing the specified 'mX' and
         // using the specified 'alloc'.
     : d_mX_p(mX)
     , d_alloc_p(alloc)
-    , d_moveFlag(moveFlag)
     {
         ASSERT(d_mX_p->allocator() == d_alloc_p);
     }
@@ -3677,17 +3715,14 @@ class TestPopBack {
 
     bdlcc::Deque<ELEMENT> *d_mX_p;
     bslma::TestAllocator  *d_alloc_p;
-    bool                   d_moveFlag;
 
   public:
     TestPopBack(bdlcc::Deque<ELEMENT> *mX,
-                bslma::TestAllocator  *alloc,
-                bool                   moveFlag)
+                bslma::TestAllocator  *alloc)
         // Create a 'TestPopBack' object accessing the specified 'mX' and using
         // the specified 'alloc'.
     : d_mX_p(mX)
     , d_alloc_p(alloc)
-    , d_moveFlag(moveFlag)
     {
         ASSERT(d_mX_p->allocator() == d_alloc_p);
     }
@@ -3768,10 +3803,8 @@ void testMultiThreadedTryPop()
         footprintVec.resize(1);
         ELEMENT& ee = footprintVec[0];
 
-        for (int run = 0; run < 8; ++run) {
-            const bool vMove = 4 <= run;    // vector move
-
-            TestPopFront<ELEMENT> frontFunc(&mX, &ta, vMove);
+        for (int run = 0; run < 4; ++run) {
+            TestPopFront<ELEMENT> frontFunc(&mX, &ta);
             bslmt::ThreadUtil::create(&handle, frontFunc);
             bslmt::ThreadUtil::microSleep(10 * 1000);
             for (int e = 0; e < 50; ++e) {
@@ -3788,7 +3821,7 @@ void testMultiThreadedTryPop()
             bslmt::ThreadUtil::join(handle);
             ASSERT(0 == X.length());
 
-            TestPopBack<ELEMENT> backFunc(&mX, &ta, vMove);
+            TestPopBack<ELEMENT> backFunc(&mX, &ta);
             bslmt::ThreadUtil::create(&handle, backFunc);
             for (int e = 0; e < 50; ++e) {
                 if (3 == e % 6 || 5 == e % 11) {
@@ -3857,6 +3890,17 @@ class HighWaterMarkFunctor {
     {
         const char *name = NameOf<ELEMENT>();
 
+        // Push 32 objects to the front and back of the 'Deque', the objects
+        // pushed to the front should have value 'FRONT_VAL', the objects
+        // pushed to the back should the value 'BACK_VAL'.  We use 8 different
+        // pushes, half of them moves.  The timed pushes should never time out.
+        // The main thread will pop off the front and back of the 'Deque',
+        // observing that values are as expected.
+
+        // The popping thread will be sleeping periodically, and there is a
+        // high water mark, so many of these pushes will block for awhile
+        // before completing.
+
         bslma::Allocator *a_p = d_deque_p->allocator();
         bsl::vector<ELEMENT> footprintVec(a_p);
         footprintVec.resize(4);
@@ -3864,13 +3908,19 @@ class HighWaterMarkFunctor {
         const ELEMENT&  f = footprintVec[0];
         u::setData(&footprintVec[1], BACK_VAL);
         const ELEMENT&  b = footprintVec[1];
-        u::setData(&footprintVec[2], FRONT_VAL);
         ELEMENT&       mf = footprintVec[2];
-        u::setData(&footprintVec[3], BACK_VAL);
         ELEMENT&       mb = footprintVec[3];
 
         for (int ii = 0; ii < 32; ++ii) {
             int jj = ii % 8;
+
+            mf = f;
+            ASSERTV(name, ii, bsltf::getMovedFrom(mf),
+                                           e_MOVED != bsltf::getMovedFrom(mf));
+            mb = b;
+            ASSERTV(name, ii, bsltf::getMovedFrom(mb),
+                                           e_MOVED != bsltf::getMovedFrom(mb));
+
             int sts = 0;
             switch (jj) {
               case 0: {
@@ -3908,9 +3958,6 @@ class HighWaterMarkFunctor {
                 ELEMENT& mRef = 0 == (jj & 1) ? mb : mf;
                 ASSERTV(name, ii, bsltf::getMovedFrom(mRef),
                                          e_MOVED == bsltf::getMovedFrom(mRef));
-                mRef = 0 == (jj & 1) ? b : f;
-                ASSERTV(name, ii, bsltf::getMovedFrom(mRef),
-                                         e_MOVED != bsltf::getMovedFrom(mRef));
             }
 
             ++pushCount;
@@ -3956,10 +4003,12 @@ void highWaterMarkTest()
             if (veryVerbose) { P_(u);    P(ta.numBlocksInUse()); }
 
             if (u & 1) {
-                ASSERT(BACK_VAL  == u::getData(mX.popBack()));
+                const int val = u::getData(mX.popBack());
+                ASSERTV(name, val, u, BACK_VAL  == val);
             }
             else {
-                ASSERT(FRONT_VAL == u::getData(mX.popFront()));
+                const int val = u::getData(mX.popFront());
+                ASSERTV(name, val, u, FRONT_VAL == val);
             }
         }
 
@@ -5752,7 +5801,6 @@ int main(int argc, char *argv[])
         //   void forcePushBack(T&&); - st
         //   void forcePushFront(T&&); - st
         //   void removeAll(vector<T> *); - st
-        //   void removeAll(vector<T> *, bool); - st - move semantics
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SINGLE-THREADED SINGLE ITEM FORCE PUSH TEST\n"
@@ -6689,10 +6737,10 @@ int main(int argc, char *argv[])
         //:   under test to verify that they provide the strong guarantee.
         //
         // Testing:
-        //   int tryPopFront(TYPE *, bool); - st
-        //   void tryPopFront(size_t, vector<TYPE> *, bool); - st
-        //   int tryPopBack(TYPE *, bool); - st
-        //   void tryPopBack(size_t, vector<TYPE> *, bool); - st
+        //   int tryPopFront(TYPE *); - st
+        //   void tryPopFront(size_t, vector<TYPE> *); - st
+        //   int tryPopBack(TYPE *); - st
+        //   void tryPopBack(size_t, vector<TYPE> *); - st
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST TRYPOPFRONT, TRYPOPBACK -- SINGLE THREAD\n"
