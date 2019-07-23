@@ -148,16 +148,6 @@ class TestStreamer {
     }
 };
 
-int clip(int x)
-    // Return the value in the range '[ 0, 127 ]' that is closest to the
-    // specified 'x'.
-{
-    return x < 0 ? 0
-                 : 127 < x
-                 ? 127
-                 : x;
-}
-
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -672,13 +662,6 @@ int main(int argc, char *argv[])
         //:     'int's value.
         //:
         //:   o Observe that a reference to the 'TestStreamer' is returned.
-        //:
-        //: 2 Test 'u::clip', which, passed an integer, returns the nearest
-        //:   integer in the range '[ 0 .. 127 ]'.
-        //:
-        //: 3 Iterate through a large number of values, using 'u::clip' to
-        //:   pass many values in the range '[ 0 .. 127 ]' to
-        //:   'operator<<(TestStream&, int)' and observing the results.
         //
         // Testing:
         //   TEST APPARATUS
@@ -699,47 +682,6 @@ int main(int argc, char *argv[])
             ts.reset();
             ts_p = 0;
             ASSERT(INT_MIN == ts.value());
-        }
-
-        if (verbose) printf("Thorough test of 'u::clip'\n");
-        {
-            enum { k_MILLION = 1000 * 1000 };
-
-            for (int ii = -k_MILLION; ii <= +k_MILLION; ++ii) {
-                const int cc = u::clip(ii);
-
-                if      (127 < ii) {
-                    ASSERTV(cc, ii, 127 == cc);
-                }
-                else if ( ii < 0) {
-                    ASSERTV(cc, ii,   0 == cc);
-                }
-                else {
-                    ASSERTV(cc, ii,  cc == ii);
-                }
-            }
-        }
-
-        if (verbose) printf("Test 'u::TestStreamer' and 'u::clip' together\n");
-        {
-            for (int jj = -3; jj <= +3; ++jj) {
-                for (int kk = 0; kk < 128; ++kk) {
-                    int ii = kk;
-
-                    u::TestStreamer ts, *ts_p = 0;
-                    ASSERT(INT_MIN == ts.value());
-
-                    for (int mm = 0, mmMax = 0 == jj ? 1 : 128; mm < mmMax;
-                                                                        ++mm) {
-                        ts_p = 0;
-                        ts_p = &(ts << ii);
-                        ASSERTV(ts.value(), ii, ts.value() == ii);
-                        ASSERT(&ts == ts_p);
-
-                        ii = u::clip(ii + jj);
-                    }
-                }
-            }
         }
       } break;
       case 1: {
