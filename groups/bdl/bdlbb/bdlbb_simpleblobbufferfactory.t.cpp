@@ -303,6 +303,25 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Open the test driver.\n";
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+# define MY_GETCWD _getcwd
+        bsl::system("dir");
+#else
+# define MY_GETCWD getcwd
+        bsl::system("ls -aCF");
+#endif
+
+        char cwd[1024];
+        int rc = MY_GETCWD(buf, sizeof(buf));
+        ASSERT(0 == rc);
+        P(cwd);
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+        bsl::system("DIR /W/O");
+#else
+        bsl::system("ls -aCF");
+#endif
+
         FILE *fp = bsl::fopen("bdlbb_simpleblobbufferfactory.t.cpp", "rb");
         BSLS_ASSERT(fp);
 
