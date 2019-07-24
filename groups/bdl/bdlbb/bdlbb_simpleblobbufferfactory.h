@@ -8,15 +8,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a simple implementation of 'bdlbb::BlobBufferFactory'.
 //
 //@CLASSES:
-//  bdlbb::SimpleBlobBufferFactory: simple form of 'bdlbb::BlobBufferFactory'
+//  bdlbb::SimpleBlobBufferFactory: a simple 'bdlbb::BlobBufferFactory'
 //
-//@DESCRIPTION: This component provides a mechanism for allocating
-// 'bdlbb::BlobBuffer' objects of a specified size.  The size is passed at
-// construction of the 'bdlbb::SimpleBlobBufferFactory' instance.  A
-// 'bdlbb::BlobBuffer' contains a shared pointer to a buffer of 'char' of the
-// prescribed size.  A 'bslma::Allocator *' is passed at construction to
-// allocate the buffers (if none is passed the default allocator is used), and
-// the buffers are allocated by separate calls to the allocator.
+//@DESCRIPTION: This component provides a mechanism, 'bdlbb:BlobBufferFactory',
+// that implements the 'bdlbb::BufferFactory' protocol and creates
+// 'bdlbb::BlobBuffer' objects of a fixed sized specified at the time the
+// factory is constructed.  The blob buffers created by this factory refer the
+// a (shared) buffer allocated by the allocator supplied at construction, or
+// the default allocator if no allocator is explicitly supplied.
 //
 ///Usage
 ///-----
@@ -72,6 +71,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_isbitwisemoveable.h>
 
 #include <bsl_cstddef.h>
@@ -93,8 +93,14 @@ class SimpleBlobBufferFactory : public BlobBufferFactory {
     int               d_size;
     bslma::Allocator *d_allocator_p;
 
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(SimpleBlobBufferFactory,
+                                   bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(SimpleBlobBufferFactory,
+                                   bslma::UsesBslmaAllocator);
+
   private:
-    // NOT IMPLEMENTED:
+    // NOT IMPLEMENTED
     SimpleBlobBufferFactory(           const SimpleBlobBufferFactory&);
     SimpleBlobBufferFactory& operator=(const SimpleBlobBufferFactory&);
 
@@ -104,17 +110,18 @@ class SimpleBlobBufferFactory : public BlobBufferFactory {
     SimpleBlobBufferFactory(bsl::size_t       bufferSize,
                             bslma::Allocator *basicAllocator = 0);
         // Create a 'SimpleBlobBufferFactory' object that will create blob
-        // buffers of specified length 'bufferSize' using the specified
-        // 'basicAllocator' to supply memory, or the default allocator if no
-        // allocator is passed.  The behavior is undefined unless 'bufferSize'
-        // can be represented as an 'int'.
+        // buffers of specified length 'bufferSize'.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless 'bufferSize' can be represented as an 'int'.
 
     virtual ~SimpleBlobBufferFactory();
         // Destroy this 'SimpleBlobBufferFactory' object.
 
     // MANIPULATORS
     virtual void allocate(bdlbb::BlobBuffer *buffer);
-        // Allocate a segment and set the specified 'buffer' to it.
+        // Allocate a blob buffer from this blob buffer factory, and load it
+        // into the specified 'buffer'.
 
     void setBufferSize(bsl::size_t bufferSize);
         // Set the buffer size for future buffers created by this factory to
@@ -128,19 +135,6 @@ class SimpleBlobBufferFactory : public BlobBufferFactory {
 };
 
 }  // close package namespace
-
-namespace bslmf {
-template <>
-struct IsBitwiseMoveable<bdlbb::SimpleBlobBufferFactory> : bsl::true_type {
-};
-}  // close namespace bslmf
-
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<bdlbb::SimpleBlobBufferFactory> : bsl::true_type {
-};
-}  // close namespace bslma
-
 }  // close enterprise namespace
 
 #endif

@@ -20,6 +20,7 @@
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstdio.h>      // 'fopen', etc
 #include <bsl_cstring.h>
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -35,19 +36,20 @@ using bsl::ends;
 //                             --------
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] SimpleBlobBufferFactory(int, Allocator *);
+// [ 2] SimpleBlobBufferFactory(size_t, Allocator *);
+// [ 2] ~SimpleBlobBufferFactory();
 // [ 3] SimpleBlobBufferFactory(int);
 //
 // MANIPULATORS
 // [ 2] void allocate(BlobBuffer *);
-// [ 2] void setBufferSize(int);
+// [ 2] void setBufferSize(size_t);
 //
 // ACCESSORS
 // [ 2] int bufferSize() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] SimpleBlobBufferFactory with Blob
-// [14] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -131,6 +133,37 @@ char getAlpha()
 {
     return !getAlphaData || 'z' == getAlphaData ? (getAlphaData = 'a')
                                                 : ++getAlphaData;
+}
+
+void fillAlpha(const BlobBuffer& blobBuffer)
+    // Fill the memory at the specified 'blobBuffer' with the lower case
+    // alphabet, repeating if necessary.
+{
+    char *dst    = &*blobBuffer.buffer();
+    int   length = blobBuffer.size();
+
+    getAlphaData = 0;
+    for (const char * const end = dst + length; dst < end; ++dst) {
+        *dst = getAlpha();
+    }
+}
+
+bool checkAlpha(const BlobBuffer& blobBuffer)
+    // Check that the memory of the specified 'blobBuffer' is filled with the
+    // lower case alphabet, repeating if necessary.  Return 'true' if the
+    // memory all matches and 'false' otherwise.
+{
+    const char *src    = &*blobBuffer.buffer();
+    const int   length = blobBuffer.size();
+
+    getAlphaData = 0;
+    for (const char * const end = src + length; src < end; ++src) {
+        if (getAlpha() != *src) {
+            return false;                                             // RETURN
+        }
+    }
+
+    return true;
 }
 
 }  // close namespace u
@@ -240,7 +273,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // BLOB TEST
+        // USE OF SIMPLEBLOBBUFFERFACTORY WITH BLOB TEST
         //
         // Concerns:
         //: 1 That the 'SimpleBlobBufferFactory' can be used correctly with
@@ -263,8 +296,8 @@ int main(int argc, char *argv[])
         //   SimpleBlobBufferFactory(int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "BLOB TEST\n"
-                             "=========\n";
+        if (verbose) cout << "USE OF SIMPLEBLOBBUFFERFACTORY WITH BLOB TEST\n"
+                             "=============================================\n";
 
         enum { bufferSize = 128 };
 
@@ -373,7 +406,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // COPY TEXT TO VECTOR OF BUFFERS
+        // COPY TEXT TO DEQUE OF BUFFERS
         //
         // Concerns:
         //: 1 The factory is capable of producing buffers of the desired type.
@@ -382,86 +415,98 @@ int main(int argc, char *argv[])
         //:   be of that size.
         //
         // Plan:
-        //: 1 Create a factory making small blob buffers, put data into them,
-        //:   and with each buffer, double the buffer size, and keep all the
-        //:   buffers in an array.  Get the characters to load into the blobs
-        //:   from 'getAlpha'.
+        //: 1 Create a function 'u::fileAlpha' which will populate the memory
+        //:   of a blob buffer with the lower case alphabet, repeated if need
+        //:   be.
         //:
-        //: 2 Traverse the buffers, verifying that the data is as expected.
+        //: 2 Create a function 'u::checkAlpha' which will verify that a blob
+        //:   has been entirely filled with the lower case alphabet, repeated
+        //:   if need be.
         //:
-        //: 3 Use the function 'u::getAlpha' to get alphabetical data to ensure
-        //:   that a meaningful variation in data is occurring.
+        //: 3 Iterate over a set of random blob sizes.  Use the 'setBufferSize'
+        //:   function at the beginning of each iteration to set the blob
+        //:   buffer size.
+        //:
+        //: 4 In an inner loop, create 5 blob buffers of the given size:
+        //:   o verify that their length is correct
+        //:   o fill the memory with data with 'fillAlpha'.
+        //:   o verify the memory has been correctly set with 'checkAlpha'.
+        //:   o store the blob into a 'deque'
+        //:
+        //: 5 Iterate through all the blob buffers in the 'deque'.
+        //:   o verify that their size is correct
+        //:   o verify that the data in them is correct with 'checkAlpha'.
+        //:
+        //: 6 clear the 'deque' and observe all the memory in the blob buffers
+        //:   is released.
         //
         // Testing:
-        //   SimpleBlobBufferFactory(int, Allocator *);
+        //   SimpleBlobBufferFactory(size_t, Allocator *);
+        //   ~SimpleBlobBufferFactory();
         //   void allocate(BlobBuffer *);
-        //   void setBufferSize(int);
+        //   void setBufferSize(size_t);
         //   int bufferSize() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "COPY TEXT TO VECTOR OF BUFFERS\n"
-                             "==============================\n";
+        if (verbose) cout << "COPY TEXT TO DEQUE OF BUFFERS\n"
+                             "=============================\n";
 
-        int dataLen = 10 * 1000;
-        int firstBufferSize = 16;
+        ASSERT(0 == ta.numAllocations());
 
-        if (verbose) cout <<
-                         "Create the factory with the starting buffer size.\n";
+        bsl::size_t sizes[] = { 8, 100, 30, 10 * 1000, 47, 200 };
+        enum { k_NUM_SIZES = sizeof sizes / sizeof *sizes,
+               k_INIT_SIZE = 16 };
 
-        Factory factory(firstBufferSize, &ta);
-        bsl::vector<BlobBuffer> bBufs(&sa);
+        Factory factory(k_INIT_SIZE, &ta);
+        bsl::deque<BlobBuffer> bBufs(&sa);
 
-        if (verbose) cout << "Create the first blob buffer.\n";
+        bsls::Types::Uint64 alloced = ta.numBytesInUse();
+        bsl::size_t prevSize = k_INIT_SIZE, size, sz;
+        for (int ii = 0; ii < k_NUM_SIZES; ++ii, prevSize = size) {
+            size = sizes[ii];
 
-        bBufs.resize(1);
-        factory.allocate(&bBufs.back());
+            if (veryVerbose) { P_(ii);    P(size); }
 
-        if (verbose) cout <<
-                "Use 'u::getAlpha' to reapeatedly write the lower case\n"
-                "alphabet to blob buffers of increasing length stored to\n"
-                "'bBufs'\n";
+            ASSERT((sz = factory.bufferSize()) == prevSize);
+            factory.setBufferSize(size);
 
-        int iChar  = 0;
-        for (int ii = 0; ii < dataLen; ++ii) {
-            BlobBuffer bBuf = bBufs.back();
-            if (iChar >= bBuf.size()) {
-                factory.setBufferSize(factory.bufferSize() * 2);
-                factory.allocate(&bBuf);
-                bBufs.push_back(bBuf);
-                iChar = 0;
+            for (int jj = 0; jj < 5; ++jj) {
+                if (veryVeryVerbose) cout << '.';
+
+                ASSERT((sz = factory.bufferSize()) == size);
+
+                BlobBuffer bb;
+                factory.allocate(&bb);
+                ASSERT(size == (sz = bb.size()));
+
+                u::fillAlpha(bb);
+                ASSERT(u::checkAlpha(bb));
+
+                ASSERT(ta.numBytesInUse() - alloced >= size);
+
+                bBufs.push_back(bb);
+
+                alloced = ta.numBytesInUse();
             }
 
-            char *buf = &*bBuf.buffer();
-            buf[iChar++] = u::getAlpha();
+            if (veryVeryVerbose) cout << endl;
         }
 
-        if (veryVerbose) {
-            P(bBufs.size());
-            int EXP_SIZE = firstBufferSize;
-            for (unsigned ii = 0; ii < bBufs.size(); ++ii, EXP_SIZE *= 2) {
-                T_    P_(ii);    P(bBufs[ii].size());
-                ASSERT(EXP_SIZE == bBufs[ii].size());
-            }
+        for (unsigned uu = 0; uu < bBufs.size(); ++uu) {
+            size = sizes[uu / 5];
+
+            BlobBuffer bb = bBufs[uu];
+
+            ASSERTV(uu, size, size == (sz = bb.size()));
+            ASSERTV(uu, u::checkAlpha(bb));
+
+            ASSERTV(alloced, ta.numBytesInUse(),
+                                            0 == ta.numBytesInUse() - alloced);
         }
 
-        u::getAlphaData = 0;
+        bBufs.clear();
 
-        if (verbose) cout <<
-                "Traverse the data in the blob buffers checking that it is\n"
-                "as expected.\n";
-
-        iChar    = 0;
-        int iBuf = 0;
-        for (int ii = 0; ii < dataLen; ++ii) {
-            BlobBuffer bBuf = bBufs[iBuf];
-            if (iChar >= bBuf.size()) {
-                bBuf  = bBufs[++iBuf];
-                iChar = 0;
-            }
-            const char EXP  = u::getAlpha();
-            const char read = bBuf.data()[iChar++];
-            ASSERTV(ii, EXP, read, EXP == read);
-        }
+        ASSERT(0 == ta.numBlocksInUse());
       } break;
       case 1: {
         // --------------------------------------------------------------------

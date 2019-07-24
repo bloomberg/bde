@@ -49,8 +49,6 @@ void SimpleBlobBufferFactory::setBufferSize(bsl::size_t bufferSize)
 
 // ACCESSORS
 int SimpleBlobBufferFactory::bufferSize() const
-    // Return the current size with which this factory will allocate
-    // buffers.
 {
     return d_size;
 }
