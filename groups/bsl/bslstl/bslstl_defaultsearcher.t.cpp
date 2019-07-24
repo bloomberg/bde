@@ -2814,7 +2814,7 @@ void processTestRun(bsl::list<float>::const_iterator first,
 
 // INSERT in Example 1.
 //..
-    struct MyCaseInsensitiveCharComparitor {
+    struct MyCaseInsensitiveCharComparator {
         bool operator()(const char& a, const char& b) const {
             return BSL::tolower(a) == BSL::tolower(b);
         }
@@ -2900,13 +2900,13 @@ static void usage()
 // to search for 'word':
 //..
     bsl::default_searcher<const char *,
-                          struct MyCaseInsensitiveCharComparitor>
+                          struct MyCaseInsensitiveCharComparator>
                                                     searchForUnitedInsensitive(
                                                     word,
                                                     word + BSL::strlen(word));
 //..
 // Note that the new searcher object will used a default constructed
-// 'MyCaseInsensitiveCharComparitor' class.  If a equality comparison object
+// 'MyCaseInsensitiveCharComparator' class.  If a equality comparison object
 // requires state supplied on construction, such an object be explicitly
 // created and supplied as the final constructor argument.
 //
@@ -3203,7 +3203,7 @@ int main(int argc, char *argv[])
 
         typedef bsl::default_searcher<RndAccConstItr>                 MechChar;
         typedef bsl::default_searcher<RndAccConstItr,
-                                      MyCaseInsensitiveCharComparitor>
+                                      MyCaseInsensitiveCharComparator>
                                                                       MechGnrl;
 
         typedef bsl::pair<RndAccConstItr, RndAccConstItr> Result;
@@ -3300,7 +3300,7 @@ int main(int argc, char *argv[])
 
             typedef bsl::default_searcher<
                                   const char *,
-                                  MyCaseInsensitiveCharComparitor> InSensitive;
+                                  MyCaseInsensitiveCharComparator> InSensitive;
 
             typedef bsl::pair<const char *, const char*> Result;
 

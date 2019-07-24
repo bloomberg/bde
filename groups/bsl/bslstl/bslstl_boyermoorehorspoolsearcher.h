@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //  assert(static_cast<bsl::size_t>(result.second - result.first)
 //             == bsl::strlen(word));
 //..
-// Finally, we notice that 'search' correctly ignored the appearance of the
+// Finally, we notice that the search correctly ignored the appearance of the
 // word "united" (all lower case) in the second sentence.
 //
 // {'bslstl_default'|Example 1} shows how the same problem is addressed using
@@ -605,6 +605,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 
 #include <cstring>  // 'memcpy'
 
@@ -693,7 +694,8 @@ class BoyerMooreHorspoolSearcher_CharImp {
         // is undefined unless 'needleFirst' can be advanced to 'needleLast'.
 
     BoyerMooreHorspoolSearcher_CharImp(
-            const BoyerMooreHorspoolSearcher_CharImp& original);
+                            const BoyerMooreHorspoolSearcher_CharImp& original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Create a 'BoyerMooreHorspoolSearcher_CharImp' object having same
         // state as the specified 'original' object.  The allocator of
         // 'original' is propagated to the new object.
@@ -1303,6 +1305,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 BoyerMooreHorspoolSearcher_CharImp(
              BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
                                                                       original)
+                                                          BSLS_KEYWORD_NOEXCEPT
 : d_needleLength(   MoveUtil::access(original).d_needleLength)
 , d_bytesPerElement(MoveUtil::access(original).d_bytesPerElement)
 , d_allocator_p(    MoveUtil::access(original).d_allocator_p)
@@ -1409,7 +1412,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 
     d_needleLength    = rhs.d_needleLength;
     d_bytesPerElement = rhs.d_bytesPerElement;
-    (void)d_allocator_p;
+    // 'd_allocator_p' intentionally unchanged.
 
     return *this;
 }
@@ -1454,6 +1457,11 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
             d_table_p = 0;
         }
     }
+
+#if 0
+    d_needleLength    = MoveUtil::access(rhs).d_needleLength;
+    d_bytesPerElement = MoveUtil::access(rhs).d_bytesPerElement;
+#endif
 
     return *this;
 }
@@ -1799,8 +1807,8 @@ BoyerMooreHorspoolSearcher<RNDACC_ITR_NEEDLE,
                            HASH,
                            EQUAL>::
 BoyerMooreHorspoolSearcher(
-     BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher> original,
-     BloombergLP::bslma::Allocator                             *basicAllocator)
+    BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher>  original,
+    BloombergLP::bslma::Allocator                              *basicAllocator)
 : d_needleFirst( MoveUtil::move(MoveUtil::access(original).d_needleFirst))
 , d_needleLast(  MoveUtil::move(MoveUtil::access(original).d_needleLast))
 , d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
@@ -1881,10 +1889,11 @@ BoyerMooreHorspoolSearcher<RNDACC_ITR_NEEDLE,
 
         // Check in reverse order for match.
 
-        const EQUAL comparitor(equal());
+        const EQUAL comparator(equal());
 
         for (native_std::size_t idx = d_needleLength - 1;
-             comparitor(haystackFirst[possibleMatch + idx], d_needleFirst[idx]);
+             comparator(haystackFirst[possibleMatch + idx],
+                        d_needleFirst[idx]);
              --idx) {
 
             if (0 == idx) { // No difference found
