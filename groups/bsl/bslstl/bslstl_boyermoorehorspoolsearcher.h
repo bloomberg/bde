@@ -651,6 +651,10 @@ class BoyerMooreHorspoolSearcher_CharImp {
      typedef difference_type  LongNeedleSkipType;
                                                // 'UCHAR_MAX  < d_needleLength'
 
+     typedef bsl::array<ShortNeedleSkipType, UCHAR_MAX + 1>
+                                                         ShortNeedleSkipArray;
+     typedef bsl::array< LongNeedleSkipType, UCHAR_MAX + 1>
+                                                          LongNeedleSkipArray;
     // PRIVATE METHODS
     void privateSetPostMoveState(
              BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
@@ -1233,22 +1237,18 @@ BoyerMooreHorspoolSearcher_CharImp(
     }
 
     if (privateUseShortNeedleOptimization()) {
-        d_table_p = new (*d_allocator_p) bsl::array<ShortNeedleSkipType,
-                                                    UCHAR_MAX + 1>;
+        d_table_p = new (*d_allocator_p) ShortNeedleSkipArray;
 
         native_std::memset(d_table_p,
                            static_cast<ShortNeedleSkipType>(d_needleLength),
                            UCHAR_MAX + 1);
     } else {
-        d_table_p = new (*d_allocator_p) bsl::array<LongNeedleSkipType,
-                                                    UCHAR_MAX + 1>;
+        LongNeedleSkipArray *arrayPtr = new (*d_allocator_p)
+                                                           LongNeedleSkipArray;
 
-        for (LongNeedleSkipType *ptr  =
-                           reinterpret_cast<LongNeedleSkipType *>(d_table_p),
-                                  *end  = ptr + (UCHAR_MAX + 1);
-                                   end != ptr;  ++ptr) {
-            *ptr = d_needleLength;
-        }
+        native_std::fill(arrayPtr->begin(), arrayPtr->end(), d_needleLength);
+
+        d_table_p = arrayPtr;
     }
 
     for (RNDACC_ITR_NEEDLE current  = needleFirst,
@@ -1261,11 +1261,11 @@ BoyerMooreHorspoolSearcher_CharImp(
                                       - (current - needleFirst);
 
         if (privateUseShortNeedleOptimization()) {
-            reinterpret_cast<ShortNeedleSkipType *>(d_table_p)[index]
-               = static_cast<ShortNeedleSkipType>(skipValue);
+            (*reinterpret_cast<ShortNeedleSkipArray *>(d_table_p))[index]
+                 = static_cast<ShortNeedleSkipType>(skipValue);
         } else {
-            reinterpret_cast< LongNeedleSkipType *>(d_table_p)[index]
-               = static_cast< LongNeedleSkipType>(skipValue);
+            (*reinterpret_cast< LongNeedleSkipArray *>(d_table_p))[index]
+                 = static_cast< LongNeedleSkipType>(skipValue);
         }
     }
 }
@@ -1477,10 +1477,10 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
     unsigned char index = static_cast<unsigned char>(value);
 
     if (privateUseShortNeedleOptimization()) {
-        return reinterpret_cast<ShortNeedleSkipType *>(d_table_p)[index];
+        return (*reinterpret_cast<ShortNeedleSkipArray *>(d_table_p))[index];
                                                                       // RETURN
     } else {
-        return reinterpret_cast< LongNeedleSkipType *>(d_table_p)[index];
+        return (*reinterpret_cast< LongNeedleSkipArray *>(d_table_p))[index];
                                                                       // RETURN
     }
 }
