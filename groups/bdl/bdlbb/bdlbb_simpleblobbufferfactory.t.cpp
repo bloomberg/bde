@@ -14,6 +14,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -22,6 +23,10 @@
 #include <bsl_cstring.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+#include <unistd.h>
+#endif
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -305,15 +310,12 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 # define MY_GETCWD _getcwd
-        bsl::system("dir");
 #else
-# define MY_GETCWD getcwd
-        bsl::system("ls -aCF");
+# define MY_GETCWD ::getcwd
 #endif
 
         char cwd[1024];
-        int rc = MY_GETCWD(buf, sizeof(buf));
-        ASSERT(0 == rc);
+        MY_GETCWD(cwd, sizeof(cwd));
         P(cwd);
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
