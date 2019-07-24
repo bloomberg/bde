@@ -26,6 +26,8 @@
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <unistd.h>
+#else
+#include <direct.h>
 #endif
 
 using namespace BloombergLP;
@@ -318,13 +320,27 @@ int main(int argc, char *argv[])
         MY_GETCWD(cwd, sizeof(cwd));
         P(cwd);
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-        bsl::system("DIR /W/O");
-#else
-        bsl::system("ls -aCF");
-#endif
+        FILE *fp = 0;
+        for (int ii = 0; !fp && ii < 2; ++ii) {
+            fp = bsl::fopen("bdlbb_simpleblobbufferfactory.t.cpp", "rb");
+            if (!fp && 0 == ii) {
+                // We're in a matrix build
 
-        FILE *fp = bsl::fopen("bdlbb_simpleblobbufferfactory.t.cpp", "rb");
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+                bsl::system("DIR /W/O");
+                _chdir("..\\..\\bde\\groups\\bdl\\bdlbb");
+                MY_GETCWD(cwd, sizeof(cwd));
+                P(cwd);
+                bsl::system("DIR /W/O");
+#else
+                bsl::system("ls -aCF");
+                chdir("../../bde/groups/bdl/bdlbb");
+                MY_GETCWD(cwd, sizeof(cwd));
+                P(cwd);
+                bsl::system("ls -aCF");
+#endif
+            }
+        }
         BSLS_ASSERT(fp);
 
         if (verbose) cout <<
