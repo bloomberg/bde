@@ -587,6 +587,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_array.h>
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
 #include <bslstl_iterator.h>
@@ -1231,13 +1232,17 @@ BoyerMooreHorspoolSearcher_CharImp(
         return;                                                      // RETURN
     }
 
-    d_table_p = d_allocator_p->allocate((UCHAR_MAX + 1) * d_bytesPerElement);
-
     if (privateUseShortNeedleOptimization()) {
+        d_table_p = new (*d_allocator_p) bsl::array<ShortNeedleSkipType,
+                                                    UCHAR_MAX + 1>;
+
         native_std::memset(d_table_p,
-                           static_cast<unsigned char>(d_needleLength),
+                           static_cast<ShortNeedleSkipType>(d_needleLength),
                            UCHAR_MAX + 1);
     } else {
+        d_table_p = new (*d_allocator_p) bsl::array<LongNeedleSkipType,
+                                                    UCHAR_MAX + 1>;
+
         for (LongNeedleSkipType *ptr  =
                            reinterpret_cast<LongNeedleSkipType *>(d_table_p),
                                   *end  = ptr + (UCHAR_MAX + 1);
@@ -1249,7 +1254,8 @@ BoyerMooreHorspoolSearcher_CharImp(
     for (RNDACC_ITR_NEEDLE current  = needleFirst,
                            last     = needleLast - 1;
                            last    != current; ++current) {
-        const unsigned char index = static_cast<unsigned char>(*current);
+
+        const unsigned char index     = static_cast<unsigned char>(*current);
         native_std::size_t  skipValue = d_needleLength
                                       - 1
                                       - (current - needleFirst);
