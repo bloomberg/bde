@@ -1469,6 +1469,14 @@ int main(int argc, char *argv[])
         // string.  On platforms that don't support thread names, the thread
         // name will always have a value of the empty string.
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+        // 'woof' followed by UTF-8 emoticon winking face
+
+        const bsl::string tn("woof \xf0\x9f\x98\x89", &oa);
+#else
+        const bsl::string tn("woof", &oa);
+#endif
+
 #if defined(BSLS_PLATFORM_OS_LINUX)
         bsl::string defaultThreadName("bslmt_threadutil.t", 15, &oa);
                                                          // basename of process
@@ -1490,7 +1498,7 @@ int main(int argc, char *argv[])
               case e_NO_ALLOC_ATTR_NAME:
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
-                attr.setThreadName("woof");
+                attr.setThreadName(tn);
               } break;
               default: {
                 ; // do nothing
@@ -1602,13 +1610,13 @@ int main(int argc, char *argv[])
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
 #if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-                LOOP2_ASSERT(cm, threadName, "woof" == threadName);
+                LOOP2_ASSERT(cm, threadName, tn == threadName);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                 // The threadname will only be visible if we're running on
                 // Windows 10, version 1607 or later, otherwise it will be
                 // empty.
 
-                LOOP2_ASSERT(cm, threadName, "woof" == threadName ||
+                LOOP2_ASSERT(cm, threadName, tn == threadName ||
                                                            threadName.empty());
 #else
                 LOOP2_ASSERT(cm, threadName, threadName.empty());
