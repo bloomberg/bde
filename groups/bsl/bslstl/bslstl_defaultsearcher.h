@@ -81,9 +81,9 @@ BSLS_IDENT("$Id: $")
 // Iterators defining needles are required to remain valid as long as the
 // searcher object might be used.
 //
-///Comparitor Requirements
+///Comparator Requirements
 ///-----------------------
-// The compitor class must meet the requirements of *BinaryPredicate*:
+// The comparator class must meet the requirements of *BinaryPredicate*:
 //: o The class defines an 'operator()' method, which, given an
 //:   *ForwardIterator*, 'iterator', may be invoked as
 //:   'operator()(*iterator, *iterator)'.
@@ -91,7 +91,7 @@ BSLS_IDENT("$Id: $")
 //: o The supplied iterators can be constant.
 //: o The class must be copyable.
 //
-// The compitor class is allowed to throw exceptions.
+// The comparator class is allowed to throw exceptions.
 //
 ///Optimizations for 'bslstl::DefaultSearcher'
 ///-------------------------------------------
@@ -161,8 +161,8 @@ BSLS_IDENT("$Id: $")
 //  assert(static_cast<bsl::size_t>(result.second - result.first)
 //             == bsl::strlen(word));
 //..
-// Finally, we notice that search correctly ignored the appearance of the word
-// "united" (all lower case) in the second sentence.
+// Finally, we notice that the search correctly ignored the appearance of the
+// word "united" (all lower case) in the second sentence.
 //
 // {'bslstl_boyermoorehorspoolsearcher'|Example 1} shows how the same problem
 // is addressed using 'bsl::boyer_moore_horspool_searcher'.
@@ -176,7 +176,7 @@ BSLS_IDENT("$Id: $")
 // First, define (at file scope if using a pre-C++11 compiler) an equality
 // comparison class that provides the required functor interface:
 //..
-//  struct MyCaseInsensitiveCharComparitor {
+//  struct MyCaseInsensitiveCharComparator {
 //      bool operator()(const char& a, const char& b) const {
 //          return bsl::tolower(a) == bsl::tolower(b);
 //      }
@@ -186,13 +186,13 @@ BSLS_IDENT("$Id: $")
 // to search for 'word':
 //..
 //  bsl::default_searcher<const char *,
-//                        struct MyCaseInsensitiveCharComparitor>
+//                        struct MyCaseInsensitiveCharComparator>
 //                                                  searchForUnitedInsensitive(
 //                                                  word,
 //                                                  word + bsl::strlen(word));
 //..
 // Note that the new searcher object will used a default constructed
-// 'MyCaseInsensitiveCharComparitor' class.  If an equality comparison object
+// 'MyCaseInsensitiveCharComparator' class.  If an equality comparison object
 // requires state supplied on construction, such an object be explicitly
 // created and supplied as the final constructor argument.
 //
@@ -262,7 +262,7 @@ BSLS_IDENT("$Id: $")
 //                                                       markerSequence
 //                                                     + markerSequenceLength);
 //..
-// Notice that no equality comparitor was specified so 'searchForMarker' will
+// Notice that no equality comparator was specified so 'searchForMarker' will
 // use 'bsl::equal_to<float>' by default.
 //
 // Now, we invoke our searcher on the instrument data.
@@ -362,7 +362,7 @@ class DefaultSearcher {
 
     //! DefaultSearcher(DefaultSearcher&& original) = default;
         // Create a 'DefaultSeacher' object having the same state as the
-        // specified 'original' on entry.  The 'original' object is left in an
+        // specified 'original' object.  The 'original' object is left in an
         // unspecified (valid) state.
 
     //! ~DefaultSearcher() = default;
@@ -374,8 +374,8 @@ class DefaultSearcher {
         // return a non-'const' reference to this object.
 
     //! DefaultSearcher& operator=(DefaultSearcher&& rhs) = default;
-        // Assign to this object the state of the specified 'rhs' had on entry
-        // and return a non-'const' reference to this object.  The 'original'
+        // Assign to this object the state of the specified 'rhs' had and
+        // return a non-'const' reference to this object.  The 'original'
         // object is left in an unspecified (valid) state.
 
     // ACCESSORS
@@ -555,7 +555,7 @@ class default_searcher {
         // Create a 'default_searcher' object that can search for the sequence
         // of 'value_type' values found in the specified range
         // '[pat_first, pat_last)'.  Optionally supply a 'pred' functor for use
-        // by 'operator()'.  See {Compitor Requirements}.  The behavior is
+        // by 'operator()'.  See {Comparator Requirements}.  The behavior is
         // undefined unless 'pat_first' can be advanced to equal 'pat_last'.
 
     //! default_searcher(const default_searcher& original) = default;

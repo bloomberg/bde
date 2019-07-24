@@ -2728,10 +2728,8 @@ const struct {
     //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
     //---- --------     ------  ------  ------
 
-    { L_,  "A"        , "a"    , 1, 0,  0, 1  }  // TEST FAILURE
-
     // Degenerate combinations
-  , { L_,  ""         , ""     , 0, 0,  0, 0  }
+    { L_,  ""         , ""     , 0, 0,  0, 0  }
   , { L_,  ""         , "a"    , 0, 0,  0, 0  }
   , { L_,  ""         , "ab"   , 0, 0,  0, 0  }
   , { L_,  ""         , "abc"  , 0, 0,  0, 0  }
@@ -2858,7 +2856,7 @@ void processTestRun(bsl::vector<float>::const_iterator first,
 // First, define (at file scope if using a pre-C++11 compiler) an equality
 // comparison class that provides the required functor interface:
 //..
-    struct MyCaseInsensitiveCharComparitor {
+    struct MyCaseInsensitiveCharComparator {
         bool operator()(const char& a, const char& b) const {
             return BSL::tolower(a) == BSL::tolower(b);
         }
@@ -2909,7 +2907,7 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
         typedef bslstl::BoyerMooreHorspoolSearcher<
                                                bsl::string::const_iterator,
                                                MyCaseInsensitiveCharHasher,
-                                               MyCaseInsensitiveCharComparitor>
+                                               MyCaseInsensitiveCharComparator>
                                                                       Searcher;
         // PRIVATE TYPES
       private:
@@ -2951,7 +2949,7 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
 //..
 // Notice (see the 'typedef') that we reuse the hash functor,
 // 'MyCaseInsensitiveCharHasher', and equality comparison functor,
-// 'MyCaseInsensitiveCharComparitor', that were defined in {Example 2}.
+// 'MyCaseInsensitiveCharComparator', that were defined in {Example 2}.
 //
 // Note that 'MyCaseInsensitiveSearcherCache' itself is an allocating type.  If
 // we needed to make it compatible with BDE containers (e.g., to allow a cache
@@ -3110,14 +3108,14 @@ static void usage()
 //..
     bsl::boyer_moore_horspool_searcher<const char *,
                                        MyCaseInsensitiveCharHasher,
-                                       MyCaseInsensitiveCharComparitor>
+                                       MyCaseInsensitiveCharComparator>
                                                     searchForUnitedInsensitive(
                                                             word,
                                                             word
                                                           + BSL::strlen(word));
 //..
 // Note that the new searcher object will use defaulted constructed
-// 'MyCaseInsensitiveCharHasher' and 'MyCaseInsensitiveCharComparitor' classes.
+// 'MyCaseInsensitiveCharHasher' and 'MyCaseInsensitiveCharComparator' classes.
 // If stateful functors are required such objects can be passed in the optional
 // constructor arguments.
 //
@@ -3768,12 +3766,12 @@ int main(int argc, char *argv[])
         typedef bslstl::BoyerMooreHorspoolSearcher<
                                     RndAccConstItr,
                                     MyCaseInsensitiveCharHasher,
-                                    MyCaseInsensitiveCharComparitor> MechGnrl;
+                                    MyCaseInsensitiveCharComparator> MechGnrl;
 
         typedef bslstl::BoyerMooreHorspoolSearcher_GeneralImp<
                                     RndAccConstItr,
                                     MyCaseInsensitiveCharHasher,
-                                    MyCaseInsensitiveCharComparitor>
+                                    MyCaseInsensitiveCharComparator>
                                                                    MechGnrlImp;
 
         ASSERT((bslma::UsesBslmaAllocator<MechChar   >::VALUE));
@@ -3848,7 +3846,7 @@ int main(int argc, char *argv[])
         typedef bsl::boyer_moore_horspool_searcher<
                                      RndAccConstItr,
                                      MyCaseInsensitiveCharHasher,
-                                     MyCaseInsensitiveCharComparitor> MechGnrl;
+                                     MyCaseInsensitiveCharComparator> MechGnrl;
 
         typedef bsl::pair<RndAccConstItr, RndAccConstItr> Result;
         typedef bsl::hash<    char>                       DefaultHash;
@@ -3971,7 +3969,7 @@ int main(int argc, char *argv[])
             typedef bsl::boyer_moore_horspool_searcher<
                                   const char *,
                                   MyCaseInsensitiveCharHasher,
-                                  MyCaseInsensitiveCharComparitor> InSensitive;
+                                  MyCaseInsensitiveCharComparator> InSensitive;
 
             typedef bsl::pair<const char *, const char*> Result;
 
