@@ -7221,10 +7221,15 @@ int main(int argc, char **argv)
 
         const unsigned chars[] = { 'H', 'e', 'l', 'l', 'o', '\n',
                                    753, 10000, 100000, 0xd7ff, 0xe000,
-                                   0xd800, 0xd8ff, 0xdc00, 0xdcff, 0xdd99, 0 };
+                                   0xd800, 0xd8ff, 0xdc00, 0xdcff, 0xdd99,
+                                   0x1f609, 0 };
         for (const unsigned *pu = chars; *pu; ++pu) {
+            unsigned seq32[] = { *pu, 0 };
+            bsl::string seq8;
+            bool valid = !bdlde::CharConvertUtf32::utf32ToUtf8(&seq8, seq32);
             cout << bsl::hex << *pu << bsl::dec << ": ";
-            TC::outputSequence(cout, *pu) << '\n';
+            TC::outputSequence(cout, *pu) << ": " << (valid ? "" : "in") <<
+            "valid: " << seq8 << '\n';
         }
       } break;
       default: {
