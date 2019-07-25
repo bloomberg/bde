@@ -26,6 +26,8 @@
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #else
 #include <direct.h>
 #endif
@@ -173,6 +175,38 @@ bool checkAlpha(const BlobBuffer& blobBuffer)
     return true;
 }
 
+bool fileExists(const char *fileName)
+    // Return 'true' if the specified 'fileName' exists and 'false' otherwise.
+    // Note that 'fileName' may specify a directory.
+{
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    struct stat s;
+    return 0 == ::stat(fileName, &s);
+#else
+    return INVALID_FILE_ATTRIBUTES != GetFileAttributesA(fileName);
+#endif
+}
+
+void moveUpOneDir()
+    // Change the current working directory to the parent of the current one.
+    // The behavior is undefined if we were already at the top level.
+{
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    BSLS_ASSERT(bsl::strcmp("/", cwd));
+
+    ::chdir("..");
+#else
+    const char *pc = bsl::strchr(cwd. ':');
+    pc = pc ? pc + 1 : cwd;
+    BSLS_ASSERT(bsl::strcmp("\\", pc));
+
+    _chdir("..");
+#endif
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -308,39 +342,23 @@ int main(int argc, char *argv[])
 
         enum { bufferSize = 128 };
 
+        // Move up to the directory containing the 'bde' directory, or fail if
+        // we reach the top level first.
+
+        while (!u::fileExists("bde")) {
+            u::moveUpOneDir();
+        }
+
         if (verbose) cout << "Open the test driver.\n";
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-# define MY_GETCWD _getcwd
+        const char *filePath =
+                "bde\\groups\\bdl\\bdlbb\\bdlbb_simpleblobbufferfactory.t.cpp";
 #else
-# define MY_GETCWD ::getcwd
+        const char *filePath =
+                    "bde/groups/bdl/bdlbb/bdlbb_simpleblobbufferfactory.t.cpp";
 #endif
-
-        char cwd[1024];
-        MY_GETCWD(cwd, sizeof(cwd));
-        P(cwd);
-
-        FILE *fp = 0;
-        for (int ii = 0; !fp && ii < 2; ++ii) {
-            fp = bsl::fopen("bdlbb_simpleblobbufferfactory.t.cpp", "rb");
-            if (!fp && 0 == ii) {
-                // We're in a matrix build
-
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-                bsl::system("DIR /W/O");
-                _chdir("..\\..\\bde\\groups\\bdl\\bdlbb");
-                MY_GETCWD(cwd, sizeof(cwd));
-                P(cwd);
-                bsl::system("DIR /W/O");
-#else
-                bsl::system("ls -aCF");
-                chdir("../../bde/groups/bdl/bdlbb");
-                MY_GETCWD(cwd, sizeof(cwd));
-                P(cwd);
-                bsl::system("ls -aCF");
-#endif
-            }
-        }
+        FILE *fp = bsl::fopen(filePath, "rb");
         BSLS_ASSERT(fp);
 
         if (verbose) cout <<
