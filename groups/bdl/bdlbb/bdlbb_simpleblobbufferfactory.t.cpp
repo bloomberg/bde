@@ -199,8 +199,11 @@ void moveUpOneDir()
 
     ::chdir("..");
 #else
-    const char *pc = bsl::strchr(cwd. ':');
-    pc = pc ? pc + 1 : cwd;
+    const char *pc = cwd;
+    while (*pc && ':' != *pc) {
+        ++pc;
+    }
+    pc = *pc ? pc + 1 : cwd;
     BSLS_ASSERT(bsl::strcmp("\\", pc));
 
     _chdir("..");
