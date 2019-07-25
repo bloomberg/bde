@@ -1768,8 +1768,7 @@ SkipList_NodeCreationHelper<KEY, DATA>::SkipList_NodeCreationHelper(
 
 template<class KEY, class DATA>
 inline
-SkipList_NodeCreationHelper<KEY, DATA>::
-                                            ~SkipList_NodeCreationHelper()
+SkipList_NodeCreationHelper<KEY, DATA>::~SkipList_NodeCreationHelper()
 {
     if (d_node_p) {
         if (d_keyFlag) {
@@ -1954,7 +1953,13 @@ void SkipList<KEY, DATA>::initialize()
     typedef bsls::Types::IntPtr IntPtr;
 
     static const int alignMask = bsls::AlignmentFromType<Node>::VALUE - 1;
-    static Node      dummyNode;
+
+    // 'dummyNode_p' is just used for taking offsets and sizes in the 'Node'
+    // struct.  Note that we don't want to just create a default constructed
+    // 'Node', because if 'KEY' or 'DATA' lack default c'ttors, then 'Node' has
+    // no default c'tor.
+
+    static Node * volatile dummyNode_p = 0;
 
     // Assert that this method has not been invoked.
 
@@ -1962,12 +1967,9 @@ void SkipList<KEY, DATA>::initialize()
 
     int nodeSizes[k_MAX_NUM_LEVELS];
 
-    // We can't use address 0, because it generates a warning with gcc.
-
-    const IntPtr offsetofPtrs = reinterpret_cast<char *>(&dummyNode.d_ptrs) -
-                                          reinterpret_cast<char *>(&dummyNode);
+    const IntPtr offsetofPtrs = reinterpret_cast<IntPtr>(&dummyNode_p->d_ptrs);
     for (int i = 0; i < k_MAX_NUM_LEVELS; ++i) {
-        IntPtr nodeSize  = offsetofPtrs + (i + 1) * sizeof(dummyNode.d_ptrs);
+        IntPtr nodeSize = offsetofPtrs + (i + 1) * sizeof(dummyNode_p->d_ptrs);
         nodeSize = (nodeSize + alignMask) & ~alignMask;
         nodeSizes[i] = static_cast<int>(nodeSize);
     }
