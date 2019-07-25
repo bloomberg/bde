@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
         // we reach the top level first.
 
         while (!u::fileExists("bde")) {
-            BSLS_ASSERT(!u::isAtTopLevelDir());
+            BSLS_ASSERT_OPT(!u::isAtTopLevelDir());
 
             u::moveUpOneDir();
         }
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
                     "bde/groups/bdl/bdlbb/bdlbb_simpleblobbufferfactory.t.cpp";
 #endif
         FILE *fp = bsl::fopen(filePath, "rb");
-        BSLS_ASSERT(fp);
+        BSLS_ASSERT_OPT(fp);
 
         if (verbose) cout <<
                        "Set 'fLen', the length in bytes of the test driver.\n";
