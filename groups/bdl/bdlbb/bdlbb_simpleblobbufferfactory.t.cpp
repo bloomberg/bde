@@ -187,25 +187,29 @@ bool fileExists(const char *fileName)
 #endif
 }
 
-void moveUpOneDir()
-    // Change the current working directory to the parent of the current one.
-    // The behavior is undefined if we were already at the top level.
+bool isAtTopLevelDir()
+    // Return 'true' if the current working directory is at the top of the file
+    // system and 'false' otherwise.
 {
     char cwd[1024];
     getcwd(cwd, sizeof(cwd));
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    BSLS_ASSERT(bsl::strcmp("/", cwd));
+    return !bsl::strcmp("/", cwd);
+#else
+    const char *pc = bsl::strchr(cwd, ':');
+    pc = pc ? pc + 1 : cwd;
+    return !bsl::strcmp("\\", pc);
+#endif
+}
 
+void moveUpOneDir()
+    // Change the current working directory to the parent of the current one.
+    // The behavior is undefined if we were already at the top level.
+{
+#if defined(BSLS_PLATFORM_OS_UNIX)
     ::chdir("..");
 #else
-    const char *pc = cwd;
-    while (*pc && ':' != *pc) {
-        ++pc;
-    }
-    pc = *pc ? pc + 1 : cwd;
-    BSLS_ASSERT(bsl::strcmp("\\", pc));
-
     _chdir("..");
 #endif
 }
@@ -349,6 +353,8 @@ int main(int argc, char *argv[])
         // we reach the top level first.
 
         while (!u::fileExists("bde")) {
+            BSLS_ASSERT(!u::isAtTopLevelDir());
+
             u::moveUpOneDir();
         }
 
@@ -589,7 +595,7 @@ int main(int argc, char *argv[])
         const bsl::size_t bufferSize = 128;
         const int         numBuffers = 256;
 
-        bsl::size_t inUse, allocSize = 0;
+        bsls::Types::Uint64 inUse, allocSize = 0;
         Factory factory(bufferSize, &ta);
         bsl::vector<BlobBuffer> buffers(&sa);
         buffers.reserve(numBuffers);
