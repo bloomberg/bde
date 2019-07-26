@@ -1,12 +1,5 @@
 // bdlbb_blobutil.h                                                   -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLBB_BLOBUTIL
 #define INCLUDED_BDLBB_BLOBUTIL
 
@@ -17,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdlbb::BlobUtil: suite of utilities on 'bdlbb::Blob'
+//  bdlbb::BlobUtilAsciiDumper: helper class for ascii dump of a 'blbb::Blob'
+//  bdlbb::BlobUtilHexDumper: helper class for hex dump of a 'bdlbb::Blob'
 //
 //@SEE_ALSO: bdlbb_blob
 //
@@ -245,7 +240,7 @@ struct BlobUtil {
 struct BlobUtilAsciiDumper {
     // Utility for ascii dumping a blob to standard output streams.  This class
     // has 'operator<<' defined for it, so it can be used, for example, in
-    // 'bael' logs.
+    // 'ball' logs.
 
     // DATA
     const Blob *d_blob_p;
@@ -267,7 +262,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BlobUtilAsciiDumper& rhs);
 struct BlobUtilHexDumper {
     // Utility for hex dumping a blob to standard output streams.  This class
     // has 'operator<<' defined for it, so it can be used, for example, in
-    // 'bael' logs.
+    // 'ball' logs.
 
     // DATA
     const Blob *d_blob_p;
