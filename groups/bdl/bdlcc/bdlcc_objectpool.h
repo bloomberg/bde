@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe object pool.
 //
 //@CLASSES:
-//  bdlcc::ObjectPool: thread-enabled container of managed objects
+//  bdlcc::ObjectPool: thread-safe container of managed objects
 //  bdlcc::ObjectPoolFunctors: namespace for resetter/creator implementations
 //
 //@SEE_ALSO: bdlcc_sharedobjectpool
@@ -29,6 +29,12 @@ BSLS_IDENT("$Id: $")
 // further reuse (thus avoiding the overhead of object construction and
 // destruction).  A major requirement of using the object pool is that any call
 // to 'getObject' can be satisfied by any object in the pool.
+//
+///Thread Safety
+///-------------
+// The 'bdlcc::ObjectPool' class template is fully thread-safe (see
+// {'bsldoc_glossary'|Fully Thread-Safe}), assuming that the allocator is fully
+// thread-safe.  Each method is executed by the calling thread.
 //
 ///Object Construction and Destruction
 ///-----------------------------------
