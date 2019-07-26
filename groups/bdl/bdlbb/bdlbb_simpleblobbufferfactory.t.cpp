@@ -45,13 +45,13 @@ using bsl::ends;
 //                             --------
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] SimpleBlobBufferFactory(size_t, Allocator *);
+// [ 2] SimpleBlobBufferFactory(int, Allocator *);
 // [ 2] ~SimpleBlobBufferFactory();
 // [ 3] SimpleBlobBufferFactory(int);
 //
 // MANIPULATORS
 // [ 2] void allocate(BlobBuffer *);
-// [ 2] void setBufferSize(size_t);
+// [ 2] void setBufferSize(int);
 //
 // ACCESSORS
 // [ 2] int bufferSize() const;
@@ -117,6 +117,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bdlbb::SimpleBlobBufferFactory Factory;
+typedef bsls::Types::Int64             Int64;
 using   bdlbb::BlobBuffer;
 using   bdlbb::Blob;
 
@@ -212,6 +213,23 @@ void moveUpOneDir()
 #else
     _chdir("..");
 #endif
+}
+
+void fillSlashes(char *string)
+    // Substitute all '+'s in the specified 'string' with a slash character
+    // appropriate for the OS.
+{
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    const char slash = '/';
+#else
+    const char slash = '\\';
+#endif
+
+    for (; *string; ++string) {
+        if ('+' == *string) {
+            *string = slash;
+        }
+    }
 }
 
 }  // close namespace u
@@ -353,22 +371,24 @@ int main(int argc, char *argv[])
         // we reach the top level first.
 
         while (!u::fileExists("bde")) {
-            BSLS_ASSERT_OPT(!u::isAtTopLevelDir());
+            if (u::isAtTopLevelDir()) {
+                ASSERT(0 && "reached top level without finding 'bde'");
+                break;    // 'fopen' below will fail and test will abort
+            }
 
             u::moveUpOneDir();
         }
 
         if (verbose) cout << "Open the test driver.\n";
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-        const char *filePath =
-                "bde\\groups\\bdl\\bdlbb\\bdlbb_simpleblobbufferfactory.t.cpp";
-#else
-        const char *filePath =
-                    "bde/groups/bdl/bdlbb/bdlbb_simpleblobbufferfactory.t.cpp";
-#endif
+        char filePath[] = {
+                  "bde+groups+bdl+bdlbb+bdlbb_simpleblobbufferfactory.t.cpp" };
+        u::fillSlashes(filePath);
         FILE *fp = bsl::fopen(filePath, "rb");
-        BSLS_ASSERT_OPT(fp);
+        if (!fp) {
+            ASSERTV(filePath, 0 && "unable to fopen file");
+            break;
+        }
 
         if (verbose) cout <<
                        "Set 'fLen', the length in bytes of the test driver.\n";
@@ -383,9 +403,13 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < 2; ++ti) {
             bool defaultMemory = ti & 1;
 
+            if (veryVerbose) cout << (0 == ti ? "" : "\n") << "Pass: " << ti <<
+                         (defaultMemory ? " using default memory\n"
+                                        : " using memory supplied to c'tor\n");
+
             bsl::rewind(fp);
 
-            if (verbose) cout <<
+            if (veryVerbose) cout <<
                          "Create our factory and a blob using that factory.\n";
 
             Factory  daFactory(bufferSize);    // default allocator == 'da'
@@ -394,7 +418,7 @@ int main(int argc, char *argv[])
             ASSERT(factory.bufferSize() == bufferSize);
             Blob     blob(&factory, &sa);
 
-            if (verbose) cout <<
+            if (veryVerbose) cout <<
                 "Traverse the file and load its contents into the blob,\n"
                 "growing as needed.  Do a few sanity checks.\n";
 
@@ -419,7 +443,7 @@ int main(int argc, char *argv[])
             ASSERTV(fLen, blobLen, fLen == blobLen);
             ASSERTV(fLen, blob.length(), fLen == blob.length());
 
-            if (verbose) cout <<
+            if (veryVerbose) cout <<
                 "Examing memory consumption.  Note that the blob itself\n"
                 "allocates memory from 'sa', a different source.  Also note\n"
                 "that since the blob buffers contain shared pointers, the\n"
@@ -435,13 +459,13 @@ int main(int argc, char *argv[])
                 ASSERT(ta.numBytesInUse() > fLen);
             }
 
-            if (verbose) {
+            if (veryVerbose) {
                 cout << "Finished reading blob:\n";
                 P_(blob.numBuffers());    P(blob.numDataBuffers());
                 P_(blob.length());        P(blob.lastDataBufferLength());
             }
 
-            if (verbose) cout <<
+            if (veryVerbose) cout <<
                     "Traverse the file and the blob again, this time\n"
                     "comparing the file's contents with the contents of the\n"
                     "blob.\n";
@@ -459,40 +483,57 @@ int main(int argc, char *argv[])
                     ASSERTV(c, iBuf, ii, 0 < c && c < 128);    // ascii
                     ASSERTV(iBuf, ii, c == buf[ii]);
 
-                    if (veryVerbose) cout << buf[ii];
+                    if (veryVeryVerbose) cout << buf[ii];
                 }
             }
             ASSERT(EOF == getc(fp))
             ASSERT(fLen == numChars);
+
+            if (0 == ti) {
+                ASSERT(!defaultMemory);
+                ASSERT(0 == da.numAllocations());
+            }
+            else {
+                ASSERT(0 <  da.numAllocations());
+            }
         }
 
         bsl::fclose(fp);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // COPY TEXT TO DEQUE OF BUFFERS
+        // CREATE BLOB BUFFERS OF VARYING SIZES
         //
         // Concerns:
         //: 1 The factory is capable of producing buffers of the desired type.
         //:
         //: 2 The factory can vary the buffer size and subsequent buffers will
         //:   be of that size.
+        //:   o the first blob buffers created will be at the size specified
+        //:     at construction
+        //:   o if 'setBufferSize' is called, subsequent buffers are created
+        //:     of that size
+        //:
+        //: 3 The blob buffers created are functional and can hold data, and
+        //:   free up their memory when destroyed.
         //
         // Plan:
-        //: 1 Create a function 'u::fileAlpha' which will populate the memory
-        //:   of a blob buffer with the lower case alphabet, repeated if need
-        //:   be.
-        //:
-        //: 2 Create a function 'u::checkAlpha' which will verify that a blob
-        //:   has been entirely filled with the lower case alphabet, repeated
-        //:   if need be.
-        //:
-        //: 3 Iterate over a set of random blob sizes.  Use the 'setBufferSize'
+        //: 1 Iterate over a set of random blob sizes.  Use the 'setBufferSize'
         //:   function at the beginning of each iteration to set the blob
         //:   buffer size.
         //:
+        //: 2 Create a function 'u::fileAlpha' which will populate the memory
+        //:   of a blob buffer with the lower case alphabet, repeated if need
+        //:   be.
+        //:
+        //: 3 Create a function 'u::checkAlpha' which will verify that a blob
+        //:   has been entirely filled with the lower case alphabet, repeated
+        //:   if need be.
+        //:
         //: 4 In an inner loop, create 5 blob buffers of the given size:
         //:   o verify that their length is correct
+        //:   o verify that the memory allocated grew by an amount greater than
+        //:     the blob size (due to shared ptr overhead)
         //:   o fill the memory with data with 'fillAlpha'.
         //:   o verify the memory has been correctly set with 'checkAlpha'.
         //:   o store the blob into a 'deque'
@@ -501,14 +542,15 @@ int main(int argc, char *argv[])
         //:   o verify that their size is correct
         //:   o verify that the data in them is correct with 'checkAlpha'.
         //:
-        //: 6 clear the 'deque' and observe all the memory in the blob buffers
-        //:   is released.
+        //: 6 Iterate, popping items from the back of the deque and observe the
+        //:   memory in use decreasing as expected as the blob buffers free
+        //:   their managed memory.
         //
         // Testing:
-        //   SimpleBlobBufferFactory(size_t, Allocator *);
+        //   SimpleBlobBufferFactory(int, Allocator *);
         //   ~SimpleBlobBufferFactory();
         //   void allocate(BlobBuffer *);
-        //   void setBufferSize(size_t);
+        //   void setBufferSize(int);
         //   int bufferSize() const;
         // --------------------------------------------------------------------
 
@@ -517,58 +559,81 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.numAllocations());
 
-        bsl::size_t sizes[] = { 8, 100, 30, 10 * 1000, 47, 200 };
-        enum { k_NUM_SIZES = sizeof sizes / sizeof *sizes,
-               k_INIT_SIZE = 16 };
+        int sizes[] = { 8, 100, 30, 10 * 1000, 47, 200 };
+        enum { k_NUM_SIZES = sizeof sizes / sizeof *sizes };
 
-        Factory factory(k_INIT_SIZE, &ta);
+        Factory factory(sizes[0], &ta);
         bsl::deque<BlobBuffer> bBufs(&sa);
+        bsl::deque<Int64>      allocs(&sa);
 
-        bsls::Types::Uint64 alloced = ta.numBytesInUse();
-        bsl::size_t prevSize = k_INIT_SIZE, size, sz;
+        Int64 alloced = ta.numBytesInUse();
+        ASSERT(0 == alloced);
+
+        if (verbose) cout << "Iterate, creating & populating blob buffers\n";
+
+        int prevSize = sizes[0], size;
         for (int ii = 0; ii < k_NUM_SIZES; ++ii, prevSize = size) {
             size = sizes[ii];
 
             if (veryVerbose) { P_(ii);    P(size); }
 
-            ASSERT((sz = factory.bufferSize()) == prevSize);
-            factory.setBufferSize(size);
+            if (0 < ii) {
+                ASSERT(factory.bufferSize() == prevSize);
+                factory.setBufferSize(size);
+            }
 
             for (int jj = 0; jj < 5; ++jj) {
                 if (veryVeryVerbose) cout << '.';
 
-                ASSERT((sz = factory.bufferSize()) == size);
+                ASSERT(factory.bufferSize() == size);
 
                 BlobBuffer bb;
                 factory.allocate(&bb);
-                ASSERT(size == (sz = bb.size()));
+                ASSERT(bb.size() == size);
+
+                Int64 memoryGrowth = ta.numBytesInUse() - alloced;
+                ASSERT(memoryGrowth >= size);
+                allocs.push_back(memoryGrowth);
+                alloced = ta.numBytesInUse();
 
                 u::fillAlpha(bb);
                 ASSERT(u::checkAlpha(bb));
 
-                ASSERT(ta.numBytesInUse() - alloced >= size);
-
                 bBufs.push_back(bb);
-
-                alloced = ta.numBytesInUse();
             }
 
             if (veryVeryVerbose) cout << endl;
         }
+
+        if (verbose) cout <<
+                 "Traverse the blob buffers and verify that the data is\n"
+                 "    still there\n";
 
         for (unsigned uu = 0; uu < bBufs.size(); ++uu) {
             size = sizes[uu / 5];
 
             BlobBuffer bb = bBufs[uu];
 
-            ASSERTV(uu, size, size == (sz = bb.size()));
+            ASSERTV(uu, size, bb.size() == size);
             ASSERTV(uu, u::checkAlpha(bb));
 
-            ASSERTV(alloced, ta.numBytesInUse(),
-                                            0 == ta.numBytesInUse() - alloced);
+            ASSERTV(uu, alloced, ta.numBytesInUse(),
+                                                ta.numBytesInUse() == alloced);
         }
 
-        bBufs.clear();
+        if (verbose) cout <<
+                 "Randomly destroy buffers and observe that, in each case,\n"
+                 "    exactly the amount of memory that was consumed in\n"
+                 "    their creation is freed up.\n";
+
+        while (!bBufs.empty()) {
+            const int ii = bsl::rand() % static_cast<int>(bBufs.size());
+            const Int64 before    = ta.numBytesInUse();
+            const Int64 memoryUse = allocs[ii];
+            allocs.erase(allocs.begin() + ii);
+            bBufs. erase(bBufs.begin()  + ii);
+            ASSERT(ta.numBytesInUse() == before - memoryUse);
+        }
 
         ASSERT(0 == ta.numBlocksInUse());
       } break;
