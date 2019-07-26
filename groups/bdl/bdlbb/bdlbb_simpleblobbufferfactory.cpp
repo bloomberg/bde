@@ -21,12 +21,11 @@ namespace bdlbb {
 
 // CREATORS
 SimpleBlobBufferFactory::SimpleBlobBufferFactory(
-                                              bsl::size_t       bufferSize,
+                                              int               bufferSize,
                                               bslma::Allocator *basicAllocator)
 : d_size(static_cast<int>(bufferSize))
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(bufferSize <= INT_MAX);
 }
 
 SimpleBlobBufferFactory::~SimpleBlobBufferFactory()
@@ -40,10 +39,8 @@ void SimpleBlobBufferFactory::allocate(bdlbb::BlobBuffer *buffer)
     buffer->reset(sharedPtr, d_size);
 }
 
-void SimpleBlobBufferFactory::setBufferSize(bsl::size_t bufferSize)
+void SimpleBlobBufferFactory::setBufferSize(int bufferSize)
 {
-    BSLS_ASSERT(bufferSize <= INT_MAX);
-
     d_size = static_cast<int>(bufferSize);
 }
 

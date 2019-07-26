@@ -107,13 +107,12 @@ class SimpleBlobBufferFactory : public BlobBufferFactory {
   public:
     // CREATORS
     explicit
-    SimpleBlobBufferFactory(bsl::size_t       bufferSize,
+    SimpleBlobBufferFactory(int               bufferSize,
                             bslma::Allocator *basicAllocator = 0);
         // Create a 'SimpleBlobBufferFactory' object that will create blob
         // buffers of specified length 'bufferSize'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless 'bufferSize' can be represented as an 'int'.
+        // the currently installed default allocator is used.
 
     virtual ~SimpleBlobBufferFactory();
         // Destroy this 'SimpleBlobBufferFactory' object.
@@ -123,10 +122,9 @@ class SimpleBlobBufferFactory : public BlobBufferFactory {
         // Allocate a blob buffer from this blob buffer factory, and load it
         // into the specified 'buffer'.
 
-    void setBufferSize(bsl::size_t bufferSize);
+    void setBufferSize(int bufferSize);
         // Set the buffer size for future buffers created by this factory to
-        // the specified 'bufferSize'.  The behavior is undefined unless
-        // 'bufferSize' can be represented as an 'int'.
+        // the specified 'bufferSize'.
 
     // ACCESSORS
     int bufferSize() const;
