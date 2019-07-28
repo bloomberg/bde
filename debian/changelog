@@ -1,12 +1,22 @@
-bsl-internal (3.34.0.0) unstable; urgency=low
+bsl-internal (3.35.0.0) unstable; urgency=low
 
+  * ddab17e4b Merge pull request #2434 from osubbotin/review/blobutil-docs-drqs-145973189
+  * 92b250134 Merge pull request #2436 from oimanuel/fix_bdlcc_objectpool_doc-drqs-145403417
+  * d53af2bec Bump version to 3.35.0.0
+  * 9c055ab20 Merge pull request #2432 from bchapman/bdlcc_skiplist-no-key-dflt-ctor-bug-drqs-145745492
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 26 Jul 2019 15:38:35 -0400
+
+bsl-internal (3.34.0.0) git; urgency=low
+
+  * 2abb4ccdc Changelog for version 3.34.0.0
   * fb56e79ca Merge pull request #2414 from bchapman/baltzo_timezoneutil-problem-with-default-drqs-144183882
   * 5535c9799 Bump version to 3.34.0.0
   * db22332f9 Merge pull request #2430 from bchapman/bdlmt_signaler-remove-explicits-drqs-145656946
   * 43fc68021 Merge pull request #2426 from bchapman/bdlcc_objectcatalog-assert-to-review-drqs-145513113
   * 88dacf6c3 Merge pull request #2427 from osubbotin/review/remove-bsl-overrides-for-waf
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 19 Jul 2019 14:18:14 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 21 Jul 2019 08:19:00 -0400
 
 bsl-internal (3.33.1.0) git; urgency=low
 
