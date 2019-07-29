@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // requirements of *RandomAccessIterator*.
 //
 // Additionally:
-//: o These iterators can be constant.
+//: o The iterators can be constant.
 //: o When dereferenced, both iterator types must refer to the same value type.
 //
 // The operations of either of the iterator types are allowed to throw
@@ -822,6 +822,7 @@ class BoyerMooreHorspoolSearcher_GeneralImp {
     BoyerMooreHorspoolSearcher_GeneralImp(
          BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_GeneralImp>
                                                                      original);
+                                                          BSLS_KEYWORD_NOEXCEPT
         // Create a 'BoyerMooreHorspoolSearcher_GeneralImp' object having same
         // state as the specified 'original' object by moving (in constant
         // time) the state of the original object to the new object.  The
@@ -1433,11 +1434,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 {
     if (d_allocator_p == MoveUtil::access(rhs).d_allocator_p) {
         d_allocator_p->deallocate(d_table_p);
-
-        d_needleLength     = MoveUtil::access(rhs).d_needleLength;
-        d_bytesPerElement  = MoveUtil::access(rhs).d_bytesPerElement;
-        d_table_p          = MoveUtil::access(rhs).d_table_p;
-        privateSetPostMoveState(rhs);
+        d_table_p                       = MoveUtil::access(rhs).d_table_p;
+        MoveUtil::access(rhs).d_table_p = 0;
     } else {
         if (0 < MoveUtil::access(rhs).d_needleLength) {
             if (d_bytesPerElement != MoveUtil::access(rhs).d_bytesPerElement
@@ -1453,16 +1451,15 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                MoveUtil::access(rhs).d_table_p,
                                (UCHAR_MAX + 1) *
                                       MoveUtil::access(rhs).d_bytesPerElement);
+            // Do not modify 'rhs'.
         } else {
             d_allocator_p->deallocate(d_table_p);
             d_table_p = 0;
         }
     }
 
-#if 0
     d_needleLength    = MoveUtil::access(rhs).d_needleLength;
     d_bytesPerElement = MoveUtil::access(rhs).d_bytesPerElement;
-#endif
 
     return *this;
 }
@@ -1586,6 +1583,7 @@ BoyerMooreHorspoolSearcher_GeneralImp<RNDACC_ITR_NEEDLE,
 BoyerMooreHorspoolSearcher_GeneralImp(
           BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_GeneralImp>
                                                                       original)
+                                                          BSLS_KEYWORD_NOEXCEPT
 : d_needleLength(MoveUtil::move(MoveUtil::access(original).d_needleLength))
 , d_map(         MoveUtil::move(MoveUtil::access(original).d_map))
 {
