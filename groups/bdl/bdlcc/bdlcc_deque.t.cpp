@@ -1258,7 +1258,7 @@ class ObjChecker {
     // This 'class' will, upon destruction, compare the two 'Deque<ELEMENT>'s
     // passed to it upon construction and assert that they are equal, unless
     // the 'release' method has been called, in which case the c'tor becomes a
-    // no-op.  The
+    // no-op.  'ELEMENT' can be any streamable, equality comparable type.
 
     // TYPES
     typedef typename bdlcc::Deque<ELEMENT>::ConstProctor ConstProctor;

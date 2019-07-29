@@ -37,11 +37,11 @@ BSLS_IDENT("$Id: $")
 //: 4 Move construction and assignment where the allocators of source and
 //:   destination do not match behave like non-moving copy construction and
 //:   assignment.
-// then all operations on 'bdlcc::Deque' provide the strong exception
-// guarantee, both for the 'bdlcc::Deque's own salient state and the salient
-// state of the 'bsl::vector', if any, passed to manipulators.  However, the
-// non-salient 'capacity' of the underlying 'bsl::deque' and of the passed
-// 'bsl::vector' may be modified.
+// All operations on 'bdlcc::Deque' provide the strong exception guarantee,
+// both for the 'bdlcc::Deque's own salient state and the salient state of the
+// 'bsl::vector', if any, passed to manipulators.  However, the non-salient
+// 'capacity' of the underlying 'bsl::deque' and of the passed 'bsl::vector'
+// may be modified.
 //
 ///Design Rationale for 'bdlcc::Deque'
 ///-----------------------------------
@@ -705,10 +705,10 @@ class Deque {
         // full; 'pushFront' and 'pushBack' should be used for general use.
 
     void forcePushBack(bslmf::MovableRef<TYPE> item);
-        // Append the specified 'item' to the back of this container without
-        // regard for the high-water mark.  'item' is left in a valid but
-        // unspecified state.  Note that this method is provided to allow high
-        // priority items to be inserted when the container is full;
+        // Append the specified move-insertable 'item' to the back of this
+        // container without regard for the high-water mark.  'item' is left in
+        // a valid but unspecified state.  Note that this method is provided to
+        // allow high priority items to be inserted when the container is full;
         // 'pushFront' and 'pushBack' should be used for general use.
 
     template <class INPUT_ITER>
@@ -726,10 +726,10 @@ class Deque {
         // full; 'pushFront' and 'pushBack' should be used for general use.
 
     void forcePushFront(bslmf::MovableRef<TYPE> item);
-        // Append the specified 'item' to the front of this container without
-        // regard for the high-water mark.  'item' is left in a valid but
-        // unspecified state.  Note that this method is provided to allow high
-        // priority items to be inserted when the container is full;
+        // Append the specified move-insertable 'item' to the front of this
+        // container without regard for the high-water mark.  'item' is left in
+        // a valid but unspecified state.  Note that this method is provided to
+        // allow high priority items to be inserted when the container is full;
         // 'pushFront' and 'pushBack' should be used for general use.
 
     template <class INPUT_ITER>
@@ -767,9 +767,9 @@ class Deque {
 
     void pushBack(bslmf::MovableRef<TYPE> item);
         // Block until space in this container becomes available (see
-        // {'High-Water Mark' Feature}), then append the specified 'item' to
-        // the back of this container.  'item' is left in a valid but
-        // unspecified state.
+        // {'High-Water Mark' Feature}), then append the specified
+        // move-insertable 'item' to the back of this container.  'item' is
+        // left in a valid but unspecified state.
 
     void pushFront(const TYPE&             item);
         // Block until space in this container becomes available (see
@@ -778,9 +778,9 @@ class Deque {
 
     void pushFront(bslmf::MovableRef<TYPE> item);
         // Block until space in this container becomes available (see
-        // {'High-Water Mark' Feature}), then append the specified 'item' to
-        // the front of this container.  'item' is left in a valid but
-        // unspecified state.
+        // {'High-Water Mark' Feature}), then append the specified
+        // move-insertable 'item' to the front of this container.  'item' is
+        // left in a valid but unspecified state.
 
     void removeAll(bsl::vector<TYPE> *buffer = 0);
         // If the optionally specified 'buffer' is non-zero, append all the
@@ -826,18 +826,18 @@ class Deque {
 
     int timedPushBack(bslmf::MovableRef<TYPE>   item,
                       const bsls::TimeInterval& timeout);
-        // Append the specified 'item' to the back of this container if space
-        // is available, otherwise (if the container is full) block waiting for
-        // space to become available or until the specified 'timeout'
-        // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
-        // 1970) expires.  If the container is modified, 'item' is left in a
-        // valid but unspecified state, otherwise 'item' is unchanged.  Return
-        // 0 if space was or became available and this container was updated,
-        // and a non-zero value if the call timed out before space became
-        // available and this container was left unmodified.  Note that this
-        // method can block indefinitely if another thread has the mutex
-        // locked, particularly by a proctor object -- there is no guarantee
-        // that this method will return after 'timeout'.
+        // Append the specified move-insertable 'item' to the back of this
+        // container if space is available, otherwise (if the container is
+        // full) block waiting for space to become available or until the
+        // specified 'timeout' (expressed as the !ABSOLUTE! time from 00:00:00
+        // UTC, January 1, 1970) expires.  If the container is modified, 'item'
+        // is left in a valid but unspecified state, otherwise 'item' is
+        // unchanged.  Return 0 if space was or became available and this
+        // container was updated, and a non-zero value if the call timed out
+        // before space became available and this container was left
+        // unmodified.  Note that this method can block indefinitely if another
+        // thread has the mutex locked, particularly by a proctor object --
+        // there is no guarantee that this method will return after 'timeout'.
 
     int timedPushFront(const TYPE&               item,
                        const bsls::TimeInterval& timeout);
@@ -854,18 +854,18 @@ class Deque {
 
     int timedPushFront(bslmf::MovableRef<TYPE>   item,
                        const bsls::TimeInterval& timeout);
-        // Append the specified 'item' to the front of this container if space
-        // is available, otherwise (if the container is full) block waiting for
-        // space to become available or until the specified 'timeout'
-        // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
-        // 1970) expires.  If the container is modified,'item' is left in a
-        // valid but unspecified state, otherwise 'item' is left unchanged.
-        // Return 0 if space was or became available and this container was
-        // updated, and a non-zero value if the call timed out before space
-        // became available and this container was left unmodified.  Note that
-        // this method can block indefinitely if another thread has the mutex
-        // locked, particularly by a proctor object -- there is no guarantee
-        // that this method will return after 'timeout'.
+        // Append the specified move-insertable 'item' to the front of this
+        // container if space is available, otherwise (if the container is
+        // full) block waiting for space to become available or until the
+        // specified 'timeout' (expressed as the !ABSOLUTE! time from 00:00:00
+        // UTC, January 1, 1970) expires.  If the container is modified,'item'
+        // is left in a valid but unspecified state, otherwise 'item' is left
+        // unchanged.  Return 0 if space was or became available and this
+        // container was updated, and a non-zero value if the call timed out
+        // before space became available and this container was left
+        // unmodified.  Note that this method can block indefinitely if another
+        // thread has the mutex locked, particularly by a proctor object --
+        // there is no guarantee that this method will return after 'timeout'.
 
     int tryPopBack(TYPE *item);
         // If this container is non-empty, remove the last item, load that item
@@ -916,11 +916,11 @@ class Deque {
 
     int tryPushBack(bslmf::MovableRef<TYPE> item);
         // If the container is not full (see {'High-Water Mark' Feature}),
-        // append the specified 'item' to the back of the container, otherwise
-        // leave the container unchanged.  If the container is modified, 'item'
-        // is left in a valid but unspecified state, otherwise 'item' is
-        // unchanged.  Return 0 if the container was updated and a non-zero
-        // value otherwise.
+        // append the specified move-insertable 'item' to the back of the
+        // container, otherwise leave the container unchanged.  If the
+        // container is modified, 'item' is left in a valid but unspecified
+        // state, otherwise 'item' is unchanged.  Return 0 if the container was
+        // updated and a non-zero value otherwise.
 
     template <class INPUT_ITER>
     size_type tryPushBack(INPUT_ITER begin,
@@ -940,11 +940,11 @@ class Deque {
 
     int tryPushFront(bslmf::MovableRef<TYPE> item);
         // If the container is not full (see {'High-Water Mark' Feature}),
-        // append the specified 'item' to the front of the container, otherwise
-        // leave the container unchanged.  If the container is modified, 'item'
-        // is left in a valid but unspecified state, otherwise 'item' is
-        // unchanged.  Return 0 if the container was updated and a non-zero
-        // value otherwise.
+        // append the specified move-insertable 'item' to the front of the
+        // container, otherwise leave the container unchanged.  If the
+        // container is modified, 'item' is left in a valid but unspecified
+        // state, otherwise 'item' is unchanged.  Return 0 if the container was
+        // updated and a non-zero value otherwise.
 
     template <class INPUT_ITER>
     size_type tryPushFront(INPUT_ITER begin,
