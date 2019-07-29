@@ -353,7 +353,7 @@ class MoveCopyAllocTestType {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    explicit MoveCopyAllocTestType(int data,
+    explicit MoveCopyAllocTestType(int               data,
                                    bslma::Allocator *basicAllocator = 0);
         // Create a 'MoveCopyAllocTestType' object having the specified 'data'
         // attribute value.  Optionally specify a 'basicAllocator' used to
@@ -1674,7 +1674,7 @@ class TimedPopRecordBack {
         // Create a test object that will access the specified '*deque' and
         // with the specified 'val' and the specified 'timeout' and block on
         // the specified '*barrier'.  After popping, confirm the value popped
-        // equals 'value'.
+        // equals the specified 'value'.
     {
     }
 
@@ -2227,9 +2227,9 @@ void testSingleMovingPushesPops()
 
     if (verbose) cout << "\t2. Random pushes and pops\n";
     {
-        // In this block, we have 3 parallel containers 'x', 'xB', and 'd',
-        // to which we apply identical pushes and pops, and observe their
-        // behavior is always the same.
+        // In this block, we have 3 parallel containers 'x', 'xB', and 'd', to
+        // which we apply identical pushes and pops, and observe their behavior
+        // is always the same.
 
         bdlcc::Deque<ELEMENT>        x(&ta);
         const bdlcc::Deque<ELEMENT>& X  = x;
@@ -5273,8 +5273,9 @@ int main(int argc, char *argv[])
 
         using namespace TEST_CASE_26;
 
-        if (verbose) cout << "TESTING TIMED POP FUNCTIONS -- MT\n"
-                             "=================================\n";
+        if (verbose) cout <<
+                "TESTING TIMED POP & TIMED PUSH FUNCTIONS -- MOVE SEMANTICS\n"
+                "==========================================================\n";
 
         testTimedPushPopMove<Element>();
         testTimedPushPopMove<AElement>();
@@ -6781,7 +6782,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   removeAll();
-        //   removeAll(bsl::vector<T>& buffer);
+        //   removeAll(bsl::vector<T> *buffer);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING REMOVEALL\n"
