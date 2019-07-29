@@ -139,13 +139,13 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                       GLOBAL TYPEDEFS
+//                      GLOBAL TYPEDEFS
 // ----------------------------------------------------------------------------
 
 typedef bsls::Types::Int64 Int64;
 
 // ============================================================================
-//                       GLOBAL HELPER CLASSES FOR TESTING
+//                      GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
 static bool             verbose;
@@ -2930,7 +2930,7 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
         explicit MyCaseInsensitiveSearcherCache(bslma::Allocator
                                                           *basicAllocator = 0);
             // Create an empty 'MyCaseInsensitiveSearcherCache' object.
-            // Optionally supply 'basicAllocator' to supply memory.  If
+            // Optionally specify 'basicAllocator' to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default allocator
             // is used.
 
@@ -3486,7 +3486,7 @@ static void convertToNonAscii(BSL::string *out, const BSL::string& input)
 }
 
 static void loadVectorOfChars(bsl::vector<char> *dst, const char *src)
-    // Load to the specifed 'dst' vector a sequence of characters matching the
+    // Load to the specified 'dst' vector a sequence of characters matching the
     // sequence found in the specified 'src'.
 {
     ASSERT(dst);
@@ -4074,6 +4074,8 @@ int main(int argc, char *argv[])
         //:
         //: 7 All memory allocation by the special implementation (for
         //:   'char *') is exception safe.
+        //:
+        //: 8 An object is not changed by move assignment to itself.
         //
         // Plan:
         //: 1 Ad hoc test: Searcher objects are created and copied.
@@ -4308,7 +4310,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("General Implementation\n");
                 {
-                    bsl::vector<char> vectorOfChars;
+                    bsl::vector<char>  vectorOfChars;
                     loadVectorOfChars(&vectorOfChars, NEEDLE);
 
                     CharArray<char> needleContent(vectorOfChars);
@@ -4657,6 +4659,41 @@ int main(int argc, char *argv[])
             ASSERT(0 == sa.numBlocksInUse());
             ASSERT(0 == sa.numBytesInUse());
         }
+
+        if (verbose) printf("Alias Safety\n");
+        {
+            typedef  CharHashCaseInsensitive HASH;
+            typedef CharEqualCaseInsensitive EQUAL;
+
+            HASH   hash(42);
+            EQUAL equal(42);
+
+
+            CharArray<char> containerHavingRandomIterators(
+                                                    bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator    RandConstItr;
+            typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr,
+                                                       HASH,
+                                                       EQUAL> Mech;
+
+            RandConstItr begin = containerHavingRandomIterators.begin();
+            RandConstItr end   = containerHavingRandomIterators.end();
+
+            Mech mZ(begin, end, hash, equal); const Mech& Z = mZ;
+            Mech mX(begin, end, hash, equal); const Mech& X = mX;
+
+            Mech *mR = &(mX = bslmf::MovableRefUtil::move(mX));  // ACTION
+
+            ASSERT(mR == &mX);
+
+            ASSERT(Z.needleFirst() == X.needleFirst());
+            ASSERT(Z.needleLast()  == X.needleLast());
+            ASSERT(Z.hash()        == X.hash());
+            ASSERT(Z.equal()       == X.equal());
+            ASSERT(Z.allocator()   == X.allocator());
+        }
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
