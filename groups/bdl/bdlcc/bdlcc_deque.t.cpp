@@ -1182,37 +1182,6 @@ Element RandElement::operator()()
     return (div & divDenom) ? ret : -ret;
 }
 
-class RandAElement {
-    // This 'class' is a stateful random number generator that will generate
-    // random values of type 'AElement' which the 'id' is in the range
-    // [ 'A', 'Z' ].
-
-    // DATA
-    u::RandGen d_randGen;
-
-  public:
-    // CREATOR
-    explicit
-    RandAElement(unsigned seed)
-    : d_randGen(seed)
-        // Initialize the random number generator will the specified 'seed'.
-    {
-    }
-
-    // MANIPULATOR
-    AElement operator()();
-        // Return an 'AElement' object with random state from 'A'-'Z'.
-};
-
-AElement RandAElement::operator()()
-{
-    static const unsigned mod = 'Z' + 1 - 'A';
-
-    const unsigned num = d_randGen();
-
-    return AElement('A' + num % mod);
-}
-
 class Rand1To8 {
     // This 'class' is a stateful random number generator that will generate
     // random values in the range '[1 .. 8]'.
