@@ -1139,6 +1139,13 @@ class SignalerConnectionGuard {
                                               // on 'd_connection' at
                                               // destruction or assignment
 
+  private:
+    // NOT IMPLEMENTED
+    SignalerConnectionGuard(           const SignalerConnectionGuard&)
+                                                          BSLS_KEYWORD_DELETED;
+    SignalerConnectionGuard& operator=(const SignalerConnectionGuard&)
+                                                          BSLS_KEYWORD_DELETED;
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(SignalerConnectionGuard,
