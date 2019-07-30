@@ -2717,12 +2717,12 @@ const struct {
     const char  *d_needle_p;
 
     // result: Case Sensitive
-    BSL::size_t  d_offsetCs;
-    BSL::size_t  d_lengthCs;
+    int          d_offsetCs;
+    int          d_lengthCs;
 
     // result: Case Insensitive
-    BSL::size_t  d_offsetCi;
-    BSL::size_t  d_lengthCi;
+    int          d_offsetCi;
+    int          d_lengthCi;
 
 } DATA[]  = {
     //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
@@ -4404,6 +4404,10 @@ int main(int argc, char *argv[])
             typedef CharArray<char>::const_iterator    RandConstItr;
             typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
 
+            const BSL::size_t SHRT = (UCHAR_MAX + 1) * sizeof (unsigned char);
+            const BSL::size_t TALL = (UCHAR_MAX + 1) * sizeof (
+                          bsl::iterator_traits<RandConstItr>::difference_type);
+
             RandConstItr begin = containerHavingRandomIterators.begin();
             RandConstItr end   = containerHavingRandomIterators.end();
 
@@ -4416,9 +4420,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(srcCfg) P(dstCfg) }
 
-                Mech                 *srcMechPtr;
-                bslma::TestAllocator *srcMechAllocatorPtr;
-                Int64                 srcNumBytes;
+                Mech                 *srcMechPtr          = 0;
+                bslma::TestAllocator *srcMechAllocatorPtr = 0;
+                Int64                 srcNumBytes         = 0;
 
                 Int64 numBytesAfore;
                 Int64 numBytesAfter;
@@ -4515,15 +4519,15 @@ int main(int argc, char *argv[])
                     case 'a':
                     case 'd': ASSERT(   0 == srcNumBytes); break;
                     case 'b':
-                    case 'e': ASSERT( 256 == srcNumBytes); break;
+                    case 'e': ASSERT(SHRT == srcNumBytes); break;
                     case 'c':
-                    case 'f': ASSERT(1024 == srcNumBytes); break;
+                    case 'f': ASSERT(TALL == srcNumBytes); break;
                     default : ASSERTV(dstCfg, !"Bad allocator config."); break;
                 }
 
-                Mech                 *dstMechPtr;
-                bslma::TestAllocator *dstMechAllocatorPtr;
-                Int64                 dstNumBytes;
+                Mech                 *dstMechPtr          = 0;
+                bslma::TestAllocator *dstMechAllocatorPtr = 0;
+                Int64                 dstNumBytes         = 0;
 
                 switch (dstCfg) {
                   case 'a': {
@@ -4613,9 +4617,9 @@ int main(int argc, char *argv[])
                     case 'a':
                     case 'd': ASSERT(   0 == dstNumBytes); break;
                     case 'b':
-                    case 'e': ASSERT( 256 == dstNumBytes); break;
+                    case 'e': ASSERT(SHRT == dstNumBytes); break;
                     case 'c':
-                    case 'f': ASSERT(1024 == dstNumBytes); break;
+                    case 'f': ASSERT(TALL == dstNumBytes); break;
                     default : ASSERTV(dstCfg, !"Bad allocator config."); break;
                 }
 
@@ -4767,7 +4771,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(cfg) }
 
-                Mech *mechPtr;
+                Mech *mechPtr = 0;
 
                 switch (cfg) {
                   case 'a': {
@@ -4837,7 +4841,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(cfg) }
 
-                Mech *mechPtr;
+                Mech *mechPtr = 0;
 
                 switch (cfg) {
                   case 'a': {
@@ -5276,7 +5280,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(srcCfg) P(dstCfg) }
 
-                Mech *srcMechPtr;
+                Mech *srcMechPtr = 0;
 
                 switch (srcCfg) {
                   case 'a': {
@@ -5307,7 +5311,7 @@ int main(int argc, char *argv[])
 
                 Mech& mS = *srcMechPtr; const Mech& S = mS;
 
-                Mech *dstMechPtr;
+                Mech *dstMechPtr = 0;
 
                 switch (dstCfg) {
                   case 'a': {
@@ -5692,6 +5696,10 @@ int main(int argc, char *argv[])
             typedef CharArray<char>::const_iterator    RandConstItr;
             typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
 
+            const BSL::size_t SHRT = (UCHAR_MAX + 1) * sizeof (unsigned char);
+            const BSL::size_t TALL = (UCHAR_MAX + 1) * sizeof (
+                          bsl::iterator_traits<RandConstItr>::difference_type);
+
             bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
             bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
@@ -5729,8 +5737,8 @@ int main(int argc, char *argv[])
                 Int64 numBytesInUseChange  = numBytesInUseAfter
                                            - numBytesInUseAfore;
 
-                ASSERT(  1 == numBlocksInUseChange);
-                ASSERT(256 == numBytesInUseChange);
+                ASSERT(   1 == numBlocksInUseChange);
+                ASSERT(SHRT == numBytesInUseChange);
 
                 Mech mechLong(HAYSTACK_TEXT_FIRST,
                               HAYSTACK_TEXT_LAST,
@@ -5752,7 +5760,7 @@ int main(int argc, char *argv[])
                                      - numBytesInUseAfore;
 
                 ASSERT(   1 == numBlocksInUseChange);
-                ASSERT(1024 == numBytesInUseChange);
+                ASSERT(TALL == numBytesInUseChange);
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -5788,8 +5796,8 @@ int main(int argc, char *argv[])
                 Int64 numBytesInUseChange  = numBytesInUseAfter
                                            - numBytesInUseAfore;
 
-                ASSERT(  1 == numBlocksInUseChange);
-                ASSERT(256 == numBytesInUseChange);
+                ASSERT(   1 == numBlocksInUseChange);
+                ASSERT(SHRT == numBytesInUseChange);
 
                 Mech mechLong(HAYSTACK_TEXT_FIRST,
                               HAYSTACK_TEXT_LAST,
@@ -5811,7 +5819,7 @@ int main(int argc, char *argv[])
                                      - numBytesInUseAfore;
 
                 ASSERT(   1 == numBlocksInUseChange);
-                ASSERT(1024 == numBytesInUseChange);
+                ASSERT(TALL == numBytesInUseChange);
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -6274,8 +6282,8 @@ int main(int argc, char *argv[])
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Mech                 *mechPtr;
-                bslma::TestAllocator *mechAllocatorPtr;
+                Mech                 *mechPtr          = 0;
+                bslma::TestAllocator *mechAllocatorPtr = 0;
 
                 switch (CONFIG) {
                   case 'a': {
@@ -6329,7 +6337,11 @@ int main(int argc, char *argv[])
             typedef CharArray<char>::const_iterator    RandConstItr;
             typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
 
-            bslma::TestAllocator        sa("supplied", veryVeryVeryVerbose);
+            const int SHRT = (UCHAR_MAX + 1) * sizeof (unsigned char);
+            const int TALL = (UCHAR_MAX + 1) * sizeof (
+                          bsl::iterator_traits<RandConstItr>::difference_type);
+
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
             int loopCount = 0;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
@@ -6351,24 +6363,24 @@ int main(int argc, char *argv[])
                                Mech::DefaultHash(),
                                Mech::DefaultEqual(),
                                &sa);
-                ASSERT(  0 <  bsl::distance(mechShort.needleFirst(),
-                                            mechShort.needleLast()));
-                ASSERT(256 >  bsl::distance(mechShort.needleFirst(),
-                                            mechShort.needleLast()));
-                ASSERT(  1 == sa.numBlocksInUse());
-                ASSERT(256 == sa.numBytesInUse());
-                ASSERT(  2 <= loopCount);
+                ASSERT(   0 <  bsl::distance(mechShort.needleFirst(),
+                                             mechShort.needleLast()));
+                ASSERT(SHRT >  bsl::distance(mechShort.needleFirst(),
+                                             mechShort.needleLast()));
+                ASSERT(   1 == sa.numBlocksInUse());
+                ASSERT(SHRT == sa.numBytesInUse());
+                ASSERT(   2 <= loopCount);
 
                 Mech mechLong(HAYSTACK_TEXT_FIRST,
                               HAYSTACK_TEXT_LAST,
                               Mech::DefaultHash(),
                               Mech::DefaultEqual(),
                               &sa);
-                ASSERT(256 <= bsl::distance(mechLong.needleFirst(),
-                                            mechLong.needleLast()));
-                ASSERT(   1 +   1 == sa.numBlocksInUse());
-                ASSERT(1024 + 256 == sa.numBytesInUse());
-                ASSERT(         3 == loopCount);
+                ASSERT(SHRT <= bsl::distance(mechLong.needleFirst(),
+                                             mechLong.needleLast()));
+                ASSERT(   1 +    1 == sa.numBlocksInUse());
+                ASSERT(TALL + SHRT == sa.numBytesInUse());
+                ASSERT(          3 == loopCount);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == sa.numBlocksInUse());
