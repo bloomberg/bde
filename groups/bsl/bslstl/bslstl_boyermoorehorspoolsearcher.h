@@ -600,8 +600,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_conditional.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_issame.h>
-#include <bslmf_movableref.h>
 #include <bslmf_istriviallycopyable.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
 #include <bsls_keyword.h>
@@ -657,6 +657,30 @@ class BoyerMooreHorspoolSearcher_CharImp {
     typedef bsl::array< LongNeedleSkipType, UCHAR_MAX + 1>
                                                           LongNeedleSkipArray;
 
+    // PRIVATE MANIPULATORS
+    void privateInstallNewTable(
+                             const BoyerMooreHorspoolSearcher_CharImp& object);
+        // Install in this object a table copied from the specified 'object'.
+        // The behavior is undefined unless '0 == d_table_p' (on entry) and
+        // 'd_needleLength' has been initialized.
+
+    void privateInstallTableOverOld(
+                             const BoyerMooreHorspoolSearcher_CharImp& object);
+        // Copy the table of the specified 'object' over the table of this
+        // object.  The behavior is undefined unless this object has a table
+        // and 'privateUseShortNeedleOptimization()' returns the same value for
+        // 'object' and for this object.
+
+    void privateInstallMismatchedTable(
+                             const BoyerMooreHorspoolSearcher_CharImp& object);
+        // Replace in an exception-safe manner this object's table with a copy
+        // of of the table of the specified 'object'.  This object's table (on
+        // entry), if any, is deleted.
+
+    void privateDeleteTable();
+        // Destroy and deallocate the 'd_table_p' member of this object, and
+        // set 'd_table_p' to 0.
+
     // PRIVATE ACCESSORS
     void privateSetPostMoveState(BoyerMooreHorspoolSearcher_CharImp *object)
                                                                          const;
@@ -666,12 +690,18 @@ class BoyerMooreHorspoolSearcher_CharImp {
 
     bool privateUseShortNeedleOptimization() const;
         // Return 'true' if this instantiation should used the "short needle
-        // (space) optimization", and 'false' otherwise.
-
+        // (space) optimization", and 'false' otherwise.  The behavior is
+        // undefined unless 'd_needleLength' has been initialized.
+        
+    bool privateHasSameNeedleOptimization(
+                             const BoyerMooreHorspoolSearcher_CharImp& object)
+                                                                         const;
+        // Return 'true' if the specified 'object' has the same value for
+        // 'privateUseShortNeedleOptimization()' as this object, and 'false'
+        // otherwise.
 
     // DATA
     native_std::size_t             d_needleLength;
-    native_std::size_t             d_bytesPerElement;
     BloombergLP::bslma::Allocator *d_allocator_p;
     void                          *d_table_p;
 
@@ -1181,6 +1211,128 @@ namespace bslstl {
                 // class BoyerMooreHorspoolSearcher_CharImp
                 // ----------------------------------------
 
+// PRIVATE MANIPULATORS
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+void
+BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
+                                   HASH,
+                                   EQUAL>::privateInstallNewTable(
+                                      const BoyerMooreHorspoolSearcher_CharImp&
+                                                                        object)
+{
+    BSLS_ASSERT(0 == d_table_p);
+
+    if (privateUseShortNeedleOptimization()) {
+        ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
+                                                          ShortNeedleSkipArray;
+        native_std::memcpy(
+          arrayPtr->data(),
+          static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
+          UCHAR_MAX + 1);
+
+        d_table_p = arrayPtr;
+    } else {
+        LongNeedleSkipArray *arrayPtr = new (*d_allocator_p)
+                                                           LongNeedleSkipArray;
+
+        native_std::copy(
+                static_cast<LongNeedleSkipArray *>(object.d_table_p)->cbegin(),
+                static_cast<LongNeedleSkipArray *>(object.d_table_p)->cend(),
+                arrayPtr->begin());
+
+        d_table_p = arrayPtr;
+    }
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+void
+BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
+                                   HASH,
+                                   EQUAL>::privateInstallTableOverOld(
+                                      const BoyerMooreHorspoolSearcher_CharImp&
+                                                                        object)
+{
+    BSLS_ASSERT(d_table_p);
+    BSLS_ASSERT(privateHasSameNeedleOptimization(object));
+
+    if (privateUseShortNeedleOptimization()) {
+        ShortNeedleSkipArray *arrayPtr = static_cast<ShortNeedleSkipArray *>(
+                                                                    d_table_p);
+        native_std::memcpy(
+          arrayPtr->data(),
+          static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
+          UCHAR_MAX + 1);
+
+    } else {
+        LongNeedleSkipArray *arrayPtr = static_cast< LongNeedleSkipArray *>(
+                                                                    d_table_p);
+        native_std::copy(
+                static_cast<LongNeedleSkipArray *>(object.d_table_p)->cbegin(),
+                static_cast<LongNeedleSkipArray *>(object.d_table_p)->cend(),
+                arrayPtr->begin());
+    }
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+void
+BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
+                                   HASH,
+                                   EQUAL>::privateInstallMismatchedTable(
+                                      const BoyerMooreHorspoolSearcher_CharImp&
+                                                                        object)
+{
+    if (object.privateUseShortNeedleOptimization()) {
+        ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
+                                                          ShortNeedleSkipArray;
+        native_std::memcpy(
+          arrayPtr->data(),
+          static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
+          UCHAR_MAX + 1);
+
+        privateDeleteTable();
+
+        d_table_p = arrayPtr;
+    } else {
+        LongNeedleSkipArray *arrayPtr = new (*d_allocator_p)
+                                                           LongNeedleSkipArray;
+        native_std::copy(
+                static_cast<LongNeedleSkipArray *>(object.d_table_p)->cbegin(),
+                static_cast<LongNeedleSkipArray *>(object.d_table_p)->cend(),
+                arrayPtr->begin());
+        privateDeleteTable();
+
+        d_table_p = arrayPtr;
+    }
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+void
+BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
+                                   HASH,
+                                   EQUAL>::privateDeleteTable()
+{
+    if (privateUseShortNeedleOptimization()) {
+        d_allocator_p->deleteObjectRaw(static_cast<ShortNeedleSkipArray *>(
+                                                                   d_table_p));
+    } else {
+        d_allocator_p->deleteObjectRaw(static_cast< LongNeedleSkipArray *>(
+                                                                   d_table_p));
+    }
+    d_table_p = 0;
+}
+
 // PRIVATE ACCESSORS
 template <class RNDACC_ITR_NEEDLE,
           class HASH,
@@ -1197,7 +1349,6 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
     BSLS_ASSERT(this != object);
 
     object->d_needleLength    = 0;
-    object->d_bytesPerElement = 0;
     object->d_table_p         = 0;
 }
 
@@ -1212,6 +1363,22 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                                                           const
 {
     return d_needleLength <= UCHAR_MAX;
+}
+
+template <class RNDACC_ITR_NEEDLE,
+          class HASH,
+          class EQUAL>
+inline
+bool
+BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
+                                   HASH,
+                                   EQUAL>::privateHasSameNeedleOptimization(
+                                      const BoyerMooreHorspoolSearcher_CharImp&
+                                                                        object)
+                                                                          const
+{
+    return        privateUseShortNeedleOptimization()
+        == object.privateUseShortNeedleOptimization();
 }
 
 // CREATORS
@@ -1229,9 +1396,6 @@ BoyerMooreHorspoolSearcher_CharImp(
                                  EQUAL                          ,
                                  BloombergLP::bslma::Allocator *basicAllocator)
 : d_needleLength(needleLast - needleFirst)
-, d_bytesPerElement(privateUseShortNeedleOptimization()
-                    ? sizeof (ShortNeedleSkipType)
-                    : sizeof ( LongNeedleSkipType))
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_table_p(0)
 {
@@ -1242,11 +1406,12 @@ BoyerMooreHorspoolSearcher_CharImp(
     }
 
     if (privateUseShortNeedleOptimization()) {
-        d_table_p = new (*d_allocator_p) ShortNeedleSkipArray;
-
-        native_std::memset(d_table_p,
+        ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
+                                                          ShortNeedleSkipArray;
+        native_std::memset(arrayPtr->data(),
                            static_cast<ShortNeedleSkipType>(d_needleLength),
                            UCHAR_MAX + 1);
+        d_table_p = arrayPtr;
     } else {
         LongNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                            LongNeedleSkipArray;
@@ -1267,11 +1432,12 @@ BoyerMooreHorspoolSearcher_CharImp(
 
         if (privateUseShortNeedleOptimization()) {
             BSLS_ASSERT(skipValue <= UCHAR_MAX);
-            (*reinterpret_cast<ShortNeedleSkipArray *>(d_table_p))[index]
-                 = static_cast<ShortNeedleSkipType>(skipValue);
+
+            (*static_cast<ShortNeedleSkipArray *>(d_table_p))[index]
+                                 = static_cast<ShortNeedleSkipType>(skipValue);
         } else {
-            (*reinterpret_cast< LongNeedleSkipArray *>(d_table_p))[index]
-                 = static_cast< LongNeedleSkipType>(skipValue);
+            (*static_cast< LongNeedleSkipArray *>(d_table_p))[index]
+                                 = static_cast< LongNeedleSkipType>(skipValue);
         }
     }
 }
@@ -1286,17 +1452,11 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 BoyerMooreHorspoolSearcher_CharImp(
                             const BoyerMooreHorspoolSearcher_CharImp& original)
 : d_needleLength(   original.d_needleLength)
-, d_bytesPerElement(original.d_numBytesPerElement)
 , d_allocator_p(    original.d_allocator_p)
 , d_table_p(0)
 {
     if (0 < d_needleLength) {
-        d_table_p = d_allocator_p->allocate((UCHAR_MAX + 1) *
-                                                            d_bytesPerElement);
-
-        native_std::memcpy(d_table_p,
-                           original.d_table_p,
-                           (UCHAR_MAX + 1) * d_bytesPerElement);
+        privateInstallNewTable(original);
     }
 }
 
@@ -1312,7 +1472,6 @@ BoyerMooreHorspoolSearcher_CharImp(
                                                                       original)
                                                           BSLS_KEYWORD_NOEXCEPT
 : d_needleLength(   MoveUtil::access(original).d_needleLength)
-, d_bytesPerElement(MoveUtil::access(original).d_bytesPerElement)
 , d_allocator_p(    MoveUtil::access(original).d_allocator_p)
 , d_table_p(        MoveUtil::access(original).d_table_p)
 {
@@ -1330,16 +1489,11 @@ BoyerMooreHorspoolSearcher_CharImp(
                      const BoyerMooreHorspoolSearcher_CharImp&  original,
                      BloombergLP::bslma::Allocator             *basicAllocator)
 : d_needleLength(original.d_needleLength)
-, d_bytesPerElement(original.d_bytesPerElement)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_table_p(0)
 {
     if (0 < d_needleLength) {
-        d_table_p = d_allocator_p->allocate((UCHAR_MAX + 1) *
-                                                   original.d_bytesPerElement);
-        native_std::memcpy(d_table_p,
-                           original.d_table_p,
-                           (UCHAR_MAX + 1) * original.d_bytesPerElement);
+        privateInstallNewTable(original);
     }
 }
 
@@ -1355,21 +1509,17 @@ BoyerMooreHorspoolSearcher_CharImp(
                                                                 original,
              BloombergLP::bslma::Allocator                     *basicAllocator)
 : d_needleLength(   MoveUtil::access(original).d_needleLength)
-, d_bytesPerElement(MoveUtil::access(original).d_bytesPerElement)
 , d_allocator_p(    bslma::Default::allocator(basicAllocator))
 , d_table_p(0)
 {
     if (d_allocator_p == MoveUtil::access(original).d_allocator_p) {
+
         d_table_p = MoveUtil::access(original).d_table_p;
+
         privateSetPostMoveState(&MoveUtil::access(original));
     } else {
         if (0 < d_needleLength) {
-            d_table_p = d_allocator_p->allocate((UCHAR_MAX + 1) *
-                                 MoveUtil::access(original).d_bytesPerElement);
-            native_std::memcpy(d_table_p,
-                               MoveUtil::access(original).d_table_p,
-                               (UCHAR_MAX + 1) *
-                                 MoveUtil::access(original).d_bytesPerElement);
+            privateInstallNewTable(MoveUtil::access(original));
         }
     }
 }
@@ -1383,7 +1533,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                    EQUAL>::
 ~BoyerMooreHorspoolSearcher_CharImp()
 {
-    d_allocator_p->deallocate(d_table_p);
+    privateDeleteTable();
 }
 
 // MANIPULATORS
@@ -1397,27 +1547,20 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                    HASH,
                                    EQUAL>::operator=(
-                                 const BoyerMooreHorspoolSearcher_CharImp& rhs)
+                                      const BoyerMooreHorspoolSearcher_CharImp&
+                                                                           rhs)
 {
     if (0 < rhs.d_needleLength) {
-        if (d_bytesPerElement != rhs.d_bytesPerElement || 0 == d_table_p) {
-            void *newTableSpace = d_allocator_p->allocate((UCHAR_MAX + 1) *
-                                                        rhs.d_bytesPerElement);
-            d_allocator_p->deallocate(d_table_p);
-            d_table_p = newTableSpace;
+        if (d_table_p && privateHasSameNeedleOptimization(rhs)) {
+            privateInstallTableOverOld(rhs);
+        } else {
+            privateInstallMismatchedTable(rhs);
         }
-
-        native_std::memcpy(d_table_p,
-                           rhs.d_table_p,
-                           (UCHAR_MAX + 1) * rhs.d_bytesPerElement);
     } else {
-        d_allocator_p->deallocate(d_table_p);
-        d_table_p = 0;
+        privateDeleteTable();
     }
 
     d_needleLength    = rhs.d_needleLength;
-    d_bytesPerElement = rhs.d_bytesPerElement;
-    // 'd_allocator_p' intentionally unchanged.
 
     return *this;
 }
@@ -1441,28 +1584,18 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
         MoveUtil::access(rhs).d_table_p = 0;
     } else {
         if (0 < MoveUtil::access(rhs).d_needleLength) {
-            if (d_bytesPerElement != MoveUtil::access(rhs).d_bytesPerElement
-             || 0 == d_table_p) {
-
-                void *newTableSpace = d_allocator_p->allocate((UCHAR_MAX + 1) *
-                                      MoveUtil::access(rhs).d_bytesPerElement);
-                d_allocator_p->deallocate(d_table_p);
-                d_table_p = newTableSpace;
+            if (d_table_p && privateHasSameNeedleOptimization(
+                                                      MoveUtil::access(rhs))) {
+                privateInstallTableOverOld(rhs);
+            } else {
+                privateInstallMismatchedTable(MoveUtil::access(rhs));
             }
-
-            native_std::memcpy(d_table_p,
-                               MoveUtil::access(rhs).d_table_p,
-                               (UCHAR_MAX + 1) *
-                                      MoveUtil::access(rhs).d_bytesPerElement);
-            // Do not modify 'rhs'.
         } else {
-            d_allocator_p->deallocate(d_table_p);
-            d_table_p = 0;
+            privateDeleteTable();
         }
     }
 
     d_needleLength    = MoveUtil::access(rhs).d_needleLength;
-    d_bytesPerElement = MoveUtil::access(rhs).d_bytesPerElement;
 
     return *this;
 }
@@ -1485,10 +1618,10 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
     unsigned char index = static_cast<unsigned char>(value);
 
     if (privateUseShortNeedleOptimization()) {
-        return (*reinterpret_cast<ShortNeedleSkipArray *>(d_table_p))[index];
+        return (*static_cast<ShortNeedleSkipArray *>(d_table_p))[index];
                                                                       // RETURN
     } else {
-        return (*reinterpret_cast< LongNeedleSkipArray *>(d_table_p))[index];
+        return (*static_cast< LongNeedleSkipArray *>(d_table_p))[index];
                                                                       // RETURN
     }
 }

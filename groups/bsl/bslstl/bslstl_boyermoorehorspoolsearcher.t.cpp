@@ -5276,29 +5276,48 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(srcCfg) P(dstCfg) }
 
-                Mech *srcMechPtr;
+                Mech  *srcMechPtr;
+                Int64  srcNumBytes;
+
+                Int64 numBytesAfore;
+                Int64 numBytesAfter;
 
                 switch (srcCfg) {
                   case 'a': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     srcMechPtr = new (fa) Mech(begin,
                                                begin,  // empty
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'b': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     srcMechPtr  = new (fa) Mech(begin,
                                                 end, // short
                                                 Mech::DefaultHash(),
                                                 Mech::DefaultEqual(),
                                                 &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'c': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     srcMechPtr  = new (fa) Mech(HAYSTACK_TEXT_FIRST,
                                                 HAYSTACK_TEXT_LAST, // long
                                                 Mech::DefaultHash(),
                                                 Mech::DefaultEqual(),
                                                 &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
                     ASSERTV(srcCfg, !"Bad allocator config.");
@@ -5307,29 +5326,45 @@ int main(int argc, char *argv[])
 
                 Mech& mS = *srcMechPtr; const Mech& S = mS;
 
-                Mech *dstMechPtr;
+                Mech  *dstMechPtr;
+                Int64  dstNumBytes;
 
                 switch (dstCfg) {
                   case 'a': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     dstMechPtr = new (fa) Mech(begin,
                                                begin,  // empty
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'b': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     dstMechPtr = new (fa) Mech(begin,
                                                end, // short
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'c': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     dstMechPtr = new (fa) Mech(HAYSTACK_TEXT_FIRST,
                                                HAYSTACK_TEXT_LAST, // long
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
                     ASSERTV(dstCfg, !"Bad allocator config.");
@@ -5338,9 +5373,9 @@ int main(int argc, char *argv[])
 
                 Mech& mD = *dstMechPtr;
 
-                char expectedMemoryChange =  srcCfg > dstCfg ? '+' :
-                                             srcCfg < dstCfg ? '-' :
-                                             /* equal */       '0' ;
+                char expectedMemoryChange =  srcNumBytes > dstNumBytes ? '+' :
+                                             srcNumBytes < dstNumBytes ? '-' :
+                                             /* equal */                 '=' ;
 
                 if (veryVerbose) { P(expectedMemoryChange) }
 
@@ -5358,6 +5393,8 @@ int main(int argc, char *argv[])
                                               - numBytesInUseAfore;
 
                     if (veryVeryVerbose) {
+                        P_(srcNumBytes)
+                         P(dstNumBytes)
                         P_(numBytesInUseAfore)
                         P_(numBytesInUseAfter)
                          P(numBytesInUseChange);
@@ -5365,7 +5402,7 @@ int main(int argc, char *argv[])
 
                     switch (expectedMemoryChange) {
                       case '-': ASSERT(0 >  numBytesInUseChange); break;
-                      case '0': ASSERT(0 == numBytesInUseChange); break;
+                      case '=': ASSERT(0 == numBytesInUseChange); break;
                       case '+': ASSERT(0 <  numBytesInUseChange); break;
                       default: {
                         ASSERTV(dstCfg, !"Expected memory change.");
