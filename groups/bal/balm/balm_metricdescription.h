@@ -33,6 +33,11 @@ BSLS_IDENT("$Id: $")
 // must remain constant and valid throughout the lifetime of the
 // 'balm::MetricDescription' object.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::MetricDescription' is *const* *thread-safe*, meaning that accessors

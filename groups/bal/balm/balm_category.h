@@ -33,6 +33,11 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 // IMPORTANT: The category name, whose type is 'const char *', must remain
 // constant and valid throughout the lifetime of the 'balm::Category' object.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::Category' is generally *const* *thread-safe*, meaning that accessors

@@ -35,6 +35,11 @@ BSLS_IDENT("$Id: $")
 // This implementation of the publisher protocol publishes records to an output
 // stream that is supplied at construction.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Usage
 ///-----
 // In the following example we illustrate how to create and publish records

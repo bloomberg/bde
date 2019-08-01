@@ -36,6 +36,11 @@ BSLS_IDENT("$Id: $")
 // event occurrences along with the total, minimum, and maximum aggregates of
 // the measured values.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::MetricsManager' is fully *thread-safe*, meaning that all non-creator

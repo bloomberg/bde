@@ -47,6 +47,11 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 // information associated with a metric (i.e., there is no guarantee that every
 // publisher will format a metric using its 'balm::MetricFormat').
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::MetricFormat' is *const* *thread-safe*, meaning that accessors may be

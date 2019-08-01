@@ -39,6 +39,11 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 // 'isActive()' is 'false') and operations that would otherwise update the
 // metric will have no effect.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Choosing between 'balm::Metric' and Macros
 ///------------------------------------------
 // The 'balm::Metric' class and the macros defined in 'balm_metrics' provide

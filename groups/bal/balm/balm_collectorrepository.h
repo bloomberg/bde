@@ -38,6 +38,11 @@ BSLS_IDENT("$Id: $")
 // collects and returns metric records from each of the collectors in the
 // repository.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::CollectorRepository' is fully *thread-safe*, meaning that all
