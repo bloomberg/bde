@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::default_searcher' and 'bslstl::DefaultSearcher'.  Both are compliant
 // with section '[func.search.default]' of the C++ Standard (C++17 and later).
 //
-// 'bsl::default_searcher' is strictly limied to the Standard and is provided
+// 'bsl::default_searcher' is strictly limited to the Standard and is provided
 // for clients for whom standard compliance is a priority.
 // 'bslstl::DefaultSearcher' provides several additional accessors that are not
 // mentioned in the Standard.
@@ -382,7 +382,7 @@ class DefaultSearcher {
     template<class FORWARD_ITR_HAYSTACK>
     bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK> operator()(
                                     FORWARD_ITR_HAYSTACK haystackFirst,
-                                    FORWARD_ITR_HAYSTACK haystackLast) const;
+                                    FORWARD_ITR_HAYSTACK haystackLast)   const;
         // Search the specified range '[haystackFirst, haystackLast)' for the
         // first sequence of 'value_type' values specified on construction.
         // Return the range where those values are found, or the range
@@ -468,6 +468,7 @@ struct DefaultSearcher_ImpUtil {
     // is enabled at any time.  Enablement is decided by the
     // 'DefaultSearcher_CanOptimize' meta-function.
 
+    // TYPES
     template <class FORWARD_ITR_NEEDLE,
               class EQUAL,
               class FORWARD_ITR_HAYSTACK>
@@ -564,10 +565,10 @@ class default_searcher {
 
     //! default_searcher(BloombergLP::bslmf::MovableRef<default_searcher>
     //!                                                    original) = default;
-        // Create a 'default_searcher' object having same state as
-        // the specified 'original' object. by moving (in constant time) the
-        // state of 'original' to the new searcher.  The 'original' object is
-        // left in an unspecified (valid) state.
+        // Create a 'default_searcher' object having same state as the
+        // specified 'original' object. by moving (in constant time) the state
+        // of 'original' to the new searcher.  The 'original' object is left in
+        // an unspecified (valid) state.
 
     //! ~default_searcher() = default;
         // Destroy this 'default_searcher' object.
