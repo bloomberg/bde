@@ -2,12 +2,11 @@
 
 #include <bdlcc_deque.h>
 
-#include <bslim_testutil.h>
-
 #include <bslmt_barrier.h>
 #include <bslmt_configuration.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>
+#include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 
@@ -18,14 +17,20 @@
 #include <bslalg_typetraithasstliterators.h>
 
 #include <bsltf_alloctesttype.h>
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_newdeleteallocator.h>
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_issame.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_nameof.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -40,7 +45,10 @@
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
 
+#include <bsl_c_ctype.h>
+
 using namespace BloombergLP;
+using bsls::NameOf;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
@@ -111,8 +119,13 @@ enum { PLAT_EXC = 0 };
 // [17] void forcePushBack(INPUT_ITER, INPUT_ITER); - mt
 // [17] void forcePushFront(const T&); - mt
 // [17] void forcePushFront(INPUT_ITER, INPUT_ITER); - mt
+// [17] void forcePushBack(T&&); - mt
+// [17] void forcePushFront(T&&); - mt
 // [19] void forcePushBack(const T&); - st
 // [19] void forcePushFront(const T&); - st
+// [19] void forcePushBack(T&&); - st
+// [19] void forcePushFront(T&&); - st
+// [19] void removeAll(vector<T> *); - st
 // [ 2] void pushFront(const TYPE&); - st
 // [ 2] void pushBack(const TYPE&); - st
 // [ 2] TYPE popFront(); - st
@@ -131,8 +144,16 @@ enum { PLAT_EXC = 0 };
 // [15] void popFront(T *); - mt
 // [15] void pushFront(const TYPE&); - mt
 // [15] void pushBack(const TYPE&); - mt
+// [15] void pushFront(TYPE&&); - mt
+// [15] void pushBack(TYPE&&); - mt
 // [11] void pushFront(const TYPE&); - mt
 // [11] void pushBack(const TYPE&); - mt
+// [11] void pushFront(TYPE&&); - mt
+// [11] void pushBack(TYPE&&); - mt
+// [11] int timedPopBack(TYPE *, const TimeInterval&); - mt
+// [11] int timedPopFront(TYPE *, const TimeInterval&); - mt
+// [11] int timedPushBack(TYPE&&, const TimeInterval&); - mt
+// [11] int timedPushFront(TYPE&&, const TimeInterval&); - mt
 // [ 4] int timedPopBack(TYPE *, const TimeInterval&); - mt
 // [ 6] int timedPopBack(TYPE *, const bsls::TimeInterval&);
 // [10] int timedPopBack(TYPE *, const bsls::TimeInterval&);
@@ -142,17 +163,21 @@ enum { PLAT_EXC = 0 };
 // [ 6] int timedPushBack(const T&, const TimeInterval &);
 // [ 6] int timedPushFront(const T&,  const TimeInterval &);
 // [ 8] removeAll();
-// [ 8] removeAll(bsl::vector<T>& buffer);
+// [ 8] removeAll(bsl::vector<T> *buffer);
 // [ 9] int tryPopFront(TYPE *); - st
 // [ 9] void tryPopFront(size_t, vector<TYPE> *); - st
 // [ 9] int tryPopBack(TYPE *); - st
 // [ 9] void tryPopBack(size_t, vector<TYPE> *); - st
 // [12] int tryPopFront(TYPE *); - mt
 // [12] void tryPopFront(size_t, vector<TYPE> *); - mt
+// [12] void tryPopFront(size_t, vector<TYPE> *, bool); - mt
 // [12] int tryPopBack(TYPE *); - mt
 // [12] void tryPopBack(size_t, vector<TYPE> *); - mt
+// [12] void tryPopBack(size_t, vector<TYPE> *, bool); - mt
 // [16] int tryPushBack(const T&); - st
 // [16] int tryPushFront(const T&); - st
+// [16] int tryPushBack(T&&); - st
+// [16] int tryPushFront(T&&); - st
 // [16] int tryPushBack(const T&); - mt
 // [16] int tryPushFront(const T&); - mt
 // [18] void tryPushBack(INPUT_ITER, INPUT_ITER); - st
@@ -160,6 +185,18 @@ enum { PLAT_EXC = 0 };
 // [20] void tryPushBack(INPUT_ITER, INPUT_ITER); - mt
 // [20] void tryPushFront(INPUT_ITER, INPUT_ITER); - mt
 // [22] bslma::UsesBslmaAllocator
+// [25] void pushFront(TYPE&&); - st
+// [25] void pushBack(TYPE&&); - st
+// [25] void tryPushFront(TYPE&&); - st
+// [25] void tryPushBack(TYPE&&); - st
+// [25] TYPE popFront(); - move semantics
+// [25] void popFront(TYPE *); - move semantics
+// [25] TYPE popBack(); - move semantics
+// [25] void popBack(TYPE *); - move semantics
+// [26] int timedPopBack(TYPE *, const TimeInterval&); - move semantics
+// [26] int timedPopFront(TYPE *, const TimeInterval&); - move semantics
+// [26] int timedPushBack(TYPE&&, const TimeInterval&);
+// [26] int timedPushFront(TYPE&&, const TimeInterval&);
 //
 // ACCESSORS
 // [23] bslma::Allocator *allocator() const;
@@ -169,8 +206,8 @@ enum { PLAT_EXC = 0 };
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [24] PROCTOR LIFETIME
-// [25] USAGE EXAMPLE 1
-// [26] USAGE EXAMPLE 2
+// [27] USAGE EXAMPLE 1
+// [28] USAGE EXAMPLE 2
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -197,23 +234,14 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT       BSLMT_TESTUTIL_ASSERT
+#define ASSERTV      BSLMT_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q            BSLMT_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLMT_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLMT_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLMT_TESTUTIL_L_  // current Line number
 
 #define TAB cout << '\t';
 
@@ -235,27 +263,36 @@ void aSsErT(bool condition, const char *message, int line)
 //                                    GLOBALS
 //-----------------------------------------------------------------------------
 
+int test;
 int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 int veryVeryVeryVerbose;
 
 bslma::TestAllocator sa("scratch");
+bslma::Allocator&    nda = bslma::NewDeleteAllocator::singleton();
 
 //=============================================================================
 //                GLOBAL TYPEDEFS/CONSTANTS/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef double                 Element;
-typedef bdlcc::Deque<Element>  Obj;
-typedef bsltf::AllocTestType   AElement;
-typedef bdlcc::Deque<AElement> AObj;
-typedef bsl::vector<AElement>  AVec;
-typedef bsl::size_t            size_t;
-typedef Obj::Proctor           Proctor;
-typedef Obj::ConstProctor      ConstProctor;
-typedef bsls::Types::Int64     Int64;
-typedef bsls::Types::IntPtr    IntPtr;
+typedef bsltf::TemplateTestFacility  TTF;
+typedef double                       Element;
+typedef bdlcc::Deque<Element>        Obj;
+typedef bsltf::AllocTestType         AElement;
+typedef bdlcc::Deque<AElement>       AObj;
+typedef bsltf::MovableAllocTestType  MElement;
+typedef bdlcc::Deque<MElement>       MObj;
+typedef bsl::vector<AElement>        AVec;
+typedef bsl::vector<MElement>        MVec;
+typedef bsl::size_t                  size_t;
+typedef Obj::Proctor                 Proctor;
+typedef Obj::ConstProctor            ConstProctor;
+typedef bsls::Types::Int64           Int64;
+typedef bsls::Types::Uint64          Uint64;
+typedef bsls::Types::IntPtr          IntPtr;
+typedef bsltf::MoveState             MoveState;
+typedef bslmf::MovableRefUtil        MUtil;
 
 static const bsl::size_t      maxSizeT = ~static_cast<bsl::size_t>(0);
 
@@ -265,11 +302,475 @@ static const double DECI_SEC      = 0.1;
 static const int MICRO_100TH_SEC =    10000;
                                        // number of micro seconds in .1 seconds
 
+
+static const bsltf::MoveState::Enum e_NOT_MOVED = MoveState::e_NOT_MOVED;
+static const bsltf::MoveState::Enum e_MOVED     = MoveState::e_MOVED;
+static const bsltf::MoveState::Enum e_UNKNOWN   = MoveState::e_UNKNOWN;
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+const bsltf::MoveState::Enum expAssignMoveState = e_MOVED;
+const bool                   expAssignMove      = true;
+#else
+const bsltf::MoveState::Enum expAssignMoveState = e_NOT_MOVED;
+const bool                   expAssignMove      = false;
+#endif
+
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
 
+namespace BloombergLP {
+namespace bsltf {
+                        // ===========================
+                        // class MoveCopyAllocTestType
+                        // ===========================
+
+class MoveCopyAllocTestType {
+    // This 'class' is to behave like 'bsltf::MovableAllocTestType', except
+    // that, if moved in a context where source and destination allocators
+    // don't match, it does a non-moving copy construct or copy assign.
+
+    // DATA
+    int                    *d_data_p;       // pointer to the data value
+    bslma::Allocator       *d_allocator_p;  // allocator used to supply memory
+                                            // (held, not owned)
+
+    MoveCopyAllocTestType  *d_self_p;       // pointer to self (to verify this
+                                            // object is not bit-wise moved
+    MoveState::Enum         d_movedFrom;    // moved-from state
+    MoveState::Enum         d_movedInto;    // moved-from state
+
+
+  public:
+    // CREATORS
+    explicit MoveCopyAllocTestType(bslma::Allocator *basicAllocator = 0);
+        // Create a 'MoveCopyAllocTestType' object having the (default)
+        // attribute values:
+        //..
+        //  data() == -1
+        //..
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    explicit MoveCopyAllocTestType(int               data,
+                                   bslma::Allocator *basicAllocator = 0);
+        // Create a 'MoveCopyAllocTestType' object having the specified 'data'
+        // attribute value.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    MoveCopyAllocTestType(
+                     bslmf::MovableRef<MoveCopyAllocTestType>  original);
+    MoveCopyAllocTestType(
+                     bslmf::MovableRef<MoveCopyAllocTestType>  original,
+                     bslma::Allocator                         *basicAllocator);
+        // Move-construct this objectt from the specified 'original'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If no
+        // allocator is specified or if 'basicAllocator' matches the allocator
+        // of 'original', then 'original' is left in a valid but unspecified
+        // state, if 'basicAllocator' is specified and does not match
+        // 'original', the 'original' is copied without modification.
+
+    MoveCopyAllocTestType(const MoveCopyAllocTestType&  original,
+                          bslma::Allocator             *basicAllocator = 0);
+        // Create a 'MoveCopyAllocTestType' object having the same value as the
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+
+    ~MoveCopyAllocTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    MoveCopyAllocTestType& operator=(const MoveCopyAllocTestType& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    MoveCopyAllocTestType& operator=(
+                                 bslmf::MovableRef<MoveCopyAllocTestType> rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  If
+        // the allocators of '*this' and 'rhs' match, 'rhs' is left in a valid
+        // but unspecified state, otherwise 'rhs' is copied without
+        // modification.
+
+    void setData(int value);
+        // Set the 'data' attribute of this object to the specified 'value'.
+
+    void setMovedInto(MoveState::Enum value);
+        // Set the moved-into state of this object to the specified 'value'.
+
+    // ACCESSORS
+    int data() const;
+        // Return the value of the 'data' attribute of this object.
+
+    MoveState::Enum movedInto() const;
+        // Return the move state of this object as target of a move operation.
+
+    MoveState::Enum movedFrom() const;
+        // Return the move state of this object as source of a move operation.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+};
+
+// FREE OPERATORS
+bool operator==(const MoveCopyAllocTestType& lhs,
+                const MoveCopyAllocTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'MoveCopyAllocTestType' objects have
+    // the same if their 'data' attributes are the same.
+    // TBD: think about the behavior when specified on an object that was
+    // moved-from on this as well as other functions/methods if appropriate.
+
+bool operator!=(const MoveCopyAllocTestType& lhs,
+                const MoveCopyAllocTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'MoveCopyAllocTestType' objects
+    // do not have the same value if their 'data' attributes are not the same.
+
+// FREE FUNCTIONS
+MoveState::Enum getMovedFrom(const MoveCopyAllocTestType& object);
+    // Return the move-from state of the specified 'object'.
+
+MoveState::Enum getMovedInto(const MoveCopyAllocTestType& object);
+    // Return the move-into state of the specified 'object'.
+
+void setMovedInto(MoveCopyAllocTestType *object, MoveState::Enum value);
+    // Set the moved-into state of the specified 'object' to the specified
+    // 'value'.
+
+// MANIPULATORS
+inline
+void MoveCopyAllocTestType::setMovedInto(MoveState::Enum value)
+{
+    d_movedInto = value;
+}
+
+// ACCESSORS
+inline
+int MoveCopyAllocTestType::data() const
+{
+    return d_data_p ? *d_data_p : 0;
+}
+
+inline
+MoveState::Enum MoveCopyAllocTestType::movedFrom() const
+{
+    return d_movedFrom;
+}
+
+inline
+MoveState::Enum MoveCopyAllocTestType::movedInto() const
+{
+    return d_movedInto;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *MoveCopyAllocTestType::allocator() const
+{
+    return d_allocator_p;
+}
+
+// FREE FUNCTION
+inline
+MoveState::Enum getMovedFrom(const MoveCopyAllocTestType& object)
+{
+    return object.movedFrom();
+}
+
+inline
+MoveState::Enum getMovedInto(const MoveCopyAllocTestType& object)
+{
+    return object.movedInto();
+}
+
+inline
+void setMovedInto(MoveCopyAllocTestType *object, MoveState::Enum value)
+{
+    object->setMovedInto(value);
+}
+
+                        // ---------------------------
+                        // class MoveCopyAllocTestType
+                        // ---------------------------
+
+// CREATORS
+MoveCopyAllocTestType::MoveCopyAllocTestType(bslma::Allocator *basicAllocator)
+: d_data_p(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
+, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
+{
+    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
+MoveCopyAllocTestType::MoveCopyAllocTestType(int               data,
+                                             bslma::Allocator *basicAllocator)
+: d_data_p(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
+, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
+{
+    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = data;
+}
+
+MoveCopyAllocTestType::MoveCopyAllocTestType(
+                             bslmf::MovableRef<MoveCopyAllocTestType> original)
+: d_data_p(0)
+, d_allocator_p(bslmf::MovableRefUtil::access(original).d_allocator_p)
+, d_self_p(this)
+, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
+, d_movedInto(bsltf::MoveState::e_MOVED)
+{
+    MoveCopyAllocTestType& lvalue = original;
+
+    if (lvalue.d_data_p) {
+        d_data_p        = lvalue.d_data_p;
+        lvalue.d_data_p = 0;
+    }
+    else {
+        d_data_p  = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+        *d_data_p = 0;
+    }
+    lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
+}
+
+MoveCopyAllocTestType::MoveCopyAllocTestType(
+                       bslmf::MovableRef<MoveCopyAllocTestType> original,
+                       bslma::Allocator                        *basicAllocator)
+: d_data_p(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
+{
+    MoveCopyAllocTestType& lvalue = original;
+
+    if (d_allocator_p == lvalue.d_allocator_p) {
+        if (lvalue.d_data_p) {
+            d_data_p = lvalue.d_data_p;
+            lvalue.d_data_p = 0;
+        }
+        else {
+            d_data_p  =
+                      static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+            *d_data_p = 0;
+        }
+        lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
+        d_movedInto        = bsltf::MoveState::e_MOVED;
+    }
+    else {
+        d_data_p    = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+        *d_data_p   = lvalue.data();
+        d_movedInto = bsltf::MoveState::e_NOT_MOVED;
+    }
+}
+
+MoveCopyAllocTestType::MoveCopyAllocTestType(
+                                  const MoveCopyAllocTestType&  original,
+                                  bslma::Allocator             *basicAllocator)
+: d_data_p(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
+, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
+{
+    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = original.data();
+}
+
+MoveCopyAllocTestType::~MoveCopyAllocTestType()
+{
+    d_allocator_p->deallocate(d_data_p);
+
+    BSLS_ASSERT_OPT(!!d_data_p ==
+                               (bsltf::MoveState::e_NOT_MOVED == d_movedFrom));
+
+    // Ensure that this objects has not been bitwise moved.
+
+    BSLS_ASSERT_OPT(this == d_self_p);
+}
+
+// MANIPULATORS
+MoveCopyAllocTestType&
+MoveCopyAllocTestType::operator=(const MoveCopyAllocTestType& rhs)
+{
+    if (&rhs != this)
+    {
+        int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+        d_allocator_p->deallocate(d_data_p);
+        d_data_p = newData;
+        *d_data_p = rhs.data();
+
+        d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+        d_movedInto = bsltf::MoveState::e_NOT_MOVED;
+    }
+    return *this;
+}
+
+MoveCopyAllocTestType&
+MoveCopyAllocTestType::operator=(bslmf::MovableRef<MoveCopyAllocTestType> rhs)
+{
+    MoveCopyAllocTestType& lvalue = rhs;
+    if (&lvalue != this)
+    {
+        if (d_allocator_p == lvalue.d_allocator_p) {
+            if (lvalue.d_data_p) {
+                if (d_data_p) {
+                    d_allocator_p->deallocate(d_data_p);
+                }
+                d_data_p = lvalue.d_data_p;
+                lvalue.d_data_p = 0;
+            }
+            else {
+                int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+                if (d_data_p) {
+                    d_allocator_p->deallocate(d_data_p);
+                }
+
+                d_data_p = newData;
+                *d_data_p = 0;
+            }
+
+            d_movedInto        = bsltf::MoveState::e_MOVED;
+            lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
+        }
+        else {
+            int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+            if (d_data_p) {
+                d_allocator_p->deallocate(d_data_p);
+            }
+            d_data_p = newData;
+            *d_data_p = lvalue.data();
+
+            d_movedInto        = bsltf::MoveState::e_MOVED;
+        }
+        d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+    }
+    return *this;
+}
+
+void MoveCopyAllocTestType::setData(int value)
+{
+    if (!d_data_p) {
+        int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+        d_data_p = newData;
+    }
+    *d_data_p = value;
+
+    d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+    d_movedInto = bsltf::MoveState::e_NOT_MOVED;
+}
+
+}  // close namespace bsltf
+
+// FREE OPERATORS
+inline
+bool bsltf::operator==(const bsltf::MoveCopyAllocTestType& lhs,
+                       const bsltf::MoveCopyAllocTestType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool bsltf::operator!=(const bsltf::MoveCopyAllocTestType& lhs,
+                       const bsltf::MoveCopyAllocTestType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::MoveCopyAllocTestType>
+    : bsl::true_type {};
+}  // close namespace bslma
+}  // close enterprise namespace
+
+typedef bsltf::MoveCopyAllocTestType MCElement;
+typedef bsl::vector<MCElement>       MCVec;
+typedef bdlcc::Deque<MCElement>      MCObj;
+
 namespace {
+
+bsl::ostream& operator<<(bsl::ostream& stream, const AElement& d)
+{
+    int c = d.data();
+
+    if (0 == (c & ~0xff) && isalnum(c)) {
+        char array[] = { "' '" };
+        array[1] = static_cast<char>(c);
+
+        stream << array;
+    }
+    else {
+        stream << c;
+    }
+
+    return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, const MElement& d)
+{
+    int c = d.data();
+
+    if (0 == (c & ~0xff) && isalnum(c)) {
+        char array[] = { "' '" };
+        array[1] = static_cast<char>(c);
+
+        stream << array;
+    }
+    else {
+        stream << c;
+    }
+
+    return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, const MCElement& d)
+{
+    int c = d.data();
+
+    if (0 == (c & ~0xff) && isalnum(c)) {
+        char array[] = { "' '" };
+        array[1] = static_cast<char>(c);
+
+        stream << array;
+    }
+    else {
+        stream << c;
+    }
+
+    return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, const Obj& x)
+    // Output the specified 'x' to the specified 'stream'.
+{
+    Obj::ConstProctor          cp(&x);
+    const bsl::deque<Element>& d = *cp;
+
+    stream << "[";
+    for (unsigned ii = 0; ii < d.size(); ++ii) {
+        stream << ' ' << d[ii];
+    }
+    stream << " ]";
+
+    return stream;
+}
 
 bsl::ostream& operator<<(bsl::ostream& stream, const AObj& x)
     // Output the specified 'x' to the specified 'stream'.
@@ -279,7 +780,49 @@ bsl::ostream& operator<<(bsl::ostream& stream, const AObj& x)
 
     stream << "[";
     for (unsigned ii = 0; ii < d.size(); ++ii) {
-        stream << ' ' << d[ii].data();
+        stream << ' ' << d[ii];
+    }
+    stream << " ]";
+
+    return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, const MObj& x)
+    // Output the specified 'x' to the specified 'stream'.
+{
+    MObj::ConstProctor          cp(&x);
+    const bsl::deque<MElement>& d = *cp;
+
+    stream << "[";
+    for (unsigned ii = 0; ii < d.size(); ++ii) {
+        stream << ' ' << d[ii];
+    }
+    stream << " ]";
+
+    return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, const MCObj& x)
+    // Output the specified 'x' to the specified 'stream'.
+{
+    MCObj::ConstProctor          cp(&x);
+    const bsl::deque<MCElement>& d = *cp;
+
+    stream << "[";
+    for (unsigned ii = 0; ii < d.size(); ++ii) {
+        stream << ' ' << d[ii];
+    }
+    stream << " ]";
+
+    return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<Element>& d)
+    // Output the specified 'd' to the specified 'stream'.
+{
+    stream << "[";
+    for (unsigned ii = 0; ii < d.size(); ++ii) {
+        stream << ' ' << d[ii];
     }
     stream << " ]";
 
@@ -291,26 +834,180 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<AElement>& d)
 {
     stream << "[";
     for (unsigned ii = 0; ii < d.size(); ++ii) {
-        stream << ' ' << d[ii].data();
+        stream << ' ' << d[ii];
     }
     stream << " ]";
 
     return stream;
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<AElement>& x)
-    // Output the specified 'x' to the specified 'stream'.
+bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<MElement>& d)
+    // Output the specified 'd' to the specified 'stream'.
 {
     stream << "[";
-    for (unsigned ii = 0; ii < x.size(); ++ii) {
-        stream << ' ' << x[ii].data();
+    for (unsigned ii = 0; ii < d.size(); ++ii) {
+        stream << ' ' << d[ii];
     }
     stream << " ]";
 
     return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<MCElement>& d)
+    // Output the specified 'd' to the specified 'stream'.
+{
+    stream << "[";
+    for (unsigned ii = 0; ii < d.size(); ++ii) {
+        stream << ' ' << d[ii];
+    }
+    stream << " ]";
+
+    return stream;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, bsltf::MoveState::Enum x)
+{
+    return stream << bsltf::MoveState::toAscii(x);
 }
 
 namespace u {
+
+template <class TYPE>
+struct HasWellBehavedMove : public bsl::is_trivially_copyable<TYPE>
+{};
+
+template <>
+struct HasWellBehavedMove<bsltf::MovableAllocTestType> : public bsl::false_type
+{};
+
+template <>
+struct HasWellBehavedMove<bsltf::AllocTestType> : public bsl::true_type
+{};
+
+template <>
+struct HasWellBehavedMove<bsltf::MoveCopyAllocTestType> : public bsl::true_type
+{};
+
+template <class TYPE>
+struct IsMoveAware : public bsl::false_type
+{};
+
+template <>
+struct IsMoveAware<bsltf::MovableAllocTestType> : public bsl::true_type
+{};
+
+template <>
+struct IsMoveAware<bsltf::MoveCopyAllocTestType> : public bsl::true_type
+{};
+
+template <class TYPE>
+struct IsAllocating : public bsl::false_type
+{};
+
+template <>
+struct IsAllocating<bsltf::AllocTestType> : public bsl::true_type
+{};
+
+template <>
+struct IsAllocating<bsltf::MovableAllocTestType> : public bsl::true_type
+{};
+
+template <>
+struct IsAllocating<bsltf::MoveCopyAllocTestType> : public bsl::true_type
+{};
+
+template <class TYPE>
+void setData(TYPE *dst, int src)
+{
+    dst->setData(src);
+}
+
+template <>
+void setData<Element>(Element *dst, int src)
+{
+    *dst = src;
+}
+
+template <class TYPE>
+int getData(const TYPE& src)
+{
+    return TTF::getIdentifier(src);
+}
+
+template <>
+int getData<Element>(const Element& src)
+{
+    ASSERTV(src, src <= INT_MAX);
+    ASSERTV(src, src >= INT_MIN);
+
+    return static_cast<int>(src);
+}
+
+template <>
+int getData<MCElement>(const MCElement& src)
+{
+    return src.data();
+}
+
+const void *p(long unsigned u)
+{
+    return reinterpret_cast<const void *>(u);
+}
+
+struct BreakTestAllocator : public bslma::TestAllocator {
+    // This 'struct' enables us to have an allocator with all the functionality
+    // of a test allocator with a different place to put breakpoints on
+    // 'allocate'.
+
+    // CREATORS
+    explicit
+    BreakTestAllocator(bslma::Allocator *basicAllocator = 0)
+    : TestAllocator("break_test", basicAllocator)
+    {}
+    explicit
+    BreakTestAllocator(const char       *name,
+                       bslma::Allocator *basicAllocator = 0)
+    : TestAllocator(name,
+                    basicAllocator)
+    {}
+    explicit
+    BreakTestAllocator(bool              verboseFlag,
+                       bslma::Allocator *basicAllocator = 0)
+    : TestAllocator("break_test",
+                    verboseFlag,
+                    basicAllocator)
+    {}
+    explicit
+    BreakTestAllocator(const char       *name,
+                       bool              verboseFlag = false,
+                       bslma::Allocator *basicAllocator = 0)
+    : TestAllocator(name,
+                    verboseFlag,
+                    basicAllocator)
+    {}
+        // Create an instrumented "break test" allocator.  Optionally specify a
+        // 'name' (associated with this object) to be included in diagnostic
+        // messages written to 'stdout', thereby distinguishing this test
+        // allocator from others that might be used in the same program.  If
+        // 'name' is 0 (or not specified), no distinguishing name is
+        // incorporated in diagnostics.  Optionally specify a 'verboseFlag'
+        // indicating whether this test allocator should automatically report
+        // all allocation/deallocation events to 'stdout' and print accumulated
+        // statistics on destruction.  If 'verboseFlag' is 'false' (or not
+        // specified), allocation/deallocation and summary messages will not be
+        // written automatically.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the
+        // 'MallocFreeAllocator' singleton is used.
+
+    // MANIPULATOR
+    void *allocate(size_type size);
+        // Call the base class's 'allocate' function with the specified 'size'.
+};
+
+void *BreakTestAllocator::allocate(size_type size)
+{
+    return this->bslma::TestAllocator::allocate(size);
+}
 
 template <class TYPE>
 const TYPE& myBack(const bdlcc::Deque<TYPE>& d)
@@ -373,6 +1070,7 @@ class RandGen {
         // Return the next random number in the series;
 };
 
+// CREATOR
 inline
 RandGen::RandGen(int startSeed)
 : d_seed(startSeed)
@@ -382,11 +1080,73 @@ RandGen::RandGen(int startSeed)
     (void) (*this)();
 }
 
+// MANIPULATOR
 inline
 unsigned RandGen::operator()()
 {
     d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
     return static_cast<unsigned>(d_seed >> 32);
+}
+
+class RandChar {
+    // Provide random, alpha numeric characters for values for test cases.  All
+    // the types employed in numerous test cases can have their values set to
+    // values analogous to ascii characters, this 'class' will provide random,
+    // human-readable ascii values for these test cases.
+
+    // DATA
+    RandGen d_randGen;
+
+  public:
+    explicit
+    RandChar(int startSeed = 12345)
+    : d_randGen(startSeed)
+        // Initialize the generator with the optionally specified 'startSeed'.
+    {
+        (void) d_randGen();
+        (void) d_randGen();
+        (void) d_randGen();
+    }
+
+    char operator()()
+        // Return the next random number in the series;
+    {
+        int x = d_randGen() % 62;
+        x = x < 26
+          ? 'A' + x
+          : x < 52
+          ? 'a' + (x - 26)
+          : '0' + (x - 52);
+
+        return static_cast<char>(x);
+    }
+};
+
+void populateRandCharVec(bsl::vector<char> *buffer, int numChars, int seed)
+    // Populate the specified '*buffer' with the specified 'numChars' distinct
+    // alphanumeric 'char' values, using the specified 'seed' as the random
+    // number seed.
+{
+    BSLS_ASSERT(buffer->empty());
+    BSLS_ASSERT(numChars <= 62);
+
+    RandChar randChar(seed);
+
+    for (int ii = 0; ii < numChars; ++ii) {
+        char c = randChar();
+        ASSERTV(c, isalnum(c));
+
+        bool found = false;
+        for (int jj = 0; !found && jj < ii; ++jj) {
+            found = (*buffer)[jj] == c;
+        }
+        if (found) {
+            --ii;
+            continue;
+        }
+
+        buffer->push_back(c);
+    }
 }
 
 class RandElement {
@@ -420,37 +1180,6 @@ Element RandElement::operator()()
     const Element  ret = num + static_cast<double>(div & divMask) / divDenom;
 
     return (div & divDenom) ? ret : -ret;
-}
-
-class RandAElement {
-    // This 'class' is a stateful random number generator that will generate
-    // random values of type 'AElement' which the 'id' is in the range
-    // [ 'A', 'Z' ].
-
-    // DATA
-    u::RandGen d_randGen;
-
-  public:
-    // CREATOR
-    explicit
-    RandAElement(unsigned seed)
-    : d_randGen(seed)
-        // Initialize the random number generator will the specified 'seed'.
-    {
-    }
-
-    // MANIPULATOR
-    AElement operator()();
-        // Return an 'AElement' object with random state from 'A'-'Z'.
-};
-
-AElement RandAElement::operator()()
-{
-    static const unsigned mod = 'Z' + 1 - 'A';
-
-    const unsigned num = d_randGen();
-
-    return AElement('A' + num % mod);
 }
 
 class Rand1To8 {
@@ -493,40 +1222,44 @@ class Rand1To8 {
     }
 };
 
-class AObjChecker {
-    // This 'class' will, upon destruction, compare the two containers passed
-    // to it upon construction and assert that they are equal, unless the
-    // 'release' method has been called, in which case the c'tor becomes a
-    // no-op.
+template <class ELEMENT>
+class ObjChecker {
+    // This 'class' will, upon destruction, compare the two 'Deque<ELEMENT>'s
+    // passed to it upon construction and assert that they are equal, unless
+    // the 'release' method has been called, in which case the c'tor becomes a
+    // no-op.  'ELEMENT' can be any streamable, equality comparable type.
+
+    // TYPES
+    typedef typename bdlcc::Deque<ELEMENT>::ConstProctor ConstProctor;
 
     // DATA
-    const AObj *d_toBeModified;
-    const AObj *d_toBeCompared;
-    int         d_line;
+    const bdlcc::Deque<ELEMENT> *d_toBeModified_p;
+    const bdlcc::Deque<ELEMENT> *d_toBeCompared_p;
+    int                          d_line;
 
   public:
     // CREATORS
-    AObjChecker(const AObj& toBeModified,
-                const AObj& toBeCompared,
-                int         line)
+    ObjChecker(const bdlcc::Deque<ELEMENT>& toBeModified,
+               const bdlcc::Deque<ELEMENT>& toBeCompared,
+               int                          line)
         // Create a checker that will compare the values of the 'bsl::deque's
         // contained in the specified 'toBeModified' and 'toBeCompared'.  Store
         // 'line', the line number where the checker is created, to be part of
         // the warning message if the comparison fails.
-    : d_toBeModified(&toBeModified)
-    , d_toBeCompared(&toBeCompared)
+    : d_toBeModified_p(&toBeModified)
+    , d_toBeCompared_p(&toBeCompared)
     , d_line(line)
     {}
 
-    ~AObjChecker()
+    ~ObjChecker()
         // Unless the 'release' method has been called in the lifetime of this
         // object, compare the two containers tracked by this object.
     {
-        if (d_toBeModified) {
-            AObj::ConstProctor tbmProc(d_toBeModified);
-            AObj::ConstProctor tbcProc(d_toBeCompared);
-            const bsl::deque<AElement>& tbm = *tbmProc;
-            const bsl::deque<AElement>& tbc = *tbcProc;
+        if (d_toBeModified_p) {
+            ConstProctor               tbmProc(d_toBeModified_p);
+            ConstProctor               tbcProc(d_toBeCompared_p);
+            const bsl::deque<ELEMENT>& tbm = *tbmProc;
+            const bsl::deque<ELEMENT>& tbc = *tbcProc;
 
             ASSERTV(d_line, tbm, tbc, "AObjChecker" && tbm == tbc);
         }
@@ -536,20 +1269,23 @@ class AObjChecker {
     void release()
         // Cancel the checking this object will do at destruction.
     {
-        d_toBeModified = 0;
+        d_toBeModified_p = 0;
     }
 };
 
-struct AVecChecker {
+template <class ELEMENT>
+struct VecChecker {
     // DATA
-    const AVec *d_toBeModified;
-    const AVec *d_toBeCompared;
-    int         d_line;
+    const bsl::vector<ELEMENT> *d_toBeModified_p;
+    const bsl::vector<ELEMENT> *d_toBeCompared_p;
+    int                         d_line;
 
     // CREATORS
-    AVecChecker(const AVec& toBeModified, const AVec& toBeCompared, int line)
-    : d_toBeModified(&toBeModified)
-    , d_toBeCompared(&toBeCompared)
+    VecChecker(const bsl::vector<ELEMENT>& toBeModified,
+               const bsl::vector<ELEMENT>& toBeCompared,
+               int                         line)
+    : d_toBeModified_p(&toBeModified)
+    , d_toBeCompared_p(&toBeCompared)
     , d_line(line)
         // Create a checker that will compare the values of the specified
         // 'toBeModified' and 'toBeCompared'.  Store 'line', the line number
@@ -557,13 +1293,28 @@ struct AVecChecker {
         // the comparison fails.
     {}
 
-    ~AVecChecker()
+    ~VecChecker()
         // Unless the 'release' method has been called in the lifetime of this
         // object, compare the two containers tracked by this object.
     {
-        if (d_toBeModified) {
-            ASSERTV(d_line, *d_toBeModified, *d_toBeCompared,
-                          "AVecChecker" && *d_toBeModified == *d_toBeCompared);
+        if (d_toBeModified_p) {
+            if (*d_toBeModified_p != *d_toBeCompared_p) {
+                const bsl::vector<ELEMENT>& M = *d_toBeModified_p;
+                const bsl::vector<ELEMENT>& C = *d_toBeCompared_p;
+
+                cout << "*d_toBeModified:";
+                IntPtr s = M.size();
+                for (int ii = 0; ii < s; ++ii) {
+                    cout << "\tM[" << ii << "]: " << M[ii];
+                }
+                cout << "\n*d_toBeCompared:";
+                s = C.size();
+                for (int ii = 0; ii < s; ++ii) {
+                    cout << "\tC[" << ii << "]: " << C[ii];
+                }
+                cout << '\n';
+                ASSERTV(d_line, "VecChecker" && M == C);
+            }
         }
     }
 
@@ -571,7 +1322,7 @@ struct AVecChecker {
     void release()
         // Cancel the checking this object will do at destruction.
     {
-        d_toBeModified = 0;
+        d_toBeModified_p = 0;
     }
 };
 
@@ -583,8 +1334,8 @@ struct AVecChecker {
 //-----------------------------------------------------------------------------
 
 // This macro pair injects exceptions based on the allocator belonging to the
-// specified 'EXCEP_TEST_AOBJ_TBM', which must be an 'AObj' container.  The
-// macros very that
+// specified 'TEST_CONTAINER', which is of type 'bdlcc::Deque<ELEM_TYPE>'.  The
+// macros verify that
 //:
 //: 1 The allocator used by the container under test is a test allocator.
 //:
@@ -597,31 +1348,29 @@ struct AVecChecker {
 // Note that the macro will cause an 'ASSERT' failure if at least one
 // allocation doesn't happen within the exception block.
 
-#define BEGIN_EXCEP_TEST_AOBJ(EXCEP_TEST_AOBJ_TBM)                            \
+#define BEGIN_EXCEP_TEST_OBJ(EXCEP_TEST_ELEM_TYPE, EXCEP_TEST_OBJ_OBJ)        \
     {                                                                         \
-        bslma::TestAllocator *EXCEP_TEST_AOBJ_ALLOC =                         \
+        bslma::TestAllocator *EXCEP_TEST_OBJ_ALLOC =                          \
                                 dynamic_cast<bslma::TestAllocator *>(         \
-                                          (EXCEP_TEST_AOBJ_TBM).allocator()); \
-        ASSERT(EXCEP_TEST_AOBJ_ALLOC);                                        \
+                                           (EXCEP_TEST_OBJ_OBJ).allocator()); \
+        ASSERT(EXCEP_TEST_OBJ_ALLOC);                                         \
                                                                               \
-        const AObj EXCEP_TEST_AOBJ_ACOMPARE((EXCEP_TEST_AOBJ_TBM), &sa);      \
-        int EXCEP_TEST_AOBJ_NUM_PASSES = 0;                                   \
-        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*EXCEP_TEST_AOBJ_ALLOC) {    \
-            ++EXCEP_TEST_AOBJ_NUM_PASSES;                                     \
-            u::AObjChecker EXCEP_TEST_AOBJ_CHECKER((EXCEP_TEST_AOBJ_TBM),     \
-                                                   EXCEP_TEST_AOBJ_ACOMPARE,  \
+        const bdlcc::Deque<EXCEP_TEST_ELEM_TYPE> EXCEP_TEST_OBJ_COMPARE(      \
+                                                 (EXCEP_TEST_OBJ_OBJ), &nda); \
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*EXCEP_TEST_OBJ_ALLOC) {     \
+            u::ObjChecker<EXCEP_TEST_ELEM_TYPE> EXCEP_TEST_OBJ_CHECKER(       \
+                                                   (EXCEP_TEST_OBJ_OBJ),      \
+                                                   EXCEP_TEST_OBJ_COMPARE,    \
                                                    __LINE__);
 
-#define END_EXCEP_TEST_AOBJ                                                   \
-            EXCEP_TEST_AOBJ_CHECKER.release();                                \
+#define END_EXCEP_TEST_OBJ                                                    \
+            EXCEP_TEST_OBJ_CHECKER.release();                                 \
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
-        ASSERTV(EXCEP_TEST_AOBJ_NUM_PASSES,                                   \
-                                !PLAT_EXC || EXCEP_TEST_AOBJ_NUM_PASSES > 1); \
     }
 
 // This macro pair injects exceptions based on the allocator belonging to the
-// specified 'EXCEP_TEST_AOBJ_TBM', which must be an 'AObj' container.  The
-// specified 'EXCEP_TEST_AVEC' is to be a vector, which is being populated
+// specified 'EXCEP_TEST_OBJ_OBJ', which must be an 'MObj' container.  The
+// specified 'EXCEP_TEST_OBJ_VEC' is to be a vector, which is being populated
 // by the operation performed in the block.  The macros very that
 //:
 //: 1 Both containers under test use the same allocator, and it's a test
@@ -633,33 +1382,33 @@ struct AVecChecker {
 //: 3 When the exception block is exited, if exceptions are enabled, at least
 //:   one exception was thrown.
 
-#define BEGIN_EXCEP_TEST_AOBJ_AVEC(EXCEP_TEST_AOBJ_AOBJ, EXCEP_TEST_AVEC)     \
+#define BEGIN_EXCEP_TEST_OBJ_VEC(EXCEP_TEST_ELEM_TYPE,                        \
+                                 EXCEP_TEST_OBJ_OBJ,                          \
+                                 EXCEP_TEST_OBJ_VEC)                          \
     {                                                                         \
-        bslma::TestAllocator *EXCEP_TEST_AOBJ_ALLOC =                         \
-                                dynamic_cast<bslma::TestAllocator *>(         \
-                                         (EXCEP_TEST_AOBJ_AOBJ).allocator()); \
-        ASSERT(EXCEP_TEST_AOBJ_ALLOC);                                        \
-        ASSERT((EXCEP_TEST_AVEC).get_allocator().mechanism() ==               \
-                                                EXCEP_TEST_AOBJ_ALLOC);       \
+        bslma::TestAllocator *EXCEP_TEST_VEC_ALLOC =                          \
+                    dynamic_cast<bslma::TestAllocator *>(                     \
+                          (EXCEP_TEST_OBJ_VEC).get_allocator().mechanism());  \
+        ASSERT(EXCEP_TEST_VEC_ALLOC);                                         \
                                                                               \
-        const AObj EXCEP_TEST_AOBJ_COMPARE((EXCEP_TEST_AOBJ_AOBJ), &sa);      \
-        const AVec EXCEP_TEST_AVEC_COMPARE((EXCEP_TEST_AVEC),      &sa);      \
-        int EXCEP_TEST_AOBJ_NUM_PASSES = 0;                                   \
-        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*EXCEP_TEST_AOBJ_ALLOC) {    \
-            ++EXCEP_TEST_AOBJ_NUM_PASSES;                                     \
-            u::AObjChecker EXCEP_TEST_AOBJ_CHECKER((EXCEP_TEST_AOBJ_AOBJ),    \
-                                                   EXCEP_TEST_AOBJ_COMPARE,   \
+        const bdlcc::Deque<EXCEP_TEST_ELEM_TYPE>                              \
+                   EXCEP_TEST_OBJ_COMPARE((EXCEP_TEST_OBJ_OBJ), &nda);        \
+        const bsl::vector<EXCEP_TEST_ELEM_TYPE>                               \
+                   EXCEP_TEST_OBJ_VEC_COMPARE((EXCEP_TEST_OBJ_VEC), &nda);    \
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*EXCEP_TEST_VEC_ALLOC) {     \
+            u::ObjChecker<EXCEP_TEST_ELEM_TYPE> EXCEP_TEST_OBJ_CHECKER(       \
+                                                   (EXCEP_TEST_OBJ_OBJ),      \
+                                                   EXCEP_TEST_OBJ_COMPARE,    \
                                                    __LINE__);                 \
-            u::AVecChecker EXCEP_TEST_AVEC_CHECKER((EXCEP_TEST_AVEC),         \
-                                                   EXCEP_TEST_AVEC_COMPARE,   \
+            u::VecChecker<EXCEP_TEST_ELEM_TYPE> EXCEP_TEST_VEC_CHECKER(       \
+                                                   (EXCEP_TEST_OBJ_VEC),      \
+                                                   EXCEP_TEST_OBJ_VEC_COMPARE,\
                                                    __LINE__);
 
-#define END_EXCEP_TEST_AOBJ_AVEC                                              \
-            EXCEP_TEST_AVEC_CHECKER.release();                                \
-            EXCEP_TEST_AOBJ_CHECKER.release();                                \
+#define END_EXCEP_TEST_OBJ_VEC                                                \
+            EXCEP_TEST_VEC_CHECKER.release();                                 \
+            EXCEP_TEST_OBJ_CHECKER.release();                                 \
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
-        ASSERTV(EXCEP_TEST_AOBJ_NUM_PASSES,                                   \
-                                !PLAT_EXC || EXCEP_TEST_AOBJ_NUM_PASSES > 1); \
     }
 
 //=============================================================================
@@ -864,7 +1613,1073 @@ namespace USAGE_EXAMPLE_1 {
 }  // close namespace USAGE_EXAMPLE_1
 
 //=============================================================================
-//                                  TEST CASE 19
+//                                  TEST CASE 26
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_26 {
+
+template <class ELEMENT>
+class TimedPopRecordBack {
+    // Functor to do a couple of 'timedPopBack' on the 'Deque<ELEMENT>' passed
+    // at construction.  Sometimes the main thread will push an item to the
+    // 'Deque' for us to pop, other times it won't so that we will time out.
+
+    // DATA
+    bdlcc::Deque<ELEMENT> *d_deque_p;
+    bslmt::Barrier        *d_barrier_p;
+    bsls::TimeInterval     d_timeout;
+    const ELEMENT&         d_expected;
+
+  public:
+    // CREATORS
+    TimedPopRecordBack(bdlcc::Deque<ELEMENT> *deque,
+                       bslmt::Barrier        *barrier,
+                       bsls::TimeInterval     timeout,
+                       const ELEMENT&         value)
+    : d_deque_p(deque)
+    , d_barrier_p(barrier)
+    , d_timeout(timeout)
+    , d_expected(value)
+        // Create a test object that will access the specified '*deque' and
+        // with the specified 'val' and the specified 'timeout' and block on
+        // the specified '*barrier'.  After popping, confirm the value popped
+        // equals the specified 'value'.
+    {
+    }
+
+    // MANIPULATORS
+    void operator()()
+        // Do two pushes, the first of which will timeout, the second of which
+        // will succeed without timing out.
+    {
+        bsl::vector<ELEMENT> resultFootprint(d_deque_p->allocator());
+        resultFootprint.resize(1);
+        ELEMENT& result = resultFootprint[0];
+        u::setData(&result, 'Z');
+
+        d_barrier_p->wait();
+
+        // no one's pushing this time, pop will tame out
+
+        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        int timeoutFlag = d_deque_p->timedPopBack(&result, start + d_timeout);
+        bsls::TimeInterval end   = bdlt::CurrentTime::now();
+
+        ASSERT(0 != timeoutFlag);
+        ASSERT(end >= start + d_timeout);
+        ASSERT('Z' == u::getData(result));    // not assigned to
+        ASSERT(e_MOVED != bsltf::getMovedInto(result));
+
+        d_barrier_p->wait();
+
+        // other thread will push
+
+        d_barrier_p->wait();
+
+        int numThrows = -1;
+        start = bdlt::CurrentTime::now();
+        BEGIN_EXCEP_TEST_OBJ(ELEMENT, *d_deque_p) {
+            ++numThrows;
+
+            timeoutFlag = d_deque_p->timedPopBack(&result,
+                                                  start + d_timeout);
+        } END_EXCEP_TEST_OBJ
+        end   = bdlt::CurrentTime::now();
+        ASSERTV(numThrows, expAssignMove, !PLAT_EXC ||
+                (!u::IsAllocating<ELEMENT>::value ||
+                             (u::IsMoveAware<ELEMENT>::value && expAssignMove))
+                                                          == (0 == numThrows));
+        const bsltf::MoveState::Enum expMS = u::IsMoveAware<ELEMENT>::value
+                                           ? expAssignMoveState
+                                           : e_UNKNOWN;
+        const bsltf::MoveState::Enum ms = bsltf::getMovedInto(result);
+        ASSERTV(expMS, ms, expMS == ms);
+        ASSERT(end <  start + d_timeout);
+        ASSERTV(result, 'A' == u::getData(result));
+
+        // pop should've succeeded
+
+        ASSERT(0 == timeoutFlag);
+        ASSERTV(result, d_expected, result == d_expected);
+    }
+};
+
+template <class ELEMENT>
+class TimedPopRecordFront {
+    // Functor to do a couple of 'timedPopFront' on the 'Deque<ELEMENT>' passed
+    // at construction.  Sometimes the main thread will push an item to the
+    // 'Deque' for us to pop, other times it won't so that we will time out.
+
+    // DATA
+    bdlcc::Deque<ELEMENT> *d_deque_p;
+    bslmt::Barrier        *d_barrier_p;
+    bsls::TimeInterval     d_timeout;
+    const ELEMENT&         d_expected;
+
+  public:
+    // CREATORS
+    TimedPopRecordFront(bdlcc::Deque<ELEMENT> *deque,
+                        bslmt::Barrier        *barrier,
+                        bsls::TimeInterval     timeout,
+                        const ELEMENT&         value)
+    : d_deque_p(deque)
+    , d_barrier_p(barrier)
+    , d_timeout(timeout)
+    , d_expected(value)
+        // Create a test object that will access the specified '*deque' and
+        // with the specified 'val' and the specified 'timeout' and block on
+        // the specified '*barrier'.  After popping, confirm the value popped
+        // equals 'value'.
+    {
+    }
+
+    // MANIPULATORS
+    void operator()()
+        // Do two pushes, the first of which will timeout, the second of which
+        // will succeed without timing out.
+    {
+        bsl::vector<ELEMENT> resultFootprint(d_deque_p->allocator());
+        resultFootprint.resize(1);
+        ELEMENT& result = resultFootprint[0];
+        u::setData(&result, 'Z');
+
+        d_barrier_p->wait();
+
+        // no one's pushing this time, pop will tame out
+
+        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        int timeoutFlag = d_deque_p->timedPopFront(&result, start + d_timeout);
+        bsls::TimeInterval end   = bdlt::CurrentTime::now();
+
+        ASSERT(0 != timeoutFlag);
+        ASSERT(end >= start + d_timeout);
+        ASSERT('Z' == u::getData(result));    // not assigned to
+        ASSERT(e_MOVED != bsltf::getMovedInto(result));
+
+        d_barrier_p->wait();
+
+        // other thread will push
+
+        d_barrier_p->wait();
+
+        int numThrows = -1;
+        start = bdlt::CurrentTime::now();
+        BEGIN_EXCEP_TEST_OBJ(ELEMENT, *d_deque_p) {
+            ++numThrows;
+
+            timeoutFlag = d_deque_p->timedPopFront(&result,
+                                                   start + d_timeout);
+        } END_EXCEP_TEST_OBJ
+        end   = bdlt::CurrentTime::now();
+        ASSERTV(numThrows, expAssignMove, !PLAT_EXC ||
+                (!u::IsAllocating<ELEMENT>::value ||
+                             (u::IsMoveAware<ELEMENT>::value && expAssignMove))
+                                                          == (0 == numThrows));
+        const bsltf::MoveState::Enum expMS = u::IsMoveAware<ELEMENT>::value
+                                           ? expAssignMoveState
+                                           : e_UNKNOWN;
+        const bsltf::MoveState::Enum ms = bsltf::getMovedInto(result);
+        ASSERTV(expMS, ms, expMS == ms);
+        ASSERT(end <  start + d_timeout);
+        ASSERTV(result, 'A' == u::getData(result));
+
+        // pop should've succeeded
+
+        ASSERT(0 == timeoutFlag);
+        ASSERTV(result, d_expected, result == d_expected);
+    }
+};
+
+template <class ELEMENT>
+void testTimedPushPopMove()
+{
+    if (verbose) cout << "testTimedPushPopMove<" << NameOf<ELEMENT>() <<
+                                                                       ">()\n";
+
+    bslma::TestAllocator         da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
+    bslma::TestAllocator         ta(veryVeryVeryVerbose);
+
+    bsl::vector<ELEMENT>         vFootprint(&ta);
+    vFootprint.resize(4);
+    u::setData(&vFootprint[0], 'A');
+    u::setData(&vFootprint[1], 'B');
+    u::setData(&vFootprint[2], 'A');
+    u::setData(&vFootprint[3], 'B');
+    ELEMENT&                     vA = vFootprint[0];
+    ELEMENT&                     vB = vFootprint[1];
+    const ELEMENT&               VA = vFootprint[2];
+    const ELEMENT&               VB = vFootprint[3];
+
+    // Expected Copyconstruct Movestate
+
+    bsltf::MoveState::Enum ecm   = u::IsMoveAware<ELEMENT>::value
+                                 ? e_MOVED
+                                 : e_UNKNOWN;
+
+    if (verbose) cout << "\tWith 'timedPopBack'" << endl;
+    {
+        bsls::TimeInterval T3(3 * DECI_SEC);          // 0.3s
+
+        bslmt::Barrier barrier(2);
+        bdlcc::Deque<ELEMENT> x(1, &ta);    const bdlcc::Deque<ELEMENT>& X = x;
+        {
+            typename bdlcc::Deque<ELEMENT>::Proctor p(&x);
+            p->reserve(4);
+        }
+        ASSERT(1 == X.highWaterMark());
+
+        TimedPopRecordBack<ELEMENT> testMObj(&x, &barrier, T3, VA);
+        bslmt::ThreadUtil::Handle thread;
+        bslmt::ThreadUtil::create(&thread, testMObj);
+
+        barrier.wait();
+
+        // thread will time out on a pop
+
+        barrier.wait();
+
+        ASSERT(0 == X.length());
+
+        // First push, will succeed without timeout.
+
+        Int64 tana = ta.numAllocations();
+        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        int rc = x.timedPushBack(bslmf::MovableRefUtil::move(vA),
+                                 start + T3);
+        bsls::TimeInterval end = bdlt::CurrentTime::now();
+        ASSERT(0 == rc);
+        ASSERT(end < start + T3);
+        ASSERTV(ta.numAllocations() - tana,
+                            (u::IsAllocating<ELEMENT>::value &&
+                                    !u::IsMoveAware<ELEMENT>::value) ==
+                                             (0 < ta.numAllocations() - tana));
+        ASSERTV(bsltf::getMovedFrom(vA), ecm, bsltf::getMovedFrom(vA) == ecm);
+        vA = VA;
+
+        // Second push, will timeout and fail.
+
+        tana = ta.numAllocations();
+        ASSERT(1 == X.length());
+        start = bdlt::CurrentTime::now();
+        rc = x.timedPushBack(bslmf::MovableRefUtil::move(vB),
+                             start + T3);
+        end   = bdlt::CurrentTime::now();
+        ASSERT(0 != rc);
+        ASSERT(end >= start + T3);
+        ASSERTV(ta.numAllocations() - tana, 0 == ta.numAllocations() - tana);
+        ASSERTV(vB, VB, VB == vB);
+        ASSERTV(bsltf::getMovedFrom(vB), e_MOVED != bsltf::getMovedFrom(vB));
+
+        ASSERT(1 == X.length());
+
+        barrier.wait();
+
+        bslmt::ThreadUtil::join(thread);
+
+        ASSERT(0 == X.length());
+    }
+    ASSERT(0 == da.numAllocations());
+
+    if (verbose) cout << "\tWith 'timedPopFront'" << endl;
+    {
+        bsls::TimeInterval T3(3 * DECI_SEC);          // 0.3s
+
+        bslmt::Barrier barrier(2);
+        bdlcc::Deque<ELEMENT> x(1, &ta);    const bdlcc::Deque<ELEMENT>& X = x;
+        {
+            typename bdlcc::Deque<ELEMENT>::Proctor p(&x);
+            p->reserve(4);
+        }
+        ASSERT(1 == X.highWaterMark());
+
+        TimedPopRecordFront<ELEMENT> testMObj(&x, &barrier, T3, VA);
+        bslmt::ThreadUtil::Handle thread;
+        bslmt::ThreadUtil::create(&thread, testMObj);
+
+        barrier.wait();
+
+        // thread will time out on a pop
+
+        barrier.wait();
+
+        ASSERT(0 == X.length());
+
+        // First push, will succeed without timeout.
+
+        Int64 tana = ta.numAllocations();
+        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        int rc = x.timedPushFront(bslmf::MovableRefUtil::move(vA),
+                                  start + T3);
+        bsls::TimeInterval end = bdlt::CurrentTime::now();
+        ASSERT(0 == rc);
+        ASSERT(end < start + T3);
+        ASSERTV(ta.numAllocations() - tana,
+                            (u::IsAllocating<ELEMENT>::value &&
+                                    !u::IsMoveAware<ELEMENT>::value) ==
+                                             (0 < ta.numAllocations() - tana));
+        ASSERTV(bsltf::getMovedFrom(vA), ecm, bsltf::getMovedFrom(vA) == ecm);
+        vA = VA;
+
+        // Second push, will timeout and fail.
+
+        tana = ta.numAllocations();
+        ASSERT(1 == X.length());
+        start = bdlt::CurrentTime::now();
+        rc = x.timedPushFront(bslmf::MovableRefUtil::move(vB),
+                              start + T3);
+        end   = bdlt::CurrentTime::now();
+        ASSERT(0 != rc);
+        ASSERT(end >= start + T3);
+        ASSERTV(ta.numAllocations() - tana, 0 == ta.numAllocations() - tana);
+        ASSERTV(vB, VB, VB == vB);
+        ASSERTV(bsltf::getMovedFrom(vB), e_MOVED != bsltf::getMovedFrom(vB));
+
+        ASSERT(1 == X.length());
+
+        barrier.wait();
+
+        bslmt::ThreadUtil::join(thread);
+
+        ASSERT(0 == X.length());
+    }
+    ASSERT(0 == da.numAllocations());
+}
+
+}  // close namespace TEST_CASE_26
+
+//=============================================================================
+//                                  TEST CASE 25
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_25 {
+
+template <class ELEMENT>
+void testSingleMovingPushesPops()
+{
+    bslma::TestAllocator         da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
+
+    bslma::TestAllocator sa(veryVeryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+    Int64 expDaNumBlocksTotal = da.numBlocksTotal();
+    Int64 numPopValueAllocs;
+        // The number of default allocations done by a return-by-value depends
+        // heavily on whether the compiler does the return value optimizations,
+        // which varies unpredictably with different compilers and optimization
+        // levels, so we'll have to set this variable empirically on the first
+        // pop returning by value.
+
+    // Expected Assign Movestate
+
+    bsltf::MoveState::Enum eam   = u::IsMoveAware<ELEMENT>::value
+                                 ? expAssignMoveState
+                                 : e_UNKNOWN;
+
+    // Expected Copyconstruct Movestate
+
+    bsltf::MoveState::Enum ecm   = u::IsMoveAware<ELEMENT>::value
+                                 ? e_MOVED
+                                 : e_UNKNOWN;
+
+    // Expected Copyconstruct Movestate -- Non-Matching Allocators
+
+    bsltf::MoveState::Enum ecmnma =
+                             bslmf::IsSame<ELEMENT,
+                                           bsltf::MoveCopyAllocTestType>::value
+                                           ? e_NOT_MOVED
+                                           : ecm;
+
+    bool expAssignAlloc = u::IsAllocating<ELEMENT>::value && eam != e_MOVED;
+    bool expCreateAlloc = u::IsAllocating<ELEMENT>::value && ecm != e_MOVED;
+
+    bsl::vector<char> randCharVec(&sa);
+    u::populateRandCharVec(&randCharVec, 20, test);
+
+    Int64 taNumAllocs;
+
+    if (verbose) cout << "testSingleMovingPushesPops<" << NameOf<ELEMENT>() <<
+                                                                       ">()\n";
+
+    if (verbose) cout << "\t1. Explicit Pushes and Pops\n";
+    {
+        enum { NUM_V = 4 };
+        bsl::vector<ELEMENT> v(&ta);
+        bsl::vector<ELEMENT> vConst(&ta);
+        const bsl::vector<ELEMENT>& V = vConst;
+        bsl::vector<ELEMENT> eFootprint(&ta);
+        eFootprint.resize(1);
+        ELEMENT& e = eFootprint.front();
+
+        v.resize(NUM_V);
+        vConst.resize(4);
+        for (int ti = 0; ti < NUM_V; ++ti) {
+            u::setData(&v[     ti], randCharVec[ti]);
+            u::setData(&vConst[ti], randCharVec[ti]);
+            if (veryVerbose) { T_ T_ P_(ti); P(V[ti]); }
+        }
+
+        bdlcc::Deque<ELEMENT> x(&ta);    const bdlcc::Deque<ELEMENT>& X = x;
+
+        for (int tryPush = 0; tryPush < 2; ++tryPush) {
+            if (verbose) cout << "\t\t'pushBack' && 'length'\n";
+            {
+                ASSERT(0 == u::myLength(X));
+
+                if (tryPush) {
+                    ASSERT(0 == x.tryPushBack(MUtil::move(v[0])));
+                }
+                else {
+                    x.pushBack(MUtil::move(v[0]));
+                }
+
+                ASSERT(1 == u::myLength(X));
+                const ELEMENT *back_p = &u::myBack(X);
+
+                ASSERT(V[0] == *back_p);
+                ASSERT(ecm == bsltf::getMovedInto(*back_p));
+
+                if (tryPush) {
+                    ASSERT(0 == x.tryPushBack(MUtil::move(v[1])));
+                }
+                else {
+                    x.pushBack(MUtil::move(v[1]));
+                }
+
+                ASSERT(2 == u::myLength(X));
+                const ELEMENT *front_p = &u::myFront(X);
+                ASSERT(V[0] == *front_p);
+                ASSERTV(ecm, bsltf::getMovedInto(*front_p),
+                                         ecm == bsltf::getMovedInto(*front_p));
+                back_p = &u::myBack(X);
+                ASSERT(V[1] == *back_p);
+                ASSERTV(ecm, bsltf::getMovedInto(*back_p),
+                                          ecm == bsltf::getMovedInto(*back_p));
+
+                ASSERTV(ecm, bsltf::getMovedFrom(v[0]),
+                                             ecm == bsltf::getMovedFrom(v[0]));
+                ASSERTV(ecm, bsltf::getMovedFrom(v[1]),
+                                             ecm == bsltf::getMovedFrom(v[1]));
+            }
+
+            v[0] = V[0];
+            v[1] = V[1];
+
+            ASSERTV(da.numBlocksTotal() - expDaNumBlocksTotal,
+                               0 == da.numBlocksTotal() - expDaNumBlocksTotal);
+
+            if (verbose) cout << "\t\t'popBack' && 'length'\n";
+            {
+                ASSERT(2 == u::myLength(X));
+                const ELEMENT& rv = x.popBack();
+                ASSERT(V[1] == rv);
+                numPopValueAllocs = da.numBlocksTotal() - expDaNumBlocksTotal;
+                expDaNumBlocksTotal += numPopValueAllocs;
+                ASSERTV(numPopValueAllocs, bsltf::getMovedInto(rv),
+                     !!numPopValueAllocs == (u::IsAllocating<ELEMENT>::value &&
+                                          e_MOVED != bsltf::getMovedInto(rv)));
+
+                ASSERT(1 == u::myLength(X));
+
+                x.pushBack(bslmf::MovableRefUtil::move(v[1]));
+                ASSERT(2 == u::myLength(X));
+                u::setData(&e, -1);
+                taNumAllocs = ta.numAllocations();
+                x.popBack(&e);
+                ASSERT(V[1] == e);
+                ASSERT(eam == bsltf::getMovedInto(e));
+                ASSERTV(ta.numAllocations(), taNumAllocs, expAssignAlloc,
+                          ta.numAllocations() == taNumAllocs + expAssignAlloc);
+
+                ASSERT(V[0] == u::myFront(X));
+                ASSERT(V[0] == u::myBack( X));
+
+                ASSERT(V[0] == x.popBack());
+                expDaNumBlocksTotal += numPopValueAllocs;
+
+                ASSERT(0 == u::myLength(X));
+
+            }
+
+            v[1] = V[1];
+
+            ASSERTV(numPopValueAllocs,
+                                     da.numBlocksTotal() - expDaNumBlocksTotal,
+                               0 == da.numBlocksTotal() - expDaNumBlocksTotal);
+
+            if (verbose) cout << "\t\t'pushFront' && 'length'\n";
+            {
+                ASSERT(0 == u::myLength(X));
+
+                if (tryPush) {
+                    ASSERT(0 == x.tryPushFront(MUtil::move(v[2])));
+                }
+                else {
+                    x.pushFront(MUtil::move(v[2]));
+                }
+
+                ASSERT(1 == u::myLength(X));
+                const ELEMENT *front_p = &u::myFront(X);
+                ASSERT(V[2] == *front_p);
+                ASSERT(ecm == bsltf::getMovedInto(*front_p));
+                ASSERT(ecm == bsltf::getMovedFrom(v[2]));
+
+                if (tryPush) {
+                    ASSERT(0 == x.tryPushFront(MUtil::move(v[3])));
+                }
+                else {
+                    x.pushFront(bslmf::MovableRefUtil::move(v[3]));
+                }
+                ASSERT(ecm == bsltf::getMovedFrom(v[3]));
+
+                ASSERT(2 == u::myLength(X));
+
+                const ELEMENT *back_p = &u::myBack(X);
+                front_p = &u::myFront(X);
+
+                ASSERT(V[3] == *front_p);
+                ASSERT(ecm == bsltf::getMovedInto(*front_p));
+
+                ASSERT(V[2] == *back_p);
+                ASSERT(ecm == bsltf::getMovedInto(*back_p));
+            }
+
+            v[2] = V[2];
+            v[3] = V[3];
+
+            ASSERTV(da.numBlocksTotal() - expDaNumBlocksTotal,
+                               0 == da.numBlocksTotal() - expDaNumBlocksTotal);
+
+            if (verbose) cout << "\t\t'popFront' && 'length'\n";
+            {
+                ASSERT(2 == u::myLength(X));
+                const ELEMENT& rv = x.popFront();
+                ASSERT(V[3] == rv);
+                expDaNumBlocksTotal += numPopValueAllocs;
+                ASSERTV(numPopValueAllocs, bsltf::getMovedInto(rv),
+                     !!numPopValueAllocs == (u::IsAllocating<ELEMENT>::value &&
+                                          e_MOVED != bsltf::getMovedInto(rv)));
+
+                ASSERT(1 == u::myLength(X));
+                x.pushFront(V[3]);    // not move, move already tested
+                const ELEMENT *front_p = &u::myFront(X);
+                ASSERT(e_MOVED != bsltf::getMovedInto(*front_p));
+                ASSERT(2 == u::myLength(X));
+
+                u::setData(&e, -1);
+                taNumAllocs = ta.numAllocations();
+                x.popFront(&e);
+                ASSERT(V[3] == e);
+                ASSERT(eam == bsltf::getMovedInto(e));
+                ASSERTV(ta.numAllocations(), taNumAllocs, expAssignAlloc,
+                          ta.numAllocations() == taNumAllocs + expAssignAlloc);
+
+                front_p = &u::myFront(X);
+                const ELEMENT *back_p  = &u::myBack(X);
+                ASSERT(V[2] == *front_p);
+                ASSERT(V[2] == *back_p);
+                ASSERT(front_p == back_p);
+
+                ASSERT(V[2] == x.popFront());
+                expDaNumBlocksTotal += numPopValueAllocs;
+
+                ASSERT(0 == u::myLength(X));
+            }
+        }
+
+        ASSERTV(da.numBlocksTotal() - expDaNumBlocksTotal,
+                               0 == da.numBlocksTotal() - expDaNumBlocksTotal);
+    }
+
+    ASSERT(0 == ta.numBytesInUse());
+
+    if (verbose) cout << "\t2. Random pushes and pops\n";
+    {
+        // In this block, we have 3 parallel containers 'x', 'xB', and 'd', to
+        // which we apply identical pushes and pops, and observe their behavior
+        // is always the same.
+
+        bdlcc::Deque<ELEMENT>        x(&ta);
+        const bdlcc::Deque<ELEMENT>& X  = x;
+        bdlcc::Deque<ELEMENT>        xB(&ta);
+        const bdlcc::Deque<ELEMENT>& XB = xB;
+        bsl::deque<ELEMENT>          d(&ta);
+        const bsl::deque<ELEMENT>&   D = d;
+
+        ASSERT(0 == D.size());
+        ASSERT(0 == X.length());
+        ASSERT(u::myLength(X) == X.length());
+
+        unsigned int expectedLength = 0;
+        const int    ITERATIONS = veryVeryVerbose ? 50 : 5000;
+        u::RandGen   randGen(12345);
+        u::RandChar  randChar(12345);
+
+        for (int i = 0; i < ITERATIONS; ++i) {
+            unsigned int ll;
+            do {
+                ll = randGen() % 8;
+            } while (expectedLength == ll);
+            const unsigned int LENGTH = ll;
+
+            if (expectedLength < LENGTH) {
+                while (expectedLength < LENGTH) {
+                    ASSERT(expectedLength == D.size());
+                    ASSERT(expectedLength == u::myLength(X));
+                    ASSERT(expectedLength == u::myLength(XB));
+
+                    // Generate a fairly random double using 'generate15'.
+
+                    const char c = randChar();
+                    bsl::vector<ELEMENT> vFootprint(&ta);
+                    vFootprint.resize(4);
+                    ELEMENT& v  = vFootprint[0];
+                    ELEMENT& vB = vFootprint[1];
+                    ELEMENT& vD = vFootprint[2];
+                    u::setData(&v,  c);
+                    u::setData(&vB, c);
+                    u::setData(&vD, c);
+
+                    if (randGen() & 0x80) {
+                        d. push_back(bslmf::MovableRefUtil::move(vD));
+                        x. pushBack( bslmf::MovableRefUtil::move(v));
+                        xB.pushBack( bslmf::MovableRefUtil::move(vB));
+                        if (veryVerbose) {
+                            T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
+                            cout << "\tPUB: '" << c << "'\n";
+                        }
+                    }
+                    else {
+                        d. push_front(bslmf::MovableRefUtil::move(vD));
+                        x. pushFront( bslmf::MovableRefUtil::move(v));
+                        xB.pushFront( bslmf::MovableRefUtil::move(vB));
+                        if (veryVerbose) {
+                            T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
+                            cout << "\tPUF: '" << c << "'\n";
+                        }
+                    }
+
+                    ++expectedLength;
+
+                    ASSERT(expectedLength == D.size());
+                    ASSERT(expectedLength == u::myLength(X));
+                    ASSERT(expectedLength == u::myLength(XB));
+                }
+            }
+            else {
+                bsl::vector<ELEMENT> vFootprint(&ta);
+                vFootprint.resize(2);
+                ELEMENT& popped = vFootprint[0];
+                ELEMENT& e      = vFootprint[1];
+
+                while (expectedLength > LENGTH) {
+                    ASSERT(expectedLength == D.size());
+                    ASSERT(expectedLength == u::myLength(X));
+                    ASSERT(expectedLength == u::myLength(XB));
+
+                    if (randGen() & 0x80) {
+                        popped = D.back();
+                        d.pop_back();
+                        ASSERT(popped == x.popBack());
+                        expDaNumBlocksTotal += numPopValueAllocs;
+                        taNumAllocs = ta.numAllocations();
+                        u::setData(&e, -1);
+                        xB.popBack(&e);
+                        ASSERT(popped == e);
+                        ASSERT(eam == bsltf::getMovedInto(e));
+                        ASSERTV(ta.numAllocations(), taNumAllocs,
+                                                                expAssignAlloc,
+                                     ta.numAllocations() ==
+                                                 taNumAllocs + expAssignAlloc);
+                        if (veryVerbose) {
+                            T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
+                            cout << "\tPOB: " << popped << endl;
+                        }
+                    }
+                    else {
+                        popped = D.front();
+                        d.pop_front();
+                        ASSERT(popped == x.popFront());
+                        expDaNumBlocksTotal += numPopValueAllocs;
+                        taNumAllocs = ta.numAllocations();
+                        u::setData(&e, -1);
+                        xB.popFront(&e);
+                        ASSERT(popped == e);
+                        ASSERT(eam == bsltf::getMovedInto(e));
+                        ASSERTV(ta.numAllocations(), taNumAllocs,
+                                                                expAssignAlloc,
+                                     ta.numAllocations() ==
+                                                 taNumAllocs + expAssignAlloc);
+                        if (veryVerbose) {
+                            T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
+                            cout << "\tPOF: " << popped << endl;
+                        }
+                    }
+
+                    --expectedLength;
+
+                    ASSERT(expectedLength == D.size());
+                    ASSERT(expectedLength == u::myLength(X));
+                    ASSERT(expectedLength == u::myLength(XB));
+
+                    ASSERTV(da.numBlocksTotal() - expDaNumBlocksTotal,
+                               0 == da.numBlocksTotal() - expDaNumBlocksTotal);
+                }
+            }
+
+            ASSERT(LENGTH == expectedLength);
+        }
+    }
+
+    if (verbose) cout << "\t3. Explicit Pushes and Pops, Alloc & Excep\n";
+    {
+        enum { NUM_V = 4 };
+        bsl::vector<ELEMENT> vSa(&sa);
+        vSa.resize(NUM_V);
+        int val = 'A';
+        for (int ti = 0; ti < NUM_V; ++ti, ++val) {
+            u::setData(&vSa[ti], randCharVec[ti]);
+        }
+        const bsl::vector<ELEMENT> V(vSa, &sa);
+        bsl::vector<ELEMENT>       vTa(V, &ta);
+        bsl::vector<ELEMENT>       eTaFootprint(&ta);
+        eTaFootprint.resize(1);
+        ELEMENT&                   eTa = eTaFootprint.front();
+        bsl::vector<ELEMENT>       eSaFootprint(&sa);
+        eSaFootprint.resize(1);
+        ELEMENT&                   eSa = eSaFootprint.front();
+
+        bdlcc::Deque<ELEMENT> x(&ta);    const bdlcc::Deque<ELEMENT>& X = x;
+        {
+            typename bdlcc::Deque<ELEMENT>::Proctor p(&x);
+            p->reserve(4);
+        }
+
+        int numThrows;
+        const ELEMENT *back_p, *front_p;
+
+        if (verbose) cout << "\t\t'pushBack' && 'length', matching\n";
+        {
+            ASSERT(0 == u::myLength(X));
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushBack(bslmf::MovableRefUtil::move(vTa[0]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(numThrows, !PLAT_EXC || (expCreateAlloc ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(1 == u::myLength(X));
+            back_p = &u::myBack(X);
+            ASSERT(V[0] == *back_p);
+            ASSERT(ecm == bsltf::getMovedInto(*back_p));
+            ASSERT(ecm == bsltf::getMovedFrom(vTa[0]));
+
+            vTa[0] = V[0];
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushBack(bslmf::MovableRefUtil::move(vTa[1]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(numThrows, !PLAT_EXC || (expCreateAlloc ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(2 == u::myLength(X));
+            back_p = &u::myBack(X);
+            ASSERT(V[1] == *back_p);
+            ASSERT(ecm == bsltf::getMovedInto(*back_p));
+            ASSERT(ecm == bsltf::getMovedFrom(vTa[1]));
+
+            front_p = &u::myFront(X);
+            ASSERT(V[0] == *front_p);
+            ASSERT(ecm == bsltf::getMovedInto(*front_p));
+
+            vTa[1] = V[1];
+        }
+
+        if (verbose) cout << "\t\t'pushBack' && 'length', non-matching\n";
+        {
+            ASSERT(2 == u::myLength(X));
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushBack(bslmf::MovableRefUtil::move(vSa[2]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(NameOf<ELEMENT>(), numThrows, !PLAT_EXC ||
+                           (u::IsAllocating<ELEMENT>::value ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(3 == u::myLength(X));
+            back_p = &u::myBack(X);
+            ASSERT(V[2] == *back_p);
+
+            ASSERT(ecmnma == bsltf::getMovedInto(*back_p));
+            ASSERT(ecmnma == bsltf::getMovedFrom(vSa[2]));
+
+            vSa[2] = V[2];
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushBack(bslmf::MovableRefUtil::move(vSa[3]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(NameOf<ELEMENT>(), numThrows, !PLAT_EXC ||
+                           (u::IsAllocating<ELEMENT>::value ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(4 == u::myLength(X));
+            back_p = &u::myBack(X);
+            ASSERT(V[3] == *back_p);
+            ASSERT(ecmnma == bsltf::getMovedInto(*back_p));
+            ASSERT(ecmnma == bsltf::getMovedFrom(vSa[3]));
+
+            front_p = &u::myFront(X);
+            ASSERT(V[0] == *front_p);
+            ASSERT(ecm == bsltf::getMovedInto(*front_p));
+
+            vSa[3] = V[3];
+        }
+
+        if (verbose) cout << "\t\t'popBack' && 'length' -- matching\n";
+        {
+            ASSERT(4 == u::myLength(X));
+            {
+                bslma::DefaultAllocatorGuard scratchAllocatorGuard(&sa);
+                ASSERT(V[3] == x.popBack());
+                ASSERT(V[2] == x.popBack());
+            }
+            ASSERT(2 == u::myLength(X));
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.popBack(&eTa);
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(numThrows, eam, NameOf<ELEMENT>(), !PLAT_EXC ||
+                         (u::IsAllocating<ELEMENT>::value && e_MOVED != eam) ==
+                                                              (0 < numThrows));
+            ASSERT(V[1] == eTa);
+
+            ASSERT(V[0] == u::myFront(X));
+            ASSERT(V[0] == u::myBack( X));
+
+            {
+                bslma::DefaultAllocatorGuard scratchAllocatorGuard(&sa);
+                ASSERT(V[0] == x.popBack());
+            }
+            ASSERT(0 == u::myLength(X));
+        }
+
+        if (verbose) cout << "\t\t'popBack' && 'length' -- non-matching\n";
+        {
+            ASSERT(0 == u::myLength(X));
+            x.pushBack(V[0]);
+            x.pushBack(V[1]);
+            x.pushBack(V[2]);
+            x.pushBack(V[3]);
+            ASSERT(4 == u::myLength(X));
+
+            numThrows = -1;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                ++numThrows;
+
+                x.popBack(&eSa);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            ASSERTV(NameOf<ELEMENT>(), !PLAT_EXC ||
+                           u::IsAllocating<ELEMENT>::value == (0 < numThrows));
+
+            ASSERT(V[3] == eSa);
+
+            ASSERT(3 == u::myLength(X));
+
+            ASSERT(V[0] == u::myFront(X));
+            ASSERT(V[2] == u::myBack(X));
+
+            {
+                bslma::DefaultAllocatorGuard scratchAllocatorGuard(&sa);
+                ASSERT(V[0] == x.popFront());
+                ASSERT(V[1] == x.popFront());
+                ASSERT(V[2] == x.popFront());
+            }
+
+            ASSERT(0 == u::myLength(X));
+        }
+
+        if (verbose) cout << "\t\t'pushFront' && 'length', matching\n";
+        {
+            ASSERT(0 == u::myLength(X));
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushFront(bslmf::MovableRefUtil::move(vTa[0]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(numThrows, !PLAT_EXC || (expCreateAlloc ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(1 == u::myLength(X));
+            back_p = &u::myFront(X);
+            ASSERT(V[0] == *back_p);
+            ASSERT(ecm == bsltf::getMovedInto(*back_p));
+            ASSERT(ecm == bsltf::getMovedFrom(vTa[0]));
+
+            vTa[0] = V[0];
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushFront(bslmf::MovableRefUtil::move(vTa[1]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(numThrows, !PLAT_EXC || (expCreateAlloc ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(2 == u::myLength(X));
+            back_p = &u::myFront(X);
+            ASSERT(V[1] == *back_p);
+            ASSERT(ecm == bsltf::getMovedInto(*back_p));
+            ASSERT(ecm == bsltf::getMovedFrom(vTa[1]));
+
+            front_p = &u::myBack(X);
+            ASSERT(V[0] == *front_p);
+            ASSERT(ecm == bsltf::getMovedInto(*front_p));
+
+            vTa[1] = V[1];
+        }
+
+        if (verbose) cout << "\t\t'pushFront' && 'length', non-matching\n";
+        {
+            ASSERT(2 == u::myLength(X));
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushFront(bslmf::MovableRefUtil::move(vSa[2]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(NameOf<ELEMENT>(), numThrows, !PLAT_EXC ||
+                           (u::IsAllocating<ELEMENT>::value ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(3 == u::myLength(X));
+            back_p = &u::myFront(X);
+            ASSERT(V[2] == *back_p);
+
+            ASSERT(ecmnma == bsltf::getMovedInto(*back_p));
+            ASSERT(ecmnma == bsltf::getMovedFrom(vSa[2]));
+
+            vSa[2] = V[2];
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.pushFront(bslmf::MovableRefUtil::move(vSa[3]));
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(NameOf<ELEMENT>(), numThrows, !PLAT_EXC ||
+                           (u::IsAllocating<ELEMENT>::value ? 0 <  numThrows
+                                                            : 0 == numThrows));
+
+            ASSERT(4 == u::myLength(X));
+            back_p = &u::myFront(X);
+            ASSERT(V[3] == *back_p);
+            ASSERT(ecmnma == bsltf::getMovedInto(*back_p));
+            ASSERT(ecmnma == bsltf::getMovedFrom(vSa[3]));
+
+            front_p = &u::myBack(X);
+            ASSERT(V[0] == *front_p);
+            ASSERT(ecm == bsltf::getMovedInto(*front_p));
+
+            vSa[3] = V[3];
+        }
+
+        if (verbose) cout << "\t\t'popFront' && 'length' -- matching\n";
+        {
+            ASSERT(4 == u::myLength(X));
+            {
+                bslma::DefaultAllocatorGuard scratchAllocatorGuard(&sa);
+                ASSERT(V[3] == x.popFront());
+                ASSERT(V[2] == x.popFront());
+            }
+            ASSERT(2 == u::myLength(X));
+
+            numThrows = -1;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, x) {
+                ++numThrows;
+
+                x.popFront(&eTa);
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(numThrows, eam, NameOf<ELEMENT>(), !PLAT_EXC ||
+                         (u::IsAllocating<ELEMENT>::value && e_MOVED != eam) ==
+                                                              (0 < numThrows));
+            ASSERT(V[1] == eTa);
+
+            ASSERT(V[0] == u::myBack(X));
+            ASSERT(V[0] == u::myFront( X));
+
+            {
+                bslma::DefaultAllocatorGuard scratchAllocatorGuard(&sa);
+                ASSERT(V[0] == x.popFront());
+            }
+            ASSERT(0 == u::myLength(X));
+        }
+
+        if (verbose) cout << "\t\t'popFront' && 'length' -- non-matching\n";
+        {
+            ASSERT(0 == u::myLength(X));
+            x.pushFront(V[0]);
+            x.pushFront(V[1]);
+            x.pushFront(V[2]);
+            x.pushFront(V[3]);
+            ASSERT(4 == u::myLength(X));
+
+            numThrows = -1;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                ++numThrows;
+
+                x.popFront(&eSa);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(NameOf<ELEMENT>(), !PLAT_EXC ||
+                           u::IsAllocating<ELEMENT>::value == (0 < numThrows));
+
+            ASSERT(V[3] == eSa);
+
+            ASSERT(3 == u::myLength(X));
+
+            ASSERT(V[0] == u::myBack(X));
+            ASSERT(V[2] == u::myFront(X));
+
+            {
+                bslma::DefaultAllocatorGuard scratchAllocatorGuard(&sa);
+                ASSERT(V[0] == x.popBack());
+                ASSERT(V[1] == x.popBack());
+                ASSERT(V[2] == x.popBack());
+            }
+
+            ASSERT(0 == u::myLength(X));
+        }
+    }
+
+    ASSERT(0 == ta.numBytesInUse());
+    ASSERTV(da.numBlocksTotal() - expDaNumBlocksTotal,
+                               0 == da.numBlocksTotal() - expDaNumBlocksTotal);
+}
+
+}  // close namespace TEST_CASE_25
+
+//=============================================================================
+//                                  TEST CASE 20
 //-----------------------------------------------------------------------------
 
 namespace MULTI_THREADED_TRY_PUSH {
@@ -1070,6 +2885,147 @@ struct UsesBslmaAllocator<MULTI_THREADED_TRY_PUSH::BufferedPopper> :
 }  // close enterprise namespace
 
 //=============================================================================
+//                                  TEST CASE 19
+//                  SINGLE-THREADED SINGLE ITEM FORCE PUSH TEST
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_19 {
+
+template <class ELEMENT>
+void testForcePushRemoveAll()
+{
+    enum { k_NUM_ELEMENTS  = 10,
+           k_WELL_BEHAVED  = u::HasWellBehavedMove<ELEMENT>::value,
+           k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value
+        };
+
+    // Expected Copyconstruct Movestate
+
+    const bool isMoveCopy = bsl::is_same<ELEMENT,
+                                         bsltf::MoveCopyAllocTestType>::value;
+
+    const char *name = NameOf<ELEMENT>();
+
+    bslma::TestAllocator ta("test",   veryVeryVeryVerbose);
+    bslma::TestAllocator oa("other",  veryVeryVeryVerbose);
+    bslma::TestAllocator sa("source", veryVeryVeryVerbose);
+
+    bdlcc::Deque<ELEMENT> mX(2, &ta);    const bdlcc::Deque<ELEMENT>& X = mX;
+
+    if (verbose) cout << "Force Push Remove All: " << name << endl;
+
+    for (int ti = 0; ti < 8; ++ti) {
+        const bool match     = ti & 1;
+        const bool moveFlag  = ti & 2;
+        const bool pushFront = ti & 4;
+
+        bslma::TestAllocator& ooa = match ? ta : oa;
+        bsltf::MoveState::Enum expMove = !u::IsMoveAware<ELEMENT>::value
+                                       ? e_UNKNOWN
+                                       : !moveFlag || (!match && isMoveCopy)
+                                       ? e_NOT_MOVED
+                                       : e_MOVED;
+
+        if (veryVerbose) { P_(ti);    P_(match);    P(pushFront); }
+
+        bsl::vector<ELEMENT> footprintVec(&ooa);
+        footprintVec.resize(1);
+        ELEMENT& e = footprintVec.front();
+
+        if (pushFront) {
+            for (unsigned ii = k_NUM_ELEMENTS; 0 < ii--; ) {
+                const int c = 'A' + ii;
+                BEGIN_EXCEP_TEST_OBJ(ELEMENT, mX) {
+                    u::setData(&e, c);
+
+                    if (moveFlag) {
+                        mX.forcePushFront(MUtil::move(e));
+                    }
+                    else {
+                        mX.forcePushFront(e);
+                    }
+                } END_EXCEP_TEST_OBJ
+                ASSERTV(ii, X.length(), k_NUM_ELEMENTS - ii == X.length());
+                ASSERTV(X, c == u::getData(u::myFront(X)));
+                ASSERTV(expMove, bsltf::getMovedInto(u::myFront(X)),
+                                expMove == bsltf::getMovedInto(u::myFront(X)));
+                ASSERT(expMove == bsltf::getMovedFrom(e));
+            }
+        }
+        else {
+            for (unsigned ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+                const int c = 'A' + ii;
+                BEGIN_EXCEP_TEST_OBJ(ELEMENT, mX) {
+                    u::setData(&e, c);
+
+                    if (moveFlag) {
+                        mX.forcePushBack(MUtil::move(e));
+                    }
+                    else {
+                        mX.forcePushBack(e);
+                    }
+                } END_EXCEP_TEST_OBJ
+                ASSERTV(ii, X.length(), ii + 1 == X.length());
+                ASSERTV(X, c == u::getData(u::myBack(X)));
+                ASSERTV(expMove, bsltf::getMovedInto(u::myBack(X)),
+                                 expMove == bsltf::getMovedInto(u::myBack(X)));
+                ASSERT(expMove == bsltf::getMovedFrom(e));
+            }
+        }
+
+        expMove = !u::IsMoveAware<ELEMENT>::value
+                ? e_UNKNOWN
+                : !match && isMoveCopy
+                ? e_NOT_MOVED
+                : e_MOVED;
+
+        bsl::vector<ELEMENT> v(&ooa);
+        int numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
+
+            mX.removeAll(&v);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+        if (PLAT_EXC) {
+            ASSERTV(numThrows, 1 <= numThrows);
+            ASSERTV(numThrows, !match || !moveFlag ||
+                                           !k_IS_MOVE_AWARE || numThrows <= 1);
+        }
+
+        for (IntPtr ii = v.size(); 0 < ii--; ) {
+            ASSERTV(expMove, bsltf::getMovedInto(v[ii]),
+                                        expMove == bsltf::getMovedInto(v[ii]));
+        }
+
+        if (k_WELL_BEHAVED || match) {
+            ASSERTV(v.size(), k_NUM_ELEMENTS == v.size());
+            for (int ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+                char exp = static_cast<char>('A' + ii);
+                ASSERTV(exp, v[ii], exp == u::getData(v[ii]));
+            }
+        }
+        else {
+            int prevData = 'A' - 1;
+            int numValid = 0;
+            for (unsigned ii = 0; ii < v.size(); ++ii) {
+                int d = u::getData(v[ii]);
+                if (d) {
+                    ++numValid;
+                    ASSERTV(name, ti, ii, prevData, v[ii], prevData < d);
+                    prevData = d;
+                }
+            }
+            if (veryVerbose) {
+                P_(name);    P_(numValid);    P(char(prevData));
+            }
+        }
+    }
+}
+
+}  // close namespace TEST_CASE_19
+
+//=============================================================================
 //                                  TEST CASE 17
 //-----------------------------------------------------------------------------
 
@@ -1118,15 +3074,34 @@ class MultiThreadedForcePushTest {
         if (veryVerbose) bsl::printf(
                                "Producer %u forward pass start\n", d_id >> 30);
 
+
+        // Do pushes of 'unsigned's to the back of the container.  3 Types of
+        // pushes will be made:
+        //: o A move-push of a single item3725
+        //: o A copy-push of a single item
+        //: o A range-copy-push of 2-7 items
+        // The nature of the push is determined by 'len', then number of items,
+        // and 'move', if it's a move.
+        //
+        // We push the loop counter as the value, bitwise-ored with a 2-bit
+        // thread id.
+
         long unsigned visitFlags = 0;   // Make sure we do pushes of all
                                         // possible lengths.
 
         for (unsigned u = 0; u < 0x10000; ) {
-            const unsigned len = bsl::min(0x10000 - u, d_rand1To8());
+            unsigned len = bsl::min(0x10000 - u, d_rand1To8());
+            bool move = false;
+            if (8 == len) {
+                move = true;
+                len = 1;
+            }
             visitFlags |= 1 << len;
 
             if (1 == len) {
-                d_container_p->forcePushBack(d_id | u++);
+                unsigned uu = d_id | u++;
+                move ? d_container_p->forcePushBack(MUtil::move(uu))
+                     : d_container_p->forcePushBack(uu);
             }
             else {
                 for (unsigned ii = 0; ii < len; ++ii, ++u) {
@@ -1139,8 +3114,7 @@ class MultiThreadedForcePushTest {
             }
         }
 
-        ASSERTV(reinterpret_cast<void *>(visitFlags), (d_id >> 30),
-                                                          0x1fe == visitFlags);
+        ASSERTV(u::p(visitFlags), (d_id >> 30), 0xfe == visitFlags);
         if (veryVerbose) bsl::printf(
                               "Producer %u forward pass finish\n", d_id >> 30);
         visitFlags = 0;
@@ -1150,12 +3124,30 @@ class MultiThreadedForcePushTest {
         if (veryVerbose) bsl::printf(
                               "Producer %u backward pass start\n", d_id >> 30);
 
+        // Do pushes of 'unsigned's to the back of the container.  3 Types of
+        // pushes will be made:
+        //: o A move-push of a single item
+        //: o A copy-push of a single item
+        //: o A range-copy-push of 2-7 items
+        // The nature of the push is determined by 'len', then number of items,
+        // and 'move', if it's a move.
+        //
+        // We push the loop counter as the value, bitwise-ored with a 2-bit
+        // thread id.
+
         for (unsigned u = 0; u < 0x10000; ) {
-            const unsigned len = bsl::min(0x10000 - u, d_rand1To8());
+            unsigned len = bsl::min(0x10000 - u, d_rand1To8());
+            bool move = false;
+            if (8 == len) {
+                move = true;
+                len = 1;
+            }
             visitFlags |= 1 << len;
 
             if (1 == len) {
-                d_container_p->forcePushFront(d_id | u++);
+                unsigned uu = d_id | u++;
+                move ? d_container_p->forcePushFront(MUtil::move(uu))
+                     : d_container_p->forcePushFront(uu);
             }
             else {
                 for (unsigned ii = 0; ii < len; ++ii, ++u) {
@@ -1168,8 +3160,7 @@ class MultiThreadedForcePushTest {
             }
         }
 
-        ASSERTV(reinterpret_cast<void *>(visitFlags), (d_id >> 30),
-                                                          0x1fe == visitFlags);
+        ASSERTV(u::p(visitFlags), (d_id >> 30), 0xfe == visitFlags);
         if (veryVerbose) bsl::printf(
                              "Producer %u backward pass finish\n", d_id >> 30);
     }
@@ -1299,15 +3290,27 @@ struct HWMStressTest {
         // Push a fixed number of elements to the back, then the front of the
         // queue to evaluate whether the high water mark is respected.
     {
-        for (Element e = 0; e < 40; ++e) {
-            d_container_p->pushBack(e);
+        for (int ii = 0; ii < 40; ++ii) {
+            if (ii & 1) {
+                d_container_p->pushBack(ii);
+            }
+            else {
+                Element e(ii);
+                d_container_p->pushBack(MUtil::move(e));
+            }
         }
 
         d_barrier_p->wait();
         ASSERT(0 == d_container_p->length());
 
-        for (Element e = 0; e < 40; ++e) {
-            d_container_p->pushFront(e);
+        for (int ii = 0; ii < 40; ++ii) {
+            if (ii & 1) {
+                d_container_p->pushFront(ii);
+            }
+            else {
+                Element e(ii);
+                d_container_p->pushFront(MUtil::move(e));
+            }
         }
     }
 };
@@ -1340,9 +3343,8 @@ typedef bdlcc::Deque<Item>::Proctor Proctor;
 bsls::AtomicInt64           popperTotalsByPusher[NUM_PUSHERS];    // default 0
 volatile Int64              pusherTotals[        NUM_PUSHERS];
 
-bslma::TestAllocator        localAllocator;
-
-bdlcc::Deque<Item>          deque(HIGH_WATER_MARK, &localAllocator);
+bdlcc::Deque<Item>          deque(HIGH_WATER_MARK,
+                                  &bslma::NewDeleteAllocator::singleton());
 
 bsls::AtomicInt             seedMaster(123456789);
 bsls::AtomicInt             pusherIdxMaster(0);
@@ -1603,101 +3605,212 @@ void PopperThread::operator()() const
 
 namespace TEST_CASE_12 {
 
+template <class ELEMENT>
 class TestPopFront {
-    Obj              *d_mX_p;
-    bslma::Allocator *d_alloc_p;
+    enum { k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value };
+
+    bdlcc::Deque<ELEMENT> *d_mX_p;
+    bslma::TestAllocator  *d_alloc_p;
 
   public:
-    TestPopFront(Obj *mX, bslma::Allocator *alloc)
+    TestPopFront(bdlcc::Deque<ELEMENT> *mX,
+                 bslma::TestAllocator  *alloc)
         // Create a 'TestPopFront' object accessing the specified 'mX' and
         // using the specified 'alloc'.
     : d_mX_p(mX)
     , d_alloc_p(alloc)
-    {}
+    {
+        ASSERT(d_mX_p->allocator() == d_alloc_p);
+    }
 
     void operator()()
         // Pop 50 items off the front with 'tryPopFront' and verify their
         // values are as expected.
     {
-        int                  expectedVal  = 0;
-        Element              e;
-        bsl::vector<Element> v(d_alloc_p);
-        size_t               maxVecSize   = 0;
-        Element              maxVecSizeAt = 0;
+        int                    expectedVal  = 0;
+        bsl::vector<ELEMENT>   v(d_alloc_p);
+        IntPtr                 maxVecSize   = 0;
+        int                    maxVecSizeAt = 0;
+        bsltf::MoveState::Enum vms = !k_IS_MOVE_AWARE
+                                   ? e_UNKNOWN
+                                   : e_MOVED;
+        bsltf::MoveState::Enum eam = !k_IS_MOVE_AWARE
+                                   ? e_UNKNOWN
+                                   : expAssignMoveState;
+        bsl::vector<ELEMENT>   eFootprint(d_alloc_p);
+        eFootprint.resize(1);
+        ELEMENT&               e = eFootprint.front();
 
+        v.reserve(20);
+
+        bool passMove = false;
         while (expectedVal < 50) {
+            u::setData(&e, -1);
+
             int sts = d_mX_p->tryPopFront(&e);
             if (!sts) {
-                LOOP2_ASSERT(expectedVal, e, expectedVal++ == e && "popFront");
+                ASSERTV(expectedVal, u::getData(e),
+                                 expectedVal++ == u::getData(e) && "popFront");
+                ASSERTV(eam, eam == bsltf::getMovedInto(e));
             }
 
             v.clear();
             d_mX_p->tryPopFront(20, &v);
-            size_t s = v.size();
-            for (unsigned i = 0; i < s; ++i) {
-                LOOP2_ASSERT(expectedVal, v[i],
-                                          expectedVal++ == v[i] && "popFront");
+            IntPtr s = v.size();
+            for (int ii = 0; ii < s; ++ii) {
+                const int d = u::getData(v[ii]);
+                ASSERTV(expectedVal, d, expectedVal++ == d && "popFront");
+                ASSERTV(vms, bsltf::getMovedInto(v[ii]),
+                                            vms == bsltf::getMovedInto(v[ii]));
             }
             if (s > maxVecSize) {
                 maxVecSize = v.size();
                 maxVecSizeAt = expectedVal;
             }
+
+            passMove = !passMove;
         }
 
-        if (verbose) {
+        if (veryVerbose) {
             cout << "PopFront: max vecsize = " << maxVecSize <<
                     " at " << maxVecSizeAt << endl;
         }
     }
 };
 
+template <class ELEMENT>
 class TestPopBack {
-    Obj              *d_mX_p;
-    bslma::Allocator *d_alloc_p;
+    enum { k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value };
+
+    bdlcc::Deque<ELEMENT> *d_mX_p;
+    bslma::TestAllocator  *d_alloc_p;
 
   public:
-    TestPopBack(Obj *mX, bslma::Allocator *alloc)
+    TestPopBack(bdlcc::Deque<ELEMENT> *mX,
+                bslma::TestAllocator  *alloc)
         // Create a 'TestPopBack' object accessing the specified 'mX' and using
         // the specified 'alloc'.
     : d_mX_p(mX)
     , d_alloc_p(alloc)
-    {}
+    {
+        ASSERT(d_mX_p->allocator() == d_alloc_p);
+    }
 
     void operator()()
         // Pop 50 items off the back with 'tryPopBack' and verify their values
         // are as expected.
     {
-        int                  expectedVal  = 0;
-        Element              e;
-        bsl::vector<Element> v(d_alloc_p);
-        size_t               maxVecSize   = 0;
-        Element              maxVecSizeAt = 0;
+        int                    expectedVal  = 0;
+        bsl::vector<ELEMENT>   v(d_alloc_p);
+        IntPtr                 maxVecSize   = 0;
+        int                    maxVecSizeAt = 0;
+        bsltf::MoveState::Enum vms = !k_IS_MOVE_AWARE
+                                   ? e_UNKNOWN
+                                   : e_MOVED;
+        bsltf::MoveState::Enum eam = !k_IS_MOVE_AWARE
+                                   ? e_UNKNOWN
+                                   : expAssignMoveState;
+        bsl::vector<ELEMENT>   eFootprint(d_alloc_p);
+        eFootprint.resize(1);
+        ELEMENT&               e = eFootprint.front();
 
+        v.reserve(20);
+
+        bool passMove = false;
         while (expectedVal < 50) {
+            u::setData(&e, -1);
+
             int sts = d_mX_p->tryPopBack(&e);
             if (!sts) {
-                LOOP2_ASSERT(expectedVal, e, expectedVal++ == e && "popBack");
+                ASSERTV(expectedVal, u::getData(e),
+                                  expectedVal++ == u::getData(e) && "popBack");
+                ASSERTV(eam, eam == bsltf::getMovedInto(e));
             }
 
             v.clear();
+
             d_mX_p->tryPopBack(20, &v);
-            size_t s = v.size();
-            for (unsigned i = 0; i < s; ++i) {
-                LOOP2_ASSERT(expectedVal, v[i],
-                                           expectedVal++ == v[i] && "popBack");
+            IntPtr s = v.size();
+            for (int ii = 0; ii < s; ++ii) {
+                const int d = u::getData(v[ii]);
+                ASSERTV(expectedVal, d, expectedVal++ == d && "popBack");
+                ASSERTV(vms, bsltf::getMovedInto(v[ii]),
+                                            vms == bsltf::getMovedInto(v[ii]));
             }
             if (s > maxVecSize) {
                 maxVecSize = v.size();
                 maxVecSizeAt = expectedVal;
             }
+
+            passMove = !passMove;
         }
 
-        if (verbose) {
+        if (veryVerbose) {
             cout << "PopBack: max vecsize = " << maxVecSize <<
                     " at " << maxVecSizeAt << endl;
         }
     }
 };
+
+template <class ELEMENT>
+void testMultiThreadedTryPop()
+{
+    const char *name = NameOf<ELEMENT>();
+    if (verbose) cout << "testMultiThreadedTryPop<" << name << ">()\n";
+
+    bslma::TestAllocator         ta(veryVeryVeryVerbose);
+    bslma::TestAllocator         da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
+
+    {
+        bdlcc::Deque<ELEMENT> mX(&ta);
+        const bdlcc::Deque<ELEMENT>& X = mX;
+
+        bslmt::ThreadUtil::Handle handle;
+
+        bsl::vector<ELEMENT> footprintVec(&ta);
+        footprintVec.resize(1);
+        ELEMENT& ee = footprintVec[0];
+
+        for (int run = 0; run < 4; ++run) {
+            TestPopFront<ELEMENT> frontFunc(&mX, &ta);
+            bslmt::ThreadUtil::create(&handle, frontFunc);
+            bslmt::ThreadUtil::microSleep(10 * 1000);
+            for (int e = 0; e < 50; ++e) {
+                if (3 == e % 7 || 1 == e % 9) {
+                    if (veryVerbose) {
+                        cout << "PopFront: wait at " << e << endl;
+                    }
+                    bslmt::ThreadUtil::yield();
+                    bslmt::ThreadUtil::microSleep(10 * 1000);
+                }
+                u::setData(&ee, e);
+                mX.pushBack(ee);
+            }
+            bslmt::ThreadUtil::join(handle);
+            ASSERT(0 == X.length());
+
+            TestPopBack<ELEMENT> backFunc(&mX, &ta);
+            bslmt::ThreadUtil::create(&handle, backFunc);
+            for (int e = 0; e < 50; ++e) {
+                if (3 == e % 6 || 5 == e % 11) {
+                    if (veryVerbose) {
+                        cout << "PopBack: wait at " << e << endl;
+                    }
+                    bslmt::ThreadUtil::yield();
+                    bslmt::ThreadUtil::microSleep(10 * 1000);
+                }
+                u::setData(&ee, e);
+                mX.pushFront(ee);
+            }
+            bslmt::ThreadUtil::join(handle);
+            ASSERT(0 == X.length());
+        }
+    }
+
+    ASSERT(0 == ta.numBlocksInUse());
+    ASSERT(0 == da.numAllocations());
+}
 
 }  // close namespace TEST_CASE_12
 
@@ -1716,13 +3829,16 @@ enum {
 
 static unsigned pushCount;
 
+int threadResult = -1;
+
+template <class ELEMENT>
 class HighWaterMarkFunctor {
-    Obj               *d_deque_p;
-    bsls::TimeInterval d_timeout;
+    bdlcc::Deque<ELEMENT> *d_deque_p;
+    bsls::TimeInterval     d_timeout;
 
   public:
     explicit
-    HighWaterMarkFunctor(Obj *deque)
+    HighWaterMarkFunctor(bdlcc::Deque<ELEMENT> *deque)
         // Create a 'HighWaterMarkFunctor' object accessing the specified
         // 'deque'.
     : d_deque_p(deque)
@@ -1741,28 +3857,152 @@ class HighWaterMarkFunctor {
     void operator()()
         // thread function
     {
-        int sts;
+        const char *name = NameOf<ELEMENT>();
 
-        const Element f = FRONT_VAL, b = BACK_VAL;
+        // Push 32 objects to the front and back of the 'Deque', the objects
+        // pushed to the front should have value 'FRONT_VAL', the objects
+        // pushed to the back should the value 'BACK_VAL'.  We use 8 different
+        // pushes, half of them moves.  The timed pushes should never time out.
+        // The main thread will pop off the front and back of the 'Deque',
+        // observing that values are as expected.
 
-        for (int i = 0; i < 8; ++i) {
-            if (i & 1) {
-                ASSERT((sts = d_deque_p->timedPushBack( b, d_timeout), !sts));
-            }
-            else {
-                ASSERT((sts = d_deque_p->timedPushFront(f, d_timeout), !sts));
+        // The popping thread will be sleeping periodically, and there is a
+        // high water mark, so many of these pushes will block for awhile
+        // before completing.
+
+        bslma::Allocator *a_p = d_deque_p->allocator();
+        bsl::vector<ELEMENT> footprintVec(a_p);
+        footprintVec.resize(4);
+        u::setData(&footprintVec[0], FRONT_VAL);
+        const ELEMENT&  f = footprintVec[0];
+        u::setData(&footprintVec[1], BACK_VAL);
+        const ELEMENT&  b = footprintVec[1];
+        ELEMENT&       mf = footprintVec[2];
+        ELEMENT&       mb = footprintVec[3];
+
+        for (int ii = 0; ii < 32; ++ii) {
+            int jj = ii % 8;
+
+            mf = f;
+            ASSERTV(name, ii, bsltf::getMovedFrom(mf),
+                                           e_MOVED != bsltf::getMovedFrom(mf));
+            mb = b;
+            ASSERTV(name, ii, bsltf::getMovedFrom(mb),
+                                           e_MOVED != bsltf::getMovedFrom(mb));
+
+            int sts = 0;
+            switch (jj) {
+              case 0: {
+                d_deque_p->pushBack( b);
+              } break;
+              case 1: {
+                d_deque_p->pushFront(f);
+              } break;
+              case 2: {
+                sts = d_deque_p->timedPushBack( b, d_timeout);
+              } break;
+              case 3: {
+                sts = d_deque_p->timedPushFront(f, d_timeout);
+              } break;
+              case 4: {
+                d_deque_p->pushBack( MUtil::move(mb));
+              } break;
+              case 5: {
+                d_deque_p->pushFront(MUtil::move(mf));
+              } break;
+              case 6: {
+                sts = d_deque_p->timedPushBack( MUtil::move(mb), d_timeout);
+              } break;
+              case 7: {
+                sts = d_deque_p->timedPushFront(MUtil::move(mf), d_timeout);
+              } break;
             }
             if (sts) {
-                bslmt::ThreadUtil::exit(
-                                   reinterpret_cast<void *>(THREAD_EXIT_FAIL));
+                ASSERTV(ii, jj, sts, 0 == sts);
+                threadResult = THREAD_EXIT_FAIL;
+                return;                                               // RETURN
+            }
+
+            if (4 <= jj && u::IsMoveAware<ELEMENT>::value) {
+                ELEMENT& mRef = 0 == (jj & 1) ? mb : mf;
+                ASSERTV(name, ii, bsltf::getMovedFrom(mRef),
+                                         e_MOVED == bsltf::getMovedFrom(mRef));
             }
 
             ++pushCount;
         }
 
-        bslmt::ThreadUtil::exit(reinterpret_cast<void *>(THREAD_EXIT_SUCCESS));
+        threadResult = THREAD_EXIT_SUCCESS;
     }
 };
+
+template <class ELEMENT>
+void highWaterMarkTest()
+{
+    bslma::TestAllocator         ta(veryVeryVeryVerbose);
+    bslma::TestAllocator         da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
+
+    const char *name = NameOf<ELEMENT>();
+
+    if (verbose) cout << "highWaterMarkTest<" << name << ">()\n";
+
+    {
+        pushCount = 0;
+
+        bdlcc::Deque<ELEMENT> mX(4, &ta);
+        const bdlcc::Deque<ELEMENT>& X = mX;
+
+        bsls::TimeInterval start = bdlt::CurrentTime::now();
+
+        ASSERT(0 == X.length());
+
+        HighWaterMarkFunctor<ELEMENT> functor(&mX);
+
+        bslmt::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::create(&handle, functor);
+
+        for (unsigned u = 0; u <= 32 - 4; ++u) {
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(50 * 1000);        // 50 mSec
+
+            ASSERT(4 + u == pushCount);
+            ASSERT(4     == X.length());
+
+            if (veryVerbose) { P_(u);    P(ta.numBlocksInUse()); }
+
+            if (u & 1) {
+                const int val = u::getData(mX.popBack());
+                ASSERTV(name, val, u, BACK_VAL  == val);
+            }
+            else {
+                const int val = u::getData(mX.popFront());
+                ASSERTV(name, val, u, FRONT_VAL == val);
+            }
+        }
+
+        ASSERT(3 == X.length());
+
+        bslmt::ThreadUtil::join(handle);
+        ASSERTV(threadResult, THREAD_EXIT_SUCCESS == threadResult);
+
+        if (veryVerbose) cout << "After join: " << ta.numBlocksInUse()
+                                                << endl;
+
+        ASSERT(3 == X.length());
+        ASSERT(BACK_VAL  == u::getData(mX.popBack()));
+        ASSERT(FRONT_VAL == u::getData(mX.popFront()));
+        ASSERT(BACK_VAL  == u::getData(mX.popBack()));
+
+        // On Solaris, each sleep could potentially take 2 seconds, but
+        // usually it will be much, much less.
+
+        ASSERT(bdlt::CurrentTime::now() < start + bsls::TimeInterval(10.1));
+    }
+
+    ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
+    ASSERTV(da.numBlocksInUse(), 0 == da.numBytesInUse());
+}
 
 }  // close namespace TEST_CASE_11
 
@@ -1838,6 +4078,238 @@ class EmptyDequeFunctor {
 };
 
 }  // close namespace TEST_CASE_10
+
+//=============================================================================
+//                                  TEST CASE 9
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_9 {
+
+template <class ELEMENT>
+void testSingleThreadedTryPop()
+{
+    enum { k_NUM_ELEMENTS  = 10,
+           k_WELL_BEHAVED  = u::HasWellBehavedMove<ELEMENT>::value,
+           k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value,
+           k_ALLOC         = u::IsAllocating<ELEMENT>::value
+        };
+
+    typedef typename bdlcc::Deque<ELEMENT>::Proctor Proctor;
+
+    bslma::TestAllocator         oa(veryVeryVeryVerbose);
+    bslma::TestAllocator         ta(veryVeryVeryVerbose);
+    bslma::TestAllocator         da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
+
+    if (verbose) cout << "\n\nTry pop " << NameOf<ELEMENT>() << ' ' <<
+                        (k_WELL_BEHAVED ? "" : "not ") << "well behaved, " <<
+                        (k_IS_MOVE_AWARE ? "" : "not ") << "move aware, " <<
+                        (k_ALLOC ? "allocates" : "doesn't allocate") << endl;
+
+    for (int ti = 0; ti < 2; ++ti) {
+        const bool match = ti;
+
+        bslma::TestAllocator& ooa = match ? ta : oa;
+
+        bdlcc::Deque<ELEMENT> mX(&ta);    const bdlcc::Deque<ELEMENT>& X = mX;
+        bsl::deque<ELEMENT>   mY(&ta);    const bsl::deque<ELEMENT>&   Y = mY;
+        bsl::vector<ELEMENT>  v(         &ooa);
+        bsl::vector<ELEMENT>  eFootprint(&ooa);
+        eFootprint.resize(1);
+        ELEMENT&              e = eFootprint.front();
+        int                   sts;
+
+        if (veryVerbose) cout << "\tPopFront: " <<
+                                     (match ? "" : "no ") << "match, " << endl;
+
+        ASSERT(!X.length());
+
+        u::setData(&e, 'Z');
+        sts = mX.tryPopFront(&e);
+        ASSERT(0 != sts);
+        ASSERT('Z' == u::getData(e));
+        mX.tryPopFront(100, &v);
+        ASSERT(v.empty());
+        mX.tryPopFront(100);    // doesn't block
+        v.reserve(10);
+
+        ASSERT(!X.length());
+
+        for (int i = 0; i < 10; ++i) {
+            u::setData(&e, 'A' + i);
+            mX.pushBack(e);
+        }
+        u::setData(&e, 'Z');
+
+        mX.tryPopFront(1);
+        ASSERT('Z' == u::getData(e));
+        {
+            Proctor pX(&mX);
+            mY = *pX;
+        }
+        int numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
+
+            sts = mX.tryPopFront(&e);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
+                 (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !expAssignMove)) ==
+                                                              (0 < numThrows));
+        ASSERT(0 == sts);
+        ASSERT('A' + 1 == u::getData(e));
+        mY.pop_front();
+        {
+            Proctor pX(&mX);
+            ASSERTV(Y, *pX, Y == *pX);
+        }
+
+        numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
+
+            mX.tryPopFront(4, &v);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
+                      (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
+                                                              (0 < numThrows));
+        ASSERT(4 == v.size());
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
+            ASSERT('A' + 2 == u::getData(v.front()));
+            ASSERT('A' + 5 == u::getData(v.back()));
+        }
+        mY.erase(mY.begin(), mY.begin() + 4);
+        {
+            Proctor pX(&mX);
+            ASSERTV(Y, *pX, Y == *pX);
+        }
+
+        ASSERTV(X.length(), 4 == X.length());
+        ASSERTV('A' + 6 == u::getData(u::myFront(X)));
+        ASSERTV('A' + 9 == u::getData(u::myBack(X)));
+        v.clear();
+
+        numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
+
+            mX.tryPopFront(10, &v);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERTV(numThrows, !PLAT_EXC ||
+                                   (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
+                                                              (0 < numThrows));
+        ASSERT(0 == u::myLength(X));
+        ASSERT(4 == v.size());
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
+            ASSERT('A' + 6 == u::getData(v.front()));
+            ASSERT('A' + 9 == u::getData(v.back()));
+        }
+        ASSERT(0 == X.length());
+        v.clear();
+        mX.tryPopFront(1, &v);    // doesn't block
+        ASSERT(v.empty());
+        ASSERT(0 == X.length());
+        mY.clear();
+
+        if (veryVerbose) cout << "\tPopBack:  " <<
+                                     (match ? "" : "no ") << "match, " << endl;
+
+        ASSERT(!X.length());
+
+        u::setData(&e, 'Z');
+        sts = mX.tryPopBack(&e);
+        ASSERT(0 != sts);
+        ASSERT('Z' == u::getData(e));
+        mX.tryPopBack(100, &v);
+        ASSERT(v.empty());
+        mX.tryPopBack(100);    // doesn't block
+        v.reserve(10);
+
+        ASSERT(!X.length());
+
+        for (int i = 0; i < 10; ++i) {
+            u::setData(&e, 'A' + i);
+            mX.pushFront(e);
+        }
+        u::setData(&e, 'Z');
+
+        mX.tryPopBack(1);
+        ASSERT('Z' == u::getData(e));
+        {
+            Proctor pX(&mX);
+            mY = *pX;
+        }
+        numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
+
+            sts = mX.tryPopBack(&e);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
+                 (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !expAssignMove)) ==
+                                                              (0 < numThrows));
+        ASSERT(0 == sts);
+        ASSERT('A' + 1 == u::getData(e));
+        mY.pop_back();
+        {
+            Proctor pX(&mX);
+            ASSERTV(Y, *pX, Y == *pX);
+        }
+
+        numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
+
+            mX.tryPopBack(4, &v);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
+                                   (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
+                                                              (0 < numThrows));
+        ASSERT(4 == v.size());
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
+            ASSERTV(v.front(), 'A' + 2 == u::getData(v.front()));
+            ASSERTV(v.back(),  'A' + 5 == u::getData(v.back()));
+        }
+        mY.erase(mY.end() - 4, mY.end());
+        {
+            Proctor pX(&mX);
+            ASSERTV(Y, *pX, Y == *pX);
+        }
+
+        ASSERTV(X.length(), 4 == X.length());
+        ASSERTV(u::myBack(X),  'A' + 6 == u::getData(u::myBack(X)));
+        ASSERTV(u::myFront(X), 'A' + 9 == u::getData(u::myFront(X)));
+        v.clear();
+
+        numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
+
+            mX.tryPopBack(10, &v);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERTV(numThrows, !PLAT_EXC ||
+                                   (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
+                                                              (0 < numThrows));
+        ASSERT(0 == u::myLength(X));
+        ASSERT(4 == v.size());
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
+            ASSERTV(v.front(), 'A' + 6 == u::getData(v.front()));
+            ASSERTV(v.back(),  'A' + 9 == u::getData(v.back()));
+        }
+        ASSERT(0 == X.length());
+        v.clear();
+        mX.tryPopBack(1, &v);    // doesn't block
+        ASSERT(v.empty());
+        ASSERT(0 == X.length());
+        mY.clear();
+
+        ASSERT(!X.length());
+
+        ASSERTV(ti, NameOf<ELEMENT>(), 0 == da.numAllocations());
+    }
+}
+
+}  // close namespace TEST_CASE_9
 
 //=============================================================================
 //                                  TEST CASE 7
@@ -1946,7 +4418,7 @@ ProctorTestFunctor::ProctorTestFunctor(Obj        *dst_p,
 {
     // Check for wraparound
 
-    LOOP2_ASSERT(d_workerIdx, workerIdx,
+    ASSERTV(d_workerIdx, workerIdx,
                (e_SRC_PUSHER != workerType && e_DIRECT_PUSHER != workerType) ||
                                                       d_workerIdx > workerIdx);
 }
@@ -2333,10 +4805,10 @@ class TimedPopRecordBack {
         d_barrier_p->wait();
 
         start = bdlt::CurrentTime::now();
-        BEGIN_EXCEP_TEST_AOBJ(*d_deque_p) {
+        BEGIN_EXCEP_TEST_OBJ(AElement, *d_deque_p) {
             d_timeoutFlag = d_deque_p->timedPopBack(&result,
                                                     start + d_timeout);
-        } END_EXCEP_TEST_AOBJ
+        } END_EXCEP_TEST_OBJ
         end   = bdlt::CurrentTime::now();
 
         ASSERT(end <  start + d_timeout);
@@ -2414,10 +4886,10 @@ class TimedPopRecordFront {
         d_barrier_p->wait();
 
         start = bdlt::CurrentTime::now();
-        BEGIN_EXCEP_TEST_AOBJ(*d_deque_p) {
+        BEGIN_EXCEP_TEST_OBJ(AElement, *d_deque_p) {
             d_timeoutFlag = d_deque_p->timedPopFront(&result,
                                                      start + d_timeout);
-        } END_EXCEP_TEST_AOBJ
+        } END_EXCEP_TEST_OBJ
         end   = bdlt::CurrentTime::now();
 
         ASSERT(end <  start + d_timeout);
@@ -2595,7 +5067,7 @@ void *pushPopFunctionFront(void *arg)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
@@ -2615,7 +5087,7 @@ int main(int argc, char *argv[])
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //
@@ -2691,7 +5163,7 @@ int main(int argc, char *argv[])
 //..
         }
       } break;
-      case 25: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //
@@ -2748,6 +5220,71 @@ int main(int argc, char *argv[])
     }
     ASSERT(0 == deque.length());
 //..
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING TIMED POP & TIMED PUSH FUNCTIONS -- MOVE SEMANTICS
+        //
+        // Concerns:
+        //: 1 Test the concerns of TC 4 with emphasis on move semantics.
+        //
+        // Plan:
+        //: 1 Repeat TC 4 using 'MElement' instead of 'AElement', track the
+        //:   memory allocation behavior very closely, and test 'timedPush*'
+        //:   as well as 'timedPop*'.
+        //
+        // Testing:
+        //   int timedPopBack(TYPE *, const TimeInterval&); - move semantics
+        //   int timedPopFront(TYPE *, const TimeInterval&); - move semantics
+        //   int timedPushBack(TYPE&&, const TimeInterval&);
+        //   int timedPushFront(TYPE&&, const TimeInterval&);
+        // --------------------------------------------------------------------
+
+        using namespace TEST_CASE_26;
+
+        if (verbose) cout <<
+                "TESTING TIMED POP & TIMED PUSH FUNCTIONS -- MOVE SEMANTICS\n"
+                "==========================================================\n";
+
+        testTimedPushPopMove<Element>();
+        testTimedPushPopMove<AElement>();
+        testTimedPushPopMove<MElement>();
+        testTimedPushPopMove<MCElement>();
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // SINGLE-THREADED TESTING SINGLE MOVING PUSHES, POPS
+        //
+        // Concerns:
+        //: 1 Examine all the issues examined in TC 2, except that this time
+        //:   we are testing move semantics.
+        //
+        // Plan:
+        //: 1 Repeat everything tested in TC 2 with single pushes and pops,
+        //:   but moving objects into the pushes, and observe whether objects
+        //:   we moved or not.
+        //
+        // Testing:
+        //   void pushFront(TYPE&&); - st
+        //   void pushBack(TYPE&&); - st
+        //   void tryPushFront(TYPE&&); - st
+        //   void tryPushBack(TYPE&&); - st
+        //   TYPE popFront(); - move semantics
+        //   void popFront(TYPE *); - move semantics
+        //   TYPE popBack(); - move semantics
+        //   void popBack(TYPE *); - move semantics
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                        "SINGLE-THREADED TESTING SINGLE MOVING PUSHES, POPS\n"
+                        "==================================================\n";
+
+        namespace TC = TEST_CASE_25;
+
+        TC::testSingleMovingPushesPops<Element>();
+        TC::testSingleMovingPushesPops<AElement>();
+        TC::testSingleMovingPushesPops<MElement>();
+        TC::testSingleMovingPushesPops<MCElement>();
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -3231,51 +5768,20 @@ int main(int argc, char *argv[])
         // Testing:
         //   void forcePushBack(const T&); - st
         //   void forcePushFront(const T&); - st
+        //   void forcePushBack(T&&); - st
+        //   void forcePushFront(T&&); - st
+        //   void removeAll(vector<T> *); - st
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SINGLE-THREADED SINGLE ITEM FORCE PUSH TEST\n"
                              "===========================================\n";
 
-        AElement e(&ta);
-        AObj     mX(2, &ta);        const AObj& X = mX;
+        namespace TC = TEST_CASE_19;
 
-        for (unsigned ii = 0; ii < 10; ++ii) {
-            e.setData('A' + ii);
-            BEGIN_EXCEP_TEST_AOBJ(mX) {
-                mX.forcePushBack(e);
-            } END_EXCEP_TEST_AOBJ
-            ASSERTV(ii, X.length(), ii + 1 == X.length());
-            ASSERTV(X, u::myBack(X) == e);
-        }
-
-        bsl::vector<AElement> v(&ta);
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.removeAll(&v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-
-        ASSERTV(v.size(), 10 == v.size());
-        for (int ii = 0; ii < 10; ++ii) {
-            ASSERTV(ii, v[ii].data(), 'A' + ii == v[ii].data());
-        }
-        v.clear();
-
-        for (unsigned ii = 10; 0 < ii; --ii) {
-            e.setData('A' + ii);
-            BEGIN_EXCEP_TEST_AOBJ(mX) {
-                mX.forcePushFront(e);
-            } END_EXCEP_TEST_AOBJ
-            ASSERTV(ii, X.length(), 11 - ii == X.length());
-            ASSERTV(X, u::myFront(X) == e);
-        }
-
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.removeAll(&v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-
-        ASSERTV(v.size(), 10 == v.size());
-        for (int ii = 0; ii < 10; ++ii) {
-            ASSERTV(ii, v[ii].data(), 'A' + ii + 1 == v[ii].data());
-        }
+        TC::testForcePushRemoveAll<Element>();
+        TC::testForcePushRemoveAll<AElement>();
+        TC::testForcePushRemoveAll<MElement>();
+        TC::testForcePushRemoveAll<MCElement>();
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -3339,10 +5845,10 @@ int main(int argc, char *argv[])
                 for (size_t numToPush = numToPrePush; numToPush < 20;
                                                                  ++numToPush) {
                     if (0 < numToPrePush) {
-                        BEGIN_EXCEP_TEST_AOBJ(mX) {
+                        BEGIN_EXCEP_TEST_OBJ(AElement, mX) {
                             mX.forcePushBack(elements.begin() + 0,
                                              elements.begin() + numToPrePush);
-                        } END_EXCEP_TEST_AOBJ
+                        } END_EXCEP_TEST_OBJ
                     }
                     else {
                         mX.forcePushBack(elements.begin() + 0,
@@ -3350,10 +5856,10 @@ int main(int argc, char *argv[])
                     }
 
                     if (numToPrePush < bsl::min(hwm, numToPush)) {
-                        BEGIN_EXCEP_TEST_AOBJ(mX) {
+                        BEGIN_EXCEP_TEST_OBJ(AElement, mX) {
                             mX.tryPushBack(elements.begin() + numToPrePush,
                                            elements.begin() + numToPush);
-                        } END_EXCEP_TEST_AOBJ
+                        } END_EXCEP_TEST_OBJ
                     }
                     else {
                         mX.tryPushBack(elements.begin() + numToPrePush,
@@ -3377,10 +5883,10 @@ int main(int argc, char *argv[])
                 for (size_t numToPush = numToPrePush; numToPush < 20;
                                                                  ++numToPush) {
                     if (0 < numToPrePush) {
-                        BEGIN_EXCEP_TEST_AOBJ(mX) {
+                        BEGIN_EXCEP_TEST_OBJ(AElement, mX) {
                             mX.forcePushFront(elements.begin() + 0,
                                               elements.begin() + numToPrePush);
-                        } END_EXCEP_TEST_AOBJ
+                        } END_EXCEP_TEST_OBJ
                     }
                     else {
                         mX.forcePushFront(elements.begin() + 0,
@@ -3388,10 +5894,10 @@ int main(int argc, char *argv[])
                     }
 
                     if (numToPrePush < bsl::min(hwm, numToPush)) {
-                        BEGIN_EXCEP_TEST_AOBJ(mX) {
+                        BEGIN_EXCEP_TEST_OBJ(AElement, mX) {
                             mX.tryPushFront(elements.begin() + numToPrePush,
                                             elements.begin() + numToPush);
-                        } END_EXCEP_TEST_AOBJ
+                        } END_EXCEP_TEST_OBJ
                     }
                     else {
                         mX.tryPushFront(elements.begin() + numToPrePush,
@@ -3486,6 +5992,8 @@ int main(int argc, char *argv[])
         //   void forcePushBack(INPUT_ITER, INPUT_ITER); - mt
         //   void forcePushFront(const T&); - mt
         //   void forcePushFront(INPUT_ITER, INPUT_ITER); - mt
+        //   void forcePushBack(T&&); - mt
+        //   void forcePushFront(T&&); - mt
         // --------------------------------------------------------------------
 
         if (verbose) cout << "MULTITHREADED FORCED PUSH TEST\n"
@@ -3614,6 +6122,8 @@ int main(int argc, char *argv[])
         //   void forcePushFront(INPUT_ITER, INPUT_ITER); - st
         //   int tryPushBack(const T&); - st
         //   int tryPushFront(const T&); - st
+        //   int tryPushBack(T&&); - st
+        //   int tryPushFront(T&&); - st
         //   int tryPushBack(const T&); - mt
         //   int tryPushFront(const T&); - mt
         // --------------------------------------------------------------------
@@ -3634,143 +6144,169 @@ int main(int argc, char *argv[])
         static const Element startArray[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                                                           11, 12, 13, 14, 15 };
 
-        for (int ti = 0; ti < NUM_START_LENGTHS; ++ti) {
-            const unsigned startLength = START_LENGTHS[ti];
+        for (int move = 0; move < 2; ++move) {
+            for (int ti = 0; ti < NUM_START_LENGTHS; ++ti) {
+                const unsigned startLength = START_LENGTHS[ti];
 
-            if (veryVerbose) P(startLength);
+                if (veryVerbose) P(startLength);
 
-            Obj mX(startArray + 0,
-                   startArray + startLength,
-                   HIGH_WATER_MARK,
-                   &ta);
-            const Obj& X = mX;
-            bslmt::Barrier barrier(2);
+                Obj mX(startArray + 0,
+                       startArray + startLength,
+                       HIGH_WATER_MARK,
+                       &ta);
+                const Obj& X = mX;
+                bslmt::Barrier barrier(2);
 
-            ASSERT(X.length() == startLength);
+                ASSERT(X.length() == startLength);
 
-            bslmt::ThreadUtil::Handle handle;
-            bslmt::ThreadUtil::create(&handle,
-                                      FATHWMStressTest(&mX,
-                                      &barrier));
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle,
+                                          FATHWMStressTest(&mX,
+                                          &barrier));
 
-            barrier.wait();
+                barrier.wait();
 
-            size_t len;
-            bool   caughtUp = X.length() <= HIGH_WATER_MARK;
-            for (int expected = 0; expected < 40; ++expected) {
-                if (caughtUp && 0 == expected % 5) {
-                    ++minTimesFull;
+                size_t len;
+                bool   caughtUp = X.length() <= HIGH_WATER_MARK;
+                for (int expected = 0; expected < 40; ++expected) {
+                    if (caughtUp && 0 == expected % 5) {
+                        ++minTimesFull;
+                        bslmt::ThreadUtil::microSleep(10 * 1000);
+                    }
+                    const size_t len = X.length();
+                    if (len <= HIGH_WATER_MARK) {
+                        caughtUp = true;
+                    }
+                    ASSERT(!caughtUp || len <= HIGH_WATER_MARK);
+                    timesFull += caughtUp && HIGH_WATER_MARK == len;
+                    Element e;
+                    if (expected & 1) {
+                        e = mX.popFront();
+                    }
+                    else {
+                        mX.popFront(&e);
+                    }
+                    ASSERTV(e, expected, e == expected);
+                }
+
+                len = X.length();
+                ASSERTV(X.length(), 0 == len);
+
+                if (startLength > 0) {
+                    if (move) {
+                        Element e = startArray[0];
+                        ASSERT(0 == mX.tryPushBack(MUtil::move(e)));
+                    }
+                    else {
+                        ASSERT(0 == mX.tryPushBack(startArray[0]));
+                    }
+                    ASSERT(1 == X.length());
+                    if (startLength >= 2) {
+                        mX.forcePushBack(startArray + 1,
+                                         startArray + startLength - 1);
+                        mX.forcePushBack(startArray[startLength - 1]);
+                    }
+                }
+                ASSERT(X.length() == startLength);
+                if (HIGH_WATER_MARK <= startLength) {
+                    if (move) {
+                        Element e = startArray[0];
+                        ASSERT(0 != mX.tryPushBack(MUtil::move(e)));
+                    }
+                    else {
+                        ASSERT(0 != mX.tryPushBack(startArray[0]));
+                    }
+                }
+                ASSERT(X.length() == startLength);
+                barrier.wait();
+
+                caughtUp = X.length() <= HIGH_WATER_MARK;
+                for (int expected = 0; expected < 40; ++expected) {
+                    if (caughtUp && 0 == expected % 5) {
+                        ++minTimesFull;
+                        bslmt::ThreadUtil::microSleep(10 * 1000);
+                    }
+                    const size_t len = X.length();
+                    if (len <= HIGH_WATER_MARK) {
+                        caughtUp = true;
+                    }
+                    ASSERT(!caughtUp || len <= HIGH_WATER_MARK);
+                    timesFull += caughtUp && HIGH_WATER_MARK == len;
+                    Element e;
+                    if (expected & 1) {
+                        e = mX.popFront();
+                    }
+                    else {
+                        mX.popFront(&e);
+                    }
+                    ASSERTV(e, expected, e == expected);
+                }
+
+                len = X.length();
+                ASSERTV(X.length(), 0 == len);
+
+                if (startLength > 0) {
+                    if (move) {
+                        Element e = startArray[0];
+                        ASSERT(0 == mX.tryPushFront(MUtil::move(e)));
+                    }
+                    else {
+                        ASSERT(0 == mX.tryPushFront(startArray[0]));
+                    }
+                    ASSERT(1 == X.length());
+                    if (startLength >= 2) {
+                        mX.forcePushFront(startArray + 1,
+                                          startArray + startLength - 1);
+                        mX.forcePushFront(startArray[startLength - 1]);
+                    }
+                }
+                ASSERT(X.length() == startLength);
+                if (HIGH_WATER_MARK <= startLength) {
+                    if (move) {
+                        Element e = startArray[0];
+                        ASSERT(0 != mX.tryPushFront(MUtil::move(e)));
+                    }
+                    else {
+                        ASSERT(0 != mX.tryPushFront(startArray[0]));
+                    }
+                }
+                ASSERT(X.length() == startLength);
+                barrier.wait();
+
+                while (X.length() < HIGH_WATER_MARK) {
                     bslmt::ThreadUtil::microSleep(10 * 1000);
                 }
-                const size_t len = X.length();
-                if (len <= HIGH_WATER_MARK) {
-                    caughtUp = true;
+
+                caughtUp = X.length() <= HIGH_WATER_MARK;
+                for (int expected = 0; expected < 40; ++expected) {
+                    if (caughtUp && 0 == expected % 5) {
+                        ++minTimesFull;
+                        bslmt::ThreadUtil::microSleep(10 * 1000);
+                    }
+                    const size_t len = X.length();
+                    if (len <= HIGH_WATER_MARK) {
+                        caughtUp = true;
+                    }
+                    ASSERT(!caughtUp || len <= HIGH_WATER_MARK);
+                    timesFull += caughtUp && HIGH_WATER_MARK == len;
+                    Element e;
+                    if (expected & 1) {
+                        e = mX.popBack();
+                    }
+                    else {
+                        mX.popBack(&e);
+                    }
+                    ASSERTV(e, expected, e == expected);
                 }
-                ASSERT(!caughtUp || len <= HIGH_WATER_MARK);
-                timesFull += caughtUp && HIGH_WATER_MARK == len;
-                Element e;
-                if (expected & 1) {
-                    e = mX.popFront();
-                }
-                else {
-                    mX.popFront(&e);
-                }
-                ASSERTV(e, expected, e == expected);
+
+                bslmt::ThreadUtil::join(handle);
             }
 
-            len = X.length();
-            ASSERTV(X.length(), 0 == len);
+            ASSERTV(timesFull, minTimesFull, timesFull >= minTimesFull);
 
-            if (startLength > 0) {
-                ASSERT(0 == mX.tryPushBack(startArray[0]));
-                ASSERT(1 == X.length());
-                if (startLength >= 2) {
-                    mX.forcePushBack(startArray + 1,
-                                     startArray + startLength - 1);
-                    mX.forcePushBack(startArray[startLength - 1]);
-                }
-            }
-            ASSERT(X.length() == startLength);
-            if (HIGH_WATER_MARK <= startLength) {
-                ASSERT(0 != mX.tryPushBack(startArray[0]));
-            }
-            ASSERT(X.length() == startLength);
-            barrier.wait();
-
-            caughtUp = X.length() <= HIGH_WATER_MARK;
-            for (int expected = 0; expected < 40; ++expected) {
-                if (caughtUp && 0 == expected % 5) {
-                    ++minTimesFull;
-                    bslmt::ThreadUtil::microSleep(10 * 1000);
-                }
-                const size_t len = X.length();
-                if (len <= HIGH_WATER_MARK) {
-                    caughtUp = true;
-                }
-                ASSERT(!caughtUp || len <= HIGH_WATER_MARK);
-                timesFull += caughtUp && HIGH_WATER_MARK == len;
-                Element e;
-                if (expected & 1) {
-                    e = mX.popFront();
-                }
-                else {
-                    mX.popFront(&e);
-                }
-                ASSERTV(e, expected, e == expected);
-            }
-
-            len = X.length();
-            ASSERTV(X.length(), 0 == len);
-
-            if (startLength > 0) {
-                ASSERT(0 == mX.tryPushFront(startArray[0]));
-                ASSERT(1 == X.length());
-                if (startLength >= 2) {
-                    mX.forcePushFront(startArray + 1,
-                                      startArray + startLength - 1);
-                    mX.forcePushFront(startArray[startLength - 1]);
-                }
-            }
-            ASSERT(X.length() == startLength);
-            if (HIGH_WATER_MARK <= startLength) {
-                ASSERT(0 != mX.tryPushFront(startArray[0]));
-            }
-            ASSERT(X.length() == startLength);
-            barrier.wait();
-
-            while (X.length() < HIGH_WATER_MARK) {
-                bslmt::ThreadUtil::microSleep(10 * 1000);
-            }
-
-            caughtUp = X.length() <= HIGH_WATER_MARK;
-            for (int expected = 0; expected < 40; ++expected) {
-                if (caughtUp && 0 == expected % 5) {
-                    ++minTimesFull;
-                    bslmt::ThreadUtil::microSleep(10 * 1000);
-                }
-                const size_t len = X.length();
-                if (len <= HIGH_WATER_MARK) {
-                    caughtUp = true;
-                }
-                ASSERT(!caughtUp || len <= HIGH_WATER_MARK);
-                timesFull += caughtUp && HIGH_WATER_MARK == len;
-                Element e;
-                if (expected & 1) {
-                    e = mX.popBack();
-                }
-                else {
-                    mX.popBack(&e);
-                }
-                ASSERTV(e, expected, e == expected);
-            }
-
-            bslmt::ThreadUtil::join(handle);
+            if (veryVerbose) { P_(minTimesFull); P(timesFull); }
+            ASSERT(0 == da.numAllocations());
         }
-
-        ASSERTV(timesFull, minTimesFull, timesFull >= minTimesFull);
-
-        if (veryVerbose) { P_(minTimesFull); P(timesFull); }
-        ASSERT(0 == da.numAllocations());
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -3789,6 +6325,8 @@ int main(int argc, char *argv[])
         // Testing
         //   void pushFront(const TYPE&); - mt
         //   void pushBack(const TYPE&); - mt
+        //   void pushFront(TYPE&&); - mt
+        //   void pushBack(TYPE&&); - mt
         //   T popBack(); - mt
         //   void popBack(T *); - mt
         //   T popFront(); - mt
@@ -3971,7 +6509,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) {
                         cout <<
                             "----------------------------------------------\n";
-                        P_(backwards) P_(popThroughPtr) P_(numPushers);
+                        P_(backwards); P_(popThroughPtr); P_(numPushers);
                         P(numPoppers);
                     }
 
@@ -3992,7 +6530,7 @@ int main(int argc, char *argv[])
 
                     bdlcc::Deque<Item>::Proctor proctor(&mX);
 
-                    LOOP_ASSERT(proctor->size(), 0 == proctor->size());
+                    ASSERTV(proctor->size(), 0 == proctor->size());
                     proctor->clear();
                 }
             }
@@ -4007,64 +6545,35 @@ int main(int argc, char *argv[])
         // Concern:
         //: 1 That tryPopFront, tryPopBack will work in a multithreaded
         //:   context.
+        //:
+        //: 2 That elements are moved or copied as expected.
         //
         // Plan:
         //: 1 Have two functors, TestPopFront and TestPopBack.  Each functor
         //:   will pop items off the deque and verify that the values are in
         //:   the expected sequence.  Simultaneously, the main thread will push
         //:   the sequence of values to the deque, frequently pausing.
+        //:
+        //: 2 Use 'MCElement' and query items popped for their move state.
         //
         // Testing:
-        //   [12] int tryPopFront(TYPE *); - mt
-        //   [12] void tryPopFront(size_t, vector<TYPE> *); - mt
-        //   [12] int tryPopBack(TYPE *); - mt
-        //   [12] void tryPopBack(size_t, vector<TYPE> *); - mt
+        //   int tryPopFront(TYPE *); - mt
+        //   void tryPopFront(size_t, vector<TYPE> *); - mt
+        //   void tryPopFront(size_t, vector<TYPE> *, bool); - mt
+        //   int tryPopBack(TYPE *); - mt
+        //   void tryPopBack(size_t, vector<TYPE> *); - mt
+        //   void tryPopBack(size_t, vector<TYPE> *, bool); - mt
         // --------------------------------------------------------------------
 
         if (verbose) cout << "MULTITHREADED TEST OF TRYPOPFRONT, TRYPOPBACK\n"
                              "=============================================\n";
 
-        {
-            namespace TC = TEST_CASE_12;
+        namespace TC = TEST_CASE_12;
 
-            Obj mX(&ta);    const Obj& X = mX;
-
-            bslmt::ThreadUtil::Handle handle;
-
-            for (int run = 0; run < 4; ++run) {
-                bslmt::ThreadUtil::create(&handle, TC::TestPopFront(&mX, &ta));
-                bslmt::ThreadUtil::microSleep(10 * 1000);
-                for (int e = 0; e < 50; ++e) {
-                    if (3 == e % 7 || 1 == e % 9) {
-                        if (veryVerbose) {
-                            cout << "PopFront: wait at " << e << endl;
-                        }
-                        bslmt::ThreadUtil::yield();
-                        bslmt::ThreadUtil::microSleep(10 * 1000);
-                    }
-                    mX.pushBack(e);
-                }
-                bslmt::ThreadUtil::join(handle);
-                ASSERT(0 == X.length());
-
-                bslmt::ThreadUtil::create(&handle, TC::TestPopBack(&mX, &ta));
-                for (int e = 0; e < 50; ++e) {
-                    if (3 == e % 6 || 5 == e % 11) {
-                        if (veryVerbose) {
-                            cout << "PopBack: wait at " << e << endl;
-                        }
-                        bslmt::ThreadUtil::yield();
-                        bslmt::ThreadUtil::microSleep(10 * 1000);
-                    }
-                    mX.pushFront(e);
-                }
-                bslmt::ThreadUtil::join(handle);
-                ASSERT(0 == X.length());
-            }
-        }
-
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == da.numAllocations());
+        TC::testMultiThreadedTryPop<Element>();
+        TC::testMultiThreadedTryPop<AElement>();
+        TC::testMultiThreadedTryPop<MElement>();
+        TC::testMultiThreadedTryPop<MCElement>();
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -4081,62 +6590,23 @@ int main(int argc, char *argv[])
         // Testing:
         //   void pushFront(const TYPE&); - mt
         //   void pushBack(const TYPE&); - mt
+        //   void pushFront(TYPE&&); - mt
+        //   void pushBack(TYPE&&); - mt
+        //   int timedPopBack(TYPE *, const TimeInterval&); - mt
+        //   int timedPopFront(TYPE *, const TimeInterval&); - mt
+        //   int timedPushBack(TYPE&&, const TimeInterval&); - mt
+        //   int timedPushFront(TYPE&&, const TimeInterval&); - mt
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST HIGH WATER MARK BLOCKING\n"
                              "=============================\n";
 
-        {
-            namespace TC = TEST_CASE_11;
+        namespace TC = TEST_CASE_11;
 
-            TC::pushCount = 0;
-
-            Obj mX(4, &ta);    const Obj& X = mX;
-
-            bsls::TimeInterval start = bdlt::CurrentTime::now();
-
-            ASSERT(0 == X.length());
-
-            TC::HighWaterMarkFunctor functor(&mX);
-
-            bslmt::ThreadUtil::Handle handle;
-            bslmt::ThreadUtil::create(&handle, functor);
-
-            for (unsigned u = 0; u <= 4; ++u) {
-                bslmt::ThreadUtil::yield();
-                bslmt::ThreadUtil::microSleep(50 * 1000);        // 50 mSec
-
-                ASSERT(4 + u == TC::pushCount);
-                ASSERT(4     == X.length());
-
-                if (u & 1) {
-                    ASSERT(TC::BACK_VAL  == mX.popBack());
-                }
-                else {
-                    ASSERT(TC::FRONT_VAL == mX.popFront());
-                }
-            }
-
-            ASSERT(3 == X.length());
-
-            void *sts = 0;
-            bslmt::ThreadUtil::join(handle, &sts);
-            LOOP_ASSERT(sts, (void *) TC::THREAD_EXIT_SUCCESS == sts);
-
-            ASSERT(3 == X.length());
-            ASSERT(TC::BACK_VAL  == mX.popBack());
-            ASSERT(TC::FRONT_VAL == mX.popFront());
-            ASSERT(TC::BACK_VAL  == mX.popBack());
-
-            // On Solaris, each sleep could potentially take 2 seconds, but
-            // usually it will be much, much less.
-
-            ASSERT(bdlt::CurrentTime::now() < start +
-                                                     bsls::TimeInterval(10.1));
-        }
-
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == da.numAllocations());
+        TC::highWaterMarkTest<Element>();
+        TC::highWaterMarkTest<AElement>();
+        TC::highWaterMarkTest<MElement>();
+        TC::highWaterMarkTest<MCElement>();
       }  break;
       case 10: {
         // --------------------------------------------------------------------
@@ -4215,7 +6685,7 @@ int main(int argc, char *argv[])
         {
             void *sts;
             bslmt::ThreadUtil::join(handle, &sts);
-            LOOP_ASSERT(sts, !sts);
+            ASSERTV(sts, !sts);
         }
 
         ASSERT(bdlt::CurrentTime::now() < timeout);
@@ -4246,161 +6716,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST TRYPOPFRONT, TRYPOPBACK -- SINGLE THREAD\n"
                              "=============================================\n";
 
-        AObj                  mX(&ta);        AObj& X = mX;
-        bsl::vector<AElement> v(&ta);
-        bsl::vector<AElement> v2(&ta);
-        AElement              e(&ta);
-        int                   sts;
+        namespace TC = TEST_CASE_9;
 
-        ASSERT(!X.length());
-
-        e.setData('Z');
-        sts = mX.tryPopFront(&e);
-        ASSERT(0 != sts);
-        ASSERT('Z' == e.data());
-        mX.tryPopFront(100, &v);
-        ASSERT(v.empty());
-        mX.tryPopFront(100);
-
-        ASSERT(!X.length());
-
-        for (int i = 0; i < 10; ++i) {
-            mX.pushBack(AElement('A' + i));
-        }
-
-        mX.tryPopFront(1);
-        ASSERT('Z' == e.data());
-        BEGIN_EXCEP_TEST_AOBJ(mX) {
-            sts = mX.tryPopFront(&e);
-        } END_EXCEP_TEST_AOBJ
-        ASSERT(0 == sts);
-        ASSERT('A' + 1 == e.data());
-
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.tryPopFront(4, &v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-        ASSERT(4 == v.size());
-        ASSERT('A' + 2 == v.front().data());
-        ASSERT('A' + 5 == v.back().data());
-        v.clear();
-
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.tryPopFront(10, &v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-        ASSERT(4 == v.size());
-        ASSERT('A' + 6 == v.front().data());
-        ASSERT('A' + 9 == v.back().data());
-        v.clear();
-
-        mX.tryPopFront(1, &v);
-        ASSERT(v.empty());
-
-        ASSERT(0 == X.length());
-
-        e.setData('Z');
-        sts = mX.tryPopBack(&e);
-        ASSERT(0 != sts);
-        ASSERT('Z' == e.data());
-        mX.tryPopBack(100);
-
-        mX.removeAll();
-
-        mX.tryPopBack(10, &v);
-        ASSERT(v.empty());
-
-        for (int i = 0; 10 > i; ++i) {
-            mX.pushBack(AElement('A' + i));
-        }
-
-        mX.tryPopBack(1);
-
-        e.setData('Z');
-        BEGIN_EXCEP_TEST_AOBJ(mX) {
-            sts = mX.tryPopBack(&e);
-        } END_EXCEP_TEST_AOBJ
-        ASSERT(0 == sts);
-        ASSERT('A' + 8 == e.data());
-
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.tryPopBack(4, &v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-        ASSERT(4 == v.size());
-        ASSERT('A' + 7 == v.front().data());
-        ASSERT('A' + 4 == v.back().data());
-
-        v.clear();
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.tryPopBack(10, &v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-        ASSERT(4 == v.size());
-        ASSERT('A' + 3 == v.front().data());
-        ASSERT('A' + 0 == v.back().data());
-
-        ASSERT(!X.length());
-
-        v.clear();
-        mX.tryPopBack(1, &v);
-        ASSERT(v.empty());
-
-        for (int i = 0; i < 10; ++i) {
-            mX.pushBack(AElement('A' + i));
-            v.push_back(AElement('A' + i - 10));
-        }
-
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.tryPopFront(5, &v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-        ASSERT(15 == v.size());
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.tryPopFront(25, &v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-        ASSERT(20 == v.size());
-        for (int i = 0; i < 20; ++i) {
-            ASSERT('A' + i - 10 == v[i].data());
-        }
-        v.clear();
-
-        for (int i = 0; i < 10; ++i) {
-            mX.pushBack(AElement('A' + i));
-            v.push_back(AElement('A' + 19 - i));
-        }
-
-        BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
-            mX.tryPopBack(30, &v);
-        } END_EXCEP_TEST_AOBJ_AVEC
-        ASSERT(20 == v.size());
-        for (int i = 0; i < 20; ++i) {
-            LOOP2_ASSERT('A' + 19 - i, v[i].data(),
-                                                  'A' + 19 - i == v[i].data());
-        }
-        v.clear();
-
-        ASSERT(!X.length());
-
-        e.setData('Z');
-        ASSERT(0 != mX.tryPopBack(&e));
-        ASSERT('Z' == e.data());
-        ASSERT(0 != mX.tryPopFront(&e));
-        ASSERT('Z' == e.data());
-
-        for (int i = 0; 10 > i; ++i) {
-            mX.pushBack(AElement('A' + i));
-        }
-
-        for (int i = 9; 5 <= i; --i) {
-            BEGIN_EXCEP_TEST_AOBJ(mX) {
-                ASSERT(0 == mX.tryPopBack(&e));
-            } END_EXCEP_TEST_AOBJ
-            ASSERT('A' + i == e.data());
-        }
-        for (int i = 0; 5 > i; ++i) {
-            BEGIN_EXCEP_TEST_AOBJ(mX) {
-                ASSERT(0 == mX.tryPopFront(&e));
-            } END_EXCEP_TEST_AOBJ
-            ASSERT('A' + i == e.data());
-        }
-
-        ASSERT(!X.length());
+        TC::testSingleThreadedTryPop<Element>();
+        TC::testSingleThreadedTryPop<AElement>();
+        TC::testSingleThreadedTryPop<MElement>();
+        TC::testSingleThreadedTryPop<MCElement>();
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -4430,7 +6751,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   removeAll();
-        //   removeAll(bsl::vector<T>& buffer);
+        //   removeAll(bsl::vector<T> *buffer);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING REMOVEALL\n"
@@ -4462,9 +6783,9 @@ int main(int argc, char *argv[])
             mX.pushBack(VB);
             mX.pushBack(VC);
 
-            BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, buffer) {
+            BEGIN_EXCEP_TEST_OBJ_VEC(AElement, mX, buffer) {
                 mX.removeAll(&buffer);
-            } END_EXCEP_TEST_AOBJ_AVEC
+            } END_EXCEP_TEST_OBJ_VEC
             ASSERT(0 == mX.length());
             ASSERT(3 == buffer.size());
             ASSERT(VA == buffer[0]);
@@ -4483,9 +6804,9 @@ int main(int argc, char *argv[])
             mX.pushBack(VD);
             mX.pushBack(VE);
 
-            BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, buffer) {
+            BEGIN_EXCEP_TEST_OBJ_VEC(AElement, mX, buffer) {
                 mX.removeAll(&buffer);
-            } END_EXCEP_TEST_AOBJ_AVEC
+            } END_EXCEP_TEST_OBJ_VEC
             ASSERT(0 == mX.length());
             ASSERT(5 == buffer.size());
             ASSERT(VA == buffer[0]);
@@ -4956,10 +7277,10 @@ int main(int argc, char *argv[])
             for (unsigned int j = 0; j < HIGH_WATER_MARK; ++j) {
                 // should not block
 
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     ASSERT(0 == x.timedPushBack(
                                           VA, bdlt::CurrentTime::now() + T10));
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
             }
 
             sw.stop();
@@ -5071,10 +7392,10 @@ int main(int argc, char *argv[])
             for (unsigned int j = 0; j < HIGH_WATER_MARK; ++j) {
                 // should not block
 
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     ASSERT(0 == x.timedPushFront(
                                           VA, bdlt::CurrentTime::now() + T10));
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
             }
 
             sw.stop();
@@ -5177,7 +7498,7 @@ int main(int argc, char *argv[])
             double lastTime = sw.accumulatedWallTime();
             for (int ii = 20 - 1; 0 <= ii; --ii) {
                 int pass = 0;
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     ++pass;
 
                     for (int jj = 0; jj < k_NUM_ELEMENTS; ++jj) {
@@ -5244,13 +7565,13 @@ int main(int argc, char *argv[])
                     }
 
                     lastTime = sw.accumulatedWallTime();
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
             }
             sw.stop();
         }
 
         ASSERT(0 == ta.numBytesInUse());
-        LOOP_ASSERT(da.numAllocations(), 0 == da.numAllocations());
+        ASSERTV(da.numAllocations(), 0 == da.numAllocations());
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -5310,7 +7631,7 @@ int main(int argc, char *argv[])
                 Obj                        x(HIGH_WATER_MARK, &ta);
                 TC::StraightHWMFunctorBack testObj(&x, VB);
 
-                LOOP_ASSERT(i, HIGH_WATER_MARK == x.highWaterMark() );
+                ASSERTV(i, HIGH_WATER_MARK == x.highWaterMark() );
                 for (unsigned j = 0; j < HIGH_WATER_MARK; ++j) {
                     x.pushBack(VA);                 // non-blocking
                 }
@@ -5325,8 +7646,8 @@ int main(int argc, char *argv[])
 
                 ASSERT(HIGH_WATER_MARK == x.length());
 
-                LOOP2_ASSERT(i, HIGH_WATER_MARK, 0 != TC::waitingFlag);
-                LOOP_ASSERT(i, VA == x.popBack());
+                ASSERTV(i, HIGH_WATER_MARK, 0 != TC::waitingFlag);
+                ASSERTV(i, VA == x.popBack());
 
                 for (int j = 0; 0 != TC::waitingFlag && j < 50; ++j) {
                     bslmt::ThreadUtil::yield();
@@ -5337,11 +7658,11 @@ int main(int argc, char *argv[])
 
                 double ret;
                 x.popBack(&ret);
-                LOOP4_ASSERT(VA, VB, ret, HIGH_WATER_MARK, VB == ret);
+                ASSERTV(VA, VB, ret, HIGH_WATER_MARK, VB == ret);
 
                 bslmt::ThreadUtil::join(thread);
             }
-            LOOP_ASSERT(i, 0 == ta.numBytesInUse());
+            ASSERTV(i, 0 == ta.numBytesInUse());
         }
 
         if (verbose) cout << "\tWith 'push_front'" << endl;
@@ -5358,7 +7679,7 @@ int main(int argc, char *argv[])
                 Obj                         x(HIGH_WATER_MARK, &ta);
                 TC::StraightHWMFunctorFront testObj(&x, VB);
 
-                LOOP_ASSERT(i, HIGH_WATER_MARK == x.highWaterMark() );
+                ASSERTV(i, HIGH_WATER_MARK == x.highWaterMark() );
                 for (unsigned j = 0; j < HIGH_WATER_MARK; ++j) {
                     x.pushBack(VA); // non-blocking
                 }
@@ -5372,8 +7693,8 @@ int main(int argc, char *argv[])
                 }
 
                 ASSERT(HIGH_WATER_MARK == x.length());
-                LOOP2_ASSERT(i, HIGH_WATER_MARK, 0 != TC::waitingFlag);
-                LOOP_ASSERT(i, VA == x.popFront() );
+                ASSERTV(i, HIGH_WATER_MARK, 0 != TC::waitingFlag);
+                ASSERTV(i, VA == x.popFront() );
 
                 for (int j = 0; 0 != TC::waitingFlag && j < 50; ++j) {
                     bslmt::ThreadUtil::yield();
@@ -5384,12 +7705,12 @@ int main(int argc, char *argv[])
 
                 double ret;
                 x.popFront(&ret);
-                LOOP4_ASSERT(VA, VB, ret, HIGH_WATER_MARK, VB == ret);
+                ASSERTV(VA, VB, ret, HIGH_WATER_MARK, VB == ret);
 
                 bslmt::ThreadUtil::join(thread);
             }
 
-            LOOP_ASSERT(i, 0 == ta.numBytesInUse());
+            ASSERTV(i, 0 == ta.numBytesInUse());
         }
 
         ASSERT(0 == da.numAllocations());
@@ -5864,7 +8185,7 @@ int main(int argc, char *argv[])
                             x. pushBack(v);
                             xB.pushBack(v);
                             if (veryVerbose) {
-                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
                                 cout << "\tPUB: " << v << endl;
                             }
                         }
@@ -5873,7 +8194,7 @@ int main(int argc, char *argv[])
                             x. pushFront(v);
                             xB.pushFront(v);
                             if (veryVerbose) {
-                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
                                 cout << "\tPUF: " << v << endl;
                             }
                         }
@@ -5899,7 +8220,7 @@ int main(int argc, char *argv[])
                             xB.popBack(&e);
                             ASSERT(popped == e);
                             if (veryVerbose) {
-                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
                                 cout << "\tPOB: " << popped << endl;
                             }
                         }
@@ -5911,7 +8232,7 @@ int main(int argc, char *argv[])
                             xB.popFront(&e);
                             ASSERT(popped == e);
                             if (veryVerbose) {
-                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i); P_(LENGTH); P_(expectedLength);
                                 cout << "\tPOF: " << popped << endl;
                             }
                         }
@@ -5952,16 +8273,16 @@ int main(int argc, char *argv[])
             {
                 ASSERT(0 == u::myLength(X));
 
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.pushBack(V[0]);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
 
                 ASSERT(1 == u::myLength(X));
                 ASSERT(V[0] == u::myBack(X));
 
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.pushBack(V[1]);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
 
                 ASSERT(2 == u::myLength(X));
                 ASSERT(V[0] == u::myFront(X));
@@ -5977,14 +8298,14 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(1 == u::myLength(X));
 
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.pushBack(V[1]);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
                 ASSERT(2 == u::myLength(X));
                 AElement e(&ta);
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.popBack(&e);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
                 ASSERT(V[1] == e);
 
                 ASSERT(V[0] == u::myFront(X));
@@ -6001,16 +8322,16 @@ int main(int argc, char *argv[])
             {
                 ASSERT(0 == u::myLength(X));
 
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.pushFront(V[2]);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
 
                 ASSERT(1 == u::myLength(X));
                 ASSERT(V[2] == u::myBack(X));
 
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.pushFront(V[3]);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
 
                 ASSERT(2 == u::myLength(X));
                 ASSERT(V[3] == u::myFront(X));
@@ -6026,14 +8347,14 @@ int main(int argc, char *argv[])
                 }
 
                 ASSERT(1 == u::myLength(X));
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.pushFront(V[3]);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
                 ASSERT(2 == u::myLength(X));
                 AElement e(&ta);
-                BEGIN_EXCEP_TEST_AOBJ(x) {
+                BEGIN_EXCEP_TEST_OBJ(AElement, x) {
                     x.popFront(&e);
-                } END_EXCEP_TEST_AOBJ
+                } END_EXCEP_TEST_OBJ
                 ASSERT(V[3] == e);
 
                 ASSERT(V[2] == u::myFront(X));
