@@ -674,7 +674,7 @@ class BoyerMooreHorspoolSearcher_CharImp {
     void privateInstallMismatchedTable(
                              const BoyerMooreHorspoolSearcher_CharImp& object);
         // Replace in an exception-safe manner this object's table with a copy
-        // of of the table of the specified 'object'.  This object's table (on
+        // of the table of the specified 'object'.  This object's table (on
         // entry), if any, is deleted.
 
     void privateDeleteTable();
