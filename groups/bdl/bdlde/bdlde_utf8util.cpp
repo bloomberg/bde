@@ -9,6 +9,8 @@
 
 #include <bdlde_utf8util.h>
 
+#include <bdlde_charconvertutf32.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 
@@ -31,11 +33,48 @@ enum {
 
     k_MIN_SURROGATE    = 0xd800,   // min surrogate value
 
-    k_MAX_VALID = 0x10ffff,        // max value that can be encoded in UTF-8
+    k_MAX_VALID        = 0x10ffff,  // max value that can be encoded in UTF-8
 
-    k_CONT_VALUE_MASK = 0x3f       // part of a continuation byte that contains
-                                   // the 6 bits of value info
+    k_CONT_VALUE_MASK  = 0x3f,      // part of a continuation byte that
+                                    // contains the 6 bits of value info
+
+    k_ONEBYTEHEAD_TEST   = 0x80,  // 1 byte Utf8
+    k_ONEBYTEHEAD_RES    = 0,
+    k_TWOBYTEHEAD_TEST   = 0xE0,  // 2 byte Utf8
+    k_TWOBYTEHEAD_RES    = 0XC0,
+    k_THREEBYTEHEAD_TEST = 0xF0,  // 3 byte Utf8
+    k_THREEBYTEHEAD_RES  = 0XE0,
+    k_FOURBYTEHEAD_TEST  = 0xF8,  // 4 byte Utf8
+    k_FOURBYTEHEAD_RES   = 0XF0,
+    k_MULTIPLEBYTE_TEST  = 0xC0,  // 2nd, 3rd, 4th byte
+    k_MULTIPLEBYTE_RES   = 0X80
 };
+
+bool validUtf8(const char * character) {
+    return (character[0] & k_ONEBYTEHEAD_TEST)   == k_ONEBYTEHEAD_RES ||
+          ((character[1] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
+          ((character[0] & k_TWOBYTEHEAD_TEST)   == k_TWOBYTEHEAD_RES ||
+          ((character[2] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
+          ((character[0] & k_THREEBYTEHEAD_TEST) == k_THREEBYTEHEAD_RES ||
+          ((character[3] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
+           (character[0] & k_FOURBYTEHEAD_TEST)  == k_FOURBYTEHEAD_RES )))));
+}
+
+// This assumes its a valid Utf8 character
+int Utf8Size(char character) {
+    if ((character & k_ONEBYTEHEAD_TEST) == k_ONEBYTEHEAD_RES) {
+        return 1;                                                     // RETURN
+    }
+    else if ((character & k_TWOBYTEHEAD_TEST) == k_TWOBYTEHEAD_RES) {
+        return 2;                                                     // RETURN
+    }
+    else if ((character & k_THREEBYTEHEAD_TEST) == k_THREEBYTEHEAD_RES) {
+        return 3;                                                     // RETURN
+    }
+
+    return 4;
+}
+
 
 }  // close unnamed namespace
 
@@ -354,6 +393,7 @@ int validateAndCountCodePoints(
     return count;
 }
 
+
 namespace BloombergLP {
 
 namespace bdlde {
@@ -362,6 +402,7 @@ namespace bdlde {
                               // ---------------
 
 // CLASS METHODS
+
 int Utf8Util::advanceIfValid(int         *status,
                              const char **result,
                              const char  *string,
@@ -1043,6 +1084,57 @@ int Utf8Util::numCodePointsRaw(const char *string, bsl::size_t length)
 
     return count;
 }
+
+int Utf8Util::numBytesIfValid(const bslstl::StringRef& string,
+                              int                      numCodePoints)
+{
+    BSLS_ASSERT(string.isEmpty() || string.data());
+    BSLS_ASSERT(0 <= numCodePoints);
+
+    size_t numBytes = 0;
+
+    // Note that since we are assuming the string already passed one of the
+    // validation functions our work is very simple.
+
+    for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
+        BSLS_ASSERT_SAFE(validUtf8(string[numBytes]));
+        numBytes += Utf8Size(string[numBytes]);
+    }
+
+    if (numBytes > string.length()) {
+        return -1;
+    }
+
+    return numBytes;
+}
+
+int Utf8Util::getByteSize(const char* character)
+{
+    BSLS_ASSERT(validUtf8(character));
+    return Utf8Size(character[0]);
+}
+
+int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepoint)
+{
+    BSLS_ASSERT(output);
+
+    char        buffer[8];
+    bsl::size_t numBytesWritten = 0;
+
+    int res = CharConvertUtf32::utf32ToUtf8(
+        buffer, sizeof(buffer), &codepoint, 1, NULL, &numBytesWritten);
+
+    if (0 != res) {
+        return -1;
+    }
+
+    // 'numBytesWritten' includes the trailing '\0' in its count, which we
+    // don't want in '*output'.
+    output->append(buffer, numBytesWritten - 1);
+
+    return 0;
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

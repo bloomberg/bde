@@ -2031,13 +2031,6 @@ const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 
 enum { NUM_UTF8_MULTI_LANG_CODE_POINTS = 11781 };
 
-static inline
-int length(const bsl::string& str)
-    // Return the length of the specified 'str', cast to an 'int'.
-{
-    return static_cast<int>(str.length());
-}
-
 static
 bsl::string dumpVec(const bsl::vector<int>& vec)
     // Return the contents of the specified 'vec' in string form.
@@ -2348,6 +2341,12 @@ int decode(const char **pc)
 }
 
 static
+int decode(const char *pc)
+{
+    return decode(&pc);
+}
+
+static
 bsls::Types::Uint64 randAccum = 0;
 
 int randNum()
@@ -2458,7 +2457,15 @@ bsl::string clone(const char *pc, int length)
     return ret;
 }
 
-// Some useful multi-octet code points:
+// Some useful (mostly) multi-octet code points:
+
+    // The 2 lowest non-0 1-octet code points.
+    #define U8_00001  "\x01"
+    #define U8_00002  "\x02"
+
+    // The 2 highest 1-octet code points.
+    #define U8_0007e  "\x7e"
+    #define U8_0007f  "\x7f"
 
     // The 2 lowest 2-octet code points.
     #define U8_00080  "\xc2\x80"
@@ -2486,6 +2493,50 @@ bsl::string clone(const char *pc, int length)
     // The 2 highest 4-octet code points.
     #define U8_10fffe "\xf4\x8f\xbf\xbe"
     #define U8_10ffff "\xf4\x8f\xbf\xbf"
+
+const int interestingCodePoints[] = {
+    decode(U8_00001),
+    decode(U8_00002),
+    decode(U8_0007e),
+    decode(U8_0007f),
+    decode(U8_00080),
+    decode(U8_00081),
+    decode(U8_000ff),
+    decode(U8_007fe),
+    decode(U8_007ff),
+    decode(U8_00800),
+    decode(U8_00801),
+    decode(U8_0fffe),
+    decode(U8_0ffff),
+    decode(U8_10000),
+    decode(U8_10001),
+    decode(U8_10fffe),
+    decode(U8_10ffff),
+};
+const char *utf8InterestingCodePoints[] = {
+    U8_00001,
+    U8_00002,
+    U8_0007e,
+    U8_0007f,
+    U8_00080,
+    U8_00081,
+    U8_000ff,
+    U8_007fe,
+    U8_007ff,
+    U8_00800,
+    U8_00801,
+    U8_0fffe,
+    U8_0ffff,
+    U8_10000,
+    U8_10001,
+    U8_10fffe,
+    U8_10ffff,
+};
+
+enum {
+    NUM_INTERESTING_CODEPOINTS =
+        sizeof utf8InterestingCodePoints / sizeof *utf8InterestingCodePoints
+};
 
 // ============================================================================
 //                               Usage Example
@@ -2553,7 +2604,7 @@ namespace USAGE {
         *string += reinterpret_cast<char *>(buf);
     }
 
-    void utf8Append(bsl::string *string, int value)
+    int utf8Append(bsl::string *string, int value)
         // Append the specified UTF-8-encoded 'value' in the minimum number of
         // bytes to the end of the specified 'string'.
     {
@@ -2561,18 +2612,20 @@ namespace USAGE {
 
         if (value <= 0x7f) {
             utf8AppendOneByte(string, value);
-            return;                                                   // RETURN
+            return 0;                                                 // RETURN
         }
         if (value <= 0x7ff) {
             utf8AppendTwoBytes(string, value);
-            return;                                                   // RETURN
+            return 0;                                                 // RETURN
         }
         if (value <= 0xffff) {
             utf8AppendThreeBytes(string, value);
-            return;                                                   // RETURN
+            return 0;                                                 // RETURN
         }
 
         utf8AppendFourBytes(string, value);
+        return 0;
+        //return Obj::appendUtf8Character(string, value);
     }
 //..
 
@@ -2847,8 +2900,8 @@ int main(int argc, char *argv[])
         //   Demonstrate the 'advance*' functions.
         //
         // Plan:
-        //   Use the 'utf8Append' function from example 1 to build an example
-        //   string, then advance through it.
+        //   Use the 'appendUtf8Character' function to build an example string,
+        //   then advance through it.
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -2862,20 +2915,20 @@ int main(int argc, char *argv[])
 // In this example, we will use the various 'advance' functions to advance
 // through a UTF-8 string.
 //
-// First, build the string using 'utf8Append', keeping track of how many bytes
-// are in each Unicode code point:
+// First, build the string using 'appendUtf8Character', keeping track of how
+// many bytes are in each Unicode code point:
 //..
     bsl::string string;
-    utf8Append(&string, 0xff00);        // 3 bytes
-    utf8Append(&string, 0x1ff);         // 2 bytes
-    utf8Append(&string, 'a');           // 1 byte
-    utf8Append(&string, 0x1008aa);      // 4 bytes
-    utf8Append(&string, 0x1abcd);       // 4 bytes
+    bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);        // 3 bytes
+    bdlde::Utf8Util::appendUtf8Character(&string, 0x1ff);         // 2 bytes
+    bdlde::Utf8Util::appendUtf8Character(&string, 'a');           // 1 byte
+    bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);      // 4 bytes
+    bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);       // 4 bytes
     string += "\xe3\x8f\xfe";           // 3 bytes (invalid 3-byte sequence,
                                         // the first 2 bytes are valid but the
                                         // last continuation byte is invalid)
-    utf8Append(&string, 'w');           // 1 byte
-    utf8Append(&string, '\n');          // 1 byte
+    bdlde::Utf8Util::appendUtf8Character(&string, 'w');           // 1 byte
+    bdlde::Utf8Util::appendUtf8Character(&string, '\n');          // 1 byte
 //..
 // Then, declare a few variables we'll need:
 //..
@@ -2898,7 +2951,6 @@ int main(int argc, char *argv[])
     ASSERT(3 + 2 == result - start);
 
     rc = bdlde::Utf8Util::advanceRaw(             &result, start, 3);
-    ASSERT(0 == status);
     ASSERT(3 == rc);
     ASSERT(3 + 2 + 1 == result - start);
 
@@ -2978,15 +3030,15 @@ int main(int argc, char *argv[])
 // First, we build an unquestionably valid UTF-8 string:
 //..
     bsl::string string;
-    utf8Append(&string, 0xff00);
-    utf8Append(&string, 0x856);
-    utf8Append(&string, 'a');
-    utf8Append(&string, 0x1008aa);
-    utf8Append(&string, 0xfff);
-    utf8Append(&string, 'w');
-    utf8Append(&string, 0x1abcd);
-    utf8Append(&string, '.');
-    utf8Append(&string, '\n');
+    bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);
+    bdlde::Utf8Util::appendUtf8Character(&string, 0x856);
+    bdlde::Utf8Util::appendUtf8Character(&string, 'a');
+    bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);
+    bdlde::Utf8Util::appendUtf8Character(&string, 0xfff);
+    bdlde::Utf8Util::appendUtf8Character(&string, 'w');
+    bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);
+    bdlde::Utf8Util::appendUtf8Character(&string, '.');
+    bdlde::Utf8Util::appendUtf8Character(&string, '\n');
 //..
 // Then, we check its validity and measure its length:
 //..
@@ -2997,7 +3049,8 @@ int main(int argc, char *argv[])
                                                      string.length()));
     ASSERT(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next, we encode a lone surrogate value, which is not allowed:
+// Next, we encode a lone surrogate value, which is not allowed, using
+// 'utf8Append' instead of 'appendUtf8Character' to avoid validation:
 //..
     bsl::string stringWithSurrogate = string;
     utf8Append(&stringWithSurrogate, 0xd8ab);
@@ -4914,6 +4967,20 @@ int main(int argc, char *argv[])
             ASSERT(bsl::strlen(str.c_str()) == str.length());
         }
       } break;
+      case -3: {
+        const char badString[]="\xff\xff";
+        const char *dummy = 0;
+
+        if (veryVerbose) {
+            P(Obj::numCodePointsIfValid(&dummy, badString));
+            P(Obj::isValid(badString));
+        }
+
+
+        ASSERT(Obj::numCodePointsIfValid(&dummy, badString) < 0);
+        ASSERT(!Obj::isValid(badString));
+      } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

@@ -8,7 +8,6 @@
 // ----------------------------------------------------------------------------
 
 #include <bdlde_charconvertutf32.h>
-#include <bdlde_utf8util.h>    // for testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_charconvertutf32_cpp,"$Id$ $CSID$")

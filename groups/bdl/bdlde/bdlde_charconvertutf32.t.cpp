@@ -11,13 +11,13 @@
 #include <bdlde_charconvertutf32.h>
 
 #include <bdlde_charconvertstatus.h>
-#include <bdlde_utf8util.h>
 
 #include <bdlb_random.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_byteorderutil.h>
+#include <bsls_performancehint.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -194,7 +194,6 @@ bool aSsErT(int c, const char *s, int i)
 
 typedef bdlde::CharConvertUtf32  Util;
 typedef bdlde::CharConvertStatus Status;
-typedef bdlde::Utf8Util          Utf8Util;
 typedef bsls::Types::UintPtr     UintPtr;
 typedef bsls::Types::IntPtr      IntPtr;
 
@@ -2102,6 +2101,248 @@ unsigned char utf8MultiLang[] = {
 const char * const charUtf8MultiLang =
                                  reinterpret_cast<const char *>(utf8MultiLang);
 
+// STATIC HELPER FUNCTIONS
+static inline
+bool isNotContinuation(char value)
+    // Return 'true' if the specified 'value' is NOT a UTF-8 continuation byte,
+    // and 'false' otherwise.
+{
+    return 0x80 != (value & 0xc0);
+}
+
+static inline
+bool isSurrogateValue(int value)
+    // Return 'true' if the specified 'value' is a surrogate value, and 'false'
+    // otherwise.
+{
+    enum {
+        k_SURROGATE_MASK = 0xfffff800U,
+        k_MIN_SURROGATE  = 0xd800       // min surrogate value
+    };
+
+    return (k_SURROGATE_MASK & value) == k_MIN_SURROGATE;
+}
+
+enum {
+    k_CONT_VALUE_MASK = 0x3f  // part of a continuation byte that
+                              // contains the 6 bits of value info
+};
+
+static inline
+int get2ByteValue(const char *pc)
+    // Return the integral value of the single code point represented by the
+    // 2-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
+    // is undefined unless the 2 bytes starting at 'pc' contain a UTF-8
+    // sequence describing a single valid code point.
+{
+    return ((*pc & 0x1f) << 6) | (pc[1] & k_CONT_VALUE_MASK);
+}
+
+static inline
+int get3ByteValue(const char *pc)
+    // Return the integral value of the single code point represented by the
+    // 3-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
+    // is undefined unless the 3 bytes starting at 'pc' contain a UTF-8
+    // sequence describing a single valid code point.
+{
+    return ((*pc & 0xf) << 12) | ((pc[1] & k_CONT_VALUE_MASK) << 6)
+                               |  (pc[2] & k_CONT_VALUE_MASK);
+}
+
+static inline
+int get4ByteValue(const char *pc)
+    // Return the integral value of the single code point represented by the
+    // 4-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
+    // is undefined unless the 4 bytes starting at 'pc' contain a UTF-8
+    // sequence describing a single valid code point.
+{
+    return ((*pc & 0x7) << 18) | ((pc[1] & k_CONT_VALUE_MASK) << 12)
+                               | ((pc[2] & k_CONT_VALUE_MASK) <<  6)
+                               |  (pc[3] & k_CONT_VALUE_MASK);
+}
+
+
+static
+int validateAndCountCodePoints(
+                              const char                       **invalidString,
+                              const char                        *string,
+                              BloombergLP::bsls::Types::IntPtr   length)
+    // Return the number of Unicode code points in the specified 'string'
+    // having the specified 'length' (in bytes) if 'string' contains valid
+    // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
+    // return a negative value and load into 'invalidString' the address of the
+    // first byte in 'string' that does not constitute the start of a valid
+    // UTF-8 encoding.  'string' need not be null-terminated and can contain
+    // embedded null bytes.  The behavior is undefined unless '0 <= length'.
+    // Note that 'string' may contain less than 'length' Unicode code points.
+{
+    // The following assertions are redundant with those in the CLASS METHODS.
+    // Hence, 'BSLS_ASSERT_SAFE' is used.
+
+    BSLS_ASSERT_SAFE(invalidString);
+    BSLS_ASSERT_SAFE(string);
+    BSLS_ASSERT_SAFE(0 <= length);
+
+    enum {
+        k_MIN_2_BYTE_VALUE =
+            0x80,  // min value that requires 2 bytes to encode
+        k_MIN_3_BYTE_VALUE =
+            0x800,  // min value that requires 3 bytes to encode
+        k_MIN_4_BYTE_VALUE =
+            0x10000,            // min value that requires 4 bytes to encode
+        k_MAX_VALID = 0x10ffff  // max value that can be encoded in UTF-8
+    };
+
+#define UNLIKELY(EXPRESSION) BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(EXPRESSION)
+
+    const char       *pc     = string;
+    const char *const pcEnd4 = string + length - 4;
+
+    int count = 0;
+
+    while (pc <= pcEnd4) {
+        switch ((*pc >> 4) & 0xf) {
+          case 0:
+          case 1:
+          case 2:
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+          case 7: {
+            ++pc;
+          } break;
+          case 0xc:
+          case 0xd: {
+            const int value = get2ByteValue(pc);
+            if (UNLIKELY(isNotContinuation(pc[1]) |
+                         (value < k_MIN_2_BYTE_VALUE))) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                *invalidString = pc;
+                return -1;                                            // RETURN
+            }
+            pc += 2;
+          } break;
+          case 0xe: {
+            const int value = get3ByteValue(pc);
+            if (UNLIKELY(isNotContinuation(pc[1]) | isNotContinuation(pc[2]) |
+                         (value < k_MIN_3_BYTE_VALUE) |
+                         isSurrogateValue(value))) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                *invalidString = pc;
+                return -1;                                            // RETURN
+            }
+            pc += 3;
+          } break;
+          case 0xf: {
+            const int value = get4ByteValue(pc);
+            if (UNLIKELY((0 != (0x8 & *pc)) | isNotContinuation(pc[1]) |
+                         isNotContinuation(pc[2]) | isNotContinuation(pc[3]) |
+                         (value < k_MIN_4_BYTE_VALUE) |
+                         (value > k_MAX_VALID))) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                *invalidString = pc;
+                return -1;                                            // RETURN
+            }
+            pc += 4;
+          } break;
+          default: {
+            *invalidString = pc;
+            return -1;                                                // RETURN
+          }
+        }
+
+        ++count;
+    }
+
+    length -= static_cast<int>(pc - string);
+
+    // 'length' is now < 4.
+
+    while (length > 0) {
+        int delta;
+
+        switch ((*pc >> 4) & 0xf) {
+          case 0:
+          case 1:
+          case 2:
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+          case 7: {
+            delta = 1;
+            ++count;
+          } break;
+          case 0xc:
+          case 0xd: {
+            if (UNLIKELY(length < 2)) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                *invalidString = pc;
+                return -1;                                            // RETURN
+            }
+            const int value = get2ByteValue(pc);
+            if (UNLIKELY(isNotContinuation(pc[1]) |
+                         (value < k_MIN_2_BYTE_VALUE))) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                *invalidString = pc;
+                return -1;                                            // RETURN
+            }
+            delta = 2;
+            ++count;
+          } break;
+          case 0xe: {
+            if (UNLIKELY(length < 3)) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                *invalidString = pc;
+                return -1;                                            // RETURN
+            }
+            const int value = get3ByteValue(pc);
+            if (UNLIKELY(isNotContinuation(pc[1]) | isNotContinuation(pc[2]) |
+                         (value < k_MIN_3_BYTE_VALUE) |
+                         isSurrogateValue(value))) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                *invalidString = pc;
+                return -1;                                            // RETURN
+            }
+            delta = 3;
+            ++count;
+          } break;
+          default: {
+            *invalidString = pc;
+            return -1;                                                // RETURN
+          }
+        }
+
+        pc += delta;
+        length -= delta;
+    }
+
+    BSLS_ASSERT(0 == length);
+    BSLS_ASSERT(pcEnd4 + 4 == pc);
+
+    return count;
+
+#undef UNLIKELY
+}
+
+bool isValid(const char *string, bsl::size_t length)
+{
+    BSLS_ASSERT(string);
+    const char *dummy = 0;
+
+    return validateAndCountCodePoints(&dummy, string, length) >= 0;
+}
+
+
+
 // ============================================================================
 //                             Padded String Ref
 // ============================================================================
@@ -3037,7 +3278,7 @@ int main(int argc, char **argv)
                                    utf8OutStr.length(), utf8ExpNumBytesWritten,
                             utf8OutStr.length() + 1 == utf8ExpNumBytesWritten);
             LOOP2_ASSERT(utf8ExpStr, utf8OutStr, utf8ExpStr == utf8OutStr);
-            ASSERT(Utf8Util::isValid(&utf8OutStr[0], utf8OutStr.length()));
+            ASSERT(isValid(&utf8OutStr[0], utf8OutStr.length()));
 
             numCodePointsWritten = myRand15();
             utf8ExpVec.clear();
@@ -3088,7 +3329,7 @@ int main(int argc, char **argv)
                 for (bsl::size_t jj = ii; jj < utf8OutVec.size(); ++jj) {
                     ASSERT(initChar == utf8OutVec[jj]);
                 }
-                ASSERT(Utf8Util::isValid(&utf8OutVec[0], numBytesWritten));
+                ASSERT(isValid(&utf8OutVec[0], numBytesWritten));
             }
         }
         sw.stop();

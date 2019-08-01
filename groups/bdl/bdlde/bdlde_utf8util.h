@@ -71,15 +71,15 @@ BSLS_IDENT("$Id: $")
 // First, we build an unquestionably valid UTF-8 string:
 //..
 //  bsl::string string;
-//  utf8Append(&string, 0xff00);
-//  utf8Append(&string, 0x856);
-//  utf8Append(&string, 'a');
-//  utf8Append(&string, 0x1008aa);
-//  utf8Append(&string, 0xfff);
-//  utf8Append(&string, 'w');
-//  utf8Append(&string, 0x1abcd);
-//  utf8Append(&string, '.');
-//  utf8Append(&string, '\n');
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x856);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'a');
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0xfff);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'w');
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);
+//  bdlde::Utf8Util::appendUtf8Character(&string, '.');
+//  bdlde::Utf8Util::appendUtf8Character(&string, '\n');
 //..
 // Then, we check its validity and measure its length:
 //..
@@ -90,7 +90,8 @@ BSLS_IDENT("$Id: $")
 //                                                   string.length()));
 //  assert(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next, we encode a lone surrogate value, which is not allowed:
+// Next, we encode a lone surrogate value, which is not allowed, using
+// 'utf8Append' instead of 'appendUtf8Character' to avoid validation:
 //..
 //  bsl::string stringWithSurrogate = string;
 //  utf8Append(&stringWithSurrogate, 0xd8ab);
@@ -147,20 +148,20 @@ BSLS_IDENT("$Id: $")
 // In this example, we will use the various 'advance' functions to advance
 // through a UTF-8 string.
 //
-// First, build the string using 'utf8Append', keeping track of how many bytes
-// are in each Unicode code point:
+// First, build the string using 'appendUtf8Character', keeping track of how
+// many bytes are in each Unicode code point:
 //..
 //  bsl::string string;
-//  utf8Append(&string, 0xff00);        // 3 bytes
-//  utf8Append(&string, 0x1ff);         // 2 bytes
-//  utf8Append(&string, 'a');           // 1 byte
-//  utf8Append(&string, 0x1008aa);      // 4 bytes
-//  utf8Append(&string, 0x1abcd);       // 4 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);        // 3 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1ff);         // 2 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'a');           // 1 byte
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);      // 4 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);       // 4 bytes
 //  string += "\xe3\x8f\xfe";           // 3 bytes (invalid 3-byte sequence,
 //                                      // the first 2 bytes are valid but the
 //                                      // last continuation byte is invalid)
-//  utf8Append(&string, 'w');           // 1 byte
-//  utf8Append(&string, '\n');          // 1 byte
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'w');           // 1 byte
+//  bdlde::Utf8Util::appendUtf8Character(&string, '\n');          // 1 byte
 //..
 // Then, declare a few variables we'll need:
 //..
@@ -183,7 +184,6 @@ BSLS_IDENT("$Id: $")
 //  assert(3 + 2 == result - start);
 //
 //  rc = bdlde::Utf8Util::advanceRaw(             &result, start, 3);
-//  assert(0 == status);
 //  assert(3 == rc);
 //  assert(3 + 2 + 1 == result - start);
 //
@@ -242,6 +242,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_review.h>
 
 #include <bsl_cstddef.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 
@@ -459,6 +460,24 @@ struct Utf8Util {
         // null-terminated and can contain embedded null bytes.  The behavior
         // is undefined unless 'string' contains valid UTF-8.  Note that
         // 'string' may contain less than 'length' Unicode code points.
+
+    static int numBytesIfValid(const bslstl::StringRef& string,
+                               int                      numCodePoints);
+        // Return the number of bytes used by the first 'numCodePoints' utf8
+        // characters in the specified 'string', or a value less than zero if
+        // 'string' contains less than 'numCharacters' utf8 characters.  The
+        // behavior is undefined unless 'string' is a valid utf8 string.
+
+    static int getByteSize(const char* codepoint);
+        // Return the size in bytes of the specified Utf8 'codepoint'. Note
+        // that behavior is undefined unless 'codepoint' points to a valid
+        // Utf8 character in contiguous memory.
+
+    static int appendUtf8Character(bsl::string  *output,
+                                   unsigned int  codepoint);
+        // Write the specified 'codepoint' unicode code point to the end of the
+        // specified 'output'.  Return 0 on success, and a non-zero value
+        // otherwise.
 };
 
 // ============================================================================
