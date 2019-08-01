@@ -339,11 +339,14 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // USE OF SIMPLEBLOBBUFFERFACTORY WITH BLOB TEST
+        // CONCERN: INTER-OPERABILITY WITH BLOB
         //
         // Concerns:
         //: 1 That the 'SimpleBlobBufferFactory' can be used correctly with
         //:   a 'Blob'.
+        //:
+        //: 2 Test calling the constructor, both with and without an allocator
+        //:   specified.
         //
         // Plan:
         //: 1 Create a 'Blob' with a 'SimpleBlobBufferFactory' and have it
@@ -362,8 +365,8 @@ int main(int argc, char *argv[])
         //   SimpleBlobBufferFactory(int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "USE OF SIMPLEBLOBBUFFERFACTORY WITH BLOB TEST\n"
-                             "=============================================\n";
+        if (verbose) cout << "CONCERN: INTER-OPERABILITY WITH BLOB\n"
+                             "====================================\n";
 
         enum { bufferSize = 128 };
 
@@ -502,19 +505,24 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CREATE BLOB BUFFERS OF VARYING SIZES
+        // TESTING: BASIC FUNCTIONALITY OF CLASS
         //
         // Concerns:
-        //: 1 The factory is capable of producing buffers of the desired type.
+        //: 1 Test the basic functionality of the class
+        //:   o primary constructor
+        //:   o manipulators
+        //:   o accessor
         //:
-        //: 2 The factory can vary the buffer size and subsequent buffers will
+        //: 2 The factory is capable of producing buffers of any desired size.
+        //:
+        //: 3 The factory can vary the buffer size and subsequent buffers will
         //:   be of that size.
         //:   o the first blob buffers created will be at the size specified
         //:     at construction
         //:   o if 'setBufferSize' is called, subsequent buffers are created
         //:     of that size
         //:
-        //: 3 The blob buffers created are functional and can hold data, and
+        //: 4 The blob buffers created are functional and can hold data, and
         //:   free up their memory when destroyed.
         //
         // Plan:
@@ -554,8 +562,8 @@ int main(int argc, char *argv[])
         //   int bufferSize() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "COPY TEXT TO DEQUE OF BUFFERS\n"
-                             "=============================\n";
+        if (verbose) cout << "TESTING: BASIC FUNCTIONALITY OF CLASS\n"
+                             "=====================================\n";
 
         ASSERT(0 == ta.numAllocations());
 
