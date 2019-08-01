@@ -182,8 +182,8 @@ void ThreadNameAPI::getThreadName(bsl::string *threadName) const
 
         // 'GetThreadDescription' returned us a UTF-16 string, while our caller
         // wants a 'bsl::string'.  The BDE UTF-16 -> UTF-8 translation
-        // compoonent is in 'bdlde', which is above here, so we will just
-        // translate all non-ascii characters to '?'.
+        // compoonent is in 'bdlde', so we use Windows provided APIs for
+        // character conversion
 
         if (SUCCEEDED(rc) && utf16Result) {
             // The 0th pass through this loop will just set 'rc' to the number
