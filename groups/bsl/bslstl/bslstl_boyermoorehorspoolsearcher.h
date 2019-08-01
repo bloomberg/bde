@@ -692,9 +692,9 @@ class BoyerMooreHorspoolSearcher_CharImp {
         // Return 'true' if this instantiation should used the "short needle
         // (space) optimization", and 'false' otherwise.  The behavior is
         // undefined unless 'd_needleLength' has been initialized.
-        
+
     bool privateHasSameNeedleOptimization(
-                             const BoyerMooreHorspoolSearcher_CharImp& object)
+                              const BoyerMooreHorspoolSearcher_CharImp& object)
                                                                          const;
         // Return 'true' if the specified 'object' has the same value for
         // 'privateUseShortNeedleOptimization()' as this object, and 'false'
@@ -708,11 +708,11 @@ class BoyerMooreHorspoolSearcher_CharImp {
   public:
     // CREATORS
     BoyerMooreHorspoolSearcher_CharImp(
-                               RNDACC_ITR_NEEDLE              needleFirst,
-                               RNDACC_ITR_NEEDLE              needleLast,
-                               HASH                           hash,
-                               EQUAL                          equal,
-                               BloombergLP::bslma::Allocator *basicAllocator);
+                                RNDACC_ITR_NEEDLE              needleFirst,
+                                RNDACC_ITR_NEEDLE              needleLast,
+                                HASH                           hash,
+                                EQUAL                          equal,
+                                BloombergLP::bslma::Allocator *basicAllocator);
         // Create a 'BoyerMooreHorspoolSearcher_CharImp' object for the
         // sequence of 'char' values in the specified range
         // '[needleFirst, needlelast)'.  This implementation is invoked when
@@ -750,8 +750,8 @@ class BoyerMooreHorspoolSearcher_CharImp {
 
     BoyerMooreHorspoolSearcher_CharImp(
              BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
-                                                                      original,
-                          BloombergLP::bslma::Allocator       *basicAllocator);
+                                                               original,
+             BloombergLP::bslma::Allocator                    *basicAllocator);
         // Create a 'BoyerMooreHorspoolSearcher_CharImp' object having the same
         // state as the specified 'original' object and that uses the specified
         // 'basicAllocator' to supply memory.  The state of 'original' is moved
@@ -870,8 +870,8 @@ class BoyerMooreHorspoolSearcher_GeneralImp {
 
     BoyerMooreHorspoolSearcher_GeneralImp(
           BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_GeneralImp>
-                                                                      original,
-                       BloombergLP::bslma::Allocator          *basicAllocator);
+                                                               original,
+          BloombergLP::bslma::Allocator                       *basicAllocator);
         // Create a 'BoyerMooreHorspoolSearcher_GeneralImp' object having same
         // state as the specified 'original' object and that uses
         // 'basicAllocator' to supply memory.  The state of 'original' is moved
@@ -1229,9 +1229,9 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
         native_std::memcpy(
-          arrayPtr->data(),
-          static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
-          UCHAR_MAX + 1);
+                 arrayPtr->data(),
+                 static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
+                 UCHAR_MAX + 1);
 
         d_table_p = arrayPtr;
     } else {
@@ -1265,9 +1265,9 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
         ShortNeedleSkipArray *arrayPtr = static_cast<ShortNeedleSkipArray *>(
                                                                     d_table_p);
         native_std::memcpy(
-          arrayPtr->data(),
-          static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
-          UCHAR_MAX + 1);
+                 arrayPtr->data(),
+                 static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
+                 UCHAR_MAX + 1);
 
     } else {
         LongNeedleSkipArray *arrayPtr = static_cast< LongNeedleSkipArray *>(
@@ -1294,9 +1294,9 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
         native_std::memcpy(
-          arrayPtr->data(),
-          static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
-          UCHAR_MAX + 1);
+                 arrayPtr->data(),
+                 static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
+                 UCHAR_MAX + 1);
 
         privateDeleteTable();
 
