@@ -39,16 +39,22 @@ using bsl::size_t;
 //
 //: o Test cases 1-6 Test 'isValid', 'numCodePointsRaw', and
 //:   'numCodePointsIfValid'.
-//: o Regarding 'advanceRaw' and 'advanceIfValid':
+//: o Regarding 'advanceRaw' and 'advanceIfValid' in cases 7-9:
 //:   1 Test that they correctly advance through a long string of multilingual
 //:     prose.
 //:   2 Test that they correctly advance through all possible combinations of
 //:     machine-generated correct UTF-8 input.
 //:   3 Test that 'advanceIfValid' works on all possible sequences of correct
 //:     input followed by all possible types of incorrect input.
+//: o Test case 10 Test 'numBytesIfValid'.
+//: o Test case 11 Test 'getByteSize'.
+//: o Test case 12 Test 'appendUtf8Character'.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 7] int advanceIfValid(int *, const char **, const char *, int); on pros
+// [12] int appendUtf8Character(bsl::string *, unsigned int);
+// [11] int getByteSize(const char *);
+// [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
+// [ 7] int advanceIfValid(int *, const char **, const char *, int); on prose
 // [ 7] int advanceIfValid(int *, const char **, const char *, int, int); prose
 // [ 7] int advanceRaw(const char **, const char *, int); on prose
 // [ 7] int advanceRaw(const char **, const char *, int, int); on prose
@@ -73,7 +79,8 @@ using bsl::size_t;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
-// [10] USAGE EXAMPLE
+// [13] USAGE EXAMPLE 1
+// [14] USAGE EXAMPLE 2
 // [ 9] Testing: 'advanceIfValid' on correct input followed by incorrect input
 // [ 8] Testing: all 'advance*' on machine-generated correct input
 // [-1] random number generator
@@ -2609,7 +2616,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2: 'advance'.
         //
@@ -2720,7 +2727,7 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(string.length()) == result - start);
 //..
       } break;
-      case 10: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'isValid' and 'numCodePoints*'
         //
@@ -2818,6 +2825,93 @@ int main(int argc, char *argv[])
                                              stringWithOverlong.length()));
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithOverlong.c_str()));
 //..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'appendUtf8Character'
+        //
+        // Concerns:
+        //   The method under test produce the expected results on valid UTF-8
+        //   strings.
+        //
+        // Plan:
+        //   Use the table-driven approach to verify correct behavior on
+        //   various valid UTF-8 strings.
+        //
+        // Testing:
+        //   int appendUtf8Character(bsl::string *, unsigned int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'appendUtf8Character'\n"
+                               "=============================\n";
+
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'getByteSize'
+        //
+        // Concerns:
+        //   The method under test produce the expected results on valid UTF-8
+        //   codepoints.
+        //
+        // Plan:
+        //   Use the table-driven approach to verify correct behavior on
+        //   various valid UTF-8 codepoints.
+        //
+        // Testing:
+        //   int getByteSize(const char *);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'getByteSize'\n"
+                               "=====================\n";
+
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'numBytesIfValid'
+        //
+        // Concerns:
+        //   The method under test produce the expected results on valid UTF-8
+        //   strings.
+        //
+        // Plan:
+        //   Use the table-driven approach to verify correct behavior on
+        //   various valid UTF-8 strings.
+        //
+        // Testing:
+        //   IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'numBytesIfValid'\n"
+                               "=========================\n";
+
+        for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
+            const int         LINE = interestingCodepointData[ti].d_lineNum;
+            const bsl::string UTF8 = interestingCodepointData[ti].d_utf8_p;
+            //const unsigned int  CODEPOINT = DATA[ti].d_codepoint;
+
+            if (veryVerbose) {
+                T_; P_(ti);
+                P_(LINE); P_(dumpStr(UTF8)); P(UTF8.length());
+            }
+
+            ASSERT(Obj::IntPtr(UTF8.length()) ==
+                   Obj::numBytesIfValid(UTF8, 1));
+
+            for (int tj = 0; tj < NUM_INTERESTING_CODEPOINTS; ++tj) {
+                const int LINE_2 = interestingCodepointData[tj].d_lineNum;
+                const bsl::string UTF8_2 =
+                    UTF8 + interestingCodepointData[tj].d_utf8_p;
+
+                if (veryVeryVerbose) {
+                    T_; T_; P_(tj);
+                    P_(LINE_2); P_(dumpStr(UTF8_2)); P(UTF8_2.length());
+                }
+
+                ASSERT(Obj::IntPtr(UTF8_2.length()) ==
+                       Obj::numBytesIfValid(UTF8_2, 2));
+            }
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
