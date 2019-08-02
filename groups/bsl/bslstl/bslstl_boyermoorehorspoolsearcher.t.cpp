@@ -2099,6 +2099,7 @@ static const char u_haystackBinary[] =
     "0110111001110100011100100110000101100011011101000010000001000001"
     "0110110001101100011010010110000101101110011000110110010101110011"
 #ifndef BSLS_PLATFORM_OS_WINDOWS
+    // Windows disallows "strings" longer than 65,535 bytes.
     "0010110000100000011001010111001101110100011000010110001001101100"
     "0110100101110011011010000000101001000011011011110110110101101101"
     "0110010101110010011000110110010100101100001000000110000101101110"
@@ -2468,6 +2469,10 @@ const static DATA_t U_DATA_BINARY[] = {
     }
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
+    // Windows disallows "strings" longer than 65,535 bytes.  The word "Honor",
+    // the final word of the document, is not found in the shorted text used
+    // on the Windows platform
+    
   , { L_,  true, // "Honor"
                     "0100100001101111011011100110111101110010"
     }
