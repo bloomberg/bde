@@ -29,3 +29,4 @@ bsltf_streamutil
 bsltf_templatetestfacility
 bsltf_testvaluesarray
 bsltf_uniontesttype
+bsltf_wellbehavedmoveonlyalloctesttype
