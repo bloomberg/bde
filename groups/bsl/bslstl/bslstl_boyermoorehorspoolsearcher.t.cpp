@@ -48,7 +48,7 @@ namespace BSL = native_std;  // for Usage examples
 // This component defines a template for a mechanism class,
 // 'bslstl::BoyerMooreHorspoolSearcher' in which two iterators define the range
 // of values being sought for (the "needle") and another two iterators define
-// the range of values being sought throuhg (the "haystack").  Note that the
+// the range of values being sought through (the "haystack").  Note that the
 // two pairs of iterators must refer to the same value type and must be random
 // access iterators, but otherwise need not be the same type.  Thus, a
 // sequences in one type of container (e.g., a vector) can be sought in another
@@ -3371,7 +3371,7 @@ static void usage()
 // ----------------------------------------------------------------------------
 
 static const char *performanceSyntaxMessage(int test)
-    // Return the (valid) command line syntax message correspending to the
+    // Return the (valid) command line syntax message corresponding to the
     // specified 'test' number, or '*UNKNOWN*' if no message is defined for
     // 'test'.
 {
@@ -3391,7 +3391,7 @@ static int getHaystack(const char **haystackFirstPtr,
     // Load to the specified 'haystackFirst' and 'haystackLast' the beginning
     // and end address of the statically defined test haystack data
     // corresponding to the specified 'haystackOption'.  Return 0 on success
-    // and a non-zero valule if 'haystackOption' is not recognized.
+    // and a non-zero value if 'haystackOption' is not recognized.
 {
     ASSERT(haystackFirstPtr);
     ASSERT(haystackLastPtr);
@@ -3434,7 +3434,7 @@ static int getDataForHaystack(const DATA_t **DATA,
                               BSL::size_t   *NUM_DATA,
                               const char    *haystackOption)
     // Load to the specified 'DATA' and 'NUM_DATA' the address of and number of
-    // entries, repsectively, of the statically defined sets of "needle" data
+    // entries, respectively, of the statically defined sets of "needle" data
     // corresponding to the specified 'haystackOption'.  Return 0 on success
     // and a non-zero value if 'haystackOption' is not recognized.
 {
@@ -3737,7 +3737,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TRAITS & PUBLIC TYPES
+        // TRAITS AND PUBLIC TYPES
         //
         // Concerns:
         //: 1 The 'bslma::UsesBslmaAllocator' trait is set for each
@@ -3755,8 +3755,8 @@ int main(int argc, char *argv[])
         //   PUBLIC TYPES
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "TRAITS"
-                            "\n" "======" "\n");
+        if (verbose) printf("\n" "TRAITS AND PUBLIC TYPES"
+                            "\n" "=======================" "\n");
 
         typedef CharArray<char>::const_iterator RndAccConstItr;
         typedef bsl::hash<    char>             DefaultHash;
@@ -3822,7 +3822,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Use the 'bsl::is_same' meta-function to confirm that a searcher
         //:   type defined without optional parameters matches one declared
-        //:   with the known defualt types.  (C-1)
+        //:   with the known default types.  (C-1)
         //:
         //: 2 Install a test allocator as the default allocator, then create
         //:   searcher objects, and confirm that the test allocator is used
@@ -3846,8 +3846,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                        "\n" "TEST 'boyer_moore_horspool_seacher' FACADE"
-                        "\n" "==========================================" "\n");
+                       "\n" "TEST 'boyer_moore_horspool_seacher' FACADE"
+                       "\n" "==========================================" "\n");
 
         typedef CharArray<char>::const_iterator    RndAccConstItr;
         typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr>    MechChar;
@@ -3890,7 +3890,7 @@ int main(int argc, char *argv[])
             MechGnrl mXG(needleSource.begin(), needleSource.end());
 
             ASSERT(dam.isTotalUp());   // General case uses 'unordered_map'
-                                       // and allocates for non-empty neede.
+                                       // and allocates for non-empty needle.
         }
 
         if (verbose) printf("\n" "Range Tests" "\n");
@@ -4365,7 +4365,7 @@ int main(int argc, char *argv[])
                     ASSERT(resultY == resultXrestored);
                 }
 
-                if (verbose) printf("Specialized Implementation\n");
+                if (veryVerbose) printf("Specialized Implementation\n");
                 {
                     typedef bslstl::BoyerMooreHorspoolSearcher<const char *>
                                                                          Mech;
@@ -4718,7 +4718,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The allocator of the new object is the supplied allocator, if
         //:   specified, and the default allocator otherwise.  The allocator of
-        //:   the original object is irrelvant.
+        //:   the original object is irrelevant.
         //:
         //: 3 A 'const'-qualified searcher object can be copied.
         //:
@@ -5288,29 +5288,48 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(srcCfg) P(dstCfg) }
 
-                Mech *srcMechPtr = 0;
+                Mech  *srcMechPtr = 0;
+                Int64  srcNumBytes;
+
+                Int64 numBytesAfore;
+                Int64 numBytesAfter;
 
                 switch (srcCfg) {
                   case 'a': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     srcMechPtr = new (fa) Mech(begin,
                                                begin,  // empty
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'b': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     srcMechPtr  = new (fa) Mech(begin,
                                                 end, // short
                                                 Mech::DefaultHash(),
                                                 Mech::DefaultEqual(),
                                                 &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'c': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     srcMechPtr  = new (fa) Mech(HAYSTACK_TEXT_FIRST,
                                                 HAYSTACK_TEXT_LAST, // long
                                                 Mech::DefaultHash(),
                                                 Mech::DefaultEqual(),
                                                 &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    srcNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
                     ASSERTV(srcCfg, !"Bad allocator config.");
@@ -5319,29 +5338,45 @@ int main(int argc, char *argv[])
 
                 Mech& mS = *srcMechPtr; const Mech& S = mS;
 
-                Mech *dstMechPtr = 0;
+                Mech  *dstMechPtr = 0;
+                Int64  dstNumBytes;
 
                 switch (dstCfg) {
                   case 'a': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     dstMechPtr = new (fa) Mech(begin,
                                                begin,  // empty
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'b': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     dstMechPtr = new (fa) Mech(begin,
                                                end, // short
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   case 'c': {
+                    numBytesAfore = sa.numBytesInUse();
+
                     dstMechPtr = new (fa) Mech(HAYSTACK_TEXT_FIRST,
                                                HAYSTACK_TEXT_LAST, // long
                                                Mech::DefaultHash(),
                                                Mech::DefaultEqual(),
                                                &sa);
+
+                    numBytesAfter = sa.numBytesInUse();
+                    dstNumBytes   = numBytesAfter - numBytesAfore;
                   } break;
                   default: {
                     ASSERTV(dstCfg, !"Bad allocator config.");
@@ -5350,9 +5385,9 @@ int main(int argc, char *argv[])
 
                 Mech& mD = *dstMechPtr;
 
-                char expectedMemoryChange =  srcCfg > dstCfg ? '+' :
-                                             srcCfg < dstCfg ? '-' :
-                                             /* equal */       '0' ;
+                char expectedMemoryChange =  srcNumBytes > dstNumBytes ? '+' :
+                                             srcNumBytes < dstNumBytes ? '-' :
+                                             /* equal */                 '=' ;
 
                 if (veryVerbose) { P(expectedMemoryChange) }
 
@@ -5370,6 +5405,8 @@ int main(int argc, char *argv[])
                                               - numBytesInUseAfore;
 
                     if (veryVeryVerbose) {
+                        P_(srcNumBytes)
+                         P(dstNumBytes)
                         P_(numBytesInUseAfore)
                         P_(numBytesInUseAfter)
                          P(numBytesInUseChange);
@@ -5377,7 +5414,7 @@ int main(int argc, char *argv[])
 
                     switch (expectedMemoryChange) {
                       case '-': ASSERT(0 >  numBytesInUseChange); break;
-                      case '0': ASSERT(0 == numBytesInUseChange); break;
+                      case '=': ASSERT(0 == numBytesInUseChange); break;
                       case '+': ASSERT(0 <  numBytesInUseChange); break;
                       default: {
                         ASSERTV(dstCfg, !"Expected memory change.");
@@ -5409,7 +5446,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The allocator of the new object is the supplied allocator, if
         //:   specified, and the default allocator otherwise.  The allocator of
-        //:   the original object is irrelvant.
+        //:   the original object is irrelevant.
         //:
         //: 3 A 'const'-qualified searcher object can be copied.
         //:
@@ -6371,6 +6408,7 @@ int main(int argc, char *argv[])
                                Mech::DefaultHash(),
                                Mech::DefaultEqual(),
                                &sa);
+
                 ASSERT(   0 <  bsl::distance(mechShort.needleFirst(),
                                              mechShort.needleLast()));
                 ASSERT(SHRT >  bsl::distance(mechShort.needleFirst(),
@@ -6487,8 +6525,8 @@ int main(int argc, char *argv[])
                                                                + numIntNeedle);
             bsl::pair<bsl::vector<int>::const_iterator,
                       bsl::vector<int>::const_iterator> resultIntSearcher =
-                                        myIntSearcher(intHaystack.cbegin(),
-                                                      intHaystack.cend());
+                                            myIntSearcher(intHaystack.cbegin(),
+                                                          intHaystack.cend());
             if (verbose) {
                     P(bsl::distance(resultIntSearcher.first,
                                     intHaystack.cbegin()));
