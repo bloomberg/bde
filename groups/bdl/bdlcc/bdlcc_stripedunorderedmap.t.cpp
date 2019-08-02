@@ -2,6 +2,9 @@
 
 #include <bdlcc_stripedunorderedmap.h>
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
@@ -12,6 +15,8 @@
 #include <bslim_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_semaphore.h>
+#include <bslmt_throughputbenchmark.h>
+#include <bslmt_throughputbenchmarkresult.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -142,9 +147,8 @@ using namespace bsl;
 // [15] TYPE TRAITS
 // [18] MULTI-THREADED STRESS TEST
 // [19] USAGE EXAMPLE
-// [-1] INSERT PERFORMANCE
-// [-2] INSERT BULK PERFORMANCE
-// [-3] READ PERFORMANCE
+// [-1] PERFORMANCE TEST INT->STRING
+// [-2] PERFORMANCE TEST STRING->INT64
 // [-4] READ WRITE PERFORMANCE
 // [-8] READ/WRITE PERFORMANCE TEST WITH LONG KEY
 
@@ -5845,6 +5849,234 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase1()
 
 }  // close unnamed namespace
 
+bsl::vector<int> stringSplit(bsl::string csString)
+{
+    // Split the comma separated string of positive integers.  Assume only
+    // digits and ','.
+    bsl::vector<int> ret;
+    bsl::stringstream ss(csString);
+    for (int i; ss >> i;) {
+        ret.push_back(i);
+        if (ss.peek() == ',') {
+            ss.ignore();
+        }
+    }
+    return ret;
+}
+
+// ============================================================================
+//                                PERFORMANCE TEST
+// ----------------------------------------------------------------------------
+
+namespace hPerf {
+template <class K, class V>
+class HBenchmark {
+    // This class provides the performance test functions for the various
+    // performance tests on 'bdlcc::StripedUnorderedMap'.
+
+  public:
+    typedef bdlcc::StripedUnorderedMap<K,V> MapType;
+
+  private:
+    // DATA
+    int               d_numStripes;  // # of stripes in input.  0 - use the
+                                     // global unordered map
+    int               d_numBuckets;  // # of buckets
+    int               d_maxSize;     // Maximal number of elements in the map
+    bool              d_enblRehash;  // Enable / disable rehash
+
+    MapType          *d_map_p;  // bdlcc::StripedUnorderedMultiMap
+
+    int               d_curValue; // Internal counter for the pushed value
+    int               d_countErr; // Internal counter for the number of tryPopFront errors
+    bslma::Allocator *d_allocator_p; // memory allocator
+
+    // PRIVATE ACCESSORS
+    K makeKey(int key) const
+    {
+        return makeKey(key, bsl::is_same<bsl::string, K>());
+    }
+
+    K makeKey(int key, bsl::true_type) const
+    {
+        return bsl::to_string(key);
+    }
+
+    K makeKey(int key, bsl::false_type) const
+    {
+        return static_cast<K>(key);
+    }
+
+    V makeValue(int key) const
+    {
+        return makeValue(key, bsl::is_same<bsl::string, V>());
+    }
+
+    V makeValue(int key, bsl::true_type) const
+    {
+        return bsl::to_string(key);
+    }
+
+    V makeValue(int key, bsl::false_type) const
+    {
+        return static_cast<V>(key);
+    }
+
+    // NOT IMPLEMENTED
+    HBenchmark(const HBenchmark&);
+    HBenchmark& operator=(const HBenchmark&);
+
+  public:
+    HBenchmark(int               numStripes,
+               int               numBuckets,
+               int               maxSize,
+               bool              enblRehash,
+               bslma::Allocator *basicAllocator = 0);
+        // Create a 'HashPerformance' object with the specified
+        // 'numStripes', 'numBuckets', 'maxSize', and 'enblRehash'  Optionally specify
+        // 'basicAllocator'.
+
+    // MANIPULATORS
+    void initializeSample(bool);
+        // Initialize 'HashPerformance' object before a sample for tests
+        // requiring initial data.
+
+    void initializeSampleNoInsert(bool);
+        // Initialize 'HashPerformance' object before a sample for tests
+        // not requiring initial data.
+
+    void cleanupSample(bool);
+        // Run after a sample.
+
+    // ACCESSORS
+    int countErr() const;
+        // Return the error count accumulated through the run.
+
+    // TEST FUNCTIONS
+    void insert(int);
+        // Insert a single element into the hash map. Test type 1
+
+    void findExist(int);
+        // Find a single element that exists in the hash map. Test type 2
+
+    void findMiss(int);
+        // Find a single element that is missing in the hash map. Test type 3
+
+    void erase(int);
+        // Erase a single element from the hash map. Test type 4
+
+};  // END class HBenchmark
+
+// CREATORS
+template <class K, class V>
+HBenchmark<K, V>::HBenchmark(int               numStripes,
+                             int               numBuckets,
+                             int               maxSize,
+                             bool              enblRehash,
+                             bslma::Allocator *basicAllocator)
+: d_numStripes(numStripes)
+, d_numBuckets(numBuckets)
+, d_maxSize(maxSize)
+, d_enblRehash(enblRehash)
+, d_map_p(0)
+, d_curValue(0)
+, d_countErr(0)
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <class K, class V>
+void HBenchmark<K, V>::initializeSample(bool)
+{
+    initializeSampleNoInsert(false); // Parameter is ignored
+    // For test types 2, 3, 4 - do the inserts
+    for (int j = 0; j < d_maxSize; ++j) {
+        int key = d_curValue++;
+        K ky    = makeKey(key);
+        V value = makeValue(key);
+        d_map_p->insert(ky, value);
+    }
+    d_curValue = 0;
+}
+
+template <class K, class V>
+void HBenchmark<K, V>::initializeSampleNoInsert(bool)
+{
+    // For test types 0, 1
+    d_map_p = new (*d_allocator_p) MapType(
+                                        static_cast<bsl::size_t>(d_numBuckets),
+                                        static_cast<bsl::size_t>(d_numStripes),
+                                        d_allocator_p);
+    d_curValue = 0;
+    d_countErr = 0;
+}
+
+template <class K, class V>
+void HBenchmark<K, V>::cleanupSample(bool)
+{
+    d_allocator_p->deleteObject(d_map_p);
+}
+
+// ACCESSORS
+template <class K, class V>
+inline
+int HBenchmark<K, V>::countErr() const
+{
+    return d_countErr;
+}
+
+// TEST FUNCTIONS
+template <class K, class V>
+void HBenchmark<K, V>::insert(int)
+{
+    // insert a single element into the hash map. Test type 1
+    int key = d_curValue++;
+    K ky    = makeKey(key);
+    V value = makeValue(key);
+    d_map_p->setValue(ky, value);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxSize == static_cast<int>(d_map_p->size()))) {
+        d_map_p->clear();
+        d_curValue = 0;
+    }
+}
+
+template <class K, class V>
+void HBenchmark<K, V>::findExist(int)
+{
+    // find a single element that exists in the hash map. Test type 2
+    int key = d_curValue++;
+    K ky    = makeKey(key);
+    V value;
+    bsl::size_t num = d_map_p->getValue(&value, ky);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == num)) ++d_countErr;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize)) d_curValue = 0;
+}
+
+template <class K, class V>
+void HBenchmark<K, V>::findMiss(int)
+{
+    // find a single element that is missing in the hash map. Test type 3
+    int key = d_curValue++;
+    key += static_cast<int>(d_numBuckets);
+    K        ky = makeKey(key);
+    V value;
+    bsl::size_t num = d_map_p->getValue(&value, ky);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != num)) ++d_countErr;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize)) d_curValue = 0;
+}
+
+template <class K, class V>
+void HBenchmark<K, V>::erase(int)
+{
+    // erase a single element from the hash map. Test type 4
+    int key = d_curValue++;
+    K ky = makeKey(key);
+    d_map_p->erase(ky);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize)) d_curValue = 0;
+}
+
+}  // close namespace hPerf
+
 int main(int argc, char *argv[])
 {
     int test            = argc > 1 ? atoi(argv[1]) : 0;
@@ -5944,172 +6176,448 @@ int main(int argc, char *argv[])
       case 1: {
         RUN_EACH_TYPE(TestDriver, testCase1, TEST_TYPES_REGULAR);
       } break;
-      // BDE_VERIFY pragma: +TP05
       case -1: {
         // --------------------------------------------------------------------
-        // INSERT PERFORMANCE TEST
-        //   Tests performance of single inserts into the hash.  To provide
-        //   control over the test, command line parameters are used.
-        //   2nd parameter: number of threads.
-        //   3rd parameter: number of rows to insert.
-        //   4th parameter: number of stripes; if 0, use unordered_map and a
-        //   global R/W mutex.
-        //   5th parameter: number of buckets; ignore if number of stripes is
-        //   0.
-        //   6th parameter: 1-enable rehash; 0-disable rehash
+        // PERFORMANCE TEST INT->STRING
+        //   Tests performance of running insert, getValue and erase against
+        //   the hash map, which is int to string.  To provide control over
+        //   the test, command line parameters are used.
+        //   2nd parameter: test type (defaults to 2):
+        //       1-insert up to given size, then setValue
+        //       2-find (element exists)
+        //       3-find (element is missing)
+        //       4-erase
+        //       5-insert+find
+        //   3rd parameter: number of threads in first group (defaults to 2).
+        //   4th parameter: number of threads in second group (defaults to 0;
+        //       used for for test type 5).
+        //   5th parameter: number of stripes (defaults to 4).
+        //   6th parameter: number of buckets (defaults to 16)
+        //   7th parameter: work load for for threads (defaults to 0 - no load)
+        //   8th parameter: percentage until which we fill the buckets
+        //       (defaults to 70%)
+        //   9th parameter: 1-enable rehash; 0-disable rehash
+        //  10th parameter: number of milliseconds each sample runs (defaults
+        //       to 2000)
+        //  11th parameter: number of samples to run (defaults to 10)
+        //
+        // Note that parameters 2,3,4,5,6,7,8 can be provided as a comma
+        // separated list of values.  Also note that test type 5 will produce
+        // two sets of percentiles.
         //
         // Concerns:
-        //: 1 Calculates wall time, user time, and system time for inserting
-        //:   the given rows.
-        //
-        // Plan:
-        //: 1 Create a HashPerformance object, and use testInsert.  High water
-        //:   mark is set above eviction. Run 10 repetitions.
-        //:   (C-1)
-        //
-        // Testing:
-        //   INSERT PERFORMANCE
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << endl
-                 << "INSERT PERFORMANCE TEST" << endl
-                 << "=======================" << endl;
-
-        //bslma::TestAllocator talloc("ptm1", veryVeryVeryVerbose);
-        bslma::Allocator& talloc(*(bslma::Default::defaultAllocator()));
-
-        int  numThreads = argc > 2 ? atoi(argv[2]) : 1;
-        int  numCalcs   = argc > 3 ? atoi(argv[3]) : 200000;
-        int  numStripes = argc > 4 ? atoi(argv[4]) : 1;
-        int  numBuckets = argc > 5 ? atoi(argv[5]) : 1024;
-        bool enblRehash = argc > 6 ? atoi(argv[6]) : 1;
-
-        hashPerf::HashPerformance hp("testInsert1", numStripes, numBuckets,
-                enblRehash, 0, numThreads, numCalcs, 10, &talloc);
-        // Empty args vector
-        hashPerf::HashPerformance::VecIntType  args(&talloc);
-        hashPerf::HashPerformance::VecTimeType times(&talloc);
-        hp.runTests(&times, args, hashPerf::HashPerformance::testInsert);
-        hp.printResult();
-      } break;
-      case -2: {
-        // --------------------------------------------------------------------
-        // INSERT BULK PERFORMANCE TEST
-        //   Tests performance of bulk inserts into the hash.  To provide
-        //   control over the test, command line parameters are used.
-        //   2nd parameter: number of threads.
-        //   3rd parameter: number of rows to insert.
-        //   4th parameter: number of stripes; if 0, use unordered_map and a
-        //   global R/W mutex.
-        //   5th parameter: number of buckets; ignore if number of stripes is
-        //   0.
-        //   6th parameter: 1-enable rehash; 0-disable rehash
-        //   7th parameter: number of batches to divide the number of rows
-        //   into.
-        //
-        // Concerns:
-        //: 1 Calculates wall time, user time, and system time for inserting
-        //:   the given rows in bulk.
-        //
-        // Plan:
-        //: 1 Create a HashPerformance object, and use testInsertBulk.  High
-        //:   mark is set above eviction. Run 10 repetitions.
-        //:   (C-1)
-        //
-        // Testing:
-        //   INSERT BULK PERFORMANCE
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << endl
-                 << "INSERT BULK PERFORMANCE TEST" << endl
-                 << "============================" << endl;
-
-        //bslma::TestAllocator talloc("ptm2", veryVeryVeryVerbose);
-        bslma::Allocator& talloc(*(bslma::Default::defaultAllocator()));
-
-        int  numThreads = argc > 2 ? atoi(argv[2]) : 1;
-        int  numCalcs   = argc > 3 ? atoi(argv[3]) : 200000;
-        int  numStripes = argc > 4 ? atoi(argv[4]) : 1;
-        int  numBuckets = argc > 5 ? atoi(argv[5]) : 1024;
-        bool enblRehash = argc > 6 ? atoi(argv[6]) : 1;
-        int  numBatches = argc > 7 ? atoi(argv[7]) : 1;
-
-        hashPerf::HashPerformance hp("testInsertBulk1", numStripes, numBuckets,
-                enblRehash, 0, numThreads, numCalcs, 10, &talloc);
-
-        hashPerf::HashPerformance::VecIntType args(&talloc);  // args vector
-        args.push_back(numBatches);
-        hashPerf::HashPerformance::VecTimeType times(&talloc);
-        hp.runTests(&times, args, hashPerf::HashPerformance::testInsertBulk);
-        hp.printResult();
-      } break;
-      case -3: {
-        // --------------------------------------------------------------------
-        // READ PERFORMANCE TEST
-        //   Tests performance of tryGetValue into the hash.  Note that LRU
-        //   eviction policy requires writes to the eviction queue.  To provide
-        //   control over the test, command line parameters are used.
-        //   2nd parameter: number of threads.
-        //   3rd parameter: number of rows to read.
-        //   4th parameter: number of stripes; if 0, use unordered_map and a
-        //   global R/W mutex.
-        //   5th parameter: number of buckets; ignore if number of stripes is
-        //   0.
-        //   6th parameter: 1-enable rehash; 0-disable rehash
-        //   7th parameter: sparsity of values loaded.  Sparsity is the
-        //   distance between consecutive values inserted, and represents how
-        //   likely is a read to find the key given. A value of 1 means
-        //   consecutive values inserted during initialization, and 100% chance
-        //   of finding the key given.  A value of 2 means 50% chance of
-        //   finding the key given.
-        //
-        // Concerns:
-        //: 1 Calculates wall time, user time, and system time for reading a
-        //:   random generated key from the pre-loaded hash.
+        //: 1 Calculates throughput percentiles (0%-min, 25%, 50%-median, 75%,
+        //    and 100%-max) for the thread groups based on the given
+        //    parameters.  Note that the various test types cover all the basic
+        //    operations, and required combinations).
         //
         // Plan:
         //: 1 Create a HashPerformance object, and use initRead to pre-load
-        //:   it.  High mark is set above eviction.  Then run testRead.  Run 10
-        //:   repetitions.
+        //:   it.  High mark is set above eviction.  Then run testReadWrite.
+        //:   Note that testReadWrite run inserts for the writer threads and
+        //:   tryGetValue for the reader threads.  Run 10 repetitions.
         //:   (C-1)
         //
         // Testing:
-        //   READ PERFORMANCE
+        //   PERFORMANCE TEST INT->STRING
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "READ PERFORMANCE TEST" << endl
-                 << "=====================" << endl;
+                 << "PERFORMANCE TEST INT->STRING" << endl
+                 << "============================" << endl;
 
-        //bslma::TestAllocator talloc("ptm3", veryVeryVeryVerbose);
-        bslma::Allocator& talloc(*(bslma::Default::defaultAllocator()));
+        bslma::NewDeleteAllocator nalloc;
 
-        int  numThreads = argc > 2 ? atoi(argv[2]) : 1;
-        int  numCalcs   = argc > 3 ? atoi(argv[3]) : 200000;
-        int  numStripes = argc > 4 ? atoi(argv[4]) : 1;
-        int  numBuckets = argc > 5 ? atoi(argv[5]) : 1024;
-        bool enblRehash = argc > 6 ? atoi(argv[6]) : 1;
-        int  sparsity   = argc > 7 ? atoi(argv[7]) : 1;
+        if (argc < 3) {
+            bsl::cout << "Usage: bdlcc_stripedunorderedmultimap.t -1 <testType> "
+                << "[numThread1] [numThread2] [numStripe] [numBucket] [load] "
+                << "[percentage] [enableRehash] [numMillis] [numSamples]\n"
+                << "\n"
+                << "All parameters except the first (testType) are optional.\n"
+                << "testType, numThread1, numThread2, numStripe, numBucket, load, "
+                << "percentage can be provided as comma separated list of "
+                << "integers with no spaces.\n"
+                << "\n"
+                << "Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find\n"
+                << "numThread1: number of threads in first group. Default 2\n"
+                << "numThread2: number of threads in second group. Default 0\n"
+                << "numStripe: Default  4\n"
+                << "numBucket: Default 16\n"
+                << "load: from bslmt_throughputbenchmark. Default 0\n"
+                << "percentage: fill level of container. Default 70%\n"
+                << "enableRehash: if percentage > 100%, enable rehash. Default 1\n"
+                << "numMillis: number of milliseconds in a sample. Default 2000\n"
+                << "numSamples: Default 10\n";
+            return -1;
+        }
+        // Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find
+        // Note that numThread, numWThread, testType, numStripe, numBucket, load, and percentage accept comma
+        // separated values.
+        bsl::string testType   = argv[2];
+        bsl::string numThread1 = argc >  3 ? argv[3] :  "2";
+        bsl::string numThread2 = argc >  4 ? argv[4] :  "0";
+        bsl::string numStripe  = argc >  5 ? argv[5] :  "4";
+        bsl::string numBucket  = argc >  6 ? argv[6] : "16";
+        bsl::string load       = argc >  7 ? argv[7] :  "0";
+        bsl::string percentage = argc >  8 ? argv[8] : "70";
+        // 1-enable rehash, 0-disable rehash
+        int         enblRehash = argc >  9 ? atoi(argv[ 9]) :    1;
+        int         numMillis  = argc > 10 ? atoi(argv[10]) : 2000;
+        int         numSamples = argc > 11 ? atoi(argv[11]) :   10;
 
-        hashPerf::HashPerformance hp("testRead1", numStripes, numBuckets,
-                enblRehash, numThreads, 0, numCalcs, 100, &talloc);
+        vector<int> numThreads1 = stringSplit(numThread1);
+        vector<int> numThreads2 = stringSplit(numThread2);
+        vector<int> testTypes   = stringSplit(testType);
+        vector<int> numStripes  = stringSplit(numStripe);
+        vector<int> numBuckets  = stringSplit(numBucket);
+        vector<int> loads       = stringSplit(load);
+        vector<int> percentages = stringSplit(percentage);
 
-        hashPerf::HashPerformance::VecIntType args(&talloc);  // args vector
-        args.push_back(numCalcs);
-        args.push_back(sparsity);
-        int countIns = hp.initialize(args,
-                                        hashPerf::HashPerformance::initRead);
-        cout << "Inserted " << countIns << "\n";
+        bsl::cout << "Test,NT1,NT2,NS,NB,Load,Pct,ER,0%,25%,50%,75%,100%,ErrCount,0%,25%,50%,75%,100%\n";
+        // Loops on the various ranges, but to avoid 7-level indentation, collapse it to one complicated loop.
+        int numThread1Idx = 0;
+        int numThread2Idx = 0;
+        int testTypeIdx   = 0;
+        int numStripeIdx  = 0;
+        int numBucketIdx  = 0;
+        int loadIdx       = 0;
+        int pctIdx        = 0;
+        for(;;) {
+            // Set the looping values
+            int numThread1 = numThreads1[numThread1Idx];
+            int numThread2 = numThreads2[numThread2Idx];
+            int testType   = testTypes[testTypeIdx];
+            int numStripe  = numStripes[numStripeIdx];
+            int numBucket  = numBuckets[numBucketIdx];
+            int load       = loads[loadIdx];
+            int percentage = percentages[pctIdx];
 
-        args.clear(); // Now, load args for testRead
-        args.push_back(numCalcs * sparsity);
-        hashPerf::HashPerformance::VecTimeType times(&talloc);
-        hp.runTests(&times, args, hashPerf::HashPerformance::testRead);
-        hp.printResult();
+            int maxSize    = (percentage * numBucket) / 100;
+
+            // Create the performance, benchmark and result objects
+            typedef hPerf::HBenchmark<int,bsl::string> Bench;
+            Bench hb(numStripe, numBucket, maxSize, enblRehash, &nalloc);
+            bslmt::ThroughputBenchmark tb(&nalloc);
+            bslmt::ThroughputBenchmarkResult res(&nalloc);
+
+            bsl::function<void(int)> runFunc1;
+            bsl::function<void(bool)> initFunc = (testType % 4) == 1 ?
+                    bdlf::BindUtil::bind(&Bench::initializeSampleNoInsert,
+                                         &hb,
+                                         bdlf::PlaceHolders::_1) :
+                               bdlf::BindUtil::bind(&Bench::initializeSample,
+                                                    &hb,
+                                                    bdlf::PlaceHolders::_1);
+            bsl::function<void(bool)> cleanFunc = bdlf::BindUtil::bind(
+                                &Bench::cleanupSample,
+                                &hb,
+                                bdlf::PlaceHolders::_1);
+
+            switch (testType) {
+            case 1: { // insert
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::insert, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 2: { // find exist
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::findExist, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 3: { // find miss
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::findMiss, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 4: { // erase
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::erase, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 5: { // insert + read
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::insert, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            } // END switch
+            int tGId1 = tb.addThreadGroup(runFunc1, numThread1, load);
+
+            int tGId2 = -1;
+            if (testType == 5) {
+                bsl::function<void(int)> runFunc2 = bdlf::BindUtil::bind(
+                     &Bench::findExist, &hb, bdlf::PlaceHolders::_1);
+
+                tGId2 = tb.addThreadGroup(runFunc2, numThread2, load);
+            }
+            //bsl::cout << "BeforeExecute" << "\n";
+            tb.execute(&res, numMillis, numSamples, initFunc, cleanFunc);
+            int countErr = hb.countErr();
+
+            // Calculate percentiles.
+            vector<double> percentiles(5);
+            res.getPercentiles(&percentiles, tGId1);
+            bsl::cout << bsl::fixed << bsl::setprecision(0) << testType << ","
+                      << numThread1 << "," << numThread2 << "," << numStripe << ","
+                      << numBucket << "," << load << "," << percentage
+                      << "," << enblRehash << ","
+                      << percentiles[0] << ","
+                      << percentiles[1] << ","
+                      << percentiles[2] << ","
+                      << percentiles[3] << ","
+                      << percentiles[4] << ","
+                      << countErr;
+            if (tGId2 >= 0) {
+                res.getPercentiles(&percentiles, tGId2);
+                bsl::cout << bsl::fixed << bsl::setprecision(0) << ","
+                          << percentiles[0] << ","
+                          << percentiles[1] << ","
+                          << percentiles[2] << ","
+                          << percentiles[3] << ","
+                          << percentiles[4];
+            }
+            bsl::cout << "\n";
+
+            // Update to the next index, and exit loop if end
+            ++pctIdx;
+            if (pctIdx < static_cast<int>(percentages.size())) continue;
+            pctIdx = 0;
+            ++loadIdx;
+            if (loadIdx < static_cast<int>(loads.size())) continue;
+            loadIdx = 0;
+            ++numBucketIdx;
+            if (numBucketIdx < static_cast<int>(numBuckets.size())) continue;
+            numBucketIdx = 0;
+            ++numStripeIdx;
+            if (numStripeIdx < static_cast<int>(numStripes.size())) continue;
+            numStripeIdx = 0;
+            ++testTypeIdx;
+            if (testTypeIdx < static_cast<int>(testTypes.size())) continue;
+            testTypeIdx = 0;
+            ++numThread2Idx;
+            if (numThread2Idx < static_cast<int>(numThreads2.size())) continue;
+            numThread2Idx = 0;
+            ++numThread1Idx;
+            if (numThread1Idx >= static_cast<int>(numThreads1.size())) break;
+        }
       } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE TEST STRING->INT64
+        //   Tests performance of running insert, getValue and erase against
+        //   the hash map, which is string to int64.  To provide control over
+        //   the test, command line parameters are used.
+        //   2nd parameter: test type (defaults to 2):
+        //       1-insert up to given size, then setValue
+        //       2-find (element exists)
+        //       3-find (element is missing)
+        //       4-erase
+        //       5-insert+find
+        //   3rd parameter: number of threads in first group (defaults to 2).
+        //   4th parameter: number of threads in second group (defaults to 0;
+        //       used for for test type 5).
+        //   5th parameter: number of stripes (defaults to 4).
+        //   6th parameter: number of buckets (defaults to 16)
+        //   7th parameter: work load for for threads (defaults to 0 - no load)
+        //   8th parameter: percentage until which we fill the buckets
+        //       (defaults to 70%)
+        //   9th parameter: 1-enable rehash; 0-disable rehash
+        //  10th parameter: number of milliseconds each sample runs (defaults
+        //       to 2000)
+        //  11th parameter: number of samples to run (defaults to 10)
+        //
+        // Note that parameters 2,3,4,5,6,7,8 can be provided as a comma
+        // separated list of values.  Also note that test type 5 will produce
+        // two sets of percentiles.
+        //
+        // Concerns:
+        //: 1 Calculates throughput percentiles (0%-min, 25%, 50%-median, 75%,
+        //    and 100%-max) for the thread groups based on the given
+        //    parameters.  Note that the various test types cover all the basic
+        //    operations, and required combinations).
+        //
+        // Plan:
+        //: 1 Create a HashPerformance object, and use initRead to pre-load
+        //:   it.  High mark is set above eviction.  Then run testReadWrite.
+        //:   Note that testReadWrite run inserts for the writer threads and
+        //:   tryGetValue for the reader threads.  Run 10 repetitions.
+        //:   (C-1)
+        //
+        // Testing:
+        //   PERFORMANCE TEST STRING->INT64
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "PERFORMANCE TEST STRING->INT64" << endl
+                 << "==============================" << endl;
+
+        bslma::NewDeleteAllocator nalloc;
+        typedef bsls::Types::Int64 Int64;
+
+        if (argc < 3) {
+            bsl::cout << "Usage: bdlcc_stripedunorderedmultimap.t -2 <testType> "
+                << "[numThread1] [numThread2] [numStripe] [numBucket] [load] "
+                << "[percentage] [enableRehash] [numMillis] [numSamples]\n"
+                << "\n"
+                << "All parameters except the first (testType) are optional.\n"
+                << "testType, numThread1, numThread2, numStripe, numBucket, load, "
+                << "percentage can be provided as comma separated list of "
+                << "integers with no spaces.\n"
+                << "\n"
+                << "Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find\n"
+                << "numThread1: number of threads in first group. Default 2\n"
+                << "numThread2: number of threads in second group. Default 0\n"
+                << "numStripe: Default  4\n"
+                << "numBucket: Default 16\n"
+                << "load: from bslmt_throughputbenchmark. Default 0\n"
+                << "percentage: fill level of container. Default 70%\n"
+                << "enableRehash: if percentage > 100%, enable rehash. Default 1\n"
+                << "numMillis: number of milliseconds in a sample. Default 2000\n"
+                << "numSamples: Default 10\n";
+            return -1;
+        }
+        // Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find
+        // Note that numThread, numWThread, testType, numStripe, numBucket, load, and percentage accept comma
+        // separated values.
+        bsl::string testType   = argv[2];
+        bsl::string numThread1 = argc >  3 ? argv[3] :  "2";
+        bsl::string numThread2 = argc >  4 ? argv[4] :  "0";
+        bsl::string numStripe  = argc >  5 ? argv[5] :  "4";
+        bsl::string numBucket  = argc >  6 ? argv[6] : "16";
+        bsl::string load       = argc >  7 ? argv[7] :  "0";
+        bsl::string percentage = argc >  8 ? argv[8] : "70";
+        // 1-enable rehash, 0-disable rehash
+        int         enblRehash = argc >  9 ? atoi(argv[ 9]) :    1;
+        int         numMillis  = argc > 10 ? atoi(argv[10]) : 2000;
+        int         numSamples = argc > 11 ? atoi(argv[11]) :   10;
+
+        vector<int> numThreads1 = stringSplit(numThread1);
+        vector<int> numThreads2 = stringSplit(numThread2);
+        vector<int> testTypes   = stringSplit(testType);
+        vector<int> numStripes  = stringSplit(numStripe);
+        vector<int> numBuckets  = stringSplit(numBucket);
+        vector<int> loads       = stringSplit(load);
+        vector<int> percentages = stringSplit(percentage);
+
+        bsl::cout << "Test,NT1,NT2,NS,NB,Load,Pct,ER,0%,25%,50%,75%,100%,ErrCount,0%,25%,50%,75%,100%\n";
+        // Loops on the various ranges, but to avoid 7-level indentation, collapse it to one complicated loop.
+        int numThread1Idx = 0;
+        int numThread2Idx = 0;
+        int testTypeIdx   = 0;
+        int numStripeIdx  = 0;
+        int numBucketIdx  = 0;
+        int loadIdx       = 0;
+        int pctIdx        = 0;
+        for(;;) {
+            // Set the looping values
+            int numThread1 = numThreads1[numThread1Idx];
+            int numThread2 = numThreads2[numThread2Idx];
+            int testType   = testTypes[testTypeIdx];
+            int numStripe  = numStripes[numStripeIdx];
+            int numBucket  = numBuckets[numBucketIdx];
+            int load       = loads[loadIdx];
+            int percentage = percentages[pctIdx];
+
+            int maxSize    = (percentage * numBucket) / 100;
+
+            // Create the performance, benchmark and result objects
+            typedef hPerf::HBenchmark<bsl::string,Int64> Bench;
+            Bench hb(numStripe, numBucket, maxSize, enblRehash, &nalloc);
+            bslmt::ThroughputBenchmark tb(&nalloc);
+            bslmt::ThroughputBenchmarkResult res(&nalloc);
+
+            bsl::function<void(int)> runFunc1;
+            bsl::function<void(bool)> initFunc = (testType % 4) == 1 ?
+                    bdlf::BindUtil::bind(&Bench::initializeSampleNoInsert,
+                                         &hb,
+                                         bdlf::PlaceHolders::_1) :
+                               bdlf::BindUtil::bind(&Bench::initializeSample,
+                                                    &hb,
+                                                    bdlf::PlaceHolders::_1);
+            bsl::function<void(bool)> cleanFunc = bdlf::BindUtil::bind(
+                                &Bench::cleanupSample,
+                                &hb,
+                                bdlf::PlaceHolders::_1);
+
+            switch (testType) {
+            case 1: { // insert
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::insert, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 2: { // find exist
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::findExist, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 3: { // find miss
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::findMiss, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 4: { // erase
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::erase, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            case 5: { // insert + read
+                runFunc1 = bdlf::BindUtil::bind(
+                     &Bench::insert, &hb, bdlf::PlaceHolders::_1);
+            } break;
+            } // END switch
+            int tGId1 = tb.addThreadGroup(runFunc1, numThread1, load);
+
+            int tGId2 = -1;
+            if (testType == 5) {
+                bsl::function<void(int)> runFunc2 = bdlf::BindUtil::bind(
+                     &Bench::findExist, &hb, bdlf::PlaceHolders::_1);
+
+                tGId2 = tb.addThreadGroup(runFunc2, numThread2, load);
+            }
+            //bsl::cout << "BeforeExecute" << "\n";
+            tb.execute(&res, numMillis, numSamples, initFunc, cleanFunc);
+            int countErr = hb.countErr();
+
+            // Calculate percentiles.
+            vector<double> percentiles(5);
+            res.getPercentiles(&percentiles, tGId1);
+            bsl::cout << bsl::fixed << bsl::setprecision(0) << testType << ","
+                      << numThread1 << "," << numThread2 << "," << numStripe << ","
+                      << numBucket << "," << load << "," << percentage
+                      << "," << enblRehash << ","
+                      << percentiles[0] << ","
+                      << percentiles[1] << ","
+                      << percentiles[2] << ","
+                      << percentiles[3] << ","
+                      << percentiles[4] << ","
+                      << countErr;
+            if (tGId2 >= 0) {
+                res.getPercentiles(&percentiles, tGId2);
+                bsl::cout << bsl::fixed << bsl::setprecision(0) << ","
+                          << percentiles[0] << ","
+                          << percentiles[1] << ","
+                          << percentiles[2] << ","
+                          << percentiles[3] << ","
+                          << percentiles[4];
+            }
+            bsl::cout << "\n";
+
+            // Update to the next index, and exit loop if end
+            ++pctIdx;
+            if (pctIdx < static_cast<int>(percentages.size())) continue;
+            pctIdx = 0;
+            ++loadIdx;
+            if (loadIdx < static_cast<int>(loads.size())) continue;
+            loadIdx = 0;
+            ++numBucketIdx;
+            if (numBucketIdx < static_cast<int>(numBuckets.size())) continue;
+            numBucketIdx = 0;
+            ++numStripeIdx;
+            if (numStripeIdx < static_cast<int>(numStripes.size())) continue;
+            numStripeIdx = 0;
+            ++testTypeIdx;
+            if (testTypeIdx < static_cast<int>(testTypes.size())) continue;
+            testTypeIdx = 0;
+            ++numThread2Idx;
+            if (numThread2Idx < static_cast<int>(numThreads2.size())) continue;
+            numThread2Idx = 0;
+            ++numThread1Idx;
+            if (numThread1Idx >= static_cast<int>(numThreads1.size())) break;
+        }
+      } break;
+      // BDE_VERIFY pragma: +TP05
       case -4: {
         // --------------------------------------------------------------------
         // READ/WRITE PERFORMANCE TEST
@@ -6256,9 +6764,11 @@ int main(int argc, char *argv[])
     }
     // BDE_VERIFY pragma: +TP17
 
-    // CONCERN: In no case does memory come from the global allocator.
+    if (test >= 0) {
+        // CONCERN: In no case does memory come from the global allocator.
 
-    ASSERT(gam.isTotalSame());
+        ASSERT(gam.isTotalSame());
+    }
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

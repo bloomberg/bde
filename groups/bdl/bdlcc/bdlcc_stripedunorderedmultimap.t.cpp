@@ -148,6 +148,8 @@ using namespace bsl;
 // [19] TYPE TRAITS
 // [22] MULTI-THREADED STRESS TEST
 // [23] USAGE EXAMPLE
+// [-1] PERFORMANCE TEST INT->STRING
+// [-2] PERFORMANCE TEST STRING->INT64
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -6328,8 +6330,6 @@ bsl::vector<int> stringSplit(bsl::string csString)
             ss.ignore();
         }
     }
-    // DBG
-    //for (bsl::size_t i = 0; i < ret.size(); ++i) bsl::cout << "DBG=" << ret[i] << "\n";
     return ret;
 }
 
@@ -6476,7 +6476,6 @@ template <class K, class V>
 void HBenchmark<K, V>::initializeSampleNoInsert(bool)
 {
     // For test types 0, 1
-    //bsl::cout << "InitStart=" << d_numBuckets << ",cap+1=" << d_numStripes << "\n";
     d_map_p = new (*d_allocator_p) MapType(
                                         static_cast<bsl::size_t>(d_numBuckets),
                                         static_cast<bsl::size_t>(d_numStripes),
@@ -6488,11 +6487,7 @@ void HBenchmark<K, V>::initializeSampleNoInsert(bool)
 template <class K, class V>
 void HBenchmark<K, V>::cleanupSample(bool)
 {
-    // For test types 0, 1, 2, 3, 4 - run 'clear'
-    // Test types 0, 4 probably do not need it.
-    //bsl::cout << "CleanStart=" << d_numBuckets << ",cap+1=" << d_numStripes << "\n";
     d_allocator_p->deleteObject(d_map_p);
-    //bsl::cout << "CleanEnd=" << d_numBuckets << ",cap+1=" << d_numStripes << "\n";
 }
 
 // ACCESSORS
@@ -6523,7 +6518,6 @@ void HBenchmark<K, V>::findExist(int)
 {
     // find a single element that exists in the hash map. Test type 2
     int key = d_curValue++;
-    //bsl::cout << "FindExist=" << value << "\n";
     K ky    = makeKey(key);
     V value;
     bsl::size_t num = d_map_p->getValueFirst(&value, ky);
