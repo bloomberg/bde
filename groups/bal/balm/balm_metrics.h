@@ -27,6 +27,11 @@ BSLS_IDENT("$Id: $")
 // does *not* define what constitutes an event nor what the associated value
 // represents.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // All the macros defined in this component are *thread-safe*, meaning that

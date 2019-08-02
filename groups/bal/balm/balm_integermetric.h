@@ -40,6 +40,11 @@ BSLS_IDENT("$Id: $")
 // metric is placed in the inactive state (i.e., 'isActive()' is 'false') and
 // operations that would otherwise update the metric will have no effect.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Choosing Between 'balm::IntegerMetric' and Macros
 ///-------------------------------------------------
 // The 'balm::IntegerMetric' class and the macros defined in 'balm_metrics'

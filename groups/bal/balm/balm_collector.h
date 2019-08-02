@@ -34,6 +34,11 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 // clients should not need to access a 'balm::Collector' directly, but instead
 // use it through another type (see 'balm_metric').
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::Collector' is fully *thread-safe*, meaning that all non-creator

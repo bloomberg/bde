@@ -25,6 +25,11 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 // which takes a 'balm::MetricSample'.  The precise meaning of 'publish' is
 // left to derived classes to specify.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Usage
 ///-----
 // In the following examples we create a simple implementation of a

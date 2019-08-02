@@ -25,6 +25,11 @@ BSLS_IDENT("$Id: $")
 // short-cuts for common configuration operations that are performed on other
 // components in the 'balm' package.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::ConfigurationUtil' is fully *thread-safe*, meaning that all the

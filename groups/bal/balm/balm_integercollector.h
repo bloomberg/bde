@@ -33,6 +33,11 @@ BSLS_IDENT("$Id: $")
 // finally a combined 'loadAndReset' method that performs both a load and a
 // reset in a single (atomic) operation.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::IntegerCollector' is fully *thread-safe*, meaning that all
