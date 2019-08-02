@@ -60,7 +60,8 @@ namespace pmr {
   
 
   template<typename _Tp>
-  using optional = conditional_t<uses_allocator_v<_Tp, polymorphic_allocator<void>>,
+  using optional = conditional_t<__or_<uses_allocator<_Tp, polymorphic_allocator<void>>,
+		    __uses_domain_allocator<_Tp,polymorphic_allocator<void>>>::value,
 		  __pmroptional<_Tp> , std::optional<_Tp>>;
 
 
@@ -396,7 +397,8 @@ namespace pmr {
 
       constexpr __pmroptional(nullopt_t) noexcept { }
 
-      
+      __pmroptional(const __pmroptional&) = default;
+      __pmroptional(__pmroptional&&) = default;
            
             
       // Converting constructors for engaged optionals.
@@ -474,7 +476,8 @@ namespace pmr {
 
            template<typename _Up,
      	       _Requires< is_constructible<_Tp, const _Up&>,
-     			 is_convertible<const _Up&, _Tp>> = true>
+     			 is_convertible<const _Up&, _Tp>,
+    			 __not_<__converts_from_optional<_Tp, _Up>>> = true>
      	constexpr
      	__pmroptional(const std::optional<_Up>& __t)
      	{
@@ -484,7 +487,8 @@ namespace pmr {
 
            template<typename _Up,
      	       _Requires<is_constructible<_Tp, const _Up&>,
-     			 __not_<is_convertible<const _Up&, _Tp>>> = false>
+     			 __not_<is_convertible<const _Up&, _Tp>>,
+    			 __not_<__converts_from_optional<_Tp, _Up>>> = false>
      	explicit constexpr
      	__pmroptional(const std::optional<_Up>& __t)
      	{
@@ -494,7 +498,8 @@ namespace pmr {
 
            template <typename _Up,
      		_Requires< is_constructible<_Tp, _Up&&>,
-     			  is_convertible<_Up&&, _Tp>>  = true>
+     			  is_convertible<_Up&&, _Tp>,
+				  __not_<__converts_from_optional<_Tp, _Up>>>  = true>
      	constexpr
      	__pmroptional(std::optional<_Up>&& __t)
      	{
@@ -504,7 +509,8 @@ namespace pmr {
 
            template <typename _Up,
      		_Requires<is_constructible<_Tp, _Up&&>,
-     			  __not_<is_convertible<_Up&&, _Tp>>> = false>
+     			  __not_<is_convertible<_Up&&, _Tp>>,
+	    		  __not_<__converts_from_optional<_Tp, _Up>>> = false>
      	explicit constexpr
      	__pmroptional(std::optional<_Up>&& __t)
      	{
@@ -676,7 +682,10 @@ namespace pmr {
 	this->_M_reset();
 	return *this;
       }
-      
+   
+	// Assignment operators.
+      __pmroptional& operator=(const __pmroptional&) = default;
+      __pmroptional& operator=(__pmroptional&&) = default;
   
       template<typename _Up = _Tp>
       	enable_if_t<__and_v<__not_self<_Up>,
@@ -742,51 +751,52 @@ namespace pmr {
       	  return *this;
       	}
 
-            template<typename _Up>
-      	enable_if_t<__and_v<is_constructible<_Tp, const _Up&>,
-      			    is_assignable<_Tp&, _Up>,
-      			    __not_<__converts_from_optional<_Tp, _Up>>,
-      			    __not_<__assigns_from_optional<_Tp, _Up>>>,
-      		    __pmroptional&>
-      	operator=(const __pmroptional<_Up>& __u)
-      	{
-      	  if (__u)
-      	    {
-      	      if (this->_M_is_engaged())
-      		this->_M_get() = *__u;
-      	      else
-      		this->_M_construct(*__u);
-      	    }
-      	  else
-      	    {
-      	      this->_M_reset();
-      	    }
-      	  return *this;
-      	}
-
-            template<typename _Up>
-              enable_if_t<__and_v<is_constructible<_Tp, _Up>,
-      			    is_assignable<_Tp&, _Up>,
-      			    __not_<__converts_from_optional<_Tp, _Up>>,
-      			    __not_<__assigns_from_optional<_Tp, _Up>>>,
-      		    __pmroptional&>
-      	operator=(__pmroptional<_Up>&& __u)
-      	{
-      	  if (__u)
-      	    {
-      	      if (this->_M_is_engaged())
-      		this->_M_get() = std::move(*__u);
-      	      else
-      		this->_M_construct(std::move(*__u));
-      	    }
-      	  else
-      	    {
-      	      this->_M_reset();
-      	    }
-
-      	  return *this;
-      	}
             
+				
+	template<typename _Up>
+	enable_if_t<__and_v<is_constructible<_Tp, const _Up&>,
+				is_assignable<_Tp&, _Up>,
+				__not_<__converts_from_optional<_Tp, _Up>>,
+				__not_<__assigns_from_optional<_Tp, _Up>>>,
+			__pmroptional&>
+	operator=(const std::optional<_Up>& __u)
+	{
+	  if (__u)
+		{
+		  if (this->_M_is_engaged())
+		this->_M_get() = *__u;
+		  else
+		this->_M_construct(*__u);
+		}
+	  else
+		{
+		  this->_M_reset();
+		}
+	  return *this;
+	}
+
+	template<typename _Up>
+	  enable_if_t<__and_v<is_constructible<_Tp, _Up>,
+			is_assignable<_Tp&, _Up>,
+			__not_<__converts_from_optional<_Tp, _Up>>,
+			__not_<__assigns_from_optional<_Tp, _Up>>>,
+		__pmroptional&>
+	operator=(std::optional<_Up>&& __u)
+	{
+	  if (__u)
+		{
+		  if (this->_M_is_engaged())
+		this->_M_get() = std::move(*__u);
+		  else
+		this->_M_construct(std::move(*__u));
+		}
+	  else
+		{
+		  this->_M_reset();
+		}
+	
+	  return *this;
+	}
             
       template<typename... _Args>
 	enable_if_t<is_constructible_v<_Tp, _Args&&...>, _Tp&>
@@ -927,7 +937,7 @@ namespace pmr {
   // Comparisons between optional values.
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator==(const optional<_Tp>& __lhs, const optional<_Up>& __rhs)
+    operator==(const __pmroptional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() == declval<_Up>())>
     {
       return static_cast<bool>(__lhs) == static_cast<bool>(__rhs)
@@ -936,7 +946,7 @@ namespace pmr {
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator!=(const optional<_Tp>& __lhs, const optional<_Up>& __rhs)
+    operator!=(const __pmroptional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() != declval<_Up>())>
     {
       return static_cast<bool>(__lhs) != static_cast<bool>(__rhs)
@@ -945,7 +955,7 @@ namespace pmr {
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator<(const optional<_Tp>& __lhs, const optional<_Up>& __rhs)
+    operator<(const __pmroptional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() < declval<_Up>())>
     {
       return static_cast<bool>(__rhs) && (!__lhs || *__lhs < *__rhs);
@@ -953,7 +963,7 @@ namespace pmr {
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator>(const optional<_Tp>& __lhs, const optional<_Up>& __rhs)
+    operator>(const __pmroptional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() > declval<_Up>())>
     {
       return static_cast<bool>(__lhs) && (!__rhs || *__lhs > *__rhs);
@@ -961,7 +971,7 @@ namespace pmr {
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator<=(const optional<_Tp>& __lhs, const optional<_Up>& __rhs)
+    operator<=(const __pmroptional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() <= declval<_Up>())>
     {
       return !__lhs || (static_cast<bool>(__rhs) && *__lhs <= *__rhs);
@@ -969,143 +979,244 @@ namespace pmr {
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator>=(const optional<_Tp>& __lhs, const optional<_Up>& __rhs)
+    operator>=(const __pmroptional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() >= declval<_Up>())>
     {
       return !__rhs || (static_cast<bool>(__lhs) && *__lhs >= *__rhs);
     }
 
+  
+  template<typename _Tp, typename _Up>
+      constexpr auto
+      operator==(const __pmroptional<_Tp>& __lhs, const std::optional<_Up>& __rhs)
+      -> __optional_relop_t<decltype(declval<_Tp>() == declval<_Up>())>
+      {
+        return static_cast<bool>(__lhs) == static_cast<bool>(__rhs)
+  	     && (!__lhs || *__lhs == *__rhs);
+      }
+
+    template<typename _Tp, typename _Up>
+      constexpr auto
+      operator!=(const __pmroptional<_Tp>& __lhs, const std::optional<_Up>& __rhs)
+      -> __optional_relop_t<decltype(declval<_Tp>() != declval<_Up>())>
+      {
+        return static_cast<bool>(__lhs) != static_cast<bool>(__rhs)
+  	|| (static_cast<bool>(__lhs) && *__lhs != *__rhs);
+      }
+
+    template<typename _Tp, typename _Up>
+      constexpr auto
+      operator<(const __pmroptional<_Tp>& __lhs, const std::optional<_Up>& __rhs)
+      -> __optional_relop_t<decltype(declval<_Tp>() < declval<_Up>())>
+      {
+        return static_cast<bool>(__rhs) && (!__lhs || *__lhs < *__rhs);
+      }
+
+    template<typename _Tp, typename _Up>
+      constexpr auto
+      operator>(const __pmroptional<_Tp>& __lhs, const std::optional<_Up>& __rhs)
+      -> __optional_relop_t<decltype(declval<_Tp>() > declval<_Up>())>
+      {
+        return static_cast<bool>(__lhs) && (!__rhs || *__lhs > *__rhs);
+      }
+
+    template<typename _Tp, typename _Up>
+      constexpr auto
+      operator<=(const __pmroptional<_Tp>& __lhs, const std::optional<_Up>& __rhs)
+      -> __optional_relop_t<decltype(declval<_Tp>() <= declval<_Up>())>
+      {
+        return !__lhs || (static_cast<bool>(__rhs) && *__lhs <= *__rhs);
+      }
+
+    template<typename _Tp, typename _Up>
+      constexpr auto
+      operator>=(const __pmroptional<_Tp>& __lhs, const std::optional<_Up>& __rhs)
+      -> __optional_relop_t<decltype(declval<_Tp>() >= declval<_Up>())>
+      {
+        return !__rhs || (static_cast<bool>(__lhs) && *__lhs >= *__rhs);
+      }
+    
+	
+  template<typename _Tp, typename _Up>
+	constexpr auto
+	operator==(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
+	-> __optional_relop_t<decltype(declval<_Tp>() == declval<_Up>())>
+	{
+		return static_cast<bool>(__lhs) == static_cast<bool>(__rhs)
+		 && (!__lhs || *__lhs == *__rhs);
+	}
+
+  template<typename _Tp, typename _Up>
+	constexpr auto
+	operator!=(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
+	-> __optional_relop_t<decltype(declval<_Tp>() != declval<_Up>())>
+	{
+	  return static_cast<bool>(__lhs) != static_cast<bool>(__rhs)
+	|| (static_cast<bool>(__lhs) && *__lhs != *__rhs);
+	}
+
+  template<typename _Tp, typename _Up>
+	constexpr auto
+	operator<(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
+	-> __optional_relop_t<decltype(declval<_Tp>() < declval<_Up>())>
+	{
+	  return static_cast<bool>(__rhs) && (!__lhs || *__lhs < *__rhs);
+	}
+
+  template<typename _Tp, typename _Up>
+	constexpr auto
+	operator>(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
+	-> __optional_relop_t<decltype(declval<_Tp>() > declval<_Up>())>
+	{
+	  return static_cast<bool>(__lhs) && (!__rhs || *__lhs > *__rhs);
+	}
+
+  template<typename _Tp, typename _Up>
+	constexpr auto
+	operator<=(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
+	-> __optional_relop_t<decltype(declval<_Tp>() <= declval<_Up>())>
+	{
+	  return !__lhs || (static_cast<bool>(__rhs) && *__lhs <= *__rhs);
+	}
+
+  template<typename _Tp, typename _Up>
+	constexpr auto
+	operator>=(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
+	-> __optional_relop_t<decltype(declval<_Tp>() >= declval<_Up>())>
+	{
+	  return !__rhs || (static_cast<bool>(__lhs) && *__lhs >= *__rhs);
+	}
   // Comparisons with nullopt.
   template<typename _Tp>
     constexpr bool
-    operator==(const optional<_Tp>& __lhs, nullopt_t) noexcept
+    operator==(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return !__lhs; }
 
   template<typename _Tp>
     constexpr bool
-    operator==(nullopt_t, const optional<_Tp>& __rhs) noexcept
+    operator==(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return !__rhs; }
 
   template<typename _Tp>
     constexpr bool
-    operator!=(const optional<_Tp>& __lhs, nullopt_t) noexcept
+    operator!=(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return static_cast<bool>(__lhs); }
 
   template<typename _Tp>
     constexpr bool
-    operator!=(nullopt_t, const optional<_Tp>& __rhs) noexcept
+    operator!=(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return static_cast<bool>(__rhs); }
 
   template<typename _Tp>
     constexpr bool
-    operator<(const optional<_Tp>& /* __lhs */, nullopt_t) noexcept
+    operator<(const __pmroptional<_Tp>& /* __lhs */, nullopt_t) noexcept
     { return false; }
 
   template<typename _Tp>
     constexpr bool
-    operator<(nullopt_t, const optional<_Tp>& __rhs) noexcept
+    operator<(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return static_cast<bool>(__rhs); }
 
   template<typename _Tp>
     constexpr bool
-    operator>(const optional<_Tp>& __lhs, nullopt_t) noexcept
+    operator>(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return static_cast<bool>(__lhs); }
 
   template<typename _Tp>
     constexpr bool
-    operator>(nullopt_t, const optional<_Tp>& /* __rhs */) noexcept
+    operator>(nullopt_t, const __pmroptional<_Tp>& /* __rhs */) noexcept
     { return false; }
 
   template<typename _Tp>
     constexpr bool
-    operator<=(const optional<_Tp>& __lhs, nullopt_t) noexcept
+    operator<=(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return !__lhs; }
 
   template<typename _Tp>
     constexpr bool
-    operator<=(nullopt_t, const optional<_Tp>& /* __rhs */) noexcept
+    operator<=(nullopt_t, const __pmroptional<_Tp>& /* __rhs */) noexcept
     { return true; }
 
   template<typename _Tp>
     constexpr bool
-    operator>=(const optional<_Tp>& /* __lhs */, nullopt_t) noexcept
+    operator>=(const __pmroptional<_Tp>& /* __lhs */, nullopt_t) noexcept
     { return true; }
 
   template<typename _Tp>
     constexpr bool
-    operator>=(nullopt_t, const optional<_Tp>& __rhs) noexcept
+    operator>=(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return !__rhs; }
 
   // Comparisons with value type.
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator==(const optional<_Tp>& __lhs, const _Up& __rhs)
+    operator==(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() == declval<_Up>())>
     { return __lhs && *__lhs == __rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator==(const _Up& __lhs, const optional<_Tp>& __rhs)
+    operator==(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() == declval<_Tp>())>
     { return __rhs && __lhs == *__rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator!=(const optional<_Tp>& __lhs, const _Up& __rhs)
+    operator!=(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() != declval<_Up>())>
     { return !__lhs || *__lhs != __rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator!=(const _Up& __lhs, const optional<_Tp>& __rhs)
+    operator!=(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() != declval<_Tp>())>
     { return !__rhs || __lhs != *__rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator<(const optional<_Tp>& __lhs, const _Up& __rhs)
+    operator<(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() < declval<_Up>())>
     { return !__lhs || *__lhs < __rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator<(const _Up& __lhs, const optional<_Tp>& __rhs)
+    operator<(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() < declval<_Tp>())>
     { return __rhs && __lhs < *__rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator>(const optional<_Tp>& __lhs, const _Up& __rhs)
+    operator>(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() > declval<_Up>())>
     { return __lhs && *__lhs > __rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator>(const _Up& __lhs, const optional<_Tp>& __rhs)
+    operator>(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() > declval<_Tp>())>
     { return !__rhs || __lhs > *__rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator<=(const optional<_Tp>& __lhs, const _Up& __rhs)
+    operator<=(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() <= declval<_Up>())>
     { return !__lhs || *__lhs <= __rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator<=(const _Up& __lhs, const optional<_Tp>& __rhs)
+    operator<=(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() <= declval<_Tp>())>
     { return __rhs && __lhs <= *__rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator>=(const optional<_Tp>& __lhs, const _Up& __rhs)
+    operator>=(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() >= declval<_Up>())>
     { return __lhs && *__lhs >= __rhs; }
 
   template<typename _Tp, typename _Up>
     constexpr auto
-    operator>=(const _Up& __lhs, const optional<_Tp>& __rhs)
+    operator>=(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() >= declval<_Tp>())>
     { return !__rhs || __lhs >= *__rhs; }
 
@@ -1119,28 +1230,28 @@ namespace pmr {
   // 2748. swappable traits for optionals
   template<typename _Tp>
     inline enable_if_t<is_move_constructible_v<_Tp> && is_swappable_v<_Tp>>
-    swap(pmr::optional<_Tp>& __lhs, pmr::optional<_Tp>& __rhs)
+    swap(__pmroptional<_Tp>& __lhs, __pmroptional<_Tp>& __rhs)
     noexcept(noexcept(__lhs.swap(__rhs)))
     { __lhs.swap(__rhs); }
 
   template<typename _Tp>
     enable_if_t<!(is_move_constructible_v<_Tp> && is_swappable_v<_Tp>)>
-    swap(pmr::optional<_Tp>&, pmr::optional<_Tp>&) = delete;
+    swap(__pmroptional<_Tp>&, __pmroptional<_Tp>&) = delete;
 
   template<typename _Tp>
-    constexpr pmr::optional<decay_t<_Tp>>
+    constexpr optional<decay_t<_Tp>>
     make_optional(_Tp&& __t)
-    { return pmr::optional<decay_t<_Tp>> { std::forward<_Tp>(__t) }; }
+    { return optional<decay_t<_Tp>> { std::forward<_Tp>(__t) }; }
 
   template<typename _Tp, typename ..._Args>
-    constexpr pmr::optional<_Tp>
+    constexpr optional<_Tp>
     make_optional(_Args&&... __args)
-    { return pmr::optional<_Tp> { in_place, std::forward<_Args>(__args)... }; }
+    { return optional<_Tp> { in_place, std::forward<_Args>(__args)... }; }
 
   template<typename _Tp, typename _Up, typename ..._Args>
-    constexpr pmr::optional<_Tp>
+    constexpr optional<_Tp>
     make_optional(initializer_list<_Up> __il, _Args&&... __args)
-    { return pmr::optional<_Tp> { in_place, __il, std::forward<_Args>(__args)... }; }
+    { return optional<_Tp> { in_place, __il, std::forward<_Args>(__args)... }; }
 
   
 } // namespace pmr
@@ -1152,7 +1263,7 @@ namespace pmr {
     struct __pmr_optional_hash_call_base
     {
       size_t
-      operator()(const pmr::optional<_Tp>& __t) const
+      operator()(const pmr::__pmroptional<_Tp>& __t) const
       noexcept(noexcept(hash<_Up>{}(*__t)))
       {
         // We pick an arbitrary hash for disengaged optionals which hopefully
