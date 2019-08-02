@@ -2323,28 +2323,26 @@ namespace USAGE {
         *string += reinterpret_cast<char *>(buf);
     }
 
-    int utf8Append(bsl::string *string, int value)
+    void utf8Append(bsl::string *string, unsigned int value)
         // Append the specified UTF-8-encoded 'value' in the minimum number of
         // bytes to the end of the specified 'string'.
     {
-        ASSERT(static_cast<unsigned>(value) <= 0x10ffff);
+        ASSERT(value <= 0x10ffff);
 
         if (value <= 0x7f) {
             utf8AppendOneByte(string, value);
-            return 0;                                                 // RETURN
+            return;                                                   // RETURN
         }
         if (value <= 0x7ff) {
             utf8AppendTwoBytes(string, value);
-            return 0;                                                 // RETURN
+            return;                                                   // RETURN
         }
         if (value <= 0xffff) {
             utf8AppendThreeBytes(string, value);
-            return 0;                                                 // RETURN
+            return;                                                   // RETURN
         }
 
         utf8AppendFourBytes(string, value);
-        return 0;
-        //return Obj::appendUtf8Character(string, value);
     }
 //..
 

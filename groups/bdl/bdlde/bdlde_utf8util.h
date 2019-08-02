@@ -49,10 +49,11 @@ BSLS_IDENT("$Id: $")
 //: o 'numBytesIfValid', which returns the number of bytes a specified number
 //:   of Unicode code points occupy in a UTF-8 string.
 //:
-//: o 'getByteSize' returns the length of a single UTF-8 encoded character.
+//: o 'getByteSize', which returns the length of a single UTF-8 encoded
+//:   character.
 //:
-//: o 'appendUtf8Character' appends a single Unicode code point to a UTF-8
-//:   string.
+//: o 'appendUtf8Character', which appends a single Unicode code point to a
+//:   UTF-8 string.
 //
 // Embedded null bytes are allowed in strings that are accompanied by an
 // explicit length argument.  Naturally, null-terminated C-style strings cannot
