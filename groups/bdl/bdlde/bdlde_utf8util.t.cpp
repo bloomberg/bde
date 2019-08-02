@@ -2872,11 +2872,12 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   The method under test produce the expected results on valid UTF-8
-        //   strings.
+        //   strings whether or not embedded '\0' characters are present.
         //
         // Plan:
         //   Use the table-driven approach to verify correct behavior on
-        //   various valid UTF-8 strings.
+        //   various valid UTF-8 strings.  Append a '\0' to each candidate
+        //   string, then repeat appending each table entry again.
         //
         // Testing:
         //   IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
@@ -2900,16 +2901,27 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_INTERESTING_CODEPOINTS; ++tj) {
                 const int LINE_2 = interestingCodepointData[tj].d_lineNum;
-                const bsl::string UTF8_2 =
-                    UTF8 + interestingCodepointData[tj].d_utf8_p;
+                bsl::string UTF8_2 = UTF8;
+
+                UTF8_2.push_back(0);
+                UTF8_2 += interestingCodepointData[tj].d_utf8_p;
 
                 if (veryVeryVerbose) {
                     T_; T_; P_(tj);
                     P_(LINE_2); P_(dumpStr(UTF8_2)); P(UTF8_2.length());
                 }
 
-                ASSERT(Obj::IntPtr(UTF8_2.length()) ==
+                // Adding 2nd codepoint doesn't change the answer if we only
+                // ask for the 1st codepoint's byte length.
+                ASSERT(Obj::IntPtr(UTF8.length()) ==
+                       Obj::numBytesIfValid(UTF8_2, 1));
+
+                // Embedded NUL's count as 1 byte.
+                ASSERT(1 + Obj::IntPtr(UTF8.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 2));
+
+                ASSERT(Obj::IntPtr(UTF8_2.length()) ==
+                       Obj::numBytesIfValid(UTF8_2, 3));
             }
         }
       } break;
