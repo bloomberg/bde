@@ -5293,8 +5293,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(srcCfg) P(dstCfg) }
 
-                Mech  *srcMechPtr = 0;
-                Int64  srcNumBytes;
+                Mech  *srcMechPtr  = 0;
+                Int64  srcNumBytes = 0;
 
                 Int64 numBytesAfore;
                 Int64 numBytesAfter;
@@ -5343,8 +5343,8 @@ int main(int argc, char *argv[])
 
                 Mech& mS = *srcMechPtr; const Mech& S = mS;
 
-                Mech  *dstMechPtr = 0;
-                Int64  dstNumBytes;
+                Mech  *dstMechPtr  = 0;
+                Int64  dstNumBytes = 0;
 
                 switch (dstCfg) {
                   case 'a': {

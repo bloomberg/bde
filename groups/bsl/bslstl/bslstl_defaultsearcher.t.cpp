@@ -2677,12 +2677,12 @@ const struct {
     const char  *d_needle_p;
 
     // result: Case Insensitive
-    BSL::size_t  d_offsetCs;
-    BSL::size_t  d_lengthCs;
+    int          d_offsetCs;
+    int          d_lengthCs;
 
     // result: Case Sensitive
-    BSL::size_t  d_offsetCi;
-    BSL::size_t  d_lengthCi;
+    int          d_offsetCi;
+    int          d_lengthCi;
 
 } DATA[]  = {
     //LINE HAYSTACK     NEEDLE  EXP CS  EXP CI
