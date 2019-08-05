@@ -138,6 +138,19 @@ class ReaderWriterMutexImpl {
         // Release the write lock that the calling thread holds on this
         // reader-writer mutex.  The behavior is undefined unless the calling
         // thread currently has a write lock on this mutex.
+
+    // ACCESSORS
+    bool isLocked() const;
+        // Return 'true' if this reader-write mutex is currently read locked or
+        // write locked, and 'false' otherwise.
+  
+    bool isReadLocked() const;
+        // Return 'true' if this reader-write mutex is currently read locked,
+        // and 'false' otherwise.
+
+    bool isWriteLocked() const;
+        // Return 'true' if this reader-write mutex is currently write locked,
+        // and 'false' otherwise.
 };
 
 // ============================================================================
@@ -309,6 +322,31 @@ void ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::unlockWrite()
 
     ATOMIC_OP::addInt64AcqRel(&d_state, -k_WRITER);
     d_mutex.unlock();
+}
+
+// ACCESSORS
+template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
+inline
+bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isLocked() const
+{
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+    return (state & k_READER_MASK) || (k_WRITER == (state & k_WRITER));
+}
+
+template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
+inline
+bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isReadLocked() const
+{
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+    return state & k_READER_MASK;
+}
+
+template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
+inline
+bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isWriteLocked() const
+{
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+    return k_WRITER == (state & k_WRITER);
 }
 
 }  // close package namespace

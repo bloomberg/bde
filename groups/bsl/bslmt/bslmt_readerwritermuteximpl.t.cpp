@@ -42,6 +42,10 @@ using namespace bsl;
 // [ 7] void unlock();
 // [ 5] void unlockRead();
 // [ 6] void unlockWrite();
+//
+// ACCESSORS
+// [10] bool isReadLocked() const;
+// [10] bool isWriteLocked() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -163,6 +167,10 @@ struct TestImpl {
         k_POST            = -10
     };
 
+    static void printScript()
+    {
+    }
+
     static void printScript(int exp)
         // Display an error message providing the script and an indication of
         // the specified 'exp' value at the current script location.
@@ -191,13 +199,13 @@ struct TestImpl {
                 && s_script[s_scriptAt] >= 0) {
                 int  script           = s_script[s_scriptAt];
 
-                int  numReader        = script % 10;
-                int  numPendingWriter = (script / 10) % 10;
+                int  numReader        = (script %  10);
+                int  numPendingWriter = (script /  10) % 10;
                 int  numWriter        = (script / 100) % 10;
 
-                EXP = k_READER * numReader
+                EXP = k_READER         * numReader
                     + k_PENDING_WRITER * numPendingWriter
-                    + k_WRITER * numWriter;
+                    + k_WRITER         * numWriter;
 
                 bsls::Types::Int64 state =
                                    bsls::AtomicOperations::getInt64(s_state_p);
@@ -206,9 +214,9 @@ struct TestImpl {
 
                 if (veryVerbose && EXP != state) {
                     printScript(static_cast<int>(
-                                     state % k_PENDING_WRITER
+                                      state % k_PENDING_WRITER
                                    + (state % k_WRITER) / k_PENDING_WRITER * 10
-                                   + state / k_WRITER * 100));
+                                   +  state / k_WRITER * 100));
                 }
 
                 ++s_scriptAt;
@@ -217,8 +225,8 @@ struct TestImpl {
                 && s_script[s_scriptAt] >= 0) {
                 int  script           = s_script[s_scriptAt];
 
-                int  numReader        = script % 10;
-                int  numPendingWriter = (script / 10) % 10;
+                int  numReader        = (script %  10);
+                int  numPendingWriter = (script /  10) % 10;
                 int  numWriter        = (script / 100) % 10;
 
                 set = k_READER * numReader
@@ -260,7 +268,7 @@ struct TestImpl {
     static void assignScript(const bsl::vector<int>& script)
         // Assign the specified 'script' for verification.
     {
-        s_script = script;
+        s_script   = script;
         s_scriptAt = 0;
     }
 
@@ -286,7 +294,7 @@ struct TestImpl {
     }
 
     static bsls::Types::Int64 getInt64(
-                          bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
+                    const bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
         ASSERT(pState == s_state_p);
 
         processFunction(k_GET);
@@ -294,7 +302,7 @@ struct TestImpl {
     }
 
     static bsls::Types::Int64 getInt64Acquire(
-                          bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
+                   const bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
         ASSERT(pState == s_state_p);
 
         processFunction(k_GET);
@@ -434,6 +442,62 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING ACCESSORS
+        //
+        // Concerns:
+        //: 1 TBD
+        //
+        // Plan:
+        //: 1 TBD
+        //
+        // Testing:
+        //   bool isReadLocked() const;
+        //   bool isWriteLocked() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING ACCESSORS" << endl
+                 << "=================" << endl;
+        }
+
+        bsl::vector<int> script;
+        script.push_back(TestImpl::k_INIT);
+        script.push_back(0);                     // CTOR
+
+        script.push_back(TestImpl::k_GET);       // isRead
+        script.push_back(TestImpl::k_GET);       // isReadLocked
+        script.push_back(TestImpl::k_GET);       // isWriteLocked
+
+        script.push_back(10);
+        script.push_back(TestImpl::k_GET);
+        script.push_back(TestImpl::k_CAS);      
+        script.push_back(TestImpl::k_LOCK);
+
+        script.push_back(TestImpl::k_ADD);
+        script.push_back(0 + 1);
+        script.push_back(TestImpl::k_UNLOCK);    // DTOR
+
+        TestImpl::assignScript(script);
+
+        {
+
+            Obj obj;
+
+            ASSERT(false == obj.isLocked());
+            ASSERT(false == obj.isReadLocked());
+            ASSERT(false == obj.isWriteLocked());
+
+            obj.lockRead();
+            obj.unlock();
+        }
+
+        TestImpl::assertScriptComplete();
+
+
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING 'tryLockWrite'

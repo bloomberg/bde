@@ -1,4 +1,4 @@
-// bslmt_mutexassert.t.cpp                                            -*-C++-*-
+// bslmt_readerwritermutexassert.t.cpp                                -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,9 +7,9 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bslmt_mutexassert.h>
+#include <bslmt_readerwritermutexassert.h>
 
-#include <bslmt_mutex.h>
+#include <bslmt_readerwritermutex.h>
 #include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
@@ -40,9 +40,9 @@ using namespace bsl;
 //:   was thrown.
 //-----------------------------------------------------------------------------
 // MACROS
-//: o BSLMT_MUTEXASSERT_IS_LOCKED
-//: o BSLMT_MUTEXASSERT_IS_LOCKED_SAFE
-//: o BSLMT_MUTEXASSERT_IS_LOCKED_OPT
+//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED
+//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE
+//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
@@ -114,12 +114,12 @@ int veryVerbose;
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a mutex.  The
-// 'BSLMT_MUTEXASSERT_IS_LOCKED*' family of assertions allows the programmers
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' family of assertions allows the programmers
 // to verify, using defensive programming techniques, that the mutex in
 // question is indeed locked.
 //
 // Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal mutex.  We can use 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE'
+// guarded by an internal mutex.  We can use 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED'
 // to ensure (in appropriate build modes) that proper internal locking of the
 // mutex is taking place.
 //
@@ -134,7 +134,8 @@ int veryVerbose;
         bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
                                          // standard container
 
-        mutable bslmt::Mutex  d_mutex;    // mutex to provide thread safety
+        mutable bslmt::ReaderWriterMutex
+                             d_rwMutex; // mutex to provide thread safety
 
         // PRIVATE MANIPULATOR
         int popImp(int *result);
@@ -142,7 +143,7 @@ int veryVerbose;
             // '*result', and remove the value at the front of the queue;
             // return 0 if the queue was not initially empty, and a non-zero
             // value (with no effect) otherwise.  The behavior is undefined
-            // unless 'd_mutex' is locked.
+            // unless 'd_rwWutex' is locked for writing.
 
       public:
         // ...
@@ -182,7 +183,7 @@ int veryVerbose;
     // PRIVATE MANIPULATOR
     int MyThreadSafeQueue::popImp(int *result)
     {
-        BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&d_rwMutex);
 
         if (d_deque.empty()) {
             return -1;                                                // RETURN
@@ -196,7 +197,7 @@ int veryVerbose;
 //..
 // Notice that, on the very first line, the private manipulator verifies, as a
 // precondition check, that the mutex has been acquired, using one of the
-// 'BSLMT_MUTEXASSERT_IS_LOCKED*' macros.  We use the '...IS_LOCKED_SAFE...'
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE*' macros.  We use the '...IS_LOCKED_SAFE...'
 // version of the macro so that the check, which on some platforms is as
 // expensive as locking the mutex, is performed in only the safe build mode.
 //
@@ -208,9 +209,9 @@ int veryVerbose;
     {
         BSLS_ASSERT(result);
 
-        d_mutex.lock();
+        d_rwMutex.lockWrite();
         int rc = popImp(result);
-        d_mutex.unlock();
+        d_rwMutex.unlockWrite();
         return rc;
     }
 
@@ -229,18 +230,18 @@ int veryVerbose;
 
     void MyThreadSafeQueue::push(int value)
     {
-        d_mutex.lock();
+        d_rwMutex.lockWrite();
         d_deque.push_back(value);
-        d_mutex.unlock();
+        d_rwMutex.unlockWrite();
     }
 
     template <class INPUT_ITER>
     void MyThreadSafeQueue::pushRange(const INPUT_ITER& first,
                                       const INPUT_ITER& last)
     {
-        d_mutex.lock();
+        d_rwMutex.lockWrite();
         d_deque.insert(d_deque.begin(), first, last);
-        d_mutex.unlock();
+        d_rwMutex.unlockWrite();
     }
 //..
 // Notice that, in 'popAll', we forgot to lock/unlock the mutex!
@@ -291,10 +292,10 @@ int veryVerbose;
 //
 // Now, we build in safe mode (which enables our check), run the program (which
 // calls 'example2Function'), and observe that, when we call 'popAll', the
-// 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
 // and aborts:
 //..
-//  Assertion failed: BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex),
+//  Assertion failed: BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&d_mutex),
 //  file bslmt_mutexassertislocked.t.cpp, line 137 Aborted (core dumped)
 //..
 // Finally, note that the message printed above and the subsequent aborting of
@@ -309,15 +310,17 @@ int veryVerbose;
                                   // ------
 
 struct TestCase3SubThread {
-    bslmt::Mutex    *d_mutexToAssertOn;
-    bslmt::Mutex    *d_mutexThatMainThreadWillUnlock;
-    bsls::AtomicInt *d_subthreadWillIncrementValue;
+    bslmt::ReaderWriterMutex *d_mutexToAssertOn;
+    bslmt::ReaderWriterMutex *d_mutexThatMainThreadWillUnlock;
+    bsls::AtomicInt          *d_subthreadWillIncrementValue;
 
     void operator()()
     {
-        d_mutexToAssertOn->lock();
+        d_mutexToAssertOn->lockWrite();
         ++*d_subthreadWillIncrementValue;
-        d_mutexThatMainThreadWillUnlock->lock();
+#if 1
+        d_mutexThatMainThreadWillUnlock->lockWrite();
+#endif
     }
 };
 
@@ -339,13 +342,13 @@ void myHandler(const char *text, const char *file, int line)
 {
     switch (mode) {
       case e_SAFE_MODE: {
-        ASSERT(!bsl::strcmp("BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex)", text));
+        ASSERT(!bsl::strcmp("BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&mutex)", text));
       } break;
       case e_NORMAL_MODE: {
-        ASSERT(!bsl::strcmp("BSLMT_MUTEXASSERT_IS_LOCKED(&mutex)",      text));
+        ASSERT(!bsl::strcmp("BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&mutex)",      text));
       } break;
       case e_OPT_MODE: {
-        ASSERT(!bsl::strcmp("BSLMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex)",  text));
+        ASSERT(!bsl::strcmp("BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&mutex)",  text));
       } break;
       default: {
         ASSERT(0);
@@ -363,7 +366,7 @@ void myHandler(const char *text, const char *file, int line)
     // fails.
 
     ASSERT(0 &&
-              "BSLMT_MUTEXASSERT_IS_LOCKED* failed wtih exceptions disabled");
+              "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED* failed wtih exceptions disabled");
     abort();
 #endif
 }
@@ -414,7 +417,7 @@ int main(int argc, char *argv[])
         // TESTING ON LOCK HELD BY ANOTHER THREAD
         //
         // Concerns:
-        //: 1 That 'BSLMT__ASSERTMUTEX_IS_LOCKED*' is never calling
+        //: 1 That 'BSLMT__ASSERTREADERWRITERMUTEX_IS_LOCKED*' is never calling
         //:   'bsls::Assert::invokeHandler' if the mutex is locked by another
         //:   thread.
         //
@@ -427,18 +430,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING LOCK HELD BY OTHER THREAD\n"
                              "=================================\n";
 
-        bslmt::Mutex    mutexToAssertOn;
-        bslmt::Mutex    mutexThatMainThreadWillUnlock;
-        bsls::AtomicInt subthreadWillIncrementValue;
+        bslmt::ReaderWriterMutex mutexToAssertOn;
+        bslmt::ReaderWriterMutex mutexThatMainThreadWillUnlock;
+        bsls::AtomicInt          subthreadWillIncrementValue;
 
         subthreadWillIncrementValue = 0;
-        mutexThatMainThreadWillUnlock.lock();
+        mutexThatMainThreadWillUnlock.lockWrite();
 
         TestCase3SubThread functor;
-        functor.d_mutexToAssertOn               = &mutexToAssertOn;
+        functor.d_mutexToAssertOn = &mutexToAssertOn;
         functor.d_mutexThatMainThreadWillUnlock =
-                                                &mutexThatMainThreadWillUnlock;
-        functor.d_subthreadWillIncrementValue   = &subthreadWillIncrementValue;
+                                        &mutexThatMainThreadWillUnlock;
+        functor.d_subthreadWillIncrementValue = &subthreadWillIncrementValue;
 
         bslmt::ThreadUtil::Handle handle;
         int sts = bslmt::ThreadUtil::create(&handle, functor);
@@ -453,30 +456,34 @@ int main(int argc, char *argv[])
         // The subthread has locked the mutex.  Now observe that none of these
         // macros blow up.
 
-        BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutexToAssertOn);
-        BSLMT_MUTEXASSERT_IS_LOCKED(     &mutexToAssertOn);
-        BSLMT_MUTEXASSERT_IS_LOCKED_OPT( &mutexToAssertOn);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&mutexToAssertOn);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &mutexToAssertOn);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &mutexToAssertOn);
 
         // The subthread is blocked waiting for us to unlock
         // 'mutexThatMainThreadWillUnlock'.  Unlock it so the subthread can
         // finish and join the sub thread.
 
-        mutexThatMainThreadWillUnlock.unlock();
+#if 1
+        mutexThatMainThreadWillUnlock.unlockWrite();
+#endif
         sts = bslmt::ThreadUtil::join(handle);
         ASSERT(0 == sts);
 
         // Both mutexes are locked, unlock them so they won't assert when
         // destroyed.
 
-        mutexToAssertOn.              unlock();
-        mutexThatMainThreadWillUnlock.unlock();
+        mutexToAssertOn.              unlockWrite();
+#if 1
+        mutexThatMainThreadWillUnlock.unlockWrite();
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLMT_MUTEXASSERT_IS_LOCKED*'
+        // TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*'
         //
         // Concerns:
-        //: 1 That 'BSLMT_MUTEXASSERT_IS_LOCKED*' is never calling
+        //: 1 That 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' is never calling
         //:   'bsls::Assert::invokeHandler' if the mutex is locked.
         //: 2 That, in appropriate build modes, 'invokeHandler' is in fact
         //:   called.  This test is only run when exceptions are enabled.
@@ -491,23 +498,23 @@ int main(int argc, char *argv[])
         //:   build mode.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'BSLMT_MUTEXASSERT_IS_LOCKED*'\n"
+        if (verbose) cout << "TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*'\n"
                              "=====================================\n";
 
-        bslmt::Mutex mutex;
-        mutex.lock();
+        bslmt::ReaderWriterMutex mutex;
+        mutex.lockWrite();
 
         if (veryVerbose) cout << "Plan 1: testing with mutex locked\n";
         {
 
-            BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex);
-            BSLMT_MUTEXASSERT_IS_LOCKED(     &mutex);
-            BSLMT_MUTEXASSERT_IS_LOCKED_OPT( &mutex);
+            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&mutex);
+            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &mutex);
+            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &mutex);
         }
 
         if (veryVerbose) cout << "Plan 2: testing with mutex unlocked\n";
         {
-            mutex.unlock();
+            mutex.unlockWrite();
 
 #ifdef BDE_BUILD_TARGET_EXC
 
@@ -524,7 +531,7 @@ int main(int argc, char *argv[])
             try {
                 TEST_CASE_2::mode = TEST_CASE_2::e_SAFE_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
-                BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&mutex);
                 ASSERT(!expectThrow);
 
                 if (veryVerbose) cout << "Didn't throw SAFE\n";
@@ -544,7 +551,7 @@ int main(int argc, char *argv[])
             try {
                 TEST_CASE_2::mode = TEST_CASE_2::e_NORMAL_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
-                BSLMT_MUTEXASSERT_IS_LOCKED(&mutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&mutex);
                 ASSERT(!expectThrow);
 
                 if (veryVerbose) cout << "Didn't throw\n";
@@ -564,7 +571,7 @@ int main(int argc, char *argv[])
             try {
                 TEST_CASE_2::mode = TEST_CASE_2::e_OPT_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
-                BSLMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&mutex);
                 ASSERT(!expectThrow);
 
                 if (veryVerbose) cout << "Didn't throw OPT\n";
@@ -590,31 +597,31 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        bslmt::Mutex mutex;
-        mutex.lock();
+        bslmt::ReaderWriterMutex mutex;
+        mutex.lockWrite();
 
         // All of these asserts should pass.
 
-        BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex);
-        BSLMT_MUTEXASSERT_IS_LOCKED(     &mutex);
-        BSLMT_MUTEXASSERT_IS_LOCKED_OPT( &mutex);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&mutex);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &mutex);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &mutex);
 
-        mutex.unlock();
+        mutex.unlockWrite();
       } break;
       case -1: {
         // ------------------------------------------------------------------
-        // TESTING 'BSLMT_MUTEXASSERT_IS_LOCKED_OPT'
+        // TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT'
         // ------------------------------------------------------------------
 
         if (verbose) cout << "WATCH ASSERT BLOW UP\n"
                              "====================\n";
 
-        bslmt::Mutex mutex;
+        bslmt::ReaderWriterMutex mutex;
 
         cout << "Expect opt assert fail now, line number is: " <<
                                                           __LINE__ + 2 << endl;
 
-        BSLMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&mutex);
 
         BSLS_ASSERT_OPT(0);
       } break;
@@ -632,7 +639,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

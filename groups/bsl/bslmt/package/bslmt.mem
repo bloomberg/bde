@@ -19,6 +19,7 @@ bslmt_qlock
 bslmt_readerwriterlock
 bslmt_readerwritermutex
 bslmt_readerwritermuteximpl
+bslmt_readerwritermutexassert
 bslmt_readlockguard
 bslmt_recursivemutex
 bslmt_recursivemuteximpl_pthread

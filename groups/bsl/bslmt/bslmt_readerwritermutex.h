@@ -242,6 +242,19 @@ class ReaderWriterMutex {
         // Release the write lock that the calling thread holds on this
         // reader-writer mutex.  The behavior is undefined unless the calling
         // thread currently has a write lock on this mutex.
+
+    // ACCESSORS
+    bool isLocked() const;
+        // Return 'true' if this reader-write mutex is currently read locked or
+        // write locked, and 'false' otherwise.
+  
+    bool isReadLocked() const;
+        // Return 'true' if this reader-write mutex is currently read locked,
+        // and 'false' otherwise.
+
+    bool isWriteLocked() const;
+        // Return 'true' if this reader-write mutex is currently write locked,
+        // and 'false' otherwise.
 };
 
 }  // close package namespace
@@ -301,6 +314,25 @@ inline
 void bslmt::ReaderWriterMutex::unlockWrite()
 {
     d_impl.unlockWrite();
+}
+
+// ACCESSORS
+inline
+bool bslmt::ReaderWriterMutex::isLocked() const
+{
+    return d_impl.isLocked();
+}
+  
+inline
+bool bslmt::ReaderWriterMutex::isReadLocked() const
+{
+    return d_impl.isReadLocked();
+}
+
+inline
+bool bslmt::ReaderWriterMutex::isWriteLocked() const
+{
+    return d_impl.isWriteLocked();
 }
 
 }  // close enterprise namespace
