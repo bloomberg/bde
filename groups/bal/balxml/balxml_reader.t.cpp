@@ -80,13 +80,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-// ----------------------------------------------------------------------------
-#define CHK(X) (X != 0 ? (const char *) X : "")
-#define NUM_ATTRIBUTES 5
+//=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
-typedef balxml::Reader Obj;
+namespace UsageExample {
+// We want the example of the protocol usage to come first in the header file,
+// preceding the example of the protocol implementation.  But class declaration
+// have to precede its usage, so the examples are swapped in the test driver.
 
 // Assume we have a very simple user directory.  The XML below describes a
 // typical entry, it has a top level element, with one embedded entry
@@ -99,189 +100,532 @@ typedef balxml::Reader Obj;
 //      <address/>
 //  </directory-entry>
 //
-// To make our example easier, i.e., in order to keep us from having to parse
-// the above XML, lets introduce an array of 'helper' structs.  This array will
-// be filling in with data capable of describing the information contained in
-// the user directory XML above.
-
-struct TestNode {
-    // TestNode is a struct that contains information capable of describing an
-    // XML node.
-    Obj::NodeType  d_type;           // Describes the type of the XML node
-    const char    *d_qname;          // Name qualified name the XML node
-    const char    *d_nodeValue;      // Value of the XML node if null, then
-                                     // hasValue() returns false
-    int            d_depthChange;    // Used to adjust the 'TestReader' depth
-                                     // level, valid values are -1, 0 or 1
-    bool           d_isEmptyElement;
-    struct {
-        const char *d_qname; // Qualified name of the attribute
-        const char *d_value; // Value of the attribute
-    } d_attributes[NUM_ATTRIBUTES]; // Array of attributes
-};
-
-static const char *XmlValue = "version='1.0' encoding='UTF-8'";
-
-static const TestNode fakeDocument[] = {
-    // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
-    // 'TestReader' to traverse and describe the user directory XML above.
-    { Obj::e_NODE_TYPE_NONE,
-      0                , 0             ,  0,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_XML_DECLARATION,
-      "xml"            , XmlValue      , +1,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_ELEMENT,
-      "directory-entry" , 0            ,  0,
-      false, { "xmlns:dir"    , "http://bloomberg.com/schemas/directory" } },
-
-    { Obj::e_NODE_TYPE_ELEMENT,
-      "name"           , 0             , +1,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_TEXT,
-      0                , "John Smith"  , +1,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_END_ELEMENT,
-      "name"           , 0             , -1,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_ELEMENT,
-      "phone"          , 0             ,  0,
-      false, { "dir:phonetype", "cell"                                   } },
-
-    { Obj::e_NODE_TYPE_TEXT,
-      0                , "212-318-2000", +1,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_END_ELEMENT,
-      "phone"          , 0             , -1,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_ELEMENT,
-      "address"       , 0             ,  0,
-      true,  {}                                                            },
-
-    { Obj::e_NODE_TYPE_END_ELEMENT,
-      "directory-entry", 0             , -1,
-      false, {}                                                            },
-
-    { Obj::e_NODE_TYPE_NONE,
-      0                , 0             ,  0,
-      false, {}                                                            },
-};
-
-// Start of usage example, extract to the 'balxml::Reader' header file.
-
-// Create a class that implements the 'balxml::Reader' interface.
+///Example 2: The protocol implementation
+/// - - - - - - - - - - - - - - - - - - -
+// We have to implement all pure virtual functions of the 'balxml::Reader'
+// protocol, but to make the example easier to read and shorter we will stub
+// some methods.  Moreover we will fake used methods, so our implementation
+// will not handle the given XML fragment, but iterate through some
+// supposititious structure.
+//
+// Firstly let introduce an array of 'helper' structs.  This array will be
+// filling in with data capable of describing the information contained in the
+// user directory XML above:
 //..
-class TestReader : public balxml::Reader
-{
+    enum { NUM_ATTRIBUTES = 5 };
 
-private:
-    balxml::ErrorInfo    d_errorInfo; // Contains the current error information
-    balxml::PrefixStack *d_prefixes; // The prefix stack used by the TestReader
-    XmlResolverFunctor  d_resolver;  // Just a place holder, not actually used
-                                     // while looking up XML information
-    bool                d_isOpen;    // Keeps track if the reader is open
-    bsl::string         d_encoding;  // The documents encoding
-    int                 d_nodeDepth; // The nesting level of the current node
-    const TestNode     *d_currentNode; // The current xml node being
+    struct TestNode {
+        // A struct that contains information capable of describing an XML
+        // node.
+
+    // DATA
+    balxml::Reader::NodeType  d_type;
+        // type of the node
+
+    const char               *d_qname;
+        // qualified name of the node
+
+    const char               *d_nodeValue;
+        // Value of the XML node if null, then hasValue() returns false
+
+    int                       d_depthChange;
+        // Adjustment for the depth level of 'TestReader', valid values are -1,
+        // 0 or
+        // 1
+
+    bool                      d_isEmpty;
+        // flag indicating whether the element is empty
+    struct {
+        const char *d_qname;  // qualified name of the attribute
+        const char *d_value;  // value of the attribute
+    } d_attributes[NUM_ATTRIBUTES];
+    // array of attributes
+    };
+
+    static const char *XmlValue = "version='1.0' encoding='UTF-8'";
+
+    static const TestNode fakeDocument[] = {
+        // 'fakeDocument' is an array of 'TestNode' objects, that will be used
+        // by the 'TestReader' to traverse and describe the user directory XML
+        // above.
+
+        { balxml::Reader::e_NODE_TYPE_NONE,
+          0                , 0             ,  0,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_XML_DECLARATION,
+          "xml"            , XmlValue      , +1,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_ELEMENT,
+          "directory-entry" , 0            ,  0,
+          false, {"xmlns:dir"    , "http://bloomberg.com/schemas/directory"} },
+
+        { balxml::Reader::e_NODE_TYPE_ELEMENT,
+          "name"           , 0             , +1,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_TEXT,
+          0                , "John Smith"  , +1,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_END_ELEMENT,
+          "name"           , 0             , -1,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_ELEMENT,
+          "phone"          , 0             ,  0,
+          false, {"dir:phonetype", "cell"}                                   },
+
+        { balxml::Reader::e_NODE_TYPE_TEXT,
+          0                , "212-318-2000", +1,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_END_ELEMENT,
+          "phone"          , 0             , -1,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_ELEMENT,
+          "address"       , 0             ,  0,
+          true,  {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_END_ELEMENT,
+          "directory-entry", 0             , -1,
+          false, {}                                                          },
+
+        { balxml::Reader::e_NODE_TYPE_NONE,
+          0                , 0             ,  0,
+          false, {}                                                          },
+    };
+//..
+// Now, create a class that implements the 'balxml::Reader' interface.  Note,
+// that documentation for class methods, duplicating the documentation for the
+// protocol methods is omitted to shorten the text of the usage example.
+//..
+
+                                  // ================
+                                  // class TestReader
+                                  // ================
+
+    class TestReader : public balxml::Reader
+    {
+      private:
+        // DATA
+        balxml::ErrorInfo    d_errorInfo;    // current error information
+
+        balxml::PrefixStack *d_prefixes;     // prefix stack
+
+        XmlResolverFunctor   d_resolver;     // place holder, not actually used
+
+        bool                 d_isOpen;       // flag indicating whether the
+                                             // reader is open
+
+        bsl::string          d_encoding;     // document encoding
+
+        int                  d_nodeDepth;    // level of the current node
+
+        const TestNode      *d_currentNode;  // node being handled
+
+        // PRIVATE CLASS METHODS
+        void setEncoding(const char *encoding);
+        void adjustPrefixStack();
+
+      public:
+        // CREATORS
+        TestReader();
+        virtual ~TestReader();
+
+        // MANIPULATORS
+        virtual void setResolver(XmlResolverFunctor resolver);
+
+        virtual void setPrefixStack(balxml::PrefixStack *prefixes);
+
+        virtual int open(const char *filename, const char *encoding = 0);
+        virtual int open(const char *buffer,
+                         size_t      size,
+                         const char *url = 0,
+                         const char *encoding = 0);
+        virtual int open(bsl::streambuf *stream,
+                         const char     *url = 0,
+                         const char     *encoding = 0);
+
+        virtual void close();
+
+        virtual int advanceToNextNode();
+
+        virtual int lookupAttribute(balxml::ElementAttribute *attribute,
+                                    int                       index) const;
+        virtual int lookupAttribute(balxml::ElementAttribute *attribute,
+                                    const char               *qname) const;
+        virtual int lookupAttribute(
+                                 balxml::ElementAttribute *attribute,
+                                 const char               *localName,
+                                 const char               *namespaceUri) const;
+        virtual int lookupAttribute(
+                                  balxml::ElementAttribute *attribute,
+                                  const char               *localName,
+                                  int                       namespaceId) const;
+
+        virtual void setOptions(unsigned int flags);
+
+        // ACCESSORS
+        virtual const char *documentEncoding() const;
+        virtual XmlResolverFunctor resolver() const;
+        virtual bool isOpen() const;
+        virtual const balxml::ErrorInfo& errorInfo() const;
+        virtual int getLineNumber() const;
+        virtual int getColumnNumber() const;
+        virtual balxml::PrefixStack *prefixStack() const;
+        virtual NodeType nodeType() const;
+        virtual const char *nodeName() const;
+        virtual const char *nodeLocalName() const;
+        virtual const char *nodePrefix() const;
+        virtual int nodeNamespaceId() const;
+        virtual const char *nodeNamespaceUri() const;
+        virtual const char *nodeBaseUri() const;
+        virtual bool nodeHasValue() const;
+        virtual const char *nodeValue() const;
+        virtual int nodeDepth() const;
+        virtual int numAttributes() const;
+        virtual bool isEmptyElement() const;
+        virtual unsigned int options() const;
+    };
+
+                                  // ----------------
+                                  // class TestReader
+                                  // ----------------
 
     // PRIVATE CLASS METHODS
-    void setEncoding(const char *encoding);
-    void adjustPrefixStack();
+    inline
+    void TestReader::setEncoding(const char *encoding)
+    {
+        d_encoding =
+                   (0 == encoding || '\0' != encoding[0]) ? "UTF-8" : encoding;
+    }
 
-public:
+    inline
+    void TestReader::adjustPrefixStack()
+    {
+        // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
+        // push an namespace prefixed on the prefix stack.
+        if (balxml::Reader::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
+            for (int ii = 0; ii < NUM_ATTRIBUTES; ++ii) {
+                const char *prefix = d_currentNode->d_attributes[ii].d_qname;
+
+                if (!prefix || bsl::strncmp("xmlns", prefix, 5)) {
+                    continue;
+                }
+
+                if (':' == prefix[5]) {
+                    d_prefixes->pushPrefix(
+                        prefix + 6, d_currentNode->d_attributes[ii].d_value);
+                }
+                else {
+                    // default namespace
+                    d_prefixes->pushPrefix(
+                        "", d_currentNode->d_attributes[ii].d_value);
+                }
+            }
+        }
+        else if (balxml::Reader::e_NODE_TYPE_NONE == d_currentNode->d_type) {
+            d_prefixes->reset();
+        }
+    }
 
     // PUBLIC CREATORS
-    TestReader(void);
-    virtual ~TestReader(void);
+    TestReader::TestReader()
+    : d_errorInfo()
+    , d_prefixes(0)
+    , d_resolver()
+    , d_isOpen(false)
+    , d_encoding()
+    , d_nodeDepth(0)
+    , d_currentNode(0)
+    {}
 
-    // MANIPULATORS - SETUP METHODS
-    virtual void setResolver(XmlResolverFunctor resolver);
+    TestReader::~TestReader()
+    {}
 
-    virtual void setPrefixStack(balxml::PrefixStack *prefixes);
+    // MANIPULATORS
+    void TestReader::setResolver(XmlResolverFunctor resolver)
+    {
+        d_resolver = resolver;
+    }
 
-    // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
-    virtual int open(const char *filename, const char *encoding = 0);
-    virtual int open(const char *buffer,
-                     size_t      size,
-                     const char *url = 0,
-                     const char *encoding = 0);
-    virtual int open(bsl::streambuf *stream,
-                     const char     *url = 0,
-                     const char     *encoding = 0);
+    void TestReader::setPrefixStack(balxml::PrefixStack *prefixes)
+    {
+        if (d_isOpen) {
+            return;                                                   // RETURN
+        }
 
-    virtual void close();
+        d_prefixes = prefixes;
+    }
 
-    virtual int advanceToNextNode();
+    int TestReader::open(const char * /* filename */,
+                         const char * /* encoding */)
+    {
+        return -1;  // STUB
+    }
 
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                int                       index) const;
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *qname) const;
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *localName,
-                                const char               *namespaceUri) const;
-    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *localName,
-                                int                       namespaceId) const;
+    int TestReader::open(const char * /* buffer */,
+                         size_t       /* size */,
+                         const char * /* url */,
+                         const char *encoding)
+    {
+        if (d_isOpen) {
+            return false;                                             // RETURN
+        }
+        d_isOpen    = true;
+        d_nodeDepth = 0;
+//..
+// Note that we do not use passed buffer, but direct the internal iterator to
+// the fake structure:
+//..
+        d_currentNode = fakeDocument;
 
-    virtual void setOptions(unsigned int flags);
+        setEncoding(encoding);
+        return 0;
+    }
+
+    int TestReader::open(bsl::streambuf * /* stream */,
+                         const char     * /* url */,
+                         const char     * /* encoding */)
+    {
+        return -1;  // STUB
+    }
+
+    void TestReader::close()
+    {
+        if (d_prefixes) {
+            d_prefixes->reset();
+        }
+
+        d_isOpen = false;
+        d_encoding.clear();
+        d_nodeDepth   = 0;
+        d_currentNode = 0;
+    }
+
+//..
+// Reader iterating not through the XML document, but through the fake
+// structure.
+//..
+    int TestReader::advanceToNextNode()
+    {
+        if (!d_currentNode) {
+            return -1;                                                // RETURN
+        }
+
+        d_currentNode++;
+
+        if (balxml::Reader::e_NODE_TYPE_NONE == d_currentNode->d_type) {
+            // If the node type is BAEXML_NODE_TYPE_NONE after we have just
+            // incremented to the next node, that mean we are at the end of the
+            // document.  An easy way to deal with not incrementing
+            // d_currentNode to a forbidden value is to simply decrement it.
+            d_currentNode--;
+            d_prefixes->reset();
+            return 1;                                                 // RETURN
+        }
+
+        if (d_prefixes && 1 == d_nodeDepth) {
+            // The 'TestReader' only recognizes namespace URIs with the prefix
+            // (xmlns:) on the top level element, these URIs will be added to
+            // the prefix stack.  Namespace URI declarations on any other
+            // elements will be treated like normal attributes.  The prefix
+            // stack will be reset once the top level element is closed.
+            adjustPrefixStack();
+        }
+
+        d_nodeDepth += d_currentNode->d_depthChange;
+
+        return 0;
+    }
+
+    int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
+                                    int                       index) const
+    {
+        if (!d_currentNode || index < 0 || index >= NUM_ATTRIBUTES) {
+            return 1;                                                 // RETURN
+        }
+
+        const char *qname = d_currentNode->d_attributes[index].d_qname;
+        if ('\0' == qname[0]) {
+            return 1;                                                 // RETURN
+        }
+
+        attribute->reset(
+            d_prefixes, qname, d_currentNode->d_attributes[index].d_value);
+        return 0;
+    }
+
+    int TestReader::lookupAttribute(
+                                  balxml::ElementAttribute * /* attribute */,
+                                  const char               * /* qname */) const
+    {
+        return -1;  // STUB
+    }
+
+    int TestReader::lookupAttribute(
+                           balxml::ElementAttribute * /* attribute */,
+                           const char               * /* localName */,
+                           const char               * /* namespaceUri */) const
+    {
+        return -1;  // STUB
+    }
+
+    int TestReader::lookupAttribute(
+                            balxml::ElementAttribute * /* attribute */,
+                            const char               * /* localName */,
+                            int                        /* namespaceId */) const
+    {
+        return -1;  // STUB
+    }
+
+    void TestReader::setOptions(unsigned int /* flags */)
+    {
+    }
 
     // ACCESSORS
-    virtual const char *documentEncoding() const;
-    virtual XmlResolverFunctor resolver() const;
-    virtual bool isOpen() const;
-    virtual const balxml::ErrorInfo& errorInfo() const;
-    virtual int getLineNumber() const;
-    virtual int getColumnNumber() const;
-    virtual balxml::PrefixStack *prefixStack() const;
-    virtual NodeType nodeType() const;
-    virtual const char *nodeName() const;
-    virtual const char *nodeLocalName() const;
-    virtual const char *nodePrefix() const;
-    virtual int nodeNamespaceId() const;
-    virtual const char *nodeNamespaceUri() const;
-    virtual const char *nodeBaseUri() const;
-    virtual bool nodeHasValue() const;
-    virtual const char *nodeValue() const;
-    virtual int nodeDepth() const;
-    virtual int numAttributes() const;
-    virtual bool isEmptyElement() const;
-    virtual unsigned int options() const;
-};
-//..
-// Utility function to skip past white space.
-//..
-int advancePastWhiteSpace(balxml::Reader& reader) {
-    const char *whiteSpace = "\n\r\t ";
-    const char *value = 0;
-    int         type = 0;
-    int         rc = 0;
+    const char *TestReader::documentEncoding() const
+    {
+        return d_encoding.c_str();
+    }
 
-    do {
-        rc    = reader.advanceToNextNode();
-        value = reader.nodeValue();
-        type  = reader.nodeType();
-    } while ((0 == rc && type == balxml::Reader::e_NODE_TYPE_WHITESPACE) ||
-             (type == balxml::Reader::e_NODE_TYPE_TEXT &&
-              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
+    TestReader::XmlResolverFunctor TestReader::resolver() const
+    {
+        return d_resolver;
+    }
 
-    ASSERT( reader.nodeType() != balxml::Reader::e_NODE_TYPE_WHITESPACE);
+    bool TestReader::isOpen() const
+    {
+        return d_isOpen;
+    }
 
-    return rc;
-}
+    const balxml::ErrorInfo& TestReader::errorInfo() const
+    {
+        return d_errorInfo;
+    }
+
+    int TestReader::getLineNumber() const
+    {
+        return 0;  // STUB
+    }
+
+    int TestReader::getColumnNumber() const
+    {
+        return 0;  // STUB
+    }
+
+    balxml::PrefixStack *TestReader::prefixStack() const
+    {
+        return d_prefixes;
+    }
+
+    TestReader::NodeType TestReader::nodeType() const
+    {
+        if (!d_currentNode || !d_isOpen) {
+            return e_NODE_TYPE_NONE;                                  // RETURN
+        }
+
+        return d_currentNode->d_type;
+    }
+
+    const char *TestReader::nodeName() const
+    {
+        if (!d_currentNode || !d_isOpen) {
+            return 0;                                                 // RETURN
+        }
+
+        return d_currentNode->d_qname;
+    }
+
+    const char *TestReader::nodeLocalName() const
+    {
+        if (!d_currentNode || !d_isOpen) {
+            return 0;                                                 // RETURN
+        }
+
+        // Our simple 'TestReader' does not understand XML with qualified node
+        // names, as such local name always equals qualified name.  Simply
+        // return d_qname.
+        return d_currentNode->d_qname;
+    }
+
+    const char *TestReader::nodePrefix() const
+    {
+        return "";  // STUB
+    }
+
+    int TestReader::nodeNamespaceId() const
+    {
+        return -1;  // STUB
+    }
+
+    const char *TestReader::nodeNamespaceUri() const
+    {
+        return "";  // STUB
+    }
+
+    const char *TestReader::nodeBaseUri() const
+    {
+        return "";  // STUB
+    }
+
+    bool TestReader::nodeHasValue() const
+    {
+        if (!d_currentNode || !d_isOpen) {
+            return false;                                             // RETURN
+        }
+
+        if (0 == d_currentNode->d_nodeValue) {
+            return false;                                             // RETURN
+        }
+
+        return ('\0' != d_currentNode->d_nodeValue[0]);
+    }
+
+    const char *TestReader::nodeValue() const
+    {
+        if (!d_currentNode || !d_isOpen) {
+            return 0;                                                 // RETURN
+        }
+
+        return d_currentNode->d_nodeValue;
+    }
+
+    int TestReader::nodeDepth() const
+    {
+        return d_nodeDepth;
+    }
+
+    int TestReader::numAttributes() const
+    {
+        for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
+            if (0 == d_currentNode->d_attributes[index].d_qname) {
+                return index;                                         // RETURN
+            }
+        }
+
+        return NUM_ATTRIBUTES;
+    }
+
+    bool TestReader::isEmptyElement() const
+    {
+        return d_currentNode->d_isEmpty;
+    }
+
+    unsigned int TestReader::options() const
+    {
+        return 0;
+    }
 //..
-// The main program parses an XML string using the TestReader
-//..
+// Finally we can make an object to be used in the Example 1.
+
 int usageExample()
 {
-//..
+///Example 1: The protocol usage
+///- - - - - - - - - - - - - - -
 // The following string describes xml for a very simple user directory.
 // The top level element contains one xml namespace attribute, with one
 // embedded entry describing a user.
@@ -294,560 +638,101 @@ int usageExample()
        "    <address/>\n"
        "</directory-entry>\n";
 //..
+// Suppose we need to extract the name of the user and his cellphone number
+// from this entry.
 // In order to read the XML, we first need to construct a
 // 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
 // 'TestReader' object, where 'TestReader' is a derived implementation of
 // 'balxml_reader'.
 //..
     balxml::NamespaceRegistry namespaces;
-    balxml::PrefixStack prefixStack(&namespaces);
-    TestReader testReader; balxml::Reader& reader = testReader;
+    balxml::PrefixStack       prefixStack(&namespaces);
+    TestReader                testReader;
+    balxml::Reader&           reader = testReader;
 
-    ASSERT(!reader.isOpen());
+    ASSERT(false == reader.isOpen());
 //..
 // The reader uses a 'balxml::PrefixStack' to manage namespace prefixes so we
 // need to set it before we call open.
 //..
     reader.setPrefixStack(&prefixStack);
-    ASSERT(reader.prefixStack());
-    ASSERT(reader.prefixStack() == &prefixStack);
+
+    ASSERT(0            != reader.prefixStack());
+    ASSERT(&prefixStack == reader.prefixStack());
 //..
-// Now we call the 'open' method to setup the reader for parsing using the data
-// contained in the in the XML string.
+// Next we call the 'open' method to setup the reader for parsing using the
+// data contained in the in the XML string.
 //..
     reader.open(TEST_XML_STRING, sizeof(TEST_XML_STRING) -1, 0, "UTF-8");
 //..
-// Confirm that the 'bdem::Reader' has opened properly
+// And confirm that the 'bdem::Reader' has opened properly
 //..
-    ASSERT( reader.isOpen());
-    ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-    ASSERT(!reader.nodeName());
-    ASSERT(!reader.nodeHasValue());
-    ASSERT(!reader.nodeValue());
-    ASSERT(!reader.nodeDepth());
-    ASSERT(!reader.numAttributes());
-    ASSERT(!reader.isEmptyElement());
+    ASSERT(true == reader.isOpen());
 //..
-// Advance through all the nodes and assert all information contained at each
-// node is correct.
-//
-// Assert the next node's document type is xml.
+// Then iterate through the nodes to find the elements, interesting to us:
 //..
-    int rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() ==
-                              balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-    ASSERT( reader.nodeHasValue());
-    ASSERT(!bsl::strcmp(reader.nodeValue(), "version='1.0' encoding='UTF-8'"));
-    ASSERT( reader.nodeDepth() == 1);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT(!reader.isEmptyElement());
-//..
-// Advance to the top level element, which has one attribute, the xml
-// namespace.  Assert the namespace information has been added correctly to the
-// prefix stack.
-//..
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
-    ASSERT(!reader.nodeHasValue());
-    ASSERT( reader.nodeDepth() == 1);
-    ASSERT( reader.numAttributes() == 1);
-    ASSERT(!reader.isEmptyElement());
+    int         rc = 0;
+    bsl::string name;
+    bsl::string number;
 
-    ASSERT(!bsl::strcmp(prefixStack.lookupNamespacePrefix("dir"), "dir"));
-    ASSERT(prefixStack.lookupNamespaceId("dir") == 0);
-    ASSERT(!bsl::strcmp(prefixStack.lookupNamespaceUri("dir"),
-                        "http://bloomberg.com/schemas/directory"));
-//..
-// The XML being read contains one entry describing a user, advance the users
-// name name and assert all information can be read correctly.
-//..
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
-    ASSERT(!reader.nodeHasValue());
-    ASSERT( reader.nodeDepth() == 2);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT(!reader.isEmptyElement());
+    do {
+        rc = reader.advanceToNextNode();
+        ASSERT(0 == rc);
+    } while (bsl::strcmp(reader.nodeName(), "name"));
 
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-    ASSERT( reader.nodeHasValue());
-    ASSERT(!bsl::strcmp(reader.nodeValue(), "John Smith"));
-    ASSERT( reader.nodeDepth() == 3);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT(!reader.isEmptyElement());
+    rc = reader.advanceToNextNode();
 
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
-    ASSERT(!reader.nodeHasValue());
-    ASSERT( reader.nodeDepth() == 2);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT(!reader.isEmptyElement());
+    ASSERT(0                                == rc);
+    ASSERT(3                                == reader.nodeDepth());
+    ASSERT(balxml::Reader::e_NODE_TYPE_TEXT == reader.nodeType());
+    ASSERT(true                             == reader.nodeHasValue());
+
+    name.assign(reader.nodeValue());
 //..
-// Advance to the user's phone number and assert all information can be read
-// correctly.
+// Next advance to the user's phone number:
 //..
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
-    ASSERT(!reader.nodeHasValue());
-    ASSERT( reader.nodeDepth() == 2);
-    ASSERT( reader.numAttributes() == 1);
-    ASSERT(!reader.isEmptyElement());
-//..
-// The phone node has one attribute, look it up and assert the
-// 'balxml::ElementAttribute' contains valid information and that the prefix
-// returns the correct namespace URI from the prefix stack.
-//..
+    do {
+        rc = reader.advanceToNextNode();
+        ASSERT(0 == rc);
+    } while (bsl::strcmp(reader.nodeName(), "phone"));
+
+    ASSERT(false == reader.isEmptyElement());
+    ASSERT(1     == reader.numAttributes());
+
     balxml::ElementAttribute elemAttr;
 
     rc = reader.lookupAttribute(&elemAttr, 0);
-    ASSERT( rc == 0);
-    ASSERT(!elemAttr.isNull());
-    ASSERT(!bsl::strcmp(elemAttr.qualifiedName(), "dir:phonetype"));
-    ASSERT(!bsl::strcmp(elemAttr.value(), "cell"));
-    ASSERT(!bsl::strcmp(elemAttr.prefix(), "dir"));
-    ASSERT(!bsl::strcmp(elemAttr.localName(), "phonetype"));
-    ASSERT(!bsl::strcmp(elemAttr.namespaceUri(),
-                        "http://bloomberg.com/schemas/directory"));
-    ASSERT( elemAttr.namespaceId() == 0);
+    ASSERT(0     == rc);
+    ASSERT(false == elemAttr.isNull());
 
-    ASSERT(prefixStack.lookupNamespaceUri(elemAttr.prefix()) ==
-           elemAttr.namespaceUri());
+    if (!bsl::strcmp(elemAttr.value(), "cell")) {
+        rc = reader.advanceToNextNode();
 
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-    ASSERT( reader.nodeHasValue());
-    ASSERT(!bsl::strcmp(reader.nodeValue(), "212-318-2000"));
-    ASSERT( reader.nodeDepth() == 3);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT(!reader.isEmptyElement());
+        ASSERT(0                                == rc);
+        ASSERT(balxml::Reader::e_NODE_TYPE_TEXT == reader.nodeType());
+        ASSERT(true                             == reader.nodeHasValue());
 
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
-    ASSERT(!reader.nodeHasValue());
-    ASSERT( reader.nodeDepth() == 2);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT(!reader.isEmptyElement());
+        number.assign(reader.nodeValue());
+    }
 //..
-// Advance to the user's address and assert all information can be read
-// correctly.
+// Now verify the extracted data:
 //..
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "address"));
-    ASSERT(!reader.nodeHasValue());
-    ASSERT( reader.nodeDepth() == 2);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT( reader.isEmptyElement());
+    ASSERT("John Smith"   == name);
+    ASSERT("212-318-2000" == number);
 //..
-// Advance to the end element.
-//..
-    rc = advancePastWhiteSpace(reader);
-    ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-    ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
-    ASSERT(!reader.nodeHasValue());
-    ASSERT( reader.nodeDepth() == 1);
-    ASSERT( reader.numAttributes() == 0);
-    ASSERT(!reader.isEmptyElement());
-//..
-// Close the reader.
+// Finally close the reader:
 //..
     reader.close();
-    ASSERT(!reader.isOpen());
-
+    ASSERT(false == reader.isOpen());
+//..
+// And exit from the function:
+//..
     return 0;
 }
 //..
-// End of usage example, extract to the 'balxml::Reader' header file.
 
-                              // ----------------
-                              // class TestReader
-                              // ----------------
+}  // close namespace UsageExample
 
-// Do to the size of the TestReader's implementation it does not get promoted
-// to the usage example in the 'balxml::Reader' header.
-
-// PRIVATE CLASS METHODS
-inline void TestReader::setEncoding(const char *encoding) {
-    d_encoding = (0 == encoding || '\0' != encoding[0])
-               ? "UTF-8"
-               : encoding;
-}
-
-inline void TestReader::adjustPrefixStack() {
-    // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
-    // push an namespace prefixed on the prefix stack.
-    if (Obj::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
-
-        for (int ii = 0; ii < NUM_ATTRIBUTES; ++ii) {
-            const char *prefix = d_currentNode->d_attributes[ii].d_qname;
-
-            if (!prefix || bsl::strncmp("xmlns", prefix, 5)) {
-                continue;
-            }
-
-            if (':' == prefix[5]) {
-                d_prefixes->pushPrefix(
-                    prefix + 6, d_currentNode->d_attributes[ii].d_value);
-            }
-            else {
-                // default namespace
-                d_prefixes->pushPrefix(
-                    "", d_currentNode->d_attributes[ii].d_value);
-            }
-        }
-    }
-    else if (Obj::e_NODE_TYPE_NONE == d_currentNode->d_type) {
-        d_prefixes->reset();
-    }
-}
-
-// PUBLIC CREATORS
-TestReader::TestReader()
-    : d_errorInfo ()
-    , d_prefixes(0)
-    , d_resolver()
-    , d_isOpen(false)
-    , d_encoding()
-    , d_nodeDepth(0)
-    , d_currentNode(0) { }
-
-TestReader::~TestReader(void) {}
-
-// MANIPULATORS - SETUP METHODS
-void TestReader::setResolver(XmlResolverFunctor resolver) {
-    d_resolver = resolver;
-}
-
-void TestReader::setPrefixStack(balxml::PrefixStack *prefixes) {
-    if (d_isOpen)
-    {
-        return;                                                       // RETURN
-    }
-
-    d_prefixes = prefixes;
-}
-
-// MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
-int TestReader::open(const char * /* filename */, const char *encoding)
-{
-    if (d_isOpen) {
-        return false;                                                 // RETURN
-    }
-    d_isOpen = true;
-    d_nodeDepth = 0;
-
-    d_currentNode = fakeDocument;
-
-    setEncoding(encoding);
-    return 0;
-}
-
-int TestReader::open(const char * /* buffer */,
-                     size_t       /* size */,
-                     const char * /* url */,
-                     const char *encoding) {
-    if (d_isOpen) {
-        return false;                                                 // RETURN
-    }
-    d_isOpen = true;
-    d_nodeDepth = 0;
-
-    d_currentNode = fakeDocument;
-
-    setEncoding(encoding);
-    return 0;
-}
-
-int TestReader::open(bsl::streambuf * /* stream */,
-                     const char     * /* url */,
-                     const char     *encoding) {
-    if (d_isOpen) {
-        return false;                                                 // RETURN
-    }
-    d_isOpen = true;
-    d_nodeDepth = 0;
-
-    d_currentNode = fakeDocument;
-
-    setEncoding(encoding);
-    return 0;
-}
-
-void TestReader::close() {
-    if (d_prefixes) {
-        d_prefixes->reset();
-    }
-
-    d_isOpen = false;
-    d_encoding.clear();
-    d_nodeDepth = 0;
-    d_currentNode = 0;
-}
-
-int TestReader::advanceToNextNode() {
-    if (!d_currentNode) {
-        return -1;                                                    // RETURN
-    }
-
-    d_currentNode++;
-
-    if (Obj::e_NODE_TYPE_NONE == d_currentNode->d_type) {
-        // If the node type is BAEXML_NODE_TYPE_NONE after we have just
-        // incremented to the next node, that mean we are at the end of the
-        // document.  An easy way to deal with not incrementing d_currentNode
-        // to a forbidden value is to simply decrement it.
-        d_currentNode--;
-        d_prefixes->reset();
-        return 1;                                                     // RETURN
-    }
-
-    if (d_prefixes && 1 == d_nodeDepth) {
-        // The 'TestReader' only recognizes namespace URIs with the prefix
-        // (xmlns:) on the top level element, these URIs will be added to the
-        // prefix stack.  Namespace URI declarations on any other elements will
-        // be treated like normal attributes.  The prefix stack will be reset
-        // once the top level element is closed.
-        adjustPrefixStack();
-    }
-
-    d_nodeDepth += d_currentNode->d_depthChange;
-
-    return 0;
-}
-
-int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
-                                int                       index) const {
-    if (!d_currentNode || index < 0 || index >= NUM_ATTRIBUTES) {
-        return 1;                                                     // RETURN
-    }
-
-    const char *qname = d_currentNode->d_attributes[index].d_qname;
-    if ('\0' == qname[0]) {
-        return 1;                                                     // RETURN
-    }
-
-    attribute->reset(d_prefixes,
-                     qname,
-                     d_currentNode->d_attributes[index].d_value);
-    return 0;
-}
-
-int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *qname) const {
-    if (!d_currentNode) {
-        return 1;                                                     // RETURN
-    }
-
-    for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
-        const char *currentQName = d_currentNode->d_attributes[index].d_qname;
-
-        if (!bsl::strcmp(currentQName, qname)) {
-            attribute->reset(d_prefixes,
-                             qname,
-                             d_currentNode->d_attributes[index].d_value);
-            return 0;                                                 // RETURN
-        }
-    }
-
-    return 1;
-}
-
-int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *localName,
-                                const char               *namespaceUri) const {
-    if (!d_currentNode) {
-        return 1;                                                     // RETURN
-    }
-
-    balxml::ElementAttribute a;
-
-    for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
-        const char *qname = d_currentNode->d_attributes[index].d_qname;
-
-        if ('\0' == qname[0]) {
-            break;
-        }
-
-        a.reset(d_prefixes, qname, d_currentNode->d_attributes[index].d_value);
-
-        if (!bsl::strcmp(a.localName(), localName) &&
-            !bsl::strcmp(a.namespaceUri(), namespaceUri)) {
-            *attribute = a;
-            return 0;                                                 // RETURN
-        }
-    }
-
-    return 1;
-}
-
-int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
-                                const char               *localName,
-                                int                       namespaceId) const {
-    if (!d_currentNode) {
-        return 1;                                                     // RETURN
-    }
-
-    balxml::ElementAttribute a;
-
-    for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
-        const char *qname = d_currentNode->d_attributes[index].d_qname;
-
-        if (!bsl::strcmp("", qname)) {
-            break;
-        }
-
-        a.reset(d_prefixes, qname, d_currentNode->d_attributes[index].d_value);
-
-        if (!bsl::strcmp(a.localName(), localName) &&
-            a.namespaceId(), namespaceId) {
-            *attribute = a;
-            return 0;                                                 // RETURN
-        }
-    }
-
-    return 1;
-}
-
-void TestReader::setOptions(unsigned int /* flags */) { }
-
-// ACCESSORS
-const char *TestReader::documentEncoding() const {
-    return d_encoding.c_str();
-}
-
-TestReader::XmlResolverFunctor TestReader::resolver() const {
-    return d_resolver;
-}
-
-bool TestReader::isOpen() const {
-    return d_isOpen;
-}
-
-const balxml::ErrorInfo& TestReader::errorInfo() const {
-    return d_errorInfo;
-}
-
-int TestReader::getLineNumber() const {
-    return 0;
-}
-
-int TestReader::getColumnNumber() const {
-    return 0;
-}
-
-balxml::PrefixStack *TestReader::prefixStack() const {
-    return d_prefixes;
-}
-
-TestReader::NodeType TestReader::nodeType() const {
-    if (!d_currentNode || !d_isOpen) {
-        return e_NODE_TYPE_NONE;                                      // RETURN
-    }
-
-    return d_currentNode->d_type;
-}
-
-const char *TestReader::nodeName() const {
-    if (!d_currentNode || !d_isOpen) {
-        return 0;                                                     // RETURN
-    }
-
-    return d_currentNode->d_qname;
-}
-
-const char *TestReader::nodeLocalName() const {
-    if (!d_currentNode || !d_isOpen) {
-        return 0;                                                     // RETURN
-    }
-
-    // Our simple 'TestReader' does not understand XML with qualified node
-    // names, as such local name always equals qualified name.  Simply return
-    // d_qname.
-    return d_currentNode->d_qname;
-}
-
-const char *TestReader::nodePrefix() const {
-    // Our simple 'TestReader' does not understand XML with qualified node
-    // names, as such their are no prefixes.  Simply return "".
-    return "";
-}
-
-int TestReader::nodeNamespaceId() const {
-    // Our simple 'TestReader' does not understand XML with namespaces on the
-    // node level, as such their are no namespace ids.  Simply return -1.
-    return -1;
-}
-
-const char *TestReader::nodeNamespaceUri() const {
-    // Our simple 'TestReader' does not understand XML with namespaces on the
-    // node level, as such their are no namespace URIs.  Simply return "".
-    return "";
-}
-
-const char *TestReader::nodeBaseUri() const {
-    // Our simple 'TestReader' does not understand XML with base URIs.  Simply
-    // return "".
-    return "";
-}
-
-bool TestReader::nodeHasValue() const {
-    if (!d_currentNode || !d_isOpen) {
-        return false;                                                 // RETURN
-    }
-
-    if (0 == d_currentNode->d_nodeValue) {
-        return 0;                                                     // RETURN
-    }
-
-    return ('\0' != d_currentNode->d_nodeValue[0]);
-}
-
-const char *TestReader::nodeValue() const {
-    if (!d_currentNode || !d_isOpen) {
-        return 0;                                                     // RETURN
-    }
-
-    return d_currentNode->d_nodeValue;
-}
-
-int TestReader::nodeDepth() const {
-    return d_nodeDepth;
-}
-
-int TestReader::numAttributes() const {
-    for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
-        if (0 == d_currentNode->d_attributes[index].d_qname) {
-            return index;                                             // RETURN
-        }
-    }
-
-    return NUM_ATTRIBUTES;
-}
-
-bool TestReader::isEmptyElement() const {
-    return d_currentNode->d_isEmptyElement;
-}
-
-unsigned int TestReader::options() const {
-    return 0;
-}
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -902,7 +787,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
                                << "\n=============" << bsl::endl;
 
-        usageExample();
+        UsageExample::usageExample();
 
       } break;
       case 2: {
@@ -966,7 +851,7 @@ int main(int argc, char *argv[])
                 << "Basic Test" << bsl::endl
                 << "=====================" << bsl::endl;
 
-            TestReader reader;
+            UsageExample::TestReader reader;
             reader.open ("somefilename", "UTF-8");
             reader.close();
       } break;
