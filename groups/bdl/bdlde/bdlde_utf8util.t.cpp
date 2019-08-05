@@ -2865,6 +2865,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'getByteSize'\n"
                                "=====================\n";
 
+        for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
+            const int   LINE = interestingCodepointData[ti].d_lineNum;
+            const char *UTF8 = interestingCodepointData[ti].d_utf8_p;
+
+            if (veryVerbose) {
+                T_; P_(ti);
+                P_(LINE); P_(dumpStr(UTF8)); P(bsl::strlen(UTF8));
+            }
+
+            ASSERT(int(bsl::strlen(UTF8)) == Obj::getByteSize(UTF8));
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -2889,7 +2900,6 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
             const int         LINE = interestingCodepointData[ti].d_lineNum;
             const bsl::string UTF8 = interestingCodepointData[ti].d_utf8_p;
-            //const unsigned int  CODEPOINT = DATA[ti].d_codepoint;
 
             if (veryVerbose) {
                 T_; P_(ti);
