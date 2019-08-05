@@ -2237,7 +2237,7 @@ static const struct {
     int           d_lineNum;    // source line number
     const char   *d_utf8_p;     // UTF-8 input string
     unsigned int  d_codepoint;  // 32-bit codepoint value
-} interestingCodepointData[] = {
+} legalCodepointData[] = {
     //L#      UTF-8          codepoint
     //--      -----          ---------
     { L_,     U8_00001,      decode(U8_00001) },
@@ -2261,7 +2261,7 @@ static const struct {
 
 enum {
     NUM_INTERESTING_CODEPOINTS =
-        sizeof interestingCodepointData / sizeof *interestingCodepointData
+        sizeof legalCodepointData / sizeof *legalCodepointData
 };
 
 // ============================================================================
@@ -2831,12 +2831,15 @@ int main(int argc, char *argv[])
         // TESTING 'appendUtf8Character'
         //
         // Concerns:
-        //   The method under test produce the expected results on valid UTF-8
-        //   strings.
+        //   The method under test produce the expected results on valid
+        //   codepoints.  The principal concern is that the append is performed
+        //   correctly.
         //
         // Plan:
-        //   Use the table-driven approach to verify correct behavior on
-        //   various valid UTF-8 strings.
+        //   Use the table-driven approach to verify correct behavior when
+        //   appending various valid codepoints to both empty and non-empty
+        //   strings.  This is sufficient since the routine under test is
+        //   implemented in terms of an already tested component.
         //
         // Testing:
         //   int appendUtf8Character(bsl::string *, unsigned int);
@@ -2845,6 +2848,27 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'appendUtf8Character'\n"
                                "=============================\n";
 
+        for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
+            const int     LINE      = legalCodepointData[ti].d_lineNum;
+            const char   *UTF8      = legalCodepointData[ti].d_utf8_p;
+            bsl::size_t   UTF8_LEN  = strlen(UTF8);
+            unsigned int  CODEPOINT = legalCodepointData[ti].d_codepoint;
+
+            bsl::string   empty;
+            bsl::string   non_empty("Not an empty string");
+            bsl::size_t   non_empty_init_len = non_empty.length();
+
+            if (veryVerbose) {
+                T_; P_(ti);
+                P_(LINE); P_(dumpStr(UTF8)); P_(UTF8_LEN); P(CODEPOINT);
+            }
+
+            ASSERT(0 == Obj::appendUtf8Character(&empty, CODEPOINT));
+            ASSERT(UTF8_LEN == empty.length());
+
+            ASSERT(0 == Obj::appendUtf8Character(&non_empty, CODEPOINT));
+            ASSERT(non_empty_init_len + UTF8_LEN == non_empty.length());
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2866,15 +2890,16 @@ int main(int argc, char *argv[])
                                "=====================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
-            const int   LINE = interestingCodepointData[ti].d_lineNum;
-            const char *UTF8 = interestingCodepointData[ti].d_utf8_p;
+            const int    LINE     = legalCodepointData[ti].d_lineNum;
+            const char  *UTF8     = legalCodepointData[ti].d_utf8_p;
+            bsl::size_t  UTF8_LEN = strlen(UTF8);
 
             if (veryVerbose) {
                 T_; P_(ti);
-                P_(LINE); P_(dumpStr(UTF8)); P(bsl::strlen(UTF8));
+                P_(LINE); P_(dumpStr(UTF8)); P(UTF8_LEN);
             }
 
-            ASSERT(int(bsl::strlen(UTF8)) == Obj::getByteSize(UTF8));
+            ASSERT(int(UTF8_LEN) == Obj::getByteSize(UTF8));
         }
       } break;
       case 10: {
@@ -2898,8 +2923,8 @@ int main(int argc, char *argv[])
                                "=========================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
-            const int         LINE = interestingCodepointData[ti].d_lineNum;
-            const bsl::string UTF8 = interestingCodepointData[ti].d_utf8_p;
+            const int         LINE = legalCodepointData[ti].d_lineNum;
+            const bsl::string UTF8 = legalCodepointData[ti].d_utf8_p;
 
             if (veryVerbose) {
                 T_; P_(ti);
@@ -2910,11 +2935,11 @@ int main(int argc, char *argv[])
                    Obj::numBytesIfValid(UTF8, 1));
 
             for (int tj = 0; tj < NUM_INTERESTING_CODEPOINTS; ++tj) {
-                const int LINE_2 = interestingCodepointData[tj].d_lineNum;
+                const int   LINE_2 = legalCodepointData[tj].d_lineNum;
                 bsl::string UTF8_2 = UTF8;
 
                 UTF8_2.push_back(0);
-                UTF8_2 += interestingCodepointData[tj].d_utf8_p;
+                UTF8_2 += legalCodepointData[tj].d_utf8_p;
 
                 if (veryVeryVerbose) {
                     T_; T_; P_(tj);
