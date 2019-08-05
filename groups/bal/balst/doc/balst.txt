@@ -71,6 +71,32 @@
 : 'balst_stacktraceutil':
 :      Provide low-level utilities for obtaining & printing a stack-trace.
 
+/Performance Considerations
+/--------------------------
+ Getting a strack trace through any of the components in this package involves
+ resolving symbols and possibly line numbers and source file names, all of
+ which are computationally very expensive, involving a lot of disk access to
+ debug regions of the executable.  If the stack trace is called once when a
+ program crashes, this is not a problem, but if stack traces are to be called
+ frequently during execution to monitor program behavior in some way, it is
+ absolutely prohibitive.
+
+ The lowest level of stack trace is not in this package, it is
+ 'bsls_stackaddressutil', and it contains the code to walk down the stack and
+ collect a buffer of 'void *'s which are return addresses from the stack, which
+ can be obtained very quickly and without doing any disk access, to be
+ expensively resolved to human-readable format later using
+ 'balst_stacktraceutil' or the Bloomberg stand-alone program 'showfunc.tsk'.
+
+ As an example of this, the component 'balst_stacktracetestallocator' needs to
+ do a stack trace on every memory allocation.  To do a fully-resolved stack
+ trace each time would be a performance catastrophe.  So instead, it does a
+ fast call to 'bsls_stackaddressutil' on every memory allocation, and saves a
+ buffer of 'void *'s each time, and then, when it is determined at the end that
+ any of those allocations were leaked, calls 'balst_stacktraceutil' to resolve
+ the buffer of 'void *'s corresponding to the leaked allocation into
+ human-readable output to make a report for the client to read.
+
 /Usage
 /-----
  This section illustrates intended use of this package.
