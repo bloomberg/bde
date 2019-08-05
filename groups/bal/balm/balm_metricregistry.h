@@ -28,6 +28,11 @@ BSLS_IDENT("$Id: $")
 // from a category name to the address of a non-modifiable 'balm::Category'
 // object.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::MetricRegistry' is fully *thread-safe*, meaning that all non-creator

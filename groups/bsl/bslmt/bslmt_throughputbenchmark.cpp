@@ -199,9 +199,6 @@ void ThroughputBenchmark::execute(
         bslmt::ThreadUtil::microSleep(
                                    k_MILLIS_IN_SECOND * millisecondsPerSample);
         d_state.storeRelease(1);
-        if (cleanupFunctor) {
-            cleanupFunctor(isLast);
-        }
 
         // Collect results.
         int curOffset = 0;
@@ -220,6 +217,10 @@ void ThroughputBenchmark::execute(
                 result->setThroughput(tgIdx, tIdx, sampleIndex, throughput);
             }
             curOffset += numThreadsInGroup;
+        }
+
+        if (cleanupFunctor) {
+            cleanupFunctor(isLast);
         }
     } // END loop on numSamples
 }

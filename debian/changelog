@@ -1,11 +1,22 @@
-bsl-internal (3.35.0.0) unstable; urgency=low
+bsl-internal (3.36.0.0) unstable; urgency=low
 
+  * e02b4b412 Bump version to 3.36.0.0
+  * 72cd5f24f Merge pull request #2442 from nburgers/190801-balm-guts-DRQS-129738973
+  * 16ad2a3f4 Merge pull request #2437 from bchapman/bdlcc_deque-move-semantics-drqs-127610388
+  * 962decb27 Merge pull request #2428 from bchapman/bdlbb_simpleblobbufferfactory-create-drqs-119033124
+  * 7c152ae49 Merge pull request #2408 from bchapman/bslmt_threadutil-win-threadname-drqs-141907108
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 4 Aug 2019 08:29:51 -0400
+
+bsl-internal (3.35.0.0) git; urgency=low
+
+  * f6bad98a6 Changelog for version 3.35.0.0
   * ddab17e4b Merge pull request #2434 from osubbotin/review/blobutil-docs-drqs-145973189
   * 92b250134 Merge pull request #2436 from oimanuel/fix_bdlcc_objectpool_doc-drqs-145403417
   * d53af2bec Bump version to 3.35.0.0
   * 9c055ab20 Merge pull request #2432 from bchapman/bdlcc_skiplist-no-key-dflt-ctor-bug-drqs-145745492
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 26 Jul 2019 15:38:35 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 28 Jul 2019 10:59:11 -0400
 
 bsl-internal (3.34.0.0) git; urgency=low
 

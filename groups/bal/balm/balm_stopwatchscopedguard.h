@@ -29,6 +29,11 @@ BSLS_IDENT("$Id: $")
 // and on destruction records that elapsed time, in the indicated time units,
 // to the supplied metric.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Choosing Between 'balm::StopwatchScopedGuard' and Macros
 ///--------------------------------------------------------
 // The 'balm::StopwatchScopedGuard' class and the macros defined in the

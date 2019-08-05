@@ -411,28 +411,9 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::
 }
 
 inline
-void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::getThreadName(
-                                                       bsl::string *threadName)
-{
-    BSLS_ASSERT(threadName);
-
-    threadName->clear();    // Not implemented on Windows, but does clear the
-                            // passed 'bsl::string'.
-}
-
-inline
 void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::yield()
 {
     ::SleepEx(0, 0);
-}
-
-inline
-void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::setThreadName(
-                                           const bslstl::StringRef& threadName)
-{
-    // Not implemented on Windows.
-
-    (void) threadName;
 }
 
 inline

@@ -1,5 +1,7 @@
 // bdlbb_blobutil.t.cpp                                               -*-C++-*-
 
+#include <bdlbb_blobutil.h>
+
 // ----------------------------------------------------------------------------
 //                                   NOTICE
 //
@@ -7,9 +9,10 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bdlbb_blobutil.h>
-#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlbb_blob.h>
+#include <bdlbb_simpleblobbufferfactory.h>
+
+#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslim_testutil.h>
 
@@ -112,7 +115,8 @@ void aSsErT(bool condition, const char *message, int line)
                          // =======================
 
 class BlobBufferFactory : public bdlbb::BlobBufferFactory {
-    // TBD: doc
+    // This 'class' is just like a 'SimpleBlobBufferFactory' except that it
+    // initializes the first byte of each blob buffer to '#'.
 
     // PRIVATE DATA
     int               d_size;
@@ -331,42 +335,6 @@ static bool bad_jk(int j, int k, bdlbb::Blob& blob)
 }
 
 // ============================================================================
-//                                CASE 11
-// ----------------------------------------------------------------------------
-
-namespace {
-namespace APPEND_MEMORY_COONSUMPTION_TEST {
-
-class SimpleBlobBufferFactory : public bdlbb::BlobBufferFactory {
-
-    // DATA
-    bslma::Allocator *d_allocator_p;
-    int               d_bufferSize;
-
-  public:
-    // CREATORS
-    SimpleBlobBufferFactory(int bufferSize, bslma::Allocator *allocator)
-    : d_allocator_p(allocator)
-    , d_bufferSize(bufferSize)
-    {
-    }
-
-    // MANIPULATORS
-    void allocate(bdlbb::BlobBuffer *buffer)
-    {
-        buffer->reset(
-            bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(
-                d_bufferSize,
-                d_allocator_p),
-            d_bufferSize);
-    }
-};
-
-}  // close namespace APPEND_MEMORY_COONSUMPTION_TEST
-}  // close unnamed namespace
-
-
-// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -405,18 +373,16 @@ int main(int argc, char *argv[])
         //   CONCERN: append doesn't do excessive 'reserveBufferCapacity'.
         // --------------------------------------------------------------------
 
-        namespace TEST = APPEND_MEMORY_COONSUMPTION_TEST;
-
         const int dataSize   = 40000000;
         const int bufferSize = 256;
         const int sliceSize  = 50000;
         const int shortSize  = sliceSize / 4;
 
-        bslma::TestAllocator          bbfAllocator("bbf");
-        TEST::SimpleBlobBufferFactory bbf(bufferSize, &bbfAllocator);
+        bslma::TestAllocator           bbfAllocator("bbf");
+        bdlbb::SimpleBlobBufferFactory bbf(bufferSize, &bbfAllocator);
 
-        bslma::TestAllocator          srcAllocator("src");
-        bdlbb::Blob                   src(&bbf, &srcAllocator);
+        bslma::TestAllocator           srcAllocator("src");
+        bdlbb::Blob                    src(&bbf, &srcAllocator);
 
         src.setLength(dataSize);
 
@@ -574,7 +540,7 @@ int main(int argc, char *argv[])
                                    STR.begin() + 0,
                                    STR.begin() + NB);
 
-                    BlobBufferFactory factory(bufferSize);
+                    bdlbb::SimpleBlobBufferFactory factory(bufferSize);
 
                     Blob exp(&factory);
                     Blob source(&factory);
@@ -615,7 +581,7 @@ int main(int argc, char *argv[])
             {
                 bsls::AssertTestHandlerGuard hG;
 
-                BlobBufferFactory  factory(10);
+                bdlbb::SimpleBlobBufferFactory  factory(10);
                 const char        *src = "abcdef";
 
                 if (veryVerbose) cout << "\tBad Blob pointer" << endl;
@@ -808,8 +774,8 @@ int main(int argc, char *argv[])
                                        STR.begin() + SOFF,
                                        STR.begin() + SOFF + NB);
 
-                        BlobBufferFactory dstFactory(dstSize);
-                        BlobBufferFactory srcFactory(srcSize);
+                        bdlbb::SimpleBlobBufferFactory dstFactory(dstSize);
+                        bdlbb::SimpleBlobBufferFactory srcFactory(srcSize);
 
                         Blob dst(&dstFactory);
                         Blob src(&srcFactory);
@@ -851,7 +817,7 @@ int main(int argc, char *argv[])
             {
                 bsls::AssertTestHandlerGuard hG;
 
-                BlobBufferFactory factory(10);
+                bdlbb::SimpleBlobBufferFactory factory(10);
 
                 if (veryVerbose) cout << "\tBad blob pointer" << endl;
                 {
@@ -1046,7 +1012,7 @@ int main(int argc, char *argv[])
             { L_, 3, { 1, 3, 2 } },
         };
 
-        BlobBufferFactory factory(BIG);
+        bdlbb::SimpleBlobBufferFactory factory(BIG);
         bdlbb::BlobBuffer buffer;
         factory.allocate(&buffer);
 
@@ -1499,8 +1465,8 @@ int main(int argc, char *argv[])
             { L_, 3, { 5, 5, 5 } }
         };
 
-        BlobBufferFactory factory(5);
-        bdlbb::BlobBuffer buffers[3];
+        bdlbb::SimpleBlobBufferFactory factory(5);
+        bdlbb::BlobBuffer              buffers[3];
         factory.allocate(&buffers[0]);
         factory.allocate(&buffers[1]);
         factory.allocate(&buffers[2]);
@@ -1686,7 +1652,7 @@ int main(int argc, char *argv[])
             { L_, 3, { 5, 5, 5 },  3*5, -1, 0 }
         };
 
-        BlobBufferFactory factory(5);
+        bdlbb::SimpleBlobBufferFactory factory(5);
         bdlbb::BlobBuffer buffer;
         factory.allocate(&buffer);
         bdlbb::BlobBuffer emptyBuffer(buffer.buffer(), 0);
@@ -1761,7 +1727,7 @@ int main(int argc, char *argv[])
         const bsl::string STR      = "HelloWorld";
         const int         BUF_SIZE = static_cast<int>(STR.size());
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
-            BlobBufferFactory factory(bufferSize);
+            bdlbb::SimpleBlobBufferFactory factory(bufferSize);
 
             for (int offset = 0; offset < BUF_SIZE; ++offset) {
                 for (int length = 0; length <= BUF_SIZE - offset; ++length) {
@@ -1829,7 +1795,7 @@ int main(int argc, char *argv[])
                  bufferSize <= k_MAX_BUFFER_SIZE;
                  bufferSize += k_INC_BUFFER_SIZE)
         {
-            BlobBufferFactory factory(bufferSize);
+            bdlbb::SimpleBlobBufferFactory factory(bufferSize);
 
             for (int numBuffers =  k_MIN_NUM_BUFFERS;
                      numBuffers <= k_MAX_NUM_BUFFERS;
@@ -1905,7 +1871,7 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) cout << "(a) 0 buffers" << endl;
-            BlobBufferFactory factory(5);
+            bdlbb::SimpleBlobBufferFactory factory(5);
             bdlbb::Blob        myBlob(&factory);
 
             ASSERT(0 == myBlob.numDataBuffers() );
@@ -1928,7 +1894,7 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) cout << "(b) 1 buffers" << endl;
-            BlobBufferFactory factory(1024);
+            bdlbb::SimpleBlobBufferFactory factory(1024);
             bdlbb::Blob        myBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
@@ -1956,8 +1922,8 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) cout << "(c) 31 buffers" << endl;
-            BlobBufferFactory factory(8);
-            bdlbb::Blob        myBlob(&factory);
+            bdlbb::SimpleBlobBufferFactory factory(8);
+            bdlbb::Blob                    myBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
@@ -1984,7 +1950,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) cout << "(d) 32 buffers" << endl;
-            BlobBufferFactory factory(8);
+            bdlbb::SimpleBlobBufferFactory factory(8);
             bdlbb::Blob myBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
@@ -2013,7 +1979,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) cout << "(e) 33 buffers" << endl;
-            BlobBufferFactory factory(8);
+            bdlbb::SimpleBlobBufferFactory factory(8);
             bdlbb::Blob myBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
@@ -2186,7 +2152,7 @@ int main(int argc, char *argv[])
 
             for (int size1 = 1; size1 < 10; ++size1) {
                 for (int size2 = 5; size2 < 20; ++size2) {
-                    BlobBufferFactory fa(size1), fb(size2);
+                    bdlbb::SimpleBlobBufferFactory fa(size1), fb(size2);
 
                     bdlbb::Blob mX(&fa); const bdlbb::Blob& X = mX;
                     bdlbb::Blob mY(&fb); const bdlbb::Blob& Y = mY;
@@ -2228,8 +2194,8 @@ int main(int argc, char *argv[])
                 const char *TEST_STR3 = "abcdefghijklmnopqrstuvwxyZ";
                 const char *TEST_STR4 = "abcdefghijklmnopqrstuvwxyz1";
 
-                BlobBufferFactory factory(bufferSize);
-                BlobBufferFactory factory2(bufferSize2);
+                bdlbb::SimpleBlobBufferFactory factory(bufferSize);
+                bdlbb::SimpleBlobBufferFactory factory2(bufferSize2);
 
                 // Test same
                 bdlbb::Blob b1(&factory);
@@ -2360,7 +2326,7 @@ int main(int argc, char *argv[])
         {
             // create a non-empty blob
             size_t size = 10;
-            BlobBufferFactory blobFactory(static_cast<int>(size));
+            bdlbb::SimpleBlobBufferFactory blobFactory(static_cast<int>(size));
             bdlbb::Blob nonemptyBlob(&blobFactory);
             nonemptyBlob.setLength(static_cast<int>(size));
 
@@ -2414,7 +2380,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
-            BlobBufferFactory factory(bufferSize);
+            bdlbb::SimpleBlobBufferFactory factory(bufferSize);
 
             bdlbb::Blob dest1(&factory); // append(blob, blob);
             bdlbb::Blob dest2(&factory); // append(blob, const char*, int, int)

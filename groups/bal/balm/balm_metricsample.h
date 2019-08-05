@@ -32,6 +32,11 @@ BSLS_IDENT("$Id: $")
 // object contains a timestamp value used to indicate when the sample was
 // taken.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::MetricSample' and 'balm::MetricSampleGroup' are both *const*

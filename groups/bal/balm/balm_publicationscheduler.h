@@ -36,6 +36,11 @@ BSLS_IDENT("$Id: $")
 // operation.  The publication scheduler also provides a method to cancel the
 // publication of a particular category, or of all categories.
 //
+///Alternative Systems for Telemetry
+///---------------------------------
+// Bloomberg software may alternatively use the GUTS telemetry API, which is
+// integrated into Bloomberg infrastructure.
+//
 ///Thread Safety
 ///-------------
 // 'balm::PublicationScheduler' is fully *thread-safe*, meaning that all
