@@ -1225,7 +1225,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 {
     BSLS_ASSERT(0 == d_table_p);
 
-    if (privateUseShortNeedleOptimization()) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                        privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
         native_std::memcpy(
@@ -1261,7 +1262,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
     BSLS_ASSERT(d_table_p);
     BSLS_ASSERT(privateHasSameNeedleOptimization(object));
 
-    if (privateUseShortNeedleOptimization()) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                        privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = static_cast<ShortNeedleSkipArray *>(
                                                                     d_table_p);
         native_std::memcpy(
@@ -1290,7 +1292,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                       const BoyerMooreHorspoolSearcher_CharImp&
                                                                         object)
 {
-    if (object.privateUseShortNeedleOptimization()) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                 object.privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
         native_std::memcpy(
@@ -1323,7 +1326,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                    HASH,
                                    EQUAL>::privateDeleteTable()
 {
-    if (privateUseShortNeedleOptimization()) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                        privateUseShortNeedleOptimization())) {
         d_allocator_p->deleteObjectRaw(static_cast<ShortNeedleSkipArray *>(
                                                                    d_table_p));
     } else {
@@ -1377,8 +1381,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                                                         object)
                                                                           const
 {
-    return        privateUseShortNeedleOptimization()
-        == object.privateUseShortNeedleOptimization();
+    return this->privateUseShortNeedleOptimization()
+       == object.privateUseShortNeedleOptimization();
 }
 
 // CREATORS
@@ -1405,7 +1409,8 @@ BoyerMooreHorspoolSearcher_CharImp(
         return;                                                       // RETURN
     }
 
-    if (privateUseShortNeedleOptimization()) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                        privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
         native_std::memset(arrayPtr->data(),
@@ -1430,7 +1435,8 @@ BoyerMooreHorspoolSearcher_CharImp(
                                       - 1
                                       - (current - needleFirst);
 
-        if (privateUseShortNeedleOptimization()) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                        privateUseShortNeedleOptimization())) {
             BSLS_ASSERT(skipValue <= UCHAR_MAX);
 
             (*static_cast<ShortNeedleSkipArray *>(d_table_p))[index]
@@ -1617,7 +1623,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
 {
     unsigned char index = static_cast<unsigned char>(value);
 
-    if (privateUseShortNeedleOptimization()) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                        privateUseShortNeedleOptimization())) {
         return (*static_cast<ShortNeedleSkipArray *>(d_table_p))[index];
                                                                       // RETURN
     } else {
