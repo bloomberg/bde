@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // the blob buffers created for the factory to be allocated directly from a
 // certain test allocator for test purposes.  We use a
 // 'SimpleBlobBufferFactory'.
-//..
+//
 // First, we create our allocator:
 //..
 //  bslma::TestAllocator testAllocator;
