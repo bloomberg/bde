@@ -46,6 +46,7 @@ using namespace bsl;
 // [ 6] void unlockWrite();
 //
 // ACCESSORS
+// [10] bool isLocked() const;
 // [10] bool isLockedRead() const;
 // [10] bool isLockedWrite() const;
 // ----------------------------------------------------------------------------
@@ -454,12 +455,16 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 Each accessor correctly reports the state of of the lock.
         //
         // Plan:
-        //: 1 TBD
+        //: 1 Using each of the lock's manipulators (tested in earllier test
+        //:   cases) put a lock object into states of being locked for read,
+        //:   locked for write, and unlocked.  Compare the expected state with
+        //:   that reported by the two accessors.
         //
         // Testing:
+        //   bool isLocked() const;
         //   bool isLockedRead() const;
         //   bool isLockedWrite() const;
         // --------------------------------------------------------------------
@@ -470,40 +475,6 @@ int main(int argc, char *argv[])
                  << "=================" << endl;
         }
 
-#if 0
-        bsl::vector<int> script;
-        script.push_back(TestImpl::k_INIT);
-        script.push_back(0);                     // CTOR
-
-        script.push_back(TestImpl::k_GET);       // isLocked
-        script.push_back(TestImpl::k_GET);       // isLockedRead
-        script.push_back(TestImpl::k_GET);       // isLockedWrite
-
-        script.push_back(10);
-        script.push_back(TestImpl::k_GET);
-        script.push_back(TestImpl::k_CAS);      
-        script.push_back(TestImpl::k_LOCK);
-
-        script.push_back(TestImpl::k_ADD);
-        script.push_back(0 + 1);
-        script.push_back(TestImpl::k_UNLOCK);    // DTOR
-
-        TestImpl::assignScript(script);
-
-        {
-
-            Obj obj;
-
-            ASSERT(false == obj.isLocked());
-            ASSERT(false == obj.isLockedRead());
-            ASSERT(false == obj.isLockedWrite());
-
-            obj.lockRead();
-            obj.unlock();
-        }
-
-        TestImpl::assertScriptComplete();
-#else
         RealObj mX; const RealObj& X = mX;
         ASSERT(false == X.isLocked());
         ASSERT(false == X.isLockedRead());
@@ -550,7 +521,6 @@ int main(int argc, char *argv[])
         ASSERT(false == X.isLocked());
         ASSERT(false == X.isLockedRead());
         ASSERT(false == X.isLockedWrite());
-#endif
 
       } break;
       case 9: {
