@@ -144,11 +144,11 @@ class ReaderWriterMutexImpl {
         // Return 'true' if this reader-write mutex is currently read locked or
         // write locked, and 'false' otherwise.
   
-    bool isReadLocked() const;
+    bool isLockedRead() const;
         // Return 'true' if this reader-write mutex is currently read locked,
         // and 'false' otherwise.
 
-    bool isWriteLocked() const;
+    bool isLockedWrite() const;
         // Return 'true' if this reader-write mutex is currently write locked,
         // and 'false' otherwise.
 };
@@ -335,7 +335,7 @@ bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isLocked() const
 
 template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
 inline
-bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isReadLocked() const
+bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isLockedRead() const
 {
     bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
     return state & k_READER_MASK;
@@ -343,7 +343,7 @@ bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isReadLocked() const
 
 template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
 inline
-bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isWriteLocked() const
+bool ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::isLockedWrite() const
 {
     bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
     return k_WRITER == (state & k_WRITER);

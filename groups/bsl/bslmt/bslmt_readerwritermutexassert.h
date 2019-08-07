@@ -83,6 +83,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
+// ----------------------------------------------------------------------------
+
 #if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(mutex_p) do {             \
         bslmt::ReaderWriterMutexAssert_Imp::assertIsLocked(                   \
@@ -95,8 +97,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(mutex_p) do {       \
-        bslmt::ReaderWriterMutexAssert_Imp::assertIsLocked(                  \
+     #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(mutex_p) do {       \
+         bslmt::ReaderWriterMutexAssert_Imp::assertIsLocked(                  \
                 (mutex_p),                                                    \
                 "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(" #mutex_p ")", \
                 __FILE__,                                                     \
@@ -115,6 +117,80 @@ BSLS_IDENT("$Id: $")
 #else
     #define BSLMT_MUTEXASSERT_IS_LOCKED_OPT(mutex_p) ((void) 0)
 #endif
+
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(mutex_p) do {        \
+        bslmt::ReaderWriterMutexAssert_Imp::assertIsLockedRead(               \
+                (mutex_p),                                                    \
+                "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(" #mutex_p ")", \
+                __FILE__,                                                     \
+                __LINE__); } while (false)
+#else
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(mutex_p) ((void) 0)
+#endif
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(mutex_p) do {   \
+        bslmt::ReaderWriterMutexAssert_Imp::assertIsLockedRead(               \
+           (mutex_p),                                                         \
+           "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(" #mutex_p ")", \
+           __FILE__,                                                          \
+           __LINE__); } while (false)
+#else
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(mutex_p)        \
+                                                                     ((void) 0)
+#endif
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT(mutex_p) do {    \
+        bslmt::ReaderWriterMutexAssert_Imp::assertIsLockedRead(               \
+            (mutex_p),                                                        \
+            "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT(" #mutex_p ")", \
+            __FILE__,                                                         \
+            __LINE__); } while (false)
+#else
+    #define BSLMT_MUTEXASSERT_IS_LOCKED_READ_OPT(mutex_p) ((void) 0)
+#endif
+
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(mutex_p) do {      \
+        bslmt::ReaderWriterMutexAssert_Imp::assertIsLockedWrite(              \
+              (mutex_p),                                                      \
+              "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(" #mutex_p ")", \
+              __FILE__,                                                       \
+              __LINE__); } while (false)
+#else
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(mutex_p) ((void) 0)
+#endif
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(mutex_p) do { \
+        bslmt::ReaderWriterMutexAssert_Imp::assertIsLockedWrite(              \
+         (mutex_p),                                                           \
+         "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(" #mutex_p ")", \
+           __FILE__,                                                          \
+           __LINE__); } while (false)
+#else
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(mutex_p)      \
+                                                                     ((void) 0)
+#endif
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+    #define BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(mutex_p) do {  \
+        bslmt::ReaderWriterMutexAssert_Imp::assertIsLockedWrite(              \
+          (mutex_p),                                                          \
+          "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(" #mutex_p ")", \
+          __FILE__,                                                           \
+          __LINE__); } while (false)
+#else
+    #define BSLMT_MUTEXASSERT_IS_LOCKED_WRITE_OPT(mutex_p) ((void) 0)
+#endif
+
+// ----------------------------------------------------------------------------
 
 namespace BloombergLP {
 namespace bslmt {
@@ -135,16 +211,47 @@ struct ReaderWriterMutexAssert_Imp {
                                const char        *text,
                                const char        *file,
                                int               line);
-        // If the specified 'rwMutex' is not locked (i.e., neither a read lock or a write lock), call
+        // If the specified 'rwMutex' is not locked (i.e., neither a read lock
+        // or a write lock), call 'bsls::Assert::invokeHandler' with the
+        // specified 'text', 'file', and 'line', where 'text' is text
+        // describing the assertion being performed, 'file' is the name of the
+        // source file that called the macro, and 'line' is the line number in
+        // the file where the macro was called.  This function is intended to
+        // implement 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED',
+        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED_SAFE', and
+        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED_OPT' and should not
+        // otherwise be called directly.
+
+    static void assertIsLockedRead(ReaderWriterMutex *rwMutex,
+                                   const char        *text,
+                                   const char        *file,
+                                   int               line);
+        // If the specified 'rwMutex' is not locked for reading, call
         // 'bsls::Assert::invokeHandler' with the specified 'text', 'file', and
         // 'line', where 'text' is text describing the assertion being
         // performed, 'file' is the name of the source file that called the
         // macro, and 'line' is the line number in the file where the macro was
         // called.  This function is intended to implement
-        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED',
-        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED_SAFE', and
-        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED_OPT' and should not
+        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED_READ',
+        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED_READ_SAFE', and
+        // 'BSLMT_READERWRITEMUTEXASSERT_IS_LOCKED_READ_OPT' and should not
         // otherwise be called directly.
+
+    static void assertIsLockedWrite(ReaderWriterMutex *rwMutex,
+                                    const char        *text,
+                                    const char        *file,
+                                     int               line);
+        // If the specified 'rwMutex' is not locked for writing, call
+        // 'bsls::Assert::invokeHandler' with the specified 'text', 'file', and
+        // 'line', where 'text' is text describing the assertion being
+        // performed, 'file' is the name of the source file that called the
+        // macro, and 'line' is the line number in the file where the macro was
+        // called.  This function is intended to implement
+        // 'BSLMT_WRITEERWRITEMUTEXASSERT_IS_LOCKED_READ',
+        // 'BSLMT_WRITEERWRITEMUTEXASSERT_IS_LOCKED_READ_SAFE', and
+        // 'BSLMT_WRITEERWRITEMUTEXASSERT_IS_LOCKED_READ_OPT' and should not
+        // otherwise be called directly.
+
 };
 
 // ============================================================================
@@ -171,6 +278,35 @@ void ReaderWriterMutexAssert_Imp::assertIsLocked(ReaderWriterMutex *rwMutex,
     }
 }
 
+void ReaderWriterMutexAssert_Imp::assertIsLockedRead(
+                                                    ReaderWriterMutex *rwMutex,
+                                                    const char        *text,
+                                                    const char        *file,
+                                                    int                line)
+{
+    BSLS_ASSERT(rwMutex);
+    BSLS_ASSERT(text);
+    BSLS_ASSERT(file);
+    
+    if (!rwMutex->isLockedRead()) {
+        bsls::Assert::invokeHandler(text, file, line);
+    }
+}
+
+void ReaderWriterMutexAssert_Imp::assertIsLockedWrite(
+                                                    ReaderWriterMutex *rwMutex,
+                                                    const char        *text,
+                                                    const char        *file,
+                                                    int                line)
+{
+    BSLS_ASSERT(rwMutex);
+    BSLS_ASSERT(text);
+    BSLS_ASSERT(file);
+    
+    if (!rwMutex->isLockedWrite()) {
+        bsls::Assert::invokeHandler(text, file, line);
+    }
+}
 
 }  // close package namespace
 }  // close enterprise namespace

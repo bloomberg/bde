@@ -25,8 +25,15 @@
 
 #include <bsls_atomic.h>
 
+#include <algorithm>  // 'BSL::for_each'
+#include <numeric>    // 'BSL::accumulate'
+#include <utility>    // 'BSL::make_pair'
+
+#include <float.h>    // 'DBL_MIN'
+
 using namespace BloombergLP;
 using namespace bsl;
+namespace BSL = native_std;  // for Usage Examples
 
 //=============================================================================
 //                             TEST PLAN
@@ -135,7 +142,7 @@ int veryVerbose;
                                          // standard container
 
         mutable bslmt::ReaderWriterMutex
-                             d_rwMutex; // mutex to provide thread safety
+                             d_rwMutex; // readerwritemutex for thread safety
 
         // PRIVATE MANIPULATOR
         int popImp(int *result);
@@ -145,10 +152,27 @@ int veryVerbose;
             // value (with no effect) otherwise.  The behavior is undefined
             // unless 'd_rwWutex' is locked for writing.
 
+        void addValueToEach(int value);
+            // Add the specified 'value' to each element of this queue.  The
+            // behavior is undefined unless the caller has acquired a write
+            // lock on this queue.
+
+        // PRIVATE ACCESSOR
+        bsl::pair<int, double> getStats() const;
+            // Return a 'bsl::pair<int, int>' containing the number of elements
+            // and the mean value of the elements of this queue.  The mean
+            // values is set to 'DBL_MIN' if the number of elements is 0.  The behavior
+            // is undefined unless the call has locked this queue (either a
+            // read lock or write lock).
+
       public:
         // ...
 
         // MANIPULATORS
+        void normalize();
+            // Add the average value (rounded down to the nearest integer) of
+            // the elements of this queue to each element in the queue.
+
         int pop(int *result);
             // Assign the value at the front of the queue to the specified
             // '*result', and remove the value at the front of the queue;
@@ -168,6 +192,10 @@ int veryVerbose;
         template <class INPUT_ITER>
         void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
             // ...
+
+        // ACCESSORS
+        double mean() const; 
+            // Return the mean value of the elements of this queue.
     };
 //..
 // Notice that our public manipulators have two forms: push/pop a single
@@ -183,7 +211,7 @@ int veryVerbose;
     // PRIVATE MANIPULATOR
     int MyThreadSafeQueue::popImp(int *result)
     {
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&d_rwMutex);
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&d_rwMutex);
 
         if (d_deque.empty()) {
             return -1;                                                // RETURN
@@ -304,6 +332,56 @@ int veryVerbose;
 // 'bsls::Assert::failAbort'.  Other handlers may be installed that produce
 // different results, but in all cases should prevent the program from
 // proceeding normally.
+//
+//..
+    // PRIVATE ACCESSORS
+    bsl::pair<int, double> MyThreadSafeQueue::getStats() const
+    {
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&d_rwMutex);
+
+        int numElements = d_deque.size();
+
+        if (0 == numElements) {
+            return BSL::make_pair(numElements, DBL_MIN);              // RETURN
+        }
+
+        int    sum  = BSL::accumulate(d_deque.cbegin(), d_deque.cend(), 0);
+        double mean = static_cast<double>(sum)
+                    / static_cast<double>(numElements);
+
+        return BSL::make_pair(numElements, mean);
+    }
+
+    // PRIVATE ACCESSORS
+    void MyThreadSafeQueue::addValueToEach(int value)
+    {
+        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&d_rwMutex);
+
+        for (bsl::deque<int>::iterator itr  = d_deque.begin(),
+                                       end  = d_deque.end();
+                                       end != itr; ++itr) {
+            *itr += value;
+        }
+    }
+
+    // ACCESSORS
+    double MyThreadSafeQueue::mean() const
+    {
+        d_rwMutex.lockRead();
+        bsl::pair<int, double> result = getStats();
+        d_rwMutex.unlockRead();
+        return result.second;
+    }
+
+    // MANIPULATORS
+    void MyThreadSafeQueue::normalize()
+    {
+        d_rwMutex.lockWrite();
+        int adjustment = static_cast<int>(mean()); 
+        addValueToEach(-adjustment);
+        d_rwMutex.unlockWrite();
+    }
+
 
                                   // ------
                                   // case 3

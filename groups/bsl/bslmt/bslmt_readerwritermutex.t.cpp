@@ -43,8 +43,8 @@ using namespace bsl;
 //
 // ACCESSORS
 // [ 4] bool isLocked() const;
-// [ 4] bool isReadLocked() const;
-// [ 4] bool isWriteLocked() const;
+// [ 4] bool isLockedRead() const;
+// [ 4] bool isLockedWrite() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] WRITER BIAS
@@ -407,8 +407,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bool isLocked() const;
-        //   bool isReadLocked() const;
-        //   bool isWriteLocked() const;
+        //   bool isLockedRead() const;
+        //   bool isLockedWrite() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -417,50 +417,50 @@ int main(int argc, char *argv[])
 
         Obj mX; const Obj& X = mX;
         ASSERT(false == X.isLocked());
-        ASSERT(false == X.isReadLocked());
-        ASSERT(false == X.isWriteLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
 
         mX.lockRead();
         ASSERT(true  == X.isLocked());
-        ASSERT(true  == X.isReadLocked());
-        ASSERT(false == X.isWriteLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
 
         mX.unlockRead();
         ASSERT(false == X.isLocked());
-        ASSERT(false == X.isReadLocked());
-        ASSERT(false == X.isWriteLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
 
         mX.lockWrite();
         ASSERT(true  == X.isLocked());
-        ASSERT(false == X.isReadLocked());
-        ASSERT(true  == X.isWriteLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
 
         mX.unlockWrite();
         ASSERT(false == X.isLocked());
-        ASSERT(false == X.isReadLocked());
-        ASSERT(false == X.isWriteLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
         
         int rcR = mX.tryLockRead();
         ASSERT(0 == rcR);
         ASSERT(true  == X.isLocked());
-        ASSERT(true  == X.isReadLocked());
-        ASSERT(false == X.isWriteLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
 
         mX.unlockRead();
         ASSERT(false == X.isLocked());
-        ASSERT(false == X.isReadLocked());
-        ASSERT(false == X.isWriteLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
 
         int rcW = mX.tryLockWrite();
         ASSERT(0 == rcW);
         ASSERT(true  == X.isLocked());
-        ASSERT(false == X.isReadLocked());
-        ASSERT(true  == X.isWriteLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
 
         mX.unlockWrite();
         ASSERT(false == X.isLocked());
-        ASSERT(false == X.isReadLocked());
-        ASSERT(false == X.isWriteLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
 
       } break;
       case 3: {

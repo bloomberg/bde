@@ -5,6 +5,8 @@
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -44,8 +46,8 @@ using namespace bsl;
 // [ 6] void unlockWrite();
 //
 // ACCESSORS
-// [10] bool isReadLocked() const;
-// [10] bool isWriteLocked() const;
+// [10] bool isLockedRead() const;
+// [10] bool isLockedWrite() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -421,6 +423,11 @@ bsls::Types::size_type                      TestImpl::s_scriptAt = 0;
 
 typedef bslmt::ReaderWriterMutexImpl<TestImpl, TestImpl, TestImpl>  Obj;
 
+typedef bslmt::ReaderWriterMutexImpl<bsls::AtomicOperations,
+                                     bslmt::Mutex,
+                                     bslmt::Semaphore>              RealObj;
+
+
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -453,8 +460,8 @@ int main(int argc, char *argv[])
         //: 1 TBD
         //
         // Testing:
-        //   bool isReadLocked() const;
-        //   bool isWriteLocked() const;
+        //   bool isLockedRead() const;
+        //   bool isLockedWrite() const;
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -463,13 +470,14 @@ int main(int argc, char *argv[])
                  << "=================" << endl;
         }
 
+#if 0
         bsl::vector<int> script;
         script.push_back(TestImpl::k_INIT);
         script.push_back(0);                     // CTOR
 
-        script.push_back(TestImpl::k_GET);       // isRead
-        script.push_back(TestImpl::k_GET);       // isReadLocked
-        script.push_back(TestImpl::k_GET);       // isWriteLocked
+        script.push_back(TestImpl::k_GET);       // isLocked
+        script.push_back(TestImpl::k_GET);       // isLockedRead
+        script.push_back(TestImpl::k_GET);       // isLockedWrite
 
         script.push_back(10);
         script.push_back(TestImpl::k_GET);
@@ -487,15 +495,62 @@ int main(int argc, char *argv[])
             Obj obj;
 
             ASSERT(false == obj.isLocked());
-            ASSERT(false == obj.isReadLocked());
-            ASSERT(false == obj.isWriteLocked());
+            ASSERT(false == obj.isLockedRead());
+            ASSERT(false == obj.isLockedWrite());
 
             obj.lockRead();
             obj.unlock();
         }
 
         TestImpl::assertScriptComplete();
+#else
+        RealObj mX; const RealObj& X = mX;
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
 
+        mX.lockRead();
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.lockWrite();
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+        
+        int rcR = mX.tryLockRead();
+        ASSERT(0 == rcR);
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        int rcW = mX.tryLockWrite();
+        ASSERT(0 == rcW);
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+#endif
 
       } break;
       case 9: {

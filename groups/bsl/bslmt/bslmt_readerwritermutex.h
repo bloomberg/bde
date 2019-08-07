@@ -248,11 +248,11 @@ class ReaderWriterMutex {
         // Return 'true' if this reader-write mutex is currently read locked or
         // write locked, and 'false' otherwise.
   
-    bool isReadLocked() const;
+    bool isLockedRead() const;
         // Return 'true' if this reader-write mutex is currently read locked,
         // and 'false' otherwise.
 
-    bool isWriteLocked() const;
+    bool isLockedWrite() const;
         // Return 'true' if this reader-write mutex is currently write locked,
         // and 'false' otherwise.
 };
@@ -324,15 +324,15 @@ bool bslmt::ReaderWriterMutex::isLocked() const
 }
   
 inline
-bool bslmt::ReaderWriterMutex::isReadLocked() const
+bool bslmt::ReaderWriterMutex::isLockedRead() const
 {
-    return d_impl.isReadLocked();
+    return d_impl.isLockedRead();
 }
 
 inline
-bool bslmt::ReaderWriterMutex::isWriteLocked() const
+bool bslmt::ReaderWriterMutex::isLockedWrite() const
 {
-    return d_impl.isWriteLocked();
+    return d_impl.isLockedWrite();
 }
 
 }  // close enterprise namespace
