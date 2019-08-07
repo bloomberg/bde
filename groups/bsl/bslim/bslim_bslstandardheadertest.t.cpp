@@ -433,20 +433,20 @@ int main(int argc, char *argv[])
         typedef bsl::boyer_moore_horspool_searcher<ConstItr> BmhSearcher;
 
         const char     needle[]    = "world";
-        ConstItr const needleFirst = needle;
-        ConstItr const needleLast  = needleFirst + sizeof needle - 1;
+        const ConstItr needleFirst = needle;
+        const ConstItr needleLast  = needleFirst + sizeof needle - 1;
 
         DftSearcher dftSearcher(needleFirst, needleLast);
         BmhSearcher bmhSearcher(needleFirst, needleLast);
 
         const char     haystack[]    = "Hello, world.";
-        ConstItr const haystackFirst = haystack;
-        ConstItr const haystackLast  = haystackFirst + sizeof haystack - 1;
+        const ConstItr haystackFirst = haystack;
+        const ConstItr haystackLast  = haystackFirst + sizeof haystack - 1;
 
         typedef bsl::pair<ConstItr, ConstItr> Result;
 
-        Result dftResult = dftSearcher(haystackFirst, haystackLast);
-        Result bmhResult = bmhSearcher(haystackFirst, haystackLast);
+        const Result dftResult = dftSearcher(haystackFirst, haystackLast);
+        const Result bmhResult = bmhSearcher(haystackFirst, haystackLast);
 
         ASSERT(dftResult == bmhResult);
         ASSERT(        7 == bmhResult.first  - haystackFirst);
