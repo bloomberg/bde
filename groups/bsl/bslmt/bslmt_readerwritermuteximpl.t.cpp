@@ -452,21 +452,20 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING ACCESSORS
+        // ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor correctly reports the state of of the lock.
+        //: 1 Each accessor correctly returns the known state of a lock object.
+        //:
+        //: 2 Each accessor is 'const' qualified.
         //
         // Plan:
-        //: 1 Using each of the lock's manipulators (tested in earllier test
-        //:   cases) put a lock object into states of being locked for read,
-        //:   locked for write, and unlocked.  Compare the expected state with
-        //:   that reported by the two accessors.
-        //
-        // Testing:
-        //   bool isLocked() const;
-        //   bool isLockedRead() const;
-        //   bool isLockedWrite() const;
+        //: 1 An ad-hoc sequence of (previously tested) lock and unlock
+        //:   operations is used to put a test object into different state.
+        //:   The accessors are used to corroborate those states.  (C-1)
+        //:
+        //: 2 Each accessor invocation is done via a 'const'-reference to the
+        //:   object under test.  (C-2)
         // --------------------------------------------------------------------
 
         if (verbose) {
