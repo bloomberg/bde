@@ -428,22 +428,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING SEARCHERS"
                             "\n=================\n");
 
-        const char         needle[]    = "world";
-        const char * const needleFirst = needle;
-        const char * const needleLast  = needleFirst + sizeof needle - 1;
-
         typedef const char *                                 ConstItr;
         typedef bsl::default_searcher             <ConstItr> DftSearcher;
         typedef bsl::boyer_moore_horspool_searcher<ConstItr> BmhSearcher;
 
+        const char     needle[]    = "world";
+        ConstItr const needleFirst = needle;
+        ConstItr const needleLast  = needleFirst + sizeof needle - 1;
+
         DftSearcher dftSearcher(needleFirst, needleLast);
         BmhSearcher bmhSearcher(needleFirst, needleLast);
 
-        const char         haystack[]    = "Hello, world.";
-        const char * const haystackFirst = haystack;
-        const char * const haystackLast  = haystackFirst + sizeof haystack - 1;
+        const char     haystack[]    = "Hello, world.";
+        ConstItr const haystackFirst = haystack;
+        ConstItr const haystackLast  = haystackFirst + sizeof haystack - 1;
 
-        typedef bsl::pair<const char *, const char *> Result;
+        typedef bsl::pair<ConstItr, ConstItr> Result;
 
         Result dftResult = dftSearcher(haystackFirst, haystackLast);
         Result bmhResult = bmhSearcher(haystackFirst, haystackLast);
