@@ -287,7 +287,7 @@ int BitUtil::numBitsSet(uint64_t value)
     #else
         // '__popcnt64' available only in 64bit target
         return __popcnt(static_cast<uint32_t>(value)) +
-                                  __popcnt(static_cast<uint32_t>(value >> 32));
+                    __popcnt(static_cast<uint32_t>(value >> k_BITS_PER_INT32));
     #endif
 #else
     return privateNumBitsSet(value);
@@ -303,10 +303,9 @@ int BitUtil::numLeadingUnsetBits(uint32_t value)
     // '__builtin_clz(0)' is undefined
     return __builtin_clz(value | 1) + static_cast<int>(!value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
-    // '_BitScanReverse(&index, 0)' sets 'index' to an unspecified value
-    unsigned long index;
-    _BitScanReverse(&index, value | 1);
-    return 32 - index - (value != 0);
+    unsigned long index = ~0ul;
+    _BitScanReverse(&index, value);
+    return k_BITS_PER_INT32 - 1 - index;
 #else
     return privateNumLeadingUnsetBits(value);
 #endif
@@ -322,16 +321,16 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
     return __builtin_clzll(value | 1) + static_cast<int>(!value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        // '_BitScanReverse64(&index, 0)' sets 'index' to an unspecified value
-        unsigned long index;
-        _BitScanReverse64(&index, value | 1);
-        return 64 - index - (value != 0);
+        unsigned long index = ~0ul;
+        _BitScanReverse64(&index, value);
+        return k_BITS_PER_INT64 - 1 - index;
     #else
         // '_BitScanReverse64' available only in 64bit target
-        const int top = numLeadingUnsetBits(
-                                           static_cast<uint32_t>(value >> 32));
-        return top < 32 ? top :
-                        numLeadingUnsetBits(static_cast<uint32_t>(value)) + 32;
+        return value > 0xffffffff
+             ? numLeadingUnsetBits(static_cast<uint32_t>(
+                                                   value >> k_BITS_PER_INT32));
+             : numLeadingUnsetBits(static_cast<uint32_t>(value))
+                                                            + k_BITS_PER_INT32;
     #endif
 #else
     return privateNumLeadingUnsetBits(value);
@@ -355,11 +354,9 @@ int BitUtil::numTrailingUnsetBits(uint32_t value)
     //  return (__builtin_ffs(value) - 1) ^ ((-!value) & ~k_BITS_PER_INT32);
     //..
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
-    // '_BitScanForward(&index, 0)' sets 'index' to an unspecified value
-    unsigned long index;
-    const uint32_t mask = 1u << (k_BITS_PER_INT32 - 1);
-    _BitScanForward(&index, value | mask);
-    return index + (value == 0);
+    unsigned long index = k_BITS_PER_INT32;
+    _BitScanForward(&index, value);
+    return index;
 #else
     return privateNumTrailingUnsetBits(value);
 #endif
@@ -384,15 +381,15 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
     //..
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        unsigned long index;
-        const uint64_t mask = 1u << (k_BITS_PER_INT64 - 1);
-        _BitScanForward64(&index, value | mask);
-        return index + (value == 0);
+        unsigned long index = k_BITS_PER_INT64;
+        _BitScanForward64(&index, value);
+        return index;
     #else
         // '_BitScanForward64' available only in 64bit target
-        const int bot = numTrailingUnsetBits(static_cast<uint32_t>(value));
-        return bot < 32 ? bot :
-                 numTrailingUnsetBits(static_cast<uint32_t>(value >> 32)) + 32;
+        return 0 != (value & 0xffffffff)
+            ? numTrailingUnsetBits(static_cast<uint32_t>(value));
+            : numTrailingUnsetBits(static_cast<uint32_t>(
+                                value >> k_BITS_PER_INT32)) + k_BITS_PER_INT32;
     #endif
 #else
     return privateNumTrailingUnsetBits(value);
