@@ -606,6 +606,13 @@ int main(int argc, char *argv[])
             }
         }
 
+        { // each word set
+            uint64_t bottomSet = static_cast<uint32_t>(-1);
+            ASSERT(32 == Util::numLeadingUnsetBits(bottomSet));
+            uint64_t topSet = static_cast<uint64_t>(-1) ^ bottomSet;
+            ASSERT(0 == Util::numLeadingUnsetBits(topSet));
+        }
+
         { // all bits set
             uint32_t value32 = static_cast<uint32_t>(-1);
             ASSERT(0 == Util::numLeadingUnsetBits(value32));
@@ -656,6 +663,13 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+        }
+
+        { // each word set
+            uint64_t bottomSet = static_cast<uint32_t>(-1);
+            ASSERT(0 == Util::numTrailingUnsetBits(bottomSet));
+            uint64_t topSet = static_cast<uint64_t>(-1) ^ bottomSet;
+            ASSERT(32 == Util::numTrailingUnsetBits(topSet));
         }
 
         { // all bits set
