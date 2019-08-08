@@ -144,25 +144,25 @@ BSLS_IDENT("$Id: $")
 // from this entry.
 // In order to read the XML, we first need to construct a
 // 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
-// 'TestReader' object, where 'TestReader' is a derived implementation of
-// 'balxml_reader'.
+// 'TestReader' object, where the 'TestReader' is an implementation of the
+// 'balxml::Reader'.
 //..
 //  balxml::NamespaceRegistry namespaces;
 //  balxml::PrefixStack       prefixStack(&namespaces);
 //  TestReader                testReader;
 //  balxml::Reader&           reader = testReader;
-//
+//..
+// The reader uses a 'balxml::PrefixStack' to manage namespace prefixes.
+// Installing a stack for an open reader leads to undefined behavior.  So we
+// want to check our reader's state before installation.
+//..
 //  assert(false == reader.isOpen());
-//..
-// The reader uses a 'balxml::PrefixStack' to manage namespace prefixes so we
-// need to set it before we call open.
-//..
+//
 //  reader.setPrefixStack(&prefixStack);
 //
-//  assert(0            != reader.prefixStack());
 //  assert(&prefixStack == reader.prefixStack());
 //..
-// Next we call the 'open' method to setup the reader for parsing using the
+// Next, we call the 'open' method to setup the reader for parsing using the
 // data contained in the in the XML string.
 //..
 //  reader.open(TEST_XML_STRING, sizeof(TEST_XML_STRING) -1, 0, "UTF-8");
@@ -171,7 +171,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(true == reader.isOpen());
 //..
-// Then iterate through the nodes to find the elements, interesting to us:
+// Then, iterate through the nodes to find the elements that are interesting to
+// us. First, we'll find the user's name:
 //..
 //  int         rc = 0;
 //  bsl::string name;
@@ -191,7 +192,7 @@ BSLS_IDENT("$Id: $")
 //
 //  name.assign(reader.nodeValue());
 //..
-// Next advance to the user's phone number:
+// Next, advance to the user's phone number:
 //..
 //  do {
 //      rc = reader.advanceToNextNode();
@@ -217,12 +218,12 @@ BSLS_IDENT("$Id: $")
 //      number.assign(reader.nodeValue());
 //  }
 //..
-// Now verify the extracted data:
+// Now, verify the extracted data:
 //..
 //  assert("John Smith"   == name);
 //  assert("212-318-2000" == number);
 //..
-// Finally close the reader:
+// Finally, close the reader:
 //..
 //  reader.close();
 //  assert(false == reader.isOpen());
@@ -232,45 +233,46 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - -
 // We have to implement all pure virtual functions of the 'balxml::Reader'
 // protocol, but to make the example easier to read and shorter we will stub
-// some methods.  Moreover we will fake used methods, so our implementation
-// will not handle the given XML fragment, but iterate through some
-// supposititious structure.
+// some methods.  Moreover, we will provide fake implementations of the methods
+// used in this example, so our implementation will not handle the given XML
+// fragment, but iterate through some supposititious XML structure.
 //
-// Firstly let introduce an array of 'helper' structs.  This array will be
-// filling in with data capable of describing the information contained in the
+// First, let's introduce an array of "helper" structs.  This array will be
+// filled in with data capable of describing the information contained in the
 // user directory XML above:
 //..
-//  enum { NUM_ATTRIBUTES = 5 };
-//
 //  struct TestNode {
 //      // A struct that contains information capable of describing an XML
 //      // node.
 //
-//  // DATA
-//  balxml::Reader::NodeType  d_type;
-//      // type of the node
+//      // TYPES
+//      enum {
+//          k_NUM_ATTRIBUTES = 5
+//      };
 //
-//  const char               *d_qname;
-//      // qualified name of the node
+//      // DATA
+//      balxml::Reader::NodeType  d_type;
+//          // type of the node
 //
-//  const char               *d_nodeValue;
-//      // Value of the XML node if null, then hasValue() returns false
+//      const char               *d_qname;
+//          // qualified name of the node
 //
-//  int                       d_depthChange;
-//      // Adjustment for the depth level of 'TestReader', valid values are -1,
-//      // 0 or
-//      // 1
+//      const char               *d_nodeValue;
+//          // Value of the XML node if null, then hasValue() returns false
 //
-//  bool                      d_isEmpty;
-//      // flag indicating whether the element is empty
-//  struct {
-//      const char *d_qname;  // qualified name of the attribute
-//      const char *d_value;  // value of the attribute
-//  } d_attributes[NUM_ATTRIBUTES];
-//  // array of attributes
+//      int                       d_depthChange;
+//          // Adjustment for the depth level of 'TestReader', valid values are
+//          // -1, 0 or 1
+//
+//      bool                      d_isEmpty;
+//          // flag indicating whether the element is empty
+//
+//      struct {
+//          const char *d_qname;  // qualified name of the attribute
+//          const char *d_value;  // value of the attribute
+//      } d_attributes[k_NUM_ATTRIBUTES];
+//          // array of attributes
 //  };
-//
-//  static const char *XmlValue = "version='1.0' encoding='UTF-8'";
 //
 //  static const TestNode fakeDocument[] = {
 //      // 'fakeDocument' is an array of 'TestNode' objects, that will be used
@@ -278,69 +280,69 @@ BSLS_IDENT("$Id: $")
 //      // above.
 //
 //      { balxml::Reader::e_NODE_TYPE_NONE,
-//        0                , 0             ,  0,
+//        0                , 0                               ,  0,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_XML_DECLARATION,
-//        "xml"            , XmlValue      , +1,
+//        "xml"            , "version='1.0' encoding='UTF-8'", +1,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_ELEMENT,
-//        "directory-entry" , 0            ,  0,
+//        "directory-entry" , 0                              ,  0,
 //        false, {"xmlns:dir"    , "http://bloomberg.com/schemas/directory"} },
 //
 //      { balxml::Reader::e_NODE_TYPE_ELEMENT,
-//        "name"           , 0             , +1,
+//        "name"           , 0                               , +1,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_TEXT,
-//        0                , "John Smith"  , +1,
+//        0                , "John Smith"                    , +1,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_END_ELEMENT,
-//        "name"           , 0             , -1,
+//        "name"           , 0                               , -1,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_ELEMENT,
-//        "phone"          , 0             ,  0,
+//        "phone"          , 0                               ,  0,
 //        false, {"dir:phonetype", "cell"}                                   },
 //
 //      { balxml::Reader::e_NODE_TYPE_TEXT,
-//        0                , "212-318-2000", +1,
+//        0                , "212-318-2000"                  , +1,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_END_ELEMENT,
-//        "phone"          , 0             , -1,
+//        "phone"          , 0                               , -1,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_ELEMENT,
-//        "address"       , 0             ,  0,
+//        "address"       , 0                                ,  0,
 //        true,  {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_END_ELEMENT,
-//        "directory-entry", 0             , -1,
+//        "directory-entry", 0                               , -1,
 //        false, {}                                                          },
 //
 //      { balxml::Reader::e_NODE_TYPE_NONE,
-//        0                , 0             ,  0,
+//        0                , 0                               ,  0,
 //        false, {}                                                          },
 //  };
 //..
 // Now, create a class that implements the 'balxml::Reader' interface.  Note,
-// that documentation for class methods, duplicating the documentation for the
-// protocol methods is omitted to shorten the text of the usage example.
+// that documentation for class methods is omitted to reduce the text of the
+// usage example.  If necessary, it can be seen in the 'balxml::Reader' class
+// declaration.
 //..
 //                                // ================
 //                                // class TestReader
 //                                // ================
 //
-//  class TestReader : public balxml::Reader
-//  {
+//  class TestReader : public balxml::Reader {
 //    private:
 //      // DATA
 //      balxml::ErrorInfo    d_errorInfo;    // current error information
 //
-//      balxml::PrefixStack *d_prefixes;     // prefix stack
+//      balxml::PrefixStack *d_prefixes;     // prefix stack (held, not owned)
 //
 //      XmlResolverFunctor   d_resolver;     // place holder, not actually used
 //
@@ -351,7 +353,8 @@ BSLS_IDENT("$Id: $")
 //
 //      int                  d_nodeDepth;    // level of the current node
 //
-//      const TestNode      *d_currentNode;  // node being handled
+//      const TestNode      *d_currentNode;  // node being handled (held, not
+//                                           // owned)
 //
 //      // PRIVATE CLASS METHODS
 //      void setEncoding(const char *encoding);
@@ -427,16 +430,16 @@ BSLS_IDENT("$Id: $")
 //  void TestReader::setEncoding(const char *encoding)
 //  {
 //      d_encoding =
-//                 (0 == encoding || '\0' != encoding[0]) ? "UTF-8" : encoding;
+//                 (0 == encoding || '\0' == encoding[0]) ? "UTF-8" : encoding;
 //  }
 //
 //  inline
 //  void TestReader::adjustPrefixStack()
 //  {
 //      // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
-//      // push an namespace prefixed on the prefix stack.
+//      // push a namespace prefixed on the prefix stack.
 //      if (balxml::Reader::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
-//          for (int ii = 0; ii < NUM_ATTRIBUTES; ++ii) {
+//          for (int ii = 0; ii < TestNode::k_NUM_ATTRIBUTES; ++ii) {
 //              const char *prefix = d_currentNode->d_attributes[ii].d_qname;
 //
 //              if (!prefix || bsl::strncmp("xmlns", prefix, 5)) {
@@ -468,10 +471,12 @@ BSLS_IDENT("$Id: $")
 //  , d_encoding()
 //  , d_nodeDepth(0)
 //  , d_currentNode(0)
-//  {}
+//  {
+//  }
 //
 //  TestReader::~TestReader()
-//  {}
+//  {
+//  }
 //
 //  // MANIPULATORS
 //  void TestReader::setResolver(XmlResolverFunctor resolver)
@@ -481,9 +486,7 @@ BSLS_IDENT("$Id: $")
 //
 //  void TestReader::setPrefixStack(balxml::PrefixStack *prefixes)
 //  {
-//      if (d_isOpen) {
-//          return;                                                   // RETURN
-//      }
+//      assert(!d_isOpen);
 //
 //      d_prefixes = prefixes;
 //  }
@@ -505,8 +508,8 @@ BSLS_IDENT("$Id: $")
 //      d_isOpen    = true;
 //      d_nodeDepth = 0;
 //..
-// Note that we do not use passed buffer, but direct the internal iterator to
-// the fake structure:
+// Note that we do not use the supplied buffer, but direct the internal
+// iterator to the fake structure:
 //..
 //      d_currentNode = fakeDocument;
 //
@@ -543,21 +546,22 @@ BSLS_IDENT("$Id: $")
 //          return -1;                                                // RETURN
 //      }
 //
-//      d_currentNode++;
+//      const TestNode *nextNode = d_currentNode + 1;
 //
-//      if (balxml::Reader::e_NODE_TYPE_NONE == d_currentNode->d_type) {
+//      if (balxml::Reader::e_NODE_TYPE_NONE == nextNode->d_type) {
 //          // If the node type is BAEXML_NODE_TYPE_NONE after we have just
 //          // incremented to the next node, that mean we are at the end of the
-//          // document.  An easy way to deal with not incrementing
-//          // d_currentNode to a forbidden value is to simply decrement it.
-//          d_currentNode--;
+//          // document.
 //          d_prefixes->reset();
 //          return 1;                                                 // RETURN
+//      }
+//      else {
+//          d_currentNode = nextNode;
 //      }
 //
 //      if (d_prefixes && 1 == d_nodeDepth) {
 //          // The 'TestReader' only recognizes namespace URIs with the prefix
-//          // (xmlns:) on the top level element, these URIs will be added to
+//          // "xmlns:" on the top level element, these URIs will be added to
 //          // the prefix stack.  Namespace URI declarations on any other
 //          // elements will be treated like normal attributes.  The prefix
 //          // stack will be reset once the top level element is closed.
@@ -572,7 +576,9 @@ BSLS_IDENT("$Id: $")
 //  int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
 //                                  int                       index) const
 //  {
-//      if (!d_currentNode || index < 0 || index >= NUM_ATTRIBUTES) {
+//      if (!d_currentNode ||
+//          index < 0 ||
+//          index >= TestNode::k_NUM_ATTRIBUTES) {
 //          return 1;                                                 // RETURN
 //      }
 //
@@ -611,6 +617,7 @@ BSLS_IDENT("$Id: $")
 //
 //  void TestReader::setOptions(unsigned int /* flags */)
 //  {
+//      return;  // STUB
 //  }
 //
 //  // ACCESSORS
@@ -728,13 +735,13 @@ BSLS_IDENT("$Id: $")
 //
 //  int TestReader::numAttributes() const
 //  {
-//      for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
+//      for (int index = 0; index < TestNode::k_NUM_ATTRIBUTES; ++index) {
 //          if (0 == d_currentNode->d_attributes[index].d_qname) {
 //              return index;                                         // RETURN
 //          }
 //      }
 //
-//      return NUM_ATTRIBUTES;
+//      return TestNode::k_NUM_ATTRIBUTES;
 //  }
 //
 //  bool TestReader::isEmptyElement() const
@@ -747,7 +754,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-// Finally we can make an object to be used in the Example 1.
+// Finally, we can make an object to be used in the Example 1.
 
 #include <balscm_version.h>
 
@@ -879,7 +886,7 @@ class Reader {
         // 'os' stream.
 
     bool isFatalError() const;
-        // Return 'true' if the derived object encountered a fatal error.  This
+        // Return 'true' if the derived object encountred a fatal error.  This
         // method is equivalent to a call to 'errorInfo().isFatalError();'
 
     bool isError() const;
