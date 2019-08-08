@@ -108,6 +108,12 @@ BSLS_IDENT("$Id: $")
     // the recognize the Gnu intrinsic spellings.
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#include <intrin.h>
+# define BDLB_BITUTIL_USE_MSVC_INTRINSICS 1
+    // Use the intrinsics that map directly to CPU instructions on MSVC
+#endif
+
 namespace BloombergLP {
 namespace bdlb {
 
@@ -261,6 +267,8 @@ int BitUtil::numBitsSet(uint32_t value)
     return __popcnt4(value);
 #elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcount(value);
+#elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
+    return __popcnt(value);
 #else
     return privateNumBitsSet(value);
 #endif
@@ -273,6 +281,14 @@ int BitUtil::numBitsSet(uint64_t value)
     return __popcnt8(value);
 #elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcountll(value);
+#elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
+    #if defined(BSLS_PLATFORM_CPU_64_BIT)
+        return __popcnt64(value);
+    #else
+        // '__popcnt64' available only in 64bit target
+        return __popcnt(static_cast<uint32_t>(value)) +
+                    __popcnt(static_cast<uint32_t>(value >> k_BITS_PER_INT32));
+    #endif
 #else
     return privateNumBitsSet(value);
 #endif
@@ -286,6 +302,12 @@ int BitUtil::numLeadingUnsetBits(uint32_t value)
 #elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     // '__builtin_clz(0)' is undefined
     return __builtin_clz(value | 1) + static_cast<int>(!value);
+#elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
+    // '_BitScanReverse(&index, 0)' sets 'index' to an unspecified value
+    unsigned long index;
+    return _BitScanReverse(&index, value)
+         ? k_BITS_PER_INT32 - 1 - index
+         : k_BITS_PER_INT32;
 #else
     return privateNumLeadingUnsetBits(value);
 #endif
@@ -299,6 +321,21 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
 #elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     // '__builtin_clzll(0)' is undefined
     return __builtin_clzll(value | 1) + static_cast<int>(!value);
+#elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
+    #if defined(BSLS_PLATFORM_CPU_64_BIT)
+        // '_BitScanReverse64(&index, 0)' sets 'index' to an unspecified value
+        unsigned long index;
+        return _BitScanReverse64(&index, value)
+             ? k_BITS_PER_INT64 - 1 - index
+             : k_BITS_PER_INT64;
+    #else
+        // '_BitScanReverse64' available only in 64bit target
+        return value > 0xffffffff
+             ? numLeadingUnsetBits(static_cast<uint32_t>(
+                                                    value >> k_BITS_PER_INT32))
+             : numLeadingUnsetBits(static_cast<uint32_t>(value))
+                                                            + k_BITS_PER_INT32;
+    #endif
 #else
     return privateNumLeadingUnsetBits(value);
 #endif
@@ -320,6 +357,10 @@ int BitUtil::numTrailingUnsetBits(uint32_t value)
     //..
     //  return (__builtin_ffs(value) - 1) ^ ((-!value) & ~k_BITS_PER_INT32);
     //..
+#elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
+    // '_BitScanForward(&index, 0)' sets 'index' to an unspecified value
+    unsigned long index;
+    return _BitScanForward(&index, value) ? index : k_BITS_PER_INT32;
 #else
     return privateNumTrailingUnsetBits(value);
 #endif
@@ -342,6 +383,18 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
     //..
     //  return (__builtin_ffsll(value) - 1) ^ ((-!value) & ~k_BITS_PER_INT64);
     //..
+#elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
+    #if defined(BSLS_PLATFORM_CPU_64_BIT)
+        // '_BitScanForward64(&index, 0)' sets 'index' to an unspecified value
+        unsigned long index;
+        return _BitScanForward64(&index, value) ? index : k_BITS_PER_INT64;
+    #else
+        // '_BitScanForward64' available only in 64bit target
+        return 0 != (value & 0xffffffff)
+            ? numTrailingUnsetBits(static_cast<uint32_t>(value))
+            : numTrailingUnsetBits(static_cast<uint32_t>(
+                                value >> k_BITS_PER_INT32)) + k_BITS_PER_INT32;
+    #endif
 #else
     return privateNumTrailingUnsetBits(value);
 #endif
