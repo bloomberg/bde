@@ -422,14 +422,14 @@ enum AssertMode {
 } mode;
 
 int        expectedLine;
-AssertMode expectedThrow = e_NO_THROW;
+//AssertMode expectedThrow = e_NO_THROW;
 char       cfg;
 
 void myHandler(const char *text, const char *file, int line)
 {
     if (veryVerbose ) {
         P(mode)
-        P_(expectedLine) P_(expectedThrow) P(cfg)
+        P_(expectedLine) /*P_(expectedThrow)*/ P(cfg)
         P_(line)         P_(file)          P(text)
     }
     const char *base   = "BSLMT_READERWRITERMUTEXASSERT_IS";
@@ -452,29 +452,6 @@ void myHandler(const char *text, const char *file, int line)
     BSL::strcat(expectedText, oper);
     BSL::strcat(expectedText, level);
     BSL::strcat(expectedText, suffix);
-
-#if 0
-    switch (mode) {
-      case e_SAFE_MODE: {
-        ASSERT(0 == bsl::strcmp(
-                      "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex)",
-                      text));
-      } break;
-      case e_NORMAL_MODE: {
-        ASSERT(0 == bsl::strcmp(
-                           "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&rwMutex)",
-                           text));
-      } break;
-      case e_OPT_MODE: {
-        ASSERT(0 == bsl::strcmp(
-                       "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&rwMutex)",
-                       text));
-      } break;
-      default: {
-        ASSERTV(mode, 0);
-      }
-    }
-#endif
 
     ASSERTV(expectedText,
             text,
@@ -628,49 +605,13 @@ int main(int argc, char *argv[])
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-// Save 'BSLS_ASSERT_*_IS_ACTIVE' states.
-
-#if defined(      BSLS_ASSERT_SAFE_IS_ACTIVE)
-#   define  SAVED_BSLS_ASSERT_SAFE_IS_ACTIVE
-#endif
-#if defined(      BSLS_ASSERT_IS_ACTIVE)
-#   define  SAVED_BSLS_ASSERT_IS_ACTIVE
-#endif
-#if defined(      BSLS_ASSERT_OPT_IS_ACTIVE)
-#   define  SAVED_BSLS_ASSERT_OPT_IS_ACTIVE
-#endif
-
-
-        if (veryVerbose) cout << "testing with mutex locked\n";
+        if (veryVerbose) cout << "testing with readerwritemutex locked\n";
         {
             bslmt::ReaderWriterMutex rwMutex;
             rwMutex.lockRead();
 
-#define BSLS_ASSERT_SAFE_IS_ACTIVE
-#undef  BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT( &rwMutex);
-
-#undef  BSLS_ASSERT_SAFE_IS_ACTIVE
-#define BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT( &rwMutex);
-
-#define BSLS_ASSERT_SAFE_IS_ACTIVE
-#undef  BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &rwMutex);
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(&rwMutex);
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(     &rwMutex);
@@ -679,29 +620,6 @@ int main(int argc, char *argv[])
             rwMutex.unlockRead();
             rwMutex.lockWrite();
 
-#define BSLS_ASSERT_SAFE_IS_ACTIVE
-#undef  BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT( &rwMutex);
-
-#undef  BSLS_ASSERT_SAFE_IS_ACTIVE
-#define BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT( &rwMutex);
-
-#define BSLS_ASSERT_SAFE_IS_ACTIVE
-#undef  BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &rwMutex);
             BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
@@ -711,259 +629,170 @@ int main(int argc, char *argv[])
 
             rwMutex.unlockWrite();
         }
-#if 0
-// Temporary
-#define BSLS_ASSERT_SAFE_IS_ACTIVE
-#define BSLS_ASSERT_IS_ACTIVE
-#define BSLS_ASSERT_OPT_IS_ACTIVE
-#endif
-        if (veryVerbose) cout << "Plan 2: testing with mutex unlocked\n";
+
+        if (veryVerbose) cout << "testing with readerwritermutex unlocked\n";
         {
             bslmt::ReaderWriterMutex rwMutex;
-            bool expectThrow;
-
 
             bsls::Assert::setFailureHandler(&TestCase2::myHandler);
-// ----------------------------------------------------------------------------
-#if 1
-#define BSLS_ASSERT_SAFE_IS_ACTIVE
-#undef  BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
-
-    TestCase2::expectedThrow = TestCase2::e_SAFE_MODE;
-    TestCase2::mode          = TestCase2::e_SAFE_MODE;
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-        TestCase2::cfg = cfg;
-        try {
-            switch (cfg) {
-              case 'a': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
-              case 'b': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
-              case 'c': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
+         // TestCase2::expectedThrow = TestCase2::e_SAFE_MODE;
+            TestCase2::mode          = TestCase2::e_SAFE_MODE;
+
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                TestCase2::cfg = cfg;
+
+                try {
+                    switch (cfg) {
+                      case 'a': {
+                        TestCase2::expectedLine = __LINE__ + 1;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                      case 'b': {
+                        TestCase2::expectedLine = __LINE__ + 2;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(
+                                                                     &rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                      case 'c': {
+                        TestCase2::expectedLine = __LINE__ + 2;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(
+                                                                    &rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                    }
+                } catch (TestCase2::AssertMode thrown) {
+#if 0
+                    ASSERTV(cfg,
+                            thrown,
+                            TestCase2::expectedThrow,
+                            TestCase2::expectedThrow == thrown);
+#else
+                    ;
+#endif
+                }
             }
-        } catch (TestCase2::AssertMode thrown) {
-            ASSERTV(cfg,
-                    thrown,
-                    TestCase2::expectedThrow,
-                    TestCase2::expectedThrow == thrown);
-        }
-    }
+
+#else  // BSLS_ASSERT_SAFE_IS_ACTIVE
+
+            try {
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(      &rwMutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE( &rwMutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(&rwMutex);
+            } catch (TestCase2::AssertMode thrown) {
+                ASSERT(!"Reachable")
+            }
+
 #endif // BSLS_ASSERT_SAFE_IS_ACTIVE
 
 #ifdef BSLS_ASSERT_IS_ACTIVE
-    for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-        TestCase2::cfg = cfg;
-        try {
-            switch (cfg) {
-              case 'a': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
-              case 'b': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
-              case 'c': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
+         // TestCase2::expectedThrow = TestCase2::e_NORMAL_MODE;
+            TestCase2::mode          = TestCase2::e_NORMAL_MODE;
+
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                TestCase2::cfg = cfg;
+                try {
+                    switch (cfg) {
+                      case 'a': {
+                        TestCase2::expectedLine = __LINE__ + 1;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                      case 'b': {
+                        TestCase2::expectedLine = __LINE__ + 1;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(&rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                      case 'c': {
+                        TestCase2::expectedLine = __LINE__ + 2;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(
+                                                                     &rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                    }
+                } catch (TestCase2::AssertMode thrown) {
+#if 0
+                    ASSERTV(cfg,
+                            thrown,
+                            TestCase2::expectedThrow,
+                            TestCase2::expectedThrow == thrown);
+#else
+                    ;
+                }
+#endif
             }
-        } catch (TestCase2::AssertMode thrown) {
-            ASSERTV(cfg,
-                    thrown,
-                    TestCase2::expectedThrow,
-                    TestCase2::expectedThrow == thrown);
-        }
-    }
+#else  // BSLS_ASSERT_IS_ACTIVE
+            try {
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(      &rwMutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ( &rwMutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&rwMutex);
+            } catch (TestCase2::AssertMode thrown) {
+                ASSERT(!"Reachable")
+            }
 #endif // BSLS_ASSERT_IS_ACTIVE
 
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-    for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-        TestCase2::cfg = cfg;
-        try {
-            switch (cfg) {
-              case 'a': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
-              case 'b': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
-              case 'c': {
-                TestCase2::expectedLine = __LINE__ + 1;
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(&rwMutex);
-                ASSERTV(cfg, !"Reachable")
-                break;
-              }
+          //TestCase2::expectedThrow = TestCase2::e_OPT_MODE;
+            TestCase2::mode          = TestCase2::e_OPT_MODE;
+
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                TestCase2::cfg = cfg;
+                try {
+                    switch (cfg) {
+                      case 'a': {
+                        TestCase2::expectedLine = __LINE__ + 1;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                      case 'b': {
+                        TestCase2::expectedLine = __LINE__ + 2;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT(
+                                                                     &rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                      case 'c': {
+                        TestCase2::expectedLine = __LINE__ + 2;
+                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(
+                                                                     &rwMutex);
+                        ASSERTV(cfg, !"Reachable")
+                        break;
+                      }
+                    }
+                } catch (TestCase2::AssertMode thrown) {
+#if 0
+                    ASSERTV(cfg,
+                            thrown,
+                            TestCase2::expectedThrow,
+                            TestCase2::expectedThrow == thrown);
+#else
+                    ;
+                }
+#endif
             }
-        } catch (TestCase2::AssertMode thrown) {
-            ASSERTV(cfg,
-                    thrown,
-                    TestCase2::expectedThrow,
-                    TestCase2::expectedThrow == thrown);
-        }
-    }
+#else   // BSLS_ASSERT_OPT_IS_ACTIVE
+            try {
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(      &rwMutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT( &rwMutex);
+                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(&rwMutex);
+            } catch (TestCase2::AssertMode thrown) {
+                ASSERT(!"Reachable")
+            }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
-#if 0
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-            printf("BSLS_ASSERT_SAFE_IS_ACTIVE: OK\n");
-#else
-            printf("BSLS_ASSERT_SAFE_IS_ACTIVE: NG\n");
-#endif
-#ifdef BSLS_ASSERT_IS_ACTIVE
-            printf("BSLS_ASSERT_IS_ACTIVE: OK\n");
-#else
-            printf("BSLS_ASSERT_IS_ACTIVE: NG\n");
-#endif
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-            printf("BSLS_ASSERT_OPT_IS_ACTIVE: OK\n");
-#else
-            printf("BSLS_ASSERT_OPT_IS_ACTIVE: NG\n");
-#endif
-#endif
-
-#if 0
-    // This should all be disabled.
-    try {
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(      &rwMutex);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ( &rwMutex);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&rwMutex);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(      &rwMutex);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT( &rwMutex);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(&rwMutex);
-    } catch (TestCase2::AssertMode thrown) {
-        ASSERT(!"Reachable")
-    }
-#endif
-
-#if 0
-#undef  BSLS_ASSERT_SAFE_IS_ACTIVE
-#define BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
-
-#define BSLS_ASSERT_SAFE_IS_ACTIVE
-#undef  BSLS_ASSERT_IS_ACTIVE
-#undef  BSLS_ASSERT_OPT_IS_ACTIVE
-#endif
-
-// ----------------------------------------------------------------------------
-
-
-#if 0
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-            expectThrow = true;
-#else
-            expectThrow = false;
-#endif
-#endif
-#if 0
-            try {
-                SETUP( __LINE__ + 1);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-                ASSERT(!expectThrow);
-
-                if (veryVerbose) cout << "Didn't throw SAFE\n";
-            } catch (TestCase2::AssertMode thrown) {
-                ASSERT(5 == thrown);
-                ASSERT(expectThrow);
-
-                if (veryVerbose) cout << "Threw SAFE\n";
-            }
-
-#if 0
-#ifdef BSLS_ASSERT_IS_ACTIVE
-            expectThrow = true;
-#else
-            expectThrow = false;
-#endif
-#endif
-            try {
-                SETUP( __LINE__ + 1);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&rwMutex);
-                ASSERT(!expectThrow);
-
-                if (veryVerbose) cout << "Didn't throw\n";
-            } catch (int thrown) {
-                ASSERT(5 == thrown);
-                ASSERT(expectThrow);
-
-                if (veryVerbose) cout << "Threw\n";
-            }
-#if 0
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-            expectThrow = true;
-#else
-            expectThrow = false;
-#endif
-#endif
-
-            try {
-                SETUP( __LINE__ + 1);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&rwMutex);
-                ASSERT(!expectThrow);
-
-                if (veryVerbose) cout << "Didn't throw OPT\n";
-            } catch (int thrown) {
-                ASSERT(5 == thrown);
-                ASSERT(expectThrow);
-
-                if (veryVerbose) cout << "Threw OPT\n";
-            }
-#endif  // 1 
-#endif
-
             bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
-
         }
-
-// Restore 'BSLS_ASSERT_*_IS_ACTIVE' states.
-
-#if 0
-#if defined(SAVED_BSLS_ASSERT_SAFE_IS_ACTIVE)
-#   define        BSLS_ASSERT_SAFE_IS_ACTIVE
-#endif
-#if defined(SAVED_BSLS_ASSERT_IS_ACTIVE)
-#   define        BSLS_ASSERT_IS_ACTIVE
-#endif
-#if defined(SAVED_BSLS_ASSERT_OPT_IS_ACTIVE)
-#   define        BSLS_ASSERT_OPT_IS_ACTIVE
-#endif
-
-#undef SAVED_BSLS_ASSERT_SAFE_IS_ACTIVE
-#undef SAVED_BSLS_ASSERT_IS_ACTIVE
-#undef SAVED_BSLS_ASSERT_OPT_IS_ACTIVE
-#endif
-
 #endif // BDE_BUILD_TARGET_EXC
-
       } break;
       case 1: {
         // ------------------------------------------------------------------
