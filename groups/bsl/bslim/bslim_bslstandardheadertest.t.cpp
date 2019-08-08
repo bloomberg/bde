@@ -167,6 +167,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [ 8] CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
 // [ 5] CONCERN: Range functions are not ambiguous with 'std' under ADL
 // [ 6] CONCERN: 'forward_list' is available in C++11 builds
 // [ 4] maps of smart pointers
@@ -408,6 +409,50 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING SEARCHERS
+        //
+        // Concerns:
+        //: 1 'default_searcher' and 'boyer_moore_horspool_seacher' are
+        //:   available in 'bsl' to users who include 'bsl_functional.h'.
+        //
+        // Plan:
+        //: 1 Create a simple example that uses both classes.  Compilation of
+        //:   the exmaple demonstrates that the classes can be found in 'bsl'.
+        //
+        // Testing
+        //   CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SEARCHERS"
+                            "\n=================\n");
+
+        typedef const char *                                 ConstItr;
+        typedef bsl::default_searcher             <ConstItr> DftSearcher;
+        typedef bsl::boyer_moore_horspool_searcher<ConstItr> BmhSearcher;
+
+        const char     needle[]    = "world";
+        const ConstItr needleFirst = needle;
+        const ConstItr needleLast  = needleFirst + sizeof needle - 1;
+
+        DftSearcher dftSearcher(needleFirst, needleLast);
+        BmhSearcher bmhSearcher(needleFirst, needleLast);
+
+        const char     haystack[]    = "Hello, world.";
+        const ConstItr haystackFirst = haystack;
+        const ConstItr haystackLast  = haystackFirst + sizeof haystack - 1;
+
+        typedef bsl::pair<ConstItr, ConstItr> Result;
+
+        const Result dftResult = dftSearcher(haystackFirst, haystackLast);
+        const Result bmhResult = bmhSearcher(haystackFirst, haystackLast);
+
+        ASSERT(dftResult == bmhResult);
+        ASSERT(        7 == bmhResult.first  - haystackFirst);
+        ASSERT(        5 == bmhResult.second - bmhResult.first);
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING 'forward_list'
