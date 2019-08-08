@@ -328,7 +328,7 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
         // '_BitScanReverse64' available only in 64bit target
         return value > 0xffffffff
              ? numLeadingUnsetBits(static_cast<uint32_t>(
-                                                   value >> k_BITS_PER_INT32));
+                                                    value >> k_BITS_PER_INT32))
              : numLeadingUnsetBits(static_cast<uint32_t>(value))
                                                             + k_BITS_PER_INT32;
     #endif
@@ -387,7 +387,7 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
     #else
         // '_BitScanForward64' available only in 64bit target
         return 0 != (value & 0xffffffff)
-            ? numTrailingUnsetBits(static_cast<uint32_t>(value));
+            ? numTrailingUnsetBits(static_cast<uint32_t>(value))
             : numTrailingUnsetBits(static_cast<uint32_t>(
                                 value >> k_BITS_PER_INT32)) + k_BITS_PER_INT32;
     #endif
