@@ -393,13 +393,14 @@ int main(int argc, char *argv[])
         // ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor correctly returns the known state of a lock object.
+        //: 1 Each accessor forwards to the corresponding accessor in that
+        //:   object's 'bslmt_ReaderWriterMutexImpl' member.
         //:
         //: 2 Each accessor is 'const' qualified.
         //
         // Plan:
         //: 1 An ad-hoc sequence of (previously tested) lock and unlock
-        //:   operations is used to put a test object into different state.
+        //:   operations is used to put a test object into different states.
         //:   The accessors are used to corroborate those states.  (C-1)
         //:
         //: 2 Each accessor invocation is done via a 'const'-reference to the
