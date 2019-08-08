@@ -31,7 +31,6 @@
 
 #include <cstring>    // 'BSL::strcpy' 'BSL::strcat'
 #include <float.h>    // 'DBL_MIN'
-#include <stdio.h>    // DEBUG 'printf'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -49,21 +48,20 @@ namespace BSL = native_std;  // for Usage Examples
 //:   was thrown.
 //-----------------------------------------------------------------------------
 // MACROS
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE
-//: o BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE'
+//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT'
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
 // [ 2] CONCERN: Testing macros on mutexes locked by the current thread
 // [ 2] CONCERN: Testing macros on unlocked mutexes
-// [ 3] CONCERN: Testing macros on mutexes locked by a different thread
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -114,9 +112,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-int     verbose;
-int veryVerbose;
-
+int         verbose;
+int     veryVerbose;
+int veryVeryVerbose;
                               // -------------
                               // Usage Example
                               // -------------
@@ -414,22 +412,23 @@ struct TestCase3SubThread {
 
 namespace TestCase2 {
 
+#ifdef BDE_BUILD_TARGET_EXC
+
 enum AssertMode {
     e_NO_THROW
   , e_SAFE_MODE
   , e_NORMAL_MODE
   , e_OPT_MODE
-} mode;
+}          mode;
 
 int        expectedLine;
-//AssertMode expectedThrow = e_NO_THROW;
 char       cfg;
 
 void myHandler(const char *text, const char *file, int line)
 {
-    if (veryVerbose ) {
+    if (veryVerbose) {
         P(mode)
-        P_(expectedLine) /*P_(expectedThrow)*/ P(cfg)
+        P_(expectedLine)  P(cfg)
         P_(line)         P_(file)          P(text)
     }
     const char *base   = "BSLMT_READERWRITERMUTEXASSERT_IS";
@@ -463,18 +462,10 @@ void myHandler(const char *text, const char *file, int line)
 
     ASSERT(0 ==bsl::strcmp(__FILE__, file));
 
-#ifdef BDE_BUILD_TARGET_EXC
     throw mode;
-#else
-    // We cannot return to 'bsls::Assert::invokeHandler'.  Make sure this test
-    // fails.
-
-    ASSERT(0 &&
-           "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED* "
-           "failed with exceptions disabled");
-    abort();
-#endif // BDE_BUILD_TARGET_EXC
 }
+
+#endif // BDE_BUILD_TARGET_EXC
 
 }  // close namespace TestCase2
 
@@ -487,11 +478,12 @@ int main(int argc, char *argv[])
     int        test = argc > 1 ? atoi(argv[1]) : 0;
             verbose = argc > 2;
         veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -517,93 +509,45 @@ int main(int argc, char *argv[])
 
         testThreadSafeQueue(cout);
       } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING ON LOCK HELD BY ANOTHER THREAD
-        //
-        // Concerns:
-        //: 1 That 'BSLMT__ASSERTREADERWRITERMUTEX_IS_LOCKED*' is never calling
-        //:   'bsls::Assert::invokeHandler' if the mutex is locked by another
-        //:   thread.
-        //
-        // Plan:
-        //: o Spawn a subthread that will lock a mutex, then, once it has,
-        //:   call the macros to assert that it is locked and observe that
-        //:   no failures occur.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "TESTING LOCK HELD BY OTHER THREAD\n"
-                             "=================================\n";
-
-        bslmt::ReaderWriterMutex mutexToAssertOn;
-        bslmt::ReaderWriterMutex mutexThatMainThreadWillUnlock;
-        bsls::AtomicInt          subthreadWillIncrementValue;
-
-        subthreadWillIncrementValue = 0;
-        mutexThatMainThreadWillUnlock.lockWrite();
-
-        TestCase3SubThread functor;
-        functor.d_mutexToAssertOn = &mutexToAssertOn;
-        functor.d_mutexThatMainThreadWillUnlock =
-                                        &mutexThatMainThreadWillUnlock;
-        functor.d_subthreadWillIncrementValue = &subthreadWillIncrementValue;
-
-        bslmt::ThreadUtil::Handle handle;
-        int sts = bslmt::ThreadUtil::create(&handle, functor);
-        ASSERT(0 == sts);
-
-        bslmt::ThreadUtil::microSleep(10 * 1000);
-
-        while (0 == subthreadWillIncrementValue) {
-            ; // do nothing
-        }
-
-        // The subthread has locked the mutex.  Now observe that none of these
-        // macros blow up.
-
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&mutexToAssertOn);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &mutexToAssertOn);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &mutexToAssertOn);
-
-        // The subthread is blocked waiting for us to unlock
-        // 'mutexThatMainThreadWillUnlock'.  Unlock it so the subthread can
-        // finish and join the sub thread.
-
-        mutexThatMainThreadWillUnlock.unlockWrite();
-        sts = bslmt::ThreadUtil::join(handle);
-        ASSERT(0 == sts);
-
-        // Both mutexes are locked, unlock them so they won't assert when
-        // destroyed.
-
-        mutexToAssertOn.              unlockWrite();
-        mutexThatMainThreadWillUnlock.unlockWrite();
-      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*'
         //
         // Concerns:
-        //: 1 That 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' is never calling
-        //:   'bsls::Assert::invokeHandler' if the mutex is locked.
-        //: 2 That, in appropriate build modes, 'invokeHandler' is in fact
-        //:   called.  This test is only run when exceptions are enabled.
+        //: 1 The 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' macros do not call
+        //:   'bsls::Assert::invokeHander' if the readerwritermutex is locked
+        //:   -- read locked, write locked, or either, depending on the macro.
+        //:
+        //: 2 In the expected build mode, if any of these macros are called
+        //:   when the readerwritermutex does *not* have the expected lock, the
+        //:   currenlty installed 'bsls::Assert::invokeHander' is called with
+        //:   the expected values.
+        //:
+        //: 3 Each of these macros become no-ops except in the build mode for
+        //:   which each is intended to be active.
         //
         //: Plan:
-        //: 1 With the mutex locked and the assert handler set to
-        //:   'bsls::failAbort' (the default), call all three '*_IS_LOCKED'
-        //:   asserts and verify that they don't fail (C-1).
-        //: 2 Only if exceptions are enabled, unlock the mutex and set the
-        //:   assert handler to 'TestCase2::myHandler' then call all 3
-        //:   macros in try-catch blocks.  Expect throws depending on the
-        //:   build mode.
+        //: 1 With a readerwritemutex locked for read, and the assert handler
+        //:   set to 'bsls::failAbort' (the default), call all the read-related
+        //:   macros and confirm that they do not fire.  Repeat with a write
+        //:   lock and the write-related macros.
+        //:
+        //: 2 For each build level: '_SAFE', "normal", and '_OPT' if build
+        //:   modes where the macros are expected to be enabled, test each of
+        //:   the three on an unlocked readerwritermutex and confirm that the
+        //:   custom 'TestCase2::myHandler" function is called.  That function
+        //:   will confirm that it was called with the expected arguments.
+        //
+        //: 3 For each build level: '_SAFE', "normal", and '_OPT' if build
+        //:   modes where the macros are expected to be *disabled*, test each
+        //:   of the three on an unlocked readerwritermutex and confirm that
+        //:   the custom 'TestCase2::myHandler" function is *not* called.
         // --------------------------------------------------------------------
 
         if (verbose) cout
                       < "TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*'\n"
                         "==================================================\n";
 
-#ifdef BDE_BUILD_TARGET_EXC
 
         if (veryVerbose) cout << "testing with readerwritemutex locked\n";
         {
@@ -630,15 +574,18 @@ int main(int argc, char *argv[])
             rwMutex.unlockWrite();
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
+
         if (veryVerbose) cout << "testing with readerwritermutex unlocked\n";
         {
             bslmt::ReaderWriterMutex rwMutex;
 
-            bsls::Assert::setFailureHandler(&TestCase2::myHandler);
+            //bsls::Assert::setFailureHandler(&TestCase2::myHandler);
+            bsls::AssertFailureHandlerGuard(&TestCase2::myHandler);
 
+            if (veryVeryVerbose) "testing '*_SAVE' macros" << endl;
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-         // TestCase2::expectedThrow = TestCase2::e_SAFE_MODE;
-            TestCase2::mode          = TestCase2::e_SAFE_MODE;
+            TestCase2::mode = TestCase2::e_SAFE_MODE;
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -668,19 +615,14 @@ int main(int argc, char *argv[])
                       }
                     }
                 } catch (TestCase2::AssertMode thrown) {
-#if 0
                     ASSERTV(cfg,
+                            TestCase2::mode,
                             thrown,
-                            TestCase2::expectedThrow,
-                            TestCase2::expectedThrow == thrown);
-#else
-                    ;
-#endif
+                            TestCase2::mode == thrown);
                 }
             }
 
 #else  // BSLS_ASSERT_SAFE_IS_ACTIVE
-
             try {
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(      &rwMutex);
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE( &rwMutex);
@@ -691,9 +633,9 @@ int main(int argc, char *argv[])
 
 #endif // BSLS_ASSERT_SAFE_IS_ACTIVE
 
+            if (veryVeryVerbose) "testing 'normal' macros" << endl;
 #ifdef BSLS_ASSERT_IS_ACTIVE
-         // TestCase2::expectedThrow = TestCase2::e_NORMAL_MODE;
-            TestCase2::mode          = TestCase2::e_NORMAL_MODE;
+            TestCase2::mode = TestCase2::e_NORMAL_MODE;
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 TestCase2::cfg = cfg;
@@ -720,15 +662,11 @@ int main(int argc, char *argv[])
                       }
                     }
                 } catch (TestCase2::AssertMode thrown) {
-#if 0
                     ASSERTV(cfg,
+                            TestCase2::mode,
                             thrown,
-                            TestCase2::expectedThrow,
-                            TestCase2::expectedThrow == thrown);
-#else
-                    ;
+                            TestCase2::mode == thrown);
                 }
-#endif
             }
 #else  // BSLS_ASSERT_IS_ACTIVE
             try {
@@ -740,9 +678,9 @@ int main(int argc, char *argv[])
             }
 #endif // BSLS_ASSERT_IS_ACTIVE
 
+            if (veryVeryVerbose) "testing '*_OPT' macros" << endl;
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-          //TestCase2::expectedThrow = TestCase2::e_OPT_MODE;
-            TestCase2::mode          = TestCase2::e_OPT_MODE;
+            TestCase2::mode = TestCase2::e_OPT_MODE;
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 TestCase2::cfg = cfg;
@@ -770,15 +708,11 @@ int main(int argc, char *argv[])
                       }
                     }
                 } catch (TestCase2::AssertMode thrown) {
-#if 0
                     ASSERTV(cfg,
+                            TestCase2::mode,
                             thrown,
-                            TestCase2::expectedThrow,
-                            TestCase2::expectedThrow == thrown);
-#else
-                    ;
+                            TestCase2::mode == thrown);
                 }
-#endif
             }
 #else   // BSLS_ASSERT_OPT_IS_ACTIVE
             try {
@@ -790,8 +724,13 @@ int main(int argc, char *argv[])
             }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
-            bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+            //bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
         }
+#else  // BDE_BUILD_TARGET_EXC
+
+        if (verbose) cout << "Some tests skipped in non-exception build"
+                          << endl;
+
 #endif // BDE_BUILD_TARGET_EXC
       } break;
       case 1: {
