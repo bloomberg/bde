@@ -5,11 +5,13 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_sstream.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
-#include <bsl_limits.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -59,7 +61,7 @@ using bsl::endl;
 // [ 3] int value(bslstl::StringRef *data) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -88,7 +90,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERTV BSLIM_TESTUTIL_ASSERTV
 
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
@@ -194,7 +196,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -315,6 +317,100 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == address.d_state);
     ASSERT(10022           == address.d_zipcode);
 //..
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING that arrays of heterogenous types are handled correctly
+        //
+        // Concerns:
+        //: 1 In an array, all nested types are allowed, in any order.
+        //:   (DRQS 146756621)
+        //:
+        // Plan:
+        //: 1 Exhaustively test all possible combinations of 1, 2, and 3-length
+        //:   arrays containing an empty sub-array, empty sub-hash, string,
+        //:   number, or bool in each of the positions.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING that arrays of heterogenous types are handled "
+                    "correctly"
+                 << endl;
+
+        bsl::string values[] = {
+            "{}"
+          , "[]"
+          , "1.234"
+          , "\"str\""
+          , "true"
+        };
+
+        enum { NUM_VALUES = sizeof(values) / sizeof(values[0]) };
+
+        const bsl::string COMMA = ", ";
+        bsl::vector<bsl::string> candidates;
+        candidates.reserve(NUM_VALUES * NUM_VALUES * NUM_VALUES * NUM_VALUES *
+                           NUM_VALUES);
+
+        for(int LENGTH = 0; LENGTH < 6; ++LENGTH) {
+            bsl::string       separator = "";
+
+            candidates.clear();
+            candidates.push_back("[ ");
+
+            for(int i = 0; i < LENGTH; ++i) {
+                bsl::vector<bsl::string> inputs = candidates;
+                candidates.clear();
+
+                for (bsl::size_t j = 0; j < inputs.size(); ++j) {
+                    for (bsl::size_t k = 0; k < NUM_VALUES; ++k) {
+                        candidates.push_back(inputs[j] + separator +
+                                             values[k]);
+                    }
+                }
+
+                separator = COMMA;
+            }
+
+            for (bsl::size_t i = 0; i < candidates.size(); ++i) {
+                candidates[i] += " ]";
+
+                if (veryVerbose) {
+                    P_(i) P(candidates[i])
+                }
+
+                bsl::istringstream iss(candidates[i]);
+
+                Obj mX;  const Obj& X = mX;
+                ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
+
+
+                mX.reset(iss.rdbuf());
+                bsl::size_t item_count = 0;
+
+                while (0 == mX.advanceToNextToken()) {
+                    switch (X.tokenType()) {
+                      case Obj::e_ELEMENT_VALUE:
+                      case Obj::e_END_OBJECT:
+                      case Obj::e_END_ARRAY:
+                        ++item_count;
+                        break;
+                      default:
+                        break;
+                    }
+                }
+
+                // '+ 1' for the closing outer array.
+                ASSERTV(i,
+                        candidates[i],
+                        item_count,
+                        LENGTH + 1,
+                        LENGTH + 1 == item_count);
+            }
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -569,9 +665,10 @@ int main(int argc, char *argv[])
         //   bool allowHeterogenousArrays() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'allowHeterogenousArrays' option" << endl
-                          << "=======================================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING 'allowHeterogenousArrays' option" << endl
+                 << "========================================" << endl;
 
         const struct {
             int             d_line;
@@ -4462,6 +4559,39 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
+                "["
+                    "\"John\""
+                    "]",
+                1,
+                true,
+                Obj::e_ELEMENT_VALUE,
+                true,
+                "\"John\""
+            },
+            {
+                L_,
+                "["
+                    "\"\nJohn\""
+                    "]",
+                1,
+                true,
+                Obj::e_ELEMENT_VALUE,
+                true,
+                "\"\nJohn\""
+            },
+            {
+                L_,
+                "["
+                    "\" John\""
+                    "]",
+                1,
+                true,
+                Obj::e_ELEMENT_VALUE,
+                true,
+                "\" John\""
+            },
+            {
+                L_,
                 WS "{"
                 WS   "\"name\""
                 WS            ":"
@@ -5752,6 +5882,16 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
+                "{"
+                 "\"name\"",
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
+            },
+            {
+                L_,
                 "{\n"
                  "\"name\"",
                 0,
@@ -5759,6 +5899,16 @@ int main(int argc, char *argv[])
                 Obj::e_START_OBJECT,
                 false,
                 ""
+            },
+            {
+                L_,
+                "{\n"
+                 "\"name\"",
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
             },
             {
                 L_,
@@ -5772,6 +5922,26 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
+                "{\n"
+                 "\"name\"\n",
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
+            },
+            {
+                L_,
+                "{\n"
+                 "\"name\n\"",
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name\n"
+            },
+            {
+                L_,
                 WS "{"
                     "\"name\"",
                 0,
@@ -5779,6 +5949,16 @@ int main(int argc, char *argv[])
                 Obj::e_START_OBJECT,
                 false,
                 ""
+            },
+            {
+                L_,
+                WS "{"
+                    "\"name\"",
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
             },
             {
                 L_,
@@ -5793,12 +5973,32 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{"
+                WS "\"name\"",
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
+            },
+            {
+                L_,
+                "{"
                  "\"name\"" WS,
                 0,
                 true,
                 Obj::e_START_OBJECT,
                 false,
                 ""
+            },
+            {
+                L_,
+                "{"
+                 "\"name\"" WS,
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
             },
             {
                 L_,
@@ -5813,12 +6013,42 @@ int main(int argc, char *argv[])
             {
                 L_,
                 WS "{"
+                WS  "\"name\"",
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
+            },
+            {
+                L_,
+                WS "{"
                 WS " \"name\"" WS,
                 0,
                 true,
                 Obj::e_START_OBJECT,
                 false,
                 ""
+            },
+            {
+                L_,
+                WS "{"
+                WS " \"name\"" WS,
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                "name"
+            },
+            {
+                L_,
+                WS "{"
+                WS "\" name\"" WS,
+                1,
+                true,
+                Obj::e_ELEMENT_NAME,
+                true,
+                " name"
             },
 
             // name -> value (object), i.e. name -> '{'
@@ -6287,6 +6517,12 @@ int main(int argc, char *argv[])
                     bslstl::StringRef value;
                     ASSERTV(LINE, 0 == X.value(&value));
                     ASSERTV(LINE, value, EXP_VALUE, value == EXP_VALUE);
+                    if (value != EXP_VALUE) {
+                        cout << "value=::" << value << "::"
+                             << ", EXP_VALUE=::" << EXP_VALUE << "::"
+                             << ", tokenType=::" << X.tokenType()
+                             << endl;
+                    }
                 }
             }
             else {

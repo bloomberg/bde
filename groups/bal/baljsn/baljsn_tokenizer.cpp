@@ -264,12 +264,12 @@ int Tokenizer::advanceToNextToken()
              || e_START_ARRAY   == d_tokenType
              || (e_END_OBJECT   == d_tokenType && ',' == previousChar)
              || (d_allowHeterogenousArrays
-                 && e_ARRAY_CONTEXT == d_context
+                 && e_ARRAY_CONTEXT == context()
                  && ','             == previousChar)
              || e_BEGIN         == d_tokenType) {
 
                 d_tokenType  = e_START_OBJECT;
-                d_context    = e_OBJECT_CONTEXT;
+                pushContext(e_OBJECT_CONTEXT);
                 previousChar = '{';
 
                 ++d_cursor;
@@ -287,7 +287,7 @@ int Tokenizer::advanceToNextToken()
              || e_END_ARRAY      == d_tokenType) {
 
                 d_tokenType  = e_END_OBJECT;
-                d_context    = e_OBJECT_CONTEXT;
+                popContext();
                 previousChar = '}';
 
                 ++d_cursor;
@@ -303,12 +303,12 @@ int Tokenizer::advanceToNextToken()
              || e_START_ARRAY   == d_tokenType
              || (e_END_ARRAY    == d_tokenType && ',' == previousChar)
              || (d_allowHeterogenousArrays
-                 && e_ARRAY_CONTEXT == d_context
+                 && e_ARRAY_CONTEXT == context()
                  && ','             == previousChar)
              || e_BEGIN         == d_tokenType) {
 
                 d_tokenType  = e_START_ARRAY;
-                d_context    = e_ARRAY_CONTEXT;
+                pushContext(e_ARRAY_CONTEXT);
                 previousChar = '[';
 
                 ++d_cursor;
@@ -326,7 +326,7 @@ int Tokenizer::advanceToNextToken()
              || (e_END_OBJECT    == d_tokenType && ',' != previousChar)) {
 
                 d_tokenType = e_END_ARRAY;
-                d_context   = e_OBJECT_CONTEXT;
+                popContext();
                 previousChar = ']';
 
                 ++d_cursor;
@@ -371,43 +371,127 @@ int Tokenizer::advanceToNextToken()
 
             // Here are the scenarios for a '"':
             //
-            // CURRENT TOKEN           CONTEXT           NEXT TOKEN
-            // -------------           -------           ----------
-            // START_OBJECT  ('{')                       ELEMENT_NAME
-            // END_OBJECT    ('}')                       ELEMENT_NAME
-            // START_ARRAY   ('[')                       ELEMENT_VALUE
-            // END_ARRAY     (']')                       ELEMENT_VALUE
-            // ELEMENT_NAME  (':')                       ELEMENT_VALUE
-            // ELEMENT_VALUE (   )     OBJECT_CONTEXT    ELEMENT_NAME
-            // ELEMENT_VALUE (   )     ARRAY_CONTEXT     ELEMENT_VALUE
+            // CURRENT TOKEN           CONTEXT                    NEXT TOKEN
+            // -------------           -------                    ----------
+            // BEGIN         (   )     n/a                        ELEMENT_VALUE
+            //                                 NOTE: req. allowStandAloneValues
+            // START_OBJECT  ('{')     OBJECT_CONTEXT             ELEMENT_NAME
+            //
+            // END_OBJECT    ('}')     OBJECT_CONTEXT             ELEMENT_NAME
+            //                         ARRAY_CONTEXT              ELEMENT_VALUE
+            //                                 NOTE: req. prevChar==','
+            //
+            // START_ARRAY   ('[')              ARRAY_CONTEXT     ELEMENT_VALUE
+            //
+            // END_ARRAY     (']')     OBJECT_CONTEXT             ELEMENT_NAME
+            //                         ARRAY_CONTEXT              ELEMENT_VALUE
+            //                                 NOTE: req. prevChar==','
+            //
+            // ELEMENT_NAME  (':')     OBJECT_CONTEXT             ELEMENT_VALUE
+            //
+            // ELEMENT_VALUE (   )     OBJECT_CONTEXT             ELEMENT_NAME
+            //                         ARRAY_CONTEXT              ELEMENT_VALUE
+            //                                 NOTE: req. prevChar==','
 
-            if (e_START_OBJECT   == d_tokenType
-             || (e_END_OBJECT    == d_tokenType && ',' == previousChar)
-             || (e_END_ARRAY     == d_tokenType && ',' == previousChar)
-             || (e_ELEMENT_VALUE   == d_tokenType
-               && ','              == previousChar
-               && e_OBJECT_CONTEXT == d_context)) {
-                d_tokenType  = e_ELEMENT_NAME;
+
+            switch (d_tokenType) {
+              case e_BEGIN: {
+                if (!d_allowStandAloneValues) {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+
+                d_tokenType = e_ELEMENT_VALUE;
+              } break;
+
+              case e_START_OBJECT: {
+                if (e_OBJECT_CONTEXT != context()) {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+
+                d_tokenType = e_ELEMENT_NAME;
+              } break;
+
+              case e_ELEMENT_VALUE: {
+                if (previousChar != ',') {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+
+                if (e_OBJECT_CONTEXT == context()) {
+                    d_tokenType = e_ELEMENT_NAME;
+                }
+                else if (e_ARRAY_CONTEXT == context()) {
+                    d_tokenType = e_ELEMENT_VALUE;
+                }
+                else {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+              } break;
+
+              case e_END_ARRAY:                                  // FALLTHROUGH
+              case e_END_OBJECT: {
+                if (previousChar != ',') {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+
+                if (e_OBJECT_CONTEXT == context()) {
+                    d_tokenType = e_ELEMENT_NAME;
+                }
+                else if (e_ARRAY_CONTEXT == context()) {
+                    d_tokenType = e_ELEMENT_VALUE;
+                }
+                else {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+              } break;
+
+              case e_START_ARRAY: {
+                if (e_ARRAY_CONTEXT != context()) {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+
+                d_tokenType = e_ELEMENT_VALUE;
+              } break;
+
+
+              case e_ELEMENT_NAME: {
+                if (previousChar != ':') {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+
+                if (e_OBJECT_CONTEXT != context()) {
+                    d_tokenType = e_ERROR;
+                    return -1;                                        // RETURN
+                }
+                else {
+                    d_tokenType = e_ELEMENT_VALUE;
+                }
+              } break;
+
+              default: {
+                d_tokenType = e_ERROR;                                // RETURN
+              } break;
+            }
+
+            if (e_ELEMENT_NAME == d_tokenType) {
                 d_valueBegin = d_cursor + 1;
-                d_valueIter  = d_valueBegin;
+                d_valueIter = d_valueBegin;
             }
-            else if (e_START_ARRAY    == d_tokenType
-                  || (e_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
-                  || (e_ELEMENT_VALUE == d_tokenType
-                   && ','             == previousChar
-                   && e_ARRAY_CONTEXT == d_context)
-                 || (e_BEGIN == d_tokenType && d_allowStandAloneValues)) {
-                d_tokenType  = e_ELEMENT_VALUE;
+
+            if (e_ELEMENT_VALUE == d_tokenType) {
                 d_valueBegin = d_cursor;
-                d_valueIter  = d_valueBegin + 1;
-            }
-            else {
-                d_tokenType = e_ERROR;
-                return -1;                                            // RETURN
+                d_valueIter = d_valueBegin + 1;
             }
 
             d_valueEnd = 0;
-            int rc = extractStringValue();
+            int rc     = extractStringValue();
             if (rc) {
                 d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
@@ -427,16 +511,43 @@ int Tokenizer::advanceToNextToken()
           } break;
 
           default: {
-            if (e_START_ARRAY    == d_tokenType
-             || (e_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
-             || (e_ELEMENT_VALUE == d_tokenType
-              && ','                  == previousChar
-              && e_ARRAY_CONTEXT == d_context)
-             || (d_allowHeterogenousArrays
-              && e_END_ARRAY == d_tokenType
-              && ','         == previousChar)
-             || (e_BEGIN == d_tokenType && d_allowStandAloneValues)) {
+            // Here are the scenarios for what could be a value:
+            //
+            // CURRENT TOKEN           CONTEXT                    NEXT TOKEN
+            // -------------           -------                    ----------
+            // e_BEGIN                 N/A                        ELEMENT_VALUE
+            //                                 NOTE: req. allowStandAloneValues
+            // START_OBJECT  ('{')     OBJECT_CONTEXT             **ERROR**
+            //
+            // END_OBJECT    ('}')     OBJECT_CONTEXT             **ERROR**
+            //                         ARRAY_CONTEXT              ELEMENT_VALUE
+            //
+            // START_ARRAY   ('[')     ARRAY_CONTEXT              ELEMENT_VALUE
+            //
+            // END_ARRAY     (']')     OBJECT_CONTEXT             **ERROR**
+            //                         ARRAY_CONTEXT              ELEMENT_VALUE
+            //
+            // ELEMENT_NAME  (':')     OBJECT_CONTEXT             ELEMENT_VALUE
+            //                                 NOTE: req. prevChar==':'
+            //
+            // ELEMENT_VALUE (   )     OBJECT_CONTEXT             **ERROR**
+            //                         ARRAY_CONTEXT              ELEMENT_VALUE
+            //                                 NOTE: req. prevChar==','
 
+            bool validObjectValue = e_OBJECT_CONTEXT == context() &&
+                                    e_ELEMENT_NAME == d_tokenType &&
+                                    ':' == previousChar;
+            bool validArrayValue =
+                e_ARRAY_CONTEXT == context() &&
+                ((e_END_OBJECT == d_tokenType) ||
+                 (e_START_ARRAY == d_tokenType) ||
+                 (e_END_ARRAY == d_tokenType) ||
+                 (e_ELEMENT_VALUE == d_tokenType && ',' == previousChar));
+
+            bool validStandaloneValue =
+                (e_BEGIN == d_tokenType && d_allowStandAloneValues);
+
+            if (validObjectValue || validArrayValue || validStandaloneValue) {
                 d_tokenType = e_ELEMENT_VALUE;
 
                 d_valueBegin = d_cursor;
@@ -480,9 +591,8 @@ int Tokenizer::resetStreamBufGetPointer()
 // ACCESSORS
 int Tokenizer::value(bslstl::StringRef *data) const
 {
-    if ((e_ELEMENT_NAME == d_tokenType
-                                        || e_ELEMENT_VALUE == d_tokenType)
-     && d_valueBegin != d_valueEnd) {
+    if ((e_ELEMENT_NAME == d_tokenType || e_ELEMENT_VALUE == d_tokenType) &&
+        d_valueBegin != d_valueEnd) {
         data->assign(&d_stringBuffer[d_valueBegin],
                      &d_stringBuffer[d_valueEnd]);
         return 0;                                                     // RETURN
