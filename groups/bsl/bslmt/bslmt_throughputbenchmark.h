@@ -165,6 +165,15 @@ class ThroughputBenchmark {
         //      // 'true', this is the first sample run.
         //..
 
+    typedef bsl::function<void(bool)> ShutdownSampleFunction;
+        // An alias to a function meeting the following contract:
+        //..
+        //  void shutdownSample(bool isLast);
+        //      // Clean up at the end of the sample run, before threads have
+        //      // been joined.  If the specified 'isLast' is 'true', this is
+        //      // the last sample run.
+        //..
+
     typedef bsl::function<void(bool)> CleanupSampleFunction;
         // An alias to a function meeting the following contract:
         //..
@@ -290,6 +299,7 @@ class ThroughputBenchmark {
                  int                              millisecondsPerSample,
                  int                              numSamples,
                  const InitializeSampleFunction&  initializeFunctor,
+                 const ShutdownSampleFunction&    shutdownFunctor,
                  const CleanupSampleFunction&     cleanupFunctor);
         // Run the tests previously added with calls to the 'addThreadGroup'
         // method.  The tests are run for the specified 'numSamples' times.
@@ -298,10 +308,14 @@ class ThroughputBenchmark {
         // Optionally specify 'initializeFunctor', which is run at the
         // beginning of the sample and accepts a boolean flag 'isFirst', that
         // is set to 'true' on the first sample, and 'false' otherwise.
-        // Optionally specify 'cleanupFunctor', which is run at the end of each
-        // sample and accepts a boolean flag 'isLast', that is set to 'true' on
-        // the last sample, and 'false' otherwise.  The behavior is undefined
-        // unless '0 < millisecondsPerSample', '0 < numSamples', and
+        // Optionally specify 'shutdownFunctor', which is run at the end of
+        // each sample before threads have been joined, and accepts a boolean
+        // flag 'isLast', that is set to 'true' on the last sample, and 'false'
+        // otherwise.  Optionally specify 'cleanupFunctor', which is run at the
+        // end of each sample after threads have been joined, and accepts a
+        // boolean flag 'isLast', that is set to 'true' on the last sample, and
+        // 'false' otherwise.  The behavior is undefined unless
+        // '0 < millisecondsPerSample', '0 < numSamples', and
         // '0 < numThreadGroups()'.  Also see {Structure of a Test}.
 
     // ACCESSORS

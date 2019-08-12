@@ -128,6 +128,7 @@ void ThroughputBenchmark::execute(
                    millisecondsPerSample,
                    numSamples,
                    InitializeSampleFunction(),
+                   ShutdownSampleFunction(),
                    CleanupSampleFunction());
 }
 
@@ -136,6 +137,7 @@ void ThroughputBenchmark::execute(
                         int                              millisecondsPerSample,
                         int                              numSamples,
                         const InitializeSampleFunction&  initializeFunctor,
+                        const ShutdownSampleFunction&    shutdownFunctor,
                         const CleanupSampleFunction&     cleanupFunctor)
 {
     BSLS_ASSERT(0 < millisecondsPerSample);
@@ -199,6 +201,9 @@ void ThroughputBenchmark::execute(
         bslmt::ThreadUtil::microSleep(
                                    k_MILLIS_IN_SECOND * millisecondsPerSample);
         d_state.storeRelease(1);
+        if (shutdownFunctor) {
+            shutdownFunctor(isLast);
+        }
 
         // Collect results.
         int curOffset = 0;
