@@ -368,7 +368,6 @@ int Tokenizer::advanceToNextToken()
           } break;
 
           case '"': {
-
             // Here are the scenarios for a '"':
             //
             // CURRENT TOKEN           CONTEXT                    NEXT TOKEN
@@ -392,7 +391,6 @@ int Tokenizer::advanceToNextToken()
             // ELEMENT_VALUE (   )     OBJECT_CONTEXT             ELEMENT_NAME
             //                         ARRAY_CONTEXT              ELEMENT_VALUE
             //                                 NOTE: req. prevChar==','
-
 
             switch (d_tokenType) {
               case e_BEGIN: {
@@ -459,7 +457,6 @@ int Tokenizer::advanceToNextToken()
                 d_tokenType = e_ELEMENT_VALUE;
               } break;
 
-
               case e_ELEMENT_NAME: {
                 if (previousChar != ':') {
                     d_tokenType = e_ERROR;
@@ -482,12 +479,12 @@ int Tokenizer::advanceToNextToken()
 
             if (e_ELEMENT_NAME == d_tokenType) {
                 d_valueBegin = d_cursor + 1;
-                d_valueIter = d_valueBegin;
+                d_valueIter  = d_valueBegin;
             }
 
             if (e_ELEMENT_VALUE == d_tokenType) {
                 d_valueBegin = d_cursor;
-                d_valueIter = d_valueBegin + 1;
+                d_valueIter  = d_valueBegin + 1;
             }
 
             d_valueEnd = 0;
