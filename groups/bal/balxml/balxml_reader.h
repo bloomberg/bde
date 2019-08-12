@@ -144,7 +144,7 @@ BSLS_IDENT("$Id: $")
 // from this entry.
 // In order to read the XML, we first need to construct a
 // 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
-// 'TestReader' object, where the 'TestReader' is an implementation of the
+// 'TestReader' object, where 'TestReader' is an implementation of
 // 'balxml::Reader'.
 //..
 //  balxml::NamespaceRegistry namespaces;
@@ -153,8 +153,8 @@ BSLS_IDENT("$Id: $")
 //  balxml::Reader&           reader = testReader;
 //..
 // The reader uses a 'balxml::PrefixStack' to manage namespace prefixes.
-// Installing a stack for an open reader leads to undefined behavior.  So we
-// want to check our reader's state before installation.
+// Installing a stack for an open reader leads to undefined behavior.  So, we
+// want to ensure that our reader is not open before installation.
 //..
 //  assert(false == reader.isOpen());
 //
@@ -328,7 +328,7 @@ BSLS_IDENT("$Id: $")
 //        false, {}                                                          },
 //  };
 //..
-// Now, create a class that implements the 'balxml::Reader' interface.  Note,
+// Now, create a class that implements the 'balxml::Reader' interface.  Note
 // that documentation for class methods is omitted to reduce the text of the
 // usage example.  If necessary, it can be seen in the 'balxml::Reader' class
 // declaration.
@@ -536,10 +536,6 @@ BSLS_IDENT("$Id: $")
 //      d_currentNode = 0;
 //  }
 //
-//..
-// Reader iterating not through the XML document, but through the fake
-// structure.
-//..
 //  int TestReader::advanceToNextNode()
 //  {
 //      if (!d_currentNode) {
@@ -555,9 +551,8 @@ BSLS_IDENT("$Id: $")
 //          d_prefixes->reset();
 //          return 1;                                                 // RETURN
 //      }
-//      else {
-//          d_currentNode = nextNode;
-//      }
+//
+//      d_currentNode = nextNode;
 //
 //      if (d_prefixes && 1 == d_nodeDepth) {
 //          // The 'TestReader' only recognizes namespace URIs with the prefix
@@ -886,7 +881,7 @@ class Reader {
         // 'os' stream.
 
     bool isFatalError() const;
-        // Return 'true' if the derived object encountred a fatal error.  This
+        // Return 'true' if the derived object encountered a fatal error.  This
         // method is equivalent to a call to 'errorInfo().isFatalError();'
 
     bool isError() const;

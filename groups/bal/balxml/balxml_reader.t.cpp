@@ -199,7 +199,7 @@ namespace UsageExample {
           false, {}                                                          },
     };
 //..
-// Now, create a class that implements the 'balxml::Reader' interface.  Note,
+// Now, create a class that implements the 'balxml::Reader' interface.  Note
 // that documentation for class methods is omitted to reduce the text of the
 // usage example.  If necessary, it can be seen in the 'balxml::Reader' class
 // declaration.
@@ -407,10 +407,6 @@ namespace UsageExample {
         d_currentNode = 0;
     }
 
-//..
-// Reader iterating not through the XML document, but through the fake
-// structure.
-//..
     int TestReader::advanceToNextNode()
     {
         if (!d_currentNode) {
@@ -426,9 +422,8 @@ namespace UsageExample {
             d_prefixes->reset();
             return 1;                                                 // RETURN
         }
-        else {
-            d_currentNode = nextNode;
-        }
+
+        d_currentNode = nextNode;
 
         if (d_prefixes && 1 == d_nodeDepth) {
             // The 'TestReader' only recognizes namespace URIs with the prefix
@@ -647,7 +642,7 @@ int usageExample()
 // from this entry.
 // In order to read the XML, we first need to construct a
 // 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
-// 'TestReader' object, where the 'TestReader' is an implementation of the
+// 'TestReader' object, where 'TestReader' is an implementation of
 // 'balxml::Reader'.
 //..
     balxml::NamespaceRegistry namespaces;
@@ -656,8 +651,8 @@ int usageExample()
     balxml::Reader&           reader = testReader;
 //..
 // The reader uses a 'balxml::PrefixStack' to manage namespace prefixes.
-// Installing a stack for an open reader leads to undefined behavior.  So we
-// want to check our reader's state before installation.
+// Installing a stack for an open reader leads to undefined behavior.  So, we
+// want to ensure that our reader is not open before installation.
 //..
     ASSERT(false == reader.isOpen());
 
