@@ -208,17 +208,39 @@ struct  MyFunction {
 // and 'MyBindUtil' are elided and meant to represent 'bsl::function' and
 // 'bdlf::BindUtil::bind' respectively:
 //..
-    void doSomething(bslmf::MovableRef<Foo> value) {
+    void doSomething(bslmf::MovableRef<Foo> value)
+    {
       MyFunction f = MyBindUtil::bind(
                                  bslmf::Util::forwardAsReference<Foo>(value));
-//
-      //...
+
+      // ...
       (void)f;
-//
     }
 //..
 // Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
 // 'forwardAsReferene' the call to 'bind' might either fail to compile, or
+// worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
+// new object moved-from 'value') on C++03 platforms.
+//
+///Example 3: Using 'bslmf::Util::moveIfSupported'
+///-----------------------------------------------
+// Suppose we had a template facility, 'MyBindUtil::bind' that does not support
+// 'bslmf::MovableRef', but will accept true r-value references (on supported
+// compilers).  Here we use 'moveIfSupported' to move a supplied 'value' if
+// the compiler suppots r-value references, and copy it otherwise.  Note that
+// the definitions of 'MyFunction' and 'MyBindUtil' are elided and meant to
+// represent 'bsl::function' and 'bdlf::BindUtil::bind' respectively:
+//..
+    void doSomething2(Foo value)
+    {
+        MyFunction f = MyBindUtil::bind(bslmf::Util::moveIfSupported(value));
+
+        // ...
+        (void)f;
+    }
+//..
+// Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
+// 'moveIfSupported' the call to 'bind' might either fail to compile, or
 // worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
 // new object moved-from 'value') on C++03 platforms.
 //..
@@ -329,6 +351,22 @@ int main(int argc, char *argv[])
 #else
             ASSERT(true == X.copied());
             ASSERT(false == X.moved());
+#endif
+        }
+
+        if (verbose) {
+            printf("\tTest Util::moveIfSupported\n");
+        }
+        {
+            Obj movedFrom;
+            Obj movedTo(bslmf::Util::moveIfSupported(movedFrom));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            ASSERT(false == movedTo.copied());
+            ASSERT(true  == movedTo.moved());
+#else
+            ASSERT(true  == movedTo.copied());
+            ASSERT(false == movedTo.moved());
 #endif
         }
       } break;

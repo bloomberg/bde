@@ -36,12 +36,21 @@ BSLS_IDENT("$Id: $")
 // emulation, but will support true C++11 r-value references (e.g.,
 // 'bdlf::BindUtil::bind').
 //
+///'bslmf::Util::moveIfSupported'
+///------------------------------
+// The function 'moveIfSupported' emulates the C++ standard utility function
+// 'std::move' with the addition that on compilers that don't support r-value
+// references (i.e., C++03) an l-value reference is returned instead.  This
+// operation is intended to be used when moving an object to a function that
+// does not support 'move' emulation, but will support true C++11 r-value
+// references (e.g., 'bdlf::BindUtil::bind').
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslmf::Util::forward
-///--------------------------------------
+///Example 1: Using 'bslmf::Util::forward'
+///---------------------------------------
 // Clients should generally not use 'bslmf::Util::forward' directly, instead it
 // should be used via 'BSLS_COMPILERFEATURES_FORWARD' in conjunction with
 // 'BSLS_COMPILERFEATURES_FORWARD_REF'.  Here we show a simple function using
@@ -74,16 +83,37 @@ BSLS_IDENT("$Id: $")
 // and 'MyBindUtil' are elided and meant to represent 'bsl::function' and
 // 'bdlf::BindUtil::bind' respectively:
 //..
-//  void doSomething(bslmf::MovableRef<Foo> value) {
+//  void doSomething(bslmf::MovableRef<Foo> value)
+//  {
 //    MyFunction f = MyBindUtil::bind(
-//                               bslmf::Util::forwardAsReference<Foo>(value));
+//                                bslmf::Util::forwardAsReference<Foo>(value));
 //
 //    //...
-//
 //  }
 //..
 // Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
 // 'forwardAsReference' the call to 'bind' might either fail to compile, or
+// worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
+// new object moved-from 'value') on C++03 platforms.
+//
+///Example 3: Using 'bslmf::Util::moveIfSupported'
+///-----------------------------------------------
+// Suppose we had a template facility, 'MyBindUtil::bind' that does not support
+// 'bslmf::MovableRef', but will accept true r-value references (on supported
+// compilers).  Here we use 'moveIfSupported' to move a supplied 'value' if
+// the compiler suppots r-value references, and copy it otherwise.  Note that
+// the definitions of 'MyFunction' and 'MyBindUtil' are elided and meant to
+// represent 'bsl::function' and 'bdlf::BindUtil::bind' respectively:
+//..
+//  void doSomething2(Foo value)
+//  {
+//      MyFunction f = MyBindUtil::bind(bslmf::Util::moveIfSupported(value));
+//
+//      //...
+//  }
+//..
+// Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
+// 'moveIfSupported' the call to 'bind' might either fail to compile, or
 // worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
 // new object moved-from 'value') on C++03 platforms.
 
@@ -113,7 +143,6 @@ struct Util {
     // features may be emulated.
 
     // CLASS METHODS
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
     BSLS_KEYWORD_CONSTEXPR
@@ -175,6 +204,20 @@ struct Util {
         // 'MovableRef<T>'), which is important when forwarding to a facility
         // (e.g., 'bdlf::BindUtil::bind') which does not support
         // 'bslmf::MovableRef'.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
+    static typename bsl::remove_reference<TYPE>::type&& moveIfSupported(
+                                               TYPE&& t) BSLS_KEYWORD_NOEXCEPT;
+#else
+    template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
+    static typename bsl::remove_reference<TYPE>::type& moveIfSupported(
+                                                TYPE& t) BSLS_KEYWORD_NOEXCEPT;
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Return an r-value reference to the specified 't' argument.  If
+        // r-value references are not supported, return an l-value reference.
 };
 
 // ============================================================================
@@ -257,6 +300,28 @@ const TYPE& Util::forwardAsReference(bslmf::MovableRef<TYPE> t)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return bslmf::MovableRefUtil::access(t);
+}
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class T>
+BSLS_KEYWORD_CONSTEXPR
+inline
+typename bsl::remove_reference<T>::type&& Util::moveIfSupported(
+                                                   T&& t) BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<typename bsl::remove_reference<T>::type&&>(t);
+}
+
+#else
+
+template <class T>
+BSLS_KEYWORD_CONSTEXPR
+inline
+typename bsl::remove_reference<T>::type& Util::moveIfSupported(
+                                                    T& t) BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<typename bsl::remove_reference<T>::type&>(t);
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
