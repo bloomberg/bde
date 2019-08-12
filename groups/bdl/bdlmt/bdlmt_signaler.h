@@ -187,6 +187,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_forwardingtype.h>
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_typelist.h>
@@ -1033,6 +1034,11 @@ class SignalerConnection {
     friend bool operator==(const SignalerConnection&,
                            const SignalerConnection&);
 
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(SignalerConnection,
+                                   bslmf::IsBitwiseMoveable)
+
   private:
     // PRIVATE CREATORS
     explicit
@@ -1124,7 +1130,7 @@ class SignalerConnectionGuard {
     // in constructors from a 'SignalerConnection' and propagated when move
     // constructing or move assigning a guard to a different guard.
 
-    // DATA
+    // PRIVATE DATA
     SignalerConnection d_connection;
 
     bool               d_waitOnDisconnect;    // determines whether
@@ -1132,6 +1138,11 @@ class SignalerConnectionGuard {
                                               // 'disconnectAndWait' is called
                                               // on 'd_connection' at
                                               // destruction or assignment
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(SignalerConnectionGuard,
+                                   bslmf::IsBitwiseMoveable)
 
   public:
     // CREATORS

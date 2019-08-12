@@ -18,12 +18,15 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_movableref.h>
+
 #include <bslmt_threadutil.h>
 
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -57,25 +60,19 @@ using bsl::flush;
 // [ 9] Signaler::slotCount
 // [10] SignalerConnection::creators
 // [11] SignalerConnection::assignment
-// [12] SignalerConnection::disconnect()
-// [13] SignalerConnection::disconnectAndWait()
+// [12] SignalerConnection::disconnect
+// [13] SignalerConnection::disconnectAndWait
 // [14] SignalerConnection::reset
 // [15] SignalerConnection::swap
 // [16] SignalerConnection::isConnected
-// [17] SignalerConnectionGuard::creators
-// [18] SignalerConnectionGuard::assignment
-// [19] SignalerConnectionGuard::release()
-// [20] SignalerConnectionGuard::swap()
-// [21] operator()(T1&);
-// [21] operator()(T1&, T2&);
-// [21] operator()(T1&, T2&, T3&);
-// [21] operator()(T1&, T2&, T3&, T4&);
-// [21] operator()(T1&, T2&, T3&, T4&, T5&);
-// [21] operator()(T1&, T2&, T3&, T4&, T5&, T6&);
-// [21] operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&);
-// [21] operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&);
-// [21] operator()(T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&, T9&);
-// [22] Usage example
+// [17] SignalerConnection bitwise moveability
+// [18] SignalerConnectionGuard::creators
+// [19] SignalerConnectionGuard::assignment
+// [20] SignalerConnectionGuard::release
+// [21] SignalerConnectionGuard::swap
+// [22] SignalerConnectionGuard bitwise moveability
+// [23] operator()(T1&, T2&, ..., T9&)
+// [24] Usage example
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -2573,7 +2570,52 @@ static void test16_connection_isConnected()
     }
 }
 
-static void test17_guard_creators()
+static void test17_connection_bitwiseMoveability()
+    // ------------------------------------------------------------------------
+    // CONNECTION BITWISE MOVEABILITY
+    //
+    // Concerns:
+    //   Ensure that connection objects are bitwise-moveable.
+    //
+    // Plan:
+    //   Check that 'bdlmt::SignalerConnection' is a bitwise-moveable type.
+    //   NOTE: see 'bslmf_isbitwisemoveable' component documentation for the
+    //   definition of a bitwise-moveable type.
+    //
+    // Testing:
+    //   - bdlmt::SignalerConnection's bitwise-moveability
+    // ------------------------------------------------------------------------
+{
+    bslma::TestAllocator    alloc;
+    bdlmt::Signaler<void()> sig(&alloc);
+
+    // 'SignalerConnection' exports the 'IsBitwiseMoveable' trait
+    ASSERT(bslmf::IsBitwiseMoveable<bdlmt::SignalerConnection>::value);
+
+    // connect a slot
+    bdlmt::SignalerConnection connection = sig.connect(u::NoOp());
+    ASSERT(connection.isConnected() == true);
+
+    // construct a connection
+    bsls::ObjectBuffer<bdlmt::SignalerConnection> connection1Buffer;
+    new (connection1Buffer.buffer()) bdlmt::SignalerConnection(connection);
+
+    ASSERT(connection1Buffer.object() == connection);
+
+    // move the connection using 'memcpy'
+    bsls::ObjectBuffer<bdlmt::SignalerConnection> connection2Buffer;
+    bsl::memcpy(connection2Buffer.buffer(), // dst
+                connection1Buffer.buffer(), // src
+                sizeof(bdlmt::SignalerConnection));
+
+    ASSERT(connection2Buffer.object() == connection);
+
+    // destroy the connection
+    typedef bdlmt::SignalerConnection TYPE;
+    connection2Buffer.object().~TYPE();
+}
+
+static void test18_guard_creators()
     // ------------------------------------------------------------------------
     // GUARD CREATORS
     //
@@ -2681,7 +2723,7 @@ static void test17_guard_creators()
     }
 }
 
-static void test18_guard_assignment()
+static void test19_guard_assignment()
     // -----------------------------------------------------------------------
     // GUARD ASSIGNMENT
     //
@@ -2720,7 +2762,7 @@ static void test18_guard_assignment()
     }
 }
 
-static void test19_guard_release()
+static void test20_guard_release()
     // ------------------------------------------------------------------------
     // GUARD RELEASE
     //
@@ -2764,7 +2806,7 @@ static void test19_guard_release()
     ASSERT(con.isConnected());
 }
 
-static void test20_guard_swap()
+static void test21_guard_swap()
     // ------------------------------------------------------------------------
     // GUARD SWAP
     //
@@ -2858,7 +2900,56 @@ static void test20_guard_swap()
               !con2.isConnected(),   true);
 }
 
-namespace test21_signaler {
+static void test22_guard_bitwiseMoveability()
+    // ------------------------------------------------------------------------
+    // GUARD BITWISE MOVEABILITY
+    //
+    // Concerns:
+    //   Ensure that guard objects are bitwise-moveable.
+    //
+    // Plan:
+    //   Check that 'bdlmt::SignalerConnectionGuard' is a bitwise-moveable
+    //   type. NOTE: see 'bslmf_isbitwisemoveable' component documentation for
+    //   the definition of a bitwise-moveable type.
+    //
+    // Testing:
+    //   - bdlmt::SignalerConnectionGuard's bitwise-moveability
+    // ------------------------------------------------------------------------
+{
+    bslma::TestAllocator    alloc;
+    bdlmt::Signaler<void()> sig(&alloc);
+
+    // 'SignalerConnectionGuard' exports the 'IsBitwiseMoveable' trait
+    ASSERT(bslmf::IsBitwiseMoveable<bdlmt::SignalerConnectionGuard>::value);
+
+    // connect a slot
+    bdlmt::SignalerConnection connection = sig.connect(u::NoOp());
+    ASSERT(connection.isConnected() == true);
+
+    // construct a guard
+    bsls::ObjectBuffer<bdlmt::SignalerConnectionGuard> guard1Buffer;
+    new (guard1Buffer.buffer()) bdlmt::SignalerConnectionGuard(connection,
+                                                               true);
+
+    ASSERT(guard1Buffer.object().connection()       == connection);
+    ASSERT(guard1Buffer.object().waitOnDisconnect() == true);
+
+    // move the guard using 'memcpy'
+    bsls::ObjectBuffer<bdlmt::SignalerConnectionGuard> guard2Buffer;
+    bsl::memcpy(guard2Buffer.buffer(), // dst
+                guard1Buffer.buffer(), // src
+                sizeof(bdlmt::SignalerConnectionGuard));
+
+    ASSERT(guard2Buffer.object().connection()       == connection);
+    ASSERT(guard2Buffer.object().waitOnDisconnect() == true);
+
+    // destroy the guard and check that the slot was disconnected
+    typedef bdlmt::SignalerConnectionGuard TYPE;
+    guard2Buffer.object().~TYPE();
+    ASSERT(connection.isConnected() == false);
+}
+
+namespace test23_signaler {
 
 typedef bsls::Types::Int64 Int64;
 
@@ -3314,7 +3405,7 @@ void test_lvalues()
 
 }  // close namespace test21_signaler
 
-static void test22_destroyGuardAndWait()
+static void test24_destroyGuardAndWait()
     // ------------------------------------------------------------------------
     // SIGNALER DISCONNECT GROUP AND WAIT
     //
@@ -3448,7 +3539,7 @@ static void test22_destroyGuardAndWait()
     }
 }
 
-static void test23_usageExample()
+static void test25_usageExample()
     // ------------------------------------------------------------------------
     // USAGE EXAMPLE
     //
@@ -3540,13 +3631,15 @@ int main(int argc, char *argv[])
       case  14: { test14_connection_reset();                  } break;
       case  15: { test15_connection_swap();                   } break;
       case  16: { test16_connection_isConnected();            } break;
-      case  17: { test17_guard_creators();                    } break;
-      case  18: { test18_guard_assignment();                  } break;
-      case  19: { test19_guard_release();                     } break;
-      case  20: { test20_guard_swap();                        } break;
-      case  21: { test21_signaler::test_lvalues();            } break;
-      case  22: { test22_destroyGuardAndWait();               } break;
-      case  23: { test23_usageExample();                      } break;
+      case  17: { test17_connection_bitwiseMoveability();     } break;
+      case  18: { test18_guard_creators();                    } break;
+      case  19: { test19_guard_assignment();                  } break;
+      case  20: { test20_guard_release();                     } break;
+      case  21: { test21_guard_swap();                        } break;
+      case  22: { test22_guard_bitwiseMoveability();          } break;
+      case  23: { test23_signaler::test_lvalues();            } break;
+      case  24: { test24_destroyGuardAndWait();               } break;
+      case  25: { test25_usageExample();                      } break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
 
