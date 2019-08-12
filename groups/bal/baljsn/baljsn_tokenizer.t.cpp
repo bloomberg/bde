@@ -447,10 +447,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING that truncated data is handled correctly"
-                          << endl;
-
+        if (verbose)
+            cout << endl
+                 << "TESTING that truncated data is handled correctly" << endl;
 
         const struct {
             int             d_line;
@@ -459,116 +458,88 @@ int main(int argc, char *argv[])
             Obj::TokenType  d_expTokenType;
             const char     *d_value_p;
         } DATA[] = {
-            {
-                L_,
-                "",                          // empty string
-                0,
-                Obj::e_BEGIN,
-                0
-            },
-            {
-                L_,
-                "{",                         // with only open brace
-                1,
-                Obj::e_START_OBJECT,
-                0
-            },
-            {
-                L_,
-                "{\"",                       // with only one quote char
-                1,
-                Obj::e_START_OBJECT,
-                0
-            },
-            {
-                L_,
-                "{\"name",                   // with incomplete element name
-                1,
-                Obj::e_START_OBJECT,
-                0
-            },
-            {
-                L_,
-                "{\"name\"",                 // with complete element name
-                                             // but missing value
-                2,
-                Obj::e_ELEMENT_NAME,
-                "name"
-            },
-            {
-                L_,
-                "{\"name\":",                 // with complete element name
-                                              // but missing value
-                2,
-                Obj::e_ELEMENT_NAME,
-                "name"
-            },
-            {
-                L_,
-                "{\"name\":1.2",              // with complete element name
-                                              // and value but missing closing
-                                              // brace
-                3,
-                Obj::e_ELEMENT_VALUE,
-                "1.2"
-            },
-            {
-                L_,
-                "{\"name\":1.2,",             // with complete element name
-                                              // and value but spurious comma
-                3,
-                Obj::e_ELEMENT_VALUE,
-                "1.2"
-            },
-            {
-                L_,
-                "{\"n\":1.2,\"",              // with incomplete element name
-                3,
-                Obj::e_ELEMENT_VALUE,
-                "1.2"
-            },
-            {
-                L_,
-                "{\"n\":1.2,\"t",             // with incomplete element name
-                3,
-                Obj::e_ELEMENT_VALUE,
-                "1.2"
-            },
-            {
-                L_,
-                "{\"n\":1.2,\"too",           // with incomplete element name
-                3,
-                Obj::e_ELEMENT_VALUE,
-                "1.2"
-            },
-            {
-                L_,
-                "{\"n\":1,\"t\"",             // with incomplete element name
-                4,
-                Obj::e_ELEMENT_NAME,
-                "t"
-            },
-            {
-                L_,
-                "{\"n\":1,\"t\":",            // with complete element name
-                                              // but missing value
-                4,
-                Obj::e_ELEMENT_NAME,
-                "t"
-            },
-            {
-                L_,
-                "{\"n\":1,\"t\":\"2\"",       // with complete element name
-                                              // and value but missing closing
-                                              // brace
-                5,
-                Obj::e_ELEMENT_VALUE,
-                "\"2\""
-            },
+            {L_,
+             "",  // empty string
+             0,
+             Obj::e_BEGIN,
+             0},
+            {L_,
+             "{",  // with only open brace
+             1,
+             Obj::e_START_OBJECT,
+             0},
+            {L_,
+             "{\"",  // with only one quote char
+             1,
+             Obj::e_START_OBJECT,
+             0},
+            {L_,
+             "{\"name",  // with incomplete element name
+             1,
+             Obj::e_START_OBJECT,
+             0},
+            {L_,
+             "{\"name\"",  // with complete element name
+                           // but missing value
+             2,
+             Obj::e_ELEMENT_NAME,
+             "name"},
+            {L_,
+             "{\"name\":",  // with complete element name
+                            // but missing value
+             2,
+             Obj::e_ELEMENT_NAME,
+             "name"},
+            {L_,
+             "{\"name\":1.2",  // with complete element name
+                               // and value but missing closing
+                               // brace
+             3,
+             Obj::e_ELEMENT_VALUE,
+             "1.2"},
+            {L_,
+             "{\"name\":1.2,",  // with complete element name
+                                // and value but spurious comma
+             3,
+             Obj::e_ELEMENT_VALUE,
+             "1.2"},
+            {L_,
+             "{\"n\":1.2,\"",  // with incomplete element name
+             3,
+             Obj::e_ELEMENT_VALUE,
+             "1.2"},
+            {L_,
+             "{\"n\":1.2,\"t",  // with incomplete element name
+             3,
+             Obj::e_ELEMENT_VALUE,
+             "1.2"},
+            {L_,
+             "{\"n\":1.2,\"too",  // with incomplete element name
+             3,
+             Obj::e_ELEMENT_VALUE,
+             "1.2"},
+            {L_,
+             "{\"n\":1,\"t\"",  // with incomplete element name
+             4,
+             Obj::e_ELEMENT_NAME,
+             "t"},
+            {L_,
+             "{\"n\":1,\"t\":",  // with complete element name
+                                 // but missing value
+             4,
+             Obj::e_ELEMENT_NAME,
+             "t"},
+            {L_,
+             "{\"n\":1,\"t\":\"2\"",  // with complete element name
+                                      // and value but missing closing
+                                      // brace
+             5,
+             Obj::e_ELEMENT_VALUE,
+             "\"2\""},
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int             LINE        = DATA[ti].d_line;
             const string          TEXT        = DATA[ti].d_text_p;
             const int             NUM_PREADVS = DATA[ti].d_numPreAdvances;
@@ -581,7 +552,8 @@ int main(int argc, char *argv[])
                 P(LINE) P(TEXT) P(NUM_PREADVS)
             }
 
-            Obj mX;  const Obj& X = mX;
+            Obj        mX;
+            const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(is.rdbuf());
@@ -595,11 +567,11 @@ int main(int argc, char *argv[])
 
             // Confirm the state after the pre-advances.
 
-            ASSERTV(LINE, EXP_TOKEN, mX.tokenType(),
-                    EXP_TOKEN == mX.tokenType());
+            ASSERTV(
+                LINE, EXP_TOKEN, mX.tokenType(), EXP_TOKEN == mX.tokenType());
             if (EXP_VALUE) {
                 bslstl::StringRef nodeValue;
-                int rc = mX.value(&nodeValue);
+                int               rc = mX.value(&nodeValue);
                 ASSERTV(LINE, rc, !rc);
 
                 bsl::string strValue = nodeValue;
@@ -616,7 +588,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, mX.tokenType(), Obj::e_ERROR == mX.tokenType());
             if (EXP_VALUE) {
                 bslstl::StringRef nodeValue;
-                int rc = mX.value(&nodeValue);
+                int               rc = mX.value(&nodeValue);
                 ASSERTV(LINE, rc, rc);
 
                 bsl::string strValue = nodeValue;

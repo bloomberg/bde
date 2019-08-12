@@ -128,6 +128,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_bufferedsequentialallocator.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_assert.h>
 #include <bsls_types.h>
 
 #include <bsl_streambuf.h>
@@ -202,38 +203,31 @@ class Tokenizer {
     bdlma::BufferedSequentialAllocator   d_stackAllocator;  // stack allocator
                                                             // (owned)
 
-    bsl::string                          d_stringBuffer;    // string
-                                                            // buffer
+    bsl::string                          d_stringBuffer;    // string buffer
 
     bsl::streambuf                      *d_streambuf_p;     // streambuf
                                                             // (held, not
                                                             // owned)
 
-    bsl::size_t                          d_cursor;          // current
-                                                            // cursor
+    bsl::size_t                          d_cursor;          // current cursor
 
     bsl::size_t                          d_valueBegin;      // cursor for
                                                             // beginning
                                                             // of value
 
-    bsl::size_t                          d_valueEnd;        // cursor for
-                                                            // end of
-                                                            // value
+    bsl::size_t                          d_valueEnd;        // cursor for end
+                                                            // of value
 
     bsl::size_t                          d_valueIter;       // cursor for
-                                                            // iterating
-                                                            // value
+                                                            // iterating value
 
     TokenType                            d_tokenType;       // token type
 
-    bsl::vector<char>                    d_contextStack;    // context
-                                                            // type
+    bsl::vector<char>                    d_contextStack;    // context type
 
     bool d_allowStandAloneValues;                           // option for
-                                                            // allowing
-                                                            // stand
-                                                            // alone
-                                                            // values
+                                                            // allowing stand
+                                                            // alone values
 
     bool d_allowHeterogenousArrays;                         // option for
                                                             // allowing arrays
@@ -369,12 +363,6 @@ class Tokenizer {
 
 // PRIVATE MANIPULATORS
 inline
-void Tokenizer::pushContext(ContextType context)
-{
-    d_contextStack.push_back(static_cast<char>(context));
-}
-
-inline
 Tokenizer::ContextType Tokenizer::popContext()
 {
     BSLS_ASSERT(!d_contextStack.empty());
@@ -382,6 +370,12 @@ Tokenizer::ContextType Tokenizer::popContext()
     d_contextStack.pop_back();
 
     return ret;
+}
+
+inline
+void Tokenizer::pushContext(ContextType context)
+{
+    d_contextStack.push_back(static_cast<char>(context));
 }
 
 // PRIVATE ACCESSOR
