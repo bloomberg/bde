@@ -115,6 +115,7 @@ void aSsErT(bool condition, const char *message, int line)
 int         verbose;
 int     veryVerbose;
 int veryVeryVerbose;
+
                               // -------------
                               // Usage Example
                               // -------------
@@ -123,18 +124,23 @@ int veryVeryVerbose;
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Checking Consistency Within a Private Method
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Checking Consistency Within Private Methods
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example is an generalization of {'bslmt_mutexassert'|Example 1:
+// Checking Consistency Within a Private Method}.  In that example, a mutex was
+// used to control access.  Here, the (simple) mutex is replaced with a
+// 'bslmt::ReaderWriterMutex' that allows multiple concurrent readers.
+//
 // Sometimes multithreaded code is written such that the author of a function
-// requires that a caller has already acquired a mutex.  The
-// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' family of assertions allows the programmers
-// to verify, using defensive programming techniques, that the mutex in
-// question is indeed locked.
+// requires that a caller has already acquired a readerwritermutex.  The
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' family of assertions allows the
+// programmers to verify, using defensive programming techniques, that the
+// readerwritermutex in question is indeed locked.
 //
 // Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal mutex.  We can use 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED'
-// to ensure (in appropriate build modes) that proper internal locking of the
-// mutex is taking place.
+// guarded by an internal readerwritermutex.  We can use
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED' to ensure (in appropriate build
+// modes) that proper internal locking of the mutex is taking place.
 //
 // First, we define the container:
 //..
@@ -158,26 +164,25 @@ int veryVeryVerbose;
             // value (with no effect) otherwise.  The behavior is undefined
             // unless 'd_rwWutex' is locked for writing.
 
+#if 0
         void addValueToEach(int value);
             // Add the specified 'value' to each element of this queue.  The
             // behavior is undefined unless the caller has acquired a write
             // lock on this queue.
+#endif
 
         // PRIVATE ACCESSOR
         bsl::pair<int, double> getStats() const;
             // Return a 'bsl::pair<int, int>' containing the number of elements
             // and the mean value of the elements of this queue.  The mean
-            // values is set to 'DBL_MIN' if the number of elements is 0.  The behavior
-            // is undefined unless the call has locked this queue (either a
-            // read lock or write lock).
+            // values is set to 'DBL_MIN' if the number of elements is 0.  The
+            // behavior is undefined unless the call has locked this queue
+            // (either a read lock or write lock).
 
       public:
         // ...
 
         // MANIPULATORS
-        void normalize();
-            // Add the average value (rounded down to the nearest integer) of
-            // the elements of this queue to each element in the queue.
 
         int pop(int *result);
             // Assign the value at the front of the queue to the specified
@@ -192,14 +197,23 @@ int veryVeryVerbose;
             // with the other public manipulators, this entire operation occurs
             // as a single, atomic action.
 
+        void purgeAll(double limit);
+            // Remove all elements from this queue if their mean exceeds the
+            // specified 'limit'.
+
         void push(int value);
             // ...
 
+#if 1
         template <class INPUT_ITER>
         void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
             // ...
+#endif
 
         // ACCESSORS
+        BSL::size_t numElements() const;
+            // Return the number of elements in this queue.
+
         double mean() const; 
             // Return the mean value of the elements of this queue.
     };
@@ -208,9 +222,9 @@ int veryVeryVerbose;
 // element, and push/pop a collection of elements.  Popping even a single
 // element is non-trivial, so we factor this operation into a non-*thread-safe*
 // private manipulator that performs the pop, and is used in both public 'pop'
-// methods.  This private manipulator requires that the mutex be locked, but
-// cannot lock the mutex itself, since the correctness of 'popAll' demands that
-// all of the pops be collectively performed using a single mutex lock/unlock.
+// methods.  This private manipulator requires exclusive access to the queue,
+// but cannot lock the mutex itself, since the correctness of 'popAll' demands
+// that all of the pops be collectively performed using a single lock/unlock.
 //
 // Then, we define the private manipulator:
 //..
@@ -231,9 +245,9 @@ int veryVeryVerbose;
 //..
 // Notice that, on the very first line, the private manipulator verifies, as a
 // precondition check, that the mutex has been acquired, using one of the
-// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE*' macros.  We use the '...IS_LOCKED_SAFE...'
-// version of the macro so that the check, which on some platforms is as
-// expensive as locking the mutex, is performed in only the safe build mode.
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE*' macros.  We use the
+// "normal" flavor of the lock (rather than the the '*_SAFE' version) because
+// this test is not particularly expensive.
 //
 // Next, we define the public manipulators; each of which must acquire a lock
 // on the mutex (note that there is a bug in 'popAll'):
@@ -269,6 +283,7 @@ int veryVeryVerbose;
         d_rwMutex.unlockWrite();
     }
 
+#if 1
     template <class INPUT_ITER>
     void MyThreadSafeQueue::pushRange(const INPUT_ITER& first,
                                       const INPUT_ITER& last)
@@ -277,6 +292,11 @@ int veryVeryVerbose;
         d_deque.insert(d_deque.begin(), first, last);
         d_rwMutex.unlockWrite();
     }
+#endif
+// Notice that each of these methods require exclusive access to the queue --
+// and having learned the lession of {'bslmt_mutexassert'|Example 1} -- we were
+// careful to acquire a write lock for the duration of each operation.
+#if 0
 //..
 // Notice that, in 'popAll', we forgot to lock/unlock the mutex!
 //
@@ -338,7 +358,38 @@ int veryVeryVerbose;
 // 'bsls::Assert::failAbort'.  Other handlers may be installed that produce
 // different results, but in all cases should prevent the program from
 // proceeding normally.
+#endif
 //
+// This version of 'MyThreadSafeQueue' also provides two accessor methods. 
+// One is 'numElements', the other is 'mean()' (of the values in the
+// queue).
+// As as theses are 'const'-qualified method (i.e., guaranteed not to modify
+// the queue) these methods can be safely called concurrently by multiple
+// threads.  Thus, our implementations each acquires a read lock.
+//..
+    // ACCESSORS
+    BSL::size_t MyThreadSafeQueue::numElements() const
+    {
+        d_rwMutex.lockRead();
+        BSL::size_t numElements = d_deque.size();
+        d_rwMutex.unlockRead();
+        return numElements;
+    }
+    double MyThreadSafeQueue::mean() const
+    {
+        d_rwMutex.lockRead();
+        bsl::pair<int, double> result = getStats();
+        d_rwMutex.unlockRead();
+        return result.second;
+    }
+//..
+// Notice that the bulk of the work of 'mean' is done by the private method 'getStats'.
+// The calculation is factored out because we must also also calculate
+// the mean value in the added 'purgeAll' method.  Our normal inclination may 
+// be use the 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ' check in
+// 'getStats', but since 'purgeAll' (correctly) guards its operation using
+// a write lock we use the 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED' check
+// (for either a read lock or a write lock).
 //..
     // PRIVATE ACCESSORS
     bsl::pair<int, double> MyThreadSafeQueue::getStats() const
@@ -358,7 +409,8 @@ int veryVeryVerbose;
         return BSL::make_pair(numElements, mean);
     }
 
-    // PRIVATE ACCESSORS
+#if 0
+    // PRIVATE MANIPULATORS
     void MyThreadSafeQueue::addValueToEach(int value)
     {
         BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&d_rwMutex);
@@ -369,17 +421,11 @@ int veryVeryVerbose;
             *itr += value;
         }
     }
+#endif
 
-    // ACCESSORS
-    double MyThreadSafeQueue::mean() const
-    {
-        d_rwMutex.lockRead();
-        bsl::pair<int, double> result = getStats();
-        d_rwMutex.unlockRead();
-        return result.second;
-    }
 
     // MANIPULATORS
+#if 0
     void MyThreadSafeQueue::normalize()
     {
         d_rwMutex.lockWrite();
@@ -387,6 +433,54 @@ int veryVeryVerbose;
         addValueToEach(-adjustment);
         d_rwMutex.unlockWrite();
     }
+#endif
+//    
+//..
+// Finally, we implement the manipulator that must calculate the mean.
+
+    void MyThreadSafeQueue::purgeAll(double limit)
+    {
+        d_rwMutex.lockWrite();
+        bsl::pair<int, double> results = getStats();  // requires some lock
+        if (0 < results.first && limit < results.second) {
+#if 0
+            int dummy;
+            int rc;
+            while (-1 != (rc = popImp(&dummy))) {  // requies a write lock
+                ;
+            }
+#endif
+            for (int i = 0; i < results.first; ++i) {
+                int dummy;
+                int rc = popImp(&dummy);  // requires a write lock
+                ASSERT(0 == rc);
+            }
+        }
+        d_rwMutex.unlockWrite();
+    }
+
+// Finally, we confirm that our accessors work as expected:
+//..
+    void testEnhancedThreadSafeQueue()
+    {
+        MyThreadSafeQueue queue;
+
+        const int rawData[] = { 17, 3, -20, 7, 28 };
+        enum { k_RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
+
+        queue.pushRange(rawData + 0, rawData + k_RAW_DATA_LENGTH);
+
+        ASSERT(5 == queue.numElements());
+        ASSERT(7 == queue.mean());
+
+        queue.push(100000);
+        queue.purgeAll(10);
+
+        ASSERTV(queue.numElements(), 0       == queue.numElements());
+        ASSERTV(queue.mean()       , DBL_MIN == queue.mean());
+    }
+//..
+
 
 
                                   // ------
@@ -491,14 +585,14 @@ int main(int argc, char *argv[])
         //: 1 That the usage example compiles and functions as expected.
         //
         // Plan:
-        //: o Call 'testThreadSafeQueue', which implements and runs the usage
-        //:   example, but don't call it in safe assert mode unless
-        //:   'veryVerbose' is selected, since it will abort in that mode.
+        //: o Call 'testEnhancedThreadSafeQueue', which implements and runs the usage
+        //:   example
         // --------------------------------------------------------------------
 
         if (verbose) cout << "USAGE EXAMPLE\n"
                              "=============\n";
 
+#if 0
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
         if (!veryVerbose) {
             cout << "Usage example not run in safe mode unless 'veryVerbose'"
@@ -506,8 +600,9 @@ int main(int argc, char *argv[])
             break;
         }
 #endif
+#endif
 
-        testThreadSafeQueue(cout);
+        testEnhancedThreadSafeQueue();
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -580,10 +675,9 @@ int main(int argc, char *argv[])
         {
             bslmt::ReaderWriterMutex rwMutex;
 
-            //bsls::Assert::setFailureHandler(&TestCase2::myHandler);
-            bsls::AssertFailureHandlerGuard(&TestCase2::myHandler);
+            bsls::Assert::setFailureHandler(&TestCase2::myHandler);
 
-            if (veryVeryVerbose) "testing '*_SAVE' macros" << endl;
+            if (veryVeryVerbose) cout << "testing '*_SAFE' macros" << endl;
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
             TestCase2::mode = TestCase2::e_SAFE_MODE;
 
@@ -633,7 +727,7 @@ int main(int argc, char *argv[])
 
 #endif // BSLS_ASSERT_SAFE_IS_ACTIVE
 
-            if (veryVeryVerbose) "testing 'normal' macros" << endl;
+            if (veryVeryVerbose) cout << "testing 'normal' macros" << endl;
 #ifdef BSLS_ASSERT_IS_ACTIVE
             TestCase2::mode = TestCase2::e_NORMAL_MODE;
 
@@ -678,7 +772,7 @@ int main(int argc, char *argv[])
             }
 #endif // BSLS_ASSERT_IS_ACTIVE
 
-            if (veryVeryVerbose) "testing '*_OPT' macros" << endl;
+            if (veryVeryVerbose) cout << "testing '*_OPT' macros" << endl;
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
             TestCase2::mode = TestCase2::e_OPT_MODE;
 
@@ -724,7 +818,7 @@ int main(int argc, char *argv[])
             }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
-            //bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+            bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
         }
 #else  // BDE_BUILD_TARGET_EXC
 
