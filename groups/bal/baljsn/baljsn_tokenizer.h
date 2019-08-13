@@ -212,8 +212,8 @@ class Tokenizer {
     bsl::size_t                          d_cursor;          // current cursor
 
     bsl::size_t                          d_valueBegin;      // cursor for
-                                                            // beginning
-                                                            // of value
+                                                            // beginning of
+                                                            // value
 
     bsl::size_t                          d_valueEnd;        // cursor for end
                                                             // of value
@@ -224,6 +224,7 @@ class Tokenizer {
     TokenType                            d_tokenType;       // token type
 
     bsl::vector<char>                    d_contextStack;    // context type
+                                                            // stack
 
     bool                                 d_allowStandAloneValues;
                                                             // option for
