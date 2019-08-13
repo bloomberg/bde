@@ -1119,7 +1119,7 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
 
 int Utf8Util::getByteSize(const char* character)
 {
-    BSLS_ASSERT(validUtf8(character));
+    BSLS_ASSERT_SAFE(validUtf8(character));
     return Utf8Size(character[0]);
 }
 
