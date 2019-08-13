@@ -1974,14 +1974,19 @@ int main(int argc, char *argv[])
             }
             {
                 // monotonic clock
+                if (veryVeryVerbose) {
+                    cout << "sleepUntil monotonic" << endl;
+                }
                 expectedTime = bsls::SystemTime::nowMonotonicClock();
                 expectedTime.addMilliseconds(i * 100);
                 Obj::sleepUntil(expectedTime,
                                 bsls::SystemClockType::e_MONOTONIC);
                 actualTime = bsls::SystemTime::nowMonotonicClock();
-
-                // MS clock resolution is 15.6ms, include a fudge factor
-                ASSERT(actualTime >= expectedTime - bsls::TimeInterval(.0156));
+                ASSERT(actualTime >= expectedTime);
+                if (actualTime < expectedTime && veryVeryVerbose) {
+                    cout << "expectedTime: " << expectedTime
+                         << ", actualTime: " << actualTime << endl;
+                }
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
                                                                          < 50);
