@@ -261,7 +261,7 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM_defined =
                     // case 13
 
 
-#include <algorithm> // for 'searcher'
+#include <algorithm> // for 'search'
 #include <utility>   // for 'pair'
 
 namespace case13 {
@@ -1320,22 +1320,24 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' flag is
         //:   defined when the native library provides a definition for an
-        //:   overload of the 'searcher' function template that accepts a
+        //:   overload of the 'search' function template that accepts a
         //:   searcher object, and not otherwise.
         //
         // Plan:
-        //: 1 In namespace 'case13', define 'SearcherNull', a class that
-        //:   is compatible with the "searcher" concept and an independent
-        //:   definition of the 'searcher' overload under test.
+        //: 1 In namespace 'case13', define 'SearcherNull', a class that is
+        //:   compatible with the "searcher" concept and an independent
+        //:   definition of the 'search' overload under test.
         //:
-        //: 2 When the flag is set, confirm that the overload exists, that
-        //:   it accepts the searcher objects, and returns the expected result.
+        //: 2 When the flag is set, confirm that the overload exists, that it
+        //:   accepts the searcher objects, and returns the expected result.
         //:
         //: 3 When the flag is *not* set, specify 'using' directives to search
         //:   for definitions in both the 'native_std' and the 'case13'
-        //:   namespaces.  Then specify a 'typedef' that will trigger a
-        //:   compiler error (due to ambiguity) should the overload be defned
-        //:   in both namespaces.
+        //:   namespaces.  Then define an experession using the
+        //:   namespace-unqualified name 'search'.  If there is a definition in
+        //:   the 'native_std' namespace in addition to the one we planted in
+        //:   namespace 'case13', the test driver fails to compile (ambiguity
+        //:   error).
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
