@@ -128,10 +128,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_bufferedsequentialallocator.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bsl_string.h>
 #include <bsl_streambuf.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -180,57 +182,60 @@ class Tokenizer {
         e_ARRAY_CONTEXT               // array context
     };
 
-    // Intermediate data buffer used for reading data from the stream.
+    // One intermediate data buffer used for reading data from the stream, and
+    // another for the context state stack.
 
     enum {
-        k_BUFSIZE = 1024 * 8,
-        k_MAX_STRING_SIZE = k_BUFSIZE - 1
+        k_BUFSIZE         = 1024 * 8,
+        k_MAX_STRING_SIZE = k_BUFSIZE - 1,
+
+        k_STACKBUFSIZE    = 256
     };
 
     // DATA
-    bsls::AlignedBuffer<k_BUFSIZE>  d_buffer;               // buffer
+    bsls::AlignedBuffer<k_BUFSIZE>       d_buffer;          // string buffer
 
-    bdlma::BufferedSequentialAllocator    d_allocator;           // allocator
-                                                                 // (owned)
+    bsls::AlignedBuffer<k_STACKBUFSIZE>  d_stackBuffer;     // stack buffer
 
-    bsl::string                          d_stringBuffer;         // string
-                                                                 // buffer
+    bdlma::BufferedSequentialAllocator   d_allocator;       // string allocator
+                                                            // (owned)
 
-    bsl::streambuf                      *d_streambuf_p;          // streambuf
-                                                                 // (held, not
-                                                                 // owned)
+    bdlma::BufferedSequentialAllocator   d_stackAllocator;  // stack allocator
+                                                            // (owned)
 
-    bsl::size_t                          d_cursor;               // current
-                                                                 // cursor
+    bsl::string                          d_stringBuffer;    // string buffer
 
-    bsl::size_t                          d_valueBegin;           // cursor for
-                                                                 // beginning
-                                                                 // of value
+    bsl::streambuf                      *d_streambuf_p;     // streambuf
+                                                            // (held, not
+                                                            // owned)
 
-    bsl::size_t                          d_valueEnd;             // cursor for
-                                                                 // end of
-                                                                 // value
+    bsl::size_t                          d_cursor;          // current cursor
 
-    bsl::size_t                          d_valueIter;            // cursor for
-                                                                 // iterating
-                                                                 // value
+    bsl::size_t                          d_valueBegin;      // cursor for
+                                                            // beginning of
+                                                            // value
 
-    TokenType                            d_tokenType;            // token type
+    bsl::size_t                          d_valueEnd;        // cursor for end
+                                                            // of value
 
-    ContextType                          d_context;              // context
-                                                                 // type
+    bsl::size_t                          d_valueIter;       // cursor for
+                                                            // iterating value
 
-    bool                                 d_allowStandAloneValues;// option for
-                                                                 // allowing
-                                                                 // stand alone
-                                                                 // values
+    TokenType                            d_tokenType;       // token type
+
+    bsl::vector<char>                    d_contextStack;    // context type
+                                                            // stack
+
+    bool                                 d_allowStandAloneValues;
+                                                            // option for
+                                                            // allowing stand
+                                                            // alone values
 
     bool                                 d_allowHeterogenousArrays;
-                                                                // option for
-                                                                // allowing
-                                                                // arrays of
-                                                                // heterogenous
-                                                                // values
+                                                            // option for
+                                                            // allowing arrays
+                                                            // of heterogenous
+                                                            // values
 
     // PRIVATE MANIPULATORS
     int extractStringValue();
@@ -268,6 +273,18 @@ class Tokenizer {
         // Skip all characters until a whitespace or a token character is
         // encountered and position the cursor onto the first such character.
         // Return 0 on success and a non-zero value otherwise.
+
+    void pushContext(ContextType context);
+        // Push the specified 'context' onto the 'd_contextStack' stack.
+
+    ContextType popContext();
+        // Pop the top context from the 'd_contextStack' stack, and return it.
+        // The behavior is undefined if 'd_contextStack' is empty.
+
+    // PRIVATE ACCESSOR
+    ContextType context() const;
+        // Returns the top context from the 'd_contextStack' stack without
+        // popping.  The behavior is undefined if 'd_contextStack' is empty.
 
     // Not implemented:
     Tokenizer(const Tokenizer&);
@@ -347,10 +364,38 @@ class Tokenizer {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+// PRIVATE MANIPULATORS
+inline
+Tokenizer::ContextType Tokenizer::popContext()
+{
+    BSLS_ASSERT(!d_contextStack.empty());
+    ContextType ret = static_cast<ContextType>(d_contextStack.back());
+    d_contextStack.pop_back();
+
+    return ret;
+}
+
+inline
+void Tokenizer::pushContext(ContextType context)
+{
+    d_contextStack.push_back(static_cast<char>(context));
+}
+
+// PRIVATE ACCESSOR
+inline
+Tokenizer::ContextType Tokenizer::context() const
+{
+    BSLS_ASSERT(!d_contextStack.empty());
+    ContextType ret = static_cast<ContextType>(d_contextStack.back());
+
+    return ret;
+}
+
 // CREATORS
 inline
 Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 : d_allocator(d_buffer.buffer(), k_BUFSIZE, basicAllocator)
+, d_stackAllocator(d_stackBuffer.buffer(), k_STACKBUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_streambuf_p(0)
 , d_cursor(0)
@@ -358,11 +403,14 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_valueEnd(0)
 , d_valueIter(0)
 , d_tokenType(e_BEGIN)
-, d_context(e_OBJECT_CONTEXT)
+, d_contextStack(200, &d_stackAllocator)
 , d_allowStandAloneValues(true)
 , d_allowHeterogenousArrays(true)
 {
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
+    d_contextStack.clear();
+    pushContext(e_OBJECT_CONTEXT);
+
 }
 
 inline
@@ -381,6 +429,9 @@ void Tokenizer::reset(bsl::streambuf *streambuf)
     d_valueEnd    = 0;
     d_valueIter   = 0;
     d_tokenType   = e_BEGIN;
+
+    d_contextStack.clear();
+    pushContext(e_OBJECT_CONTEXT);
 }
 
 inline
@@ -413,6 +464,8 @@ bool Tokenizer::allowHeterogenousArrays() const
 {
     return d_allowHeterogenousArrays;
 }
+
+
 
 }  // close package namespace
 
