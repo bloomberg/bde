@@ -1,3 +1,11 @@
+**There will be a major update to the BDE libraries on on August 23, 2019**
+
+Notable changes:
+* The BTL library will be removed from the `master` branch.
+* The build system will be updated to use CMake.
+* A BDE website containing background, build instructions, and other information will be made available.
+
+
 BDE Libraries
 =============
 
