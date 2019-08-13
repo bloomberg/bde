@@ -31,6 +31,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY: C++17 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM: searcher object overloads
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -558,6 +559,24 @@ BSLS_IDENT("$Id: $")
 //:   o Clang 3.0 (using at least GCC 7.0 STL)
 //:   o MSVC 2013
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM'
+///-------------------------------------------------
+// The  'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' macro is defined if
+// <alogrithm> defines an overload for the 'search' function template that
+// accepts instances of the searcher classes introduced in C++17.  See 
+// [alg.search]:
+//..
+//  template<class ForwardIterator, class Searcher>
+//  constexpr ForwardIterator search(ForwardIterator first,
+//                                   ForwardIterator last,
+//                                   const Searcher& searcher);
+//..
+//
+// Currently the following compilers define this function template:
+//
+//:   o GCC 8.3.0
+//:   o MSVC 19.10
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' macro is defined if
@@ -981,6 +1000,10 @@ BSLS_IDENT("$Id: $")
         #if BSLS_PLATFORM_CMP_VERSION >= 60000
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API     1
         #endif
+
+        #if BSLS_PLATFORM_CMP_VERSION >= 80300
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
+        #endif
     #endif
     #if __cplusplus > 201103L
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY       1
@@ -1015,6 +1038,7 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     // #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
@@ -1060,6 +1084,7 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
@@ -1077,6 +1102,7 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
     // #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
@@ -1202,6 +1228,7 @@ BSLS_IDENT("$Id: $")
       #if !_HAS_AUTO_PTR_ETC
         #undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
       #endif
+      #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
     #endif
 #endif
 
