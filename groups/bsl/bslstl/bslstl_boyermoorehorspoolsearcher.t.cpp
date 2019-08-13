@@ -37,12 +37,6 @@
 #include <stdio.h>    // for 'stdio' and 'printf'
 #include <stddef.h>   // for 'NULL'
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
-#include <functional> // for 'native_std::boyer_moore_horspool_searcher' in
-                      // usage example.
-#include <vector>
-#endif
-
 using namespace BloombergLP;
 namespace BSL = native_std;  // for Usage examples
 
@@ -2823,7 +2817,7 @@ const BSL::size_t numDATA = sizeof DATA / sizeof *DATA;
 
 
 // Support for Example 3
-void doTestRun(BSL::vector<float> *data)
+void doTestRun(bsl::vector<float> *data)
 {
     ASSERT(data);
 
@@ -2862,8 +2856,8 @@ void doTestRun(BSL::vector<float> *data)
     data->push_back( 0.81f);
 }
 
-void processTestRun(BSL::vector<float>::const_iterator first,
-                    BSL::vector<float>::const_iterator last)
+void processTestRun(bsl::vector<float>::const_iterator first,
+                    bsl::vector<float>::const_iterator last)
 {
     // Stub.
     (void)first;
@@ -3077,18 +3071,18 @@ static void usage()
 // Then, we create a 'default_searcher' object (a functor) using the given
 // 'word':
 //..
-    BSL::boyer_moore_horspool_searcher<const char *> searchForUnited(
+    bsl::boyer_moore_horspool_searcher<const char *> searchForUnited(
                                                             word,
                                                             word
                                                           + BSL::strlen(word));
 //..
 // Notice that no equality comparison functor was specified so
-// 'searchForUnited' will use 'BSL::equal_to<char>' by default.
+// 'searchForUnited' will use 'bsl::equal_to<char>' by default.
 //
 // Now, we invoke our functor, specifying the range of the document to be
 // searched:
 //..
-    BSL::pair<const char *, const char *> result = searchForUnited(
+    bsl::pair<const char *, const char *> result = searchForUnited(
                                                               document,
                                                               document
                                                             + sizeof document);
@@ -3103,7 +3097,7 @@ static void usage()
 // "united" (all lower case) in the second sentence.
 //
 // {'bslstl_default'|Example 1} shows how the same problem is addressed using
-// 'BSL::default_searcher'.
+// 'bsl::default_searcher'.
 //
 ///Example 2: Defining a Comparator and Hash
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -3122,10 +3116,10 @@ static void usage()
 //..
 //  [INSERT FROM ABOVE]
 //..
-// Now, specify 'BSL::boyer_moore_horspool_searcher' type for and create a
+// Now, specify 'bsl::boyer_moore_horspool_searcher' type for and create a
 // searcher object to search for 'word':
 //..
-    BSL::boyer_moore_horspool_searcher<const char *,
+    bsl::boyer_moore_horspool_searcher<const char *,
                                        MyCaseInsensitiveCharHasher,
                                        MyCaseInsensitiveCharComparator>
                                                     searchForUnitedInsensitive(
@@ -3141,7 +3135,7 @@ static void usage()
 // Now, we invoke our searcher functor, specifying that the same document
 // searched in {Example 1}:
 //..
-    BSL::pair<const char *, const char *> resultInsensitive =
+    bsl::pair<const char *, const char *> resultInsensitive =
                                                     searchForUnitedInsensitive(
                                                               document,
                                                               document
@@ -3170,7 +3164,7 @@ static void usage()
 //..
 //
 // {'bslstl_default'|Example 2} shows how the same problem is addressed using
-// 'BSL::default_searcher'.
+// 'bsl::default_searcher'.
 //
 ///Example 3: Non-'char' Searches
 /// - - - - - - - - - - - - - - -
@@ -3196,27 +3190,27 @@ static void usage()
 // Next, we obtain the data to be searched.  (In this example, we will use
 // simulated data.)
 //..
-    BSL::vector<float> data;  // Container provides random access iterators.
+    bsl::vector<float> data;  // Container provides random access iterators.
     doTestRun(&data);
 //..
 // Then, we define and create our searcher object:
 //..
-    BSL::boyer_moore_horspool_searcher<const float *>
+    bsl::boyer_moore_horspool_searcher<const float *>
                                          searchForMarker(markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
 //..
 // Notice that no equality comparison functor was specified so
-// 'searchForMarker' will use 'BSL::equal_to<float>' by default.
+// 'searchForMarker' will use 'bsl::equal_to<float>' by default.
 //
 // Now, we invoke our searcher on the instrument data.
 //..
-    typedef BSL::vector<float>::const_iterator DataConstItr;
+    typedef bsl::vector<float>::const_iterator DataConstItr;
 
-    const BSL::pair<DataConstItr, DataConstItr> notFound(data.cend(),
+    const bsl::pair<DataConstItr, DataConstItr> notFound(data.cend(),
                                                          data.cend());
 
-    BSL::pair<DataConstItr, DataConstItr> markerPosition = searchForMarker(
+    bsl::pair<DataConstItr, DataConstItr> markerPosition = searchForMarker(
                                                                  data.cbegin(),
                                                                  data.cend());
 
@@ -3236,7 +3230,7 @@ static void usage()
     processTestRun(startOfTestRun, endOfTestRun);
 //..
 // {'bslstl_defaultsearcher'|Example 3} shows how the same problem is addressed
-// using 'BSL::default_searcher'.  Notice that other example uses 'data' from a
+// using 'bsl::default_searcher'.  Notice that other example uses 'data' from a
 // container that provides bidirectional iterators (and forward iterators would
 // have sufficed), whereas here random access iterators are required.
 //
@@ -3248,7 +3242,7 @@ static void usage()
 
 ///Example 4: Caching Searcher Objects
 ///- - - - - - - - - - - - - - - - - -
-// The construction of 'BSL::boyer_moore_horspool_searcher' objects is small
+// The construction of 'bsl::boyer_moore_horspool_searcher' objects is small
 // (the needle must be scanned, meta-data calculated, and results saved) but
 // can be non-neglibible when one needs a great number of them.  When there is
 // a reasonable chance that one will have to repeat a given search, it can be
@@ -3310,7 +3304,7 @@ static void usage()
 
     MyAllocator                    myAllocator;
     MyCaseInsensitiveSearcherCache searcherCache(&myAllocator);
-    BSL::string                    output;
+    bsl::string                    output;
 
     for (BSL::size_t ti = 0; ti < NUM_NAMES; ++ti) {
         const char * const givenName = DATA[ti].d_givenName_p;
@@ -3859,7 +3853,6 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                        "\n" "TEST 'boyer_moore_horspool_seacher' FACADE"
                        "\n" "==========================================" "\n");
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
         typedef CharArray<char>::const_iterator    RndAccConstItr;
         typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr>    MechChar;
@@ -4069,12 +4062,6 @@ int main(int argc, char *argv[])
             ASSERT_PASS(X(middleHaystack, middleHaystack + 0));
             ASSERT_PASS(X(middleHaystack, middleHaystack + 1));
         }
-#else  
-            if (verbose) printf("Skip: do not define "
-                                "'boyer_moore_horspool_searcher' when defined "
-                                "in native library\n");
-      
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
       } break;
       case 7: {
         // --------------------------------------------------------------------
