@@ -307,9 +307,10 @@ void TestDriver<TYPE>::testCase2()
 
     bsls::ObjectBuffer<TYPE> obE;
     TYPE& e = obE.object();
-    TTF::emplace(&e, 0, &ta);
+    TYPE *e_p = obE.address();
+    TTF::emplace(e_p, 0, &ta);
 
-    ASSERT(0 != mX.tryPopFront(&e));
+    ASSERT(0 != mX.tryPopFront(e_p));
 
     bool tie = false;
     for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
@@ -319,7 +320,8 @@ void TestDriver<TYPE>::testCase2()
 
         bsls::ObjectBuffer<TYPE> obVal;
         TYPE& val = obVal.object();
-        TTF::emplace(&val, values[ii], &ta);
+        TYPE *val_p = obVal.address();
+        TTF::emplace(val_p, values[ii], &ta);
 
         minAllocs += s_allocType;
         soFarAllocs = ta.numAllocations() - startAllocs;
@@ -361,17 +363,17 @@ void TestDriver<TYPE>::testCase2()
         int priority = -1;
         switch (ii & 3) {
           case 0: {
-            ASSERT(0 == mX.tryPopFront(&e));
+            ASSERT(0 == mX.tryPopFront(e_p));
           } break;
           case 1: {
-            mX.popFront(&e);
+            mX.popFront(e_p);
           } break;
           case 2: {
-            ASSERT(0 == mX.tryPopFront(&e, &priority));
+            ASSERT(0 == mX.tryPopFront(e_p, &priority));
             ASSERT(ii == priority);
           } break;
           case 3: {
-            mX.popFront(&e, &priority);
+            mX.popFront(e_p, &priority);
             ASSERT(ii == priority);
           } break;
           default: {
@@ -402,8 +404,8 @@ void TestDriver<TYPE>::testCase2()
     if (veryVerbose) cout << "Now try it with a different allocator\n"
                              "multiple with the same priority\n";
 
-    TTF::emplace(&e, 0, &oa);
-    ASSERT(0 != mX.tryPopFront(&e));
+    TTF::emplace(e_p, 0, &oa);
+    ASSERT(0 != mX.tryPopFront(e_p));
 
     tie = false;
     for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
@@ -412,7 +414,8 @@ void TestDriver<TYPE>::testCase2()
 
         bsls::ObjectBuffer<TYPE> obVal;
         TYPE& val = obVal.object();
-        TTF::emplace(&val, values[ii], &oa);
+        TYPE *val_p = obVal.address();
+        TTF::emplace(val_p, values[ii], &oa);
 
         ASSERT(X.length() == ii);
         if (ii & 1){
@@ -432,8 +435,8 @@ void TestDriver<TYPE>::testCase2()
                                          expMoved == bsltf::getMovedFrom(val));
 
         soFarAllocs = ta.numAllocations() - startAllocs;
-        LOOP2_ASSERT(ii, soFarAllocs, soFarAllocs >= s_allocType);
-        tie |= soFarAllocs == s_allocType;
+        LOOP2_ASSERT(ii, soFarAllocs, soFarAllocs >= int(s_allocType));
+        tie |= soFarAllocs == int(s_allocType);
 
         val.~TYPE();
     }
@@ -446,17 +449,17 @@ void TestDriver<TYPE>::testCase2()
         int priority = -1;
         switch (ii & 3) {
           case 0: {
-            ASSERT(0 == mX.tryPopFront(&e));
+            ASSERT(0 == mX.tryPopFront(e_p));
           } break;
           case 1: {
-            mX.popFront(&e);
+            mX.popFront(e_p);
           } break;
           case 2: {
-            ASSERT(0 == mX.tryPopFront(&e, &priority));
+            ASSERT(0 == mX.tryPopFront(e_p, &priority));
             ASSERT(ii / 3 == priority);
           } break;
           case 3: {
-            mX.popFront(&e, &priority);
+            mX.popFront(e_p, &priority);
             ASSERT(ii / 3 == priority);
           } break;
           default: {
@@ -471,15 +474,15 @@ void TestDriver<TYPE>::testCase2()
     }
 
     ASSERT(X.isEmpty());
-    ASSERT(0 != mX.tryPopFront(&e));
+    ASSERT(0 != mX.tryPopFront(e_p));
 
     e.~TYPE();
 
     if (veryVerbose) cout << "Now try it, same alloc, pushing reverse order\n";
 
-    TTF::emplace(&e, 0, &ta);
+    TTF::emplace(e_p, 0, &ta);
 
-    ASSERT(0 != mX.tryPopFront(&e));
+    ASSERT(0 != mX.tryPopFront(e_p));
 
     tie = false;
     for (int jj = k_NUM_VALUES - 3, kk = 0; 0 <= jj; jj -= 3) {
@@ -492,9 +495,10 @@ void TestDriver<TYPE>::testCase2()
 
             bsls::ObjectBuffer<TYPE> obVal;
             TYPE& val = obVal.object();
-            TTF::emplace(&val, values[ii], &ta);
+            TYPE *val_p = obVal.address();
+            TTF::emplace(val_p, values[ii], &ta);
 
-            minAllocs += s_allocType;
+            minAllocs += int(s_allocType);
             soFarAllocs = ta.numAllocations() - startAllocs;
             LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
 
@@ -534,17 +538,17 @@ void TestDriver<TYPE>::testCase2()
         int priority = -1;
         switch (ii & 3) {
           case 0: {
-            ASSERT(0 == mX.tryPopFront(&e));
+            ASSERT(0 == mX.tryPopFront(e_p));
           } break;
           case 1: {
-            mX.popFront(&e);
+            mX.popFront(e_p);
           } break;
           case 2: {
-            ASSERT(0 == mX.tryPopFront(&e, &priority));
+            ASSERT(0 == mX.tryPopFront(e_p, &priority));
             ASSERT(ii / 3 == priority);
           } break;
           case 3: {
-            mX.popFront(&e, &priority);
+            mX.popFront(e_p, &priority);
             ASSERT(ii / 3 == priority);
           } break;
           default: {
