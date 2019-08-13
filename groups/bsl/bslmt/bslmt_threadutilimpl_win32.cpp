@@ -761,7 +761,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
             return GetLastError();                                    // RETURN
         }
     }
-    else { // montonic clock
+    else { // monotonic clock
         // The windows system function 'WaitForSingleObject' (which is used
         // here to implement 'sleepUntil') is based on a real-time clock.  If a
         // client supplies a monotonic clock time, rather than convert that
@@ -770,12 +770,15 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
         // relative to the monotonic clock and 'sleep' for that period (this
         // may also introduce errors, but potentially fewer because the period
         // over which a change in the system clock will impact the result will
-        // be smaller).
+        // be smaller). This may wake up prior to the specified 'absoluteTime',
+        // so we will loop over a decreasing 'relativeTime' interval to ensure
+        // that we don't return until after 'absoluteTime' has passed.
 
         bsls::TimeInterval relativeTime =
                           absoluteTime - bsls::SystemTime::nowMonotonicClock();
-        if (relativeTime > bsls::TimeInterval(0, 0)) {
+        while (relativeTime > bsls::TimeInterval(0, 0)) {
             sleep(relativeTime);
+            relativeTime = absoluteTime - bsls::SystemTime::nowMonotonicClock();
         }
     }
 
