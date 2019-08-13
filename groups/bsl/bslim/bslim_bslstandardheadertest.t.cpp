@@ -146,6 +146,11 @@
 #include <bsl_shared_mutex.h>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#include <functional> // for 'native_std::default_searcher', et al.
+namespace BSL = native_std;  // case 8
+#endif
+
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
 #include <stdlib.h>    // 'atoi'
@@ -431,8 +436,8 @@ int main(int argc, char *argv[])
                             "\n=================\n");
 
         typedef const char *                                 ConstItr;
-        typedef bsl::default_searcher             <ConstItr> DftSearcher;
-        typedef bsl::boyer_moore_horspool_searcher<ConstItr> BmhSearcher;
+        typedef BSL::default_searcher             <ConstItr> DftSearcher;
+        typedef BSL::boyer_moore_horspool_searcher<ConstItr> BmhSearcher;
 
         const char     needle[]    = "world";
         const ConstItr needleFirst = needle;

@@ -74,6 +74,9 @@ using native_std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+    // Use definition from '<algorithm>'.
+#else
 template<class ForwardIt, class Searcher>
 ForwardIt search( ForwardIt first, ForwardIt last,
                   const Searcher& searcher )
@@ -81,6 +84,7 @@ ForwardIt search( ForwardIt first, ForwardIt last,
     bsl::pair<ForwardIt, ForwardIt> result = searcher(first, last);
     return result.first;
 }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 }  // close namespace bsl
 
