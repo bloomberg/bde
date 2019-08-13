@@ -355,13 +355,13 @@ int main(int argc, char *argv[])
         candidates.reserve(NUM_VALUES * NUM_VALUES * NUM_VALUES * NUM_VALUES *
                            NUM_VALUES);
 
-        for(int LENGTH = 0; LENGTH < 6; ++LENGTH) {
+        for(bsl::size_t LENGTH = 0; LENGTH < 6; ++LENGTH) {
             bsl::string       separator = "";
 
             candidates.clear();
             candidates.push_back("[ ");
 
-            for(int i = 0; i < LENGTH; ++i) {
+            for(bsl::size_t i = 0; i < LENGTH; ++i) {
                 bsl::vector<bsl::string> inputs = candidates;
                 candidates.clear();
 

@@ -186,10 +186,10 @@ class Tokenizer {
     // another for the context state stack.
 
     enum {
-        k_BUFSIZE = 1024 * 8,
+        k_BUFSIZE         = 1024 * 8,
         k_MAX_STRING_SIZE = k_BUFSIZE - 1,
 
-        k_STACKBUFSIZE = 256
+        k_STACKBUFSIZE    = 256
     };
 
     // DATA
@@ -225,11 +225,13 @@ class Tokenizer {
 
     bsl::vector<char>                    d_contextStack;    // context type
 
-    bool d_allowStandAloneValues;                           // option for
+    bool                                 d_allowStandAloneValues;
+                                                            // option for
                                                             // allowing stand
                                                             // alone values
 
-    bool d_allowHeterogenousArrays;                         // option for
+    bool                                 d_allowHeterogenousArrays;
+                                                            // option for
                                                             // allowing arrays
                                                             // of heterogenous
                                                             // values
