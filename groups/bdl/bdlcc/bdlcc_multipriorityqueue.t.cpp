@@ -12,6 +12,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bdlt_currenttime.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>
@@ -21,16 +23,21 @@
 #include <bslmt_threadgroup.h>
 
 #include <bsltf_alloctesttype.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <bsls_atomic.h>
+#include <bsls_nameof.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_types.h>
 
-#include <bdlt_currenttime.h>
 
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_assert.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_list.h>
@@ -69,8 +76,8 @@ using bsl::flush;
 // [ 2] pushBack(item, priority)
 // [ 2] popFront(&item)
 // [ 2] tryPopFront(&item)
-// [ 3] popFront(&item, &priority)
-// [ 3] tryPopFront(&item, &priority)
+// [ 2] popFront(&item, &priority)
+// [ 2] tryPopFront(&item, &priority)
 // [ 6] removeAll()
 //
 // ACCESSORS
@@ -165,6 +172,12 @@ int veryVeryVeryVerbose;
 #define T_()  COUT << '\t' << FLUSH           // Print tab w/o newline
 
 // ============================================================================
+//                                 TTF MACROS
+// ----------------------------------------------------------------------------
+
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+
+// ============================================================================
 //            GLOBAL TYPEDEFS, CONSTANTS & VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -211,6 +224,354 @@ typedef bdlcc::MultipriorityQueue<bsl::string>  Sobj;
 typedef bsls::Types::Int64                      Int64;
 
 }  // close unnamed namespace
+
+// ============================================================================
+//                                   TestDriver
+// ----------------------------------------------------------------------------
+
+template <class TYPE>
+struct TestDriver {
+    // TYPES
+    typedef bdlcc::MultipriorityQueue<TYPE>      ObjT;
+
+    typedef bslmf::MovableRefUtil                MoveUtil;
+    typedef bsltf::TemplateTestFacility          TTF;
+    typedef bsltf::MoveState                     MoveState;
+
+    // DATA
+    static
+    const bool s_typeIsMoveEnabled =
+                      bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
+                      bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
+                      bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value;
+
+    static
+    const bool s_allocType = bslma::UsesBslmaAllocator<TYPE>::value;
+
+    // TEST CASES
+
+    static void testCase2();
+        // Primate manipulators (Bootstrap).
+};
+
+template <class TYPE>
+void TestDriver<TYPE>::testCase2()
+    // ------------------------------------------------------------------------
+    // TESTING PRIMARY MANIPULATORS (BOOTSTRAP, SINGLE THREADED)
+    //
+    // Concerns:
+    //: 1 That 'pushBack' enqueues multiple items of different value at the
+    //:   same priority.
+    //:
+    //: 2 That 'pushBack' enqueues multiple items of the same value at the same
+    //:   priority.
+    //:
+    //: 3 That repeated calls to 'popFront' dequeue the items in turn.
+    //:
+    //: 4 That 'tryPopFront' dequeues items in turn, returning success then
+    //:   returns a non-zero value when the queue is empty.
+    //
+    // Plan:
+    //   Have a vector of distinct values to be pushed one by one with a single
+    //   priority and pop the values with various incarnations of 'popFront'
+    //   and 'tryPopFront', testing them all and verifying expected values are
+    //   popped.  Also verify periodically that 'length' and 'isEmpty' are
+    //   what's expected.  Also use Element::s_allocCount to verify
+    //   periodically that the expected number of Elements are in existence.
+    //
+    // Testing:
+    //   pushBack()
+    //   tryPopFront(&item)
+    //   tryPopFront(&item, &priority)
+    //   popFront(&item)
+    //   popFront(&item, &priority)
+    //   length()
+    //   isEmpty()
+    // ------------------------------------------------------------------------
+{
+    const char *type = bsls::NameOf<TYPE>();
+    if (veryVerbose) cout << "Test case 2: TYPE: " << type << ", " <<
+                            (s_allocType         ? "" : "non") << "-alloc, " <<
+                            (s_typeIsMoveEnabled ? "" : "non") << "-move\n";
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator oa(veryVeryVeryVerbose);
+
+    ObjT mX(&ta);   const ObjT& X = mX;
+
+    const int values[] = { 112, 103, 96, 86, 79, 68, 59, 49, 34, 23, 14, 2 };
+    enum { k_NUM_VALUES = sizeof values / sizeof *values };
+    BSLMF_ASSERT(0 == k_NUM_VALUES % 3);
+
+    ASSERT(X.isEmpty());
+
+    bsls::ObjectBuffer<TYPE> obE;
+    TYPE& e = obE.object();
+    TTF::emplace(&e, 0, &ta);
+
+    ASSERT(0 != mX.tryPopFront(&e));
+
+    bool tie = false;
+    for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+        Int64 startAllocs = ta.numAllocations();
+        Int64 minAllocs   = 0;
+        Int64 soFarAllocs;
+
+        bsls::ObjectBuffer<TYPE> obVal;
+        TYPE& val = obVal.object();
+        TTF::emplace(&val, values[ii], &ta);
+
+        minAllocs += s_allocType;
+        soFarAllocs = ta.numAllocations() - startAllocs;
+        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+
+        ASSERT(X.length() == ii);
+        if (ii & 1){
+            mX.pushBack(MoveUtil::move(val), ii);
+        }
+        else {
+            mX.pushBack(val, ii);
+        }
+        ASSERT(!X.isEmpty());
+
+        const MoveState::Enum expMoved = s_typeIsMoveEnabled
+                                       ? ((ii & 1)
+                                          ? MoveState::e_MOVED
+                                          : MoveState::e_NOT_MOVED)
+                                       : MoveState::e_UNKNOWN;
+        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedFrom(val),
+                                         expMoved == bsltf::getMovedFrom(val));
+
+        minAllocs += (s_allocType && !(s_typeIsMoveEnabled && (ii & 1)));
+        soFarAllocs = ta.numAllocations() - startAllocs;
+        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs >= minAllocs);
+        tie |= soFarAllocs == minAllocs;
+
+        val.~TYPE();
+    }
+    ASSERT(tie);
+
+    for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+        ASSERT(X.length() == k_NUM_VALUES - ii);
+        ASSERT(!X.isEmpty());
+        Int64 startAllocs = ta.numAllocations();
+        Int64 minAllocs   = 0;
+        Int64 soFarAllocs;
+
+        int priority = -1;
+        switch (ii & 3) {
+          case 0: {
+            ASSERT(0 == mX.tryPopFront(&e));
+          } break;
+          case 1: {
+            mX.popFront(&e);
+          } break;
+          case 2: {
+            ASSERT(0 == mX.tryPopFront(&e, &priority));
+            ASSERT(ii == priority);
+          } break;
+          case 3: {
+            mX.popFront(&e, &priority);
+            ASSERT(ii == priority);
+          } break;
+          default: {
+            ASSERT(0);
+          }
+        }
+
+        ASSERT(values[ii] == TTF::getIdentifier(e));
+
+        const MoveState::Enum expMoved = s_typeIsMoveEnabled
+                                       ? MoveState::e_MOVED
+                                       : MoveState::e_UNKNOWN;
+        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedInto(e),
+                                           expMoved == bsltf::getMovedInto(e));
+
+        minAllocs += (s_allocType && !s_typeIsMoveEnabled);
+        soFarAllocs = ta.numAllocations() - startAllocs;
+        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+
+        if (veryVeryVerbose) {
+            cout << e << endl;
+        }
+    }
+
+    ASSERT(X.isEmpty());
+    e.~TYPE();
+
+    if (veryVerbose) cout << "Now try it with a different allocator\n"
+                             "multiple with the same priority\n";
+
+    TTF::emplace(&e, 0, &oa);
+    ASSERT(0 != mX.tryPopFront(&e));
+
+    tie = false;
+    for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+        Int64 startAllocs = ta.numAllocations();
+        Int64 soFarAllocs;
+
+        bsls::ObjectBuffer<TYPE> obVal;
+        TYPE& val = obVal.object();
+        TTF::emplace(&val, values[ii], &oa);
+
+        ASSERT(X.length() == ii);
+        if (ii & 1){
+            mX.pushBack(MoveUtil::move(val), ii / 3);
+        }
+        else {
+            mX.pushBack(val, ii / 3);
+        }
+        ASSERT(!X.isEmpty());
+
+        const MoveState::Enum expMoved = s_typeIsMoveEnabled
+                                       ? ((ii & 1)
+                                          ? MoveState::e_MOVED
+                                          : MoveState::e_NOT_MOVED)
+                                       : MoveState::e_UNKNOWN;
+        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedFrom(val),
+                                         expMoved == bsltf::getMovedFrom(val));
+
+        soFarAllocs = ta.numAllocations() - startAllocs;
+        LOOP2_ASSERT(ii, soFarAllocs, soFarAllocs >= s_allocType);
+        tie |= soFarAllocs == s_allocType;
+
+        val.~TYPE();
+    }
+    ASSERT(tie);
+
+    for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+        ASSERT(X.length() == k_NUM_VALUES - ii);
+        ASSERT(!X.isEmpty());
+
+        int priority = -1;
+        switch (ii & 3) {
+          case 0: {
+            ASSERT(0 == mX.tryPopFront(&e));
+          } break;
+          case 1: {
+            mX.popFront(&e);
+          } break;
+          case 2: {
+            ASSERT(0 == mX.tryPopFront(&e, &priority));
+            ASSERT(ii / 3 == priority);
+          } break;
+          case 3: {
+            mX.popFront(&e, &priority);
+            ASSERT(ii / 3 == priority);
+          } break;
+          default: {
+            ASSERT(0);
+          }
+        }
+        ASSERT(values[ii] == TTF::getIdentifier(e));
+
+        if (veryVeryVerbose) {
+            cout << e << endl;
+        }
+    }
+
+    ASSERT(X.isEmpty());
+    ASSERT(0 != mX.tryPopFront(&e));
+
+    e.~TYPE();
+
+    if (veryVerbose) cout << "Now try it, same alloc, pushing reverse order\n";
+
+    TTF::emplace(&e, 0, &ta);
+
+    ASSERT(0 != mX.tryPopFront(&e));
+
+    tie = false;
+    for (int jj = k_NUM_VALUES - 3, kk = 0; 0 <= jj; jj -= 3) {
+        for (int ii = jj; ii < jj + 3; ++ii, ++kk) {
+            Int64 startAllocs = ta.numAllocations();
+            Int64 minAllocs   = 0;
+            Int64 soFarAllocs;
+
+            ASSERT(X.length() == kk);
+
+            bsls::ObjectBuffer<TYPE> obVal;
+            TYPE& val = obVal.object();
+            TTF::emplace(&val, values[ii], &ta);
+
+            minAllocs += s_allocType;
+            soFarAllocs = ta.numAllocations() - startAllocs;
+            LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+
+            if (ii & 1){
+                mX.pushBack(MoveUtil::move(val), jj / 3);
+            }
+            else {
+                mX.pushBack(val, jj / 3);
+            }
+            ASSERT(!X.isEmpty());
+
+            const MoveState::Enum expMoved = s_typeIsMoveEnabled
+                                           ? ((ii & 1)
+                                              ? MoveState::e_MOVED
+                                              : MoveState::e_NOT_MOVED)
+                                           : MoveState::e_UNKNOWN;
+            LOOP3_ASSERT(ii, expMoved, bsltf::getMovedFrom(val),
+                                         expMoved == bsltf::getMovedFrom(val));
+
+            minAllocs += (s_allocType && !(s_typeIsMoveEnabled && (ii & 1)));
+            soFarAllocs = ta.numAllocations() - startAllocs;
+            LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs >= minAllocs);
+            tie |= soFarAllocs == minAllocs;
+
+            val.~TYPE();
+        }
+    }
+    ASSERT(tie);
+
+    for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+        ASSERT(X.length() == k_NUM_VALUES - ii);
+        ASSERT(!X.isEmpty());
+        Int64 startAllocs = ta.numAllocations();
+        Int64 minAllocs   = 0;
+        Int64 soFarAllocs;
+
+        int priority = -1;
+        switch (ii & 3) {
+          case 0: {
+            ASSERT(0 == mX.tryPopFront(&e));
+          } break;
+          case 1: {
+            mX.popFront(&e);
+          } break;
+          case 2: {
+            ASSERT(0 == mX.tryPopFront(&e, &priority));
+            ASSERT(ii / 3 == priority);
+          } break;
+          case 3: {
+            mX.popFront(&e, &priority);
+            ASSERT(ii / 3 == priority);
+          } break;
+          default: {
+            ASSERT(0);
+          }
+        }
+
+        ASSERT(values[ii] == TTF::getIdentifier(e));
+
+        const MoveState::Enum expMoved = s_typeIsMoveEnabled
+                                       ? MoveState::e_MOVED
+                                       : MoveState::e_UNKNOWN;
+        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedInto(e),
+                                           expMoved == bsltf::getMovedInto(e));
+
+        minAllocs += (s_allocType && !s_typeIsMoveEnabled);
+        soFarAllocs = ta.numAllocations() - startAllocs;
+        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+
+        if (veryVeryVerbose) {
+            cout << e << endl;
+        }
+    }
+
+    ASSERT(X.isEmpty());
+    e.~TYPE();
+}
 
 // ============================================================================
 //            TYPES AND FUNCTIONS FOR TEST CASE - USAGE EXAMPLE 1
@@ -570,20 +931,33 @@ namespace MULTIPRIORITYQUEUE_TEST_CASE_11 {
 struct Thrower {
     Element d_value;            // use Element type to monitor for leaks.
     bool d_throwOnCopy;
+    bool d_throwOnMoveConstruct;
     bool d_throwOnAssign;
+    bool d_throwOnMoveAssign;
 
   public:
-    Thrower(double value, bool throwOnCopy, bool throwOnAssign);
+    Thrower(double value,
+            bool throwOnCopy,
+            bool throwOnMoveConstruct,
+            bool throwOnAssign,
+            bool throwOnMoveAssign);
     Thrower(const Thrower& original);
+    Thrower(bslmf::MovableRef<Thrower> original);
     Thrower& operator=(const Thrower& rhs);
+    Thrower& operator=(bslmf::MovableRef<Thrower> rhs);
 };
 
-Thrower::Thrower(double value, bool throwOnCopy, bool throwOnAssign)
-{
-    d_value = value;
-    d_throwOnCopy = throwOnCopy;
-    d_throwOnAssign = throwOnAssign;
-}
+Thrower::Thrower(double value,
+                 bool throwOnCopy,
+                 bool throwOnMoveConstruct,
+                 bool throwOnAssign,
+                 bool throwOnMoveAssign)
+: d_value(value)
+, d_throwOnCopy(throwOnCopy)
+, d_throwOnMoveConstruct(throwOnMoveConstruct)
+, d_throwOnAssign(throwOnAssign)
+, d_throwOnMoveAssign(throwOnMoveAssign)
+{}
 
 Thrower::Thrower(const Thrower& original)
 {
@@ -591,9 +965,28 @@ Thrower::Thrower(const Thrower& original)
         throw 1;
     }
 
-    d_value         = original.d_value;
-    d_throwOnCopy   = original.d_throwOnCopy;
-    d_throwOnAssign = original.d_throwOnAssign;
+    d_value                = original.d_value;
+    d_throwOnCopy          = original.d_throwOnCopy;
+    d_throwOnMoveConstruct = original.d_throwOnMoveConstruct;
+    d_throwOnAssign        = original.d_throwOnAssign;
+    d_throwOnMoveAssign    = original.d_throwOnMoveAssign;
+}
+
+Thrower::Thrower(bslmf::MovableRef<Thrower> original)
+{
+    Thrower& local = original;
+
+    if (local.d_throwOnMoveConstruct) {
+        throw 1;
+    }
+
+    d_value                = local.d_value;
+    d_throwOnCopy          = local.d_throwOnCopy;
+    d_throwOnMoveConstruct = local.d_throwOnMoveConstruct;
+    d_throwOnAssign        = local.d_throwOnAssign;
+    d_throwOnMoveAssign    = local.d_throwOnMoveAssign;
+
+    bsl::memset(&local, 0, sizeof(local));
 }
 
 Thrower& Thrower::operator=(const Thrower& rhs)
@@ -602,9 +995,30 @@ Thrower& Thrower::operator=(const Thrower& rhs)
         throw 1;
     }
 
-    d_value         = rhs.d_value;
-    d_throwOnCopy   = rhs.d_throwOnCopy;
-    d_throwOnAssign = rhs.d_throwOnAssign;
+    d_value                = rhs.d_value;
+    d_throwOnCopy          = rhs.d_throwOnCopy;
+    d_throwOnMoveConstruct = rhs.d_throwOnMoveConstruct;
+    d_throwOnAssign        = rhs.d_throwOnAssign;
+    d_throwOnMoveAssign    = rhs.d_throwOnMoveAssign;
+
+    return *this;
+}
+
+Thrower& Thrower::operator=(bslmf::MovableRef<Thrower> rhs)
+{
+    Thrower& local = rhs;
+
+    if (local.d_throwOnMoveAssign) {
+        throw 1;
+    }
+
+    d_value                = local.d_value;
+    d_throwOnCopy          = local.d_throwOnCopy;
+    d_throwOnMoveConstruct = local.d_throwOnMoveConstruct;
+    d_throwOnAssign        = local.d_throwOnAssign;
+    d_throwOnMoveAssign    = local.d_throwOnMoveAssign;
+
+    bsl::memset(&local, 0, sizeof(local));
 
     return *this;
 }
@@ -1265,7 +1679,10 @@ int main(int argc, char *argv[])
             k_B_VAL = 39,
             k_C_VAL = 40,
             k_D_VAL = 41,
-            k_E_VAL = 42
+            k_E_VAL = 42,
+            k_F_VAL = 43,
+            k_G_VAL = 44,
+            k_H_VAL = 44
         };
 
         ASSERT(0 == Element::s_allocCount);
@@ -1276,13 +1693,16 @@ int main(int argc, char *argv[])
             Tq *pMX = new (ta) Tq(1, &ta);
             Tq& mX = *pMX;     const Tq& X = *pMX;
 
-            Thrower thrA(k_A_VAL, false, false);     // never throws
-            Thrower thrB(k_B_VAL, true,  false);     // throws on copy
-            Thrower thrC(k_C_VAL, false, true);      // throws on assignment
-            Thrower thrD(k_D_VAL, false, false);     // never throws
-            Thrower thrE(k_E_VAL, false, false);     // never throws
+            Thrower thrA(k_A_VAL, 0, 0, 0, 0);     // never throws
+            Thrower thrB(k_B_VAL, 1, 0, 0, 0);     // throws on copy
+            Thrower thrC(k_C_VAL, 0, 0, 1, 0);     // throws on assignment
+            Thrower thrD(k_D_VAL, 0, 0, 0, 0);     // never throws
+            Thrower thrE(k_E_VAL, 0, 0, 0, 0);     // never throws
+            Thrower thrF(k_F_VAL, 0, 1, 0, 0);     // throws on move construct
+            Thrower thrG(k_F_VAL, 0, 0, 0, 1);     // throws on move assign
+            Thrower thrH(k_H_VAL, 0, 0, 0, 0);     // throws on move assign
 
-            ASSERT(5 == Element::s_allocCount);
+            ASSERT(8 == Element::s_allocCount);
 
             mX.pushBack(thrA, 0);
 
@@ -1300,10 +1720,31 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == X.length());
-            mX.pushBack(thrC, 0);
+
+            ASSERT(k_A_VAL == thrA.d_value);
+            mX.pushBack(thrA, 0);
+
+            ASSERT(0 < ta.numBytesInUse());
 
             try {
-                mX.popFront(&thrE);             // attempting to pop thrC,
+                mX.pushBack(bslmf::MovableRefUtil::move(thrF), 0);
+                                                                // should throw
+                ASSERT(0);
+            } catch (...) {
+                ASSERT(1 == X.length());          // verify queue is unchanged
+                ASSERT(k_F_VAL == thrF.d_value);  // verify thrE is unchanged
+
+                mX.popFront(&thrH);             // should be able to
+                                                // successfully pop thrA
+                ASSERT(k_A_VAL == thrH.d_value);
+            }
+
+            ASSERT(0 == X.length());
+
+            mX.pushBack(thrG, 0);
+
+            try {
+                mX.popFront(&thrE);             // attempting to pop thrG,
                                                 // should throw
                 ASSERT(0);
             } catch (...) {
@@ -1315,9 +1756,11 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(1 == X.length());
-            ASSERT(6 == Element::s_allocCount);     // verify no leaks
+            LOOP_ASSERT(Element::s_allocCount,
+                            9 == Element::s_allocCount);     // verify no leaks
             mX.removeAll();
-            ASSERT(5 == Element::s_allocCount);     // verify no leaks
+            LOOP_ASSERT(Element::s_allocCount,
+                            8 == Element::s_allocCount);     // verify no leaks
 
             ta.deleteObjectRaw(pMX);
         } catch (...) {
@@ -1968,11 +2411,11 @@ int main(int argc, char *argv[])
                                     { 2.1, 5 }, { 2.2, 3 }, { 2.3, 5 },
                                     { 3.1, 2 }, { 3.2, 3 }, { 3.3, 2 },
                                     { 4.1, 3 }, { 4.2, 1 }, { 4.3, 2 },
-                                    { 5.1, 0 } };
+                                    { 5.1, 0 }, { 5.2, 5 }, { 5.3, 1 } };
         const int VPUSH_LEN = static_cast<int>(sizeof vPush / sizeof *vPush);
 
         if (veryVerbose) {
-            cout << "First, testing popFront\n";
+            cout << "First, testing popFront & tryPopFront\n";
         }
 
         for (int i = 0; VPUSH_LEN > i; ++i) {
@@ -1981,6 +2424,7 @@ int main(int argc, char *argv[])
 
         // Set up 'expected[]' to contain the same pairs we pushed, only
         // ordered in the order we expect them to be popped.
+
         PushPoint expected[VPUSH_LEN];
         bsl::memcpy(expected, vPush, sizeof(expected));
         bsl::stable_sort(expected, expected + VPUSH_LEN);
@@ -1990,29 +2434,14 @@ int main(int argc, char *argv[])
             double value;
             int priority;
 
-            mX.popFront(&value, &priority);
+            // arbitarily choose between 'popFront' and 'tryPopFront'.
 
-            ASSERT(value    == expected[i].d_value);
-            ASSERT(priority == expected[i].d_priority);
-
-            if (veryVerbose) {
-                P_(value);  P_(priority);  P(X.length());
+            if (3 == i % 4 || 2 == i % 5) {
+                mX.popFront(&value, &priority);
             }
-        }
-
-        if (veryVerbose) {
-            cout << "Next, testing tryPopFront()\n";
-        }
-
-        for (int i = 0; VPUSH_LEN > i; ++i) {
-            mX.pushBack(vPush[i].d_value, vPush[i].d_priority);
-        }
-
-        for (int i = 0; VPUSH_LEN > i; ++i) {
-            double value;
-            int priority;
-
-            ASSERT(0 == mX.tryPopFront(&value, &priority));
+            else {
+                ASSERT(0 == mX.tryPopFront(&value, &priority));
+            }
 
             ASSERT(value    == expected[i].d_value);
             ASSERT(priority == expected[i].d_priority);
@@ -2155,169 +2584,17 @@ int main(int argc, char *argv[])
       }  break;
       case 3: {
         // --------------------------------------------------------------------
-        // MORE THOROUGH TESTING OF PRIMARY MANIPULATORS
+        // TEST ELIMINATATED
         //
         // Concerns:
-        //   That all possible argument combinations passed to 'popFront' and
-        //   'tryPopFront' work correctly.
+        //: 1 The testing of this case has been incorporated into TC 2.
         //
         // Plan:
-        //   Have a vector of distinct values to be pushed one by one with a
-        //   single priority and pop the values with 'popFront' and
-        //   'tryPopFront', testing them all and verifying expected
-        //   values are popped along with the appropriate priorities.
-        //
-        // Testing:
-        //   popFront(&item, &priority)
-        //   tryPopFront(&item, &priority)
+        //: 1 Do nothing.
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            cout << "=============================================\n"
-                    "More thorough testing of primary manipulators\n"
-                    "=============================================\n";
-        }
-
-        enum {
-            k_SINGLE_PRIORITY =   3,
-            k_GARBAGE_VALUE   = -12
-        };
-
-        Obj mX(&ta);    const Obj& X = mX;
-
-        {
-            Element e;
-            ASSERT(0 != mX.tryPopFront(&e));
-        }
-
-        const double vDoub[] = { 5.1, 4.2, 3.3, 2.4, 2.4, 2.4, 2.4, 7.1, 8.1 };
-        int VDOUB_LEN = static_cast<int>(sizeof vDoub / sizeof *vDoub);
-
-        ASSERT(X.isEmpty());
-
-        if (verbose) {
-            cout << "Testing popFront(&e, &pri)\n";
-        }
-
-        // first, test popFront(&e, &pri)
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
-            ASSERT(!X.isEmpty());
-        }
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == VDOUB_LEN - i);
-            ASSERT(!X.isEmpty());
-            ASSERT(X.length() == Element::s_allocCount);
-
-            Element e = k_GARBAGE_VALUE;
-            int priority = k_GARBAGE_VALUE;
-
-            mX.popFront(&e, &priority);
-
-            ASSERT(vDoub[i] == e);
-            ASSERT(3 == priority);
-
-            if (veryVerbose) {
-                COUT << e << ENDL;
-            }
-        }  // for i
-
-        ASSERT(X.isEmpty());
-
-        if (verbose) {
-            cout << "Testing popFront(&e)\n";
-        }
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
-            ASSERT(!X.isEmpty());
-        }
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == VDOUB_LEN - i);
-            ASSERT(!X.isEmpty());
-            ASSERT(X.length() == Element::s_allocCount);
-
-            Element e = k_GARBAGE_VALUE;
-
-            mX.popFront(&e);
-
-            ASSERT(vDoub[i] == e);
-
-            if (veryVerbose) {
-                COUT << e << ENDL;
-            }
-        }  // for i
-
-        ASSERT(X.isEmpty());
-
-        if (verbose) {
-            cout << "Testing tryPopFront(&e, &pri)\n";
-        }
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
-            ASSERT(!X.isEmpty());
-        }
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == VDOUB_LEN - i);
-            ASSERT(!X.isEmpty());
-            ASSERT(X.length() == Element::s_allocCount);
-
-            Element e = k_GARBAGE_VALUE;
-            int priority = k_GARBAGE_VALUE;
-
-            ASSERT(0 == mX.tryPopFront(&e, &priority));
-            ASSERT(3 == priority);
-
-            ASSERT(vDoub[i] == e);
-
-            if (veryVerbose) {
-                COUT << e << ENDL;
-            }
-        }  // for i
-
-        ASSERT(X.isEmpty());
-
-        if (verbose) {
-            cout << "Testing tryPopFront(&e)\n";
-        }
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
-            ASSERT(!X.isEmpty());
-        }
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == VDOUB_LEN - i);
-            ASSERT(!X.isEmpty());
-            ASSERT(X.length() == Element::s_allocCount);
-
-            Element e = k_GARBAGE_VALUE;
-
-            ASSERT(0 == mX.tryPopFront(&e));
-
-            ASSERT(vDoub[i] == e);
-
-            if (veryVerbose) {
-                COUT << e << ENDL;
-            }
-        }  // for i
-
-        ASSERT(X.isEmpty());
-        {
-            Element e;
-            ASSERT(0 != mX.tryPopFront(&e));
-        }
-
-        ASSERT(0 == Element::s_allocCount);
+        if (verbose) cout << "TEST ELIMINATED\n"
+                             "===============\n";
       }  break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2344,7 +2621,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   pushBack()
         //   tryPopFront(&item)
+        //   tryPopFront(&item, &priority)
         //   popFront(&item)
+        //   popFront(&item, &priority)
         //   length()
         //   isEmpty()
         // --------------------------------------------------------------------
@@ -2355,78 +2634,9 @@ int main(int argc, char *argv[])
                     "========================================\n";
         }
 
-        Obj mX(&ta);   const Obj& X = mX;
-        Element e;
-
-        ASSERT(1 == e.s_allocCount);
-
-        ASSERT(0 != mX.tryPopFront(&e));
-
-        const double vDoub[] = { 5.1, 4.2, 3.3, 2.4, 2.4, 2.4, 2.4, 7.7, 8.8 };
-        int VDOUB_LEN = static_cast<int>(sizeof vDoub / sizeof *vDoub);
-
-        ASSERT(X.isEmpty());
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == i);
-            e = vDoub[i];
-            mX.pushBack(e, 3);
-            ASSERT(!X.isEmpty());
-        }
-
-        ASSERT(0 == mX.tryPopFront(&e))
-        ASSERT(vDoub[0] == e);
-        ASSERT(VDOUB_LEN == e.s_allocCount);
-
-        for (int i = 1; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == VDOUB_LEN - i);
-            ASSERT(!X.isEmpty());
-            ASSERT(X.length() + 1 == e.s_allocCount);
-
-            mX.popFront(&e);
-            ASSERT(vDoub[i] == e);
-
-            if (veryVerbose) {
-                COUT << e << ENDL;
-            }
-        }
-
-        if (veryVerbose) {
-            cout << "Done with popFront, Starting tryPopFront\n";
-        }
-
-        ASSERT(X.isEmpty());
-
-        // now repeat the test with tryPopFront()
-
-        for (int i = 0; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == i);
-            e = vDoub[i];
-            mX.pushBack(e, 3);
-            ASSERT(!X.isEmpty());
-        }
-
-        ASSERT(0 == mX.tryPopFront(&e))
-        ASSERT(vDoub[0] == e);
-        ASSERT(VDOUB_LEN == e.s_allocCount);
-
-        for (int i = 1; VDOUB_LEN > i; ++i) {
-            ASSERT(X.length() == VDOUB_LEN - i);
-            ASSERT(!X.isEmpty());
-            ASSERT(X.length() + 1 == e.s_allocCount);
-
-            ASSERT(0 == mX.tryPopFront(&e));
-            ASSERT(vDoub[i] == e);
-
-            if (veryVerbose) {
-                COUT << e << ENDL;
-            }
-        }
-
-        ASSERT(X.isEmpty());
-        ASSERT(0 != mX.tryPopFront(&e));
-
-        ASSERT(1 == e.s_allocCount);
+        RUN_EACH_TYPE(TestDriver,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       }  break;
       case 1: {
         // --------------------------------------------------------------------

@@ -416,6 +416,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_managedptr.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_condition.h>
@@ -427,6 +428,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_climits.h>
 #include <bsl_cstdint.h>
+#include <bsl_new.h>
 #include <bsl_vector.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -447,8 +449,8 @@ class MultipriorityQueue_Node {
     // priority.  This class is not to be used from outside this component.
 
     // DATA
-    bslalg::ConstructorProxy<TYPE>      d_item;    // object stored in node
-    MultipriorityQueue_Node<TYPE> *d_next_p;  // next node on linked list
+    bslalg::ConstructorProxy<TYPE>  d_item;    // object stored in node
+    MultipriorityQueue_Node<TYPE>  *d_next_p;  // next node on linked list
 
   private:
     // NOT IMPLEMENTED
@@ -462,7 +464,13 @@ class MultipriorityQueue_Node {
 
     // CREATORS
     MultipriorityQueue_Node(const TYPE&              item,
-                            MultipriorityQueue_Node *next,
+                            bslma::Allocator        *basicAllocator);
+        // Create a node containing a copy of the specified 'item' and having
+        // the specified 'next' pointer.  Use the specified 'basicAllocator' to
+        // supply memory.  The behavior is undefined unless 'basicAllocator' is
+        // non-null.  Note that 'item' must be copyable and assignable.
+
+    MultipriorityQueue_Node(bslmf::MovableRef<TYPE>  item,
                             bslma::Allocator        *basicAllocator);
         // Create a node containing a copy of the specified 'item' and having
         // the specified 'next' pointer.  Use the specified 'basicAllocator' to
@@ -474,6 +482,9 @@ class MultipriorityQueue_Node {
         // behalf, if any.
 
     // MANIPULATORS
+    TYPE& item();
+        // Return a reference to the non-modifiable item stored in this node.
+
     MultipriorityQueue_Node*& nextPtr();
         // Return a reference to the modifiable pointer to the node following
         // this node on the linked list.
@@ -482,9 +493,6 @@ class MultipriorityQueue_Node {
     const MultipriorityQueue_Node *nextPtr() const;
         // Return a pointer to the non-modifiable node following this node on
         // the linked list, or 0 if this node has no successor.
-
-    const TYPE& item() const;
-        // Return a reference to the non-modifiable item stored in this node.
 };
 
                        // ==============================
@@ -597,6 +605,16 @@ class MultipriorityQueue {
         // or modification of the container has completed prior to this call.
 
     // MANIPULATORS
+    void popFront(TYPE *item, int *itemPriority = 0);
+        // Remove the least-recently added item having the most urgent priority
+        // (lowest value) from this multi-priority queue and load its value
+        // into the specified 'item'.  If this queue is empty, this method
+        // blocks the calling thread until an item becomes available.  If the
+        // optionally specified 'itemPriority' is non-null, load the priority
+        // of the popped item into 'itemPriority'.  The behavior is undefined
+        // unless 'item' is non-null.  Note this is unaffected by the enabled /
+        // disabled state of the queue.
+
     int pushBack(const TYPE& item, int itemPriority);
         // Insert the value of the specified 'item' with the specified
         // 'itemPriority' into this multipriority queue before any queued items
@@ -606,6 +624,31 @@ class MultipriorityQueue {
         // the push succeeds and '0' is returned, otherwise the push fails, the
         // queue remains unchanged, and a nonzero value is returned.  The
         // behavior is undefined unless '0 <= itemPriority < numPriorities()'.
+
+    int pushBack(bslmf::MovableRef<TYPE> item, int itemPriority);
+        // Insert the value of the specified 'item' with the specified
+        // 'itemPriority' into this multipriority queue before any queued items
+        // having a less urgent priority (higher value) than 'itemPriority',
+        // and after any items having the same or more urgent priority (lower
+        // value) than 'itemPriority'.  If the multipriority queue is enabled,
+        // the push succeeds and '0' is returned, otherwise the push fails, the
+        // queue remains unchanged, and a nonzero value is returned.  The
+        // behavior is undefined unless '0 <= itemPriority < numPriorities()'.
+
+    void pushBackMultipleRaw(const TYPE& item, int itemPriority, int numItems);
+        // Insert the value of the specified 'item' with the specified
+        // 'itemPriority' onto the back of this multipriority queue before any
+        // queued items having a less urgent priority (higher value) than
+        // 'itemPriority', and after any items having the same or more urgent
+        // priority (lower value) than 'itemPriority'.  All of the specified
+        // 'numItems' items are pushed as a single atomic action, unless the
+        // copy constructor for one of them throws an exception, in which case
+        // a possibly empty subset of the pushes will have completed and no
+        // memory will be leaked.  'Raw' means that the push will succeed even
+        // if the multipriority queue is disabled.  Note that this method is
+        // targeted for specific use by the class
+        // 'bdlmt::MultipriorityThreadPool'.  The behavior is undefined unless
+        // '0 <= itemPriority < numPriorities()'.
 
     void pushFrontMultipleRaw(const TYPE& item,
                               int         itemPriority,
@@ -623,31 +666,6 @@ class MultipriorityQueue {
         // behavior is undefined unless '0 <= itemPriority < numPriorities()'.
         // Note that this method is targeted at specific uses by the class
         // 'bdlmt::MultipriorityThreadPool'.
-
-    void pushBackMultipleRaw(const TYPE& item, int itemPriority, int numItems);
-        // Insert the value of the specified 'item' with the specified
-        // 'itemPriority' onto the back of this multipriority queue before any
-        // queued items having a less urgent priority (higher value) than
-        // 'itemPriority', and after any items having the same or more urgent
-        // priority (lower value) than 'itemPriority'.  All of the specified
-        // 'numItems' items are pushed as a single atomic action, unless the
-        // copy constructor for one of them throws an exception, in which case
-        // a possibly empty subset of the pushes will have completed and no
-        // memory will be leaked.  'Raw' means that the push will succeed even
-        // if the multipriority queue is disabled.  Note that this method is
-        // targeted for specific use by the class
-        // 'bdlmt::MultipriorityThreadPool'.  The behavior is undefined unless
-        // '0 <= itemPriority < numPriorities()'.
-
-    void popFront(TYPE *item, int *itemPriority = 0);
-        // Remove the least-recently added item having the most urgent priority
-        // (lowest value) from this multi-priority queue and load its value
-        // into the specified 'item'.  If this queue is empty, this method
-        // blocks the calling thread until an item becomes available.  If the
-        // optionally specified 'itemPriority' is non-null, load the priority
-        // of the popped item into 'itemPriority'.  The behavior is undefined
-        // unless 'item' is non-null.  Note this is unaffected by the enabled /
-        // disabled state of the queue.
 
     int tryPopFront(TYPE *item, int *itemPriority = 0);
         // Attempt to remove (immediately) the least-recently added item having
@@ -701,21 +719,34 @@ class MultipriorityQueue {
 template <class TYPE>
 inline
 MultipriorityQueue_Node<TYPE>::MultipriorityQueue_Node(
-                                       const TYPE&              item,
-                                       MultipriorityQueue_Node *next,
-                                       bslma::Allocator        *basicAllocator)
+                                              const TYPE&       item,
+                                              bslma::Allocator *basicAllocator)
 : d_item(item, basicAllocator)
-, d_next_p(next)
-{
-}
+, d_next_p()
+{}
+
+template <class TYPE>
+inline
+MultipriorityQueue_Node<TYPE>::MultipriorityQueue_Node(
+                                       bslmf::MovableRef<TYPE>  item,
+                                       bslma::Allocator        *basicAllocator)
+: d_item(bslmf::MovableRefUtil::move(item), basicAllocator)
+, d_next_p(0)
+{}
 
 template <class TYPE>
 inline
 MultipriorityQueue_Node<TYPE>::~MultipriorityQueue_Node()
-{
-}
+{}
 
 // MANIPULATORS
+template <class TYPE>
+inline
+TYPE& MultipriorityQueue_Node<TYPE>::item()
+{
+    return d_item.object();
+}
+
 template <class TYPE>
 inline
 MultipriorityQueue_Node<TYPE>*& MultipriorityQueue_Node<TYPE>::nextPtr()
@@ -730,13 +761,6 @@ const MultipriorityQueue_Node<TYPE> *
                             MultipriorityQueue_Node<TYPE>::nextPtr() const
 {
     return d_next_p;
-}
-
-template <class TYPE>
-inline
-const TYPE& MultipriorityQueue_Node<TYPE>::item() const
-{
-    return d_item.object();
 }
 
                        // ------------------------------
@@ -783,7 +807,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
         Node *& head = d_heads[priority];
         condemned = head;
 
-        *item = condemned->item();  // might throw
+        *item = bslmf::MovableRefUtil::move(condemned->item());  // might throw
 
         head = head->nextPtr();
         if (0 == head) {
@@ -856,6 +880,13 @@ MultipriorityQueue<TYPE>::~MultipriorityQueue()
 
 // MANIPULATORS
 template <class TYPE>
+inline
+void MultipriorityQueue<TYPE>::popFront(TYPE *item, int *itemPriority)
+{
+    tryPopFrontImpl(item, itemPriority, true);
+}
+
+template <class TYPE>
 int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
 {
     enum { e_SUCCESS = 0, e_FAILURE = -1 };
@@ -873,11 +904,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
     bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(newNode,
                                                                  &d_pool);
 
-    bslalg::ScalarPrimitives::construct(newNode,            // might throw
-                                        item,
-                                        (Node *)0,
-                                        d_allocator_p);
-
+    ::new (newNode) Node(item, d_allocator_p);                   // might throw
     deallocator.release();
     bslma::ManagedPtr<Node> deleter(newNode, &d_pool);
 
@@ -909,44 +936,54 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
 }
 
 template <class TYPE>
-void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
-                                                    int         itemPriority,
-                                                    int         numItems)
+int MultipriorityQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> item,
+                                       int                     itemPriority)
 {
+    enum { e_SUCCESS = 0, e_FAILURE = -1 };
+
     BSLS_ASSERT((unsigned)itemPriority < d_heads.size());
 
-    const int mask = 1 << itemPriority;
+    // Allocate and copy construct.  Note we are doing this work outside the
+    // mutex, which is advantageous in that no one is waiting on us, but it has
+    // the disadvantage that we haven't checked whether this multipriority
+    // queue is disabled, in which case we'll throw the new node away.
+    //     Note the queue being disabled is not the usual case.  Note a race
+    // condition occurs if we check d_enabledFlag outside the mutex.
+
+    Node *newNode = (Node *)d_pool.allocate();
+    bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(newNode,
+                                                                 &d_pool);
+
+    // Do the enable check before the move, since if it is a move and not a
+    // copy, there's no backing out after that.
+
+    if (!d_enabledFlag) {
+        return e_FAILURE;                                             // RETURN
+    }
 
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-        for (int ii = 0; ii < numItems; ++ii) {
-            Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
-                                                             newNode, &d_pool);
+        ::new (newNode) Node(bslmf::MovableRefUtil::move(item),  // might throw
+                             d_allocator_p);
+        deallocator.release();
 
-            bslalg::ScalarPrimitives::construct(newNode,
-                                                item,
-                                                (Node *)0,
-                                                d_allocator_p);
-
-            deallocator.release();
-
-            Node *& head = d_heads[itemPriority];
-            if (!head) {
-                d_tails[itemPriority] = newNode;
-                d_notEmptyFlags |= mask;
-            }
-            newNode->nextPtr() = head;
-            head = newNode;
-
-            ++d_length;
+        const int mask = 1 << itemPriority;
+        if (d_notEmptyFlags & mask) {
+            d_tails[itemPriority]->nextPtr() = newNode;
         }
+        else {
+            d_heads[itemPriority] = newNode;
+            d_notEmptyFlags |= mask;
+        }
+        d_tails[itemPriority] = newNode;
+
+        ++d_length;
     }
 
-    for (int ii = 0; ii < numItems; ++ii) {
-        d_notEmptyCondition.signal();
-    }
+    d_notEmptyCondition.signal();
+
+    return e_SUCCESS;
 }
 
 template <class TYPE>
@@ -966,11 +1003,7 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
             bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
                                                              newNode, &d_pool);
 
-            bslalg::ScalarPrimitives::construct(newNode,
-                                                item,
-                                                (Node *)0,
-                                                d_allocator_p);
-
+            ::new (newNode) Node(item, d_allocator_p);           // might throw
             deallocator.release();
 
             if (d_notEmptyFlags & mask) {
@@ -992,17 +1025,47 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
 }
 
 template <class TYPE>
-inline
-int MultipriorityQueue<TYPE>::tryPopFront(TYPE *item, int *itemPriority)
+void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
+                                                    int         itemPriority,
+                                                    int         numItems)
 {
-    return tryPopFrontImpl(item, itemPriority, false);
+    BSLS_ASSERT((unsigned)itemPriority < d_heads.size());
+
+    const int mask = 1 << itemPriority;
+
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        for (int ii = 0; ii < numItems; ++ii) {
+            Node *newNode = (Node *)d_pool.allocate();
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
+                                                             newNode, &d_pool);
+
+            ::new (newNode) Node(item, d_allocator_p);           // might throw
+            deallocator.release();
+
+            Node *& head = d_heads[itemPriority];
+            if (!head) {
+                d_tails[itemPriority] = newNode;
+                d_notEmptyFlags |= mask;
+            }
+            newNode->nextPtr() = head;
+            head = newNode;
+
+            ++d_length;
+        }
+    }
+
+    for (int ii = 0; ii < numItems; ++ii) {
+        d_notEmptyCondition.signal();
+    }
 }
 
 template <class TYPE>
 inline
-void MultipriorityQueue<TYPE>::popFront(TYPE *item, int *itemPriority)
+int MultipriorityQueue<TYPE>::tryPopFront(TYPE *item, int *itemPriority)
 {
-    tryPopFrontImpl(item, itemPriority, true);
+    return tryPopFrontImpl(item, itemPriority, false);
 }
 
 template <class TYPE>
@@ -1089,8 +1152,8 @@ bool MultipriorityQueue<TYPE>::isEnabled() const
 {
     return d_enabledFlag;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
