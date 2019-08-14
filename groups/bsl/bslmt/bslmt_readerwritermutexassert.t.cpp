@@ -24,6 +24,7 @@
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
 
+#include <bsls_asserttestexception.h>
 #include <bsls_atomic.h>
 
 #include <algorithm>  // 'BSL::for_each'
@@ -452,7 +453,7 @@ void myHandler(const char *text, const char *file, int line)
 
     ASSERT(0 ==bsl::strcmp(__FILE__, file));
 
-    throw mode;
+    throw bsls::AssertTestException(text, file, line);
 }
 
 #endif // BDE_BUILD_TARGET_EXC
@@ -601,11 +602,8 @@ int main(int argc, char *argv[])
                         break;
                       }
                     }
-                } catch (TestCase2::AssertMode thrown) {
-                    ASSERTV(cfg,
-                            TestCase2::mode,
-                            thrown,
-                            TestCase2::mode == thrown);
+                } catch (bsls::AssertTestException thrown) {
+                    ASSERT(0 == BSL::strcmp("UNKNOWN", thrown.level()));
                 }
             }
 
@@ -614,7 +612,7 @@ int main(int argc, char *argv[])
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(      &rwMutex);
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE( &rwMutex);
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(&rwMutex);
-            } catch (TestCase2::AssertMode thrown) {
+            } catch (bsls::AssertTestException thrown) {
                 ASSERT(!"Reachable")
             }
 
@@ -648,11 +646,8 @@ int main(int argc, char *argv[])
                         break;
                       }
                     }
-                } catch (TestCase2::AssertMode thrown) {
-                    ASSERTV(cfg,
-                            TestCase2::mode,
-                            thrown,
-                            TestCase2::mode == thrown);
+                } catch (bsls::AssertTestException thrown) {
+                    ASSERT(0 == BSL::strcmp("UNKNOWN", thrown.level()));
                 }
             }
 #else  // BSLS_ASSERT_IS_ACTIVE
@@ -660,7 +655,7 @@ int main(int argc, char *argv[])
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(      &rwMutex);
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ( &rwMutex);
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&rwMutex);
-            } catch (TestCase2::AssertMode thrown) {
+            } catch (bsls::AssertTestException thrown) {
                 ASSERT(!"Reachable")
             }
 #endif // BSLS_ASSERT_IS_ACTIVE
@@ -694,11 +689,8 @@ int main(int argc, char *argv[])
                         break;
                       }
                     }
-                } catch (TestCase2::AssertMode thrown) {
-                    ASSERTV(cfg,
-                            TestCase2::mode,
-                            thrown,
-                            TestCase2::mode == thrown);
+                } catch (bsls::AssertTestException thrown) {
+                    ASSERT(0 == BSL::strcmp("UNKNOWN", thrown.level()));
                 }
             }
 #else   // BSLS_ASSERT_OPT_IS_ACTIVE
@@ -706,7 +698,7 @@ int main(int argc, char *argv[])
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(      &rwMutex);
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT( &rwMutex);
                 BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(&rwMutex);
-            } catch (TestCase2::AssertMode thrown) {
+            } catch (bsls::AssertTestException thrown) {
                 ASSERT(!"Reachable")
             }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
