@@ -126,18 +126,6 @@ namespace pmr
   operator!=(const memory_resource& __a, const memory_resource& __b) noexcept
   { return !(__a == __b); }
 
-  template <typename _Tp, typename _Up, typename = void>
-    struct __is_dynamic_castable
-    {
-      static constexpr bool value=false;
-    };
-  template <typename _Tp, typename _Up>
-    struct __is_dynamic_castable<_Tp, _Up,
-      void_t<decltype(dynamic_cast<_Tp>(declval<_Up>()))>>
-    {
-      static constexpr bool value=true;
-    };
-
 
   // C++17 23.12.3 Class template polymorphic_allocator
   template<typename _Tp>
@@ -334,18 +322,6 @@ namespace pmr
       polymorphic_allocator
       select_on_container_copy_construction() const noexcept
       { return polymorphic_allocator(); }
-
-      template <typename _Target,
-		typename =
-		enable_if_t<
-		  __is_dynamic_castable<_Target*, memory_resource*>::value
-		  && !is_same_v<_Target, memory_resource>>>
-	operator _Target*() const
-          {
-	    memory_resource* res = resource();
-	    _Target& ret = dynamic_cast<_Target&>(*res);
-	    return &ret;
-	  }
 
       memory_resource*
       resource() const noexcept

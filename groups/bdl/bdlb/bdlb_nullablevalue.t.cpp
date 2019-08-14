@@ -48,7 +48,7 @@ using namespace bsl;
 
 namespace std
 {
-  template <typename _Alloc>
+/*  template <typename _Alloc>
   struct uses_allocator<bsl::string, _Alloc> : true_type {};
   template <typename TYPE, typename _Alloc>
   struct uses_allocator<bslalg::ConstructorProxy<bdlb::NullableValue<TYPE>>, _Alloc> : true_type {};
@@ -59,10 +59,8 @@ struct uses_allocator<bsltf::MovableAllocTestType, _Alloc> : true_type {};
   template <typename _Alloc>
 struct uses_allocator<bsltf::MoveOnlyAllocTestType, _Alloc> : true_type {};
   template <typename _Alloc>
-struct uses_allocator<bsltf::NonAssignableTestType, _Alloc> : true_type {};
-  template <typename _Alloc>
 struct uses_allocator<bsltf::AllocBitwiseMoveableTestType, _Alloc> : true_type {};
-}
+*/}
   
 // ============================================================================
 //                                 TEST PLAN
