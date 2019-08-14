@@ -53,6 +53,16 @@
           <xs:documentation>maximum sequence size</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='DefaultEmptyStrings' type='xs:boolean'
+                  minOccurs='0' maxOccurs='1'
+                  default='true'
+                  bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+            <xs:documentation>
+                decode empty strings as their default value, if any, when 'true'
+            </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
