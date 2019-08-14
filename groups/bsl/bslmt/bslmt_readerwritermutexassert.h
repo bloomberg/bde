@@ -74,9 +74,255 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Checking Consistency Within a Private Method
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Clone from TD.
+///Example 1: Checking Consistency Within Private Methods
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example is an generalization of {'bslmt_mutexassert'|Example 1:
+// Checking Consistency Within a Private Method}.  In that example, a mutex was
+// used to control access.  Here, the (simple) mutex is replaced with a
+// 'bslmt::ReaderWriterMutex' that is allows multiple concurrent access to the
+// queue when possible.
+//
+// Sometimes multithreaded code is written such that the author of a function
+// requires that a caller has already acquired a lock.  The
+// 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED*' family of assertions allows the
+// programmers to detect, using defensive programming techniques, if the
+// required lock has *not* been acquired.
+//
+// Suppose we have a fully thread-safe queue that contains 'int' values, and is
+// guarded by an internal 'bslmt::ReaderWriterMutex' object.
+//
+// First, we define the container class:
+//..
+//  class MyThreadSafeQueue {
+//      // This 'class' provides a fully *thread-safe* unidirectional queue of
+//      // 'int' values.  See {'bsls_glossary'|Fully Thread-Safe}.  All public
+//      // methods operate as single, atomic actions.
+//
+//      // DATA
+//      bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
+//                                       // standard container
+//
+//      mutable bslmt::ReaderWriterMutex
+//                           d_rwMutex; // coordinate thread access
+//
+//      // PRIVATE MANIPULATOR
+//      int popImp(int *result);
+//          // Assign the value at the front of the queue to the specified
+//          // '*result', and remove the value at the front of the queue;
+//          // return 0 if the queue was not initially empty, and a non-zero
+//          // value (with no effect) otherwise.  The behavior is undefined
+//          // unless 'd_rwWutex' is locked for writing.
+//
+//      // PRIVATE ACCESSOR
+//      bsl::pair<int, double> getStats() const;
+//          // Return a 'bsl::pair<int, int>' containing the number of elements
+//          // and the mean value of the elements of this queue.  The mean
+//          // values is set to 'DBL_MIN' if the number of elements is 0.  The
+//          // behavior is undefined unless the call has locked this queue
+//          // (either a read lock or write lock).
+//
+//    public:
+//      // ...
+//
+//      // MANIPULATORS
+//
+//      int pop(int *result);
+//          // Assign the value at the front of the queue to the specified
+//          // '*result', and remove the value at the front of the queue;
+//          // return 0 if the queue was not initially empty, and a non-zero
+//          // value (with no effect) otherwise.
+//
+//      void popAll(bsl::vector<int> *result);
+//          // Assign the values of all the elements from this queue, in order,
+//          // to the specified '*result', and remove them from this queue.
+//          // Any previous contents of '*result' are discarded.  Note that, as
+//          // with the other public manipulators, this entire operation occurs
+//          // as a single, atomic action.
+//
+//      void purgeAll(double limit);
+//          // Remove all elements from this queue if their mean exceeds the
+//          // specified 'limit'.
+//
+//      void push(int value);
+//          // Push the specified 'value' onto this queue.
+//
+//      template <class INPUT_ITER>
+//      void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
+//          // Push the values from the specified 'first' (inclusive) to the
+//          // specified 'last' (exclusive) onto this queue.
+//
+//      // ACCESSORS
+//      double mean() const;
+//          // Return the mean value of the elements of this queue.
+//
+//      bsl::size_t numElements() const;
+//          // Return the number of elements in this queue.
+//  };
+//..
+// Notice that this version of the 'MyThreadSafeQueue' class has two public
+// accessors, 'numElements' and 'mean', and an additional manipulator,
+// 'purgeAll'.
+//
+// Then, we implement most of the manipulators:
+//..
+//  // PRIVATE MANIPULATOR
+//  int MyThreadSafeQueue::popImp(int *result)
+//  {
+//      BSLMT_READERWRITERMUTEXassert_IS_LOCKED_WRITE(&d_rwMutex);
+//
+//      if (d_deque.empty()) {
+//          return -1;                                                // RETURN
+//      }
+//      else {
+//          *result = d_deque.front();
+//          d_deque.pop_front();
+//          return 0;                                                 // RETURN
+//      }
+//  }
+//
+//  // MANIPULATORS
+//  int MyThreadSafeQueue::pop(int *result)
+//  {
+//      BSLS_ASSERT(result);
+//
+//      d_rwMutex.lockWrite();
+//      int rc = popImp(result);
+//      d_rwMutex.unlockWrite();
+//      return rc;
+//  }
+//
+//  void MyThreadSafeQueue::popAll(bsl::vector<int> *result)
+//  {
+//      BSLS_ASSERT(result);
+//
+//      const int size = static_cast<int>(d_deque.size());
+//      result->resize(size);
+//      int *begin = result->begin();
+//      for (int index = 0; index < size; ++index) {
+//          int rc = popImp(&begin[index]);
+//          BSLS_ASSERT(0 == rc);
+//      }
+//  }
+//
+//  void MyThreadSafeQueue::push(int value)
+//  {
+//      d_rwMutex.lockWrite();
+//      d_deque.push_back(value);
+//      d_rwMutex.unlockWrite();
+//  }
+//
+//  template <class INPUT_ITER>
+//  void MyThreadSafeQueue::pushRange(const INPUT_ITER& first,
+//                                    const INPUT_ITER& last)
+//  {
+//      d_rwMutex.lockWrite();
+//      d_deque.insert(d_deque.begin(), first, last);
+//      d_rwMutex.unlockWrite();
+//  }
+//..
+// Notice that these implementations are identical to those shown in
+// {'bslmt_mutexassert'|Example 1} except that the 'lock' calls to the
+// 'bslmt::Mutex' there have been changed here to 'lockWrite' calls on a
+// 'bslmt::ReaderWriterMutex'.  Both operations provide exclusive access to the
+// container.
+//
+// Also notice that, having learned the lesson of {'bslmt_mutexassert'|Example
+// 1}, we were careful to acquire a write lock for the duration of each of
+// these operation and to check the precondition of the the private 'popImp'
+// method by using the 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED_WRITE' macro.
+//
+// Finally notice that we use the "normal" flavor of the macro (rather than the
+// '*_SAFE' version) because this test is not particularly expensive.
+//
+// Next, we implement the accessor methods of the container:
+//..
+//  // ACCESSORS
+//  double MyThreadSafeQueue::mean() const
+//  {
+//      d_rwMutex.lockRead();
+//      bsl::pair<int, double> result = getStats();
+//      d_rwMutex.unlockRead();
+//      return result.second;
+//  }
+//
+//  bsl::size_t MyThreadSafeQueue::numElements() const
+//  {
+//      d_rwMutex.lockRead();
+//      bsl::size_t numElements = d_deque.size();
+//      d_rwMutex.unlockRead();
+//      return numElements;
+//  }
+//..
+// Notice that each of these methods acquire a read lock for the duration of
+// the operation.  These locks allow shared access provided that the container
+// is not changed, a reasonable assumption for these 'const'-qualified methods.
+//
+// Also notice that the bulk of the work of 'mean' is done by the private
+// method 'getStats'.  One's might except the private method to confirm that a
+// lock was acquired by using the
+// 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED_READ' macro; however, the reason
+// for creating that private method is so that it can be reused by the
+// 'purgeAll' method, a non-'const' method that requires a write lock.  Thus,
+// 'getStats' is an occassion to use the
+// 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED' check (for either a read lock *or*
+// a write lock).
+//..
+//  // PRIVATE ACCESSORS
+//  bsl::pair<int, double> MyThreadSafeQueue::getStats() const
+//  {
+//      BSLMT_READERWRITERMUTEXassert_IS_LOCKED(&d_rwMutex);
+//
+//      int numElements = d_deque.size();
+//
+//      if (0 == numElements) {
+//          return bsl::make_pair(numElements, DBL_MIN);              // RETURN
+//      }
+//
+//      int    sum  = bsl::accumulate(d_deque.cbegin(), d_deque.cend(), 0);
+//      double mean = static_cast<double>(sum)
+//                  / static_cast<double>(numElements);
+//
+//      return bsl::make_pair(numElements, mean);
+//  }
+//..
+// Next, we implement the 'purgeAll' method:
+//..
+//  void MyThreadSafeQueue::purgeAll(double limit)
+//  {
+//      d_rwMutex.lockWrite();
+//      bsl::pair<int, double> results = getStats();      // requires some lock
+//      if (0 < results.first && limit < results.second) {
+//          for (int i = 0; i < results.first; ++i) {
+//              int dummy;
+//              int rc = popImp(&dummy);               // requires a write lock
+//              assert(0 == rc);
+//          }
+//      }
+//      d_rwMutex.unlockWrite();
+//  }
+//..
+// Finally, we confirm that our accessors work as expected:
+//..
+//  void testEnhancedThreadSafeQueue()
+//      // Exercise the added methods of the 'MyThreadSafeQueue' class.
+//  {
+//      MyThreadSafeQueue queue;
+//
+//      const int rawData[] = { 17, 3, -20, 7, 28 };
+//      enum { k_RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
+//
+//      queue.pushRange(rawData + 0, rawData + k_RAW_DATA_LENGTH);
+//
+//      assert(5 == queue.numElements());
+//      assert(7 == queue.mean());
+//
+//      queue.push(100000);
+//      queue.purgeAll(10);
+//
+//      assertV(queue.numElements(), 0       == queue.numElements());
+//      assertV(queue.mean()       , DBL_MIN == queue.mean());
+//  }
+//..
 
 #include <bslscm_version.h>
 
