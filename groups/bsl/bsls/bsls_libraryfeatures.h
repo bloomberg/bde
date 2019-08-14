@@ -1000,14 +1000,15 @@ BSLS_IDENT("$Id: $")
         #if BSLS_PLATFORM_CMP_VERSION >= 60000
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API     1
         #endif
-
-        #if BSLS_PLATFORM_CMP_VERSION >= 80300
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
-        #endif
     #endif
     #if __cplusplus > 201103L
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY       1
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS        1
+    #endif
+    #if __cplusplus > 201402L  // > C++14
+        #if BSLS_PLATFORM_CMP_VERSION >= 80300
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
+        #endif
     #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
@@ -1225,10 +1226,10 @@ BSLS_IDENT("$Id: $")
     #endif
 
     #if BSLS_PLATFORM_CMP_VERSION >= 1910  // Visual Studio 2017
+      #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
       #if !_HAS_AUTO_PTR_ETC
         #undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
       #endif
-      #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
     #endif
 #endif
 
