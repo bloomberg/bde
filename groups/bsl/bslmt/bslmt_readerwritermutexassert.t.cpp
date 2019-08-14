@@ -14,6 +14,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttestexception.h>
 #include <bsls_atomic.h>
 
 #include <bsl_cstdlib.h>
@@ -23,9 +25,6 @@
 #include <bsl_map.h>
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
-
-#include <bsls_asserttestexception.h>
-#include <bsls_atomic.h>
 
 #include <algorithm>  // 'BSL::for_each'
 #include <numeric>    // 'BSL::accumulate'
@@ -412,8 +411,9 @@ enum AssertMode {
 AssertMode  mode;
 int         expectedLine;
 char        cfg;
-const char *level;
+const char *expectedLevel;
 
+#if 0
 void myHandler(const char *text, const char *file, int line)
     // Confirm that the specified 'text', 'file', and 'line' have values
     // consistent with those set in the global variables 'mode',
@@ -457,6 +457,52 @@ void myHandler(const char *text, const char *file, int line)
 
     throw bsls::AssertTestException(text, file, line);
 }
+#else
+void myViolationHandler(const bsls::AssertViolation& violation) 
+    // Confirm that the specified 'violation' has attributes consistent with
+    // those set in the global variables 'mode', 'expectedLine', 'cfg', and
+    // 'level'.
+{
+    if (veryVerbose) {
+        P_(mode) P_(expectedLine) P(cfg)
+        P_(violation.comment())
+        P_(violation.fileName())
+        P_(violation.lineNumber())
+         P(violation.assertLevel())
+    }
+    const char *base   = "BSLMT_READERWRITERMUTEXASSERT_IS";
+
+    const char *oper   = 'a' == cfg ? "_LOCKED"       :
+                         'b' == cfg ? "_LOCKED_READ"  :
+                         'c' == cfg ? "_LOCKED_WRITE" :
+                         /* else */   "_UNKNOWN_OPER" ;
+
+    const char *level  = e_SAFE_MODE   == mode ? "_SAFE" :
+                         e_NORMAL_MODE == mode ? ""      :
+                         e_OPT_MODE    == mode ? "_OPT"  :
+                         /* else */       "UNKNOWN_MODE" ;
+
+    const char *suffix = "(&rwMutex)";
+
+    char expectedText[128];
+
+    BSL::strcpy(expectedText, base);
+    BSL::strcat(expectedText, oper);
+    BSL::strcat(expectedText, level);
+    BSL::strcat(expectedText, suffix);
+
+    ASSERT(expectedLine == violation.lineNumber());
+    ASSERT(0            == bsl::strcmp(expectedText, violation.comment()));
+    ASSERT(0            == bsl::strcmp(__FILE__, violation.fileName()));
+    ASSERT(0            == bsl::strcmp(expectedLevel,
+                                       violation.assertLevel()));
+
+    throw bsls::AssertTestException(violation.comment(),
+                                    violation.fileName(),
+                                    violation.lineNumber(),
+                                    violation.assertLevel());
+}
+#endif
 
 #endif // BDE_BUILD_TARGET_EXC
 
@@ -571,11 +617,16 @@ int main(int argc, char *argv[])
         {
             bslmt::ReaderWriterMutex rwMutex;
 
-            bsls::Assert::setFailureHandler(&TestCase2::myHandler);
+            bsls::Assert::ViolationHandler priorViolationHandler =
+                                              bsls::Assert::violationHandler();
+
+            //bsls::Assert::setFailureHandler(&TestCase2::myHandler);
+            bsls::Assert::setViolationHandler(&TestCase2::myViolationHandler);
 
             if (veryVeryVerbose) cout << "testing '*_SAFE' macros" << endl;
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-            TestCase2::mode = TestCase2::e_SAFE_MODE;
+            TestCase2::mode          = TestCase2::e_SAFE_MODE;
+            TestCase2::expectedLevel = bsls::Assert::k_LEVEL_SAFE; 
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -605,7 +656,8 @@ int main(int argc, char *argv[])
                       }
                     }
                 } catch (bsls::AssertTestException thrown) {
-                    ASSERT(0 == BSL::strcmp("UNKNOWN", thrown.level()));
+                    ASSERT(0 == BSL::strcmp(thrown.level(),
+                                            bsls::Assert::k_LEVEL_SAFE));
                 }
             }
 
@@ -622,7 +674,8 @@ int main(int argc, char *argv[])
 
             if (veryVeryVerbose) cout << "testing 'normal' macros" << endl;
 #ifdef BSLS_ASSERT_IS_ACTIVE
-            TestCase2::mode = TestCase2::e_NORMAL_MODE;
+            TestCase2::mode          = TestCase2::e_NORMAL_MODE;
+            TestCase2::expectedLevel = bsls::Assert::k_LEVEL_ASSERT; 
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 TestCase2::cfg = cfg;
@@ -649,7 +702,8 @@ int main(int argc, char *argv[])
                       }
                     }
                 } catch (bsls::AssertTestException thrown) {
-                    ASSERT(0 == BSL::strcmp("UNKNOWN", thrown.level()));
+                    ASSERT(0 == BSL::strcmp(thrown.level(),
+                                            bsls::Assert::k_LEVEL_ASSERT));
                 }
             }
 #else  // BSLS_ASSERT_IS_ACTIVE
@@ -664,7 +718,8 @@ int main(int argc, char *argv[])
 
             if (veryVeryVerbose) cout << "testing '*_OPT' macros" << endl;
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-            TestCase2::mode = TestCase2::e_OPT_MODE;
+            TestCase2::mode          = TestCase2::e_OPT_MODE;
+            TestCase2::expectedLevel = bsls::Assert::k_LEVEL_OPT; 
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 TestCase2::cfg = cfg;
@@ -692,7 +747,9 @@ int main(int argc, char *argv[])
                       }
                     }
                 } catch (bsls::AssertTestException thrown) {
-                    ASSERT(0 == BSL::strcmp("UNKNOWN", thrown.level()));
+                    ASSERTV(thrown.level(),
+                                    0 == BSL::strcmp(thrown.level(),
+                                            bsls::Assert::k_LEVEL_OPT));
                 }
             }
 #else   // BSLS_ASSERT_OPT_IS_ACTIVE
@@ -705,7 +762,8 @@ int main(int argc, char *argv[])
             }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
-            bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+          //bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+            bsls::Assert::setViolationHandler(priorViolationHandler);
         }
 #else  // BDE_BUILD_TARGET_EXC
 

@@ -197,7 +197,7 @@ BSLS_IDENT("$Id: $")
           "BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(" #mutex_p ")",  \
           __FILE__,                                                           \
           __LINE__,                                                           \
-          bsls::Assert::k_LEVEL_SAFE); } while (false)
+          bsls::Assert::k_LEVEL_OPT); } while (false)
 #else
     #define BSLMT_MUTEXASSERT_IS_LOCKED_WRITE_OPT(mutex_p) ((void) 0)
 #endif
