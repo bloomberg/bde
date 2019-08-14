@@ -430,6 +430,8 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTDDEF
 #endif
 
+#include <memory_resource>
+
 namespace bsl {
 
 template <class ALLOCATOR_TYPE> struct allocator_traits;
@@ -822,6 +824,14 @@ class allocator {
         // Return a pointer to the mechanism object to which this proxy
         // forwards allocation and deallocation calls.
 
+    operator std::pmr::memory_resource*() const
+    {
+      return d_mechanism;
+    }
+
+  template <class T2>
+  allocator(const std::pmr::polymorphic_allocator<T2> other)
+    : allocator(static_cast<BloombergLP::bslma::Allocator*>(other.resource())) { }
     allocator<TYPE> select_on_container_copy_construction() const;
         // TBD: add comment
 };
@@ -898,6 +908,15 @@ class allocator<void> {
     BloombergLP::bslma::Allocator *mechanism() const;
         // Return a pointer to the mechanism object to which this proxy
         // forwards allocation and deallocation calls.
+
+    operator std::pmr::memory_resource*() const
+    {
+      return d_mechanism;
+    }
+  template <class T2>
+  allocator(const std::pmr::polymorphic_allocator<T2> other)
+    : allocator(static_cast<BloombergLP::bslma::Allocator*>(other.resource())) { }
+
 
     allocator<void> select_on_container_copy_construction() const;
         // TBD: add comment

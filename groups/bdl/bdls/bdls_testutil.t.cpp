@@ -1373,8 +1373,8 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
-                BDLS_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
+                const int LINE = __LINE__ + 1;
+                BDLS_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M, \
                                            idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
@@ -1476,8 +1476,8 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
-                BDLS_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
+                const int LINE = __LINE__ + 1;
+                BDLS_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, \
                                            idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);

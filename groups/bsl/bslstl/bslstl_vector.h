@@ -6233,6 +6233,26 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
     pa->swap(*pb);
 }
 
+  template <class TYPE> struct is_bsl_allocator : std::false_type {};
+  template <class TYPE> struct is_bsl_allocator<bsl::allocator<TYPE>>
+    : std::true_type {};
+
+  template <class TYPE, class ALLOC> struct StandardizeAlloc
+  {
+    using type = typename std::conditional<
+      is_bsl_allocator<ALLOC>::value
+      && (std::uses_allocator<TYPE,
+	    std::pmr::polymorphic_allocator<TYPE>>::value
+	  || !BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value),
+      std::pmr::polymorphic_allocator<TYPE>,
+      ALLOC
+      >::type;
+  };
+
+  template <class TYPE, class ALLOC=bsl::allocator<TYPE>>
+    using stdvector =
+      std::vector<TYPE, typename StandardizeAlloc<TYPE, ALLOC>::type>;
+
 }  // close namespace bsl
 
 // ============================================================================

@@ -1,4 +1,5 @@
 // bslma_default.cpp                                                  -*-C++-*-
+#include <memory_resource>
 #include <bslma_default.h>
 
 #include <bsls_ident.h>
@@ -38,9 +39,9 @@ int Default::setDefaultAllocator(Allocator *basicAllocator)
 
     if (!bsls::AtomicOperations::getIntRelaxed(&s_locked)) {
         bsls::AtomicOperations::setPtrRelease(&s_allocator, basicAllocator);
+	std::pmr::set_default_resource(basicAllocator);
         return 0;  // success                                         // RETURN
     }
-
     return -1;     // locked -- 'set' fails
 }
 
@@ -49,6 +50,7 @@ void Default::setDefaultAllocatorRaw(Allocator *basicAllocator)
     BSLS_ASSERT(0 != basicAllocator);
 
     bsls::AtomicOperations::setPtrRelease(&s_allocator, basicAllocator);
+    std::pmr::set_default_resource(basicAllocator);
 }
 
                         // *** global allocator ***
