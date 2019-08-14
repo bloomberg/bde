@@ -1,4 +1,4 @@
-// bslmt_readerwritemutexassert.h                                     -*-C++-*-
+// bslmt_readerwritermutexassert.h                                    -*-C++-*-
 
 #ifndef INCLUDED_BSLMT_READERWRITERMUTEXASSERT
 #define INCLUDED_BSLMT_READERWRITERMUTEXASSERT
@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an assert macro for verifying readerwritemutex status.
+//@PURPOSE: Provide an assert macro for verifying reader-writer mutex status.
 //
 //@CLASSES:
 //
@@ -23,16 +23,17 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_mutexassert bslmt_readerwritermutex
 //
-//@DESCRIPTION: This component provides macros for asserting that a readerwritermutex is
-// locked.  It does not distinguish between locks held by the current thread or
-// other threads.  If the macro is active in the current build mode, when the
-// macro is called, if the supplied mutex is unlocked, the assert handler
-// installed for 'BSLS_ASSERT' will be called.  The assert handler installed by
-// default will report an error and abort the task.
+//@DESCRIPTION: This component provides macros for asserting that a
+// reader-writer mutex is locked.  It does not distinguish between locks held
+// by the current thread or other threads.  If the macro is active in the
+// current build mode, when the macro is called, if the supplied mutex is
+// unlocked, the assert handler installed for 'BSLS_ASSERT' will be called.
+// The assert handler installed by default will report an error and abort the
+// task.
 //
 // The nine macros defined by the component are analogous to the macros defined
 // by 'BSLS_ASSERT':
-//
+//..
 //  +----------------------------------------------------+------------------=+
 //  | Macro                                              | When Active       |
 //  +====================================================+===================+
@@ -52,19 +53,19 @@ BSLS_IDENT("$Id: $")
 // In build modes where any one of these macros is not active, the presence of
 // the macros has no effect.
 //
-// If any of these asserts are in effect and fail (because the
-// readerwritermutex in question was unlocked), the behavior parallels the
-// behavior of the assertion macros defined in 'bsls_assert.h' --
-// 'bsls::Assert::invokeHandler' is called, with a source code expression, the
-// name of the source file, and the line number in the source file where the
-// macro was called.  If the default handler is installed, this will result in
-// an error message and an abort.
+// If any of these asserts are in effect and fail (because the reader-writer
+// mutex in question was unlocked), the behavior parallels the behavior of the
+// assertion macros defined in 'bsls_assert.h' -- 'bsls::Assert::invokeHandler'
+// is called, with a source code expression, the name of the source file, and
+// the line number in the source file where the macro was called.  If the
+// default handler is installed, this will result in an error message and an
+// abort.
 //
 ///Caveat: False Positives
 ///-----------------------
 // Preconditions on locks typically require that the lock exist *and* *is*
 // *held* *by* *the* *calling* *thread*.  Unfortunately, lock ownership is not
-// recorded in the lock and cannot be confirmed.  The absense of any lock when
+// recorded in the lock and cannot be confirmed.  The absence of any lock when
 // the calling thread should hold one is certainly a problem; however, the
 // existence of a lock does not guarantee that the complete precondition is
 // met.
@@ -210,7 +211,7 @@ struct ReaderWriterMutexAssert_Imp {
     static void assertIsLocked(ReaderWriterMutex *rwMutex,
                                const char        *text,
                                const char        *file,
-                               int               line);
+                               int                line);
         // If the specified 'rwMutex' is not locked (i.e., neither a read lock
         // or a write lock), call 'bsls::Assert::invokeHandler' with the
         // specified 'text', 'file', and 'line', where 'text' is text
@@ -225,7 +226,7 @@ struct ReaderWriterMutexAssert_Imp {
     static void assertIsLockedRead(ReaderWriterMutex *rwMutex,
                                    const char        *text,
                                    const char        *file,
-                                   int               line);
+                                   int                line);
         // If the specified 'rwMutex' is not locked for reading, call
         // 'bsls::Assert::invokeHandler' with the specified 'text', 'file', and
         // 'line', where 'text' is text describing the assertion being
@@ -240,7 +241,7 @@ struct ReaderWriterMutexAssert_Imp {
     static void assertIsLockedWrite(ReaderWriterMutex *rwMutex,
                                     const char        *text,
                                     const char        *file,
-                                     int               line);
+                                    int                line);
         // If the specified 'rwMutex' is not locked for writing, call
         // 'bsls::Assert::invokeHandler' with the specified 'text', 'file', and
         // 'line', where 'text' is text describing the assertion being
@@ -272,7 +273,7 @@ void ReaderWriterMutexAssert_Imp::assertIsLocked(ReaderWriterMutex *rwMutex,
     BSLS_ASSERT(rwMutex);
     BSLS_ASSERT(text);
     BSLS_ASSERT(file);
-    
+
     if (!rwMutex->isLocked()) {
         bsls::Assert::invokeHandler(text, file, line);
     }
@@ -287,7 +288,7 @@ void ReaderWriterMutexAssert_Imp::assertIsLockedRead(
     BSLS_ASSERT(rwMutex);
     BSLS_ASSERT(text);
     BSLS_ASSERT(file);
-    
+
     if (!rwMutex->isLockedRead()) {
         bsls::Assert::invokeHandler(text, file, line);
     }
@@ -302,7 +303,7 @@ void ReaderWriterMutexAssert_Imp::assertIsLockedWrite(
     BSLS_ASSERT(rwMutex);
     BSLS_ASSERT(text);
     BSLS_ASSERT(file);
-    
+
     if (!rwMutex->isLockedWrite()) {
         bsls::Assert::invokeHandler(text, file, line);
     }

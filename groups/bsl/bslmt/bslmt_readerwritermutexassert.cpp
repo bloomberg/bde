@@ -1,4 +1,4 @@
-// bslmt_mutexassert.cpp                                              -*-C++-*-
+// bslmt_readerwritermutexassert.cpp                                  -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
