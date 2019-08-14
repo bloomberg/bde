@@ -413,51 +413,6 @@ int         expectedLine;
 char        cfg;
 const char *expectedLevel;
 
-#if 0
-void myHandler(const char *text, const char *file, int line)
-    // Confirm that the specified 'text', 'file', and 'line' have values
-    // consistent with those set in the global variables 'mode',
-    // 'expectedLine', 'cfg', and 'level'.
-{
-    if (veryVerbose) {
-        P(mode)
-        P_(expectedLine)  P(cfg)
-        P_(line)         P_(file)          P(text)
-    }
-    const char *base   = "BSLMT_READERWRITERMUTEXASSERT_IS";
-
-    const char *oper   = 'a' == cfg ? "_LOCKED"       :
-                         'b' == cfg ? "_LOCKED_READ"  :
-                         'c' == cfg ? "_LOCKED_WRITE" :
-                         /* else */   "_UNKNOWN_OPER" ;
-
-    const char *level  = e_SAFE_MODE   == mode ? "_SAFE" :
-                         e_NORMAL_MODE == mode ? ""      :
-                         e_OPT_MODE    == mode ? "_OPT"  :
-                         /* else */       "UNKNOWN_MODE" ;
-
-    const char *suffix = "(&rwMutex)";
-
-    char expectedText[128];
-
-    BSL::strcpy(expectedText, base);
-    BSL::strcat(expectedText, oper);
-    BSL::strcat(expectedText, level);
-    BSL::strcat(expectedText, suffix);
-
-    ASSERTV(expectedText,
-            text,
-            0 == bsl::strcmp(expectedText, text));
-
-    ASSERTV(expectedLine,
-            line,
-            expectedLine == line);
-
-    ASSERT(0 ==bsl::strcmp(__FILE__, file));
-
-    throw bsls::AssertTestException(text, file, line);
-}
-#else
 void myViolationHandler(const bsls::AssertViolation& violation) 
     // Confirm that the specified 'violation' has attributes consistent with
     // those set in the global variables 'mode', 'expectedLine', 'cfg', and
@@ -502,7 +457,6 @@ void myViolationHandler(const bsls::AssertViolation& violation)
                                     violation.lineNumber(),
                                     violation.assertLevel());
 }
-#endif
 
 #endif // BDE_BUILD_TARGET_EXC
 
@@ -619,8 +573,6 @@ int main(int argc, char *argv[])
 
             bsls::Assert::ViolationHandler priorViolationHandler =
                                               bsls::Assert::violationHandler();
-
-            //bsls::Assert::setFailureHandler(&TestCase2::myHandler);
             bsls::Assert::setViolationHandler(&TestCase2::myViolationHandler);
 
             if (veryVeryVerbose) cout << "testing '*_SAFE' macros" << endl;
@@ -762,7 +714,6 @@ int main(int argc, char *argv[])
             }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
-          //bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
             bsls::Assert::setViolationHandler(priorViolationHandler);
         }
 #else  // BDE_BUILD_TARGET_EXC
