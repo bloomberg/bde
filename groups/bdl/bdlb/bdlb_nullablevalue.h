@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //  nullableInt.reset();
 //  assert( nullableInt.isNull());
 //..
-
+#include <uses_allocator.h>
 #include <pmroptional>
 
 #ifndef INCLUDED_BDLSCM_VERSION
