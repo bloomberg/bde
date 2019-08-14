@@ -80,7 +80,7 @@ using native_std::count_if;
 #else
 template<class ForwardIt, class Searcher>
 inline
-BSLS_KEYWORD_CONSTEXPR
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 ForwardIt search( ForwardIt first, ForwardIt last,
                   const Searcher& searcher )
 {
