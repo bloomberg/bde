@@ -85,8 +85,7 @@ struct IsNothrowMoveConstructible_Impl
 };
 
 template <class TYPE>
-struct IsNothrowMoveConstructible_Impl<TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+struct IsNothrowMoveConstructible_Impl<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<
        bool,
        ::native_std::is_nothrow_move_constructible<TYPE>::value
@@ -103,8 +102,7 @@ struct IsNothrowMoveConstructible_Impl<TYPE,
 };
 
 template <class TYPE>
-struct IsNothrowMoveConstructible_Impl<const TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+struct IsNothrowMoveConstructible_Impl<const TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<
                  bool,
                  ::native_std::is_nothrow_move_constructible<const TYPE>::value
@@ -113,7 +111,7 @@ struct IsNothrowMoveConstructible_Impl<const TYPE,
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<volatile TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+                                       BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<
            bool,
            ::native_std::is_nothrow_move_constructible<volatile TYPE>::value> {
@@ -121,7 +119,7 @@ struct IsNothrowMoveConstructible_Impl<volatile TYPE,
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<const volatile TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+                                       BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<bool,
                              ::native_std::is_nothrow_move_constructible<
                                                  const volatile TYPE>::value> {
@@ -150,8 +148,7 @@ struct IsNothrowMoveConstructible_Impl
 };
 
 template <class TYPE>
-struct IsNothrowMoveConstructible_Impl<TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+struct IsNothrowMoveConstructible_Impl<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<
           bool, bsl::is_trivially_copyable<TYPE>::value
              || DetectNestedTrait<TYPE,
@@ -167,20 +164,19 @@ struct IsNothrowMoveConstructible_Impl<TYPE,
 };
 
 template <class TYPE>
-struct IsNothrowMoveConstructible_Impl<const TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+struct IsNothrowMoveConstructible_Impl<const TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::is_trivially_copyable<TYPE>::type {
     BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<volatile TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+                                       BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::false_type {
     BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<const volatile TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+                                       BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::false_type {
     BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
 };

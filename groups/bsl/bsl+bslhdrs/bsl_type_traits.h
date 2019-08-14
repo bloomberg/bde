@@ -224,6 +224,8 @@ using native_std::is_final;
 using native_std::conjunction;
 using native_std::disjunction;
 using native_std::negation;
+
+// void_t is supplied by bslmf_voidtype.h
 #endif
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
@@ -455,6 +457,7 @@ using native_std::remove_pointer;
 using native_std::remove_reference;
 using native_std::remove_volatile;
 using native_std::true_type;
+using native_std::void_t;
 #endif
 }  // close package namespace
 
@@ -509,6 +512,7 @@ using native_std::true_type;
 #include <bslmf_removepointer.h>
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
+#include <bslmf_voidtype.h>
 #endif  // BSL_OVERRIDES_STD
 
 #endif

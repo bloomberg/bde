@@ -402,7 +402,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #include <bslmf_voidtype.h>
 
-
 namespace BloombergLP {
 namespace bslmf {
 
@@ -417,10 +416,10 @@ struct IsTransparentPredicate : bsl::false_type {
 
 template <class COMPARATOR, class KEY>
 struct IsTransparentPredicate<
-                COMPARATOR,
-                KEY,
-                typename VoidType<typename COMPARATOR::is_transparent>::type> :
-                                                               bsl::true_type {
+                           COMPARATOR,
+                           KEY,
+                           BSLMF_VOIDTYPE(typename COMPARATOR::is_transparent)>
+    : bsl::true_type {
     // This specialization of 'IsTransparentPredicate', for when the (template
     // parameter) 'COMPARATOR' is transparent, derives from 'bsl::true_type'.
 };
@@ -431,7 +430,7 @@ struct IsTransparentPredicate<
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

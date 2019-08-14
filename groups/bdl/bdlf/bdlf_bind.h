@@ -4611,8 +4611,7 @@ struct Bind_OneResultTypeOrAnother {
     };
 
     template <class T>
-    struct Result<T,
-                  typename bslmf::VoidType<decltype(&T::operator())>::type> {
+    struct Result<T, BSLMF_VOIDTYPE(decltype(&T::operator()))> {
         // This is a specialization of 'Result' above.  If the 'T' parameter
         // has a single unique 'operator()' member, then 'Result<T, void>'
         // prefers this specialization over the general template.  This class
@@ -6490,7 +6489,7 @@ struct Bind_Evaluator<BindWrapper<RET,FUNC,BINDLIST>, LIST> {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
