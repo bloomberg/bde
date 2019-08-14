@@ -407,15 +407,17 @@ enum AssertMode {
   , e_SAFE_MODE
   , e_NORMAL_MODE
   , e_OPT_MODE
-}          mode;
+};
 
-int        expectedLine;
-char       cfg;
+AssertMode  mode;
+int         expectedLine;
+char        cfg;
+const char *level;
 
 void myHandler(const char *text, const char *file, int line)
     // Confirm that the specified 'text', 'file', and 'line' have values
     // consistent with those set in the global variables 'mode',
-    // 'expectedLine', and 'cfg'.
+    // 'expectedLine', 'cfg', and 'level'.
 {
     if (veryVerbose) {
         P(mode)
