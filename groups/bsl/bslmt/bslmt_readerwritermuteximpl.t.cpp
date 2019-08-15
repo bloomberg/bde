@@ -170,10 +170,6 @@ struct TestImpl {
         k_POST            = -10
     };
 
-    static void printScript()
-    {
-    }
-
     static void printScript(int exp)
         // Display an error message providing the script and an indication of
         // the specified 'exp' value at the current script location.
@@ -202,7 +198,7 @@ struct TestImpl {
                 && s_script[s_scriptAt] >= 0) {
                 int  script           = s_script[s_scriptAt];
 
-                int  numReader        = (script %  10);
+                int  numReader        =  script        % 10;
                 int  numPendingWriter = (script /  10) % 10;
                 int  numWriter        = (script / 100) % 10;
 
@@ -228,7 +224,7 @@ struct TestImpl {
                 && s_script[s_scriptAt] >= 0) {
                 int  script           = s_script[s_scriptAt];
 
-                int  numReader        = (script %  10);
+                int  numReader        =  script        % 10;
                 int  numPendingWriter = (script /  10) % 10;
                 int  numWriter        = (script / 100) % 10;
 
