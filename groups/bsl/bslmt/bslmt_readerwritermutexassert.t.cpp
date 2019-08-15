@@ -154,7 +154,7 @@ int veryVeryVerbose;
                                          // standard container
 
         mutable bslmt::ReaderWriterMutex
-                             d_rwMutex; // coordinate thread access
+                             d_rwMutex;  // coordinate thread access
 
         // PRIVATE MANIPULATOR
         int popImp(int *result);

@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a lock.  The
-// 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED*' family of assertions allows the
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' family of assertions allows the
 // programmers to detect, using defensive programming techniques, if the
 // required lock has *not* been acquired.
 //
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //                                       // standard container
 //
 //      mutable bslmt::ReaderWriterMutex
-//                           d_rwMutex; // coordinate thread access
+//                           d_rwMutex;  // coordinate thread access
 //
 //      // PRIVATE MANIPULATOR
 //      int popImp(int *result);
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 //  // PRIVATE MANIPULATOR
 //  int MyThreadSafeQueue::popImp(int *result)
 //  {
-//      BSLMT_READERWRITERMUTEXassert_IS_LOCKED_WRITE(&d_rwMutex);
+//      BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&d_rwMutex);
 //
 //      if (d_deque.empty()) {
 //          return -1;                                                // RETURN
@@ -229,7 +229,7 @@ BSLS_IDENT("$Id: $")
 // Also notice that, having learned the lesson of {'bslmt_mutexassert'|Example
 // 1}, we were careful to acquire a write lock for the duration of each of
 // these operation and to check the precondition of the the private 'popImp'
-// method by using the 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED_WRITE' macro.
+// method by using the 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE' macro.
 //
 // Finally notice that we use the "normal" flavor of the macro (rather than the
 // '*_SAFE' version) because this test is not particularly expensive.
@@ -260,17 +260,17 @@ BSLS_IDENT("$Id: $")
 // Also notice that the bulk of the work of 'mean' is done by the private
 // method 'getStats'.  One's might except the private method to confirm that a
 // lock was acquired by using the
-// 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED_READ' macro; however, the reason
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ' macro; however, the reason
 // for creating that private method is so that it can be reused by the
 // 'purgeAll' method, a non-'const' method that requires a write lock.  Thus,
 // 'getStats' is an occassion to use the
-// 'BSLMT_READERWRITERMUTEXassert_IS_LOCKED' check (for either a read lock *or*
+// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED' check (for either a read lock *or*
 // a write lock).
 //..
 //  // PRIVATE ACCESSORS
 //  bsl::pair<int, double> MyThreadSafeQueue::getStats() const
 //  {
-//      BSLMT_READERWRITERMUTEXassert_IS_LOCKED(&d_rwMutex);
+//      BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&d_rwMutex);
 //
 //      int numElements = d_deque.size();
 //
