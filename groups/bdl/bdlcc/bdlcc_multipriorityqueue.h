@@ -408,7 +408,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 
 #include <bslalg_constructorproxy.h>
-#include <bslalg_scalarprimitives.h>
 
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
@@ -472,10 +471,11 @@ class MultipriorityQueue_Node {
 
     MultipriorityQueue_Node(bslmf::MovableRef<TYPE>  item,
                             bslma::Allocator        *basicAllocator);
-        // Create a node containing a copy of the specified 'item' and having
-        // the specified 'next' pointer.  Use the specified 'basicAllocator' to
-        // supply memory.  The behavior is undefined unless 'basicAllocator' is
-        // non-null.  Note that 'item' must be copyable and assignable.
+        // Create a node containing the value of the specified 'item' and
+        // having the specified 'next' pointer.  'item' is left in a valid but
+        // unspecified state.  Use the specified 'basicAllocator' to supply
+        // memory.  The behavior is undefined unless 'basicAllocator' is
+        // non-null.
 
     ~MultipriorityQueue_Node();
         // Destroy this node and free all memory that was allocated on its
@@ -630,10 +630,11 @@ class MultipriorityQueue {
         // 'itemPriority' into this multipriority queue before any queued items
         // having a less urgent priority (higher value) than 'itemPriority',
         // and after any items having the same or more urgent priority (lower
-        // value) than 'itemPriority'.  If the multipriority queue is enabled,
-        // the push succeeds and '0' is returned, otherwise the push fails, the
-        // queue remains unchanged, and a nonzero value is returned.  The
-        // behavior is undefined unless '0 <= itemPriority < numPriorities()'.
+        // value) than 'itemPriority'.  'item' is left in a valid but
+        // unspecified state.  If the multipriority queue is enabled, the push
+        // succeeds and '0' is returned, otherwise the push fails, the queue
+        // remains unchanged, and a nonzero value is returned.  The behavior is
+        // undefined unless '0 <= itemPriority < numPriorities()'.
 
     void pushBackMultipleRaw(const TYPE& item, int itemPriority, int numItems);
         // Insert the value of the specified 'item' with the specified
@@ -722,7 +723,7 @@ MultipriorityQueue_Node<TYPE>::MultipriorityQueue_Node(
                                               const TYPE&       item,
                                               bslma::Allocator *basicAllocator)
 : d_item(item, basicAllocator)
-, d_next_p()
+, d_next_p(0)
 {}
 
 template <class TYPE>
@@ -897,7 +898,8 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
     // mutex, which is advantageous in that no one is waiting on us, but it has
     // the disadvantage that we haven't checked whether this multipriority
     // queue is disabled, in which case we'll throw the new node away.
-    //     Note the queue being disabled is not the usual case.  Note a race
+
+    // Note the queue being disabled is not the usual case.  Note a race
     // condition occurs if we check d_enabledFlag outside the mutex.
 
     Node *newNode = (Node *)d_pool.allocate();
@@ -947,22 +949,23 @@ int MultipriorityQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> item,
     // mutex, which is advantageous in that no one is waiting on us, but it has
     // the disadvantage that we haven't checked whether this multipriority
     // queue is disabled, in which case we'll throw the new node away.
-    //     Note the queue being disabled is not the usual case.  Note a race
+    //
+    // Note the queue being disabled is not the usual case.  Note a race
     // condition occurs if we check d_enabledFlag outside the mutex.
 
-    Node *newNode = (Node *)d_pool.allocate();
+    Node *newNode = static_cast<Node *>(d_pool.allocate());
     bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(newNode,
                                                                  &d_pool);
 
-    // Do the enable check before the move, since if it is a move and not a
-    // copy, there's no backing out after that.
-
-    if (!d_enabledFlag) {
-        return e_FAILURE;                                             // RETURN
-    }
-
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        // Do the enable check before the move, since if it is a move and not a
+        // copy, there's no backing out after that.
+
+        if (!d_enabledFlag) {
+            return e_FAILURE;                                         // RETURN
+        }
 
         ::new (newNode) Node(bslmf::MovableRefUtil::move(item),  // might throw
                              d_allocator_p);

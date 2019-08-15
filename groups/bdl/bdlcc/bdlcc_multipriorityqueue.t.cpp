@@ -10,26 +10,18 @@
 
 #include <bdlcc_multipriorityqueue.h>
 
-#include <bslim_testutil.h>
-
 #include <bdlt_currenttime.h>
+
+#include <bslim_testutil.h>    // streaming of bsltf types
 
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>
 #include <bslma_testallocator.h>
 #include <bslmt_mutex.h>
+#include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
-
-#include <bsltf_alloctesttype.h>
-#include <bsltf_templatetestfacility.h>
-
-#include <bsls_atomic.h>
-#include <bsls_nameof.h>
-#include <bsls_objectbuffer.h>
-#include <bsls_types.h>
-
 
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -38,6 +30,13 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+
+#include <bsls_atomic.h>
+#include <bsls_nameof.h>
+#include <bsls_objectbuffer.h>
+#include <bsls_types.h>
+
+#include <bsltf_templatetestfacility.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_list.h>
@@ -73,11 +72,10 @@ using bsl::flush;
 // [ 6] ~bdlcc::MultipriorityQueue()
 //
 // MANIPULATORS
-// [ 2] pushBack(item, priority)
-// [ 2] popFront(&item)
-// [ 2] tryPopFront(&item)
-// [ 2] popFront(&item, &priority)
-// [ 2] tryPopFront(&item, &priority)
+// [ 2] pushBack(const TYPE&, int)
+// [ 2] pushBack(TYPE&&, int)
+// [ 2] popFront(&item, &priority = 0)
+// [ 2] tryPopFront(&item, &priority = 0)
 // [ 6] removeAll()
 //
 // ACCESSORS
@@ -101,75 +99,33 @@ using bsl::flush;
 // [14] USAGE EXAMPLE 1
 //
 //=============================================================================
-//                      NON-STANDARD BDE ASSERT TEST MACRO
+//                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-
-namespace {
-
 int testStatus = 0;
-
-bslmt::Mutex coutMutex;
-
-#define COUT  { coutMutex.lock(); bsl::cout
-#define CERR  { coutMutex.lock(); bsl::cerr
-#define ENDL  bsl::endl; coutMutex.unlock(); }
-#define FLUSH bsl::flush; coutMutex.unlock(); }
 
 void aSsErT(int c, const char *s, int i)
 {
     if (c) {
-        COUT << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << ENDL;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
-int veryVeryVeryVerbose;
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define ASSERT         BSLMT_TESTUTIL_ASSERT
+#define ASSERTV        BSLMT_TESTUTIL_ASSERTV
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+#define OUTPUT_GUARD   BSLMT_TESTUTIL_OUTPUT_GUARD
+#define NESTED_GUARD   BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD
 
-// ============================================================================
-//                 NON-STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { COUT << #I << ": " << I << ENDL; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { COUT << #I << ": " << I << "\t" << #J << ": " \
-              << J << ENDL; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { COUT << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << ENDL; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { COUT << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << ENDL; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { COUT << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << ENDL; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { COUT << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << ENDL; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                   NON-SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) COUT << #X " = " << (X) << ENDL // Print identifier and value.
-#define Q(X) COUT << "<| " #X " |>" << ENDL  // Quote identifier literally.
-#define P_(X) COUT << #X " = " << (X) << ", "<< FLUSH // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  COUT << '\t' << FLUSH           // Print tab w/o newline
+#define Q              BSLMT_TESTUTIL_Q   // Quote identifier literally.
+#define P              BSLMT_TESTUTIL_P   // Print identifier and value.
+#define P_             BSLMT_TESTUTIL_P_  // P(X) without '\n'.
+#define T_             BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_             BSLMT_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                                 TTF MACROS
@@ -180,6 +136,13 @@ int veryVeryVeryVerbose;
 // ============================================================================
 //            GLOBAL TYPEDEFS, CONSTANTS & VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
+
+namespace {
+
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
+int veryVeryVeryVerbose;
 
 // Struct 'Element' is used in many examples, it behaves similarly to a double,
 // but it also keeps track of the number instances of it in existence, useful
@@ -280,11 +243,10 @@ void TestDriver<TYPE>::testCase2()
     //   periodically that the expected number of Elements are in existence.
     //
     // Testing:
-    //   pushBack()
-    //   tryPopFront(&item)
-    //   tryPopFront(&item, &priority)
-    //   popFront(&item)
-    //   popFront(&item, &priority)
+    //   pushBack(const TYPE&, int)
+    //   pushBack(TYPE&&, int)
+    //   tryPopFront(&item, &priority = 0)
+    //   popFront(&item, &priority = 0)
     //   length()
     //   isEmpty()
     // ------------------------------------------------------------------------
@@ -325,7 +287,7 @@ void TestDriver<TYPE>::testCase2()
 
         minAllocs += s_allocType;
         soFarAllocs = ta.numAllocations() - startAllocs;
-        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+        ASSERTV(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
 
         ASSERT(X.length() == ii);
         if (ii & 1){
@@ -341,12 +303,12 @@ void TestDriver<TYPE>::testCase2()
                                           ? MoveState::e_MOVED
                                           : MoveState::e_NOT_MOVED)
                                        : MoveState::e_UNKNOWN;
-        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedFrom(val),
+        ASSERTV(ii, expMoved, bsltf::getMovedFrom(val),
                                          expMoved == bsltf::getMovedFrom(val));
 
         minAllocs += (s_allocType && !(s_typeIsMoveEnabled && (ii & 1)));
         soFarAllocs = ta.numAllocations() - startAllocs;
-        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs >= minAllocs);
+        ASSERTV(ii, soFarAllocs, minAllocs, soFarAllocs >= minAllocs);
         tie |= soFarAllocs == minAllocs;
 
         val.~TYPE();
@@ -386,12 +348,12 @@ void TestDriver<TYPE>::testCase2()
         const MoveState::Enum expMoved = s_typeIsMoveEnabled
                                        ? MoveState::e_MOVED
                                        : MoveState::e_UNKNOWN;
-        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedInto(e),
+        ASSERTV(ii, expMoved, bsltf::getMovedInto(e),
                                            expMoved == bsltf::getMovedInto(e));
 
         minAllocs += (s_allocType && !s_typeIsMoveEnabled);
         soFarAllocs = ta.numAllocations() - startAllocs;
-        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+        ASSERTV(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
 
         if (veryVeryVerbose) {
             cout << e << endl;
@@ -431,11 +393,11 @@ void TestDriver<TYPE>::testCase2()
                                           ? MoveState::e_MOVED
                                           : MoveState::e_NOT_MOVED)
                                        : MoveState::e_UNKNOWN;
-        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedFrom(val),
+        ASSERTV(ii, expMoved, bsltf::getMovedFrom(val),
                                          expMoved == bsltf::getMovedFrom(val));
 
         soFarAllocs = ta.numAllocations() - startAllocs;
-        LOOP2_ASSERT(ii, soFarAllocs, soFarAllocs >= int(s_allocType));
+        ASSERTV(ii, soFarAllocs, soFarAllocs >= int(s_allocType));
         tie |= soFarAllocs == int(s_allocType);
 
         val.~TYPE();
@@ -500,7 +462,7 @@ void TestDriver<TYPE>::testCase2()
 
             minAllocs += int(s_allocType);
             soFarAllocs = ta.numAllocations() - startAllocs;
-            LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+            ASSERTV(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
 
             if (ii & 1){
                 mX.pushBack(MoveUtil::move(val), jj / 3);
@@ -515,12 +477,12 @@ void TestDriver<TYPE>::testCase2()
                                               ? MoveState::e_MOVED
                                               : MoveState::e_NOT_MOVED)
                                            : MoveState::e_UNKNOWN;
-            LOOP3_ASSERT(ii, expMoved, bsltf::getMovedFrom(val),
+            ASSERTV(ii, expMoved, bsltf::getMovedFrom(val),
                                          expMoved == bsltf::getMovedFrom(val));
 
             minAllocs += (s_allocType && !(s_typeIsMoveEnabled && (ii & 1)));
             soFarAllocs = ta.numAllocations() - startAllocs;
-            LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs >= minAllocs);
+            ASSERTV(ii, soFarAllocs, minAllocs, soFarAllocs >= minAllocs);
             tie |= soFarAllocs == minAllocs;
 
             val.~TYPE();
@@ -561,12 +523,12 @@ void TestDriver<TYPE>::testCase2()
         const MoveState::Enum expMoved = s_typeIsMoveEnabled
                                        ? MoveState::e_MOVED
                                        : MoveState::e_UNKNOWN;
-        LOOP3_ASSERT(ii, expMoved, bsltf::getMovedInto(e),
+        ASSERTV(ii, expMoved, bsltf::getMovedInto(e),
                                            expMoved == bsltf::getMovedInto(e));
 
         minAllocs += (s_allocType && !s_typeIsMoveEnabled);
         soFarAllocs = ta.numAllocations() - startAllocs;
-        LOOP3_ASSERT(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
+        ASSERTV(ii, soFarAllocs, minAllocs, soFarAllocs == minAllocs);
 
         if (veryVeryVerbose) {
             cout << e << endl;
@@ -941,10 +903,10 @@ struct Thrower {
 
   public:
     Thrower(double value,
-            bool throwOnCopy,
-            bool throwOnMoveConstruct,
-            bool throwOnAssign,
-            bool throwOnMoveAssign);
+            bool   throwOnCopy,
+            bool   throwOnMoveConstruct,
+            bool   throwOnAssign,
+            bool   throwOnMoveAssign);
     Thrower(const Thrower& original);
     Thrower(bslmf::MovableRef<Thrower> original);
     Thrower& operator=(const Thrower& rhs);
@@ -952,10 +914,10 @@ struct Thrower {
 };
 
 Thrower::Thrower(double value,
-                 bool throwOnCopy,
-                 bool throwOnMoveConstruct,
-                 bool throwOnAssign,
-                 bool throwOnMoveAssign)
+                 bool   throwOnCopy,
+                 bool   throwOnMoveConstruct,
+                 bool   throwOnAssign,
+                 bool   throwOnMoveAssign)
 : d_value(value)
 , d_throwOnCopy(throwOnCopy)
 , d_throwOnMoveConstruct(throwOnMoveConstruct)
@@ -1067,10 +1029,11 @@ struct ProducerThread {
         }
 
         if (veryVerbose) {
+            OUTPUT_GUARD;
             double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
                                                                testStartedTime;
-            COUT << "Producer finishing after " << doneTime << " seconds" <<
-                                                                        ENDL;
+            cout << "Producer finishing after " << doneTime << " seconds" <<
+                                                                        endl;
         }
 
         return 0;
@@ -1136,9 +1099,10 @@ struct ConsumerThread {
         }
 
         if (veryVerbose) {
+            OUTPUT_GUARD;
             double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
                                                                testStartedTime;
-            COUT << "Consumer done after " << doneTime << " seconds" << ENDL;
+            cout << "Consumer done after " << doneTime << " seconds" << endl;
         }
 
         return 0;
@@ -1181,10 +1145,11 @@ struct ProducerThread {
         }
 
         if (veryVerbose) {
+            OUTPUT_GUARD;
             double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
                                                                testStartedTime;
-            COUT << "Producer finishing after " << doneTime << " seconds" <<
-                                                                        ENDL;
+            cout << "Producer finishing after " << doneTime << " seconds" <<
+                                                                          endl;
         }
 
         return 0;
@@ -1245,9 +1210,10 @@ struct ConsumerThread {
         }
 
         if (veryVerbose) {
+            OUTPUT_GUARD;
             double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
                                                                testStartedTime;
-            COUT << "Consumer done after " << doneTime << " seconds" << ENDL;
+            cout << "Consumer done after " << doneTime << " seconds" << endl;
         }
 
         return 0;
@@ -1760,10 +1726,10 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(1 == X.length());
-            LOOP_ASSERT(Element::s_allocCount,
+            ASSERTV(Element::s_allocCount,
                             9 == Element::s_allocCount);     // verify no leaks
             mX.removeAll();
-            LOOP_ASSERT(Element::s_allocCount,
+            ASSERTV(Element::s_allocCount,
                             8 == Element::s_allocCount);     // verify no leaks
 
             ta.deleteObjectRaw(pMX);
@@ -1825,7 +1791,7 @@ int main(int argc, char *argv[])
 
         bslma::DefaultAllocatorGuard guard(&taDefault);
 
-        LOOP_ASSERT(taDefault.numBytesMax(), 0 == taDefault.numBytesMax());
+        ASSERTV(taDefault.numBytesMax(), 0 == taDefault.numBytesMax());
 
         for (int construct = 0; 2 > construct; ++construct) {
             {
@@ -1839,7 +1805,7 @@ int main(int argc, char *argv[])
                 }
                 Sobj& mX = *pMX;   const Sobj& X = *pMX;
 
-                LOOP_ASSERT(taDefault.numBytesInUse(),
+                ASSERTV(taDefault.numBytesInUse(),
                             0 == taDefault.numBytesInUse());
 
                 const bsl::string woof("woof", &taString);
@@ -1856,7 +1822,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
                 ASSERT(0 < ta.numBytesInUse());
-                LOOP_ASSERT(taDefault.numBytesInUse(),
+                ASSERTV(taDefault.numBytesInUse(),
                             0 == taDefault.numBytesInUse());
 
                 for (int i = 0; 3 > i; ++i) {
@@ -1872,25 +1838,25 @@ int main(int argc, char *argv[])
                 ASSERT(14 == X.length());
 
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
-                LOOP_ASSERT(taDefault.numBytesInUse(),
+                ASSERTV(taDefault.numBytesInUse(),
                             0 == taDefault.numBytesInUse());
 
                 mX.removeAll();
                 ASSERT(0 == X.length());
 
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
-                LOOP_ASSERT(taDefault.numBytesInUse(),
+                ASSERTV(taDefault.numBytesInUse(),
                             0 == taDefault.numBytesInUse());
 
                 ta.deleteObjectRaw(pMX);
 
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
-                LOOP_ASSERT(taDefault.numBytesInUse(),
+                ASSERTV(taDefault.numBytesInUse(),
                             0 == taDefault.numBytesInUse());
-                LOOP_ASSERT(ta.numBytesInUse(), 0 == ta.numBytesInUse());
+                ASSERTV(ta.numBytesInUse(), 0 == ta.numBytesInUse());
             }
 
-            LOOP_ASSERT(taString.numBytesInUse(),
+            ASSERTV(taString.numBytesInUse(),
                         0 == taString.numBytesInUse());
         }  // for construct
       }  break;
@@ -1966,14 +1932,16 @@ int main(int argc, char *argv[])
         consumerGroup.addThreads(consumer, k_NUM_CONSUMERS);
 
         if (veryVerbose) {
-            COUT << "Consumers spawned" << ENDL;
+            OUTPUT_GUARD;
+            cout << "Consumers spawned" << endl;
         }
 
         bslmt::ThreadGroup producerGroup;
         producerGroup.addThreads(producer, k_NUM_PRODUCERS);
 
         if (veryVerbose) {
-            COUT << "Producers spawned" << ENDL;
+            OUTPUT_GUARD;
+            cout << "Producers spawned" << endl;
         }
 
         consumerBarrier.wait();
@@ -1990,9 +1958,10 @@ int main(int argc, char *argv[])
         producerGroup.joinAll();
 
         if (veryVerbose) {
-            COUT << "Producers joined after " <<
+            OUTPUT_GUARD;
+            cout << "Producers joined after " <<
                 bdlt::CurrentTime::now().totalSecondsAsDouble() -
-                                             testStartedTime << " sec" << ENDL;
+                                             testStartedTime << " sec" << endl;
         }
 
         for (int i = 0; k_NUM_CONSUMERS > i; ++i) {
@@ -2002,12 +1971,13 @@ int main(int argc, char *argv[])
         consumerGroup.joinAll();
 
         if (veryVerbose) {
-            COUT << "Consumers joined after " <<
+            OUTPUT_GUARD;
+            cout << "Consumers joined after " <<
                 bdlt::CurrentTime::now().totalSecondsAsDouble() -
-                                             testStartedTime << " sec" << ENDL;
+                                             testStartedTime << " sec" << endl;
         }
 
-        LOOP_ASSERT(X.length(), 0 == X.length());
+        ASSERTV(X.length(), 0 == X.length());
         ASSERT(0 == Element::s_allocCount);
 
         int priorityCounts[k_NUM_PRIORITIES];
@@ -2146,14 +2116,16 @@ int main(int argc, char *argv[])
         consumerGroup.addThreads(consumer, k_NUM_CONSUMERS);
 
         if (veryVerbose) {
-            COUT << "Consumers spawned" << ENDL;
+            OUTPUT_GUARD;
+            cout << "Consumers spawned" << endl;
         }
 
         bslmt::ThreadGroup producerGroup;
         producerGroup.addThreads(producer, k_NUM_PRODUCERS);
 
         if (veryVerbose) {
-            COUT << "Producers spawned" << ENDL;
+            OUTPUT_GUARD;
+            cout << "Producers spawned" << endl;
         }
 
         consumerBarrier.wait();
@@ -2170,9 +2142,10 @@ int main(int argc, char *argv[])
         producerGroup.joinAll();
 
         if (veryVerbose) {
-            COUT << "Producers joined after " <<
+            OUTPUT_GUARD;
+            cout << "Producers joined after " <<
                 bdlt::CurrentTime::now().totalSecondsAsDouble() -
-                                             testStartedTime << " sec" << ENDL;
+                                             testStartedTime << " sec" << endl;
         }
 
         for (int i = 0; k_NUM_CONSUMERS > i; ++i) {
@@ -2182,15 +2155,15 @@ int main(int argc, char *argv[])
         consumerGroup.joinAll();
 
         if (veryVerbose) {
-            COUT << "Consumers joined after " <<
+            cout << "Consumers joined after " <<
                 bdlt::CurrentTime::now().totalSecondsAsDouble() -
                     testStartedTime << " sec, " << outPairVecIdx << " items" <<
-                                                                        ENDL;
+                                                                          endl;
         }
 
         ASSERT(k_NUM_PRODUCERS * numItemsPerProducer == outPairVecIdx);
 
-        LOOP_ASSERT(X.length(), 0 == X.length());
+        ASSERTV(X.length(), 0 == X.length());
 
         if (veryVerbose) {
             double averages[k_NUM_PRIORITIES];
@@ -2221,7 +2194,7 @@ int main(int argc, char *argv[])
         int outOfOrder = 0;
         for (int i = 0; outPairVecIdx > i; ++i) {
             if (outPairVec[i].d_priority != lastPriority) {
-                LOOP3_ASSERT(lastPriority, i, outPairVec[i].d_priority,
+                ASSERTV(lastPriority, i, outPairVec[i].d_priority,
                                  lastPriority == outPairVec[i].d_priority - 1);
                 lastPriority = outPairVec[i].d_priority;
                 lastValue = -1;
@@ -2241,7 +2214,7 @@ int main(int argc, char *argv[])
         bsl::sort(outPairVec, outPairVec + outPairVecIdx, valueLess);
         lastValue = -1;
         for (int i = 0; outPairVecIdx > i; ++i) {
-            LOOP3_ASSERT(i, outPairVec[i].d_value, lastValue,
+            ASSERTV(i, outPairVec[i].d_value, lastValue,
                                        outPairVec[i].d_value == 1 + lastValue);
             lastValue = outPairVec[i].d_value;
         }
@@ -2588,7 +2561,7 @@ int main(int argc, char *argv[])
       }  break;
       case 3: {
         // --------------------------------------------------------------------
-        // TEST ELIMINATATED
+        // TEST ELIMINATED
         //
         // Concerns:
         //: 1 The testing of this case has been incorporated into TC 2.
@@ -2623,11 +2596,10 @@ int main(int argc, char *argv[])
         //   number of Elements are in existence.
         //
         // Testing:
-        //   pushBack()
-        //   tryPopFront(&item)
-        //   tryPopFront(&item, &priority)
-        //   popFront(&item)
-        //   popFront(&item, &priority)
+        //   pushBack(const TYPE&, int)
+        //   pushBack(TYPE&&, int)
+        //   tryPopFront(&item, &priority = 0)
+        //   popFront(&item, &priority = 0)
         //   length()
         //   isEmpty()
         // --------------------------------------------------------------------
