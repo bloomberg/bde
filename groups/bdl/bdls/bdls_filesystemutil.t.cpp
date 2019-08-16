@@ -1127,7 +1127,8 @@ int main(int argc, char *argv[])
             if ((verbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode)
                                                           || veryVeryVerbose) {
                 cout.flush(); fflush(stdout);
-                printf("Temp file permissions 0%o\n", info.st_mode);
+                printf("Temp file permissions 0%o\n",
+                                          static_cast<unsigned>(info.st_mode));
                 fflush(stdout);
             }
 #endif
@@ -1201,7 +1202,8 @@ int main(int argc, char *argv[])
             if ((verbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode)
                                                           || veryVeryVerbose) {
                 cout.flush(); fflush(stdout);
-                printf("Temp file permissions 0%o\n", info.st_mode);
+                printf("Temp file permissions 0%o\n",
+                                          static_cast<unsigned>(info.st_mode));
                 fflush(stdout);
             }
 #endif
