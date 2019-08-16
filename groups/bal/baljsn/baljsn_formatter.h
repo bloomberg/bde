@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // baljsn::Formatter: JSON formatter
 //
-//@SEE_ALSO: baljsn_encoder, baljsn_printutil
+//@SEE_ALSO: baljsn_encoder, baljsn_printutil, baljsn_simpleformatter
 //
 //@DESCRIPTION: This component provides a class, 'baljsn::Formatter', for
 // formatting JSON objects, arrays, and name-value pairs in the JSON encoding
@@ -331,7 +331,6 @@ class Formatter {
         // characters designating an array element separator (i.e., ',').  The
         // behavior is undefined unless this 'Formatter' is currently
         // formatting a member.
-
 };
 
 // ============================================================================

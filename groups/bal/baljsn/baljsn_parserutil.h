@@ -172,13 +172,14 @@ int ParserUtil::getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data)
     }
 
     bsls::Types::Uint64 tmp;
+
     int rc = getUint64(&tmp, data);
     if (rc) {
         return -1;                                                    // RETURN
     }
 
     if (tmp >
-          static_cast<bsls::Types::Uint64>(bsl::numeric_limits<TYPE>::max())) {
+        static_cast<bsls::Types::Uint64>((bsl::numeric_limits<TYPE>::max)())) {
         return -1;                                                    // RETURN
     }
 
@@ -203,13 +204,14 @@ int ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
     }
 
     bsls::Types::Uint64 tmp;
+
     const int rc = getUint64(&tmp, data);
     if (rc) {
         return -1;                                                    // RETURN
     }
 
-    bsls::Types::Uint64 maxValue = static_cast<bsls::Types::Uint64>(
-                                             bsl::numeric_limits<TYPE>::max());
+    bsls::Types::Uint64 maxValue =
+        static_cast<bsls::Types::Uint64>((bsl::numeric_limits<TYPE>::max)());
 
     if (isNegative && tmp <= maxValue + 1) {
         *value = static_cast<TYPE>(tmp * -1);
@@ -249,8 +251,7 @@ inline
 int ParserUtil::getValue(char *value, bslstl::StringRef data)
 {
     signed char tmp;  // Note that 'char' is unsigned on IBM.
-
-    const int rc = getIntegralValue(&tmp, data);
+    const int   rc = getIntegralValue(&tmp, data);
     if (!rc) {
         *value = tmp;
     }
@@ -308,7 +309,7 @@ int ParserUtil::getValue(bsls::Types::Uint64 *value, bslstl::StringRef data)
 inline
 int ParserUtil::getValue(float *value, bslstl::StringRef data)
 {
-    double tmp;
+    double    tmp;
     const int rc = getValue(&tmp, data);
     if (!rc) {
         *value = static_cast<float>(tmp);

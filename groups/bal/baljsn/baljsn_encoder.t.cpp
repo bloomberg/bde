@@ -30157,10 +30157,10 @@ void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
     // Print to stdout the length and the characters that are difference in the
     // specified 'lhs' and 'rhs' strings.
 {
-    const int len1 = lhs.size();
-    const int len2 = rhs.size();
+    const bsl::size_t len1 = lhs.size();
+    const bsl::size_t len2 = rhs.size();
     P(len1) P(len2)
-    for (int i = 0; i < len1; ++i) {
+    for (bsl::size_t i = 0; i < len1; ++i) {
         if (lhs[i] != rhs[i]) {
             P(i)
             cout << '\'' << lhs[i] << '\'' << endl;
@@ -30289,6 +30289,7 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
+    (void)XML_SCHEMA;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

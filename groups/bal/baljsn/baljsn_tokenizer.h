@@ -152,23 +152,24 @@ class Tokenizer {
     enum TokenType {
         // This 'enum' lists all the possible token types.
 
-        e_BEGIN = 1,                  // starting token
-        e_ELEMENT_NAME,               // element name
-        e_START_OBJECT,               // start of an object ('{')
-        e_END_OBJECT,                 // end of an object   ('}')
-        e_START_ARRAY,                // start of an array  ('[')
-        e_END_ARRAY,                  // end of an array    (']')
-        e_ELEMENT_VALUE,              // element value of a simple type
-        e_ERROR                       // error token
+        e_BEGIN = 1,      // starting token
+        e_ELEMENT_NAME,   // element name
+        e_START_OBJECT,   // start of an object ('{')
+        e_END_OBJECT,     // end of an object   ('}')
+        e_START_ARRAY,    // start of an array  ('[')
+        e_END_ARRAY,      // end of an array    (']')
+        e_ELEMENT_VALUE,  // element value of a simple type
+        e_ERROR           // error token
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEJSN_BEGIN = e_BEGIN
-      , BAEJSN_ELEMENT_NAME = e_ELEMENT_NAME
-      , BAEJSN_START_OBJECT = e_START_OBJECT
-      , BAEJSN_END_OBJECT = e_END_OBJECT
-      , BAEJSN_START_ARRAY = e_START_ARRAY
-      , BAEJSN_END_ARRAY = e_END_ARRAY
-      , BAEJSN_ELEMENT_VALUE = e_ELEMENT_VALUE
-      , BAEJSN_ERROR = e_ERROR
+        ,
+        BAEJSN_BEGIN         = e_BEGIN,
+        BAEJSN_ELEMENT_NAME  = e_ELEMENT_NAME,
+        BAEJSN_START_OBJECT  = e_START_OBJECT,
+        BAEJSN_END_OBJECT    = e_END_OBJECT,
+        BAEJSN_START_ARRAY   = e_START_ARRAY,
+        BAEJSN_END_ARRAY     = e_END_ARRAY,
+        BAEJSN_ELEMENT_VALUE = e_ELEMENT_VALUE,
+        BAEJSN_ERROR         = e_ERROR
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -464,8 +465,6 @@ bool Tokenizer::allowHeterogenousArrays() const
 {
     return d_allowHeterogenousArrays;
 }
-
-
 
 }  // close package namespace
 

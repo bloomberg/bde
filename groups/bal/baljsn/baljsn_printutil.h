@@ -88,6 +88,7 @@ BSLS_IDENT("$Id: $")
 #include <bdldfp_decimalutil.h>
 
 #include <bdlt_iso8601util.h>
+#include <bdlt_datetimeinterval.h>
 
 #include <bsls_types.h>
 
@@ -185,9 +186,9 @@ struct PrintUtil {
     static int printValue(bsl::ostream&         stream,
                           const char           *value,
                           const EncoderOptions *options = 0);
-    static int printValue(bsl::ostream&         stream,
-                          const bsl::string&    value,
-                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&             stream,
+                          const bslstl::StringRef&  value,
+                          const EncoderOptions     *options = 0);
     static int printValue(bsl::ostream&         stream,
                           const bdlt::Time&     value,
                           const EncoderOptions *options = 0);
@@ -197,6 +198,9 @@ struct PrintUtil {
     static int printValue(bsl::ostream&          stream,
                           const bdlt::Datetime&  value,
                           const EncoderOptions  *options = 0);
+    static int printValue(bsl::ostream&                  stream,
+                          const bdlt::DatetimeInterval&  value,
+                          const EncoderOptions          *options = 0);
     static int printValue(bsl::ostream&         stream,
                           const bdlt::TimeTz&   value,
                           const EncoderOptions *options = 0);
@@ -207,8 +211,8 @@ struct PrintUtil {
                           const bdlt::DatetimeTz&  value,
                           const EncoderOptions    *options = 0);
         // Encode the specified 'value' into JSON format and output the result
-        // to the specified 'stream' using the specified 'options'.  Return 0
-        // on success and a non-zero value otherwise.
+        // to the specified 'stream' using the optionally specified 'options'.
+        // Return 0 on success and a non-zero value otherwise.
 };
 
 // ============================================================================
@@ -247,7 +251,7 @@ int PrintUtil::printDateAndTime(bsl::ostream&         stream,
                                 const TYPE&           value,
                                 const EncoderOptions *options)
 {
-    char buffer[bdlt::Iso8601Util::k_MAX_STRLEN + 1];
+    char                           buffer[bdlt::Iso8601Util::k_MAX_STRLEN + 1];
     bdlt::Iso8601UtilConfiguration config;
 
     if (options) {
@@ -294,15 +298,15 @@ int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
         }
       } break;
       default: {
-        const int SIZE = 32;
-        char      buffer[SIZE];
+        const int k_SIZE = 32;
+        char      buffer[k_SIZE];
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
         const int len = snprintf(buffer,
-                                 SIZE,
+                                 k_SIZE,
                                  "%-1.*g",
                                  maxStreamPrecision<TYPE>(options),
                                  value);
@@ -405,51 +409,6 @@ int PrintUtil::printValue(bsl::ostream&         stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&         stream,
-                          bdldfp::Decimal64     value,
-                          const EncoderOptions *options)
-{
-    switch (bdldfp::DecimalUtil::classify(value)) {
-      case FP_INFINITE: {
-        if (options && options->encodeInfAndNaNAsStrings()) {
-            stream <<
-                  (value == bsl::numeric_limits<bdldfp::Decimal64>::infinity()
-                  ? "\"+inf\""
-                  : "\"-inf\"");
-        }
-        else {
-            return -1;                                                // RETURN
-        }
-      } break;
-      case FP_NAN: {
-        if (options && options->encodeInfAndNaNAsStrings()) {
-            stream << (bdlb::Float::signBit(
-                            bdldfp::DecimalConvertUtil::decimalToDouble(value))
-                      ? "\"-nan\""
-                      : "\"nan\"");
-        }
-        else {
-            return -1;                                                // RETURN
-        }
-      } break;
-      default: {
-        if (options && options->encodeQuotedDecimal64()) {
-            stream.put('"');
-            stream << value;
-            stream.put('"');
-        }
-        else {
-            stream << value;
-        }
-        if (stream.bad()) {
-            return -1;                                                // RETURN
-        }
-      }
-    }
-    return 0;
-}
-
-inline
 int PrintUtil::printValue(bsl::ostream&  stream,
                           const char    *value,
                           const EncoderOptions *)
@@ -478,9 +437,9 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&      stream,
-                          const bsl::string& value,
-                          const EncoderOptions *)
+int PrintUtil::printValue(bsl::ostream&             stream,
+                          const bslstl::StringRef&  value,
+                          const EncoderOptions     *)
 {
     return printString(stream, value);
 }
@@ -507,6 +466,15 @@ int PrintUtil::printValue(bsl::ostream&          stream,
                           const EncoderOptions  *options)
 {
     return printDateAndTime(stream, value, options);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&                  stream,
+                          const bdlt::DatetimeInterval&  value,
+                          const EncoderOptions          *)
+{
+    stream << '"' << value << '"';
+    return 0;
 }
 
 inline
