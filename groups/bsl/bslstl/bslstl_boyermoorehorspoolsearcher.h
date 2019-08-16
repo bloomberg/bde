@@ -430,6 +430,7 @@ BSLS_IDENT("$Id: $")
 //  : d_map(basicAllocator)
 //  {
 //  }
+//..
 //
 // Notice that 'basicAllocator' is simply forwarded to 'd_map'.
 //
