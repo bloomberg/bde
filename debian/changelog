@@ -1,12 +1,30 @@
-bsl-internal (3.36.0.0) unstable; urgency=low
+bsl-internal (3.37.0.0) unstable; urgency=low
 
+  * 2661ad7a1 Merge pull request #2450 from bchapman/bdlmt_signaler-guard-noncopyable-drqs-146237713
+  * 40905f7f4 Merge pull request #2010 from bchapman/bsltf_streamutil-drqs-125550454
+  * bdcb97569 Bump version to 3.37.0.0
+  * 57aa62a7e Merge pull request #2455 from hsims/win32-sleepuntil
+  * 3e711d57e Merge pull request #2456 from sbreitst/searchers-drqs-142948762.3
+  * 48c93e6d9 Merge pull request #2443 from nburgers/W0010-RB-ber-options-DRQS-141436950
+  * 7bc1c7b3e Merge pull request #2453 from mgiroux/make-baljsn_tokenizer-more-stateful-drqs146756621
+  * 6d14dfd0b Merge pull request #2440 from ddragan/bdlmt_signaler_use_nothrowmovable_trait
+  * 8f709fc51 Merge pull request #2441 from ddragan/bslmf_util_moveifpossible
+  * 34c7c2d32 Merge pull request #2451 from jmendelsohn4/drqs-146224969/bdlb_bitutil-add-msvc-intrinsics
+  * bdcc7187d Merge pull request #2449 from bchapman/balst-doc-balst-txt-performance-drqs-145270921
+  * 418c92425 Merge pull request #2447 from oimanuel/fix_race_throughputbenchmark-drqs-146586504
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 16 Aug 2019 13:17:34 -0400
+
+bsl-internal (3.36.0.0) git; urgency=low
+
+  * 12649099c Changelog for version 3.36.0.0
   * e02b4b412 Bump version to 3.36.0.0
   * 72cd5f24f Merge pull request #2442 from nburgers/190801-balm-guts-DRQS-129738973
   * 16ad2a3f4 Merge pull request #2437 from bchapman/bdlcc_deque-move-semantics-drqs-127610388
   * 962decb27 Merge pull request #2428 from bchapman/bdlbb_simpleblobbufferfactory-create-drqs-119033124
   * 7c152ae49 Merge pull request #2408 from bchapman/bslmt_threadutil-win-threadname-drqs-141907108
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 4 Aug 2019 08:29:51 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 4 Aug 2019 08:31:14 -0400
 
 bsl-internal (3.35.0.0) git; urgency=low
 
