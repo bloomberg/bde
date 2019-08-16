@@ -16,9 +16,7 @@
 #include <bslalg_typetraitbitwisemoveable.h>
 #include <bslalg_typetraithasstliterators.h>
 
-#include <bsltf_alloctesttype.h>
-#include <bsltf_movablealloctesttype.h>
-#include <bsltf_templatetestfacility.h>
+#include <bsltf_streamutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>

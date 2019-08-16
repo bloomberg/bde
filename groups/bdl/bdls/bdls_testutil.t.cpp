@@ -6,6 +6,9 @@
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
+#include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
+
 #include <fcntl.h>
 #include <limits.h>     // PATH_MAX on linux
 #include <stdio.h>
@@ -326,7 +329,8 @@ typedef struct stat StatType;
 typedef struct stat64 StatType;
 #endif
 
-inline int fstatFunc(int fd, StatType *buf)
+inline
+int fstatFunc(int fd, StatType *buf)
 {
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     return fstat(fd, buf);

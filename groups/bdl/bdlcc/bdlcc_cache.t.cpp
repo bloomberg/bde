@@ -22,6 +22,7 @@
 #include <bslmf_issame.h>
 
 #include <bsltf_movestate.h>
+#include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 

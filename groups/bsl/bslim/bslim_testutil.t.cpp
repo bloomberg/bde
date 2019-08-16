@@ -78,8 +78,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 7] bool compareText(StringRef, StringRef, bsl::ostream&);
-// [ 9] void *callFunc(void *arg);
-// [ 9] void setFunc(Func func);
+// [ 8] void *callFunc(void *arg);
+// [ 8] void setFunc(Func func);
 //
 // MACROS
 // [ 6] BSLIM_TESTUTIL_ASSERT(X)
@@ -95,25 +95,8 @@ using namespace BloombergLP;
 // [ 4] BSLIM_TESTUTIL_P_(X)
 // [ 3] BSLIM_TESTUTIL_L_
 // [ 3] BSLIM_TESTUTIL_T_
-//
-// FREE OPERATORS
-// [ 8] ostream& operator<<(str, const AllocBitwiseMoveableTestType&);
-// [ 8] ostream& operator<<(str, const AllocTestType&);
-// [ 8] ostream& operator<<(str, const BitwiseCopyableTestType&);
-// [ 8] ostream& operator<<(str, const BitwiseMoveableTestType&);
-// [ 8] ostream& operator<<(str, const EnumeratedTestType::Enum&);
-// [ 8] ostream& operator<<(str, const MovableAllocTestType&);
-// [ 8] ostream& operator<<(str, const MovableTestType&);
-// [ 8] ostream& operator<<(str, const MoveOnlyAllocTestType&);
-// [ 8] ostream& operator<<(str, const NonAssignableTestType&);
-// [ 8] ostream& operator<<(str, const NonCopyConstructibleTestType&);
-// [ 8] ostream& operator<<(str, const NonDefaultConstructibleTestType&);
-// [ 8] ostream& operator<<(str, const NonEqualComparableTestType&);
-// [ 8] ostream& operator<<(str, const NonTypicalOverloadsTestType&);
-// [ 8] ostream& operator<<(str, const SimpleTestType&);
-// [ 8] ostream& operator<<(str, const UnionTestType&);
 //-----------------------------------------------------------------------------
-// [10] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS
 
@@ -850,7 +833,7 @@ int main(int argc, char *argv[])
     bsl::cerr << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -873,29 +856,8 @@ int main(int argc, char *argv[])
                                << "=============" << bsl::endl;
 
         testFortyTwo(verbose);
-
-///Example 2: Print The Value of A Test Type
-///- - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to print the value of an object of a test type defined the
-// 'bsltf' package using 'bsl::cout'.  This component supplies the necessary
-// overloads of the insertion operator for this to be done directly.
-//
-// First, include the header of this component:
-//..
-//  #include <bslim_testutil.h>
-//..
-// Now, we construct a 'bsltf::SimpleTestType' object and stream its value to
-// 'bsl::cout' using the '<<' operator:
-//..
-    bsltf::SimpleTestType a(10);
-    bsl::cout << a;
-//..
-// Finally, we observe the following console output:
-//..
-//  10
-//..
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'callFunc' AND 'setFunc' METHODS
         //
@@ -950,145 +912,6 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == callCount);
         ASSERT(&refValue == result);
-      } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // OUTPUT ('<<') OPERATORS
-        //
-        // Concerns:
-        //: 1 The output operator correctly streams the value of an object of
-        //:   any test type in the 'bsltf' package into a specified stream.
-        //
-        // Plan:
-        //: 1 For each 'bsltf' test type, create an object of such a type
-        //:   having a unique value and stream its value into a
-        //:   'bsl::ostringstream'.  Verify that the string output to the
-        //:   stream has the expected value.  (C-1)
-        //
-        // Testing:
-        //   ostream& operator<<(str, const AllocBitwiseMoveableTestType&);
-        //   ostream& operator<<(str, const AllocTestType&);
-        //   ostream& operator<<(str, const BitwiseCopyableTestType&);
-        //   ostream& operator<<(str, const BitwiseMoveableTestType&);
-        //   ostream& operator<<(str, const EnumeratedTestType::Enum&);
-        //   ostream& operator<<(str, const MovableAllocTestType&);
-        //   ostream& operator<<(str, const MovableTestType&);
-        //   ostream& operator<<(str, const MoveOnlyAllocTestType&);
-        //   ostream& operator<<(str, const NonAssignableTestType&);
-        //   ostream& operator<<(str, const NonCopyConstructibleTestType&);
-        //   ostream& operator<<(str, const NonDefaultConstructibleTestType&);
-        //   ostream& operator<<(str, const NonEqualComparableTestType&);
-        //   ostream& operator<<(str, const NonTypicalOverloadsTestType&);
-        //   ostream& operator<<(str, const SimpleTestType&);
-        //   ostream& operator<<(str, const UnionTestType&);
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cerr << bsl::endl
-                               << "OUTPUT ('<<') OPERATORS" << bsl::endl
-                               << "=======================" << bsl::endl;
-
-        using namespace BloombergLP::bsltf;
-
-        AllocBitwiseMoveableTestType o1 =
-                 TemplateTestFacility::create<AllocBitwiseMoveableTestType>(1);
-
-        AllocTestType o2 = TemplateTestFacility::create<AllocTestType>(2);
-
-        BitwiseCopyableTestType o3 =
-                      TemplateTestFacility::create<BitwiseCopyableTestType>(3);
-
-        BitwiseMoveableTestType o4 =
-                      TemplateTestFacility::create<BitwiseMoveableTestType>(4);
-
-        EnumeratedTestType::Enum o5 =
-                     TemplateTestFacility::create<EnumeratedTestType::Enum>(5);
-
-        MovableAllocTestType o6 =
-                         TemplateTestFacility::create<MovableAllocTestType>(6);
-
-        MovableTestType o7 = TemplateTestFacility::create<MovableTestType>(7);
-
-        MoveOnlyAllocTestType o8(8);
-
-        NonAssignableTestType o9 =
-                        TemplateTestFacility::create<NonAssignableTestType>(9);
-
-        NonCopyConstructibleTestType o10(10);
-
-        NonDefaultConstructibleTestType o11 =
-             TemplateTestFacility::create<NonDefaultConstructibleTestType>(11);
-
-        NonEqualComparableTestType o12 =
-                  TemplateTestFacility::create<NonEqualComparableTestType>(12);
-
-        NonTypicalOverloadsTestType o13 =
-                 TemplateTestFacility::create<NonTypicalOverloadsTestType>(13);
-
-        SimpleTestType o14 = TemplateTestFacility::create<SimpleTestType>(14);
-
-        UnionTestType o15 = TemplateTestFacility::create<UnionTestType>(15);
-
-        bsl::ostringstream oss;
-
-        oss << o1;
-        ASSERT( "1" == oss.str());
-
-        oss.str("");
-        oss << o2;
-        ASSERT( "2" == oss.str());
-
-        oss.str("");
-        oss << o3;
-        ASSERT( "3" == oss.str());
-
-        oss.str("");
-        oss << o4;
-        ASSERT( "4" == oss.str());
-
-        oss.str("");
-        oss << o5;
-        ASSERT( "5" == oss.str());
-
-        oss.str("");
-        oss << o6;
-        ASSERT( "6" == oss.str());
-
-        oss.str("");
-        oss << o7;
-        ASSERT( "7" == oss.str());
-
-        oss.str("");
-        oss << o8;
-        ASSERT( "8" == oss.str());
-
-        oss.str("");
-        oss << o9;
-        ASSERT( "9" == oss.str());
-
-        oss.str("");
-        oss << o10;
-        ASSERT("10" == oss.str());
-
-        oss.str("");
-        oss << o11;
-        ASSERT("11" == oss.str());
-
-        oss.str("");
-        oss << o12;
-        ASSERT("12" == oss.str());
-
-        oss.str("");
-        oss << o13;
-        ASSERT("13" == oss.str());
-
-        oss.str("");
-        oss << o14;
-        ASSERT("14" == oss.str());
-
-        oss.str("");
-        oss << o15;
-        ASSERT("15" == oss.str());
-
       } break;
       case 7: {
         // --------------------------------------------------------------------

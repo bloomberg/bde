@@ -25,6 +25,7 @@ bsltf_stdalloctesttype
 bsltf_stdallocatoradaptor
 bsltf_stdstatefulallocator
 bsltf_stdtestallocator
+bsltf_streamutil
 bsltf_templatetestfacility
 bsltf_testvaluesarray
 bsltf_uniontesttype

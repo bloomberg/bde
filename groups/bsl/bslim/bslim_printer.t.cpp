@@ -7,6 +7,9 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
+#include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
+
 #include <bsl_cctype.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
@@ -78,6 +81,26 @@ using namespace bslim;
 // [18] void printEndIndentation() const;
 // [18] void printIndentation() const;
 //
+// FREE OPERATORS
+// [19] STR& operator<<(STR&, const AllocBitwiseMoveableTestType&);
+// [19] STR& operator<<(STR&, const AllocTestType&);
+// [19] STR& operator<<(STR&, const BitwiseCopyableTestType&);
+// [19] STR& operator<<(STR&, const BitwiseMoveableTestType&);
+// [19] STR& operator<<(STR&, const EmplacableTestType&);
+// [19] STR& operator<<(STR&, const EnumeratedTestType::Enum&);
+// [19] STR& operator<<(STR&, const TTF::MethodPtr&);
+// [19] STR& operator<<(STR&, const MovableAllocTestType&);
+// [19] STR& operator<<(STR&, const MovableTestType&);
+// [19] STR& operator<<(STR&, const MoveOnlyAllocTestType&);
+// [19] STR& operator<<(STR&, const NonAssignableTestType&);
+// [19] STR& operator<<(STR&, const NonCopyConstructibleTestType&);
+// [19] STR& operator<<(STR&, const NonDefaultConstructibleTestType&);
+// [19] STR& operator<<(STR&, const NonEqualComparableTestType&);
+// [19] STR& operator<<(STR&, const NonOptionalAllocTestType&);
+// [19] STR& operator<<(STR&, const NonTypicalOverloadsTestType&);
+// [19] STR& operator<<(STR&, const SimpleTestType&);
+// [19] STR& operator<<(STR&, const StdAllocTestType&);
+// [19] STR& operator<<(STR&, const UnionTestType&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] HasPrint::print(bsl::ostream&, int, int) const;
@@ -731,8 +754,9 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
+
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 4
         //
@@ -775,7 +799,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << oss.str() << "\n";
         }
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //
@@ -862,7 +886,7 @@ int main(int argc, char *argv[])
 
         LOOP2_ASSERT(EXP, oss.str(), EXP == oss.str());
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -938,7 +962,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
         }
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -975,6 +999,247 @@ int main(int argc, char *argv[])
                               "]\n";
             LOOP_ASSERT(out.str(), EXP == out.str());
         }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // BSLTF OUTPUT ('<<') OPERATORS
+        //
+        // Concerns:
+        //: 1 The output operators defined in 'bsltf_streamutil' work correctly
+        //:   with 'real' bsl ostreams (we could not test this in 'bsltf'
+        //:   because we did not have access to 'real' bsl ostreams at that
+        //:   level).
+        //
+        // Plan:
+        //: 1 For each 'bsltf' test type, create an object of such a type
+        //:   having a unique value and stream its value to 'cout' and into a
+        //:   'bsl::ostringstream'.  Verify that the string output to the
+        //:   stream has the expected value.  (C-1)
+        //
+        // Testing:
+        //   STR& operator<<(STR&, const AllocBitwiseMoveableTestType&);
+        //   STR& operator<<(STR&, const AllocTestType&);
+        //   STR& operator<<(STR&, const BitwiseCopyableTestType&);
+        //   STR& operator<<(STR&, const BitwiseMoveableTestType&);
+        //   STR& operator<<(STR&, const EmplacableTestType&);
+        //   STR& operator<<(STR&, const EnumeratedTestType::Enum&);
+        //   STR& operator<<(STR&, const TTF::MethodPtr&);
+        //   STR& operator<<(STR&, const MovableAllocTestType&);
+        //   STR& operator<<(STR&, const MovableTestType&);
+        //   STR& operator<<(STR&, const MoveOnlyAllocTestType&);
+        //   STR& operator<<(STR&, const NonAssignableTestType&);
+        //   STR& operator<<(STR&, const NonCopyConstructibleTestType&);
+        //   STR& operator<<(STR&, const NonDefaultConstructibleTestType&);
+        //   STR& operator<<(STR&, const NonEqualComparableTestType&);
+        //   STR& operator<<(STR&, const NonOptionalAllocTestType&);
+        //   STR& operator<<(STR&, const NonTypicalOverloadsTestType&);
+        //   STR& operator<<(STR&, const SimpleTestType&);
+        //   STR& operator<<(STR&, const StdAllocTestType&);
+        //   STR& operator<<(STR&, const UnionTestType&);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cerr << "BSLTF OUTPUT ('<<') OPERATORS\n"
+                                  "=============================\n";
+
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+        using namespace BloombergLP::bsltf;
+
+        AllocBitwiseMoveableTestType o1 =
+                 TemplateTestFacility::create<AllocBitwiseMoveableTestType>(1);
+
+#if 0
+        // 'TTF::create<bt::AllocEmplacableTestType>' is commented out
+        // everywhere it is called in bsltf_templatetestfacility.t.cpp and
+        // doesn't compile when I try to build it here.
+
+        AllocEmplacableTestType o2 =
+                      TemplateTestFacility::create<AllocEmplacableTestType>(2);
+#endif
+
+        AllocTestType o3 = TemplateTestFacility::create<AllocTestType>(3);
+
+        BitwiseCopyableTestType o4 =
+                      TemplateTestFacility::create<BitwiseCopyableTestType>(4);
+
+        BitwiseMoveableTestType o5 =
+                      TemplateTestFacility::create<BitwiseMoveableTestType>(5);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        EmplacableTestType o6 =
+                           TemplateTestFacility::create<EmplacableTestType>(6);
+#endif
+
+        EnumeratedTestType::Enum o7 =
+                     TemplateTestFacility::create<EnumeratedTestType::Enum>(7);
+
+        TemplateTestFacility::MethodPtr o8 =
+              TemplateTestFacility::create<TemplateTestFacility::MethodPtr>(8);
+
+        MovableAllocTestType o9 =
+                         TemplateTestFacility::create<MovableAllocTestType>(9);
+
+        MovableTestType o10 =
+                             TemplateTestFacility::create<MovableTestType>(10);
+
+        MoveOnlyAllocTestType o11(11);
+
+        NonAssignableTestType o12 =
+                       TemplateTestFacility::create<NonAssignableTestType>(12);
+
+        NonCopyConstructibleTestType o13(13);
+
+        NonDefaultConstructibleTestType o14 =
+             TemplateTestFacility::create<NonDefaultConstructibleTestType>(14);
+
+        NonEqualComparableTestType o15 =
+                  TemplateTestFacility::create<NonEqualComparableTestType>(15);
+
+        NonOptionalAllocTestType o16(16, &ta);
+
+        NonTypicalOverloadsTestType o17 =
+                 TemplateTestFacility::create<NonTypicalOverloadsTestType>(17);
+
+        SimpleTestType o18 = TemplateTestFacility::create<SimpleTestType>(18);
+
+        StdAllocTestType<bsl::allocator<int> > o19(19);
+
+        UnionTestType o20 = TemplateTestFacility::create<UnionTestType>(20);
+
+        if (veryVerbose) {
+            P_(o1);               P_(o3);    P_(o4);    P_(o5);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            P_(o6);
+#endif
+            P_(o7);    P_(o8);    P_(o9);    P_(o10);   P_(o11);   P(o12);
+            P_(o13);   P_(o14);   P_(o15);   P_(o16);   P_(o17);   P_(o18);
+            P_(o19);   P(o20);
+        }
+
+        bsl::ostringstream oss, *oss_p = 0;
+
+        oss_p = 0;
+        oss_p = &(oss << o1);
+        ASSERT( "1" == oss.str());
+        ASSERT(oss_p == &oss);
+
+#if 0
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o2);
+        ASSERT( "2" == oss.str());
+        ASSERT(oss_p == &oss);
+#endif
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o3);
+        ASSERT( "3" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o4);
+        ASSERT( "4" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o5);
+        ASSERT( "5" == oss.str());
+        ASSERT(oss_p == &oss);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o6);
+        ASSERT( "6" == oss.str());
+        ASSERT(oss_p == &oss);
+#endif
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o7);
+        ASSERT( "7" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o8);
+        ASSERT( "8" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o9);
+        ASSERT( "9" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o10);
+        ASSERT("10" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o11);
+        ASSERT("11" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o12);
+        ASSERT("12" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o13);
+        ASSERT("13" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o14);
+        ASSERT("14" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o15);
+        ASSERT("15" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o16);
+        ASSERT("16" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o17);
+        ASSERT("17" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o18);
+        ASSERT("18" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o19);
+        ASSERT("19" == oss.str());
+        ASSERT(oss_p == &oss);
+
+        oss_p = 0;
+        oss.str("");
+        oss_p = &(oss << o20);
+        ASSERT("20" == oss.str());
+        ASSERT(oss_p == &oss);
       } break;
       case 18: {
         // --------------------------------------------------------------------
