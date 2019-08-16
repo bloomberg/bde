@@ -3403,7 +3403,7 @@ void test_lvalues()
     test_lvaluesSimple();
 }
 
-}  // close namespace test21_signaler
+}  // close namespace test23_signaler
 
 static void test24_destroyGuardAndWait()
     // ------------------------------------------------------------------------
