@@ -530,10 +530,11 @@ int main(int argc, char *argv[])
     // we fork / exec from different directories.
 
     const bsl::string taskAbsolutePath = PS[0] == argv[0][0] ||
-                                                    bsl::strstr(argv[0], ":\\")
+                     bsl::strstr(argv[0], ":\\") ||  bsl::strstr(argv[0], ":/")
                                        ? bsl::string(argv[0])
                                        : origWorkingDirectory + PS + argv[0];
-    LOOP_ASSERT(taskAbsolutePath, Obj::exists(taskAbsolutePath));
+    ASSERTV(origWorkingDirectory, argv[0], taskAbsolutePath,
+                                                Obj::exists(taskAbsolutePath));
 
     bsl::string tmpWorkingDir;
     {

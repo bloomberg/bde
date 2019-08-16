@@ -624,6 +624,9 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
 
 int FilesystemUtil::close(FileDescriptor descriptor)
 {
+    if (k_INVALID_FD == descriptor) {
+        return int(k_BAD_FILE_DESCRIPTOR);                            // RETURN
+    }
 
     if (CloseHandle(descriptor)) {
         return 0;                                                     // RETURN
