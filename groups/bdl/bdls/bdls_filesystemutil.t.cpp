@@ -2722,9 +2722,9 @@ int main(int argc, char *argv[])
         // Concern: Returns proper file size for the following:
         //   1. A normal file.
         //   2. A normal directory (use empty directory).
-        //   3. A file using relative path.
-        //   4. A symbolic link (unix only).
-        //   5. Non existent file.
+        //   3. A symbolic link (unix only).
+        //   4. Non existent file.
+        //   5. A file using relative path.
         //
         // Plan:
         //   Create the respective files listed in concerns and run
@@ -2821,44 +2821,12 @@ int main(int argc, char *argv[])
             Obj::remove(dirName);
         }
 
-        // Concern 3
-
-        {
-            if (veryVerbose) cout << "\n4. Relative Path" << endl;
-
-            string fileName("../getFileSizeTest.txt");
-            Obj::FileDescriptor fd = Obj::open(fileName,
-                                               Obj::e_OPEN_OR_CREATE,
-                                               Obj::e_READ_WRITE);
-            ASSERT(Obj::k_INVALID_FD != fd);
-
-            const char buffer[] = "testing";
-            int bytes           = INT_SIZEOF(buffer);
-
-            Obj::write(fd, buffer, bytes);
-            Obj::close(fd);
-
-            Obj::Offset off = Obj::getFileSize(fileName);
-            ASSERT(bytes == off);
-
-            Obj::Offset off2 = Obj::getFileSize(fileName.c_str());
-            ASSERT(bytes == off2);
-
-            if (veryVerbose) {
-                cout << "Expected " << bytes << endl;
-                cout << "Actual ";
-                P_(off); P(off2)
-            }
-
-            Obj::remove(fileName);
-        }
-
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-        // Concern 4
-        //: No symbolic links on windows.
+        // Concern 3
+        // No symbolic links on windows.
 
         {
-            if (veryVerbose) cout << "\n5. Symbolic Links" << endl;
+            if (veryVerbose) cout << "\n3. Symbolic Links" << endl;
 
             bsl::string cmd = "ln -s " + fileName + " testLink";
             system(cmd.c_str());
@@ -2880,10 +2848,10 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        // Concert 5
+        // Concert 4
 
         {
-            if (veryVerbose) cout << "\n6. Non existent file" << endl;
+            if (veryVerbose) cout << "\n4. Non existent file" << endl;
 
             // Use a random name.
 
@@ -2896,10 +2864,29 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Clean up the tmp file.
+        // Concern 5
 
-        Obj::remove(fileName);
+        {
+            if (veryVerbose) cout << "\n5. Relative Path" << endl;
+            
+            ASSERT(0 == Obj::setWorkingDirectory(".."));
 
+            string relFileName = tmpWorkingDir + PS + fileName;
+
+            Obj::Offset off = Obj::getFileSize(relFileName);
+            ASSERTV(bytes, off, bytes == off);
+
+            Obj::Offset off2 = Obj::getFileSize(relFileName.c_str());
+            ASSERTV(bytes, off2, bytes == off2);
+
+            if (veryVerbose) {
+                cout << "Expected " << bytes << endl;
+                cout << "Actual ";
+                P_(off); P(off2)
+            }
+
+            Obj::remove(relFileName);
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
