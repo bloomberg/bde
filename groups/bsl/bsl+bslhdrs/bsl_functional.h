@@ -114,8 +114,6 @@ namespace bsl {
 #ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #include <bslstp_exfunctional.h>
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
-#include <bslstl_boyermoorehorspoolsearcher.h>
-#include <bslstl_defaultsearcher.h>
 #include <bslstl_equalto.h>
 #include <bslstl_function.h>
 #include <bslstl_hash.h>

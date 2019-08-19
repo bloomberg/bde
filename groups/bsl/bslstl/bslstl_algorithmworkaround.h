@@ -30,7 +30,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>  // iterator tags
-#include <bslstl_pair.h>
 
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
@@ -73,14 +72,6 @@ using native_std::count;
 using native_std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
-
-template<class ForwardIt, class Searcher>
-ForwardIt search( ForwardIt first, ForwardIt last,
-                  const Searcher& searcher )
-{
-    bsl::pair<ForwardIt, ForwardIt> result = searcher(first, last);
-    return result.first;
-}
 
 }  // close namespace bsl
 

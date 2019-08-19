@@ -303,14 +303,6 @@
 #   define INCLUDE_BOS_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
-# ifndef INCLUDED_BSLSTL_BOYERMOOREHORSPOOLSEARCHER
-#   include <bslstl_boyermoorehorspoolsearcher.h>
-#   define INCLUDE_BOS_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-# ifndef INCLUDED_BSLSTL_DEFAULTSEARCHER
-#   include <bslstl_defaultsearcher.h>
-#   define INCLUDE_BOS_STDHDRS_EPILOGUE_RECURSIVE
-# endif
 # ifndef INCLUDED_BSLSTL_EQUALTO
 #   include <bslstl_equalto.h>
 #   define INCLUDE_BOS_STDHDRS_EPILOGUE_RECURSIVE
