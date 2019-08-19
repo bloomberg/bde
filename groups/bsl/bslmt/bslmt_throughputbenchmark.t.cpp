@@ -78,7 +78,7 @@ using namespace bsl;
 // [ 2] int addThreadGroup(runF, numThreads, workAmount);
 // [ 2] int addThreadGroup(runF, numThreads, workAmount, initF, cleanupF);
 // [ 4] void execute(result, millis, numSamples);
-// [ 4] void execute(result, millis, numSamples, initF, cleanupF);
+// [ 4] void execute(result, millis, numSamples, initF, shutF, cleanupF);
 // [ 3] int numThreads() const;
 // [ 3] int numThreadGroups() const;
 // [ 3] int numThreadsInGroup(int threadGroupIndex) const;
@@ -615,8 +615,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT(hiSeconds >  loSeconds);
         BSLS_ASSERT(loSeconds >= 0.1 );
         BSLS_ASSERT(loSeconds <= 1.0 );
-        BSLS_ASSERT(hiSeconds >= 0.5 );
-        BSLS_ASSERT(hiSeconds <= 2.0 );
+        BSLS_ASSERT(hiSeconds >= 0.3 );
+        BSLS_ASSERT(hiSeconds <= 3.0 );
         BSLS_ASSERT(beforeVal != afterVal);
 
         BSLS_ASSERT(defaultAllocator.numAllocations() == allocations);
@@ -643,7 +643,7 @@ int main(int argc, char *argv[])
         //:   <number of threads in that thread group> times.
         //:
         //: 5 If the sample level init and cleanup functions are provided (with
-        //:   the 5-arg 'execute') they are called exactly 'numSamples' times.
+        //:   the 6-arg 'execute') they are called exactly 'numSamples' times.
         //:
         //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -664,14 +664,14 @@ int main(int argc, char *argv[])
         //:
         //: 3 Call method 5-arg 'addThreadGroup' with a counting run function
         //:   and certain number of threads and work amount twice. Then call
-        //:   method 5-arg 'execute'.  Verify:
+        //:   method 6-arg 'execute'.  Verify:
         //:   1 Dimensions of 'result' object.
         //:   2 Count of times run function was called for each of the thread
         //:     groups.
         //:   3 Count of times thread level init and cleanup function were
         //:     called.
-        //:   4 Count of times sample level init and cleanup functions were
-        //:     called.
+        //:   4 Count of times sample level init, shutdown, and cleanup
+        //:     functions were called.
         //:   5 No memory was allocated except on either of the supplied test
         //:     allocators.
         //:   6 During 'execute', only the second supplied test allocator was
@@ -683,7 +683,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void execute(result, millis, numSamples);
-        //   void execute(result, millis, numSamples, initF, cleanupF);
+        //   void execute(result, millis, numSamples, initF, shutF, cleanupF);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -741,7 +741,7 @@ int main(int argc, char *argv[])
             BSLS_ASSERT( 5 * 10 == cnt2.load());
         }
 
-        if (verbose) cout << "\nTesting 5-arg 'execute'." << endl;
+        if (verbose) cout << "\nTesting 6-arg 'execute'." << endl;
         {
             bslma::TestAllocator supplied ("supplied" , veryVeryVeryVerbose);
             bslma::TestAllocator supplied2("supplied2", veryVeryVeryVerbose);
@@ -751,8 +751,10 @@ int main(int argc, char *argv[])
             ThreadCountIntParFunctor  cnt2Functor(&cnt2);
 
             bsls::AtomicInt     cntTrueInit, cntFalseInit;
+            bsls::AtomicInt     cntTrueShut, cntFalseShut;
             bsls::AtomicInt     cntTrueClean, cntFalseClean;
             CountBoolParFunctor initFunctor(&cntTrueInit, &cntFalseInit);
+            CountBoolParFunctor shutFunctor(&cntTrueShut, &cntFalseShut);
             CountBoolParFunctor cleanFunctor(&cntTrueClean, &cntFalseClean);
             bsls::AtomicInt     cntThread1Init, cntThread2Init;
             bsls::AtomicInt     cntThread1Clean, cntThread2Clean;
@@ -794,7 +796,12 @@ int main(int argc, char *argv[])
 
             bslmt::ThroughputBenchmarkResult result(&supplied2);
 
-            mX.execute(&result, 500, 10, initFunctor, cleanFunctor);
+            mX.execute(&result,
+                       500,
+                       10,
+                       initFunctor,
+                       shutFunctor,
+                       cleanFunctor);
             BSLS_ASSERT(10 == result.numSamples());
             BSLS_ASSERT(2  == result.numThreadGroups());
             BSLS_ASSERT(10 == result.numThreads(0));
@@ -811,6 +818,8 @@ int main(int argc, char *argv[])
             BSLS_ASSERT( 5 * 10 == cnt2);
             BSLS_ASSERT( 1      == cntTrueInit);
             BSLS_ASSERT( 9      == cntFalseInit);
+            BSLS_ASSERT( 1      == cntTrueShut);
+            BSLS_ASSERT( 9      == cntFalseShut);
             BSLS_ASSERT( 1      == cntTrueClean);
             BSLS_ASSERT( 9      == cntFalseClean);
             BSLS_ASSERT(10 * 10 == cntThread1Init);
@@ -824,8 +833,10 @@ int main(int argc, char *argv[])
             bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
             bsls::AtomicInt     cntTrueInit , cntFalseInit;
+            bsls::AtomicInt     cntTrueShut , cntFalseShut;
             bsls::AtomicInt     cntTrueClean, cntFalseClean;
             CountBoolParFunctor initFunctor(&cntTrueInit, &cntFalseInit);
+            CountBoolParFunctor shutFunctor(&cntTrueShut, &cntFalseShut);
             CountBoolParFunctor cleanFunctor(&cntTrueClean, &cntFalseClean);
             SetValueFunctor     setValueFunctor(4);
 
@@ -843,10 +854,30 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(mX.execute(&result, 1, 0));
             ASSERT_PASS(mX.execute(&result, 1, 1));
 
-            ASSERT_FAIL(mX.execute(0      , 1, 1, initFunctor, cleanFunctor));
-            ASSERT_FAIL(mX.execute(&result, 0, 1, initFunctor, cleanFunctor));
-            ASSERT_FAIL(mX.execute(&result, 1, 0, initFunctor, cleanFunctor));
-            ASSERT_PASS(mX.execute(&result, 1, 1, initFunctor, cleanFunctor));
+            ASSERT_FAIL(mX.execute(0,
+                                   1,
+                                   1,
+                                   initFunctor,
+                                   shutFunctor,
+                                   cleanFunctor));
+            ASSERT_FAIL(mX.execute(&result,
+                                   0,
+                                   1,
+                                   initFunctor,
+                                   shutFunctor,
+                                   cleanFunctor));
+            ASSERT_FAIL(mX.execute(&result,
+                                   1,
+                                   0,
+                                   initFunctor,
+                                   shutFunctor,
+                                   cleanFunctor));
+            ASSERT_PASS(mX.execute(&result,
+                                   1,
+                                   1,
+                                   initFunctor,
+                                   shutFunctor,
+                                   cleanFunctor));
         }
 
       } break;
