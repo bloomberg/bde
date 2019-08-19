@@ -143,7 +143,6 @@
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
 // [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-// [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -154,7 +153,7 @@
 // [ 7] int native_std::isblank(int);
 // [ 7] bool native_std::isblank(char, const native_std::locale&);
 // ----------------------------------------------------------------------------
-// [14] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -252,46 +251,6 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined =
                                                                          false;
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)
-                                                                          true;
-#else
-                                                                         false;
-#endif
-                    // case 13
-
-
-#include <algorithm> // for 'search'
-#include <utility>   // for 'pair'
-
-namespace case13 {
-
-struct SearcherNull {
-
-    native_std::pair<const char *, const char*> operator()(const char* first,
-                                                           const char* last)
-                                                                         const;
-        // Return 'native_std::pair<last, last>' ("needle not found")
-        // irrespective of the contents of '[first, last)'.  Note that the
-        // (default) constructor does not allow the specifiction of a "needle".
-};
-
-native_std::pair<const char *, const char*>
-SearcherNull::operator()(const char *, const char *last) const
-{
-    return native_std::make_pair(last, last);
-}
-
-template<class ForwardIterator, class Searcher>
-BSLS_KEYWORD_CONSTEXPR ForwardIterator search(ForwardIterator first,
-                                              ForwardIterator last,
-                                              const Searcher& searcher)
-{
-    return searcher(first, last).first;
-}
-
-}  // close namespace case13
-
                     // case 12
 
 namespace case12 {
@@ -370,7 +329,7 @@ typename CONTAINER::iterator end(CONTAINER & c)
 
         // Function defined in '<utility>'
         int X(0);
-        int Y = native_std::exchange(X, 1);  (void) Y;
+        int Y = native_std::exchange(X, 1);
 
         { // UDLs for <complex>
             using namespace native_std::complex_literals;
@@ -1292,7 +1251,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1312,64 +1271,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-      } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM'
-        //
-        // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' flag is
-        //:   defined when the native library provides a definition for an
-        //:   overload of the 'search' function template that accepts a
-        //:   searcher object, and not otherwise.
-        //
-        // Plan:
-        //: 1 In namespace 'case13', define 'SearcherNull', a class that is
-        //:   compatible with the "searcher" concept and an independent
-        //:   definition of the 'search' overload under test.
-        //:
-        //: 2 When the flag is set, confirm that the overload exists, that it
-        //:   accepts the searcher objects, and returns the expected result.
-        //:
-        //: 3 When the flag is *not* set, specify 'using' directives to search
-        //:   for definitions in both the 'native_std' and the 'case13'
-        //:   namespaces.  Then define an experession using the
-        //:   namespace-unqualified name 'search'.  If there is a definition in
-        //:   the 'native_std' namespace in addition to the one we planted in
-        //:   namespace 'case13', the test driver fails to compile (ambiguity
-        //:   error).
-        //
-        // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
-        // --------------------------------------------------------------------
-
-        if (verbose) printf(
-                "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM'\n"
-                "=========================================================\n");
-
-        if (verbose) {
-                P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM_defined)
-        }
-
-        case13::SearcherNull searcher;
-
-        const char  haystack[] = "hello";
-        const char *first      = haystack;
-        const char *last       = first + sizeof haystack - 1;
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)
-
-        const char *result = native_std::search(first, last, searcher);
-        ASSERT(last == result);
-#else
-        using namespace native_std;
-        using namespace case13;
-
-        const char *result = search(first, last, searcher);
-        ASSERT(last == result);
-#endif
-        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
-
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1412,8 +1313,8 @@ int main(int argc, char *argv[])
         case12::TestType mX = { 12 };
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS)
         {
-            int *from = std::begin(mX); (void) from;
-            int *to   = std::end(mX);   (void) to;
+            int *from = std::begin(mX);
+            int *to   = std::end(mX);
         }
 #else
         {
@@ -1423,8 +1324,8 @@ int main(int argc, char *argv[])
             using namespace std;
             using namespace case12;
 
-            int *from = begin(mX); (void) from;
-            int *to   = end(mX);   (void) to;
+            int *from = begin(mX);
+            int *to   = end(mX);
         }
 #endif
 
