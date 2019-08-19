@@ -45,12 +45,12 @@ BSLS_IDENT("$Id: $")
 // from a couple of short-comings: 1) there was a maximum number of events it
 // could manage, and 2) it was inefficient at dealing with large numbers of
 // events.  This component addresses both those problems -- there is no limit
-// on the number of events it can , and it is more efficient at dealing with
-// large numbers of events.  The disadvantage of this component relative to
-// 'bdlmt_timereventscheduler' is that handles referring to managed events in a
-// 'bdlmt::EventScheduler' are reference-counted and need to be released, while
-// handles of events in a 'bdlmt::TimerEventScheduler' are integral types that
-// do not need to be released.
+// on the number of events it can manage, and it is more efficient at dealing
+// with large numbers of events.  The disadvantage of this component relative
+// to 'bdlmt_timereventscheduler' is that handles referring to managed events
+// in a 'bdlmt::EventScheduler' are reference-counted and need to be released,
+// while handles of events in a 'bdlmt::TimerEventScheduler' are integral types
+// that do not need to be released.
 //
 ///Thread Safety and "Raw" Event Pointers
 ///--------------------------------------
