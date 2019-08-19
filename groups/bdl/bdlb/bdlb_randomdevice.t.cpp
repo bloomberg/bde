@@ -22,6 +22,7 @@
 #include <unistd.h>                      // 'usleep'
 #endif
 
+#include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>                  // for usage example
 #include <bsl_string.h>
