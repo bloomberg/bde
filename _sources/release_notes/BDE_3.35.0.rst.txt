@@ -1,0 +1,38 @@
+.. _bde3.35.0-top:
+
+==============================
+BDE 3.35.0: Production Release
+==============================
+
+.. _bde3.35.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.35.0 production release
+    was completed on **Monday, July 29, 2019**
+
+.. _bde3.35.0-highlights:
+
+---------------------
+BDE 3.35.0 Highlights
+---------------------
+  This release consists of assorted minor fixes.
+
+.. _bde3.35.0-fixed:
+
+----------------------
+Fixed requests: 3.35.0
+----------------------
+
+.. csv-table::
+   :header: "Summary"
+   :widths: 100
+   :align: left
+
+   "baexml_Element::removeSubElement slow for large documents"
+   "bdlcc_objectpool does not properly document threadsafety properties"
+   "Fix baexml_SchemaParser documentation"
+   "bdlcc::SkipList now requires KEY and VALUE to have default constructors."
+   "bsitzo doc tweak (split off from parent ticket)"
+   "BlobUtil dumper classes in bdlbb_BlobUtil component are not included in Clas"

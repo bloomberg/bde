@@ -1,0 +1,44 @@
+.. _bde3.7.0-top:
+
+=============================
+BDE 3.7.0: Production Release
+=============================
+
+.. _bde3.7.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.7.0 production patch was
+    completed on **Sunday, March 25, 2018**.
+
+
+.. _bde3.7.0-highlights:
+
+--------------------
+BDE 3.7.0 Highlights
+--------------------
+
+BSL Containers C++ Standard Conformance Enhancements
+----------------------------------------------------
+  The ``bsl`` package group's containers have improved C++11 standards
+  conformance.
+
+``btemt_ChannelPool`` Now Supports "Round-Robin" Reads
+------------------------------------------------------
+  Prior to this release, ``btemt_ChannelPool`` (and ``btemt_SessionPool``)
+  would, when a channel had data available, read from that channel until the
+  available data was exhausted before reading from the next channel ("greedy"
+  reading). BDE 3.7.0 introduces an option to configure a channel pool (and
+  session pool) to perform a single read on a channel before reading from the
+  next channel ("round-robin" reading), which may result in more fair behavior
+  if one channel is receiving a disproportionately large amount of data. The
+  default behavior for channel-pool remains unchanged. Users interested in more
+  information should see the new ``readDataPolicy`` attribute of
+  ``btemt_ChannelPoolConfiguration`` and the new ``btemt_ReadDataPolicy``
+  enumeration. The amount of data read during a single read using "round-robin"
+  reading can be specified by the parameters to the ``setIncomingMessageSize``
+  method of ``btemt_ChannelPoolConfiguration``.
+
+.. _bde3.7.0-fixed:
+

@@ -1,0 +1,191 @@
+:orphan:
+
+.. _ball-top:
+
+============
+Ball Logging
+============
+
+.. _ball-intro:
+
+Introduction
+============
+
+The ``ball`` package (BDE Application Logging Library), now available for
+production use, is the open source replacement for ``bael``. The ``bael``
+package is **deprecated** and ``bael`` types have been aliased (i.e.,
+forwarded) to corresponding ``ball`` types by introducing appropriate typedef
+definitions in ``bael`` header files.
+
+For detailed information, see `"Bael-To-Ball Migration Notes"
+<https://bbgithub.dev.bloomberg.com/bde/bde-classic/blob/master/groups/bae/bael/doc/bael-to-ball-migration.md>`_.
+
+.. _ball-features:
+
+Features
+========
+
+Several new features are included in the initial release of ``ball``.
+
+* Named and registered observers for the logger manager.
+
+* Class scope logging category.
+
+* Variadic (printf-style) logging macros.
+
+* ``BALL_LOG_END`` and ``BALL_LOGCB_END`` no longer required.
+
+.. _ball-new-component:
+
+New Components
+==============
+
+The components in ``ball`` for which there is no direct correspondence in
+``bael``:
+
+* ball_broadcastobserver
+
+  **PURPOSE**: Provide a broadcast observer that forwards to other observers.
+  New code should use this component rather than the deprecated
+  ``ball_multiplexobserver``.
+
+* ball_category
+
+  **PURPOSE**: Provide a container for a name and associated thresholds.  This
+  component has been factored out of ``ball_categorymanager``. (Recall that the
+  ``bael_Category`` class was defined in ``bael_categorymanager``.)
+
+* ball_filteringobserver
+
+  **PURPOSE**: Provide an observer that filters log records.
+
+* ball_logfilecleanerutil
+
+  **PURPOSE**: Provide a utility class for removing log files.  Note that there
+  are two new related components in ``balb``, ``balb_filecleanerconfiguration``
+  and ``balb_filecleanerutil``.
+
+* ball_streamobserver
+
+  **PURPOSE**: Provide an observer that emits log records to a stream.  This
+  component replaces the poorly named ``bael_defaultobserver``.
+
+* ball_userfields
+
+  **PURPOSE:** Provide a container of user supplied field values.
+  ``ball::UserFields`` replaces ``bdem_List`` for representing the user-defined
+  (i.e., custom) fields in a ``ball::Record``.
+
+* ball_userfieldvalue
+
+  **PURPOSE**: Provide a type for the value of a user supplied field.
+  ``ball::UserFieldValue`` replaces ``bdem_ElemRef`` and ``bdem_ConstElemRef``
+  for accessing individual user-defined fields.
+
+Note that the transitional types ``bael_UserFields`` and
+``bael_UserFieldValue`` that were defined in ``bael_record`` offered interfaces
+forward-compatible with those provided by ``ball::UserFields`` and
+``ball::UserFieldValue``, respectively.
+
+Implementation Notes
+====================
+
+.. _ball-example-1:
+
+Example 1. Initialization
+-------------------------
+
+Minimal ``ball`` initialization:
+
+  .. code-block:: cpp
+
+     int main() {
+         ball::LoggerManagerConfiguration lmConfig;
+         ball::LoggerManagerScopedGuard   logGuard(lmConfig);
+     }
+
+
+.. _ball-example-2:
+
+Example 2. Observer registration
+--------------------------------
+
+Observers can be registered/deregistered with the logger manager at any time.
+Client code can register any [*reasonable*] number of observers with the logger
+manager.  Every log entry will be forwarded to all registered observers by the
+internal broadcast observer:
+
+  .. code-block:: cpp
+
+     void registerObservers() {
+         ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+         bsl::shared_ptr<ball::StreamObserver> observer1 = bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+         manager.registerObserver(observer1, "coutObserver");
+
+         bsl::shared_ptr<ball::StreamObserver> observer2 = bsl::make_shared<ball::StreamObserver>(&bsl::cerr);
+
+         manager.registerObserver(observer2, "cerrObserver");
+     }
+
+
+.. _ball-example-3:
+
+Example 3. Class Scope Log Category
+-----------------------------------
+
+It is possible to provide a common log category for all class methods:
+
+  .. code-block:: cpp
+
+     class T {
+       private:
+
+         // CLASS-SCOPE LOG CATEGORY
+         BALL_LOG_SET_CLASS_CATEGORY("T.LOG");
+
+       public:
+
+         void method1();
+         void method2();
+     }
+
+     void method1()
+     {
+         // Log into class-scope category.
+         BALL_LOG_TRACE << "Log Message";
+     }
+
+     void method2()
+     {
+         // Override class-scope category.
+         BALL_LOG_SET_CATEGORY("T.ALARM");
+         BALL_LOG_WARN << "Log Message";
+     }
+
+.. _ball-example-4:
+
+Example 4. Log blocks
+---------------------
+
+For logging a record that spans multiple statements, new ``BLOCK`` macros
+introduced in ``ball``.  Be carefull not to do any side effects within the log
+block as this block may not be executed.
+
+  .. code-block:: cpp
+
+     BALL_LOG_TRACE_BLOCK {
+         BALL_LOG_OUTPUT_STREAM << label << "=[ ";
+
+         unsigned int position = 0;
+         for (CIter it = vector.begin(), end = vector.end();
+              it != end; 
+              ++it, ++position)
+         {
+             BALL_LOG_OUTPUT_STREAM << position << ':' << *it << ' ';
+         }
+
+         BALL_LOG_OUTPUT_STREAM << ']';
+     }
+

@@ -1,0 +1,206 @@
+.. role:: faq-header
+    :class: faq-header-class
+
+=======
+BDE FAQ
+=======
+
+This TEAM page attempts to answer frequently asked questions:
+
+  1.  :ref:`question-1`
+  2.  :ref:`question-2`
+  3.  :ref:`question-3`
+  4.  :ref:`question-4`
+  5.  :ref:`question-5`
+  6.  :ref:`question-6`
+  7.  :ref:`question-7`
+  8.  :ref:`question-8`
+  9.  :ref:`question-9`
+  10. :ref:`question-10`
+  11. :ref:`question-11`
+
+
+.. _question-1:
+
+.. rubric:: :faq-header:`Q: What header do I include for bsl::some_stl_type (like bsl::vector, bsl::ostring, bsl::min)?`
+
+**A:**  The C++ standard library in BSL provides a set of headers that parallel
+those found in the C++ standard. For example:
+
++------------------+-----------------+-------------------+
+| Type             | Standard Header | BSL Header        |
++==================+=================+===================+
+| ``bsl::min``     | <algorithm>     | <bsl_algorithm.h> |
++------------------+-----------------+-------------------+
+| ``bsl::ostream`` | <ostream>       | <bsl_ostream.h>   |
++------------------+-----------------+-------------------+
+| ``bsl::vector``  | <vector>        | <bsl_vector.h>    |
++------------------+-----------------+-------------------+
+
+
+.. _question-2:
+
+.. rubric:: :faq-header:`Q: Should I use bsl::some_stl_type or std::some_stl_type?`
+
+**A:** For historical reasons BDE provides a series of headers that match those
+defined in the C++ standard (like <vector>), and provides a mechanism by which
+``std::vector`` is an alias for ``bsl::vector``.  Much of the code developed at
+Bloomberg is built in this fashion (the mechanism by which this is achieved is
+referred to as "BSL_OVERRIDES_STD mode")
+
+We recommend though that clients explicitly refer to the types in BSL (like
+``bsl::vector``) and include the BSL headers (like <bsl_vector.h>).
+
+Why is that our recommendation? It is preferable to explicitly refer to the
+types you are using, and in many cases code may be making using of non-standard
+extensions provided by the BSL standard library types (like allocators).
+
+
+.. _question-3:
+
+.. rubric:: :faq-header:`Q: How do I include bslstl::StringRef?`
+
+**A:** #include <bsl_string.h>
+
+This is obviously confusing.  Sorry.  If we had it to do over, we'd do
+something different.
+
+The explanation is that we disallow directly including all types in the bslstl
+package because of the BSL_OVERRIDES_STD mechanism.  In retrospect, we should
+have located the ``bslstl::StringRef`` in a higher level package.  In the
+future, if we remove the BSL_OVERRIDES_STD mechanism, this small corner of
+nonsense will go away.
+
+
+.. _question-4:
+
+.. rubric:: :faq-header:`Q: Which shared pointer should I use: bsl::shared_ptr or bcema_SharedPtr?`
+
+A: Use ``bsl::shared_ptr``.
+
+There is information on the migrating from ``bcema_SharedPtr`` here: `smart
+pointer migration information
+<https://cms.prod.bloomberg.com/team/display/bdei/Smart+Pointer+Conversion+Script>`_,
+as well as background information here: `Important changes to BDE smart
+pointers
+<https://cms.prod.bloomberg.com/team/display/bdei/Important+changes+to+BDE+smart+pointers>`_.
+
+
+.. _question-5:
+
+.. rubric:: :faq-header:`Q: Which should I use std::auto_ptr, bslma::ManagedPtr, or bdema_ManagedPtr?`
+
+**A:** Use: ``bslma::ManagedPtr``.
+
+There is information on the migrating from bdema_ManagedPtr here: `smart
+pointer migration information 
+<https://cms.prod.bloomberg.com/team/display/bdei/Smart+Pointer+Conversion+Script>`_,
+as well as background information here: `Important changes to BDE smart
+pointers 
+<https://cms.prod.bloomberg.com/team/display/bdei/Important+changes+to+BDE+smart+pointers>`_.
+
+We don't recommend using ``std::auto_ptr``, and do not use it within BDE except
+where mandated by an external standard or library. Note that ``std::auto_ptr``
+is deprecated in C++11 and has been removed from the C++17 standard.
+
+
+.. _question-6:
+
+.. rubric:: :faq-header:`Q: What is BSL_OVERRIDES_STD?`
+
+**A:** BSL_OVERRIDES_STD is a compile time flag that can be supplied to code
+built against the BSL library (i.e., -DBSL_OVERRIDES_STD) that enables code
+written to use standard library types in the ``std::`` namespace to use the
+standard library types defined in the BSL library in the ``bsl::`` namespace.
+
+.. warning:: Use of this compile flag is deprecated.
+
+
+
+.. _question-7:
+
+.. rubric:: :faq-header:`Q: Why does BSL_OVERRIDES_STD mode exist?`
+
+**A:** History.  At one point all of Bloomberg used a ``STLPort`` standard
+library implementation across all of our supported platforms, which was
+modified to support allocators.  Allocators were important, particularly for
+use with shared memory in the Big, at a time when almost all Bloomberg software
+was developed in the Big.  The modified ``STLPort`` library was difficult to
+maintain and improve, so we moved to the current BSL library, which implements
+only those parts of the C++ standard library important to Bloomberg (the parts
+using allocators).  In order to migrate the large existing code base relying on
+the STLPort, BSL_OVERRIDES_STD mode was created.
+
+BSL_OVERRIDES_STD is, unfortunately, complicated because of how various
+compilers deal with include files (a special thank you to Sun for not allowing
+a standard header files to be included multiple times!)
+
+Some day, in the future, when C++11 is available on all our platforms, we may
+be able to move away from our own standard library implementation entirely.
+
+
+.. _question-8:
+
+.. rubric:: :faq-header:`Q: I see a "bdet_datetime.h: WARNING: unexpected value ..." in my console log, what do I do?`
+
+**A:** Don't panic! This warning does **not** indicate a problem with your
+task, or have any impact on behavior.
+
+We have introduced that warning to identify if, and how, clients are using
+``bdet_Datetime`` values having a *set* ``bdet_Date`` (i.e., the date is *not*
+0001-01-01), but an unset ``bdet_Time`` (i.e., 24:00:00)  for example,
+``01JAN1970_24:00:00``.
+
+**Note:** This warning has been removed from BDE.  Rebuilding your task (or
+potentially the libraries your task builds against) should be sufficient to
+remove the warning
+
+If you wish to find out where in your code the warning is being triggered, set
+a breakpoint in a debugger at bdet_datetime.cpp line 40: this is where the
+"logMessage()" call is handled if a suspicious date is detected, so your code
+location should be 2 or 3 levels higher up the stack.
+
+One case where you should not create a DRQS CR, is the following warning
+generated at the startup of a BAS service:
+
+Please ignore warnings generated by BAS services at startup:
+
+  :: 
+
+    STARTING BAS SERVICE [6529]: ./foo.sundev1.tsk foo.cfg
+    bdet_datetime.h:966 WARNING: unexpected value detected: 01JAN1970_24:00:00.000
+
+We are already aware of the context for this usage (DRQS 60420212), so there is
+no need to file a DRQS.  We will remove that particular usage of bdet_Datetime,
+thereby removing the warning, in the next patch (after 2014 year-end
+code-freeze).
+
+As part of updating BDE's date and time types for open-source, one of the
+proposed improvements is to simplifying ``Datetime``'s behavior with respect to
+the unset Time.  We are attempting to identify the impact of such a change.
+
+
+.. _question-9:
+
+.. rubric:: :faq-header:`Q: How do I links against a DEBUG or DEBUG-SAFE build of BDE?`
+
+
+.. _question-10:
+
+.. rubric:: :faq-header:`Q: How do I see the contents of my STL containers in my debugger?`
+
+**A:** See `BDE Debugging Helpers <https://cms.prod.bloomberg.com/team/display/bdei/BDE+Debugging+Helpers>`_
+
+
+.. _question-11:
+
+.. rubric:: :faq-header:`Q: How do I contribute to BDE?`
+
+**A:** Background on how to contribute to BDE is here:
+:ref:`contribute-top`
+
+A walkthrough for how to clone and build the BDE source code are here:
+`Building Using CMake  </bde-tools/>`_
+
+Reference information for building is here:
+`BDE tools documentation </bde-tools/>`_

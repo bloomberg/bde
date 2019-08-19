@@ -1,0 +1,41 @@
+.. _bde3.13.0-top:
+
+==============================
+BDE 3.13.0: Production Release
+==============================
+
+.. _bde3.13.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.13.0 production release
+    was completed on **Wednesday, September 20, 2018**.
+
+
+.. _bde3.13.0-highlights:
+
+---------------------
+BDE 3.13.0 Highlights
+---------------------
+
+New Class: ``bdlb::IndexSpan`` and Utilities
+--------------------------------------------
+  The new value-semantic class ``bdlb::IndexSpan`` can be used to represent
+  sub-sequences of sequential containers (e.g., ``bsl::string``) in terms of
+  (starting) position and length of the sub-sequence.  Associated utilities are
+  provided by the ``bdlb_indexspanutil`` and ``bdlb_indexspanstringutil``
+  components.  This class is useful in contexts where pointers representing a
+  sub-sequence might be invalidated by move operations.
+
+
+``bdlma::ConcurrentPoolAllocator``: Added Methods
+-------------------------------------------------
+  The ``bdlma::ConcurrentPoolAllocator`` class now has methods to
+  ``reserveCapacity`` for a specified number of objects of the ``blockSize``
+  set at construction.  The other new method, ``release``, deallocates all
+  allocated memory in the pool.
+
+
+.. _bde3.13.0-fixed:
+

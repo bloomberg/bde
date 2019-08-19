@@ -1,0 +1,83 @@
+.. _bde3.19.0-top:
+
+==============================
+BDE 3.19.0: Production Release
+==============================
+
+.. _bde3.19.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.19.0 production release
+    was completed on **Tuesday, January 8, 2019**
+
+.. _bde3.19.0-highlights:
+
+---------------------
+BDE 3.19.0 Highlights
+---------------------
+
+New Macro: ``BALL_LOG_SET_CATEGORY_HIERARCHICALLY``
+---------------------------------------------------
+  The ``ball_log`` component now defines an additional macro:
+
+  .. code-block:: cpp
+
+     BALL_LOG_SET_CATEGORY_HIERARCHICALLY(CATEGORY)
+
+  where ``CATEGORY`` is an ASCII string, the name of a ``ball`` logging
+  category to be created.  The logging levels of the newly created category
+  (i.e., record, pass, trigger, and triggerAll levels) are set equal to those
+  of the existing category in the category registry whose name has the longest
+  prefix match to the specified ``CATEGORY``.  If there is no such match the
+  behavior of this new macro produces the same result as the
+  ``BALL_LOG_SET_CATEGORY`` macro (the default logging levels currently set in
+  the logger manager are used).
+
+  For example:
+
+  .. code-block:: cpp
+
+     BALL_LOG_SET_CATEGORY("EXAMPLES")
+
+  registers a category named ``"EXAMPLES"`` having the default logging levels
+  (i.e., record, pass, trigger, and triggerAll) currently defined by the
+  logger manager object.  However, one can change those logging levels:
+
+  .. code-block:: cpp
+
+     ball::LoggerManager& manager   = ball::LoggerManager::singleton();
+     const ball::Category *category = manager.lookupCategory("EXAMPLES");
+
+     category->setLevels(myRecordLevel,
+                         myPassLevel,
+                         myTriggerLevel,
+                         myTriggerAllLevel);
+
+  Now, if we create a category using the hierarchical macro:
+
+  .. code-block:: cpp
+
+     BALL_LOG_SET_CATEGORY_HIERARCHICALLY("EXAMPLES.EXAMPLE1");
+
+  the ``"EXAMPLES.EXAMPLE1"`` category will have logging levels matching those
+  of the ``"EXAMPLES"`` category (i.e., ``myRecordLevel``, ``myPassLevel``,
+  ``myTriggerLevel``, and ``myTriggerAllLevel``) and  *not* the default levels
+  defined in the ``manager`` object.
+
+  As with ``BALL_LOG_SET_CATEGORY``, invocations of
+  ``BALL_LOG_SET_CATEGORY_HIERARCHICALLY`` on an existing category have no
+  effect.
+
+  Two other new macros, analogous to the (non-hierarchical) ``DYNAMIC`` and
+  ``CLASS`` versions of the ``BALL_LOG_SET_CATEGORY`` macro, are also provided:
+
+  .. code-block:: cpp
+
+     BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(CATEGORY)
+     BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(CATEGORY)
+
+
+.. _bde3.19.0-fixed:
+

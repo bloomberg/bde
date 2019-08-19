@@ -1,0 +1,125 @@
+.. _bde3.6.0-top:
+
+=============================
+BDE 3.6.0: Production Release
+=============================
+
+.. _bde3.6.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.6.0 production patch was
+    completed on **Monday, March 12, 2018**.
+
+
+.. _bde3.6.0-highlights:
+
+--------------------
+BDE 3.6.0 Highlights
+--------------------
+
+``bdldfp`` (Decimal Floating Point) Enhancements
+------------------------------------------------
+  The ``bdldfp`` package exhibits significant enhancements in this release: new
+  components, and added functionality to previously existing components.
+
+
+Class ``bdldfp::Decimal`` Enhancements
+--------------------------------------
+  The ``bdldfp::Decimal`` class now provides consistent support for all of the
+  floating-point decimal types (i.e., ``bdldfp::Decimal32/64/128``).
+  Previously, ``bdldfp::Decimal32`` was considered merely an "interchange
+  format" and did not have full support.  Full support consists of arithmetic,
+  comparison, and assignment operations, and BDEX serialization.
+
+  **Caveat**: ``bdldfp::Decimal64`` remains the preferred vocabulary type for
+  decimal arithmetic.
+
+  In C++11 mode, the ``bdldfp::Decimal`` class now allows user-defined literals
+  (both numeric and string literals):
+
+  .. code-block:: C++
+
+    bdldfp::Decimal32  operator ""  _d32(const char *);
+    bdldfp::Decimal32  operator ""  _d32(const char *, size_t);
+    bdldfp::Decimal64  operator ""  _d64(const char *);
+    bdldfp::Decimal64  operator ""  _d64(const char *, size_t);
+    bdldfp::Decimal128 operator "" _d128(const char *);
+    bdldfp::Decimal128 operator "" _d128(const char *, size_t);
+
+New Class ``bdldfp::DecimalFormatConfig``
+-----------------------------------------
+ The new ``bdldfp::DecimalFormatConfig`` class is used to specify the
+ formatting for the floating-point decimal types (i.e.,
+ ``bdldfp::Decimal32/64/128``).
+
+Class ``bdldfp::DecimalUtil`` Enhancements
+------------------------------------------
+
+New Math Functions
+******************
+  The following functions are now supported for all the floating-point decimal
+  types:
+
+  .. code-block:: none
+
+    copySign log10     llrint      sqrt
+    exp      fmod      nextafter   lround
+    log      remainder nextforward round
+    logB     lrint     pow         trunc
+
+  There is also a new overload of ``quantize`` that takes an `int` exponent
+  value.
+
+  There is a new function, ``quantizeEqual``, overloaded for the three decimal
+  floating-point types, that takes a decimal value and constructs (if possible)
+  an equal decimal value having a specified exponent.
+
+``errno`` Mechanism
+*******************
+  Error reporting is now done using the `errno` global variable.  See the
+  *Error Reporting* section of the `bdldfp_decimal` component-level
+  documentation.
+
+New Formatting
+**************
+  There are now ``format`` functions that determine the output format of
+  ``bdldfp::Decimal`` values in "fixed", "scientific", and "natural" notations
+  according to the new ``bdldfp::DecimalFormatConfig`` class.
+
+  ``bsl::ios_base::fixed`` and ``bsl::ios_base::scientific`` flags are now
+  supported for ``bdldfp::Decimal`` types.
+
+  **Caveat**: By default, decimals are rendered in "natural" notation, which
+  makes visible the precision of the internal representation.  It is possible
+  for two Decimal objects that have the same value to have different internal
+  representations, expressing different precisions -- for example, 42.0 and
+  42.00.  The "natural" format renders Decimal values using the precision
+  signaled by this internal representation.  Note that the precision value set
+  by the ``bsl::precision`` modifier is applicable only for "fixed" and
+  "scientific" formats and continues to be ignored for "natural" format.
+
+Refactoring
+-----------
+
+Renaming
+********
+  ====== ==============================================================
+  Old    `bdldfp::BinaryIntegralDecimalImpUtil::StorageType32/64/128`
+  New    `bdldfp::DecimalStorage::Type32/64/128`
+  ====== ==============================================================
+
+Removals
+********
+  * Component: ``bdldfp_denselypackeddecimalimputil``
+
+  * Overload: ``bdldfp::DecimalImpUtil::format(ValueType value, char *buffer)``
+    (error prone)
+
+  * Functions: ``bdldfp::DecimalConvertUtil::decimalToBID/decimalFromBID``
+    (Binary Integral Decimal).
+    Instead use ``bdldfp::DecimalImpUtil::convertToBID/convertFromBID``.
+
+.. _bde3.6.0-fixed:
+

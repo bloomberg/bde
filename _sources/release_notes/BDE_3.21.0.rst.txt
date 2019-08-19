@@ -1,0 +1,32 @@
+.. _bde3.21.0-top:
+
+==============================
+BDE 3.21.0: Production Release
+==============================
+
+.. _bde3.21.0-schedule:
+
+--------
+Schedule
+--------
+
+  * The BDE team is pleased to announce that the BDE 3.21.0 production release
+    was completed on **Monday, February 4, 2019**
+
+.. _bde3.21.0-highlights:
+
+---------------------
+BDE 3.21.0 Highlights
+---------------------
+
+
+Removal of the ``bdxdfp`` Package
+---------------------------------
+  The ``bdxdfp`` package, a preliminary implementation of the BDE facility for
+  decimal floating point numbers first introduced in BDE 2.17, has been
+  DEPRECATED since the introduction of ``bdldfp``, the production version of
+  that facility, in BDE 2.21.  The preliminary package, ``bdxdfp``, package is
+  now removed.
+
+.. _bde3.21.0-fixed:
+

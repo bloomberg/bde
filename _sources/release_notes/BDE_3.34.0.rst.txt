@@ -1,0 +1,35 @@
+.. _bde3.34.0-top:
+
+==============================
+BDE 3.34.0: Production Release
+==============================
+
+.. _bde3.34.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.34.0 production release
+    was completed on **Monday, July 22, 2019**
+
+.. _bde3.34.0-highlights:
+
+---------------------
+BDE 3.34.0 Highlights
+---------------------
+  This release consists of assorted minor fixes.
+
+.. _bde3.34.0-fixed:
+
+----------------------
+Fixed requests: 3.34.0
+----------------------
+
+.. csv-table::
+   :header: "Desciption"
+   :widths: 100
+   :align: left
+
+   "baltzo_TimeZoneUtil::convertUtcToLocalTime() should return bad rcode for de..."
+   "bdlcc_objectcatalog.h:669:  BSLS_ASSERT to BSLS_REVIEW_OPT"
+   "bdlmt_signaler: remove redundant explicit"

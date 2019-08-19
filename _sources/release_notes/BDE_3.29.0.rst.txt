@@ -1,0 +1,37 @@
+.. _bde3.29.0-top:
+
+==============================
+BDE 3.29.0: Production Release
+==============================
+
+.. _bde3.29.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.29.0 production release
+    was completed on **Monday, May 20, 2019**
+
+.. _bde3.29.0-highlights:
+
+---------------------
+BDE 3.29.0 Highlights
+---------------------
+  This release consists of several small fixes and enhancements.
+
+Optimization: Range Constructors/Insert Methods of Several Containers
+---------------------------------------------------------------------
+  The "range" constructors and ``insert`` methods of four standard containers
+  -- ``bsl::map``, ``bsl::set``, ``bsl::multimap`` and ``bsl::multiset`` -- now
+  attempt to reduce overhead by minimizing the number of allocation calls
+  (possibly to one) and improve locality by placing elements in contiguous
+  memory (possibly in a single block).  This optimization requires that the
+  user provide *ForwardIterators* or better.  The "unordered" flavors of these
+  four standard containers have had analogous optimizations for several years.
+
+  Users are encouraged to use these methods as the alternative, inserting
+  elements in a hand-written loop, misses these opportunities for optimization.
+
+
+.. _bde3.29.0-fixed:
+

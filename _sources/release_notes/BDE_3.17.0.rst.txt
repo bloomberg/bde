@@ -1,0 +1,33 @@
+.. _bde3.17.0-top:
+
+==============================
+BDE 3.17.0: Production Release
+==============================
+
+.. _bde3.17.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.17.0 production release
+    was completed on **Wednesday, November 14, 2018**
+
+.. _bde3.17.0-highlights:
+
+---------------------
+BDE 3.17.0 Highlights
+---------------------
+
+Redundant ``#include`` Guards Removed
+-------------------------------------
+  A long-time feature of BDE source code, redundant ``#include`` guards, has
+  been deemed obsolete and is being being phased out.  Note that Rules 4.3.2
+  and 4.4.3 of the :ref:`BDE C++ Coding Standard 4.3 <section-4-3>`
+  are labeled *Obsolete*.
+
+  This release removes redundant ``#include`` guards from the BDE libraraies.
+
+
+
+.. _bde3.17.0-fixed:
+

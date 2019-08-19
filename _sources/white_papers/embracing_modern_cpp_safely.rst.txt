@@ -1,0 +1,46 @@
+:tocdepth: 1
+
+*28/03/2018*
+
+Embracing Modern C++ Safely
+===========================
+ by Rostislav Khlebnikov and John Lakos.
+
+ View the full article `Embracing Modern C++ Safely </bde-resources/pdfs/Embracing_Modern_Cpp_Safely.pdf>`_
+
+Abstract
+--------
+ As more and more of Bloomberg's software is migrated to run exclusively on
+ Linux, Bloomberg has the opportunity to adopt modern C++ language features.
+ Such a journey, however, is not without risk: Years of experience using Modern
+ C++ has shown that, along with many advantages, it brings new pitfalls.
+ Although many of these 'gotchas' are addressed in publicly available books,
+ coding standards, and best-practices guides, these resources vary
+ substantially in their scope, accuracy, and applicability. Moreover, the
+ recommendations they put forth are sometimes controversial, and often differ
+ from one to the next.  By creating a new, intentionally concise paper that
+ addresses only the common pitfalls of useful modern C++ language constructs
+ without prescribing any solutions, we aim to equip developers -- in addition
+ to groups choosing to create local design rules, coding standards, or best
+ practices -- with information suitable for making sound engineering decisions
+ appropriate for the development context at hand.  To realize this new paper,
+ we first created a draft based on the input from internal senior C++
+ developers, and then circulated it to several C++ Standards committee members
+ during the Jacksonville meeting held in March, 2018. In response to feedback
+ from these experts, we made adjustments in emphasis regarding certain language
+ features and their pitfalls. With this feedback incorporated, we now believe
+ that the current version of the paper fairly represents our collective
+ knowledge regarding the issues that might arise when using modern C++
+ standards in industrial development organizations.
+
+ We have published this paper internally to obtain additional feedback from
+ engineers throughout Bloomberg in the hope of raising this work to a level of
+ quality suitable for public dissemination worldwide. Any and all corrections,
+ comments and/or criticisms are both warmly welcome and appreciated.
+
+ Finally, in passing, we mention a few of the luminaries who have reviewed and
+ already endorsed the purpose and accuracy of this paper: Marshall Clow,
+ Alexander Evdokimov, Pablo Halpern, ADAM Martin, Alisdair Meredith, Axel
+ Naumann, Gor Nishanov, Jeffrey Olkin, Nina Ranns, David Sankel, Bjarne
+ Stroustrup, Andrew Sutton, Alan Talbot, Tony Van Eerd, JC Van Winkel, Ville
+ Voutilainen, Titus Winters, and Michael Wong.

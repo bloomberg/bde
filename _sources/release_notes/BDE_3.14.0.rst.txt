@@ -1,0 +1,253 @@
+.. _bde3.14.0-top:
+
+==============================
+BDE 3.14.0: Production Release
+==============================
+
+.. _bde3.14.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.14.0 production release
+    was completed on **Monday, October 15, 2018** 
+
+.. _bde3.14.0-highlights:
+
+---------------------
+BDE 3.14.0 Highlights
+---------------------
+
+Enhancements for C++14
+----------------------
+
+Overview
+********
+  This features introduces a set of enhancements to the BSL library to make it
+  more C++14 conformant. The changes makes available, in the ``bsl``-namespace,
+  new functions and features that were added to the standard library as part of
+  C++14.
+
+  The most notable parts of this update are:
+
+    * ``bsl`` aliases for many C++14 features implemented in the native
+      standard library.
+    * User-defined literals for ``complex``, ``chrono``, and ``string``.
+    * Template aliases and varible templates for the result types and values of
+      the type traits meta-functions.
+    * Compile-time integer sequences class ``bsl::integer_sequence`` that can
+      be used when compiling in C++11 mode.
+    * A set of macros to identify if the current platform's standard library
+      and the compiler settings for this platform support various C++14
+      features.
+
+Aliases to STL functions
+************************
+  The update imports the following functions and types defined in the C++14
+  standard into ``bsl``-namespace:
+
+  .. hlist::
+     :columns: 5
+
+     *  ``bit_not``
+     *  ``cbegin``
+     *  ``cend``
+     *  ``crbegin``
+     *  ``crend``
+     *  ``exchange``
+     *  ``hexfloat``
+     *  ``io_errc``
+     *  ``is_error_code_enum``
+     *  ``iostream_category``
+     *  ``make_reverse_iterator``
+     *  ``make_error_code``
+     *  ``make_error_condition``
+     *  ``make_unique``
+     *  ``rbegin``
+     *  ``rend``
+     *  ``quoted``
+     *  ``shared_lock``
+     *  ``shared_timed_mutex``
+
+User-defined literals
+*********************
+  The update imports UDLs defined in the native library into ``bsl``-namespace
+  for ``chrono`` and ``complex``.
+
+  It also adds Bloomberg's implementation of UDLs for ``chrono``, ``complex``
+  and ``string`` that can be used in a client code when compiling in C++11
+  mode:
+
+  * UDLs for ``bsl::chrono``: ``_h``, ``_min``, ``_s``, ``_ms``, ``_us``,
+    ``_ns``
+  * UDLs for ``bsl::complex``: ``_i``, ``_if``, ``_il``
+  * UDLs for ``bsl::string``: ``_s``, ``_S``
+
+  Note that Bloomberg's UDLs are preceded with the ``_`` symbol to avoid
+  ambiguity between the UDLs defined the ``bsl`` namespace and UDLs introduced
+  in the C++14 standard and implemented in the native library.
+
+Template aliases
+****************
+  The update adds template aliases *metafunction-name*\_t for the result of the
+  type traits meta-functions declared in ``<bsl_type_traits.h>`` and
+  meta-functiond from ``bslmf`` package. Note that these aliases can be used
+  when compiling in C++11 mode if template aliases are supported by the current
+  compiler settings for this platform.
+
+Variable templates
+******************
+  The update adds variable templates *metafunction-name*\_v for the values of
+  the type traits meta-functions defined in ``<bsl_type_traits.h>``. Note that
+  this feature is actually part of the C++17 standard, but is available in
+  ``bsl`` when compiling in C++14 mode if the current compiler settings allow
+  support variable templates.
+
+Compile-time integer sequences
+******************************
+  The update provides Bloomberg's implementation of the compile-time integer
+  sequences class ``bsl::integer_sequence``. Note that this  class can be used
+  in a client code when compiling in C++11 mode.
+
+Associative containers
+**********************
+  The update adds the following enchancements for associative containers:
+
+  * Restores ``iterator erase(iterator);`` overload removed in the C++11
+    standard for associative containers.
+  * Adds a heterogeneous comparison lookup member function ``find``, ``count``,
+    ``lower_bound``, ``upper_bound`` and ``equal_range`` overloads to
+    associative containers.
+
+``bsl::basic_string`` enhancements
+**********************************
+  * Adds a new constructor overload to ``bsl::basic_string(other, pos,
+    allocator)`` to construct a ``bsl::basic_string`` object having the
+    specified ``other`` string used as source to initiaize the string with, the
+    `pos` position of the first character to include and the `alloc` allocator
+    to supply memory.
+  * Sets a default argument ``count = npos`` in the declaration of a member
+    function ``bsl::basic_string::assign(str, pos, count = npos);``.
+
+Replace BSLS_CPP11 with BSLS_KEYWORD macros
+*******************************************
+  All macros defined in ``<bsls_cpp11.h>`` that begin with ``BSLS_CPP11_`` are
+  replaced with macros that begin with ``BSLS_KEYWORD_`` defined in the
+  ``<bsls_keyword.h>`` header. All macros defined in the ``<bsls_cpp11.h>``
+  header are **DEPRECATED**.
+
+New macros
+**********
+  The update adds new macros into ``<bsls_keyword.h>`` header:
+
+  * ``BSLS_KEYWORD_CONSTEXPR_RELAXED`` macro that instantiates to ``constexpr``
+    when compiling in C++14 mode.  Note that this is distinct from
+    ``BSLS_KEYWORD_CONSTEXPR`` (which instantiates to ``constexpr`` in C++11
+    mode and C++14) and should be used in contexts where the ``constexpr``
+    would not be valid for a C++11 compiler (but is for a C++14 compiler).
+  * ``BSLS_KEYWORD_INLINE_VARIABLE`` macro that instantiates to ``inline`` when
+    compiling in C++17 mode to allow for C++17 inline variable definitions.
+
+  The update adds new macros into ``<bsls_libraryfeatures.h>`` header:
+
+  * ``BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE`` is defined if the standard
+    stream classes all have the C++11 mandated move operations (constructor
+    and assignment operator).
+  * ``BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY`` is defined to identify
+    whether the current platform's standard library supports a baseline set of
+    C++14 library features.
+  * ``BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE`` is defined if the
+    current platform's standard library and the compiler settings for this
+    platform support C++11 features required to support
+    ``bsl::integer_sequence``.
+  * ``BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY`` is defined to identify
+    whether the current platform's standard library supports a baseline set of
+    C++17 library features.
+  * ``BSLS_LIBRARYFEATURES_STDCPP_<standard library implemetation>``: a set of
+    macros to identify the current platform's standard library implementation.
+
+  The update adds new macros into ``<bsls_compilerfeatures.h>`` header:
+
+  * ``BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED`` is defined if
+    ``constexpr`` with C++14 semantics is supported by the current compiler
+    settings for this platform.
+  * ``BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE`` is defined if
+    ``__has_include`` is supported by the current compiler settings for this
+    platform.
+  * ``BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE`` is defined if inline
+    namespaces introduced in the C++11 standard are supported by the current
+    compiler settings for this platform.
+  * ``BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES`` is defined if inline
+    variables introduced in the C++17 standard are supported by the current
+    compiler settings for this platform.
+  * ``BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS`` is defined if member
+    functions with trailing reference qualifiers (e.g., ``void myfunc(int)
+    &&``) are supported by the current compiler settings for this platform.
+  * ``BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES`` is defined if variable
+    templates introduced in the C++14 standard are supported by the current
+    compiler settings for this platform.
+
+Fix BSL method declarations
+***************************
+  The update marks methods of STL components implemented in BSL as ``noexcept``
+  and ``constexpr`` where required by the C++14 standard.
+
+
+New Component: ``bsls_review`` and Enhancements to ``bsls_assert``
+------------------------------------------------------------------
+  A new component, ``bsls_review``, has been added to provide
+  non-terminating checks as a (temporary) transitional step in adding
+  new ``bsls_assert`` checks into stable production systems.
+
+  * The new component provides a set of macros (``BSLS_REVIEW``,
+    ``BSLS_REVIEW_SAFE``, and ``BSLS_REVIEW_OPT``) to parallel those in
+    ``bsls_assert`` but call a different failure handler which is allowed to
+    return.
+  * The default handler for failed review macros is to log and continue -
+    instrumenting code to identify issues without risking bringing down running
+    systems.
+  * New build options have been provided for ``bsls_assert`` to allow safely
+    enabling assertions at various levels in "review mode" to track if they
+    would fail if fully enabled.
+
+
+Correcting Issue with JSON Decoding
+-----------------------------------
+  A long standing error has been identified in the JSON decoding component
+  ``baljsn::Decoder`` (due to an underlying problem in ``baljsn::ParserUtil``)
+  that causes the parsing of "long" ``bdlt::Datetime``, ``bdlt::Time``, and
+  ``bdlt::Date`` to fail even though ``bdlt::Iso8601Util`` succeeds in parsing
+  the string.  Specifically, valid strings including timezone data may be
+  incorrectly rejected due to their length.  This is the result of the
+  constants taken from ``bdlt::Iso8601Util`` for the maximum length of the
+  three data types being incorrect.  This error has been in production for a
+  long time (well before the addition of microseconds to ``bdlt::Datetime`` and
+  ``bdlt::Time`` over two years ago).
+
+
+  +--------------------+---------------------+--------------------+
+  |Class               | previous max length | current max length |
+  +====================+=====================+====================+
+  |``bdlt::Datetime``  |         26          |         32         |
+  +--------------------+---------------------+--------------------+
+  |``bdlt::Time``      |         15          |         21         |
+  +--------------------+---------------------+--------------------+
+  |``bdlt::Date``      |         10          |         16         |
+  +--------------------+---------------------+--------------------+
+
+
+New Class: ``bdlcc::SingleProducerQueue``
+-----------------------------------------
+  The new class, ``bdlcc::SingleProducerQueue``, is ideal for synchronization
+  and communication between threads in a producer-consumer model when there is
+  only one producer thread. 
+
+
+``pcre2`` Library Updated
+-------------------------
+  This release updates the ``pcre2`` library used by ``bdlpcre`` from version
+  10.20 to the current 10.32, improving JIT performance and adding minor regex
+  language enhancements
+
+.. _bde3.14.0-fixed:
+

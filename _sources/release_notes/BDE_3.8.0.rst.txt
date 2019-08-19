@@ -1,0 +1,39 @@
+.. _bde3.8.0-top:
+
+=============================
+BDE 3.8.0: Production Release
+=============================
+
+.. _bde3.8.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.8.0 production patch was
+    completed on **Thursday, May 10, 2018**.
+
+
+.. _bde3.8.0-highlights:
+
+--------------------
+BDE 3.8.0 Highlights
+--------------------
+
+``bdlb::TransformIterator`` is now available
+--------------------------------------------
+  Added a new type, 'bdlb::TransformIterator'.  This object wraps an underlying
+  iterator, and applies a functor to the result of dereferencing the underlying
+  iterator when it is itself dereferenced.  A convenience function
+  'bdlb::TransformIteratorUtil::make' can be used to create these iterators.
+
+
+``btlb::Blob`` is now ``bdlbb::Blob``
+-------------------------------------
+  In preparation for the PGM team taking over the BTE transport library
+  (including ``btl`` and ``a_bteso``), the ``btlb::Blob`` family of types
+  (formerly known as ``bcema_Blob`` et. al.) have been moved to
+  ``bdlbb::Blob``.  Compatibility typedefs have been left in the old headers.
+
+
+.. _bde3.8.0-fixed:
+

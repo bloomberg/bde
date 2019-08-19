@@ -1,0 +1,124 @@
+=================
+BDE Documentation
+=================
+
+------------
+What is BDE?
+------------
+
+  BDE stands for *BDE Development Environment*. Depending on the context, BDE
+  may refer to a suite of low-level C++ libraries, the methodology that guides
+  their development, or to the team that develops them. The BDE libraries meet
+  superior standards of design, documentation, and testing and are the
+  foundation of C++ development at Bloomberg.  Among other things, the BDE
+  libraries provide an enhanced implementation of STL containers, vocabulary
+  types for representing common concepts (like dates and times), and building
+  blocks for developing multi-threaded applications and network applications.
+
+  The BDE team also provides tools and a methodology that enable developers to
+  create their own C++ software that meets similar standards of quality. The
+  coding standards followed by the BDE team can be found :ref:`here
+  <bde-coding-standards-top>`.  BDE library development is guided by principles
+  described in `Large-Scale C++ Software Design
+  <http://www.amazon.com/Large-Scale-Software-Design-John-Lakos/dp/0201633620>`_
+  .
+
+===============
+BDE Latest News
+===============
+
+
+------------------------------
+BDE 3.35.0: Production Release
+------------------------------
+
+  See :ref:`bde3.35.0-top` for more information.
+
+  *July 29, 2019*
+
+------------------------------
+BDE 3.34.0: Production Release
+------------------------------
+
+  See :ref:`bde3.34.0-top` for more information.
+
+  *July 22, 2019*
+
+------------------------------
+BDE 3.33.1: Production Release
+------------------------------
+
+  See :ref:`bde3.33.1-top` for more information.
+
+  *July 16, 2019*
+
+---------------------------
+BDE Coding Standards Update
+---------------------------
+
+  BDE C++ Coding Standards is now available in both :ref:`HTML <bde-coding-standards-top>`
+  and `PDF </bde-resources/pdfs/CodingStandards_062519.pdf>`_
+
+  * Updated section :ref:`section-7-3` rule :ref:`7.3.6 <rule-7-3-6>` and
+    :ref:`section-7-3-rationale`
+
+  *June 25, 2019*
+
+------------------------------
+BDE 3.32.0: Production Release
+------------------------------
+
+  See :ref:`bde3.32.0-top` for more information.
+
+  *June 24, 2019*
+
+
+------------------------------
+BDE 3.31.0: Production Release
+------------------------------
+
+  See :ref:`bde3.31.0-top` for more information.
+
+  *June 10, 2019*
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   news/news
+
+.. toctree::
+   :caption: API documentation
+   :maxdepth: 1
+   :hidden:
+
+   BDE Doxygen <http://bloomberg.github.com/bde>
+
+.. toctree::
+   :caption: Release Notes
+   :maxdepth: 1
+   :hidden:
+
+   release_notes/BDE_3.36.0
+   release_notes/old_releases
+
+.. toctree::
+   :caption: Knowledge Base
+   :maxdepth: 1
+   :hidden:
+
+   knowledge_base/build
+   knowledge_base/coding_standards
+   knowledge_base/feature_index
+   white_papers/index
+   Taxonomy <https://bde.bloomberg.com/Documentation/BDETypeTaxonomy.pdf>
+   knowledge_base/faq
+   knowledge_base/contributing
+
+.. toctree::
+   :caption: Tools
+   :maxdepth: 1
+   :hidden:
+
+   CMake Build System <https://bloomberg.github.io/bde-tools>

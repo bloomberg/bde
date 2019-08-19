@@ -1,0 +1,65 @@
+.. _bde3.30.0-top:
+
+
+==============================
+BDE 3.30.0: Production Release
+==============================
+
+.. _bde3.30.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.30.0 production release
+    was completed on **Monday, June 3, 2019**
+
+.. _bde3.30.0-highlights:
+
+---------------------
+BDE 3.30.0 Highlights
+---------------------
+
+BDE Buildable with ``gcc`` in C++17 Mode
+----------------------------------------
+
+BAEL Decorated with ``BSLS_DEPRECATE``
+--------------------------------------
+
+.. _bsls_deprecate:  /bde-resources/doxygen/bde_api_prod/group__bsls__deprecate.html
+
+  In this release, the ``BSLS_DEPRECATE`` macro has been applied to (almost)
+  every class in BAEL, a long deprecated package.  (See
+  :ref:`bde3.9.0-ball_the_open_source_logging_toolkit` in :ref:`bde3.9.0-top`).
+  Clients who are using a supporing compiler and wish to receive compiler
+  warnings if these classes are used should define the
+  ``BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY`` flag in their build
+  environment.  As the name of that flag implies, use of that build flag in
+  production is disallowed.  For additional details see bsls_deprecate_.
+
+  Other components in the BDE libraries (outside of BAEL) will be marked
+  deprecated using ``bsls_deprecate`` based on our experience with BAEL.
+
+
+Behavioral Change: Default JSON Encoding of ``Decimal64`` Values
+----------------------------------------------------------------
+  BDE Release 3.30 introduces the previously alerted behavioral change in JSON
+  encoding of ``Decimal64`` values.  The default value of the
+  ``encodeQuotedDecimal64`` attribute of the ``baljsn::EncoderOptions`` class
+  is changed from ``false`` to ``true``.  Consequently, code that previously
+  encoded ``bdldfp::Decimal*`` values to JSON using ``baljsn::Encoder`` with a
+  default configuration will no longer encode those values as numbers.  *Now*,
+  they will be encoded in the quoted form (i.e., string literals).
+
+  The ``baljsn::Decoder`` implicitly decodes values given either
+  representation, so existing users will notice no difference.  However, users
+  of *other* decoders that lack this behavior will experience breakage.  In
+  that case, users can either:
+
+  * Change their (non-BDE) decoder to accept the quoted string form, or
+  * Change their encoder to generate the numeric form by supplying a
+    ``baljsn::EncoderOptions`` object in which the ``encodeQuotedDecimal64``
+    attribute has been set to ``false``.
+
+
+.. _bde3.30.0-fixed:
+

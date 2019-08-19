@@ -1,0 +1,72 @@
+.. _bde3.25.0-top:
+
+==============================
+BDE 3.25.0: Production Release
+==============================
+
+.. _bde3.25.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.25.0 production release
+    was completed on **Monday, April 1, 2019**
+
+.. _bde3.25.0-highlights:
+
+---------------------
+BDE 3.25.0 Highlights
+---------------------
+
+BDE 3.25 Changes the Installation Layout for PIC Builds
+-------------------------------------------------------
+  *Previously*, the BDE build system implicitly set the PIC flag for BDE
+  libraries in all 64-bit builds on all production platforms; however, although
+  the generated libraries contained PIC code, that feature was *not* reflected
+  in the generated file names (i.e, the UFID).  This situation prevented the
+  deployment of both PIC and non-PIC build flavors.
+
+  *Now* (starting in BDE release 3.25.0) the build system no longer generates
+  PIC code on 64-bit builds by default.  To generate PIC code the PIC flag
+  must be explicitly specified in the UFID and the generated files will 
+  reflect that.
+
+  BDE installation maintains a set of compatibility symlinks to allow other
+  teams to discover and link with BDE libraries.
+
+  The sample installation layout for ``libsl-dev`` packages is shown below:
+
+  .. code-block:: bash
+    
+    <refroot>/opt/bb/lib64$ ls -la
+
+    dbg_exc_mt_pic/libbsl.a
+    dbg_exc_mt_safe_pic/libbsl.a
+    opt_exc_mt_pic/libbsl.a
+    opt_dbg_exc_mt_pic/libbsl.a
+
+    libbsl.a                        -> opt_exc_mt_pic/libbsl.a
+
+    libbsl.dbg_exc_mt.a             -> dbg_exc_mt_pic/libbsl.a
+    libbsl.dbg_exc_mt_pic.a         -> dbg_exc_mt_pic/libbsl.a
+    libbsl.dbg_exc_mt_64.a          -> dbg_exc_mt_pic/libbsl.a
+    libbsl.dbg_exc_mt_64_pic.a      -> dbg_exc_mt_pic/libbsl.a
+
+    libbsl.dbg_exc_mt_safe.a        -> dbg_exc_mt_safe_pic/libbsl.a
+    libbsl.dbg_exc_mt_safe_pic.a    -> dbg_exc_mt_safe_pic/libbsl.a
+    libbsl.dbg_exc_mt_64_safe.a     -> dbg_exc_mt_safe_pic/libbsl.a
+    libbsl.dbg_exc_mt_64_safe_pic.a -> dbg_exc_mt_safe_pic/libbsl.a
+
+    libbsl.opt_dbg_exc_mt.a         -> opt_dbg_exc_mt_pic/libbsl.a
+    libbsl.opt_dbg_exc_mt_pic.a     -> opt_dbg_exc_mt_pic/libbsl.a
+    libbsl.opt_dbg_exc_mt_64.a      -> opt_dbg_exc_mt_pic/libbsl.a
+    libbsl.opt_dbg_exc_mt_64_pic.a  -> opt_dbg_exc_mt_pic/libbsl.a
+
+    libbsl.opt_exc_mt.a             -> opt_exc_mt_pic/libbsl.a
+    libbsl.opt_exc_mt_pic.a         -> opt_exc_mt_pic/libbsl.a
+    libbsl.opt_exc_mt_64.a          -> opt_exc_mt_pic/libbsl.a
+    libbsl.opt_exc_mt_64_pic.a      -> opt_exc_mt_pic/libbsl.a
+
+
+.. _bde3.25.0-fixed:
+

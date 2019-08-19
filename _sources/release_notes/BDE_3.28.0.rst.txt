@@ -1,0 +1,52 @@
+.. _bde3.28.0-top:
+
+==============================
+BDE 3.28.0: Production Release
+==============================
+
+.. _bde3.28.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.28.0 production release
+    was completed on **Monday, May 6, 2019**
+
+.. _bde3.28.0-highlights:
+
+---------------------
+BDE 3.28.0 Highlights
+---------------------
+
+New Components: Concurrent Unordered Map and Concurrent Unordered Multimap
+--------------------------------------------------------------------------
+  The components ``bdlcc_stripedunorderedmap`` and
+  ``bdlcc_stripedunorderedmultimap`` provide fully thread-safe containers
+  inspired by (but not identical to) ``bsl::unordered_map`` and
+  ``bsl::unordered_multimap``, respectively.  One notable difference is that
+  our concurrent classes do not provide iterators.  Instead, there are methods
+  that allow user-defined functors to be applied in a thread-safe manner to
+  elements of these containers.
+
+
+Recategorization of Defensive Checks
+------------------------------------
+  Many precondition checks previously categorized as ``BSLS_ASSERT_SAFE``
+  (i.e., checks previously disabled in production) were changed to
+  ``BSLS_REVIEW`` macros some time ago (see :ref:`bde3.16.0-top`).  As
+  ``BSLS_REVIEW`` macros, these checks were enabled in production and
+  configured to report failures to a log file and continue execution.  In this
+  release, roughly 1100 checks that have not logged any failures recently have
+  been "promoted" to ``BSLS_ASSERT`` macros.  Henceforth, failures from any of
+  these promoted checks will *abort* their tasks.
+
+
+Utility for ``gtest`` Now Handles ``bslstl::StringRef``
+-------------------------------------------------------
+  The ``bslim_gtestutil`` component that provides a ``PrintTo`` method for
+  ``bsl::string`` (to improve readability of ``gtest`` messages) has been
+  enhanced to handle ``bslstl::StringRef`` as well.
+
+
+.. _bde3.28.0-fixed:
+

@@ -1,0 +1,153 @@
+.. _contribute-top:
+
+===================
+Contributing to BDE
+===================
+
+BDE welcomes contributions from other developers! We have some experience
+integrating work from other teams into BDE libraries
+and hope to incorporate more contributions in the future.
+
+.. _contribute-code:
+
+-----------------------------
+Where is the BDE Source Code?
+-----------------------------
+
+.. csv-table::
+   :header: "Repository", "Description"
+   :widths: 20, 80
+   :align: left
+
+   :github:`bloomberg/bde`,          "Main repository"
+   :github:`bloomberg/bde-tools`,    "BDE Cmake-based build system and tools"
+
+.. _contribute-requirements:
+
+-------------------------------------
+Basic Requirements for a Contribution
+-------------------------------------
+
+For any change incorporated into BDE we require:
+
+* The change must make sense within the BDE framework
+* The change must meet the :ref:`bde-coding-standards-top`
+* The change must be thoroughly documented (where appropriate). See the coding
+  standards.
+* The change must be thoroughly tested (where appropriate). See below.
+* The BDE coding standards contain additional information about documentation
+  and testing.
+
+
+All contributions must conform to the :ref:`bde-coding-standards-top` for
+design, coding, documentation, and testing - they are rigorous and they are
+many. See :ref:`bde-coding-standards-top` to start; other requirements are less
+well documented and will have to be discussed. The BDE team will gladly help
+you learn the BDE methodology (whether or not you are making a contribution);
+however, ultimately, you will be doing the work.
+
+.. _contribute-workflow:
+
+BDE Development Workflow
+------------------------
+
+BDE follows the standard *github* workflow:  Features are developed from a
+*fork* of an existing repository and, when completed, the developer issues a
+request to pull the new code into the official repository.
+
+.. _contribute-testing:
+
+Testing
+-------
+
+There is not a canonical source of information on testing.  A good example of
+the C++ rendering for a BDE test-driver is: 
+:bde_repo:`bdlb_tokenizer.t.cpp <groups/bdl/bdlb/bdlb_tokenizer.t.cpp>`
+
+.. _contribute-build:
+
+How Do I Build and Test a Fix?
+------------------------------
+
+* `BDE build system documentation </bde-tools>`_
+
+
+.. _contribute-simple-fix:
+
+How Do I Contribute a Simple Bug Fix or Documentation Change?
+-------------------------------------------------------------
+
+*Simple!* Create an enhancement request describing the issue, and add a link to
+the pull request.  See the :ref:`Road Map <contribute-road-map>` below,
+starting at development.
+
+.. _contribute-large:
+
+How Do I Contribute a New Feature, Component, or Package?
+---------------------------------------------------------
+
+For larger changes, we recommend first reviewing the ideas with us before
+spending too much time to implementing them.  We want your contribution to fit
+within the BDE framework. For example, it must be finely factored and have the
+potential for wide reuse. Let's resolve such questions before you have invested
+much development effort.  See the :ref:`Road Map <contribute-road-map>` below.
+
+.. _contribute-road-map:
+
+--------
+Road Map
+--------
+
+Proposal
+--------
+
+* Create an issue proposing the type or feature you want to add.
+  Note there that you intend to contribute the changes yourself.
+
+* Discuss, in the ticket, basic issues surrounding the changes:
+
+    * the appropriateness of the feature for BDE
+
+    * the library/package/component in which the changes would be located
+
+    * high-level design and component factoring
+
+* When we reach an agreement on the proposal, the next stage is the development
+  of your ideas in your fork of BDE.
+
+* For larger changes, a member of the BDE team may advise you during the
+  development of your code.
+
+Development
+-----------
+
+* First, you will need fork the appropriate BDE repository for your
+  contribution. The repository choice is generally determined during the
+  proposal stage.
+
+* TBD: At some point in your development, you will integrate your code into
+  BDE's nightly build branch. Code in that branch is compiled and tested (i.e.,
+  test drivers are run) extensively. The nightly builds cover many different
+  combinations of platforms, compilers, and build options. Breakages are
+  reported daily and must be fixed as soon as possible.
+
+    * Before integrating your code into the nightly build branch, you should
+      personally check that it compiles and tests successfully at least on all
+      of the Unix-platforms widely used at Bloomberg (i.e., Linux, Sun, AIX),
+      and, if possible, on Windows, too.
+
+* At this point, developers submit their code for review.
+
+Review
+------
+
+* Code changes will be reviewed ether on github or in Phabricator.
+* Integrate the feedback from each cycle of review. Multiple review cycles are
+  typical for BDE code before it is released.
+
+Release
+-------
+
+* You may have to contribute a feature description and tutorial material for
+  BDE release NLRTs and Release Notes.
+

@@ -1,0 +1,39 @@
+.. _bde3.12.0-top:
+
+==============================
+BDE 3.12.0: Production Release
+==============================
+
+.. _bde3.12.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.12.0 production release
+    was completed on **Wednesday, September 5, 2018**.
+
+
+.. _bde3.12.0-highlights:
+
+---------------------
+BDE 3.12.0 Highlights
+---------------------
+
+``bdlde::Crc32c`` : Utilities for CRC32-C Checksums
+---------------------------------------------------
+  The new class ``bdlde::Crc32c`` (note the trailing "c") calculates a cyclic
+  redundancy check value, an ``unsigned int``, based on Castagnoli polynomials.
+  Furthermore, to improve performance, the implementation invokes
+  special-purpose machine instructions when such are provided by the platform.
+
+  Users familiar with the existing ``bdlde::Crc32`` class (note no trailing
+  "c") should be aware of several differences.  The two classes:
+
+    * Use related but *different* algorithms.  Given the same input, expect
+      different results from the two classes.
+
+    * Have different usage paradigms.  The new class provides utility methods;
+      the previously existing class was implemented as a value-semantic type.
+
+.. _bde3.12.0-fixed:
+

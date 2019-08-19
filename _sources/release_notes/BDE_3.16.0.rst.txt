@@ -1,0 +1,62 @@
+.. _bde3.16.0-top:
+
+==============================
+BDE 3.16.0: Production Release
+==============================
+
+.. _bde3.16.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.16.0 production release
+    was completed on **Thursday, November 1, 2018**
+
+.. _bde3.16.0-highlights:
+
+---------------------
+BDE 3.16.0 Highlights
+---------------------
+
+.. _bde3.16.0-recategorization:
+
+Recategorization of Defensive Checks
+------------------------------------
+
+Background
+**********
+  BDE is starting a campaign to recategorize many of the existing
+  ``BSLS_ASSERT_SAFE`` defensive programming checks to ``BSLS_ASSERT``.  Since
+  many client builds enable ``BSLS_ASSERT`` but disable ``BSLS_ASSERT_SAFE``
+  the end result will be additional checks enabled in production code.
+
+  The impetus for this change is that the guidelines for deciding on which
+  assert macro to use have evolved, and now it is clear that only tests which
+  will have very large performance impacts on a function should use
+  ``BSLS_ASSERT_SAFE``.
+
+  To facilitate this migration, we will be using ``BSLS_REVIEW`` to safely
+  migrate the level of assertions within the BDE codebase.  The first stage of
+  migration for each check will be to make it a ``BSLS_REVIEW``, which will
+  begin to check the condition when enabled but will only log the failure
+  instead of aborting.  ``BSLS_REVIEW`` was added in BDE Release 3.14.0, see
+  the release notes for that version and the documentation of
+  `bsls_review </bde-resources/doxygen/bde_api_prod/group__bsls__review.html>`_
+  for a more complete description of this feature.
+
+What Does This Mean To You?
+***************************
+  As checks migrate they will begin to log if they are being violated.  If you
+  see these log messages containing the phrase ``BSLS_REVIEW failure``
+  appearing on ``stderr`` (standard error) then a BDE function is being called
+  out of its checked contract.  This indicates a bug in either the calling code
+  or the check itself.  Please investigate the problem and escalate to the BDE
+  team if there seems to be an issue in the newly enabled check.
+
+  After a check has been deployed (and not been violated) for a significant
+  enough amount of time, we will be turning it into a ``BSLS_ASSERT``.
+  Notifications about this happening should be in future BDE Release notes.
+
+
+.. _bde3.16.0-fixed:
+

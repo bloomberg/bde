@@ -1,0 +1,56 @@
+.. _bde3.33.1-top:
+
+==============================
+BDE 3.33.1: Production Release
+==============================
+
+.. _bde3.33.1-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.33.1 production release
+    was completed on **Monday, July 15th, 2019**
+
+.. _bde3.33.1-highlights:
+
+---------------------
+BDE 3.33.1 Highlights
+---------------------
+
+New Component: ``bdlmt_signaler`` for connecting signals and slots
+------------------------------------------------------------------
+  ``bdlmt::Signaler<PROT>`` has been contributed to BDE, a utility that
+  provides an implementation of a ``signals`` and ``slots`` framework.  This
+  component provides a way to generate a function object (a ``signal``) that
+  can, in a thread safe manner, be attached to any number of compatible
+  callable ``slots``.  Slots can be connected and disconnected from a signal
+  asynchronously, and signals can be emitted concurrently.
+
+
+.. _bde3.33.1-fixed:
+
+----------------------
+Fixed requests: 3.33.0
+----------------------
+
+.. csv-table::
+   :header: "Description"
+   :widths: 100
+   :align: left
+
+   "``bdlmt_signaler``: managed signals and slots system for BDE (copy mwcu)"
+   "Correct test driver run failure for bdesu_processutil on Windows"
+   "MultiqueueThreadPool returning negative values"
+   "Avoid unnecessary use of ``bslmf::MetaInt``"
+   "Prevent ``bdef_Function<T>`` from being instantiated if ``T`` is not a function"
+   "Fix compilation failure in bslim_gtestutil"
+   "``bsl::is_nothrow_move_constructible`` give bad result in many cases"
+   "``bslmt_throughputbenchmark`` TD allocation failure"
+   "Correct nightly build test compile issues with bsls_annotation.t.cpp"
+   "Avoid a dangling functor in ``bslmt_throughputbenchmark``"
+   "``bdlmt_signaler``: cpp17: bind doesn't mix with noexcept"
+   "``system_error`` is broken with BSL_OVERRIDES_STD"
+   "Correct ``bslh_hash`` test driver case 3"
+   "``bdlcc::SkipList``: excessive calls to 'replenish' causing b"
+   "``bdlbb::BlobUtil::append``: Excessive Memory Usage"

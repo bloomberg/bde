@@ -1,0 +1,92 @@
+.. _bde3.32.0-top:
+
+==============================
+BDE 3.32.0: Production Release
+==============================
+
+.. _bde3.32.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.32.0 production release
+    was completed on **Monday, June 24, 2019**
+
+.. _bde3.32.0-highlights:
+
+---------------------
+BDE 3.32.0 Highlights
+---------------------
+
+``bslmt::Condition`` No Longer Supports Windows XP: Performance Gains Expected
+------------------------------------------------------------------------------
+  Historically, BDE provided a Windows XP-compatible implementation of
+  ``bslmt::Condition``. In this release, BDE replaces that implementation with
+  one that uses the Windows native condition variable. As Windows XP lacks a
+  native condition variable, this upgrade ends Windows XP compatibility.
+
+  This new implementation is expected to have better performance in all use
+  cases.
+
+
+New Components: ``bslmt::ThroughputBenchmark*`` for multi-threaded performance testing
+--------------------------------------------------------------------------------------
+  ``bslmt::ThroughputBenchmark`` and the accompanying
+  ``bslmt::ThroughputBenchmarkResult`` provide performance testing for
+  multi-threaded components. The user specifies which function to run, and on
+  how many threads. Several functions (say readers and writers) can run at the
+  same time. The test is repeated multiple times, and the results can be mined
+  for median and other percentiles (such as min and max).  The user can
+  simulate additional load interleaved with the function being run (for
+  example, when testing a queue ``push`` and ``pop``, simulate a load
+  representing what is being done with the popped element).
+
+
+New Component: ``bdlcc::BoundedQueue``
+--------------------------------------
+  ``bdlcc::BoundedQueue`` provides a new bounded queue implementation with an
+  improved interface, temporal performance improvements, and memory use
+  reduction for ``bsl::is_trivially_copyable`` classes over
+  ``bdlcc::FixedQueue``.
+
+
+New Component: ``bdlcc::SingleProducerSingleConsumerBoundedQueue``
+------------------------------------------------------------------
+  ``bdlcc::SingleProducerSingleConsumerBoundedQueue`` provides a new type of
+  queue with significant temporal performance improvements over
+  ``bdlcc::FixedQueue`` in the SPSC use case.
+
+
+New Package: ``bsla`` for Cross-platform Compiler Annotations
+-------------------------------------------------------------
+
+  This release introduces a new package ``bsla`` that supersedes the existing
+  ``bsls_annotation`` component, providing macros that (on supported platforms)
+  expand into compiler supported annotations (e.g., ``BSLA_NORETURN``, expands
+  to "[[ noreturn ]]" on supporting compilers).  On platforms where a  compiler
+  annotation is not supported, the macros in ``bsla`` expand to nothing.  Note
+  that this package was introduced to provide shorter macro names than those in
+  ``bsls_annotation`` (e.g., ``BSLA_NORETURN`` instead of
+  ``BSLS_ANNOTATION_NORETURN``).
+
+
+.. _bde3.32.0-fixed:
+
+----------------------
+Fixed requests: 3.32.0
+----------------------
+
+.. csv-table::
+   :header: "Summary"
+   :widths: 100
+   :align: left
+
+   "``bsla_annotations.h`` -- Add abbreviated macros for standardized keywords"
+   "Create ``bslmt_throughputbenchmark``"
+   "Create a separate, binary package with ``BSL_OVERRIDES_STD`` headers"
+   "Migrate ``bslmt_conditionimpl_win32`` to native windows condition variables"
+   "Create ``bdlcc_boundedqueue``"
+   "Create ``bdlcc_singleproducersingleconsumerboundedqueue``"
+   "``SingleProducerQueue``: ``NumElements`` not fully synchronized"
+   "Clean all ``bdx`` test driver compile warnings"
+   "Reduce ``bdlcc`` intermittant timing failures in NB"

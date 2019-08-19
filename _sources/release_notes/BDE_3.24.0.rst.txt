@@ -1,0 +1,31 @@
+.. _bde3.24.0-top:
+
+==============================
+BDE 3.24.0: Production Release
+==============================
+
+.. _bde3.24.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.24.0 production release
+    was completed on **Wednesday, March 27, 2019**
+
+.. _bde3.24.0-highlights:
+
+---------------------
+BDE 3.24.0 Highlights
+---------------------
+
+``bsl::array`` Now Available
+----------------------------
+  The ``bsl::array`` class template  provides an STL compliant ``array``
+  on all supported platforms.
+  This C++14 implementation preserves essential behavior in C++11 and C++03
+  environments where features such as ``noexcept`` and ``constexpr`` may not be
+  fully supported.
+
+
+.. _bde3.24.0-fixed:
+

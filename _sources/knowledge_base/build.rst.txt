@@ -1,0 +1,320 @@
+.. _build-instructions-top:
+
+==================
+Build Instructions
+==================
+
+-------------
+Linux & MacOS
+-------------
+
+Prerequisites
+-------------
+
+  BDE CMake build system requires following software to be preinstalled and
+  configured on the system:
+
+  * `CMake <https://cmake.org/>`_ (version 3.12 or later)
+  * `Ninja <https://ninja-build.org/>`_ (recommended) or `GNU Make
+    <https://www.gnu.org/software/make/>`_
+  * `Python <https://www.python.org>`_ ( only for BDE wrappers )
+
+Download BDE tools
+------------------
+
+  * Clone the :bde_tools_repo:`bde-tools <>` repository:
+
+    ::
+
+      $ git clone https://github.com/bloomberg/bde-tools.git
+
+  * Add the ``<bde-tools>/bin`` to the ``PATH`` environment variable:
+
+    ::
+
+      $ export PATH=<bde-tools>/bin:$PATH
+
+    .. note::
+       Instead of adding ``bde-tools/bin`` to your ``PATH``, you can also
+       execute the scripts from ``bde-tools/bin`` directly.
+
+  * Verify that the build helpers can correctly detect C++ compilers 
+    installed in the system:
+
+    ::
+
+      $ bde_build_env.py list
+      Avaliable compilers:
+       0: gcc-7.4.0 (default)
+           CXX: /usr/bin/g++
+           CC : /usr/bin/gcc
+           Toolchain: gcc-default
+       1: clang-8.0.0
+           CXX: /usr/bin/clang++
+           CC : /usr/bin/clang
+           Toolchain: clang-default
+
+    ``bde_build_env.py`` will detect ``gcc`` and ``clang`` compilers in the
+    PATH environment on Unix.  If a compiler is not found automatically, you
+    can specify a compiler location using a ``.bdecompilerconfig`` file in
+    $HOME (see `Configure System Compilers
+    </bde-tools/cmake/config.html#configure-system-compilers>`_).
+
+Download BDE library
+--------------------
+
+  * Clone the :bde_repo:`bde <>` repository:
+
+    ::
+
+      $ git clone https://github.com/bloomberg/bde.git
+      $ cd bde
+
+Set build environment
+---------------------
+
+  * This command sets environment variables that define effective ufid/uplid,
+    compiler and build directory for subsequent commands:
+
+    ::
+
+      $ eval `bde_build_env.py --build-type=Release`
+
+Configure, build and install BDE
+--------------------------------
+
+  * Configure the Cmake build system:
+
+    ::
+
+      $ cmake_build.py configure
+
+  * Build BDE libraries:
+
+    ::
+
+      $ cmake_build.py build
+
+  * Install BDE libraries and headers:
+
+    ::
+
+      $ cmake_build.py --install_dir=/bde_install --prefix=/ install
+
+Create an application
+---------------------
+
+  Usually, Bloomberg developers do not need to compile BDE libraries.
+  Precompiled BDE libraries are available as dpkgs.
+
+  * Create a sample application that initializes BALL logging system and logs
+    "Hello, World!" message ( ``ball_init.cpp`` ):
+
+    ::
+
+      #include <ball_log.h>
+      #include <ball_loggermanager.h>
+      #include <ball_loggermanagerconfiguration.h>
+      #include <ball_streamobserver.h>
+
+      #include <bsl_iostream.h>
+      #include <bsl_memory.h>
+
+      #include <unistd.h>
+
+      using namespace BloombergLP;
+
+      BALL_LOG_SET_NAMESPACE_CATEGORY("MAIN");
+
+      int main(int argc, char ** argv)
+      {
+          ball::LoggerManagerConfiguration configuration;
+
+          configuration.setDefaultThresholdLevelsIfValid(ball::Severity::e_INFO);
+          ball::LoggerManagerScopedGuard lmGuard(configuration);
+
+
+          bsl::shared_ptr<ball::StreamObserver> observer =
+                                  bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+          // Register file observer with the Logger Manager.
+          ball::LoggerManager::singleton().registerObserver(observer, "default");
+
+          // Start logging.
+          BALL_LOG_INFO << "Hello, World!";
+
+          return 0;
+      }
+
+  * Create a sample ``CMakeLists.txt`` file:
+
+    ::
+
+      cmake_minimum_required (VERSION 3.14)
+      project (ball_init)
+
+      set(CMAKE_CXX_STANDARD 14)
+      set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+      find_package(Threads REQUIRED)
+      find_package(bal REQUIRED)
+      find_package(bdl REQUIRED)
+      find_package(bsl REQUIRED)
+
+      add_executable(ball_init ball_init.cpp)
+      target_link_libraries(ball_init bal bdl bsl Threads::Threads rt)
+
+  * Configure and build the application:
+
+    ::
+
+      $ mkdir build
+      $ cd build
+      $ cmake -DCMAKE_PREFIX_PATH=/bde_install/lib64/opt_exc_mt/  ../
+      $ cmake --build ./
+
+Plain CMake build
+-----------------
+
+  BDE can be compiled without provided python tools with plain CMake.
+  Commands provided here for illustration purposes only:
+
+    ::
+
+      $ git clone https://bbgithub:bde/bde-tools
+      $ git clone https://bbgithub:bde/bde
+      $ mkdir build; cd build
+      $ cmake -DCMAKE_MODULE_PATH=../bde-tools/cmake/ \
+              -DCMAKE_TOOLCHAIN_FILE=../bde-tools/cmake/toolchains/linux/gcc-default.cmake \
+              -DCMAKE_BUILD_TYPE=Release ../bde
+      $ cmake --build ./
+
+  .. note::
+     Compiling BDE with provided python wrappers is a preferred way of building
+     BDE libraries.
+
+-------
+Windows
+-------
+
+Prerequisites
+-------------
+
+  BDE CMake build system requires following software to be preinstalled and
+  configured on the system:
+
+  * `CMake <https://cmake.org/>`_ (version 3.12 or later)
+  * `Microsoft Visual Studio <https://docs.microsoft.com/en-us/visualstudio>`_
+  * `Git for Windows <https://gitforwindows.org/>`_ (recommended)
+  * `Python <https://www.python.org>`_
+
+  All the command shown below are executed from the Git Bash console.
+
+Download BDE tools
+------------------
+
+  * Clone the :bde_tools_repo:`bde-tools <>` repository:
+
+    ::
+
+      $ git clone https://github.com/bloomberg/bde-tools.git
+
+  * Add the ``<bde-tools>/bin`` to the ``PATH`` environment variable:
+
+    ::
+
+      $ export PATH=<bde-tools>/bin:$PATH
+
+    .. note::
+       Instead of adding ``bde-tools/bin`` to your ``PATH``, you can also
+       execute the scripts from ``bde-tools/bin`` directly.
+
+  * List supported compilers:
+
+    ::
+
+      $ bde_build_env.py list
+	  Avaliable compilers:
+	  0: cl-19.10 -- Visual Studio 2017 (Version 15.0) (default)
+		 CXX: None
+		 CC : None
+		 Toolchain: cl-default
+	  1: cl-19.20 -- Visual Studio 2019 (Version 16.0)
+		 CXX: None
+		 CC : None
+		 Toolchain: cl-default
+	  2: cl-19.00 -- Visual Studio 2015 (Version 14.0)
+		 CXX: None
+		 CC : None
+		 Toolchain: cl-default
+	  3: cl-18.00 -- Visual Studio 2013 (Version 12.0)
+		 CXX: None
+		 CC : None
+		 Toolchain: cl-default
+	  4: cl-17.00 -- Visual Studio 2012 (Version 11.0)
+		 CXX: None
+		 CC : None
+		 Toolchain: cl-default
+	  5: cl-16.00 -- Visual Studio 2010 (Version 10.0)
+		 CXX: None
+		 CC : None
+		 Toolchain: cl-default
+	  6: cl-15.00 -- Visual Studio 2008 (Version 9.0)
+		 CXX: None
+		 CC : None
+		 Toolchain: cl-default
+
+
+    ``bde_build_env.py`` cannot reliably detect installed compilers under Windows
+    environment and simply lists the compiler versions that are supported by the
+    tools.
+
+Set build environment
+---------------------
+
+  * This command sets environment variables that define effective ufid/uplid,
+    compiler and build directory for subsequent commands:
+
+    ::
+
+      $ eval `bde_build_env.py --build-type=Release`
+
+Configure, build and install BDE
+--------------------------------
+
+  * Configure the Cmake build system:
+
+    ::
+
+      $ cmake_build.py configure
+
+  * Build BDE libraries:
+
+    ::
+
+      $ cmake_build.py build
+
+  * Install BDE libraries and headers:
+
+    ::
+
+      $ cmake_build.py --install_dir=/bde_install --prefix=/ install
+
+Plain CMake build
+-----------------
+
+  BDE can be compiled without provided python tools with plain CMake.
+  Commands provided here for illustration purposes only:
+
+    ::
+
+      $ git clone https://bbgithub:bde/bde-tools
+      $ git clone https://bbgithub:bde/bde
+      $ mkdir build; cd build
+      $ cmake -DCMAKE_MODULE_PATH=../bde-tools/cmake/ -DCMAKE_TOOLCHAIN_FILE=../bde-tools/cmake/toolchains/win32/cl-default.cmake \
+              -DCMAKE_BUILD_TYPE=Release ../bde
+      $ cmake --build ./
+
+  .. note::
+     Compiling BDE with provided python wrappers is a preferred way of building
+     BDE libraries.

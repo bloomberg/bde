@@ -1,0 +1,23 @@
+.. _bde3.23.1-top:
+
+==============================
+BDE 3.23.1: Production Release
+==============================
+
+.. _bde3.23.1-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.23.1 production release
+    was completed on **Monday, March 11, 2019**
+
+.. _bde3.23.1-highlights:
+
+---------------------
+BDE 3.23.1 Highlights
+---------------------
+  This release consists of assorted fixes.
+
+.. _bde3.23.1-fixed:
+

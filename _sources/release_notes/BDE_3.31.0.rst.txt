@@ -1,0 +1,38 @@
+.. _bde3.31.0-top:
+
+==============================
+BDE 3.31.0: Production Release
+==============================
+
+.. _bde3.31.0-schedule:
+
+--------
+Schedule
+--------
+
+  * The BDE team is pleased to announce that the BDE 3.31.0 production release
+    was completed on **Monday, June 10, 2019**
+
+.. _bde3.31.0-highlights:
+
+---------------------
+BDE 3.31.0 Highlights
+---------------------
+
+  This release consists of several minor fixes and enhancements.
+
+.. _bde3.31.0-fixed:
+
+----------------------
+Fixed requests: 3.31.0
+----------------------
+
+.. csv-table::
+   :header: "Description"
+   :widths: 100
+   :align: left
+
+   "``bslstl::TreeNodePool:createNode`` issues"
+   "Improve performance for ``bsls_spinlock``"
+   "``bdls_filesystemutil`` TC 18 intermittent nightly build failure"
+   "``bsl::set::insert`` runtime crash with ``boost::range``"

@@ -1,0 +1,45 @@
+.. _bde3.9.0-top:
+
+==============================
+BDE 3.9.0: Production Release
+==============================
+
+.. _bde3.9.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.9.0 production release
+    was completed on **Thursday, May 15, 2018**.
+
+
+.. _bde3.9.0-highlights:
+
+--------------------
+BDE 3.9.0 Highlights
+--------------------
+
+.. _bde3.9.0-ball_the_open_source_logging_toolkit:
+
+BALL: The Open Source Logging Toolkit
+-------------------------------------
+
+  This release introduces the new ``BALL`` open source logging toolkit.
+  ``BALL`` is almost entirely backward compatible with its predecessor, the now
+  deprecated ``BAEL`` toolkit. Public symbols in ``BAEL`` have been aliased to
+  their successors in ``BALL`` so, in the vast majority of cases, existing
+  ``BAEL`` clients will easily re-compile to use the new toolkit.
+
+  In addition, the ``BALL`` toolkit introduces several new features, including:
+
+  * Logging statements using the new ``BALL_LOG_*`` macros need not be closed
+    with the ``BALL_LOG_END`` macro, although one may choose to do so.
+  * The new macro, ``BALL_LOG_SET_CLASS_CATEGORY``, can be used to establish
+    class scope logging categories.
+  * Improved observer management by the logger manager.
+  * Log file clean up facilities.
+  * New component: ``ball_filteringobserver``
+
+
+.. _bde3.9.0-fixed:
+

@@ -1,0 +1,44 @@
+.. _bde3.36.0-top:
+
+==============================
+BDE 3.36.0: Production Release
+==============================
+
+.. _bde3.36.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.36.0 production release
+    was completed on **Monday, Aug 5, 2019**
+
+.. _bde3.36.0-highlights:
+
+---------------------
+BDE 3.36.0 Highlights
+---------------------
+
+New Component: ``bdlbb::SimpleBlobBufferFactory``
+-------------------------------------------------
+  ``bdlbb::SimpleBlobBufferFactory`` provides a mechanism, passed an allocator
+  at construction, which will create blob buffers of a desired size with a
+  separate call to the allocator to create each blob buffer.
+
+
+.. _bde3.36.0-fixed:
+
+----------------------
+Fixed requests: 3.36.0
+----------------------
+
+.. csv-table::
+   :header: "Summary"
+   :widths: 100
+   :align: left
+
+   "bdlbb_simpleblobbufferfactory: factory with configurable allocator"
+   "bdlcc_deque: add move semantics"
+   "balm docs need reference to GUTS"
+   "bslmt_threadutil: thread names on Windows"
+   "baetzo_errorcode: fix test failure in the nightly build"
+

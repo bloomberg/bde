@@ -1,0 +1,24 @@
+pageSetup :
+    size : letter
+
+linkColor : black
+
+styles:
+    base:
+        fontSize: 10
+        kerning: true
+
+    table-heading:
+        backColor : #EDF0F2
+
+    table:
+        commands: []
+            [ROWBACKGROUNDS, [0, 0], [-1, -1], [white, white]]
+            [BOX, [ 0, 0 ], [ -1, -1 ], 0.25, black ]
+            [INNERGRID, [ 0, 0 ], [ -1, -1 ], 0.25, black ]
+
+    code:
+        backColor: #EDF0F2
+
+    underline:
+        underline: true

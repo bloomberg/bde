@@ -1,0 +1,94 @@
+.. _bde3.15.0-top:
+
+==============================
+BDE 3.15.0: Production Release
+==============================
+
+.. _bde3.15.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.15.0 production release
+    was completed on **Thursday, October 25, 2018**
+
+.. _bde3.15.0-highlights:
+
+---------------------
+BDE 3.15.0 Highlights
+---------------------
+  This release consists entirely of enhancements to
+  `bsls_assert </bde-resources/doxygen/bde_api_prod/group__bsls__assert.html>`_
+  and
+  `bsls_review </bde-resources/doxygen/bde_api_prod/group__bsls__review.html>`_.
+
+
+Assertion Handlers that Return are Now Disallowed
+-------------------------------------------------
+  Starting in BDE 3.15.0, ``bsls_assert`` failure handers must not return
+  control to the point of the failed assertion (perhaps after having logged the
+  event).  Such attempts are now forced to abort.
+
+Assertion Handler Signature Changed
+-----------------------------------
+  *Previously*, the assertion handler signature took three arguments:
+
+  * the text of the failed expression
+  * the filename of the point of failure
+  * the line number of the point of failure
+
+  The use of handlers having the above signature is currently supported but
+  *DEPRECATED*.
+
+  *Now*, there is an assertion handler signature that takes a single argument,
+  an instance of ``bsls::AssertViolation`` that encapsulates the three previous
+  arguments plus the level of the ``BSLS_ASSERT*`` macro that invoked the
+  handler:
+
+  * ``k_LEVEL_SAFE``    *(narrowest, enabled in one build mode)*
+  * ``k_LEVEL_ASSERT``
+  * ``k_LEVEL_OPT``
+  * ``k_LEVEL_INVOKE`` *(broadest, enabled in all build modes)*
+
+  The new macro, ``BSLS_ASSERT_INVOKE``, unconditionally invokes the currently
+  installed assertion failure handler in all build modes.
+
+  This change brings the handler signature in line with that of the recently
+  introduced ``bsls_review`` component.
+
+New Build Flag: ``BSLS_ASSERT_VALIDATE_DISABLED_MACROS``
+--------------------------------------------------------
+  When the ``BSLS_ASSERT_VALIDATE_DISABLED_MACROS`` is defined then
+  ``BSLS_ASSERT_*`` macros that are disabled at the current build level are not
+  elided but are expanded to a non-evaluated constant expression.  This is
+  useful in two ways:
+
+  1. Syntax checking of expressions in rarely enabled ``BSLS_ASSERT*`` macros.
+
+  2. Suppressing "unused variable" warnings that arise when macros are
+     completely elided:
+
+    .. code-block:: cpp
+
+       { 
+           int rc = f();
+           BSLS_ASSERT_SAFE(0 < rc);
+           BSLS_ASSERT_SAFE(rc <10);
+       }
+
+  Note that analogous build flags are defined for
+  `bsls_asserttest </bde-resources/doxygen/bde_api_prod/group__bsls__asserttest.html>`_
+  (``BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS``)
+  and
+  `bsls_review </bde-resources/doxygen/bde_api_prod/group__bsls__review.html>`_
+  (``BSLS_REVIEW_VALIDATE_DISABLED_MACROS``).
+
+New Build Flag: ``BSLS_ASSERTTEST_CHECK_LEVEL``
+-----------------------------------------------
+  ``bsls_asserttest`` supports a new build flag,
+  ``BSLS_ASSERTTEST_CHECK_LEVEL``, that, if set, modifies the behavior of each
+  of the ``BSLS_ASSERTTEST_ASSERT_*`` macros to check the assertion that failed
+  is at an expected level -- i.e., the level of the macro or narrower.
+
+.. _bde3.15.0-fixed:
+

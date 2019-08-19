@@ -1,0 +1,23 @@
+.. _bde3.26.0-top:
+
+==============================
+BDE 3.26.0: Production Release
+==============================
+
+.. _bde3.26.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.26.0 production release
+    was completed on **Monday, April 8, 2019**
+
+.. _bde3.26.0-highlights:
+
+---------------------
+BDE 3.26.0 Highlights
+---------------------
+  This release consists of assorted minor fixes.
+
+.. _bde3.26.0-fixed:
+

@@ -1,0 +1,243 @@
+.. _feature-index-top:
+
+.. |a_accent_grave|  unicode:: U+000E0
+.. |a_accent_accute| unicode:: U+000E1
+
+.. _balxml:                        https://bloomberg.github.io/bde/group__balxml.html
+.. _balb_pipecontrolchannel:       https://bloomberg.github.io/bde/group__balb__pipecontrolchannel.html
+.. _baljsn:                        https://bloomberg.github.io/bde/group__baljsn.html
+.. _ball:                          /bde-resources/doxygen/bde_api_prod/group__ball.html
+.. _balm:                          https://bloomberg.github.io/bde/group__balm.html
+.. _balst:                         https://bloomberg.github.io/bde/group__balst.html
+.. _balst_stacktracetestallocator: https://bloomberg.github.io/bde/group__balst__stacktracetestallocator.html
+.. _baltzo:                        https://bloomberg.github.io/bde/group__baltzo.html
+.. _baltzo_localdatetime:          https://bloomberg.github.io/bde/group__baltzo__localdatetime.html
+.. _baltzo_windowstimezoneutil:    https://bloomberg.github.io/bde/group__baltzo__windowstimezoneutil.html
+.. _bapudb_userdb:                 https://bloomberg.github.io/bde/group__bapudb__userdb.html
+.. _bbldc:                         https://bloomberg.github.io/bde/group__bbldc.html
+.. _balber_berdecoder:             https://bloomberg.github.io/bde/group__balber__berdecoder.html
+.. _balber_berencoder:             https://bloomberg.github.io/bde/group__balber__berencoder.html
+.. _bdex:                          https://bloomberg.github.io/bde/group__bdex.html
+.. _bdlb_bitutil:                  https://bloomberg.github.io/bde/group__bdlb__bitutil.html
+.. _bdlb_hashutil:                 https://bloomberg.github.io/bde/group__bdlb__hashutil.html
+.. _bdlb_nullablevalue:            https://bloomberg.github.io/bde/group__bdlb__nullablevalue.html
+.. _bdlb_numericparseutil:         https://bloomberg.github.io/bde/group__bdlb__numericparseutil.html
+.. _bdlb_tokenizer:                https://bloomberg.github.io/bde/group__bdlb__tokenizer.html
+.. _bdlb_variant:                  https://bloomberg.github.io/bde/group__bdlb__variant.html
+.. _bdlcc:                         https://bloomberg.github.io/bde/group__bdlcc.html
+.. _bdlde:                         https://bloomberg.github.io/bde/group__bdlde.html
+.. _bdldfp:                        https://bloomberg.github.io/bde/group__bdldfp.html
+.. _bdlf:                          https://bloomberg.github.io/bde/group__bdlf.html
+.. _bdlma:                         https://bloomberg.github.io/bde/group__bdlma.html
+.. _bdlmt:                         https://bloomberg.github.io/bde/group__bdlmt.html
+.. _bdlmt_eventscheduler:          https://bloomberg.github.io/bde/group__bdlmt__eventscheduler.html
+.. _bdlmt_timereventscheduler:     https://bloomberg.github.io/bde/group__bdlmt__timereventscheduler.html
+.. _bdlpcre_regex:                 https://bloomberg.github.io/bde/group__bdlpcre__regex.html
+.. _bdls:                          https://bloomberg.github.io/bde/group__bdls.html
+.. _bdlt:                          https://bloomberg.github.io/bde/group__bdlt.html
+.. _bdlt_calendar:                 https://bloomberg.github.io/bde/group__bdlt__calendar.html
+.. _bdlt_currenttime:              https://bloomberg.github.io/bde/group__bdlt__currenttime.html
+.. _bdlt_iso8601util:              https://bloomberg.github.io/bde/group__bdlt__iso8601util.html
+.. _bdlt_iso8601utilconfiguration: https://bloomberg.github.io/bde/group__bdlt__iso8601utilconfiguration.html
+.. _bdlt_localtimeoffset:          https://bloomberg.github.io/bde/group__bdlt__localtimeoffset.html
+.. _bsldoc_glossary:               https://bloomberg.github.io/bde/group__bsldoc__glossary.html
+.. _bslim_testutil:                https://bloomberg.github.io/bde/group__bslim__testutil.html
+.. _bslma:                         https://bloomberg.github.io/bde/group__bslma.html
+.. _bslma_managedptr:              https://bloomberg.github.io/bde/group__bslma__managedptr.html
+.. _bslma_managedptr:              https://bloomberg.github.io/bde/group__bslma__managedptr.html
+.. _bslma_testallocator:           https://bloomberg.github.io/bde/group__bslma__testallocator.html
+.. _bslmf:                         https://bloomberg.github.io/bde/group__bslmf.html
+.. _bslmt:                         https://bloomberg.github.io/bde/group__bslmt.html
+.. _bsls_assert:                   https://bloomberg.github.io/bde/group__bsls__assert.html
+.. _bsls_asserttest:               https://bloomberg.github.io/bde/group__bsls__asserttest.html
+.. _bsls_atomic:                   https://bloomberg.github.io/bde/group__bsls__atomic.html
+.. _bsls_protocoltest:             https://bloomberg.github.io/bde/group__bsls__protocoltest.html
+.. _bsls_review:                   https://bloomberg.github.io/bde/group__bsls__review.html
+.. _bsls_stopwatch:                https://bloomberg.github.io/bde/group__bsls__stopwatch.html
+.. _bsls_systemtime:               https://bloomberg.github.io/bde/group__bsls__systemtime.html
+.. _bslstl_sharedptr:              https://bloomberg.github.io/bde/group__bslstl__sharedptr.html
+.. _bsltf_templatetestfacility:    https://bloomberg.github.io/bde/group__bsltf__templatetestfacility.html
+.. _e_ipc:                         https://bloomberg.github.io/bde/group__e__ipc.html
+.. _z_a_bdema_gmallocallocator:    https://bloomberg.github.io/bde/group__z__a__bdema__gmallocallocator.html
+.. _z_bae:                         https://bloomberg.github.io/bde/group__z__bae.html
+.. _zde:                           https://bloomberg.github.io/bde/group__zde.html
+
+=============
+Feature Index
+=============
+
+----------
+Allocators
+----------
+  BDE objects that allocate memory are designed to use a user-defined memory
+  allocating mechanism (i.e., an *allocator*) that is specified on object
+  construction.  Note that, unlike allocators specified as class-template
+  parameters (|a_accent_grave| la policy-based design), specifying an allocator
+  this way does **not** define a new type.  Different objects of the same type
+  can use different allocator mechanisms, and still fully interact with each
+  other.
+
+  * Protocol, allocators, guards, and proctors: bslma_
+  * Concrete allocators and pools: bdlma_
+  * Allocator that records stack trace on allocations:
+    balst_stacktracetestallocator_.
+
+-------------
+Date and Time
+-------------
+  BDE Provides types for representing dates, times, and calendars, as well as
+  common facilities for operating on these types (e.g., obtaining the current
+  system time, converting time values between time zones).
+
+Calendars
+---------
+  A range of dates with weekly designated non-business days (i.e., weekend
+  days) and other designated special days (i.e., holidays).
+
+  * Calendar protocols and types: bdlt_.
+
+Current Date and Time
+---------------------
+  * Current Date/time: bdlt_currenttime_.
+  * Current Time Zone Offset: bdlt_localtimeoffset_.
+  * Current Epoch Time: bsls_systemtime_.
+
+Date and Time
+-------------
+  * Vocabulary types and utilities: bdlt_ and baltzo_localdatetime_.
+
+Time Zones
+----------
+  * Vocabulary type: baltzo_localdatetime_.
+  * Olson time zones: baltzo_.
+  * Mapping Olson time zones with Windows time zones:
+    baltzo_windowstimezoneutil_.
+
+Timing
+------
+  * Process user/system/wall times: bsls_stopwatch_.
+  * Manage actions at specified times: bdlmt_eventscheduler_ and
+    bdlmt_timereventscheduler_.
+
+Conversions
+-----------
+  * Convert date/time values between BDE vocabulary types and ISO8601-formatted
+    strings: bdlt_iso8601util_ and bdlt_iso8601utilconfiguration_.
+
+----------------------
+Decimal Floating-Point
+----------------------
+  Libraries specialized for accurate base-10 arithmetic (IEEE-754 2008):
+  bdldfp_.
+
+---------------------
+Defensive Programming
+---------------------
+  Redundant code providing optional run-time checks to validate preconditions
+  (and invariants):
+
+  * Macros: bsls_assert_ and bsls_review_.
+
+--------------------
+Encodings & Hashings
+--------------------
+  Base64, MD5, CRC32, UTF-8, UTF-16: bdlde_.
+
+---------------------
+Function Abstractions
+---------------------
+  Objects that serve as functions:
+
+  * Functor creation: bdlf_.
+
+---------------------------
+Glossary of BDE Terminology
+---------------------------
+  Component: bsldoc_glossary_.
+
+-------------------
+Logging and Metrics
+-------------------
+  Publish status from a running program
+
+  * Logging: ball_.
+  * Metrics reporting: balm_.
+
+---------
+Messaging
+---------
+  Serialization of values in different formats:
+
+  * JSON: baljsn_.
+  * XML: balxml_.
+  * BER: balber_berdecoder_ and balber_berencoder_.
+  * BDE externalization format: bdex_.
+
+-------------
+Miscellaneous
+-------------
+  * Bit manipulation: bdlb_bitutil_.
+  * Hash functions: bdlb_hashutil_.
+  * Template for nullable types: bdlb_nullablevalue_.
+  * Discriminated ``union``-like type: bdlb_variant_.
+
+
+-------------
+OS Operations
+-------------
+  * Platform-independent operations on files/pathnames/memory/processes/pipes:
+    bdls_.
+  * Messages over named pipes: balb_pipecontrolchannel_.
+
+-------
+Parsing
+-------
+  * Perl regular expressions: bdlpcre_regex_.
+  * String tokenisation: bdlb_tokenizer_.
+  * Numeric parsing: bdlb_numericparseutil_.
+
+--------------
+Smart Pointers
+--------------
+  Mechanisms for managing resource recovery:
+
+  * Pointer with user-supplied deleter: bslma_managedptr_.
+  * Thread-safe, reference-counted pointers: bslstl_sharedptr_.
+
+----------------------------------------
+Stack Traces & Stack-Recording Allocator
+----------------------------------------
+  Package: balst_.
+
+--------------
+Test Apparatus
+--------------
+.. * Standard test driver: ``ASSERT``, ``LOOP*_ASSERT``, and print macros:
+     bslim_testutil_.
+
+  * Track memory usage: bslma_testallocator_.
+  * Macros for "negative" testing: bsls_asserttest_.
+  * Macros for testing protocols: bsls_protocoltest_.
+  * Macros for template testing: bsltf_templatetestfacility_.
+
+-------
+Threads
+-------
+  Concurrent programming:
+
+  * Thread Primitives: Atomic integers: bsls_atomic_.
+  * Thread Primitives: Mutexes, semaphores, read-write locks, and
+    thread-management: bslmt_.
+  * Thread-Safe Containers: bdlcc_.
+  * Thread Pools and Event Schedulers: bdlmt_.
+
+------
+Traits
+------
+  Types and meta-functions for writing generic libraries: bslmf_.
+
+.. ----------------
+   Document History
+   ----------------
+
+   Last Updated: July 25, 2019 

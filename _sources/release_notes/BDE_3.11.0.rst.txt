@@ -1,0 +1,36 @@
+.. _bde3.11.0-top:
+
+==============================
+BDE 3.11.0: Production Release
+==============================
+
+.. _bde3.11.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.11.0 production release
+    was completed on **Monday, August 6, 2018**.
+
+
+.. _bde3.11.0-highlights:
+
+---------------------
+BDE 3.11.0 Highlights
+---------------------
+
+New BDE Build System
+--------------------
+
+  This release introduces the new CMake-based build system for BDE libraries
+  and new DPKG helpers that utilize this new build system.  New build system is
+  used for both internal development and production builds.
+
+  The BDE build system is designed to support building BDE style libraries
+  (using BDE metadata), and is not a general-purpose build system.
+
+  Additional information can be found at: `bde-tools </bde-tools>`_
+
+
+.. _bde3.11.0-fixed:
+

@@ -1,0 +1,102 @@
+.. _bde3.20.0-top:
+
+==============================
+BDE 3.20.0: Production Release
+==============================
+
+.. _bde3.20.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.20.0 production release
+    was completed on **Tuesday, January 29, 2019**
+
+.. _bde3.20.0-highlights:
+
+---------------------
+BDE 3.20.0 Highlights
+---------------------
+
+New Macro: ``BALL_LOG_SET_NAMESPACE_CATEGORY``
+----------------------------------------------
+  The ``ball_log`` component now defines an additional macro:
+
+  .. code-block:: cpp
+
+     BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)
+
+  where ``CATEGORY`` is an ASCII string, the name of a ``ball`` logging
+  category to be in effect for a namespace and can also be used to set a
+  category for everything at the file scope of a translation unit.  Categories
+  set by this macro can be overridden at inner scopes (e.g., function scope,
+  class scope, block scope) by the other ``*CATEGORY*`` macros.
+
+  The following example shows how to set a category that is in effect (by
+  default) for all ``BALL`` logging within the namespace.  Thus, the
+  ``BALL_LOG_TRACE`` record generated in ``Utility::method1`` is given the
+  namespace category:
+
+  .. code-block:: cpp
+
+     // xyza_utility.cpp
+
+     namespace BloombergLP {
+     namespace xyza {
+
+     BALL_LOG_SET_NAMESPACE_CATEGORY("XYZA.LOG");
+
+     void Utility::method1()
+     {
+         BALL_LOG_TRACE << "Entered 'method1'";
+
+         // ...
+         
+         if (critical) {
+
+            BALL_LOG_SET_CATEGORY("XYZA.LOG.CRITICAL");
+
+            BALL_LOG_TRACE << "Entered: Critical Handling";
+
+            // ...
+ 
+            BALL_LOG_TRACE << "Leaving: Critical Handling";
+         }
+
+         // ...
+     }
+
+     }  // end package namespace
+     }  // end enterprise namespace
+
+  Notice that within the code block of the ``if`` statement above, the
+  namespace category is superseded by a different category.
+
+  The following example shows how to use the
+  ``BALL_LOG_SET_NAMESPACE_CATEGORY`` to define a category for the top-level
+  namespace scope of the translation unit:
+
+  .. code-block:: cpp
+
+     // my_task.cpp
+
+     BALL_LOG_SET_NAMESPACE_CATEGORY("MYTASK.LOG");
+
+     void function1()
+     {
+         BALL_LOG_TRACE << "Entered: 'function1'";
+
+         // ...
+     }
+
+  The ``BALL_LOG_SET_NAMESPACE_CATEGORY`` macro can be used *once* per 
+  translation unit and *once* per namespace.  Compilation and linking issues
+  are introduced by multiple occurrences.  Thus, use of this macro is
+  restricted to ``.cpp`` files.  Do *NOT* use this macro in ``.h`` files.
+
+  Note that functions defined in header files see the category defined in the
+  scope of their invocation.
+
+
+.. _bde3.20.0-fixed:
+

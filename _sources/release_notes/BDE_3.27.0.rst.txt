@@ -1,0 +1,111 @@
+.. _bde3.27.0-top:
+
+==============================
+BDE 3.27.0: Production Release
+==============================
+
+.. _bde3.27.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.27.0 production release
+    was completed on **Monday, April 22, 2019**
+
+.. _bde3.27.0-highlights:
+
+---------------------
+BDE 3.27.0 Highlights
+---------------------
+
+New ``<bsl_system_error.h>`` Support in BSL
+-------------------------------------------
+  The BDE 3.27 release introduces consistent support for the standard library
+  ``<system_error>`` facility, enabling the use of standard C++ error
+  facilities in applications that support Sun and AIX.  *Previously*,
+  including ``<bsl_system_error.h>`` would make the platform implementation of
+  the types in ``<system_error>`` available in the ``bsl::`` namespace (e.g.,
+  ``bsl::error_code``).  This behavior has not changed (i.e.,
+  ``bsl::error_code`` will still alias the platform supplied type with C++11
+  compilers).  *Now*, ``<bsl_system_error.h>`` may also can also be included
+  on C++03 compilers, and provides the standard types (to the extent permitted
+  by a C++03 compiler).
+
+  This makes the following standard types consistently available in the
+  ``bsl`` namespace:
+
+    * ``error_category``
+    * ``error_code``
+    * ``error_condition``
+    * ``system_error``
+    * ``is_error_code_enum``
+    * ``is_error_condition_enum``
+    * ``errc``
+
+  As well as making the following free functions consistently available in the
+  ``bsl`` namespace:
+
+    * ``generic_category``
+    * ``system_category``
+    * ``make_error_code``
+    * ``make_error_condition``
+
+ Finally, the following macros and ``typedef``'s to facilitate interoperability
+ between C++03 and C++11:
+
+    o ``BSL_IS_ERROR_CODE_ENUM_NAMESPACE``: macro defining a namespace used to
+      specialize the ``is_error_code_enum`` trait
+
+    o ``BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE``: macro defining a namespace
+      used to specialize the ``is_error_code_enum`` trait
+
+    o ``bsl::ErrcEnum``: ``typedef`` for ``bsl::errc::Enum`` or ``std::errc``
+
+ The BDE team is planning to integrate the standard system error facilities
+ into the new BHL HTTP/2 library, with the aim of providing a set of best
+ practices for using this facility in the coming months.
+
+
+
+Some ``emplace*`` Methods Updated to C++17 Return Value
+-------------------------------------------------------
+  C++17 changes the return values of ``emplace*`` methods from ``void`` to a
+  non-``const`` reference to the newly added element.  In this release, that
+  has been made to the ``emplace*`` methods of:
+
+    * ``bsl::deque``
+    * ``bsl::list``
+    * ``bsl::queue``
+    * ``bsl::stack``
+    * ``bsl::vector``
+
+  *Prevously*, obtaining a reference to a newly added element was written so: 
+
+    .. code-block:: cpp
+
+      // ...
+
+      myList.emplace_back(a, b, c, d);
+      SomeType& newlyAddedItem = myList.back();
+
+      // ...
+
+  *Now*, those same actions can be expressed more succinctly:
+
+    .. code-block:: cpp
+
+      // ...
+
+      SomeType& newlyAddedItem = myList.emplace_back(a, b, c, d);
+
+      // ...
+
+  This change of return value is source compatible *except* where one is
+  defining a pointer type to any of these changed methods.
+
+    * **Contact**: `Alisdair Meredith <bbg://msg/6489334>`_
+    * **Ticket**: `DRQS 139085436 <bbg://screens/DRQS 139085436>`_
+
+
+.. _bde3.27.0-fixed:
+

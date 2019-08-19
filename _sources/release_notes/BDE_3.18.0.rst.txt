@@ -1,0 +1,73 @@
+.. _bde3.18.0-top:
+
+==============================
+BDE 3.18.0: Production Release
+==============================
+
+.. _bde3.18.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.18.0 production release
+    was completed on **Tuesday, December 11, 2018**
+
+.. _bde3.18.0-highlights:
+
+---------------------
+BDE 3.18.0 Highlights
+---------------------
+
+New Component: ``bdlcc_singleconsumerqueue``
+--------------------------------------------
+  The new component, ``bdlcc_singleconsumerqueue``, defines a class template
+  for a thread-aware container designed to have no more than one
+  thread at a time accessing the consumer side (or the behavior is undefined),
+  and an arbitrary number of concurrent producer threads.  See
+  `bdlcc_singleconsumerqueue </bde-resources/doxygen/bde_api_prod/group__bdlcc__singleconsumerqueue.html>`_.
+
+
+``bdlt::Datetime`` and Related Classes Now Have "Fluent" ``add*`` Methods
+-------------------------------------------------------------------------
+  The ``bdlt::Datetime`` class has a suite of methods for changing the value
+  of an object.  For example, given an arbitrary datetime value:
+
+  .. code-block:: cpp
+
+     const bdlt::Datetime dt0(2018, 12, 11, 14, 30);
+
+  One can change the value using the ``add*`` methods, each representing a
+  change in a different unit of time:
+
+  .. code-block:: cpp
+
+     bdlt::Datetime dt1(dt0);
+
+     dt1.addHours(1);
+     dt1.addMinutes(-65);
+     dt1.addSeconds(10);
+     dt1.addDays(2);
+
+     assert(bdlt::Datetime(2018, 12, 13, 14, 25, 10) == dt1);
+
+  *Previously*, each of the ``add*`` methods returned ``void``; *now*, each
+  returns a non-``const`` reference to the object.  Now, the above change can
+  be done in a single "fluent" expression instead of four:
+
+  .. code-block:: cpp
+
+     bdlt::Datetime dt2(dt0);
+
+     dt2.addHours(1).addMinutes(-65).addSeconds(10).addDays(2);
+
+     assert(dt1 == dt2);
+
+  This change of return value is source compatible *except* where one is
+  defining a pointer type to any of these changed methods.
+
+  Analogous changes have been made to the ``add*`` methods of
+  ``bdlt::DatetimeInterval`` and ``bsls::TimeInterval``.
+
+
+.. _bde3.18.0-fixed:
+

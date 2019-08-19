@@ -1,0 +1,39 @@
+:tocdepth: 1
+
+*Revised 12/01/2018*
+
+Contracts, Undefined Behavior, and Defensive Programming
+========================================================
+ by Rostislav Khlebnikov and John Lakos.
+
+ View the full article `Contracts, Undefined Behavior, and Defensive Programming </bde-resources/pdfs/Contracts_Undefined_Behavior_and_Defensive_Programming.pdf>`_
+
+Abstract
+--------
+  When designing libraries, especially (hierarchically) reusable ones,
+  developers are often faced with a decision regarding the domain of
+  semantically valid input that a function they create will accept. Consider
+  designing the C standard library function ``strlen``:
+
+  .. code-block:: C++
+
+    size_t strlen(const char *str)
+    {
+       if (!str) return 0; // <-- Is this a good idea?
+       size_t count = 0;
+       while (str[count])
+         ++count;
+       return count;
+    }
+
+  In this paper, we aim to convince readers that such a test for a null pointer
+  in ``strlen`` is misguided and, more generally, that creating functions
+  having *artificially* defined behavior for every syntactically legal
+  combination of inputs has negative implications for performance, correctness,
+  and stability.  Instead of widening the input domain, we recommend (1)
+  identifying preconditions, i.e., those conditions that a caller is required
+  to satisfy whenever invoking the function, (2) leaving the behavior undefined
+  whenever those preconditions are not met, and (3) employing an assertion
+  facility to detect (in appropriate build modes) program defects that result
+  in function misuse. Following these guidelines facilitates the development of
+  robust high-performing reusable libraries.

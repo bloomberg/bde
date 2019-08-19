@@ -1,0 +1,17 @@
+White Papers
+============
+
+This page contains a collection of short papers delineating objective analysis
+and software engineering best practices performed and endorsed here at
+Bloomberg. This material reflects literally hundreds of man years of
+experience of writing hierarchically reusable libraries relied-upon by
+thousands of engineers in their day-to-day work. Implementing these practices,
+along with understanding their rationale, will guide the reader toward
+creating code that is profoundly more efficient, robust, and maintainable.
+
+.. toctree::
+   :maxdepth: 1
+
+   embracing_modern_cpp_safely
+   contracts_ub_and_defensive_programming
+

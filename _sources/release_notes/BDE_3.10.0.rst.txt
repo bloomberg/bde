@@ -1,0 +1,24 @@
+.. _bde3.10.0-top:
+
+==============================
+BDE 3.10.0: Production Release
+==============================
+
+.. _bde3.10.0-schedule:
+
+--------
+Schedule
+--------
+  * The BDE team is pleased to announce that the BDE 3.10.0 production release was
+    completed on **Wednesday, June 10, 2018**.
+
+
+.. _bde3.10.0-highlights:
+
+---------------------
+BDE 3.10.0 Highlights
+---------------------
+  This release consists of assorted fixes.
+
+.. _bde3.10.0-fixed:
+

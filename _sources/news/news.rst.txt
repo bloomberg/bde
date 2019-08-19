@@ -1,0 +1,120 @@
+========
+BDE News
+========
+
+------------------------------
+BDE 3.36.0: Production Release
+------------------------------
+
+  See :ref:`bde3.36.0-top` for more information.
+
+  *Aug 5, 2019*
+
+------------------------------
+BDE 3.35.0: Production Release
+------------------------------
+
+  See :ref:`bde3.35.0-top` for more information.
+
+  *July 29, 2019*
+
+------------------------------
+BDE 3.34.0: Production Release
+------------------------------
+
+  See :ref:`bde3.34.0-top` for more information.
+
+  *July 22, 2019*
+
+------------------------------
+BDE 3.33.1: Production Release
+------------------------------
+
+  See :ref:`bde3.33.1-top` for more information.
+
+  *July 15, 2019*
+
+---------------------------
+BDE Coding Standards Update
+---------------------------
+
+  BDE C++ Coding Standards is now available in both :ref:`HTML <bde-coding-standards-top>`
+  and `PDF </bde-resources/pdfs/CodingStandards_062519.pdf>`_
+
+  * Updated section :ref:`section-7-3` rule :ref:`7.3.6 <rule-7-3-6>` and
+    :ref:`section-7-3-rationale`
+
+  *June 25, 2019*
+
+------------------------------
+BDE 3.32.0: Production Release
+------------------------------
+
+  See :ref:`bde3.32.0-top` for more information.
+
+  *June 24, 2019*
+
+
+------------------------------
+BDE 3.31.0: Production Release
+------------------------------
+
+  See :ref:`bde3.31.0-top` for more information.
+
+  *June 10, 2019*
+
+------------------------------
+BDE 3.30.0: Production Release
+------------------------------
+
+  See :ref:`bde3.30.0-top` for more information.
+
+  *June 3, 2019*
+
+------------------------------
+BDE 3.29.0: Production Release
+------------------------------
+
+  See :ref:`bde3.29.0-top` for more information.
+
+  *May 20, 2019*
+
+------------------------------
+BDE 3.28.0: Production Release
+------------------------------
+
+  See :ref:`bde3.28.0-top` for more information.
+
+  *May 6, 2019*
+
+------------------------------
+BDE 3.27.0: Production Release
+------------------------------
+
+  See :ref:`bde3.27.0-top` for more information.
+
+  *April 22, 2019*
+
+------------------------------
+BDE 3.26.0: Production Release
+------------------------------
+
+  See :ref:`bde3.26.0-top` for more information.
+
+  *April 8, 2019*
+
+------------------------------
+BDE 3.25.0: Production Release
+------------------------------
+
+  See :ref:`bde3.25.0-top` for more information.
+
+  *April 1, 2019*
+
+------------------------------
+BDE 3.20.0: Production Release
+------------------------------
+
+  See :ref:`bde3.20.0-top` for more information.
+
+  *January 29, 2019*
