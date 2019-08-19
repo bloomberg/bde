@@ -6,6 +6,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>            // for testing only
 #include <bsl_sstream.h>            // for testing only

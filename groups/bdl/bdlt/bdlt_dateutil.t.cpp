@@ -8,6 +8,7 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_vector.h>

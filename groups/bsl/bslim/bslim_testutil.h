@@ -137,6 +137,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsltf_templatetestfacility.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
                        // =================
                        // Macro Definitions
                        // =================

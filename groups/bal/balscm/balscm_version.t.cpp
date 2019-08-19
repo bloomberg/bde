@@ -10,6 +10,7 @@
 
 #include <balscm_version.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strncmp()
 #include <bsl_iostream.h>
