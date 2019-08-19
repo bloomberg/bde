@@ -32,7 +32,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>  // iterator tags
 #include <bslstl_pair.h>
 
-#include <bsls_keyword.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
@@ -75,19 +74,13 @@ using native_std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
-    // Use definition from '<algorithm>'.
-#else
 template<class ForwardIt, class Searcher>
-inline
-BSLS_KEYWORD_CONSTEXPR_RELAXED
 ForwardIt search( ForwardIt first, ForwardIt last,
                   const Searcher& searcher )
 {
     bsl::pair<ForwardIt, ForwardIt> result = searcher(first, last);
     return result.first;
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 }  // close namespace bsl
 
