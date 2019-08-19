@@ -21,6 +21,7 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -40,6 +41,7 @@
 #include <bslmf_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_performancehint.h>
 #include <bsls_nameof.h>
 #include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'
 
@@ -6319,9 +6321,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase1()
 }  // close unnamed namespace
 
 bsl::vector<int> stringSplit(bsl::string csString)
+    // Return a vector of the integer split from the specified 'csString'
+    //comma separated string of integers.  Assume only digits and ','.
 {
-    // Split the comma separated string of positive integers.  Assume only
-    // digits and ','.
     bsl::vector<int> ret;
     bsl::stringstream ss(csString);
     for (int i; ss >> i;) {
@@ -6338,19 +6340,15 @@ bsl::vector<int> stringSplit(bsl::string csString)
 // ----------------------------------------------------------------------------
 
 namespace hPerf {
-template <class K, class V>
+template <class KEY, class VAL>
 class HBenchmark {
     // This class provides the performance test functions for the various
     // performance tests on 'bdlcc::StripedUnorderedMultiMap'.
 
   public:
-    typedef bdlcc::StripedUnorderedMultiMap<K,V> MapType;
+    typedef bdlcc::StripedUnorderedMultiMap<KEY, VAL> MapType;
 
   private:
-    // PRIVATE CONSTANTS
-    //static const unsigned long long int k_FIB_MULTIPLIER = 11400714819323198485llu;
-        // Fibonacci multiplier
-
     // DATA
     int               d_numStripes;  // # of stripes in input.  0 - use the
                                      // global unordered map
@@ -6358,41 +6356,48 @@ class HBenchmark {
     int               d_maxSize;     // Maximal number of elements in the map
     bool              d_enblRehash;  // Enable / disable rehash
 
-    MapType          *d_map_p;  // bdlcc::StripedUnorderedMultiMap
+    MapType          *d_map_p;       // bdlcc::StripedUnorderedMultiMap
 
-    int               d_curValue; // Internal counter for the pushed value
-    int               d_countErr; // Internal counter for the number of tryPopFront errors
+    int               d_curValue;    // Internal counter for the pushed value
+    int               d_countErr;    // Internal counter for the number of
+                                     // tryPopFront errors
     bslma::Allocator *d_allocator_p; // memory allocator
 
     // PRIVATE ACCESSORS
-    K makeKey(int key) const
+    KEY makeKey(int key) const
+        // Return a KEY type from the specified 'key'.
     {
-        return makeKey(key, bsl::is_same<bsl::string, K>());
+        return makeKey(key, bsl::is_same<bsl::string, KEY>());
     }
 
-    K makeKey(int key, bsl::true_type) const
+    KEY makeKey(int key, bsl::true_type) const
+        // Return a string built from the specified 'key'.
     {
         return bsl::to_string(key);
     }
 
-    K makeKey(int key, bsl::false_type) const
+    KEY makeKey(int key, bsl::false_type) const
+        // Return a KEY type from the specified 'key', cast from 'key'.
     {
-        return static_cast<K>(key);
+        return static_cast<KEY>(key);
     }
 
-    V makeValue(int key) const
+    VAL makeValue(int key) const
+        // Return a VAL type from the specified 'key'.
     {
-        return makeValue(key, bsl::is_same<bsl::string, V>());
+        return makeValue(key, bsl::is_same<bsl::string, VAL>());
     }
 
-    V makeValue(int key, bsl::true_type) const
+    VAL makeValue(int key, bsl::true_type) const
+        // Return a string built from the specified 'key'.
     {
         return bsl::to_string(key);
     }
 
-    V makeValue(int key, bsl::false_type) const
+    VAL makeValue(int key, bsl::false_type) const
+        // Return a VAL type from the specified 'key', cast from 'key'.
     {
-        return static_cast<V>(key);
+        return static_cast<VAL>(key);
     }
 
     // NOT IMPLEMENTED
@@ -6405,8 +6410,8 @@ class HBenchmark {
                int               maxSize,
                bool              enblRehash,
                bslma::Allocator *basicAllocator = 0);
-        // Create a 'HashPerformance' object with the specified
-        // 'numStripes', 'numBuckets', 'maxSize', and 'enblRehash'  Optionally specify
+        // Create a 'HashPerformance' object with the specified 'numStripes',
+        // 'numBuckets', 'maxSize', and 'enblRehash'  Optionally specify
         // 'basicAllocator'.
 
     // MANIPULATORS
@@ -6415,8 +6420,8 @@ class HBenchmark {
         // requiring initial data.
 
     void initializeSampleNoInsert(bool);
-        // Initialize 'HashPerformance' object before a sample for tests
-        // not requiring initial data.
+        // Initialize 'HashPerformance' object before a sample for tests not
+        // requiring initial data.
 
     void cleanupSample(bool);
         // Run after a sample.
@@ -6441,12 +6446,12 @@ class HBenchmark {
 };  // END class HBenchmark
 
 // CREATORS
-template <class K, class V>
-HBenchmark<K, V>::HBenchmark(int               numStripes,
-                             int               numBuckets,
-                             int               maxSize,
-                             bool              enblRehash,
-                             bslma::Allocator *basicAllocator)
+template <class KEY, class VAL>
+HBenchmark<KEY, VAL>::HBenchmark(int               numStripes,
+                                 int               numBuckets,
+                                 int               maxSize,
+                                 bool              enblRehash,
+                                 bslma::Allocator *basicAllocator)
 : d_numStripes(numStripes)
 , d_numBuckets(numBuckets)
 , d_maxSize(maxSize)
@@ -6458,22 +6463,22 @@ HBenchmark<K, V>::HBenchmark(int               numStripes,
 {
 }
 
-template <class K, class V>
-void HBenchmark<K, V>::initializeSample(bool)
+template <class KEY, class VAL>
+void HBenchmark<KEY, VAL>::initializeSample(bool)
 {
     initializeSampleNoInsert(false); // Parameter is ignored
     // For test types 2, 3, 4 - do the inserts
     for (int j = 0; j < d_maxSize; ++j) {
-        int key = d_curValue++;
-        K ky    = makeKey(key);
-        V value = makeValue(key);
+        int key   = d_curValue++;
+        KEY ky    = makeKey(key);
+        VAL value = makeValue(key);
         d_map_p->insert(ky, value);
     }
     d_curValue = 0;
 }
 
-template <class K, class V>
-void HBenchmark<K, V>::initializeSampleNoInsert(bool)
+template <class KEY, class VAL>
+void HBenchmark<KEY, VAL>::initializeSampleNoInsert(bool)
 {
     // For test types 0, 1
     d_map_p = new (*d_allocator_p) MapType(
@@ -6484,68 +6489,72 @@ void HBenchmark<K, V>::initializeSampleNoInsert(bool)
     d_countErr = 0;
 }
 
-template <class K, class V>
-void HBenchmark<K, V>::cleanupSample(bool)
+template <class KEY, class VAL>
+void HBenchmark<KEY, VAL>::cleanupSample(bool)
 {
     d_allocator_p->deleteObject(d_map_p);
 }
 
 // ACCESSORS
-template <class K, class V>
+template <class KEY, class VAL>
 inline
-int HBenchmark<K, V>::countErr() const
+int HBenchmark<KEY, VAL>::countErr() const
 {
     return d_countErr;
 }
 
 // TEST FUNCTIONS
-template <class K, class V>
-void HBenchmark<K, V>::insert(int)
+template <class KEY, class VAL>
+void HBenchmark<KEY, VAL>::insert(int)
 {
     // insert a single element into the hash map. Test type 1
-    int key = d_curValue++;
-    K ky    = makeKey(key);
-    V value = makeValue(key);
+    int key   = d_curValue++;
+    KEY ky    = makeKey(key);
+    VAL value = makeValue(key);
     d_map_p->setValueFirst(ky, value);
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxSize == static_cast<int>(d_map_p->size()))) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxSize ==
+                                          static_cast<int>(d_map_p->size()))) {
         d_map_p->clear();
         d_curValue = 0;
     }
 }
 
-template <class K, class V>
-void HBenchmark<K, V>::findExist(int)
+template <class KEY, class VAL>
+void HBenchmark<KEY, VAL>::findExist(int)
 {
     // find a single element that exists in the hash map. Test type 2
-    int key = d_curValue++;
-    K ky    = makeKey(key);
-    V value;
+    int         key = d_curValue++;
+    KEY         ky  = makeKey(key);
+    VAL         value;
     bsl::size_t num = d_map_p->getValueFirst(&value, ky);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == num)) ++d_countErr;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize)) d_curValue = 0;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize))
+        d_curValue = 0;
 }
 
-template <class K, class V>
-void HBenchmark<K, V>::findMiss(int)
+template <class KEY, class VAL>
+void HBenchmark<KEY, VAL>::findMiss(int)
 {
     // find a single element that is missing in the hash map. Test type 3
     int key = d_curValue++;
     key += static_cast<int>(d_numBuckets);
-    K        ky = makeKey(key);
-    V value;
+    KEY         ky = makeKey(key);
+    VAL         value;
     bsl::size_t num = d_map_p->getValueFirst(&value, ky);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != num)) ++d_countErr;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize)) d_curValue = 0;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize))
+        d_curValue = 0;
 }
 
-template <class K, class V>
-void HBenchmark<K, V>::erase(int)
+template <class KEY, class VAL>
+void HBenchmark<KEY, VAL>::erase(int)
 {
     // erase a single element from the hash map. Test type 4
     int key = d_curValue++;
-    K ky = makeKey(key);
+    KEY ky  = makeKey(key);
     d_map_p->eraseFirst(ky);
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize)) d_curValue = 0;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize))
+        d_curValue = 0;
 }
 
 }  // close namespace hPerf
@@ -6710,30 +6719,31 @@ int main(int argc, char *argv[])
         bslma::NewDeleteAllocator nalloc;
 
         if (argc < 3) {
-            bsl::cout << "Usage: bdlcc_stripedunorderedmultimap.t -1 <testType> "
-                << "[numThread1] [numThread2] [numStripe] [numBucket] [load] "
-                << "[percentage] [enableRehash] [numMillis] [numSamples]\n"
-                << "\n"
-                << "All parameters except the first (testType) are optional.\n"
-                << "testType, numThread1, numThread2, numStripe, numBucket, load, "
-                << "percentage can be provided as comma separated list of "
-                << "integers with no spaces.\n"
-                << "\n"
-                << "Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find\n"
-                << "numThread1: number of threads in first group. Default 2\n"
-                << "numThread2: number of threads in second group. Default 0\n"
-                << "numStripe: Default  4\n"
-                << "numBucket: Default 16\n"
-                << "load: from bslmt_throughputbenchmark. Default 0\n"
-                << "percentage: fill level of container. Default 70%\n"
-                << "enableRehash: if percentage > 100%, enable rehash. Default 1\n"
-                << "numMillis: number of milliseconds in a sample. Default 2000\n"
-                << "numSamples: Default 10\n";
-            return -1;
+            bsl::cout
+        << "Usage: bdlcc_stripedunorderedmultimap.t -1 <testType> "
+        << "[numThread1] [numThread2] [numStripe] [numBucket] [load] "
+        << "[percentage] [enableRehash] [numMillis] [numSamples]\n"
+        << "\n"
+        << "All parameters except the first (testType) are optional.\n"
+        << "testType, numThread1, numThread2, numStripe, numBucket, load, "
+        << "percentage can be provided as comma separated list of "
+        << "integers with no spaces.\n"
+        << "\n"
+        << "Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find\n"
+        << "numThread1: number of threads in first group. Default 2\n"
+        << "numThread2: number of threads in second group. Default 0\n"
+        << "numStripe: Default  4\n"
+        << "numBucket: Default 16\n"
+        << "load: from bslmt_throughputbenchmark. Default 0\n"
+        << "percentage: fill level of container. Default 70%\n"
+        << "enableRehash: if percentage > 100%, enable rehash. Default 1\n"
+        << "numMillis: number of milliseconds in a sample. Default 2000\n"
+        << "numSamples: Default 10\n";
+            return -1;                                                // RETURN
         }
         // Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find
-        // Note that numThread, numWThread, testType, numStripe, numBucket, load, and percentage accept comma
-        // separated values.
+        // Note that numThread, numWThread, testType, numStripe, numBucket,
+        // load, and percentage accept comma separated values.
         bsl::string testType   = argv[2];
         bsl::string numThread1 = argc >  3 ? argv[3] :  "2";
         bsl::string numThread2 = argc >  4 ? argv[4] :  "0";
@@ -6754,8 +6764,10 @@ int main(int argc, char *argv[])
         vector<int> loads       = stringSplit(load);
         vector<int> percentages = stringSplit(percentage);
 
-        bsl::cout << "Test,NT1,NT2,NS,NB,Load,Pct,ER,0%,25%,50%,75%,100%,ErrCount,0%,25%,50%,75%,100%\n";
-        // Loops on the various ranges, but to avoid 7-level indentation, collapse it to one complicated loop.
+        bsl::cout << "Test,NT1,NT2,NS,NB,Load,Pct,ER,0%,25%,50%,75%,100%,"
+                     "ErrCount,0%,25%,50%,75%,100%\n";
+            // Loops on the various ranges, but to avoid 7-level indentation,
+            // collapse it to one complicated loop.
         int numThread1Idx = 0;
         int numThread2Idx = 0;
         int testTypeIdx   = 0;
@@ -6778,10 +6790,11 @@ int main(int argc, char *argv[])
             // Create the performance, benchmark and result objects
             typedef hPerf::HBenchmark<int,bsl::string> Bench;
             Bench hb(numStripe, numBucket, maxSize, enblRehash, &nalloc);
-            bslmt::ThroughputBenchmark tb(&nalloc);
+
+            bslmt::ThroughputBenchmark       tb(&nalloc);
             bslmt::ThroughputBenchmarkResult res(&nalloc);
 
-            bsl::function<void(int)> runFunc1;
+            bsl::function<void(int)>  runFunc1;
             bsl::function<void(bool)> initFunc = (testType % 4) == 1 ?
                     bdlf::BindUtil::bind(&Bench::initializeSampleNoInsert,
                                          &hb,
@@ -6790,31 +6803,31 @@ int main(int argc, char *argv[])
                                                     &hb,
                                                     bdlf::PlaceHolders::_1);
             bsl::function<void(bool)> cleanFunc = bdlf::BindUtil::bind(
-                                &Bench::cleanupSample,
-                                &hb,
-                                bdlf::PlaceHolders::_1);
+                                                       &Bench::cleanupSample,
+                                                       &hb,
+                                                       bdlf::PlaceHolders::_1);
 
             switch (testType) {
-            case 1: { // insert
+              case 1: { // insert
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::insert, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 2: { // find exist
+              } break;
+              case 2: { // find exist
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::findExist, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 3: { // find miss
+              } break;
+              case 3: { // find miss
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::findMiss, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 4: { // erase
+              } break;
+              case 4: { // erase
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::erase, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 5: { // insert + read
+              } break;
+              case 5: { // insert + read
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::insert, &hb, bdlf::PlaceHolders::_1);
-            } break;
+              } break;
             } // END switch
             int tGId1 = tb.addThreadGroup(runFunc1, numThread1, load);
 
@@ -6833,9 +6846,9 @@ int main(int argc, char *argv[])
             vector<double> percentiles(5);
             res.getPercentiles(&percentiles, tGId1);
             bsl::cout << bsl::fixed << bsl::setprecision(0) << testType << ","
-                      << numThread1 << "," << numThread2 << "," << numStripe << ","
-                      << numBucket << "," << load << "," << percentage
-                      << "," << enblRehash << ","
+                      << numThread1 << "," << numThread2 << ","
+                      << numStripe << "," << numBucket << "," << load << ","
+                      << percentage << "," << enblRehash << ","
                       << percentiles[0] << ","
                       << percentiles[1] << ","
                       << percentiles[2] << ","
@@ -6931,30 +6944,31 @@ int main(int argc, char *argv[])
         typedef bsls::Types::Int64 Int64;
 
         if (argc < 3) {
-            bsl::cout << "Usage: bdlcc_stripedunorderedmultimap.t -2 <testType> "
-                << "[numThread1] [numThread2] [numStripe] [numBucket] [load] "
-                << "[percentage] [enableRehash] [numMillis] [numSamples]\n"
-                << "\n"
-                << "All parameters except the first (testType) are optional.\n"
-                << "testType, numThread1, numThread2, numStripe, numBucket, load, "
-                << "percentage can be provided as comma separated list of "
-                << "integers with no spaces.\n"
-                << "\n"
-                << "Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find\n"
-                << "numThread1: number of threads in first group. Default 2\n"
-                << "numThread2: number of threads in second group. Default 0\n"
-                << "numStripe: Default  4\n"
-                << "numBucket: Default 16\n"
-                << "load: from bslmt_throughputbenchmark. Default 0\n"
-                << "percentage: fill level of container. Default 70%\n"
-                << "enableRehash: if percentage > 100%, enable rehash. Default 1\n"
-                << "numMillis: number of milliseconds in a sample. Default 2000\n"
-                << "numSamples: Default 10\n";
-            return -1;
+            bsl::cout
+        << "Usage: bdlcc_stripedunorderedmultimap.t -2 <testType> "
+        << "[numThread1] [numThread2] [numStripe] [numBucket] [load] "
+        << "[percentage] [enableRehash] [numMillis] [numSamples]\n"
+        << "\n"
+        << "All parameters except the first (testType) are optional.\n"
+        << "testType, numThread1, numThread2, numStripe, numBucket, load, "
+        << "percentage can be provided as comma separated list of "
+        << "integers with no spaces.\n"
+        << "\n"
+        << "Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find\n"
+        << "numThread1: number of threads in first group. Default 2\n"
+        << "numThread2: number of threads in second group. Default 0\n"
+        << "numStripe: Default  4\n"
+        << "numBucket: Default 16\n"
+        << "load: from bslmt_throughputbenchmark. Default 0\n"
+        << "percentage: fill level of container. Default 70%\n"
+        << "enableRehash: if percentage > 100%, enable rehash. Default 1\n"
+        << "numMillis: number of milliseconds in a sample. Default 2000\n"
+        << "numSamples: Default 10\n";
+            return -1;                                                // RETURN
         }
         // Test types: 1-insert, 2-find, 3-not find, 4-erase, 5-insert+find
-        // Note that numThread, numWThread, testType, numStripe, numBucket, load, and percentage accept comma
-        // separated values.
+        // Note that numThread, numWThread, testType, numStripe, numBucket,
+        // load, and percentage accept comma separated values.
         bsl::string testType   = argv[2];
         bsl::string numThread1 = argc >  3 ? argv[3] :  "2";
         bsl::string numThread2 = argc >  4 ? argv[4] :  "0";
@@ -6975,8 +6989,10 @@ int main(int argc, char *argv[])
         vector<int> loads       = stringSplit(load);
         vector<int> percentages = stringSplit(percentage);
 
-        bsl::cout << "Test,NT1,NT2,NS,NB,Load,Pct,ER,0%,25%,50%,75%,100%,ErrCount,0%,25%,50%,75%,100%\n";
-        // Loops on the various ranges, but to avoid 7-level indentation, collapse it to one complicated loop.
+        bsl::cout << "Test,NT1,NT2,NS,NB,Load,Pct,ER,0%,25%,50%,75%,100%,"
+                     "ErrCount,0%,25%,50%,75%,100%\n";
+            // Loops on the various ranges, but to avoid 7-level indentation,
+            // collapse it to one complicated loop.
         int numThread1Idx = 0;
         int numThread2Idx = 0;
         int testTypeIdx   = 0;
@@ -6999,10 +7015,11 @@ int main(int argc, char *argv[])
             // Create the performance, benchmark and result objects
             typedef hPerf::HBenchmark<bsl::string,Int64> Bench;
             Bench hb(numStripe, numBucket, maxSize, enblRehash, &nalloc);
-            bslmt::ThroughputBenchmark tb(&nalloc);
+
+            bslmt::ThroughputBenchmark       tb(&nalloc);
             bslmt::ThroughputBenchmarkResult res(&nalloc);
 
-            bsl::function<void(int)> runFunc1;
+            bsl::function<void(int)>  runFunc1;
             bsl::function<void(bool)> initFunc = (testType % 4) == 1 ?
                     bdlf::BindUtil::bind(&Bench::initializeSampleNoInsert,
                                          &hb,
@@ -7011,31 +7028,31 @@ int main(int argc, char *argv[])
                                                     &hb,
                                                     bdlf::PlaceHolders::_1);
             bsl::function<void(bool)> cleanFunc = bdlf::BindUtil::bind(
-                                &Bench::cleanupSample,
-                                &hb,
-                                bdlf::PlaceHolders::_1);
+                                                       &Bench::cleanupSample,
+                                                       &hb,
+                                                       bdlf::PlaceHolders::_1);
 
             switch (testType) {
-            case 1: { // insert
+              case 1: { // insert
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::insert, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 2: { // find exist
+              } break;
+              case 2: { // find exist
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::findExist, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 3: { // find miss
+              } break;
+              case 3: { // find miss
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::findMiss, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 4: { // erase
+              } break;
+              case 4: { // erase
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::erase, &hb, bdlf::PlaceHolders::_1);
-            } break;
-            case 5: { // insert + read
+              } break;
+              case 5: { // insert + read
                 runFunc1 = bdlf::BindUtil::bind(
                      &Bench::insert, &hb, bdlf::PlaceHolders::_1);
-            } break;
+              } break;
             } // END switch
             int tGId1 = tb.addThreadGroup(runFunc1, numThread1, load);
 
@@ -7054,9 +7071,9 @@ int main(int argc, char *argv[])
             vector<double> percentiles(5);
             res.getPercentiles(&percentiles, tGId1);
             bsl::cout << bsl::fixed << bsl::setprecision(0) << testType << ","
-                      << numThread1 << "," << numThread2 << "," << numStripe << ","
-                      << numBucket << "," << load << "," << percentage
-                      << "," << enblRehash << ","
+                      << numThread1 << "," << numThread2 << ","
+                      << numStripe << "," << numBucket << "," << load << ","
+                      << percentage << "," << enblRehash << ","
                       << percentiles[0] << ","
                       << percentiles[1] << ","
                       << percentiles[2] << ","
