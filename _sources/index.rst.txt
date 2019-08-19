@@ -27,6 +27,14 @@ What is BDE?
 BDE Latest News
 ===============
 
+------------------------------
+BDE 3.36.0: Production Release
+------------------------------
+
+  See :ref:`bde3.36.0-top` for more information.
+
+  *Aug 5, 2019*
+
 
 ------------------------------
 BDE 3.35.0: Production Release
@@ -93,7 +101,7 @@ BDE 3.31.0: Production Release
    :maxdepth: 1
    :hidden:
 
-   BDE Doxygen <http://bloomberg.github.com/bde>
+   BDE Doxygen <http://bloomberg.github.com/bde-resources/doxygen/bde_api_prod>
 
 .. toctree::
    :caption: Release Notes
