@@ -3,18 +3,31 @@ BDE Libraries
 
 This repository contains the BDE libraries, currently BSL (Basic Standard
 Library), BDL (Basic Development Library), BAL (Basic Application Library), and
-BBL (Basic Business Library).  For more information about BDE libraries
-follow the links below:
+BBL (Basic Business Library).
 
-* [Online Library Documentation](http://bde.bloomberg.com/bde-docs)
-* [BDE build tools](https://bde.bloomberg.com/bde-tools/)
+For more information about BDE libraries follow the links below:
 
-Basic Build Instructions
-========================
+Open Source
+-----------
+
+* [Online Library Documentation](https://bloomberg.github.io/bde)
+* [BDE Build Tools](https://bloomberg.github.io/bde-tools/)
+* [BDE Build Howto](https://bloomberg.github.io/bde/knowledge_base/build.html)
+
+
+Bloomberg LP (internal)
+-----------------------
+
+* [Online Library Documentation](https://bde.bloomberg.com/bde)
+* [BDE Build Tools](https://bde.bloomberg.com/bde-tools/)
+* [BDE Build Howto](https://bde.bloomberg.com/bde/knowledge_base/build.html)
+
+
+Basic Build Instructions (internal)
+===================================
 
 BDE uses a build system based on [cmake](https://cmake.org), which is located
-in the [BDE Tools](https://bbgithub.dev.bloomberg.com/bde/bde-tools/)
-repository. 
+in the BDE Tools repository.
 
 The following commands can be used to configure and build the BDE repository:
 1. Clone the `bde` resporitory and add `bde-tools` to your `PATH`:
@@ -23,7 +36,8 @@ The following commands can be used to configure and build the BDE repository:
    $ git clone bbgithub:bde/bde-tools
    $ export PATH=$PWD/bde-tools/bin:$PATH      # add bde-tools to the 'PATH'
    $ cd bde
-   ```    
+   ```
+
 2. From the root of this source repository, run:
 
    ```shell
@@ -49,10 +63,11 @@ The following commands can be used to configure and build the BDE repository:
    $ cmake_build.py build --test run
    ```
 
-For more details on building the BDE repository, please see the
-[Build Examples](https://bde.bloomberg.com/bde-tools/cmake/examples.html).
+For more details on building the BDE repository, please see the Build Examples
+on BDE Build Tools).
 
 License
--------
+=======
+
 The BDE libraries are distributed under the Apache License (version 2.0); see
 the LICENSE file at the top of the source tree for more information.
