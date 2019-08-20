@@ -184,12 +184,15 @@ the unset Time.  We are attempting to identify the impact of such a change.
 
 .. rubric:: :faq-header:`Q: How do I links against a DEBUG or DEBUG-SAFE build of BDE?`
 
+**A:** You have to add ``dbg`` and/or ``safe`` flags to the ufid during
+configuration.
+
 
 .. _question-10:
 
 .. rubric:: :faq-header:`Q: How do I see the contents of my STL containers in my debugger?`
 
-**A:** See `BDE Debugging Helpers <https://cms.prod.bloomberg.com/team/display/bdei/BDE+Debugging+Helpers>`_
+**A:** See :bde_tools_repo:`GDB Pretty Printers </contrib/gdb-printers>`
 
 
 .. _question-11:

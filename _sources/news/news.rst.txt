@@ -3,6 +3,14 @@ BDE News
 ========
 
 ------------------------------
+BDE 3.37.0: Production Release
+------------------------------
+
+  See :ref:`bde3.37.0-top` for more information.
+
+  *Aug 20, 2019*
+
+------------------------------
 BDE 3.36.0: Production Release
 ------------------------------
 

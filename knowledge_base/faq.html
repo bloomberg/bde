@@ -82,6 +82,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../news/news.html">BDE News</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-37-0-production-release">BDE 3.37.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-36-0-production-release">BDE 3.36.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-35-0-production-release">BDE 3.35.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-34-0-production-release">BDE 3.34.0: Production Release</a></li>
@@ -105,16 +106,22 @@
 </ul>
 <p class="caption"><span class="caption-text">Release Notes</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes/BDE_3.36.0.html">BDE 3.36.0: Production Release</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#schedule">Schedule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#bde-3-36-0-highlights">BDE 3.36.0 Highlights</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#new-component-bdlbb-simpleblobbufferfactory">New Component: <code class="docutils literal notranslate"><span class="pre">bdlbb::SimpleBlobBufferFactory</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#fixed-requests-3-36-0">Fixed requests: 3.36.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/BDE_3.37.0.html">BDE 3.37.0: Production Release</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.37.0.html#schedule">Schedule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.37.0.html#bde-3-37-0-highlights">BDE 3.37.0 Highlights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.37.0.html#fixed-requests-3-37-0">Fixed requests: 3.37.0</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes/old_releases.html">Old Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.36.0.html">BDE 3.36.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#bde-3-36-0-highlights">BDE 3.36.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#new-component-bdlbb-simpleblobbufferfactory">New Component: <code class="docutils literal notranslate"><span class="pre">bdlbb::SimpleBlobBufferFactory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.36.0.html#fixed-requests-3-36-0">Fixed requests: 3.36.0</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.35.0.html">BDE 3.35.0: Production Release</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.35.0.html#schedule">Schedule</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.35.0.html#bde-3-35-0-highlights">BDE 3.35.0 Highlights</a></li>
@@ -747,8 +754,10 @@ code-freeze).</p>
 proposed improvements is to simplifying <code class="docutils literal notranslate"><span class="pre">Datetime</span></code>’s behavior with respect to
 the unset Time.  We are attempting to identify the impact of such a change.</p>
 <p class="rubric" id="question-9"><span class="faq-header-class">Q: How do I links against a DEBUG or DEBUG-SAFE build of BDE?</span></p>
+<p><strong>A:</strong> You have to add <code class="docutils literal notranslate"><span class="pre">dbg</span></code> and/or <code class="docutils literal notranslate"><span class="pre">safe</span></code> flags to the ufid during
+configuration.</p>
 <p class="rubric" id="question-10"><span class="faq-header-class">Q: How do I see the contents of my STL containers in my debugger?</span></p>
-<p><strong>A:</strong> See <a class="reference external" href="https://cms.prod.bloomberg.com/team/display/bdei/BDE+Debugging+Helpers">BDE Debugging Helpers</a></p>
+<p><strong>A:</strong> See <a class="reference external" href="https://github.com/bloomberg/bde-tools/tree/master/contrib/gdb-printers">GDB Pretty Printers</a></p>
 <p class="rubric" id="question-11"><span class="faq-header-class">Q: How do I contribute to BDE?</span></p>
 <p><strong>A:</strong> Background on how to contribute to BDE is here:
 <a class="reference internal" href="contributing.html#contribute-top"><span class="std std-ref">Contributing to BDE</span></a></p>

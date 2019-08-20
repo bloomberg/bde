@@ -5,6 +5,7 @@ Old Release Notes
 .. toctree::
    :maxdepth: 1
 
+   BDE_3.36.0
    BDE_3.35.0
    BDE_3.34.0
    BDE_3.33.1
