@@ -6839,8 +6839,12 @@ int main(int argc, char *argv[])
 
                 tGId2 = tb.addThreadGroup(runFunc2, numThread2, load);
             }
-            //bsl::cout << "BeforeExecute" << "\n";
-            tb.execute(&res, numMillis, numSamples, initFunc, cleanFunc);
+            tb.execute(&res,
+                       numMillis,
+                       numSamples,
+                       initFunc,
+                       bslmt::ThroughputBenchmark::ShutdownSampleFunction(),
+                       cleanFunc);
             int countErr = hb.countErr();
 
             // Calculate percentiles.
@@ -7064,8 +7068,12 @@ int main(int argc, char *argv[])
 
                 tGId2 = tb.addThreadGroup(runFunc2, numThread2, load);
             }
-            //bsl::cout << "BeforeExecute" << "\n";
-            tb.execute(&res, numMillis, numSamples, initFunc, cleanFunc);
+            tb.execute(&res,
+                       numMillis,
+                       numSamples,
+                       initFunc,
+                       bslmt::ThroughputBenchmark::ShutdownSampleFunction(),
+                       cleanFunc);
             int countErr = hb.countErr();
 
             // Calculate percentiles.
