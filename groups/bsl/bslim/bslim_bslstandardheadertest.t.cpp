@@ -170,6 +170,7 @@ using namespace bslim;
 //
 //-----------------------------------------------------------------------------
 // [ 8] CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
+// [ 8] CONCERN: 'bsl::search' function is usable.
 // [ 5] CONCERN: Range functions are not ambiguous with 'std' under ADL
 // [ 6] CONCERN: 'forward_list' is available in C++11 builds
 // [ 4] maps of smart pointers
@@ -425,6 +426,7 @@ int main(int argc, char *argv[])
         //
         // Testing
         //   CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
+        //   CONCERN: 'bsl::search' function is usable.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING SEARCHERS"
@@ -454,6 +456,10 @@ int main(int argc, char *argv[])
         ASSERT(        7 == bmhResult.first  - haystackFirst);
         ASSERT(        5 == bmhResult.second - bmhResult.first);
 
+        ASSERT(7 == bsl::search(haystackFirst, haystackLast, dftSearcher)
+                                                              - haystackFirst);
+        ASSERT(7 == bsl::search(haystackFirst, haystackLast, bmhSearcher)
+                                                              - haystackFirst);
       } break;
       case 7: {
         // --------------------------------------------------------------------
