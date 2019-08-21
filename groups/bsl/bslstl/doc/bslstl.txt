@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 76 components having 8 levels of physical
+ The 'bslstl' package currently has 78 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -30,7 +30,8 @@
      bslstl_set_test                                                  !PRIVATE!
      bslstl_sharedptr
 
-  6. bslstl_deque_test                                                !PRIVATE!
+  6. bslstl_boyermoorehorspoolsearcher
+     bslstl_deque_test                                                !PRIVATE!
      bslstl_map
      bslstl_multimap
      bslstl_multiset
@@ -56,6 +57,7 @@
      bslstl_unorderedset
 
   4. bslstl_bitset
+     bslstl_defaultsearcher
      bslstl_hashtable
      bslstl_randomaccessiterator
      bslstl_string_test                                               !PRIVATE!
@@ -64,7 +66,8 @@
      bslstl_systemerror
      bslstl_treenode
 
-  3. bslstl_bidirectionaliterator
+  3. bslstl_algorithmworkaround
+     bslstl_bidirectionaliterator
      bslstl_error
      bslstl_function
      bslstl_hashtablebucketiterator
@@ -74,8 +77,7 @@
      bslstl_string
      bslstl_vector_test                                               !PRIVATE!
 
-  2. bslstl_algorithmworkaround
-     bslstl_array
+  2. bslstl_array
      bslstl_bidirectionalnodepool
      bslstl_chrono
      bslstl_errc
@@ -133,11 +135,17 @@
 : 'bslstl_bitset':
 :      Provide an STL-compliant bitset class.
 :
+: 'bslstl_boyermoorehorspoolsearcher':
+:      Provide an STL-compliant 'boyer_moore_horspool_searcher' class.
+:
 : 'bslstl_chrono':
 :      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_complex':
 :      Provide functionality of the corresponding C++ Standard header.
+:
+: 'bslstl_defaultsearcher':
+:      Provide an STL-compliant 'default_searcher' class.
 :
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
