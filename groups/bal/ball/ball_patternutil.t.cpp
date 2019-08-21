@@ -1,17 +1,7 @@
 // ball_patternutil.t.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_patternutil.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
 
 #include <bslim_testutil.h>
@@ -429,9 +419,9 @@ int main(int argc, char *argv[])
                 P_(DATA[i].d_isValid);
                 P(DATA[i].d_value);
             }
-            LOOP_ASSERT(DATA[i].d_line,
-                        DATA[i].d_value == isMatch(DATA[i].d_inputString,
-                                                   DATA[i].d_pattern));
+            ASSERTV(DATA[i].d_line,
+                    DATA[i].d_value == isMatch(DATA[i].d_inputString,
+                    DATA[i].d_pattern));
         }
 
         if (verbose) cout << "\nVerify that every state has been visited "
@@ -439,7 +429,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUMCLASSES * NUMCLASSES + 1; ++i) {
             for (int j = 0; j < RT; ++j) {
-                LOOP2_ASSERT(i, j, ACTION[i][j].d_visited);
+                ASSERTV(i, j, ACTION[i][j].d_visited);
             }
         }
 
@@ -515,12 +505,12 @@ int main(int argc, char *argv[])
                P_(DATA[i].d_isValid);
                P(DATA[i].d_value);
            }
-           LOOP_ASSERT(DATA[i].d_line,
-                       DATA[i].d_value == Util::isMatch(DATA[i].d_inputString,
-                                                        DATA[i].d_pattern));
-           LOOP_ASSERT(DATA[i].d_line,
-                       DATA[i].d_isValid ==
-                           Util::isValidPattern(DATA[i].d_pattern));
+           ASSERTV(DATA[i].d_line,
+                   DATA[i].d_value ==
+                      Util::isMatch(DATA[i].d_inputString, DATA[i].d_pattern));
+           ASSERTV(DATA[i].d_line,
+                   DATA[i].d_isValid ==
+                                      Util::isValidPattern(DATA[i].d_pattern));
        }
 
       } break;

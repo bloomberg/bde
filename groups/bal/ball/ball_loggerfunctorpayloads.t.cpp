@@ -1,34 +1,22 @@
 // ball_loggerfunctorpayloads.t.cpp                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_loggerfunctorpayloads.h>
 
 #include <ball_loggermanager.h>
-#include <ball_loggermanagerconfiguration.h>    // for testing only
-#include <ball_testobserver.h>                  // for testing only
+#include <ball_loggermanagerconfiguration.h>
 
-#include <bdlf_bind.h>                          // for testing only
-#include <bdlf_placeholder.h>                   // for testing only
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
 
 #include <bslim_testutil.h>
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
+#include <bsl_cstring.h>
 
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -120,6 +108,10 @@ namespace BALL_USAGE_EXAMPLE_1 {
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example: Basic Usage
+/// - - - - - - - - - -
 // The following code snippets illustrate how to use this component's
 // 'loadParentCategoryThresholdValues' method to allow a newly-created "child"
 // category to inherit the logging threshold levels from its most proximate
@@ -143,28 +135,21 @@ namespace BALL_USAGE_EXAMPLE_1 {
 // callback; the rest of this example merely illustrates the *consequences* of
 // installing the callback.
 //
-// Before we can begin logging, we must first create an observer with which to
-// initialize the logger manager.  For this example, a 'ball::TestObserver'
-// initialized to write to 'stdout' will do just fine.
-//..
-     // myapp.cpp
-     int main()
-     {
-         ball::TestObserver testObserver(&bsl::cout);
-
-//..
-// Now, we load the logger manager 'configuration' with the desired "payload"
+// First, we load the logger manager 'configuration' with the desired "payload"
 // function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',
 // and use the trailing 'char' argument 'delimiter', set to the value '.',
 // which will be bound into the functor and supplied back to the payload on
 // each invocation.
 //..
-         using namespace bdlf::PlaceHolders;
+    // myapp.cpp
+    int main()
+    {
+        using namespace bdlf::PlaceHolders;
 
-         ball::LoggerManagerConfiguration configuration;
-         char delimiter = '.';
-         configuration.setDefaultThresholdLevelsCallback(
-             bdlf::BindUtil::bind(
+        ball::LoggerManagerConfiguration configuration;
+        char delimiter = '.';
+        configuration.setDefaultThresholdLevelsCallback(
+            bdlf::BindUtil::bind(
                &ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues,
                _1,
                _2,
@@ -173,27 +158,27 @@ namespace BALL_USAGE_EXAMPLE_1 {
                _5,
                delimiter));
 //..
-// We are now ready to initialize the logger manager, using the observer and
-// the callback defined above.
+// Then, we initialize the logger manager, using the configuration defined
+// above:
 //..
-         ball::LoggerManagerScopedGuard guard(&testObserver, configuration);
+        ball::LoggerManagerScopedGuard guard(configuration);
 //..
 // The above code is all that the user needs to do to customize the logger to
 // "inherit" thresholds from parents.  The rest of this example illustrates the
 // consequences of having installed 'myCallback'.  For convenience in what
 // follows, we define a reference, 'manager', to the singleton logger manager.
 //..
-         ball::LoggerManager& manager = ball::LoggerManager::singleton();
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 //..
 // We now create two "parent" categories named "EQUITY.MARKET" and
 // "EQUITY.GRAPHICS", and give them arbitrary but distinct threshold levels.
 // We also set the default levels to distinct values in order to be able to
 // verify exactly where "child" levels have come from later on.
 //..
-         manager.setDefaultThresholdLevels(128, 96, 64, 32);
-//
-         manager.addCategory("EQUITY.MARKET", 127, 95, 63, 31);
-         manager.addCategory("EQUITY.GRAPHICS", 129, 97, 65, 33);
+        manager.setDefaultThresholdLevels(128, 96, 64, 32);
+
+        manager.addCategory("EQUITY.MARKET", 127, 95, 63, 31);
+        manager.addCategory("EQUITY.GRAPHICS", 129, 97, 65, 33);
 //..
 // Note that the call to 'addCategory', which takes the four 'int' threshold
 // arguments, does not invoke the callback at all, but rather -- assuming that
@@ -204,34 +189,34 @@ namespace BALL_USAGE_EXAMPLE_1 {
 // set.  First, we use the 'lookupCategory' method to obtain the two parent
 // categories (here assigned 'p1' and 'p2').
 //..
-         const ball::Category *p1 = manager.lookupCategory("EQUITY.MARKET");
-         const ball::Category *p2 = manager.lookupCategory("EQUITY.GRAPHICS");
+        const ball::Category *p1 = manager.lookupCategory("EQUITY.MARKET");
+        const ball::Category *p2 = manager.lookupCategory("EQUITY.GRAPHICS");
 //..
 // Next, we can use the appropriate 'ball::Category' accessor methods to
 // 'ASSERT' the expected results.  Recall that the ordered sequence of levels
 // is "Record", "Pass", "Trigger", and "TriggerAll".
 //..
-             ASSERT(127 == p1->recordLevel());
-             ASSERT( 95 == p1->passLevel());
-             ASSERT( 63 == p1->triggerLevel());
-             ASSERT( 31 == p1->triggerAllLevel());
-//
-             ASSERT(129 == p2->recordLevel());
-             ASSERT( 97 == p2->passLevel());
-             ASSERT( 65 == p2->triggerLevel());
-             ASSERT( 33 == p2->triggerAllLevel());
+        ASSERT(127 == p1->recordLevel());
+        ASSERT( 95 == p1->passLevel());
+        ASSERT( 63 == p1->triggerLevel());
+        ASSERT( 31 == p1->triggerAllLevel());
+
+        ASSERT(129 == p2->recordLevel());
+        ASSERT( 97 == p2->passLevel());
+        ASSERT( 65 == p2->triggerLevel());
+        ASSERT( 33 == p2->triggerAllLevel());
 //..
 // Now, we will add several "child" categories using the 'setCategory' method
 // taking a single argument, the 'char*' category name.  This method uses the
 // callback in determining the "default" threshold levels to use.  The six
 // statements are numbered for subsequent discussion.
 //..
-         manager.setCategory("EQUITY.MARKET.NYSE");                      // (1)
-         manager.setCategory("EQUITY.MARKET.NASDAQ");                    // (2)
-         manager.setCategory("EQUITY.GRAPHICS.MATH.FACTORIAL");          // (3)
-         manager.setCategory("EQUITY.GRAPHICS.MATH.ACKERMANN");          // (4)
-         manager.setCategory("EQUITY.GRAPHICS.MATH");                    // (5)
-         manager.setCategory("EQUITY");                                  // (6)
+        manager.setCategory("EQUITY.MARKET.NYSE");                       // (1)
+        manager.setCategory("EQUITY.MARKET.NASDAQ");                     // (2)
+        manager.setCategory("EQUITY.GRAPHICS.MATH.FACTORIAL");           // (3)
+        manager.setCategory("EQUITY.GRAPHICS.MATH.ACKERMANN");           // (4)
+        manager.setCategory("EQUITY.GRAPHICS.MATH");                     // (5)
+        manager.setCategory("EQUITY");                                   // (6)
 //..
 // Note that all six calls to 'setCategory' will succeed in adding new
 // categories to the registry.  Calls (1)-(5) will "find" their parent's names
@@ -253,31 +238,31 @@ namespace BALL_USAGE_EXAMPLE_1 {
 // Let us now verify some of the 24 threshold levels that have been set by the
 // above calls.  We will verify the results of lines (1), (3), and (6) above.
 //..
-         const ball::Category *c1, *c3, *c6;
-//
-         c1 =  manager.lookupCategory("EQUITY.MARKET.NYSE");
-             ASSERT(127 == c1->recordLevel());
-             ASSERT( 95 == c1->passLevel());
-             ASSERT( 63 == c1->triggerLevel());
-             ASSERT( 31 == c1->triggerAllLevel());
-//
-         c3 =  manager.lookupCategory("EQUITY.GRAPHICS.MATH.FACTORIAL");
-             ASSERT(129 == c3->recordLevel());
-             ASSERT( 97 == c3->passLevel());
-             ASSERT( 65 == c3->triggerLevel());
-             ASSERT( 33 == c3->triggerAllLevel());
-//
-         c6 =  manager.lookupCategory("EQUITY");
-             ASSERT(128 == c6->recordLevel());
-             ASSERT( 96 == c6->passLevel());
-             ASSERT( 64 == c6->triggerLevel());
-             ASSERT( 32 == c6->triggerAllLevel());
-//
-         return 0;
+        const ball::Category *c1, *c3, *c6;
+
+        c1 =  manager.lookupCategory("EQUITY.MARKET.NYSE");
+        ASSERT(127 == c1->recordLevel());
+        ASSERT( 95 == c1->passLevel());
+        ASSERT( 63 == c1->triggerLevel());
+        ASSERT( 31 == c1->triggerAllLevel());
+
+        c3 =  manager.lookupCategory("EQUITY.GRAPHICS.MATH.FACTORIAL");
+        ASSERT(129 == c3->recordLevel());
+        ASSERT( 97 == c3->passLevel());
+        ASSERT( 65 == c3->triggerLevel());
+        ASSERT( 33 == c3->triggerAllLevel());
+
+        c6 =  manager.lookupCategory("EQUITY");
+        ASSERT(128 == c6->recordLevel());
+        ASSERT( 96 == c6->passLevel());
+        ASSERT( 64 == c6->triggerLevel());
+        ASSERT( 32 == c6->triggerAllLevel());
+
+        return 0;
     }
 //..
-
 }  // close namespace BALL_USAGE_EXAMPLE_1
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -361,9 +346,10 @@ int main(int argc, char *argv[])
                  << "Testing 'loadParentCategoryThresholdValues'" << endl
                  << "===========================================" << endl;
 
-        // initialize logger manager
-        BloombergLP::ball::TestObserver testObserver(&bsl::cout);
-        ball::LoggerManager::initSingleton(&testObserver);
+        // Initialize Logger Manager.
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
+
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         manager.setDefaultThresholdLevels(10, 11, 12, 13);
@@ -483,10 +469,10 @@ int main(int argc, char *argv[])
                 P_(triggerLevel);  P(triggerAllLevel);
             }
 
-            LOOP_ASSERT(LINE, EXP_RECORD     == recordLevel);
-            LOOP_ASSERT(LINE, EXP_PASS       == passLevel);
-            LOOP_ASSERT(LINE, EXP_TRIGGER    == triggerLevel);
-            LOOP_ASSERT(LINE, EXP_TRIGGERALL == triggerAllLevel);
+            ASSERTV(LINE, EXP_RECORD     == recordLevel);
+            ASSERTV(LINE, EXP_PASS       == passLevel);
+            ASSERTV(LINE, EXP_TRIGGER    == triggerLevel);
+            ASSERTV(LINE, EXP_TRIGGERALL == triggerAllLevel);
 
         }
 

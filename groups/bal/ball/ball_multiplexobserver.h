@@ -53,6 +53,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example: Basic Usage
+/// - - - - - - - - - -
+// Note: This usage example retained here for reference purposes for legacy
+// code that still uses multiplex observers.  The use of this component is
+// strongly discouraged.
+//
 // Multiplexing observers are used to interface a 'ball' logging system, which
 // generates log records, with the multiplicity of observers that are to
 // receive the generated records that are published.  Establishing this
@@ -83,7 +91,7 @@ BSLS_IDENT("$Id: $")
 //        a compact, encrypted representation of each record, suitable for
 //        sending over an unsecure network.
 //..
-// First we create the three downstream observers that will be registered with
+// First, we create the three downstream observers that will be registered with
 // multiplexor observer:
 //..
 //     ball::StreamObserver   defaultObserver(&bsl::cout);
@@ -102,16 +110,12 @@ BSLS_IDENT("$Id: $")
 //     assert(3 == multiplexor.numRegisteredObservers());
 //..
 // Then, 'multiplexor' is installed within a 'ball' logging system to be the
-// direct recipient of published log records.  This registration is done by
-// supplying 'multiplexor' to the 'ball::LoggerManager::initSingleton' method
-// that is used to initialize the singleton logger manager:
-//..
-//     ball::LoggerManager::initSingleton(&multiplexor);
-//..
-// (Others variants of 'ball::LoggerManager::initSingleton' also take a
-// 'ball::Observer*'.)  Henceforth, all log records that are published by the
-// logging system will be transmitted to the 'publish' method of 'multiplexor'
-// which, in turn, forwards them to 'defaultObserver', 'logfileObserver', and
+// direct recipient of published log records.  The code uses deprecated
+// 'ball::LoggerManager' API and is elided.
+//
+// Henceforth, all log records that are published by the logging system will be
+// transmitted to the 'publish' method of 'multiplexor' which, in turn,
+// forwards them to 'defaultObserver', 'logfileObserver', and
 // 'encryptingObserver' by calling their respective 'publish' methods.
 //
 // Finally, deregister the three observers when the logs have been all

@@ -24,7 +24,6 @@
 #include <bsl_iostream.h>
 #include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 #include <bsl_vector.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX

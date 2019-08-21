@@ -1,12 +1,4 @@
 // ball_loggercategoryutil.h                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_LOGGERCATEGORYUTIL
 #define INCLUDED_BALL_LOGGERCATEGORYUTIL
 
@@ -46,9 +38,9 @@ BSLS_IDENT("$Id: $")
 // The following code fragments illustrate basic usage of this component's
 // 'setThresholdLevelsHierarchically' and 'addCategoryHierarchically' methods.
 //
-// For convenience, we first create two auxiliary functions that serve to print
-// out the names and threshold level values of all the categories currently in
-// the logger manager singleton:
+// First, we create two auxiliary functions that serve to print out the names
+// and threshold level values of all the categories currently in the logger
+// manager singleton:
 //..
 //  void printCategory(const ball::Category *category)
 //  {
@@ -62,25 +54,22 @@ BSLS_IDENT("$Id: $")
 //
 //  void printAllCategories()
 //  {
-//      ball::LoggerManager& lm = ball::LoggerManager::singleton();
-//      using namespace bdlf::PlaceHolders;
-//      lm.visitCategories(bdlf::BindUtil::bind(printCategory, _1));
+//       ball::LoggerManager& lm = ball::LoggerManager::singleton();
+//       using namespace bdlf::PlaceHolders;
+//       lm.visitCategories(bdlf::BindUtil::bind(printCategory, _1));
 //  }
 //..
-// Now we initialize the logging environment by creating a test observer
-// object and a logger manager object, and set the default threshold levels of
-// the logger manager object to [191, 95, 63, 31]:
+// Now, we set the default threshold levels of the logger manager object to
+// [191, 95, 63, 31] (for brevity, the initialization of the logger manager
+// singleton is elided):
 //..
-//     BloombergLP::ball::TestObserver  testObserver(&bsl::cout);
-//     BloombergLP::ball::TestObserver *TO = &testObserver;
-//     ball::LoggerManager::initSingleton(TO);
-//     ball::LoggerManager& lm = ball::LoggerManager::singleton();
-//     lm.setDefaultThresholdLevels(191, 95, 63, 31);
+//      ball::LoggerManager& lm = ball::LoggerManager::singleton();
+//      lm.setDefaultThresholdLevels(191, 95, 63, 31);
 //..
-// We then create two new categories, "EQ" and "EQ.MARKET", by calling the
+// Then, we create two new categories, "EQ" and "EQ.MARKET", by calling the
 // 'addCategory' method of the logger manager class, with their threshold
-// levels explicitly set to different values (which are also different from
-// the default threshold levels):
+// levels explicitly set to different values (which are also different from the
+// default threshold levels):
 //..
 //     lm.addCategory("EQ", 192, 96, 64, 32);
 //     lm.addCategory("EQ.MARKET", 193, 97, 65, 33);
@@ -91,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //     [ EQ, 192, 96, 64, 32 ]
 //     [ EQ.MARKET, 193, 97, 65, 33 ]
 //..
-// We add a new category using 'addCategoryHierarchically':
+// Next, we add a new category using 'addCategoryHierarchically':
 //..
 //     ball::LoggerCategoryUtil::addCategoryHierarchically(&lm,
 //                                                         "EQ.MARKET.NYSE");
@@ -106,8 +95,8 @@ BSLS_IDENT("$Id: $")
 //     [ EQ.MARKET, 193, 97, 65, 33 ]
 //     [ EQ.MARKET.NYSE, 193, 97, 65, 33 ]
 //..
-// We now want to adjust the threshold levels for all categories whose name
-// starts with "EQ.MARKET" using 'setThresholdLevelsHierarchically':
+// Then, we adjust the threshold levels for all categories whose name starts
+// with "EQ.MARKET" using 'setThresholdLevelsHierarchically':
 //..
 //     ball::LoggerCategoryUtil::setThresholdLevelsHierarchically(&lm,
 //                                                                "EQ.MARKET",

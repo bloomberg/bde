@@ -441,70 +441,6 @@ void waitEmptyRecordQueue(
     bslmt::ThreadUtil::microSleep(1000, 0);
 }
 
-// Removed with bdlpcre_regex removal.
-#if 0
-int countMatchingRecords(const bsl::string&  fileName,
-                         const char         *pattern,
-                         bool                isNegativePattern = false)
-    // Return the number of lines in the specified 'fileName' matching
-    // the specified regex 'pattern'.  If the optionally specified
-    // 'isNegativePattern' flag is 'true', return instead the number of lines
-    // *not* matching 'pattern'.
-{
-    bsl::string line;
-    int numLines = 0;
-    bsl::ifstream fs;
-    fs.open(fileName.c_str(), bsl::ifstream::in);
-
-    ASSERT(fs.is_open());
-    bdlpcre::RegEx regex;
-    int rc = regex.prepare(0, 0, pattern);
-    BSLS_ASSERT_OPT(0 == rc); // test invariant
-
-    while (getline(fs, line)) {
-        bool matches = 0 == regex.match(line.c_str(), line.length());
-        if (!isNegativePattern == matches) {
-            ++numLines;
-        }
-    }
-    fs.close();
-    return numLines;
-}
-
-int accumulateMatchingRecords(const bsl::string&  fileName,
-                              const char         *pattern)
-    // Apply the specified regex 'pattern', which must contain one
-    // integer-matching subpattern, to each line in the specified 'fileName',
-    // and return the sum of all the values of the subpattern for matching
-    // lines.
-{
-    bsl::string line;
-    int sum = 0;
-    bsl::ifstream fs;
-    fs.open(fileName.c_str(), bsl::ifstream::in);
-
-    ASSERT(fs.is_open());
-    bdlpcre::RegEx regex;
-    int rc = regex.prepare(0, 0, pattern);
-    BSLS_ASSERT_OPT(0 == rc); // test invariant
-    BSLS_ASSERT_OPT(1 == regex.numSubpatterns()); //test invariant
-
-    while (getline(fs, line)) {
-        bsl::vector<bsl::pair<int, int> > result;
-        if(0 == regex.match(&result, line.c_str(), line.length())) {
-            bsl::istringstream iss(line.substr(result[1].first,
-                                               result[1].second));
-            int value = 0;
-            iss >> value;
-            sum += value;
-        }
-    }
-    fs.close();
-    return sum;
-}
-#endif
-
-
 class LogRotationCallbackTester {
     // This class can be used as a functor matching the signature of
     // 'ball::FileObserver2::OnFileRotationCallback'.  This class records every
@@ -735,36 +671,35 @@ int main(int argc, char *argv[])
 // records will be discarded.
 //
 // Then, we create a shared pointer to a 'ball::AsyncFileObserver' object,
-// 'observerPtr', having default attributes.  Note that a default-constructed
+// 'observer', having default attributes.  Note that a default-constructed
 // async file observer has a maximum (fixed) size of 8192 for its log record
-// queue and will drop incoming log records when that queue is full.  (See
-// {Log Record Queue} for further information.)
+// queue and will drop incoming log records when that queue is full.  (See {Log
+// Record Queue} for further information.)
 //..
-    bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
-    bsl::shared_ptr<ball::AsyncFileObserver> observerPtr(
-                                         new(*alloc) ball::AsyncFileObserver(),
-                                         alloc);
+    bsl::shared_ptr<ball::AsyncFileObserver> observer =
+                                   bsl::make_shared<ball::AsyncFileObserver>();
 //..
 // Next, we set the required logging format by calling the 'setLogFormat'
 // method.  The statement below outputs timestamps in ISO 8601 format to a log
 // file and in 'bdlt'-style (default) format to 'stdout', where timestamps are
 // output with millisecond precision in both cases:
 //..
-    observerPtr->setLogFormat("\n%I %p:%t %s %f:%l %c %m\n",
-                              "\n%d %p:%t %s %f:%l %c %m\n");
+    observer->setLogFormat("%I %p:%t %s %f:%l %c %m\n",
+                           "%d %p:%t %s %f:%l %c %m\n");
 //..
 // Note that both of the above format specifications omit user fields ('%u') in
-// the output.
+// the output.  Also note that, unlike the default, this format does not emit a
+// blank line between consecutive log messages.
 //
 // Next, we start the publication thread by invoking 'startPublicationThread':
 //..
-    observerPtr->startPublicationThread();
+    observer->startPublicationThread();
 //..
 // Then, we register the async file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
 // the 'publish' method:
 //..
-    int rc = manager.registerObserver(observerPtr, "asyncObserver");
+    int rc = manager.registerObserver(observer, "asyncObserver");
     ASSERT(0 == rc);
 //..
 // Next, we set the log category and log a few records with different logging
@@ -780,7 +715,7 @@ int main(int argc, char *argv[])
 // Then, we change the default severity for logging to 'stdout' by calling the
 // 'setStdoutThreshold' method:
 //..
-    observerPtr->setStdoutThreshold(ball::Severity::e_INFO);
+    observer->setStdoutThreshold(ball::Severity::e_INFO);
 
     BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
     BALL_LOG_INFO  << "This info will be published on 'stdout'.";
@@ -788,23 +723,21 @@ int main(int argc, char *argv[])
 //..
 // Next, we disable logging to 'stdout' and enable logging to a file:
 //..
-    observerPtr->setStdoutThreshold(ball::Severity::e_OFF);
+    observer->setStdoutThreshold(ball::Severity::e_OFF);
 
-//  observerPtr->enableFileLogging("/var/log/task/task.log");
-//      // Create and log records to a file named "/var/log/task/task.log".
-    observerPtr->enableFileLogging(fileName.c_str());  // test driver only
+    observer->enableFileLogging(fileName.c_str());  // test driver only
 //..
 // Note that logs are now asynchronously written to the file.
 //
 // Then, we specify rules for log file rotation based on the size and time
 // interval:
 //..
-    observerPtr->rotateOnSize(1024 * 32);
-        // Rotate the file when its size becomes greater than or equal to 32
-        // megabytes.
+    // Rotate the file when its size becomes greater than or equal to 32
+    // megabytes.
+    observer->rotateOnSize(1024 * 32);
 
-    observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
-        // Rotate the file every 24 hours.
+    // Rotate the file every 24 hours.
+    observer->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //..
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
@@ -815,16 +748,16 @@ int main(int argc, char *argv[])
 // records that were on the record queue on entry to 'stopPublicationThread'
 // have been published:
 //..
-    observerPtr->stopPublicationThread();
+    observer->stopPublicationThread();
 //..
 // Then, we disable the log rotation rules established earlier and also
 // completely disable logging to a file:
 //..
-    observerPtr->disableSizeRotation();
+    observer->disableSizeRotation();
 
-    observerPtr->disableTimeIntervalRotation();
+    observer->disableTimeIntervalRotation();
 
-    observerPtr->disableFileLogging();
+    observer->disableFileLogging();
 //..
 // Note that stopping the publication thread and disabling various features of
 // the async file observer is not strictly necessary before object destruction.
@@ -1039,12 +972,9 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_TRACE,
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_OFF));
+                                                     ball::Severity::e_TRACE));
 
-        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManagerScopedGuard guard(configuration);
 
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
@@ -1111,10 +1041,7 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_TRACE,
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_OFF));
+                                                     ball::Severity::e_TRACE));
 
         ball::LoggerManagerScopedGuard guard(configuration);
 
@@ -1266,10 +1193,7 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_TRACE,
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_OFF));
+                                                     ball::Severity::e_TRACE));
 
         ball::LoggerManagerScopedGuard guard(configuration);
 
@@ -1387,10 +1311,7 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_TRACE,
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_OFF));
+                                                     ball::Severity::e_TRACE));
 
         ball::LoggerManagerScopedGuard guard(configuration);
 
@@ -1734,10 +1655,7 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_TRACE,
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_OFF));
+                                                     ball::Severity::e_TRACE));
 
         ball::LoggerManagerScopedGuard guard(configuration);
 
@@ -1899,10 +1817,7 @@ int main(int argc, char *argv[])
 
                 ball::LoggerManagerConfiguration configuration;
                 ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_TRACE,
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_OFF));
+                                                     ball::Severity::e_TRACE));
 
                 ball::LoggerManagerScopedGuard guard(configuration);
 
@@ -2366,10 +2281,7 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_TRACE,
-                                                       ball::Severity::e_OFF,
-                                                       ball::Severity::e_OFF));
+                                                     ball::Severity::e_TRACE));
 
         ball::LoggerManagerScopedGuard guard(configuration);
 
