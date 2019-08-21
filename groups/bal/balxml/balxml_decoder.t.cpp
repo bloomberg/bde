@@ -30,6 +30,8 @@
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
+#include <bdlb_variant.h>
+
 
 #include <bdlde_utf8util.h>
 
@@ -50,6 +52,8 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_typeinfo.h>
+#include <bsl_unordered_map.h>
+#include <bsl_unordered_set.h>
 
 #include <bslalg_typetraits.h>
 
@@ -19698,6 +19702,3969 @@ bsl::ostream& MySequenceWithNillables::print(
 
 // ***** END OF GENERATED CODE ****
 
+
+// ============================================================================
+//                        BEGIN BDLAT TEST APPARATUS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+
+                            // ==================
+                            // class TestNilValue
+                            // ==================
+
+class TestNilValue {
+    // This in-memory value-semantic class provides a representation of the
+    // type having only one value.
+};
+
+// FREE FUNCTIONS
+bsl::ostream& operator<<(bsl::ostream& stream, const TestNilValue& value)
+{
+    return stream << "nil";
+}
+
+inline
+bool operator==(const TestNilValue&, const TestNilValue&)
+{
+    return true;
+}
+
+inline
+bool operator!=(const TestNilValue&, const TestNilValue&)
+{
+    return false;
+}
+
+///Implementation Note
+///-------------------
+// The following set of types provide implementations of the 'bdlat' concepts
+// for each category that does not have a canonical implementation.  For
+// reference, the 8 'bdlat' concepts are:
+//: 1. Array
+//: 2. Choice
+//: 3. CustomizedType
+//: 4. DynamicType
+//: 5. Enumeration
+//: 6. NullableVAlue
+//: 7. Sequence
+//: 8. Simple
+//
+// Of these concepts, 'Array', 'NullableValue', and 'Simple' each have a
+// pre-existing canonical implementation.  For these types, a testing
+// implementation is not required.  The canonical implementations for 'Array',
+// 'NullableValue' and 'Simple' are 'bsl::vector', 'bdlb::NullableValue', and
+// the fundamental types (including string and date/time types), respectively.
+//
+// A test type is a value-semantic type that represents a 'bdlat' concept
+// implementation.
+//
+// The test types were originally designed to allow one to specify different
+// model types via template parameters in order to configure the behavior of
+// the particular concept implementation.  This functionality was unnecessary
+// in this test driver, but may warrant revisiting if these classes are moved
+// out into their own components.
+
+                             // =================
+                             // class bsl::vector
+                             // =================
+
+// FREE FUNCTIONS
+bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<int>& object)
+{
+    stream << "(";
+
+    typedef bsl::vector<int>::const_iterator ConstIterator;
+    for (ConstIterator it = object.begin(); it != object.end(); ++it) {
+        const int& element = *it;
+        if (object.begin() == it) {
+            stream << element;
+        }
+        else {
+            stream << ", " << element;
+        }
+    }
+
+    return stream << ")";
+}
+
+// TRAITS
+namespace bdlat_ArrayFunctions {
+
+template <class TYPE>
+struct ElementType<bsl::vector<TYPE> > {
+    typedef TYPE Type;
+};
+
+}  // close bdlat_ArrayFunctions namespace
+
+                        // ============================
+                        // struct TestSelectionDefaults
+                        // ============================
+
+struct TestSelectionDefaults {
+    // CLASS DATA
+    static const char k_DEFAULT_ANNOTATION[1];
+    static const char k_DEFAULT_NAME[1];
+    enum {
+        k_DEFAULT_FORMATTING_MODE = 0
+    };
+};
+
+// CLASS DATA
+const char TestSelectionDefaults::k_DEFAULT_ANNOTATION[1] = "";
+const char TestSelectionDefaults::k_DEFAULT_NAME[1] = "";
+
+                             // ===================
+                             // class TestSelection
+                             // ===================
+
+template <int         ID,
+          const char *NAME = TestSelectionDefaults::k_DEFAULT_NAME,
+
+          const char *ANNOTATION = TestSelectionDefaults::k_DEFAULT_ANNOTATION,
+          int         FORMATTING_MODE =
+              TestSelectionDefaults::k_DEFAULT_FORMATTING_MODE>
+class TestSelection {
+  public:
+    // CLASS DATA
+    static const char *k_NAME;
+    static const char *k_ANNOTATION;
+    enum { k_ID = ID, k_FORMATTING_MODE = FORMATTING_MODE };
+
+    // CLASS METHODS
+    static int id() { return k_ID; }
+
+    static bslstl::StringRef name() { return k_NAME; }
+
+    static bslstl::StringRef annotation() { return k_ANNOTATION; }
+
+    static int formattingMode() { return k_FORMATTING_MODE; }
+
+    static bdlat_SelectionInfo selectionInfo()
+    {
+        bdlat_SelectionInfo result = {k_ID,
+                                      k_NAME,
+                                      static_cast<int>(bsl::strlen(k_NAME)),
+                                      k_ANNOTATION,
+                                      k_FORMATTING_MODE};
+
+        return result;
+    }
+};
+
+// CLASS DATA
+template <int         ID,
+          const char *NAME,
+          const char *ANNOTATION,
+          int         FORMATTING_MODE>
+const char *TestSelection<ID, NAME, ANNOTATION, FORMATTING_MODE>::k_NAME =
+    NAME;
+
+template <int         ID,
+          const char *NAME,
+          const char *ANNOTATION,
+          int         FORMATTING_MODE>
+const char
+    *TestSelection<ID, NAME, ANNOTATION, FORMATTING_MODE>::k_ANNOTATION =
+        ANNOTATION;
+
+                          // ========================
+                          // class TypedTestSelection
+                          // ========================
+
+template <class TYPE, class TEST_SELECTION>
+class TypedTestSelection {
+  public:
+    // TYPES
+    typedef TYPE           Type;
+    typedef TEST_SELECTION Selection;
+};
+
+                              // ================
+                              // class TestChoice
+                              // ================
+
+template <class TYPED_SELECTION_0 =
+              TypedTestSelection<TestNilValue, TestSelection<0> >,
+          class TYPED_SELECTION_1 =
+              TypedTestSelection<TestNilValue, TestSelection<0> >,
+          class TYPED_SELECTION_2 =
+              TypedTestSelection<TestNilValue, TestSelection<0> > >
+class TestChoice {
+    // This in-core value-semantic class provides a basic implementation of the
+    // 'bdlat' 'Choice' concept.  The template parameter 'C0' defines the type
+    // of the first selection of the choice.  The template parameters 'C1' and
+    // 'C2' may be optionally specified to define second and third selections
+    // of the choice.  If 'C2' is 'TestNilValue', then the choice does not have
+    // a third selection, and if 'C1' is 'TestNilValue', then the choice does
+    // not have a second selection.
+
+  public:
+    // TYPES
+    typedef typename TYPED_SELECTION_0::Selection Selection0;
+    typedef typename TYPED_SELECTION_0::Type      Selection0Type;
+    typedef typename TYPED_SELECTION_1::Selection Selection1;
+    typedef typename TYPED_SELECTION_1::Type      Selection1Type;
+    typedef typename TYPED_SELECTION_2::Selection Selection2;
+    typedef typename TYPED_SELECTION_2::Type      Selection2Type;
+
+  private:
+    // PRIVATE TYPES
+    typedef bdlb::Variant<Selection0Type, Selection1Type, Selection2Type>
+            Value;
+
+    // PRIVATE CLASS DATA
+    enum {
+        k_HAS_CHOICE_0 = !bslmf::IsSame<TestNilValue, Selection0Type>::value,
+        k_HAS_CHOICE_1 = !bslmf::IsSame<TestNilValue, Selection1Type>::value,
+        k_HAS_CHOICE_2 = !bslmf::IsSame<TestNilValue, Selection2Type>::value
+    };
+
+    // DATA
+    bslalg::ConstructorProxy<Value> d_value;  // underlying value
+    bslma::Allocator *d_allocator_p;  // memory supply (held, not owned)
+
+  public:
+    // CLASS METHODS
+    static bool areEquivalent(const TestChoice& lhs, const TestChoice& rhs)
+    {
+        return lhs.d_value.object() == rhs.d_value.object();
+    }
+
+    // CREATORS
+    TestChoice()
+    : d_value(Selection0Type(), bslma::Default::allocator())
+    , d_allocator_p(bslma::Default::allocator())
+    {
+    }
+
+    explicit TestChoice(bslma::Allocator *basicAllocator)
+    : d_value(Selection0Type(), basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    template <class VALUE>
+    explicit TestChoice(const VALUE&      value,
+                        bslma::Allocator *basicAllocator = 0)
+    : d_value(value, bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(basicAllocator)
+    {
+        BSLMF_ASSERT((bslmf::IsSame<Selection0Type, VALUE>::value ||
+                      bslmf::IsSame<Selection1Type, VALUE>::value ||
+                      bslmf::IsSame<Selection2Type, VALUE>::value));
+    }
+
+    TestChoice(const TestChoice&  original,
+               bslma::Allocator  *basicAllocator = 0)
+    : d_value(original.d_value.object(), basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    // MANIPULATORS
+    TestChoice& operator=(const TestChoice& original)
+    {
+        d_value.object() = original.d_value.object();
+        return *this;
+    }
+
+    int makeSelection(int selectionId)
+        // Set the value of this object to the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success,
+        // and a non-zero value otherwise.
+    {
+        switch (selectionId) {
+          case 0: {
+            if (!k_HAS_CHOICE_0) {
+                return -1;
+            }                                                         // RETURN
+
+            d_value.object().template createInPlace<Selection0Type>();
+            return 0;                                                 // RETURN
+          } break;
+          case 1: {
+            if (!k_HAS_CHOICE_1) {
+                return -1;                                            // RETURN
+            }
+
+            d_value.object().template createInPlace<Selection1Type>();
+            return 0;                                                 // RETURN
+          } break;
+          case 2: {
+            if (!k_HAS_CHOICE_2) {
+                return -1;
+            }                                                         // RETURN
+
+            d_value.object().template createInPlace<Selection2Type>();
+            return 0;                                                 // RETURN
+          } break;
+        }
+
+        return -1;
+    }
+
+    int makeSelection(const char *selectionName, int selectionNameLength)
+        // Set the value of this object to the default for the selection
+        // indicated by the specified 'selectionName' of the specified
+        // 'selectionNameLength'.  Return 0 on success, and a non-zero value
+        // otherwise.
+    {
+        const bslstl::StringRef selection(selectionName, selectionNameLength);
+
+        if (k_HAS_CHOICE_0 && Selection0::name() == selection) {
+            d_value.object().template createInPlace<Selection0Type>();
+            return 0;                                                 // RETURN
+        }
+
+        if (k_HAS_CHOICE_1 && Selection1::name() == selection) {
+            d_value.object().template createInPlace<Selection1Type>();
+            return 0;                                                 // RETURN
+        }
+
+        if (k_HAS_CHOICE_2 && Selection2::name() == selection) {
+            d_value.object().template createInPlace<Selection2Type>();
+            return 0;                                                 // RETURN
+        }
+
+        return -1;
+    }
+
+    template <class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator)
+        // Invoke the specified 'manipulator' on the address of the (modifiable)
+        // selection of this object, supplying 'manipulator' with the
+        // corresponding selection information structure.  Return -1 if the
+        // selection is undefined, and the value returned from the
+        // invocation of 'manipulator' otherwise.
+    {
+        switch (d_value.object().typeIndex()) {
+          case 0: {
+            return -1;                                                // RETURN
+          } break;
+          case 1: {
+            BSLS_ASSERT(k_HAS_CHOICE_0);
+            BSLS_ASSERT(d_value.object().template is<Selection0Type>());
+            return manipulator(&d_value.object().template the<Selection0Type>(),
+                               Selection0::selectionInfo());          // RETURN
+          } break;
+          case 2: {
+            BSLS_ASSERT(k_HAS_CHOICE_1);
+            BSLS_ASSERT(d_value.object().template is<Selection1Type>());
+            return manipulator(&d_value.object().template the<Selection1Type>(),
+                               Selection1::selectionInfo());          // RETURN
+          } break;
+          case 3: {
+            BSLS_ASSERT(k_HAS_CHOICE_2);
+            BSLS_ASSERT(d_value.object().template is<Selection2Type>());
+            return manipulator(&d_value.object().template the<Selection2Type>(),
+                               Selection2::selectionInfo());          // RETURN
+          } break;
+        }
+
+        return -1;
+    }
+
+    void reset()
+    {
+        d_value.object().template createInPlace<Selection0Type>();
+    }
+
+    // ACCESSORS
+    template <class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const
+        // Invoke the specified 'accessor' on the (non-modifiable) selection of
+        // the this object, supplying 'accessor' with the corresponding
+        // selection information structure.  Return -1 if the selection is
+        // undefined, and the value returned from the invocation of 'accessor'
+        // otherwise.
+    {
+        switch (d_value.object().typeIndex()) {
+          case 0: {
+            return -1;                                                // RETURN
+          } break;
+          case 1: {
+            BSLS_ASSERT(k_HAS_CHOICE_0);
+            BSLS_ASSERT(d_value.object().template is<Selection0Type>());
+            return accessor(d_value.object().template the<Selection0Type>(),
+                            Selection0::selectionInfo());             // RETURN
+          } break;
+          case 2: {
+            BSLS_ASSERT(k_HAS_CHOICE_1);
+            BSLS_ASSERT(d_value.object().template is<Selection1Type>());
+            return accessor(d_value.object().template the<Selection1Type>(),
+                            Selection1::selectionInfo());             // RETURN
+          } break;
+          case 3: {
+            BSLS_ASSERT(k_HAS_CHOICE_2);
+            BSLS_ASSERT(d_value.object().template is<Selection2Type>());
+            return accessor(d_value.object().template the<Selection2Type>(),
+                            Selection2::selectionInfo());             // RETURN
+          } break;
+        }
+
+        return -1;
+    }
+
+    bool hasSelection(int selectionId) const
+    {
+        if (k_HAS_CHOICE_0 && Selection0::id() == selectionId) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_CHOICE_1 && Selection1::id() == selectionId) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_CHOICE_2 && Selection2::id() == selectionId) {
+            return true;                                              // RETURN
+        }
+
+        return false;
+    }
+
+    bool hasSelection(const char *selectionName,
+                      int selectionNameLength) const
+    {
+        const bslstl::StringRef selection(selectionName, selectionNameLength);
+
+        if (k_HAS_CHOICE_0 && Selection0::name() == selection) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_CHOICE_1 && Selection1::name() == selection) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_CHOICE_2 && Selection2::name() == selection) {
+            return true;                                              // RETURN
+        }
+
+        return false;
+    }
+
+    const char *className() const
+        // Return a null-terminated string containing the exported name for
+        // this type.
+    {
+        return "MyChoice";
+    }
+
+    int selectionId() const
+    {
+        return d_value.object().typeIndex() - 1;
+    }
+
+    const Selection0Type& theSelection0() const
+    {
+        BSLS_ASSERT(d_value.object().typeIndex() == 1);
+        return d_value.object().template the<Selection0Type>();
+    }
+
+    const Selection1Type& theSelection1() const
+    {
+        BSLS_ASSERT(d_value.object().typeIndex() == 2);
+        return d_value.object().template the<Selection1Type>();
+    }
+
+    const Selection2Type& theSelection2() const
+    {
+        BSLS_ASSERT(d_value.object().typeIndex() == 3);
+        return d_value.object().template the<Selection2Type>();
+    }
+};
+
+// FREE OPERATORS
+template <class V0, class V1, class V2>
+bsl::ostream& operator<<(bsl::ostream&                 stream,
+                         const TestChoice<V0, V1, V2>& choice)
+{
+    typedef TestChoice<V0, V1, V2> Choice;
+
+    stream << "[" << choice.className() << " ";
+    switch (choice.selectionId()) {
+      case 0: {
+        stream << Choice::Selection0::name() << " = "
+               << choice.theSelection0();
+      } break;
+      case 1: {
+        stream << Choice::Selection1::name() << " = "
+               << choice.theSelection1();
+      } break;
+      case 2: {
+        stream << Choice::Selection2::name() << " = "
+               << choice.theSelection2();
+      } break;
+    }
+
+    return stream << "]";
+}
+
+template <class C0, class C1, class C2>
+inline
+bool operator==(const TestChoice<C0, C1, C2>& lhs,
+                const TestChoice<C0, C1, C2>& rhs)
+{
+    return TestChoice<C0, C1, C2>::areEquivalent(lhs, rhs);
+}
+
+template <class C0, class C1, class C2>
+inline
+bool operator!=(const TestChoice<C0, C1, C2>& lhs,
+                const TestChoice<C0, C1, C2>& rhs)
+{
+    return !TestChoice<C0, C1, C2>::areEquivalent(lhs, rhs);
+}
+
+// TRAITS
+template <class C0, class C1, class C2>
+const char *bdlat_TypeName_className(const TestChoice<C0, C1, C2>& object)
+    // Return a null-terminated string containing the exported name of the type
+    // for the specified 'object'.
+{
+    return object.className();
+}
+
+template <class C0, class C1, class C2>
+int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object, int selectionId)
+    // Set the value of the specified 'object' to the default for the
+    // selection indicated by the specified 'selectionId'.  Return 0 on
+    // success, and a non-zero value otherwise.
+{
+    return object->makeSelection(selectionId);
+}
+
+template <class C0, class C1, class C2>
+int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object,
+                              const char             *selectionName,
+                              int                     selectionNameLength)
+    // Set the value of the specified 'object' to be the default for the
+    // selection indicated by the specified 'selectionName' of the specified
+    // 'selectionNameLength'.  Return 0 on success, and a non-zero value
+    // otherwise.
+{
+    return object->makeSelection(selectionName, selectionNameLength);
+}
+
+template <class C0, class C1, class C2, class MANIPULATOR>
+int bdlat_choiceManipulateSelection(TestChoice<C0, C1, C2> *object,
+                                    MANIPULATOR&            manipulator)
+    // Invoke the specified 'manipulator' on the address of the (modifiable)
+    // selection of the specified 'object', supplying 'manipulator' with the
+    // corresponding selection information structure.  Return -1 if the
+    // selection is undefined, and the value returned from the invocation of
+    // 'manipulator' otherwise.
+{
+    return object->manipulateSelection(manipulator);
+}
+
+template <class C0, class C1, class C2, class ACCESSOR>
+int bdlat_choiceAccessSelection(const TestChoice<C0, C1, C2>& object,
+                                ACCESSOR&                     accessor)
+    // Invoke the specified 'accessor' on the (non-modifiable) selection of the
+    // specified 'object', supplying 'accessor' with the corresponding
+    // selection information structure.  Return -1 if the selection is
+    // undefined, and the value returned from the invocation of 'accessor'
+    // otherwise.
+{
+    return object.accessSelection(accessor);
+}
+
+template <class C0, class C1, class C2>
+bool bdlat_choiceHasSelection(const TestChoice<C0, C1, C2>& object,
+                              const char *selectionName,
+                              int selectionNameLength)
+{
+    return object.hasSelection(selectionName, selectionNameLength);
+}
+
+template <class C0, class C1, class C2>
+bool bdlat_choiceHasSelection(const TestChoice<C0, C1, C2>& object,
+                              int selectionId)
+{
+    return object.hasSelection(selectionId);
+}
+
+template <class C0, class C1, class C2>
+int bdlat_choiceSelectionId(const TestChoice<C0, C1, C2>& object)
+    // Return the id of the current selection if the selection is defined, and
+    // 'k_UNDEFINED_SELECTION_ID' otherwise.
+{
+    return object.selectionId();
+}
+
+template <class C0, class C1, class C2>
+int bdlat_valueTypeAssign(TestChoice<C0, C1, C2> *lhs,
+                          const TestChoice<C0, C1, C2>& rhs)
+{
+    *lhs = rhs;
+    return 0;
+}
+
+template <class C0, class C1, class C2>
+void bdlat_valueTypeReset(TestChoice<C0, C1, C2> *object)
+{
+    object->reset();
+}
+
+template <class V0, class V1>
+struct bdlat_IsBasicChoice<TestChoice<V0, V1> > : bsl::true_type {
+};
+
+namespace bdlat_ChoiceFunctions {
+
+template <class C0, class C1, class C2>
+struct IsChoice<TestChoice<C0, C1, C2> > {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_ChoiceFunctions namespace
+
+                          // ========================
+                          // class TestCustomizedType
+                          // ========================
+
+template <class VALUE_TYPE, class BASE_TYPE>
+class TestCustomizedType {
+    // This in-core value-semantic class provides a basic implementation of the
+    // 'bdlat' 'CustomizedType' concept.  The template parameter 'VALUE_TYPE'
+    // specifies the underlying value for objects of this type, and the
+    // template parameter 'BASE_TYPE' specifies one of the public base types of
+    // 'VALUE_TYPE'.  This type is said to "customize" the 'BASE_TYPE'.  The
+    // program is ill-formed unless 'VALUE_TYPE' is the same as 'BASE_TYPE', or
+    // publicly inherits from it.
+
+  public:
+    // TYPES
+    typedef VALUE_TYPE Value;
+    typedef BASE_TYPE BaseType;
+
+  private:
+    // DATA
+    bslalg::ConstructorProxy<Value> d_value;  // underlying value
+    bslma::Allocator *d_allocator_p;  // memory supply (held, not owned)
+
+  public:
+    // CLASS METHODS
+    static bool areEquivalent(const TestCustomizedType& lhs,
+                              const TestCustomizedType& rhs)
+    {
+        return lhs.d_value.object() == rhs.d_value.object();
+    }
+
+    // CREATORS
+    TestCustomizedType()
+    : d_value(bslma::Default::allocator())
+    , d_allocator_p(bslma::Default::allocator())
+    {
+    }
+
+    explicit TestCustomizedType(bslma::Allocator *basicAllocator)
+    : d_value(basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    explicit TestCustomizedType(const Value&      value,
+                                bslma::Allocator *basicAllocator = 0)
+    : d_value(value, basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    TestCustomizedType(const TestCustomizedType&  original,
+                       bslma::Allocator          *basicAllocator = 0)
+    : d_value(original.d_value.object(), basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    // MANIPULATORS
+    TestCustomizedType& operator=(const TestCustomizedType& original)
+    {
+        d_value.object() = original.d_value.object();
+
+        return *this;
+    }
+
+    template <class OTHER_BASE_TYPE>
+    int convertFromBaseType(const OTHER_BASE_TYPE& value)
+        // If an explicit conversion from the specified 'OTHER_BASE_TYPE' type
+        // to the 'Value' type exists, load into the value of this object the
+        // value of the specified 'base' object explicitly converted to
+        // 'Value'.  Return 0 on success, and a non-zero value otherwise.
+    {
+        if (!bslmf::IsConvertible<Value, OTHER_BASE_TYPE>::value) {
+            return -1;                                                // RETURN
+        }
+
+        d_value.object() = static_cast<Value>(value);
+        return 0;
+    }
+
+    void setValue(const Value& value) { d_value.object() = value; }
+
+    void reset()
+    {
+        d_value.object() = Value();
+    }
+
+    // ACCESSORS
+    const char *className() const
+        // Return a null-terminated string containing the exported name for
+        // this type.
+    {
+        return "MyCustomizedType";
+    }
+
+    const BaseType& convertToBaseType() const
+        // Return a reference providing non-modifiable access to the 'Base'
+        // subobject of the underlying value of this object.
+    {
+        return d_value.object();
+    }
+
+    const Value& value() const { return d_value.object(); }
+};
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class BASE_TYPE>
+bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& object)
+{
+    return stream << "[" << object.className() << " value " << object.value()
+                  << "]";
+}
+
+template <class VALUE_TYPE, class BASE_TYPE>
+inline
+bool operator==(const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& lhs,
+                const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& rhs)
+{
+    return TestCustomizedType<VALUE_TYPE, BASE_TYPE>::areEquivalent(lhs, rhs);
+}
+
+template <class VALUE_TYPE, class BASE_TYPE>
+inline
+bool operator!=(const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& lhs,
+                const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& rhs)
+{
+    return !TestCustomizedType<VALUE_TYPE, BASE_TYPE>::areEquivalent(lhs, rhs);
+}
+
+// TRAITS
+template <class VALUE_TYPE, class BASE_TYPE>
+const char *bdlat_TypeName_className(
+                       const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& object)
+    // Return a null-terminated string containing the exported name of the type
+    // for the specified 'object'.
+{
+    return object.className();
+}
+
+template <class VALUE_TYPE, class BASE_TYPE, class OTHER_BASE_TYPE>
+int bdlat_customizedTypeConvertFromBaseType(
+                             TestCustomizedType<VALUE_TYPE, BASE_TYPE> *object,
+                             const OTHER_BASE_TYPE&                     base)
+    // If an explicit conversion from the specified 'OTHER_BASE_TYPE' type to
+    // the specified 'VALUE_TYPE' type exists, load into the underlying value
+    // of the specified 'object' the value of the specified 'base' object
+    // explicitly converted to 'VALUE_TYPE'.  Return 0 on success, and a
+    // non-zero value otherwise.
+{
+    return object->convertFromBaseType(base);
+}
+
+template <class VALUE_TYPE, class BASE_TYPE>
+const BASE_TYPE& bdlat_customizedTypeConvertToBaseType(
+                       const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& object)
+    // Return a reference providing non-modifiable access to the 'Base'
+    // subobject of the underlying value of the specified 'object'.
+{
+    return object.convertToBaseType();
+}
+
+template <class VALUE_TYPE, class BASE_TYPE>
+int bdlat_valueTypeAssign(TestCustomizedType<VALUE_TYPE, BASE_TYPE> *lhs,
+                          const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& rhs)
+{
+    *lhs = rhs;
+    return 0;
+}
+
+template <class VALUE_TYPE, class BASE_TYPE>
+void bdlat_valueTypeReset(TestCustomizedType<VALUE_TYPE, BASE_TYPE> *object)
+{
+    object->reset();
+}
+
+template <class VALUE_TYPE, class BASE_TYPE>
+struct bdlat_IsBasicCustomizedType<TestCustomizedType<VALUE_TYPE, BASE_TYPE> >
+: bsl::true_type {
+};
+
+namespace bdlat_CustomizedTypeFunctions {
+
+template <class VALUE_TYPE, class BASE_TYPE>
+struct IsCustomizedType<TestCustomizedType<VALUE_TYPE, BASE_TYPE> > {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_CustomizedTypeFunctions namespace
+
+                     // ==================================
+                     // class TestDynamicType_ArrayImpUtil
+                     // ==================================
+
+template <class VALUE_TYPE,
+          bool IS_ARRAY = bdlat_TypeCategory::e_ARRAY_CATEGORY ==
+                          bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
+struct TestDynamicType_ArrayImpUtil {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to implement the 'bdlat' 'Array' concept for
+    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
+    // 'Array' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    template <class ACCESSOR>
+    static int accessElement(const Value& value, ACCESSOR& accessor, int index)
+        // Invoke the specified 'accessor' on the non-modifiable element at the
+        // specified 'index' of the specified array 'value'.  Return the value
+        // from the invocation of 'accessor'.  The behavior is undefined unless
+        // '0 <= index' and 'index < size(value)'.
+    {
+        return bdlat_ArrayFunctions::accessElement(value, accessor, index);
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateElement(Value        *value,
+                                 MANIPULATOR&  manipulator,
+                                 int           index)
+        // Invoke the specified 'manipulator' on the address of the element at
+        // the specified 'index' of the specified array 'value'.  Return the
+        // value from the invocation of 'manipulator'.  The behavior is
+        // undefined unless '0 <= index' and 'index < size(*value)'.
+    {
+        return bdlat_ArrayFunctions::manipulateElement(
+            value, manipulator, index);
+    }
+
+    static void resize(Value *value, int newSize)
+        // Set the sizes of the specified array 'value' to the specified
+        // 'newSize'.  If 'newSize > size(*value)', then
+        // 'newSize - size(*value)' new elements with default values are
+        // appended to 'value'.  If 'newSize < size(*value)' then the
+        // 'size(*value) - newSize' elements at the end of 'value' are
+        // destroyed.  The behavior is undefined unless '0 <= newSize'.
+    {
+        return bdlat_ArrayFunctions::resize(value, newSize);
+    }
+
+    static bsl::size_t size(const Value& value)
+        // Return the number of elements in the specified array 'value'.
+    {
+        return bdlat_ArrayFunctions::size(value);
+    }
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_ArrayImpUtil<VALUE_TYPE, false> {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
+    // 'Array' concept for 'VALUE_TYPE' template parameters that do not satisfy
+    // the 'bdlat' 'Array' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    template <class ACCESSOR>
+    static int accessElement(const Value&, ACCESSOR, int)
+    {
+        return -1;
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateElement(Value *, MANIPULATOR&, int)
+    {
+        return -1;
+    }
+
+    static void resize(Value *, int) {}
+
+    static bsl::size_t size(const Value&) { return 0; }
+};
+
+                    // ===================================
+                    // class TestDynamicType_ChoiceImpUtil
+                    // ===================================
+
+template <class VALUE_TYPE,
+          bool IS_CHOICE = bdlat_TypeCategory::e_CHOICE_CATEGORY ==
+          bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
+struct TestDynamicType_ChoiceImpUtil {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to implement the 'bdlat' 'Choice' concept for
+    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
+    // 'Choice' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    template <class ACCESSOR>
+    static int accessSelection(const Value& value,
+                               ACCESSOR& accessor)
+        // Invoke the specified 'accessor' on the (non-modifiable) selection of
+        // the specified 'value', supplying 'accessor' with the corresponding
+        // selection information structure.  Return -1 if the selection is
+        // undefined, and the value returned from the invocation of 'accessor'
+        // otherwise.
+    {
+        return bdlat_ChoiceFunctions::accessSelection(value, accessor);
+    }
+
+    static bool hasSelection(const Value& value,
+                             int selectionId)
+        // Return 'true' if the specified 'value' has a selection with the
+        // specified 'selectionId', and 'false' otherwise.
+    {
+        return bdlat_ChoiceFunctions::hasSelection(value, selectionId);
+    }
+
+    static bool hasSelection(const Value& value,
+                             const char *selectionName,
+                             int selectionNameLength)
+        // Return 'true' if the specified 'value' has a selection with the
+        // specified 'selectionName' of the specified 'selectionNameLength',
+        // and 'false' otherwise.
+    {
+        return bdlat_ChoiceFunctions::hasSelection(value,
+                                                   selectionName,
+                                                   selectionNameLength);
+    }
+
+    static int makeSelection(Value *value, int selectionId)
+        // Set the value of the specified 'value' to the default for the
+        // selection indicated by the specified 'selectionId'.  Return 0 on
+        // success, and a non-zero value otherwise.
+    {
+        return bdlat_ChoiceFunctions::makeSelection(value, selectionId);
+    }
+
+    static int makeSelection(Value *value, const char *selectionName,
+                             int selectionNameLength)
+        // Set the value of the specified 'value' to be the default for the
+        // selection indicated by the specified 'selectionName' of the
+        // specified 'selectionNameLength'.  Return 0 on success, and a
+        // non-zero value otherwise.
+    {
+        return bdlat_ChoiceFunctions::makeSelection(
+            value, selectionName, selectionNameLength);
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateSelection(Value *value,
+                                   MANIPULATOR& manipulator)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) selection of the specified 'value', supplying
+        // 'manipulator' with the corresponding selection information
+        // structure.  Return -1 if the selection is undefined, and the value
+        // returned from the invocation of 'manipulator' otherwise.
+    {
+        return bdlat_ChoiceFunctions::manipulateSelection(value, manipulator);
+    }
+
+    static int selectionId(const Value& value)
+        // Return the id of the current selection of the specified 'value' if
+        // the selection is defined, and -1 otherwise.
+    {
+        return bdlat_ChoiceFunctions::selectionId(value);
+    }
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_ChoiceImpUtil<VALUE_TYPE, false> {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
+    // 'Choice' concept for 'VALUE_TYPE' template parameters that do not
+    // satisfy the 'bdlat' 'Choice' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    template <class ACCESSOR>
+    static int accessSelection(const Value&, ACCESSOR&)
+    {
+        return -1;
+    }
+
+    static bool hasSelection(const Value&, int) { return false; }
+
+    static bool hasSelection(const Value&, const char *, int) { return false; }
+
+    static int makeSelection(Value *, int) { return -1; }
+
+    static int makeSelection(Value *, const char *, int) { return -1; }
+
+    template <class MANIPULATOR>
+    static int manipulateSelection(Value *, MANIPULATOR&)
+    {
+        return -1;
+    }
+
+    static int selectionId(const Value&) { return 0; }
+};
+
+                   // =====================================
+                   // class TestDynamicType_SequenceImpUtil
+                   // =====================================
+
+template <class VALUE_TYPE,
+          bool IS_SEQUENCE =
+              bdlat_TypeCategory::e_SEQUENCE_CATEGORY ==
+              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
+struct TestDynamicType_SequenceImpUtil {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to implement the 'bdlat' 'Sequence' concept for
+    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
+    // 'Sequence' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    template <class ACCESSOR>
+    static int accessAttribute(const Value&  value,
+                               ACCESSOR&     accessor,
+                               const char   *attributeName,
+                               int           attributeNameLength)
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // the specified 'value' indicated by the specified 'attributeName' of
+        // the specified 'attributeNameLength', supplying 'accessor' with the
+        // corresponding attribute information structure.  Return a non-zero
+        // value if the attribute is not found, and the value returned from the
+        // invocation of 'accessor' otherwise.
+    {
+        return bdlat_SequenceFunctions::accessAttribute(
+            value, accessor, attributeName, attributeNameLength);
+    }
+
+    template <class ACCESSOR>
+    static int accessAttribute(const Value& value,
+                               ACCESSOR&    accessor,
+                               int          attributeId)
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // the specified 'value' with the specified 'attributeId', supplying
+        // 'accessor' with the corresponding attribute information structure.
+        // Return non-zero if the attribute is not found, and the value
+        // returned from the invocation of 'accessor' otherwise.
+    {
+        return bdlat_SequenceFunctions::accessAttribute(
+            value, accessor, attributeId);
+    }
+
+    template <class ACCESSOR>
+    static int accessAttributes(const Value& value, ACCESSOR& accessor)
+        // Invoke the specified 'accessor' sequentially on each attribute of
+        // the specified 'value', supplying 'accessor' with the corresponding
+        // attribute information structure until such invocation returns a
+        // non-zero value.  Return the value from the last invocation of
+        // 'accessor'.
+    {
+        return bdlat_SequenceFunctions::accessAttributes(value, accessor);
+    }
+
+    static bool hasAttribute(const Value&  value,
+                             const char   *attributeName,
+                             int           attributeNameLength)
+        // Return 'true' if the specified 'value' has an attribute with the
+        // specified 'attributeName' of the specified 'attributeNameLength',
+        // and 'false' otherwise.
+    {
+        return bdlat_SequenceFunctions::hasAttribute(
+            value, attributeName, attributeNameLength);
+    }
+
+    static bool hasAttribute(const Value& value, int attributeId)
+        // Return 'true' if the specified 'value' has an attribute with the
+        // specified 'attributeId', and 'false' otherwise.
+    {
+        return bdlat_SequenceFunctions::hasAttribute(value, attributeId);
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateAttribute(Value        *value,
+                                   MANIPULATOR&  manipulator,
+                                   const char   *attributeName,
+                                   int           attributeNameLength)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'attributeName' of
+        // the specified 'attributeNameLength' of the specified 'value',
+        // supplying 'manipulator' with the corresponding attribute information
+        // structure.  Return a non-zero value if the attribute is not found,
+        // and the value returned from the invocation of 'manipulator'
+        // otherwise.
+    {
+        return bdlat_SequenceFunctions::manipulateAttribute(
+            value, manipulator, attributeName, attributeNameLength);
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateAttribute(Value        *value,
+                                   MANIPULATOR&  manipulator,
+                                   int           attributeId)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'attributeId' of
+        // the specified 'value', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return a non-zero
+        // value if the attribute is not found, and the value returned from the
+        // invocation of 'manipulator' otherwise.
+    {
+        return bdlat_SequenceFunctions::manipulateAttribute(
+            value, manipulator, attributeId);
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateAttributes(Value *value, MANIPULATOR& manipulator)
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of the specified 'value', supplying
+        // 'manipulator' with the corresponding attribute information structure
+        // until such invocation returns a non-zero value.  Return the value
+        // from the last invocation of 'manipulator'.
+    {
+        return bdlat_SequenceFunctions::manipulateAttributes(value,
+                                                             manipulator);
+    }
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_SequenceImpUtil<VALUE_TYPE, false> {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to provide stub implementations of the 'bdlat'
+    // 'Sequence' concept for 'VALUE_TYPE' template parameters that do not
+    // satisfy the 'bdlat' 'Sequence' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    template <class ACCESSOR>
+    static int accessAttribute(const Value&, ACCESSOR&, const char *, int)
+    {
+        return -1;
+    }
+
+    template <class ACCESSOR>
+    static int accessAttribute(const Value&, ACCESSOR&, int)
+    {
+        return -1;
+    }
+
+    template <class ACCESSOR>
+    static int accessAttributes(const Value&, ACCESSOR&)
+    {
+        return -1;
+    }
+
+    static bool hasAttribute(const Value&, const char *, int) { return false; }
+
+    static bool hasAttribute(const Value&, int) { return false; }
+
+    template <class MANIPULATOR>
+    static int manipulateAttribute(Value *, MANIPULATOR&, const char *, int)
+    {
+        return -1;
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateAttribute(Value *, MANIPULATOR&, int)
+    {
+        return -1;
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateAttributes(Value *, MANIPULATOR&)
+    {
+        return -1;
+    }
+};
+
+                           // =====================
+                           // class TestDynamicType
+                           // =====================
+
+template <class VALUE_TYPE>
+class TestDynamicType {
+    // This in-core value-semantic class provides a basic implementation *of*
+    // *a* *subset* of the 'bdlat' 'DynamicType' concept.  The template
+    // parameter 'VALUE_TYPE' specifies the underlying value of this type, and
+    // further, specifies which of the 'bdlat' attribute concepts this type
+    // implements.  The 'VALUE_TYPE' must implement exactly 1 of 3 'bdlat'
+    // concepts: 'Array', 'Choice', or 'Sequence'.  This type implements the
+    // same 'bdlat' concept as the 'VALUE_TYPE' through the 'bdlat'
+    // 'DynamicType' interface.  The program is ill-formed unless 'VALUE_TYPE'
+    // meets the requirements of exactly one of the 'bdlat' 'Array', 'Choice',
+    // or 'Sequence' concepts.
+
+  public:
+    // TYPES
+    typedef VALUE_TYPE Value;
+        // An alias to the type that defines the underlying value of this
+        // object.
+
+  private:
+    // PRIVATE TYPES
+    typedef TestDynamicType_ArrayImpUtil<VALUE_TYPE>    ArrayImpUtil;
+    typedef TestDynamicType_ChoiceImpUtil<VALUE_TYPE>   ChoiceImpUtil;
+    typedef TestDynamicType_SequenceImpUtil<VALUE_TYPE> SequenceImpUtil;
+
+    // PRIVATE CLASS DATA
+    enum {
+        e_ARRAY    = bdlat_TypeCategory::e_ARRAY_CATEGORY,
+        e_CHOICE   = bdlat_TypeCategory::e_CHOICE_CATEGORY,
+        e_SEQUENCE = bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+    };
+
+    // PRIVATE CLASS FUNCTIONS
+    static bool valueHasCategory(int category)
+        // Return 'true' if the 'VALUE_TYPE' implements the 'bdlat' concept
+        // identified by the specified 'category'.  The behavior is undefined
+        // unless the value of 'category' is equal to one of
+        // 'bdlat_TypeCategory::e_ARRAY_CATEGORY',
+        // 'bdlat_TypeCategory::e_CHOICE_CATEGORY', or
+        // 'bdlat_TypeCategory::e_SEQUENCE_CATEGORY'.
+    {
+        return category == bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION;
+    }
+
+    // DATA
+    bslalg::ConstructorProxy<Value> d_value; // underlying value
+    bslma::Allocator *d_allocator_p; // memory supply (held, not owned)
+
+  public:
+    // CLASS METHODS
+    static bool areEquivalent(const TestDynamicType& lhs,
+                              const TestDynamicType& rhs)
+    {
+        return lhs.d_value.object() == rhs.d_value.object();
+    }
+
+    // CREATORS
+    TestDynamicType()
+    : d_value(bslma::Default::allocator())
+    , d_allocator_p(bslma::Default::allocator())
+    {
+    }
+
+    explicit TestDynamicType(bslma::Allocator *basicAllocator)
+    : d_value(basicAllocator)
+    , d_allocator_p(bslma::Default::allocator())
+    {
+    }
+
+    TestDynamicType(const Value& value,
+                    bslma::Allocator *basicAllocator = 0)
+    : d_value(value, basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    TestDynamicType(const TestDynamicType& original,
+                    bslma::Allocator *basicAllocator = 0)
+    : d_value(original.d_value.object(), basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    // MANIPULATORS
+    TestDynamicType& operator=(const TestDynamicType& original)
+    {
+        d_value.object() = original.d_value.object();
+        return *this;
+    }
+
+    template <class MANIPULATOR>
+    int arrayManipulateElement(MANIPULATOR& manipulator, int index)
+        // Invoke the specified 'manipulator' on the address of the element at
+        // the specified 'index' of this object.  Return the value from the
+        // invocation of 'manipulator'.  The behavior is undefined unless
+        // '0 <= index' and 'index < size()'.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ARRAY));
+
+        return ArrayImpUtil::manipulateElement(&d_value.object(), manipulator, index);
+    }
+
+    void arrayResize(int newSize)
+        // Set the sizes of this object to the specified 'newSize'.  If
+        // 'newSize > size()', then 'newSize - size()' new elements with
+        // default values are appended to this object.  If 'newSize < size()'
+        // then the 'size() - newSize' elements at the end of this object are
+        // destroyed.  The behavior is undefined unless '0 <= newSize'.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ARRAY));
+
+        return ArrayImpUtil::resize(&d_value.object(), newSize);
+    }
+
+    int choiceMakeSelection(int selectionId)
+        // Set the value of this object to the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // a non-zero value otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CHOICE));
+
+        return ChoiceImpUtil::makeSelection(&d_value.object(),
+                                            selectionId);
+    }
+
+    int choiceMakeSelection(const char *selectionName,
+                            int selectionNameLength)
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionName' of the specified
+        // 'selectionNameLength'.  Return 0 on success, and a non-zero value
+        // otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CHOICE));
+
+        return ChoiceImpUtil::makeSelection(&d_value.object(),
+                                            selectionName,
+                                            selectionNameLength);
+    }
+
+    template <class MANIPULATOR>
+    int choiceManipulateSelection(MANIPULATOR& manipulator)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) selection of the this object, supplying 'manipulator'
+        // with the corresponding selection information structure.  Return -1
+        // if the selection is undefined, and the value returned from the
+        // invocation of 'manipulator' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CHOICE));
+
+        return ChoiceImpUtil::manipulateSelection(&d_value.object(),
+                                                  manipulator);
+    }
+
+    template <class MANIPULATOR>
+    int sequenceManipulateAttribute(MANIPULATOR& manipulator,
+                                    const char *attributeName,
+                                    int attributeNameLength)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'attributeName' of
+        // the specified 'attributeNameLength' of this object, supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return a non-zero value if the attribute is not found,
+        // and the value returned from the invocation of 'manipulator'
+        // otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::manipulateAttribute(
+            &d_value.object(), manipulator, attributeName, attributeNameLength);
+    }
+
+    template <class MANIPULATOR>
+    int sequenceManipulateAttribute(MANIPULATOR& manipulator,
+                                    int attributeId)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'attributeId' of
+        // this object, supplying 'manipulator' with the corresponding
+        // attribute information structure.  Return a non-zero value if the
+        // attribute is not found, and the value returned from the invocation
+        // of 'manipulator' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::manipulateAttribute(
+            &d_value.object(), manipulator, attributeId);
+    }
+
+    template <class MANIPULATOR>
+    int sequenceManipulateAttributes(MANIPULATOR& manipulator)
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator'.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::manipulateAttributes(&d_value.object(),
+                                                   manipulator);
+    }
+
+    void reset()
+    {
+        bdlat_ValueTypeFunctions::reset(&d_value.object());
+    }
+
+    void setValue(const Value& value)
+    {
+        d_value.object() = value;
+    }
+
+    // ACCESSORS
+    const char *className() const
+        // Return a null-terminated string containing the exported name for
+        // this type.
+    {
+        return "MyDynamicType";
+    }
+
+    template <class ACCESSOR>
+    int arrayAccessElement(ACCESSOR& accessor, int index) const
+        // Invoke the specified 'accessor' on the non-modifiable element at the
+        // specified 'index' of this object.  Return the value from the
+        // invocation of 'accessor'.  The behavior is undefined unless
+        // '0 <= index' and 'index < size(value)'.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ARRAY));
+
+        return ArrayImpUtil::accessElement(d_value.object(),
+                                           accessor,
+                                           index);
+    }
+
+    bsl::size_t arraySize() const
+        // Return the number of elements in this object.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ARRAY));
+
+        return ArrayImpUtil::size(d_value.object());
+    }
+
+    template <class ACCESSOR>
+    int choiceAccessSelection(ACCESSOR& accessor) const
+        // Invoke the specified 'accessor' on the (non-modifiable) selection of
+        // this object, supplying 'accessor' with the corresponding selection
+        // information structure.  Return -1 if the selection is undefined, and
+        // the value returned from the invocation of 'accessor' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CHOICE));
+
+        return ChoiceImpUtil::accessSelection(d_value.object(), accessor);
+    }
+
+    bool choiceHasSelection(int selectionId) const
+        // Return 'true' if this object has a selection with the specified
+        // 'selectionId', and 'false' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CHOICE));
+
+        return ChoiceImpUtil::hasSelection(d_value.object(), selectionId);
+    }
+
+    bool choiceHasSelection(const char *selectionName,
+                            int         selectionNameLength) const
+        // Return 'true' if this object has a selection with the specified
+        // 'selectionName' of the specified 'selectionNameLength', and 'false'
+        // otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CHOICE));
+
+        return ChoiceImpUtil::hasSelection(d_value.object(),
+                                           selectionName,
+                                           selectionNameLength);
+    }
+
+    int choiceSelectionId() const
+        // Return the id of the current selection of this object if the
+        // selection is defined, and -1 otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CHOICE));
+
+        return ChoiceImpUtil::selectionId(d_value.object());
+    }
+
+    template <class ACCESSOR>
+    int sequenceAccessAttribute(ACCESSOR& accessor,
+                                const char *attributeName,
+                                int attributeNameLength) const
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'attributeName' of the
+        // specified 'attributeNameLength', supplying 'accessor' with the
+        // corresponding attribute information structure.  Return a non-zero
+        // value if the attribute is not found, and the value returned from the
+        // invocation of 'accessor' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::accessAttribute(d_value.object(),
+                                                accessor,
+                                                attributeName,
+                                                attributeNameLength);
+    }
+
+    template <class ACCESSOR>
+    int sequenceAccessAttribute(ACCESSOR& accessor, int attributeId) const
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object with the specified 'attributeId', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return
+        // non-zero if the attribute is not found, and the value returned from
+        // the invocation of 'accessor' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::accessAttribute(d_value.object(),
+                                                accessor,
+                                                attributeId);
+    }
+
+    template <class ACCESSOR>
+    int sequenceAccessAttributes(ACCESSOR& accessor) const
+        // Invoke the specified 'accessor' sequentially on each attribute of
+        // this object, supplying 'accessor' with the corresponding attribute
+        // information structure until such invocation returns a non-zero
+        // value.  Return the value from the last invocation of 'accessor'.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::accessAttributes(d_value.object(),
+                                                 accessor);
+    }
+
+    bool sequenceHasAttribute(const char *attributeName,
+                              int attributeNameLength) const
+        // Return 'true' if this object has an attribute with the
+        // specified 'attributeName' of the specified 'attributeNameLength',
+        // and 'false' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::hasAttribute(d_value.object(),
+                                             attributeName,
+                                             attributeNameLength);
+    }
+
+    bool sequenceHasAttribute(int attributeId) const
+        // Return 'true' if this object has an attribute with the
+        // specified 'attributeId', and 'false' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
+
+        return SequenceImpUtil::hasAttribute(d_value.object(), attributeId);
+    }
+
+    bdlat_TypeCategory::Value select() const
+        // Return the 'bdlat_TypeCategory::Value' value that identifies the
+        // 'bdlat' concept that this object implements.
+    {
+        return static_cast<bdlat_TypeCategory::Value>(
+            bdlat_TypeCategory::Select<Value>::e_SELECTION);
+    }
+
+    const Value& value() const
+    {
+        return d_value.object();
+    }
+};
+
+// FREE OPERATORS
+template <class VALUE_TYPE>
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         const TestDynamicType<VALUE_TYPE>& object)
+{
+    return stream << "[" << object.className() << " value " << object.value()
+                  << "]";
+}
+
+template <class VALUE_TYPE>
+inline
+bool operator==(const TestDynamicType<VALUE_TYPE>& lhs,
+                const TestDynamicType<VALUE_TYPE>& rhs)
+{
+    return TestDynamicType<VALUE_TYPE>::areEquivalent(lhs, rhs);
+}
+
+template <class VALUE_TYPE>
+inline
+bool operator!=(const TestDynamicType<VALUE_TYPE>& lhs,
+                const TestDynamicType<VALUE_TYPE>& rhs)
+{
+    return !TestDynamicType<VALUE_TYPE>::areEquivalent(lhs, rhs);
+}
+
+// TRAITS
+template <class VALUE_TYPE>
+const char *bdlat_TypeName_className(const TestDynamicType<VALUE_TYPE>& object)
+    // Return a null-terminated string containing the exported name for
+    // the type of the specified 'object'.
+{
+    return object.className();
+}
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_arrayManipulateElement(TestDynamicType<VALUE_TYPE> *object,
+                                 MANIPULATOR&                 manipulator,
+                                     int                          index)
+    // Invoke the specified 'manipulator' on the address of the element at
+    // the specified 'index' of the specified array 'object'.  Return the
+    // value from the invocation of 'manipulator'.  The behavior is
+    // undefined unless '0 <= index' and 'index < size(*value)'.
+{
+    return object->arrayManipulateElement(manipulator, index);
+}
+
+template <class VALUE_TYPE>
+void bdlat_arrayResize(TestDynamicType<VALUE_TYPE> *object, int newSize)
+    // Set the sizes of the specified array 'value' to the specified 'newSize'.
+    // If 'newSize > size(*object)', then 'newSize - size(*object)' new elements
+    // with default values are appended to 'value'.  If
+    // 'newSize < size(*object)' then the 'size(*object) - newSize' elements at
+    // the end of 'object' are destroyed.  The behavior is undefined unless
+    // '0 <= newSize'.
+{
+    return object->arrayResize(newSize);
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_arrayAccessElement(const TestDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                          accessor,
+                             int                                index)
+    // Invoke the specified 'accessor' on the non-modifiable element at the
+    // specified 'index' of the specified array 'object'.  Return the value
+    // from the invocation of 'accessor'.  The behavior is undefined unless
+    // '0 <= index' and 'index < size(object)'.
+{
+    return object.arrayAccessElement(accessor, index);
+}
+
+template <class VALUE_TYPE>
+bsl::size_t bdlat_arraySize(const TestDynamicType<VALUE_TYPE>& object)
+    // Return the number of elements in the specified array 'object'.
+{
+    return object.arraySize();
+}
+
+template <class VALUE_TYPE>
+int bdlat_choiceMakeSelection(TestDynamicType<VALUE_TYPE> *object,
+                              int                          selectionId)
+    // Set the value of the specified 'object' to the default for the selection
+    // indicated by the specified 'selectionId'.  Return 0 on success, and a
+    // non-zero value otherwise.
+{
+    return object->choiceMakeSelection(selectionId);
+}
+
+template <class VALUE_TYPE>
+int bdlat_choiceMakeSelection(TestDynamicType<VALUE_TYPE> *object,
+                              const char                  *selectionName,
+                              int                          selectionNameLength)
+    // Set the value of the specified 'object' to be the default for the
+    // selection indicated by the specified 'selectionName' of the specified
+    // 'selectionNameLength'.  Return 0 on success, and a non-zero value
+    // otherwise.
+{
+    return object->choiceMakeSelection(selectionName, selectionNameLength);
+}
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_choiceManipulateSelection(TestDynamicType<VALUE_TYPE> *object,
+                                    MANIPULATOR&                 manipulator)
+    // Invoke the specified 'manipulator' on the address of the (modifiable)
+    // selection of the specified 'object', supplying 'manipulator' with the
+    // corresponding selection information structure.  Return -1 if the
+    // selection is undefined, and the value returned from the invocation of
+    // 'manipulator' otherwise.
+{
+    return object->choiceManipulateSelection(manipulator);
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_choiceAccessSelection(const TestDynamicType<VALUE_TYPE>& object,
+                                ACCESSOR&                          accessor)
+    // Invoke the specified 'accessor' on the (non-modifiable) selection of the
+    // specified 'object', supplying 'accessor' with the corresponding
+    // selection information structure.  Return -1 if the selection is
+    // undefined, and the value returned from the invocation of 'accessor'
+    // otherwise.
+{
+    return object.choiceAccessSelection(accessor);
+}
+
+template <class VALUE_TYPE>
+bool bdlat_choiceHasSelection(const TestDynamicType<VALUE_TYPE>& object,
+                              int                                selectionId)
+    // Return 'true' if the specified 'object' has a selection with the
+    // specified 'selectionId', and 'false' otherwise.
+{
+    return object.choiceHasSelection(selectionId);
+}
+
+template <class VALUE_TYPE>
+bool bdlat_choiceHasSelection(
+                       const TestDynamicType<VALUE_TYPE>&  object,
+                       const char                         *selectionName,
+                       int                                 selectionNameLength)
+    // Return 'true' if the specified 'object' has a selection with the
+    // specified 'selectionName' of the specified 'selectionNameLength', and
+    // 'false' otherwise.
+{
+    return object.choiceHasSelection(selectionName, selectionNameLength);
+}
+
+template <class VALUE_TYPE>
+int bdlat_choiceSelectionId(const TestDynamicType<VALUE_TYPE>& object)
+    // Return the id of the current selection of the specified 'object' if the
+    // selection is defined, and -1 otherwise.
+{
+    return object.choiceSelectionId();
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_sequenceAccessAttribute(
+                       const TestDynamicType<VALUE_TYPE>&  object,
+                       ACCESSOR&                           accessor,
+                       const char                         *attributeName,
+                       int                                 attributeNameLength)
+    // Invoke the specified 'accessor' on the (non-modifiable) attribute of the
+    // specified 'object' indicated by the specified 'attributeName' of the
+    // specified 'attributeNameLength', supplying 'accessor' with the
+    // corresponding attribute information structure.  Return a non-zero value
+    // if the attribute is not found, and the value returned from the
+    // invocation of 'accessor' otherwise.
+{
+    return object.sequenceAccessAttribute(
+        accessor, attributeName, attributeNameLength);
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_sequenceAccessAttribute(
+                                const TestDynamicType<VALUE_TYPE>& object,
+                                ACCESSOR&                          accessor,
+                                int                                attributeId)
+    // Invoke the specified 'accessor' on the (non-modifiable) attribute of the
+    // specified 'object' with the specified 'attributeId', supplying
+    // 'accessor' with the corresponding attribute information structure.
+    // Return non-zero if the attribute is not found, and the value returned
+    // from the invocation of 'accessor' otherwise.
+{
+    return object.sequenceAccessAttribute(accessor, attributeId);
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_sequenceAccessAttributes(const TestDynamicType<VALUE_TYPE>& object,
+                                   ACCESSOR&                          accessor)
+    // Invoke the specified 'accessor' sequentially on each attribute of the
+    // specified 'object', supplying 'accessor' with the corresponding
+    // attribute information structure until such invocation returns a non-zero
+    // value.  Return the value from the last invocation of 'accessor'.
+{
+    return object.sequenceAccessAttributes(accessor);
+}
+
+template <class VALUE_TYPE>
+int bdlat_sequenceHasAttribute(
+                       const TestDynamicType<VALUE_TYPE>&  object,
+                       const char                         *attributeName,
+                       int                                 attributeNameLength)
+    // Return 'true' if the specified 'object' has an attribute with the
+    // specified 'attributeName' of the specified 'attributeNameLength', and
+    // 'false' otherwise.
+{
+    return object.sequenceHasAttribute(attributeName, attributeNameLength);
+}
+
+template <class VALUE_TYPE>
+int bdlat_sequenceHasAttribute(const TestDynamicType<VALUE_TYPE>& object,
+                               int                                attributeId)
+    // Return 'true' if the specified 'object' has an attribute with the
+    // specified 'attributeId', and 'false' otherwise.
+{
+    return object.sequenceHasAttribute(attributeId);
+}
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(
+                              TestDynamicType<VALUE_TYPE> *object,
+                              MANIPULATOR&                 manipulator,
+                              const char                  *attributeName,
+                              int                          attributeNameLength)
+    // Invoke the specified 'manipulator' on the address of the (modifiable)
+    // attribute indicated by the specified 'attributeName' of the specified
+    // 'attributeNameLength' of the specified 'object', supplying 'manipulator'
+    // with the corresponding attribute information structure.  Return a
+    // non-zero value if the attribute is not found, and the value returned
+    // from the invocation of 'manipulator' otherwise.
+{
+    return object->sequenceManipulateAttribute(
+        manipulator, attributeName, attributeNameLength);
+}
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestDynamicType<VALUE_TYPE> *object,
+                                      MANIPULATOR&                 manipulator,
+                                      int                          attributeId)
+    // Invoke the specified 'manipulator' on the address of the (modifiable)
+    // attribute indicated by the specified 'attributeId' of the specified
+    // 'object', supplying 'manipulator' with the corresponding attribute
+    // information structure.  Return a non-zero value if the attribute is not
+    // found, and the value returned from the invocation of 'manipulator'
+    // otherwise.
+{
+    return object->sequenceManipulateAttribute(manipulator, attributeId);
+}
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_sequenceManipulateAttributes(
+                                      TestDynamicType<VALUE_TYPE> *object,
+                                      MANIPULATOR&                 manipulator)
+    // Invoke the specified 'manipulator' sequentially on the address of each
+    // (modifiable) attribute of the specified 'object', supplying
+    // 'manipulator' with the corresponding attribute information structure
+    // until such invocation returns a non-zero value.  Return the value from
+    // the last invocation of 'manipulator'.
+{
+    return object->sequenceManipulateAttributes(manipulator);
+}
+
+template <class VALUE_TYPE>
+bdlat_TypeCategory::Value bdlat_typeCategorySelect(
+                                     const TestDynamicType<VALUE_TYPE>& object)
+        // Return the 'bdlat_TypeCategory::Value' value that identifies the
+        // 'bdlat' concept of the specified 'object'.
+{
+    return object.select();
+}
+
+template <class VALUE_TYPE>
+struct bdlat_TypeCategoryDeclareDynamic<TestDynamicType<VALUE_TYPE> > {
+    enum { VALUE = 1 };
+};
+
+template <class VALUE_TYPE,
+          bool IS_ARRAY =
+              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+              bdlat_TypeCategory::e_ARRAY_CATEGORY>
+struct TestDynamicType_ElementTypeImpl {
+    typedef typename bdlat_ArrayFunctions::ElementType<VALUE_TYPE>::Type Type;
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_ElementTypeImpl<VALUE_TYPE, false> {
+    typedef struct { } Type;
+};
+
+namespace bdlat_ArrayFunctions {
+
+template <class VALUE_TYPE>
+struct ElementType<TestDynamicType<VALUE_TYPE> > {
+    typedef typename TestDynamicType_ElementTypeImpl<VALUE_TYPE>::Type Type;
+};
+
+template <class VALUE_TYPE>
+struct IsArray<TestDynamicType<VALUE_TYPE> > {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_ArrayFunctions namespace
+
+template <class VALUE_TYPE>
+struct bdlat_IsBasicChoice<TestDynamicType<VALUE_TYPE> > : bsl::true_type {
+};
+
+namespace bdlat_ChoiceFunctions {
+
+template <class VALUE_TYPE>
+struct IsChoice<TestDynamicType<VALUE_TYPE> > {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_ChoiceFunctions namespace
+
+template <class VALUE_TYPE>
+struct bdlat_IsBasicSequence<TestDynamicType<VALUE_TYPE> > : bsl::true_type {
+};
+
+namespace bdlat_SequenceFunctions {
+
+template <class VALUE_TYPE>
+struct IsSequence<TestDynamicType<VALUE_TYPE> > {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_SequenceFunctions namespace
+
+                            // ====================
+                            // class TestEnumerator
+                            // ====================
+
+template <int INT_VALUE, const char *STRING_VALUE>
+class TestEnumerator {
+  public:
+    // CLASS DATA
+    static const char *k_STRING_VALUE;
+    enum { k_INT_VALUE = INT_VALUE };
+
+    // CLASS METHODS
+    static int intValue() { return k_INT_VALUE; }
+    static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
+};
+
+// CLASS DATA
+template <int INT_VALUE, const char *STRING_VALUE>
+const char *TestEnumerator<INT_VALUE, STRING_VALUE>::k_STRING_VALUE =
+    STRING_VALUE;
+
+                           // =======================
+                           // class TestNilEnumerator
+                           // =======================
+
+class TestNilEnumerator {
+  public:
+    // CLASS DATA
+    static const char *k_STRING_VALUE;
+    enum { k_INT_VALUE = 0 };
+
+    // CLASS METHODS
+    static int intValue() { return k_INT_VALUE; }
+    static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
+};
+
+// CLASS DATA
+const char *TestNilEnumerator::k_STRING_VALUE = "";
+
+                           // =====================
+                           // class TestEnumeration
+                           // =====================
+
+template <class E0,
+          class E1 = TestNilEnumerator,
+          class E2 = TestNilEnumerator>
+class TestEnumeration {
+    // This in-core value-semantic class provides a basic implementation of the
+    // 'bdlat' 'Enumeration' concept.
+
+  public:
+    // INVARIANTS
+    BSLMF_ASSERT((!bslmf::IsSame<TestNilEnumerator, E0>::value));
+
+    // TYPES
+    typedef E0 Enumerator0;
+    typedef E1 Enumerator1;
+    typedef E2 Enumerator2;
+
+    // CLASS DATA
+    enum {
+        k_HAS_ENUMERATOR_1 = !bslmf::IsSame<TestNilValue, Enumerator1>::value,
+        k_HAS_ENUMERATOR_2 = !bslmf::IsSame<TestNilValue, Enumerator2>::value
+    };
+
+  private:
+    // DATA
+    int d_value;
+
+  public:
+    // CLASS METHODS
+    static bool areEquivalent(const TestEnumeration& lhs,
+                              const TestEnumeration& rhs)
+    {
+        return lhs.d_value == rhs.d_value;
+    }
+
+    // CREATORS
+    TestEnumeration()
+    : d_value(Enumerator0::intValue())
+    {
+    }
+
+    explicit TestEnumeration(int value)
+    : d_value(value)
+    {
+    }
+
+    TestEnumeration(const TestEnumeration&  original)
+    : d_value(original.d_value)
+    {
+    }
+
+    // MANIPULATORS
+    TestEnumeration& operator=(const TestEnumeration& original)
+    {
+        d_value = original.d_value;
+        return *this;
+    }
+
+    int fromInt(int number)
+        // Load into the underlying value of this object the enumerator
+        // matching the specified 'number'.  Return 0 on success, and a
+        // non-zero value with no effect on 'value' if 'number' does not match
+        // any enumerator.
+    {
+        if (Enumerator0::intValue() == number) {
+            d_value = Enumerator0::intValue();
+            return 0;                                                 // RETURN
+        }
+
+        if (k_HAS_ENUMERATOR_1 && Enumerator1::intValue() == number) {
+            d_value = Enumerator1::intValue();
+            return 0;                                                 // RETURN
+        }
+
+        if (k_HAS_ENUMERATOR_2 && Enumerator2::intValue() == number) {
+            d_value = Enumerator2::intValue();
+            return 0;                                                 // RETURN
+        }
+
+        return -1;
+    }
+
+    int fromString(const char *string, int stringLength)
+        // Load into the underlying value of this object the enumerator
+        // matching the specified 'string' of the specified 'stringLength'.
+        // Return 0 on success, and a non-zero value with no effect on 'result'
+        // if 'string' and 'stringLength' do not match any enumerator.
+    {
+        const bslstl::StringRef stringRef(string, stringLength);
+
+        if (Enumerator0::stringValue() == stringRef) {
+            d_value = Enumerator0::intValue();
+            return 0;                                                 // RETURN
+        }
+
+        if (k_HAS_ENUMERATOR_1 && Enumerator1::stringValue() == stringRef) {
+            d_value = Enumerator1::intValue();
+            return 0;                                                 // RETURN
+        }
+
+        if (k_HAS_ENUMERATOR_2 && Enumerator2::stringValue() == stringRef) {
+            d_value = Enumerator2::intValue();
+            return 0;                                                 // RETURN
+        }
+
+        return -1;
+    }
+
+    // ACCESSORS
+    const char *className() const
+        // Return a null-terminated string containing the exported name for
+        // this type.
+    {
+        return "MyEnumeration";
+    }
+
+    void toInt(int *result) const
+        // Load into the specified 'result' the integer representation exactly
+        // matching the enumerator name corresponding to the underlying value
+        // of this object.
+    {
+        BSLS_ASSERT(
+            d_value == Enumerator0::intValue() ||
+            (k_HAS_ENUMERATOR_1 && d_value == Enumerator1::intValue()) ||
+            (k_HAS_ENUMERATOR_2 && d_value == Enumerator2::intValue()));
+
+        *result = d_value;
+    }
+
+    void toString(bsl::string *result) const
+        // Load into the specified 'result' the string representation exactly
+        // matching the enumerator name corresponding to the underlying value
+        // of this object.
+    {
+        BSLS_ASSERT(
+            d_value == Enumerator0::intValue() ||
+            (k_HAS_ENUMERATOR_1 && d_value == Enumerator1::intValue()) ||
+            (k_HAS_ENUMERATOR_2 && d_value == Enumerator2::intValue()));
+
+        if (Enumerator0::intValue() == d_value) {
+            *result = Enumerator0::stringValue();
+        }
+
+        if (k_HAS_ENUMERATOR_1 && Enumerator1::intValue() == d_value) {
+            *result = Enumerator1::stringValue();
+        }
+
+        if (k_HAS_ENUMERATOR_2 && Enumerator2::intValue() == d_value) {
+            *result = Enumerator2::stringValue();
+        }
+    }
+};
+
+// FREE FUNCTIONS
+template <class E0, class E1, class E2>
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         const TestEnumeration<E0, E1, E2>& object)
+{
+    bsl::string value;
+    object.toString(&value);
+
+    return stream << "[" << object.className() << " value " << value << "]";
+}
+
+template <class E0, class E1, class E2>
+bool operator==(const TestEnumeration<E0, E1, E2>& lhs,
+                const TestEnumeration<E0, E1, E2>& rhs)
+{
+    return TestEnumeration<E0, E1, E2>::areEquivalent(lhs, rhs);
+}
+
+template <class E0, class E1, class E2>
+bool operator!=(const TestEnumeration<E0, E1, E2>& lhs,
+                const TestEnumeration<E0, E1, E2>& rhs)
+{
+    return !TestEnumeration<E0, E1, E2>::areEquivalent(lhs, rhs);
+}
+
+// TRAITS
+template <class E0, class E1, class E2>
+const char *bdlat_TypeName_className(const TestEnumeration<E0, E1, E2>& object)
+    // Return a null-terminated string containing the exported name for the
+    // type of the specified 'object'.
+{
+    return object.className();
+}
+
+template <class E0, class E1, class E2>
+int bdlat_enumFromInt(TestEnumeration<E0, E1, E2> *result, int number)
+    // Load into the specified 'result' the enumerator matching the specified
+    // 'number'.  Return 0 on success, and a non-zero value with no effect on
+    // 'value' if 'number' does not match any enumerator.
+{
+    return result->fromInt(number);
+}
+
+template <class E0, class E1, class E2>
+int bdlat_enumFromString(TestEnumeration<E0, E1, E2> *result,
+                         const char      *string,
+                         int              stringLength)
+    // Load into the specified 'result' the enumerator matching the specified
+    // 'string' of the specified 'stringLength'.  Return 0 on success, and a
+    // non-zero value with no effect on 'result' if 'string' and 'stringLength'
+    // do not match any enumerator.
+{
+    return result->fromString(string, stringLength);
+}
+
+template <class E0, class E1, class E2>
+void bdlat_enumToInt(int *result, const TestEnumeration<E0, E1, E2>& value)
+    // Load into the specified 'result' the integer representation exactly
+    // matching the enumerator name corresponding to the specified enumeration
+    // 'value'.
+{
+    value.toInt(result);
+}
+
+template <class E0, class E1, class E2>
+void bdlat_enumToString(bsl::string                        *result,
+                        const TestEnumeration<E0, E1, E2>&  value)
+    // Load into the specified 'result' the string representation exactly
+    // matching the enumerator name corresponding to the specified enumeration
+    // 'value'.
+{
+    value.toString(result);
+}
+
+namespace bdlat_EnumFunctions {
+
+template <class E0, class E1, class E2>
+struct IsEnumeration<TestEnumeration<E0, E1, E2> > {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_EnumFunctions namespace
+
+                        // ============================
+                        // struct TestAttributeDefaults
+                        // ============================
+
+struct TestAttributeDefaults {
+    // CLASS DATA
+    static const char k_DEFAULT_ANNOTATION[1];
+    static const char k_DEFAULT_NAME[1];
+    enum {
+        k_DEFAULT_FORMATTING_MODE = 0
+    };
+};
+
+// CLASS DATA
+const char TestAttributeDefaults::k_DEFAULT_ANNOTATION[1] = "";
+const char TestAttributeDefaults::k_DEFAULT_NAME[1] = "";
+
+                            // ===================
+                            // class TestAttribute
+                            // ===================
+
+template <int         ID,
+          const char *NAME       = TestAttributeDefaults::k_DEFAULT_NAME,
+          const char *ANNOTATION = TestAttributeDefaults::k_DEFAULT_ANNOTATION,
+          int         FORMATTING_MODE =
+              TestAttributeDefaults::k_DEFAULT_FORMATTING_MODE>
+class TestAttribute {
+  public:
+    // CLASS DATA
+    static const char *k_NAME;
+    static const char *k_ANNOTATION;
+    enum { k_ID = ID, k_FORMATTING_MODE = FORMATTING_MODE };
+
+    // CLASS METHODS
+    static int id() { return k_ID; }
+
+    static bslstl::StringRef name() { return k_NAME; }
+
+    static bslstl::StringRef annotation() { return k_ANNOTATION; }
+
+    static int formattingMode() { return k_FORMATTING_MODE; }
+
+    static bdlat_AttributeInfo attributeInfo()
+    {
+        bdlat_AttributeInfo result = {k_ID,
+                                      k_NAME,
+                                      static_cast<int>(bsl::strlen(k_NAME)),
+                                      k_ANNOTATION,
+                                      k_FORMATTING_MODE};
+
+        return result;
+    }
+};
+
+// CLASS DATA
+template <int         ID,
+          const char *NAME,
+          const char *ANNOTATION,
+          int         FORMATTING_MODE>
+const char *TestAttribute<ID, NAME, ANNOTATION, FORMATTING_MODE>::k_NAME =
+    NAME;
+
+template <int         ID,
+          const char *NAME,
+          const char *ANNOTATION,
+          int         FORMATTING_MODE>
+const char
+    *TestAttribute<ID, NAME, ANNOTATION, FORMATTING_MODE>::k_ANNOTATION =
+        ANNOTATION;
+
+                          // ========================
+                          // class TypedTestAttribute
+                          // ========================
+
+template <class TYPE, class TEST_ATTRIBUTE>
+class TypedTestAttribute {
+  public:
+    // TYPES
+    typedef TYPE           Type;
+    typedef TEST_ATTRIBUTE Attribute;
+};
+
+                             // ==================
+                             // class TestSequence
+                             // ==================
+
+template <class TYPED_ATTRIBUTE_0 =
+              TypedTestAttribute<TestNilValue, TestAttribute<0> >,
+          class TYPED_ATTRIBUTE_1 =
+              TypedTestAttribute<TestNilValue, TestAttribute<0> >,
+          class TYPED_ATTRIBUTE_2 =
+              TypedTestAttribute<TestNilValue, TestAttribute<0> > >
+class TestSequence {
+    // This in-core value-semantic class provides a basic implementation of the
+    // 'bdlat' 'Sequence' concept.  The template parameters 'V0' and 'V1' may
+    // optionally be specified to define the types of the first and second
+    // attributes of this sequence, respectively.  If 'V1' is 'TestNilValue',
+    // then this sequence does not have a second attribute, and if 'V0' is
+    // 'TestNilValue', this sequence does not have a first attribute.  The
+    // 'TestSequence' specialization having no attributes is valid and is
+    // referred to as the "empty sequence".
+
+  public:
+    // TYPES
+    typedef typename TYPED_ATTRIBUTE_0::Type      Attribute0Type;
+    typedef typename TYPED_ATTRIBUTE_0::Attribute Attribute0;
+    typedef typename TYPED_ATTRIBUTE_1::Type      Attribute1Type;
+    typedef typename TYPED_ATTRIBUTE_1::Attribute Attribute1;
+    typedef typename TYPED_ATTRIBUTE_2::Type      Attribute2Type;
+    typedef typename TYPED_ATTRIBUTE_2::Attribute Attribute2;
+
+    // CLASS DATA
+    enum {
+        k_HAS_ATTRIBUTE_0 =
+            !bslmf::IsSame<TestNilValue, Attribute0Type>::value,
+        k_HAS_ATTRIBUTE_1 =
+            !bslmf::IsSame<TestNilValue, Attribute1Type>::value,
+        k_HAS_ATTRIBUTE_2 = !bslmf::IsSame<TestNilValue, Attribute2Type>::value
+    };
+
+  private:
+    // DATA
+    bslalg::ConstructorProxy<Attribute0Type>  d_attribute0Value;
+    bslalg::ConstructorProxy<Attribute1Type>  d_attribute1Value;
+    bslalg::ConstructorProxy<Attribute2Type>  d_attribute2Value;
+    bslma::Allocator                         *d_allocator_p;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TestSequence, bslma::UsesBslmaAllocator);
+
+    // CLASS METHODS
+    static bool areEquivalent(const TestSequence& lhs, const TestSequence& rhs)
+    {
+        return lhs.d_attribute0Value.object() ==
+                   rhs.d_attribute0Value.object() &&
+               lhs.d_attribute1Value.object() ==
+                   rhs.d_attribute1Value.object() &&
+               lhs.d_attribute2Value.object() ==
+                   rhs.d_attribute2Value.object();
+    }
+
+    // CREATORS
+    TestSequence()
+    : d_attribute0Value(bslma::Default::allocator())
+    , d_attribute1Value(bslma::Default::allocator())
+    , d_attribute2Value(bslma::Default::allocator())
+    , d_allocator_p(bslma::Default::allocator())
+    {
+    }
+
+    explicit TestSequence(bslma::Allocator *basicAllocator)
+    : d_attribute0Value(bslma::Default::allocator(basicAllocator))
+    , d_attribute1Value(bslma::Default::allocator(basicAllocator))
+    , d_attribute2Value(bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    explicit TestSequence(const Attribute0Type  attribute0,
+                          bslma::Allocator     *basicAllocator = 0)
+    : d_attribute0Value(attribute0, bslma::Default::allocator(basicAllocator))
+    , d_attribute1Value(bslma::Default::allocator(basicAllocator))
+    , d_attribute2Value(bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        BSLMF_ASSERT(k_HAS_ATTRIBUTE_0);
+    }
+
+    explicit TestSequence(const Attribute0Type  attribute0,
+                          const Attribute1Type  attribute1,
+                          bslma::Allocator     *basicAllocator = 0)
+    : d_attribute0Value(attribute0, bslma::Default::allocator(basicAllocator))
+    , d_attribute1Value(attribute1, bslma::Default::allocator(basicAllocator))
+    , d_attribute2Value(bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        BSLMF_ASSERT(k_HAS_ATTRIBUTE_0);
+        BSLMF_ASSERT(k_HAS_ATTRIBUTE_1);
+    }
+
+    explicit TestSequence(const Attribute0Type  attribute0,
+                          const Attribute1Type  attribute1,
+                          const Attribute2Type  attribute2,
+                          bslma::Allocator     *basicAllocator = 0)
+    : d_attribute0Value(attribute0, bslma::Default::allocator(basicAllocator))
+    , d_attribute1Value(attribute1, bslma::Default::allocator(basicAllocator))
+    , d_attribute2Value(attribute2, bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        BSLMF_ASSERT(k_HAS_ATTRIBUTE_0);
+        BSLMF_ASSERT(k_HAS_ATTRIBUTE_1);
+        BSLMF_ASSERT(k_HAS_ATTRIBUTE_2);
+    }
+
+    TestSequence(const TestSequence&  original,
+                 bslma::Allocator    *basicAllocator = 0)
+    : d_attribute0Value(original.d_attribute0Value.object(),
+                        bslma::Default::allocator(basicAllocator))
+    , d_attribute1Value(original.d_attribute1Value.object(),
+                        bslma::Default::allocator(basicAllocator))
+    , d_attribute2Value(original.d_attribute2Value.object(),
+                        bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    // MANIPULATORS
+    TestSequence& operator=(const TestSequence& original)
+    {
+        d_attribute0Value.object() = original.d_attribute0Value.object();
+        d_attribute1Value.object() = original.d_attributa1Value.object();
+        d_attribute2Value.object() = original.d_attribute2Value.object();
+        return *this;
+    }
+
+    template <class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *attributeName,
+                            int           attributeNameLength)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'attributeName'
+        // and 'attributeNameLength' of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure.  Return a
+        // non-zero value if the attribute is not found, and the value returned
+        // from the invocation of 'manipulator' otherwise.
+    {
+        const bslstl::StringRef attributeNameRef(attributeName       ,
+                                                 attributeNameLength);
+
+        if (k_HAS_ATTRIBUTE_0 && Attribute0::name() == attributeNameRef) {
+            return manipulator(&d_attribute0Value.object(),
+                               Attribute0::attributeInfo());          // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_1 && Attribute1::name() == attributeNameRef) {
+            return manipulator(&d_attribute1Value.object(),
+                               Attribute1::attributeInfo());          // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_2 && Attribute2::name() == attributeNameRef) {
+            return manipulator(&d_attribute2Value.object(),
+                               Attribute2::attributeInfo());          // RETURN
+        }
+
+        return -1;
+    }
+
+    template <class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int attributeId)
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'attributeId' of
+        // this object, supplying 'manipulator' with the corresponding
+        // attribute information structure.  Return a non-zero value if the
+        // attribute is not found, and the value returned from the invocation
+        // of 'manipulator' otherwise.
+    {
+        if (k_HAS_ATTRIBUTE_0 && Attribute0::id() == attributeId) {
+            return manipulator(&d_attribute0Value.object(),
+                               Attribute0::attributeInfo());          // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_1 && Attribute1::id() == attributeId) {
+            return manipulator(&d_attribute1Value.object(),
+                               Attribute1::attributeInfo());          // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_2 && Attribute2::id() == attributeId) {
+            return manipulator(&d_attribute2Value.object(),
+                               Attribute2::attributeInfo());          // RETURN
+        }
+
+        return -1;
+    }
+
+    template <class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator)
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator'.
+    {
+        if (k_HAS_ATTRIBUTE_0) {
+            int rc = manipulator(&d_attribute0Value.object(),
+                                 Attribute0::attributeInfo());
+            if (0 != rc) {
+                return rc;                                            // RETURN
+            }
+        }
+
+        if (k_HAS_ATTRIBUTE_1) {
+            int rc = manipulator(&d_attribute1Value.object(),
+                                 Attribute1::attributeInfo());
+            if (0 != rc) {
+                return rc;                                            // RETURN
+            }
+        }
+
+        if (k_HAS_ATTRIBUTE_2) {
+            int rc = manipulator(&d_attribute2Value.object(),
+                                 Attribute2::attributeInfo());
+            if (0 != rc) {
+                return rc;                                            // RETURN
+            }
+        }
+
+        return 0;
+    }
+
+    void reset()
+    {
+        if (k_HAS_ATTRIBUTE_0) {
+            bdlat_ValueTypeFunctions::reset(&d_attribute0Value.object());
+        }
+
+        if (k_HAS_ATTRIBUTE_1) {
+            bdlat_ValueTypeFunctions::reset(&d_attribute1Value.object());
+        }
+
+        if (k_HAS_ATTRIBUTE_2) {
+            bdlat_ValueTypeFunctions::reset(&d_attribute2Value.object());
+        }
+    }
+
+    // ACCESSORS
+    template <class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *attributeName,
+                        int         attributeNameLength) const
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'attributeName' and
+        // 'attributeNameLength', supplying 'accessor' with the corresponding
+        // attribute information structure.  Return a non-zero value if the
+        // attribute is not found, and the value returned from the invocation
+        // of 'accessor' otherwise.
+    {
+        const bslstl::StringRef attributeNameRef(attributeName       ,
+                                                 attributeNameLength);
+
+        if (k_HAS_ATTRIBUTE_0 && Attribute0::name() == attributeNameRef) {
+            return accessor(d_attribute0Value.object(),
+                            Attribute0::attributeInfo());             // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_1 && Attribute1::name() == attributeNameRef) {
+            return accessor(d_attribute1Value.object(),
+                            Attribute1::attributeInfo());             // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_2 && Attribute2::name() == attributeNameRef) {
+            return accessor(d_attribute2Value.object(),
+                            Attribute2::attributeInfo());             // RETURN
+        }
+
+        return -1;
+    }
+
+    template <class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int attributeId) const
+        // Invoke the specified 'accessor' on the attribute of this object with
+        // the given 'attributeId', supplying 'accessor' with the corresponding
+        // attribute information structure.  Return non-zero if the attribute
+        // is not found, and the value returned from the invocation of
+        // 'accessor' otherwise.
+    {
+        if (k_HAS_ATTRIBUTE_0 && Attribute0::id() == attributeId) {
+            return accessor(d_attribute0Value.object(),
+                            Attribute0::attributeInfo());             // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_1 && Attribute1::id() == attributeId) {
+            return accessor(d_attribute1Value.object(),
+                            Attribute1::attributeInfo());             // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_2 && Attribute2::id() == attributeId) {
+            return accessor(d_attribute2Value.object(),
+                            Attribute2::attributeInfo());             // RETURN
+        }
+
+        return -1;
+    }
+
+    template <class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const
+        // Invoke the specified 'accessor' sequentially on each attribute of
+        // this object, supplying 'accessor' with the corresponding attribute
+        // information structure until such invocation returns a non-zero
+        // value.  Return the value from the last invocation of 'accessor'.
+    {
+        if (k_HAS_ATTRIBUTE_0) {
+            int rc = accessor(d_attribute0Value.object(),
+                              Attribute0::attributeInfo());
+            if (0 != rc) {
+                return rc;                                            // RETURN
+            }
+        }
+
+        if (k_HAS_ATTRIBUTE_1) {
+            int rc = accessor(d_attribute1Value.object(),
+                              Attribute1::attributeInfo());
+            if (0 != rc) {
+                return rc;                                            // RETURN
+            }
+        }
+
+        if (k_HAS_ATTRIBUTE_2) {
+            int rc = accessor(d_attribute2Value.object(),
+                              Attribute2::attributeInfo());
+            if (0 != rc) {
+                return rc;                                            // RETURN
+            }
+        }
+
+        return 0;
+    }
+
+    const char *className() const
+        // Return a null-terminated string containing the exported name for
+        // this class.
+    {
+        return "MySequence";
+    }
+
+    bool hasAttribute(const char *attributeName, int attributeNameLength) const
+        // Return 'true' if this object has an attribute with the specified
+        // 'attributeName' of the specified 'attributeNameLength', and 'false'
+        // otherwise.
+    {
+        const bslstl::StringRef attributeNameRef(attributeName       ,
+                                                 attributeNameLength);
+
+        if (k_HAS_ATTRIBUTE_0 && Attribute0::name() == attributeNameRef) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_1 && Attribute1::name() == attributeNameRef) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_2 && Attribute2::name() == attributeNameRef) {
+            return true;                                              // RETURN
+        }
+
+        return false;
+    }
+
+    bool hasAttribute(int attributeId) const
+        // Return 'true' if this object has an attribute with the specified
+        // 'attributeId', and 'false' otherwise.
+    {
+        if (k_HAS_ATTRIBUTE_0 && Attribute0::id() == attributeId) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_1 && Attribute1::id() == attributeId) {
+            return true;                                              // RETURN
+        }
+
+        if (k_HAS_ATTRIBUTE_2 && Attribute2::id() == attributeId) {
+            return true;                                              // RETURN
+        }
+
+        return false;
+    }
+
+    const Attribute0Type attribute0() const
+    {
+        BSLS_ASSERT(k_HAS_ATTRIBUTE_0);
+        return d_attribute0Value.object();
+    }
+
+    const Attribute1Type attribute1() const
+    {
+        BSLS_ASSERT(k_HAS_ATTRIBUTE_1);
+        return d_attribute1Value.object();
+    }
+
+    const Attribute2Type attribute2() const
+    {
+        BSLS_ASSERT(k_HAS_ATTRIBUTE_2);
+        return d_attribute2Value.object();
+    }
+};
+
+// FREE OPERATORS
+template <class V0, class V1, class V2>
+bsl::ostream& operator<<(bsl::ostream&                   stream,
+                         const TestSequence<V0, V1, V2>& object)
+{
+    typedef TestSequence<V0, V1, V2> Sequence;
+
+    stream << "[" << object.className() << " ";
+
+    if (Sequence::k_HAS_ATTRIBUTE_0) {
+        stream << Sequence::Attribute0::name() << " = " << object.attribute0();
+    }
+
+    if (Sequence::k_HAS_ATTRIBUTE_1) {
+        stream << ", " << Sequence::Attribute1::name() << " = "
+               << object.attribute1();
+    }
+
+    if (Sequence::k_HAS_ATTRIBUTE_2) {
+        stream << ", " << Sequence::Attribute2::name() << " = "
+               << object.attribute2();
+    }
+
+    return stream << "]";
+}
+
+template <class V0, class V1, class V2>
+bool operator==(const TestSequence<V0, V1, V2>& lhs,
+                const TestSequence<V0, V1, V2>& rhs)
+{
+    return TestSequence<V0, V1, V2>::areEquivalent(lhs, rhs);
+}
+
+template <class V0, class V1, class V2>
+bool operator!=(const TestSequence<V0, V1, V2>& lhs,
+                const TestSequence<V0, V1, V2>& rhs)
+{
+    return !TestSequence<V0, V1, V2>::areEquivalent(lhs, rhs);
+}
+
+// TRAITS
+template <class V0, class V1, class V2>
+const char *bdlat_TypeName_className(const TestSequence<V0, V1, V2>& object)
+    // Return a null-terminated string containing the exported name for the
+    // type of the specified 'object'.
+{
+    return object.className();
+}
+
+template <class V0, class V1, class V2, class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(
+                                     TestSequence<V0, V1, V2> *object,
+                                     MANIPULATOR&          manipulator,
+                                     const char           *attributeName,
+                                     int                   attributeNameLength)
+    // Invoke the specified 'manipulator' on the address of the (modifiable)
+    // attribute indicated by the specified 'attributeName' and
+    // 'attributeNameLength' of the specified 'object', supplying 'manipulator'
+    // with the corresponding attribute information structure.  Return a
+    // non-zero value if the attribute is not found, and the value returned
+    // from the invocation of 'manipulator' otherwise.
+{
+    return object->manipulateAttribute(
+        manipulator, attributeName, attributeNameLength);
+}
+
+template <class V0, class V1, class V2, class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequence<V0, V1, V2> *object,
+                                      MANIPULATOR&          manipulator,
+                                      int                   attributeId)
+    // Invoke the specified 'manipulator' on the address of the (modifiable)
+    // attribute indicated by the specified 'attributeId' of the specified
+    // 'object', supplying 'manipulator' with the corresponding attribute
+    // information structure.  Return a non-zero value if the attribute is not
+    // found, and the value returned from the invocation of 'manipulator'
+    // otherwise.
+{
+    return object->manipulateAttribute(manipulator, attributeId);
+}
+
+template <class V0, class V1, class V2, class MANIPULATOR>
+int bdlat_sequenceManipulateAttributes(TestSequence<V0, V1, V2> *object,
+                                       MANIPULATOR&          manipulator)
+    // Invoke the specified 'manipulator' sequentially on the address of each
+    // (modifiable) attribute of the specified 'object', supplying
+    // 'manipulator' with the corresponding attribute information structure
+    // until such invocation returns a non-zero value.  Return the value from
+    // the last invocation of 'manipulator'.
+{
+    return object->manipulateAttributes(manipulator);
+}
+
+template <class V0, class V1, class V2, class ACCESSOR>
+int bdlat_sequenceAccessAttribute(
+                              const TestSequence<V0, V1, V2>&  object,
+                              ACCESSOR&                    accessor,
+                              const char                  *attributeName,
+                              int                          attributeNameLength)
+    // Invoke the specified 'accessor' on the (non-modifiable) attribute of the
+    // specified 'object' indicated by the specified 'attributeName' and
+    // 'attributeNameLength', supplying 'accessor' with the corresponding
+    // attribute information structure.  Return a non-zero value if the
+    // attribute is not found, and the value returned from the invocation of
+    // 'accessor' otherwise.
+{
+    return object.accessAttribute(
+        accessor, attributeName, attributeNameLength);
+}
+
+template <class V0, class V1, class V2, class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence<V0, V1, V2>& object,
+                                  ACCESSOR&                   accessor,
+                                  int                         attributeId)
+    // Invoke the specified 'accessor' on the attribute of the specified
+    // 'object' with the given 'attributeId', supplying 'accessor' with the
+    // corresponding attribute information structure.  Return non-zero if the
+    // attribute is not found, and the value returned from the invocation of
+    // 'accessor' otherwise.
+{
+    return object.accessAttribute(accessor, attributeId);
+}
+
+template <class V0, class V1, class V2, class ACCESSOR>
+int bdlat_sequenceAccessAttributes(const TestSequence<V0, V1, V2>& object,
+                                   ACCESSOR&                   accessor)
+    // Invoke the specified 'accessor' sequentially on each attribute of the
+    // specified 'object', supplying 'accessor' with the corresponding
+    // attribute information structure until such invocation returns a non-zero
+    // value.  Return the value from the last invocation of 'accessor'.
+{
+    return object.accessAttributes(accessor);
+}
+
+template <class V0, class V1, class V2>
+bool bdlat_sequenceHasAttribute(
+                              const TestSequence<V0, V1, V2>&  object,
+                              const char                  *attributeName,
+                              int                          attributeNameLength)
+    // Return 'true' if the specified 'object' has an attribute with the
+    // specified 'attributeName' of the specified 'attributeNameLength', and
+    // 'false' otherwise.
+{
+    return object.hasAttribute(attributeName, attributeNameLength);
+}
+
+template <class V0, class V1, class V2>
+bool bdlat_sequenceHasAttribute(const TestSequence<V0, V1, V2>& object,
+                                int                         attributeId)
+    // Return 'true' if the specified 'object' has an attribute with the
+    // specified 'attributeId', and 'false' otherwise.
+{
+    return object.hasAttribute(attributeId);
+}
+
+template <class V0, class V1, class V2>
+int bdlat_valueTypeAssign(TestSequence<V0, V1, V2> *lhs,
+                          const TestSequence<V0, V1, V2>& rhs)
+{
+    *lhs = rhs;
+    return 0;
+}
+
+template <class V0, class V1, class V2>
+void bdlat_valueTypeReset(TestSequence<V0, V1, V2> *object)
+{
+    object->reset();
+}
+
+template <class V0, class V1, class V2>
+struct bdlat_IsBasicSequence<TestSequence<V0, V1, V2> > : bsl::true_type {
+};
+
+namespace bdlat_SequenceFunctions {
+
+template <class V0, class V1, class V2>
+struct IsSequence<TestSequence<V0, V1, V2> > {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_SequenceFunctions namespace
+
+                             // =================
+                             // class PlaceHolder
+                             // =================
+
+template <class TYPE>
+class PlaceHolder {
+    // This class provides subset of the semantics of an in-core value-semantic
+    // type.  It is intended to be used to guide template (type) argument
+    // deduction in function invocation expressions, where it may not make
+    // sense for a value of the type to be supplied to guide the deduction, and
+    // where specifying a template argument may require more characters than a
+    // function argument.
+};
+
+                          // ========================
+                          // struct AttributeTypeUtil
+                          // ========================
+
+struct AttributeTypeUtil {
+    // This utility 'struct' provides a namespace for a suite of functions that
+    // create objects of test implementation types, that in turn implement
+    // 'bdlat' attribute type concepts.
+
+    // CLASS METHODS
+    template <class VALUE_TYPE>
+    static bsl::vector<VALUE_TYPE> generateArray(
+                                                const PlaceHolder<VALUE_TYPE>&)
+    {
+        return bsl::vector<VALUE_TYPE>();
+    }
+
+    template <class VALUE_TYPE>
+    static bsl::vector<VALUE_TYPE> generateArray(const VALUE_TYPE& value)
+    {
+        bsl::vector<VALUE_TYPE> result;
+        result.push_back(value);
+        return result;
+    }
+
+    template <class VALUE_TYPE>
+    static bsl::vector<VALUE_TYPE> generateArray(const VALUE_TYPE& value0,
+                                                 const VALUE_TYPE& value1)
+    {
+        bsl::vector<VALUE_TYPE> result;
+        result.push_back(value0);
+        result.push_back(value1);
+        return result;
+    }
+
+    template <class VALUE_TYPE>
+    static PlaceHolder<bsl::vector<VALUE_TYPE> > generateArrayType(
+                                                const PlaceHolder<VALUE_TYPE>&)
+    {
+        return PlaceHolder<bsl::vector<VALUE_TYPE> >();
+    }
+
+    template <class SELECTION_0, class TYPE_0>
+    static TestChoice<TypedTestSelection<TYPE_0, SELECTION_0> > generateChoice(
+                                                  const SELECTION_0& selection,
+                                                  const TYPE_0&      value)
+    {
+        typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
+
+        return TestChoice<Selection0>(value);
+    }
+
+    template <class SELECTION_0, class SELECTION_1, class TYPE_0, class TYPE_1>
+    static TestChoice<TypedTestSelection<TYPE_0, SELECTION_0>,
+                      TypedTestSelection<TYPE_1, SELECTION_1> >
+    generateChoice(const SELECTION_0& selection0,
+                   const SELECTION_1& selection1,
+                   const TYPE_0&      value,
+                   const PlaceHolder<TYPE_1>&)
+    {
+        typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
+        typedef TypedTestSelection<TYPE_1, SELECTION_1> Selection1;
+
+        return TestChoice<Selection0, Selection1>(value);
+    }
+
+    template <class SELECTION_0, class SELECTION_1, class TYPE_0, class TYPE_1>
+    static TestChoice<TypedTestSelection<TYPE_0, SELECTION_0>,
+                      TypedTestSelection<TYPE_1, SELECTION_1> >
+    generateChoice(const SELECTION_0& selection0,
+                   const SELECTION_1& selection1,
+                   const PlaceHolder<TYPE_0>&,
+                   const TYPE_1& value)
+    {
+        typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
+        typedef TypedTestSelection<TYPE_1, SELECTION_1> Selection1;
+
+        return TestChoice<Selection0, Selection1>(value);
+    }
+
+    template <class VALUE_TYPE, class BASE_TYPE>
+    static TestCustomizedType<VALUE_TYPE, BASE_TYPE> generateCustomizedType(
+                                           const VALUE_TYPE&             value,
+                                           const PlaceHolder<BASE_TYPE>&)
+    {
+        return TestCustomizedType<VALUE_TYPE, BASE_TYPE>(value);
+    }
+
+    template <class VALUE_TYPE>
+    static TestDynamicType<VALUE_TYPE> generateDynamicType(
+                                                       const VALUE_TYPE& value)
+    {
+        return TestDynamicType<VALUE_TYPE>(value);
+    }
+
+    template <class ENUMERATOR_0>
+    static TestEnumeration<ENUMERATOR_0> generateEnumeration(
+                                                     const ENUMERATOR_0& ,
+                                                     int                 value)
+    {
+        return TestEnumeration<ENUMERATOR_0>(value);
+    }
+
+    template <class ENUMERATOR_0, class ENUMERATOR_1>
+    static TestEnumeration<ENUMERATOR_0, ENUMERATOR_1>
+    generateEnumeration(const ENUMERATOR_0&,
+                        const ENUMERATOR_1&,
+                        int value)
+    {
+        return TestEnumeration<ENUMERATOR_0, ENUMERATOR_1>(value);
+    }
+
+    template <class ENUMERATOR_0>
+    static PlaceHolder<TestEnumeration<ENUMERATOR_0> >
+    generateEnumerationPlaceHolder(const ENUMERATOR_0&)
+    {
+        typedef TestEnumeration<ENUMERATOR_0> Enumeration;
+
+        return PlaceHolder<Enumeration>();
+    }
+
+    template <class ENUMERATOR_0, class ENUMERATOR_1>
+    static PlaceHolder<TestEnumeration<ENUMERATOR_0, ENUMERATOR_1> >
+    generateEnumerationPlaceHolder(const ENUMERATOR_0&, const ENUMERATOR_1&)
+    {
+        typedef TestEnumeration<ENUMERATOR_0, ENUMERATOR_1> Enumeration;
+
+        return PlaceHolder<Enumeration>();
+    }
+
+    template <class VALUE_TYPE>
+    static bdlb::NullableValue<VALUE_TYPE> generateNullableValue(
+                                                const PlaceHolder<VALUE_TYPE>&)
+    {
+        return bdlb::NullableValue<VALUE_TYPE>();
+    }
+
+    template <class VALUE_TYPE>
+    static bdlb::NullableValue<VALUE_TYPE> generateNullableValue(
+                                                       const VALUE_TYPE& value)
+    {
+        return bdlb::NullableValue<VALUE_TYPE>(value);
+    }
+
+    template <class ATTRIBUTE_0, class TYPE_0>
+    static TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0> >
+    generateSequence(const ATTRIBUTE_0&, const TYPE_0& value)
+    {
+        typedef TypedTestAttribute<TYPE_0, ATTRIBUTE_0> Attribute0;
+
+        return TestSequence<Attribute0>(value);
+    }
+
+    template <class ATTRIBUTE_0, class ATTRIBUTE_1, class TYPE_0, class TYPE_1>
+    static TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0>,
+            TypedTestAttribute<TYPE_1, ATTRIBUTE_1> >
+    generateSequence(const ATTRIBUTE_0&, const ATTRIBUTE_1&,
+                     const TYPE_0& value0,
+                     const TYPE_1& value1)
+    {
+        typedef TypedTestAttribute<TYPE_0, ATTRIBUTE_0> Attribute0;
+        typedef TypedTestAttribute<TYPE_1, ATTRIBUTE_1> Attribute1;
+
+        return TestSequence<Attribute0, Attribute1>(value0, value1);
+    }
+
+    template <class ATTRIBUTE_0, class TYPE_0>
+    static PlaceHolder<TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0> > >
+    generateSequencePlaceHolder(const ATTRIBUTE_0&,
+                                const PlaceHolder<TYPE_0>&)
+    {
+        typedef TypedTestAttribute<TYPE_0, ATTRIBUTE_0> Attribute0;
+        typedef TestSequence<Attribute0> Sequence;
+
+        return PlaceHolder<Sequence>();
+    }
+
+    template <class ATTRIBUTE_0, class ATTRIBUTE_1, class TYPE_0, class TYPE_1>
+    static PlaceHolder<TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0>,
+            TypedTestAttribute<TYPE_1, ATTRIBUTE_1> > >
+    generateSequencePlaceHolder(const ATTRIBUTE_0&,
+                                const ATTRIBUTE_1&,
+                                const PlaceHolder<TYPE_0>&,
+                                const PlaceHolder<TYPE_1>&)
+    {
+        typedef TypedTestAttribute<TYPE_0, ATTRIBUTE_0> Attribute0;
+        typedef TypedTestAttribute<TYPE_1, ATTRIBUTE_1> Attribute1;
+        typedef TestSequence<Attribute0, Attribute1> Sequence;
+
+        return PlaceHolder<Sequence>();
+    }
+};
+
+                            // ===================
+                            // class GenerateArray
+                            // ===================
+
+class GenerateArray {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate objects of
+    // specializations of 'bsl::vector'.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    bsl::vector<VALUE_TYPE> operator()(const PlaceHolder<VALUE_TYPE>&) const
+    {
+        return Util::generateArray(PlaceHolder<VALUE_TYPE>());
+    }
+
+    template <class VALUE_TYPE>
+    bsl::vector<VALUE_TYPE> operator()(const VALUE_TYPE& value) const
+    {
+        return Util::generateArray(value);
+    }
+
+    template <class VALUE_TYPE>
+    bsl::vector<VALUE_TYPE> operator()(const VALUE_TYPE& value0,
+                                       const VALUE_TYPE& value1) const
+    {
+        return Util::generateArray(value0, value1);
+    }
+};
+
+                       // ==============================
+                       // class GenerateArrayPlaceHolder
+                       // ==============================
+
+class GenerateArrayPlaceHolder {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate 'PlaceHolder'
+    // specializations for 'bsl::vector' types.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    PlaceHolder<bsl::vector<VALUE_TYPE> > operator()(
+                                                const PlaceHolder<VALUE_TYPE>&) const
+    {
+        return PlaceHolder<bsl::vector<VALUE_TYPE> >();
+    }
+};
+
+                            // ====================
+                            // class GenerateChoice
+                            // ====================
+
+class GenerateChoice {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate objects of
+    // specializations of 'TestChoice'.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class SELECTION_0, class TYPE_0>
+    TestChoice<TypedTestSelection<TYPE_0, SELECTION_0> > operator()(
+                                                const SELECTION_0& selection,
+                                                const TYPE_0&      value) const
+    {
+        return Util::generateChoice(selection, value);
+    }
+
+    template <class SELECTION_0, class SELECTION_1, class TYPE_0, class TYPE_1>
+    TestChoice<TypedTestSelection<TYPE_0, SELECTION_0>,
+               TypedTestSelection<TYPE_1, SELECTION_1> >
+    operator()(const SELECTION_0&         selection0,
+               const SELECTION_1&         selection1,
+               const TYPE_0&              value,
+               const PlaceHolder<TYPE_1>& placeHolder) const
+    {
+        return Util::generateChoice(
+            selection0, selection1, value, placeHolder);
+    }
+
+    template <class SELECTION_0, class SELECTION_1, class TYPE_0, class TYPE_1>
+    TestChoice<TypedTestSelection<TYPE_0, SELECTION_0>,
+               TypedTestSelection<TYPE_1, SELECTION_1> >
+    operator()(const SELECTION_0&         selection0,
+               const SELECTION_1&         selection1,
+               const PlaceHolder<TYPE_0>& placeHolder,
+               const TYPE_1&              value) const
+    {
+        return Util::generateChoice(
+            selection0, selection1, placeHolder, value);
+    }
+};
+
+                      // ===============================
+                      // class GenerateChoicePlaceHolder
+                      // ===============================
+
+class GenerateChoicePlaceHolder {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate objects of
+    // specializations of 'TestChoice'.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class SELECTION_0, class TYPE_0>
+    PlaceHolder<TestChoice<TypedTestSelection<TYPE_0, SELECTION_0> > >
+    operator()(const SELECTION_0&,
+               const PlaceHolder<TYPE_0>&) const
+    {
+        typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
+        typedef TestChoice<Selection0> Choice;
+
+        return PlaceHolder<Choice>();
+    }
+
+    template <class SELECTION_0, class SELECTION_1, class TYPE_0, class TYPE_1>
+    PlaceHolder<TestChoice<TypedTestSelection<TYPE_0, SELECTION_0>,
+                           TypedTestSelection<TYPE_1, SELECTION_1> > >
+    operator()(const SELECTION_0&,
+               const SELECTION_1&,
+               const PlaceHolder<TYPE_0>&,
+               const PlaceHolder<TYPE_1>&)
+    {
+        typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
+        typedef TypedTestSelection<TYPE_1, SELECTION_1> Selection1;
+        typedef TestChoice<Selection0, Selection1>      Choice;
+
+        return PlaceHolder<Choice>();
+    }
+};
+
+                        // ============================
+                        // class GenerateCustomizedType
+                        // ============================
+
+class GenerateCustomizedType {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate objects of
+    // specializations of 'TestCustomizedType'.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class VALUE_TYPE, class BASE_TYPE>
+    TestCustomizedType<VALUE_TYPE, BASE_TYPE> operator()(
+                                           const VALUE_TYPE&             value,
+                                           const PlaceHolder<BASE_TYPE>&) const
+    {
+        return Util::generateCustomizedType(value, PlaceHolder<BASE_TYPE>());
+    }
+};
+
+                         // =========================
+                         // class GenerateDynamicType
+                         // =========================
+
+class GenerateDynamicType {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate objects of
+    // specializations of 'TestDynamicType'.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    TestDynamicType<VALUE_TYPE> operator()(const VALUE_TYPE& value) const
+    {
+        return Util::generateDynamicType(value);
+    }
+};
+
+                      // ================================
+                      // class GenerateDynamicPlaceHolder
+                      // ================================
+
+class GenerateDynamicPlaceHolder {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate 'PlaceHolder'
+    // specializations for 'TestDynamicType' types.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    PlaceHolder<TestDynamicType<VALUE_TYPE> > operator()(
+                                                const PlaceHolder<VALUE_TYPE>&) const
+    {
+        return PlaceHolder<TestDynamicType<VALUE_TYPE> >();
+    }
+};
+
+                         // =========================
+                         // class GenerateEnumeration
+                         // =========================
+
+class GenerateEnumeration {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate 'TestEnumeration'
+    // objects.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class ENUMERATOR_0>
+    TestEnumeration<ENUMERATOR_0> operator()(const ENUMERATOR_0& enumerator,
+                                             int                 value) const
+    {
+        return Util::generateEnumeration(enumerator, value);
+    }
+
+    template <class ENUMERATOR_0, class ENUMERATOR_1>
+    TestEnumeration<ENUMERATOR_0, ENUMERATOR_1> operator()(
+                                               const ENUMERATOR_0& enumerator0,
+                                               const ENUMERATOR_1& enumerator1,
+                                               int                 value) const
+    {
+        return Util::generateEnumeration(enumerator0, enumerator1, value);
+    }
+};
+
+                    // ====================================
+                    // class GenerateEnumerationPlaceHolder
+                    // ====================================
+
+class GenerateEnumerationPlaceHolder {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate 'PlaceHolder'
+    // specializations for 'TestEnumeration' types.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class ENUMERATOR_0>
+    PlaceHolder<TestEnumeration<ENUMERATOR_0> > operator()(
+                                          const ENUMERATOR_0& enumerator) const
+    {
+        return Util::generateEnumerationPlaceHolder(enumerator);
+    }
+
+    template <class ENUMERATOR_0, class ENUMERATOR_1>
+    PlaceHolder<TestEnumeration<ENUMERATOR_0, ENUMERATOR_1> > operator()(
+                                         const ENUMERATOR_0& enumerator0,
+                                         const ENUMERATOR_1& enumerator1) const
+    {
+        return Util::generateEnumerationPlaceHolder(enumerator0, enumerator1);
+    }
+};
+
+                        // ===========================
+                        // class GenerateNullableValue
+                        // ===========================
+
+class GenerateNullableValue {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate objects of
+    // 'bdlb::NullableValue' specializations.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    bdlb::NullableValue<VALUE_TYPE> operator()(const PlaceHolder<VALUE_TYPE>&) const
+    {
+        return Util::generateNullableValue(PlaceHolder<VALUE_TYPE>());
+    }
+
+    template <class VALUE_TYPE>
+    bdlb::NullableValue<VALUE_TYPE> operator()(const VALUE_TYPE& value) const
+    {
+        return Util::generateNullableValue(value);
+    }
+};
+
+                     // =================================
+                     // class GenerateNullablePlaceHolder
+                     // =================================
+
+class GenerateNullablePlaceHolder {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate 'PlaceHolder'
+    // specializations for 'bdlb::NullableValue' types.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSOR
+    template <class VALUE_TYPE>
+    PlaceHolder<bdlb::NullableValue<VALUE_TYPE> > operator()(
+                                                const PlaceHolder<VALUE_TYPE>&) const
+    {
+        return PlaceHolder<bdlb::NullableValue<VALUE_TYPE> >();
+    }
+};
+
+                           // ======================
+                           // class GenerateSequence
+                           // ======================
+
+class GenerateSequence {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate objects of
+    // 'TestSequence' specializations.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class ATTRIBUTE_0, class TYPE_0>
+    TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0> > operator()(
+                                                const ATTRIBUTE_0& attribute,
+                                                const TYPE_0&      value) const
+    {
+        return Util::generateSequence(attribute, value);
+    }
+
+    template <class ATTRIBUTE_0, class ATTRIBUTE_1, class TYPE_0, class TYPE_1>
+    TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0>,
+                 TypedTestAttribute<TYPE_1, ATTRIBUTE_1> >
+    operator()(const ATTRIBUTE_0& attribute0,
+               const ATTRIBUTE_1& attribute1,
+               const TYPE_0&      value0,
+               const TYPE_1&      value1) const
+    {
+        return Util::generateSequence(attribute0, attribute1, value0, value1);
+    }
+};
+
+                     // =================================
+                     // class GenerateSequencePlaceHolder
+                     // =================================
+
+class GenerateSequencePlaceHolder {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate 'PlaceHolder'
+    // specializations for 'TestSequence' types.
+
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class ATTRIBUTE_0, class TYPE_0>
+    PlaceHolder<TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0> > >
+    operator()(const ATTRIBUTE_0&         attribute,
+               const PlaceHolder<TYPE_0>& value) const
+    {
+        return Util::generateSequencePlaceHolder(attribute, value);
+    }
+
+    template <class ATTRIBUTE_0, class ATTRIBUTE_1, class TYPE_0, class TYPE_1>
+    PlaceHolder<TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0>,
+                             TypedTestAttribute<TYPE_1, ATTRIBUTE_1> > >
+    operator()(const ATTRIBUTE_0&         attribute0,
+               const ATTRIBUTE_1&         attribute1,
+               const PlaceHolder<TYPE_0>& value0,
+               const PlaceHolder<TYPE_1>& value1) const
+    {
+        return Util::generateSequencePlaceHolder(
+            attribute0, attribute1, value0, value1);
+    }
+};
+
+}  // close enterprise namespace
+
+// ============================================================================
+//                          END BDLAT TEST APPARATUS
+// ----------------------------------------------------------------------------
+
+// ============================================================================
+//                       BEGIN XML GENERATION APPARATUS
+// ----------------------------------------------------------------------------
+
+                             // ==================
+                             // class SimpleXmlTag
+                             // ==================
+
+class SimpleXmlTag {
+    // This in-core value-semantic type provides a structural representation
+    // of a subset of valid XML.  This class is intended to be used as an
+    // intermediate representation for generating (potentially large) XML
+    // texts using a set of factory functions.
+
+  public:
+    // TYPES
+    typedef class bsl::pair<bsl::string, bsl::string> Attribute;
+    typedef class bsl::vector<Attribute>              Attributes;
+    typedef class SimpleXmlTag                        Tag;
+    typedef class bsl::vector<Tag>                    Tags;
+    typedef class bdlb::Variant<Tags, bsl::string>    Content;
+
+  private:
+    // DATA
+    bsl::string d_name;       // name of the tag
+    Attributes  d_attributes; // sequence of key-value pairs
+    Content     d_content;    // textual or sequence-of-children content
+
+  public:
+    // CREATORS
+    SimpleXmlTag()
+    : d_name()
+    , d_attributes()
+    , d_content(Tags())
+    {
+    }
+
+    explicit SimpleXmlTag(bslma::Allocator *basicAllocator)
+    : d_name(basicAllocator)
+    , d_attributes(basicAllocator)
+    , d_content(Tags(), basicAllocator)
+    {
+    }
+
+    SimpleXmlTag(const bslstl::StringRef&  name,
+                 bslma::Allocator         *basicAllocator = 0)
+    : d_name(name, basicAllocator)
+    , d_attributes(basicAllocator)
+    , d_content(Tags(), basicAllocator)
+    {
+    }
+
+    SimpleXmlTag(const bslstl::StringRef&  name,
+                 const Attributes&         attributes,
+                 bslma::Allocator         *basicAllocator = 0)
+    : d_name(name, basicAllocator)
+    , d_attributes(attributes, basicAllocator)
+    , d_content(Tags(), basicAllocator)
+    {
+    }
+
+    SimpleXmlTag(const bslstl::StringRef&  name,
+                 const Content&            content,
+                 bslma::Allocator         *basicAllocator = 0)
+    : d_name(name, basicAllocator)
+    , d_attributes(basicAllocator)
+    , d_content(content, basicAllocator)
+    {
+    }
+
+    SimpleXmlTag(const bslstl::StringRef&  name,
+                 const Attributes&         attributes,
+                 const Content&            content,
+                 bslma::Allocator         *basicAllocator = 0)
+    : d_name(name, basicAllocator)
+    , d_attributes(attributes, basicAllocator)
+    , d_content(content, basicAllocator)
+    {
+    }
+
+    SimpleXmlTag(const SimpleXmlTag&  original,
+                 bslma::Allocator    *basicAllocator = 0)
+    : d_name(original.d_name, basicAllocator)
+    , d_attributes(original.d_attributes, basicAllocator)
+    , d_content(original.d_content, basicAllocator)
+    {
+    }
+
+    // MANIPULATORS
+    SimpleXmlTag& operator=(const SimpleXmlTag& original)
+    {
+        d_name = original.d_name;
+        d_attributes = original.d_attributes;
+        d_content = original.d_content;
+        return *this;
+    }
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream) const
+        // Write the value of this object to the specified output 'stream'
+        // in the XML format and return a reference to 'stream'.
+    {
+        stream << "<" << d_name;
+
+        for (Attributes::const_iterator it = d_attributes.begin();
+             it != d_attributes.end();
+             ++it) {
+            stream << " " << it->first << "='" << it->second << "'";
+        }
+
+        switch (d_content.typeIndex()) {
+          case 1: {
+            const Tags& content = d_content.the<Tags>();
+
+            if (content.empty()) {
+                return stream << "/>";                                // RETURN
+            }
+
+            stream << ">";
+
+            for (Tags::const_iterator it = content.begin();
+                 it != content.end();
+                 ++it) {
+                it->print(stream);
+            }
+
+            return stream << "</" << d_name << ">";                   // RETURN
+          } break;
+          case 2: {
+            const bsl::string& text = d_content.the<bsl::string>();
+            return stream << ">" << text << "</" << d_name << ">";    // RETURN
+          } break;
+        }
+
+        BSLS_ASSERT(false && "Illegal path");
+        return stream;
+    }
+};
+
+// FREE FUNCTIONS
+bsl::ostream& operator<<(bsl::ostream& stream, const SimpleXmlTag& object)
+{
+    return object.print(stream);
+}
+
+                            // ====================
+                            // struct SimpleXmlUtil
+                            // ====================
+
+struct SimpleXmlUtil {
+    // This utility 'struct' provides a namespace for a suite of functions that
+    // construct 'SimpleXmlTag' objects.
+
+    // TYPES
+    typedef SimpleXmlTag::Attribute Attribute;
+    typedef SimpleXmlTag::Content Content;
+
+    // CLASS METHODS
+    static bsl::vector<Attribute> generateAttributes(
+                                                const bslstl::StringRef& key,
+                                                const bslstl::StringRef& value)
+    {
+        bsl::vector<Attribute> result;
+        result.push_back(Attribute(key, value));
+        return result;
+    }
+
+    static bsl::vector<Attribute> generateAttributes(
+                                               const bslstl::StringRef& key0,
+                                               const bslstl::StringRef& value0,
+                                               const bslstl::StringRef& key1,
+                                               const bslstl::StringRef& value1)
+    {
+        bsl::vector<Attribute> result;
+        result.push_back(Attribute(key0, value0));
+        result.push_back(Attribute(key1, value1));
+        return result;
+    }
+
+    static Content generateContent(const bslstl::StringRef& content)
+    {
+        return Content(bsl::string(content));
+    }
+
+    static Content generateContent(const bsl::vector<SimpleXmlTag>& children)
+    {
+        return Content(children);
+    }
+
+    static Content generateContent(const SimpleXmlTag& element)
+    {
+        bsl::vector<SimpleXmlTag> result;
+        result.push_back(element);
+        return generateContent(result);
+    }
+
+    static Content generateContent(const SimpleXmlTag& element0,
+                                   const SimpleXmlTag& element1)
+    {
+        bsl::vector<SimpleXmlTag> result;
+        result.push_back(element0);
+        result.push_back(element1);
+        return generateContent(result);
+    }
+
+    static SimpleXmlTag generateElement(const bslstl::StringRef& name)
+    {
+        return SimpleXmlTag(name);
+    }
+
+    static SimpleXmlTag generateElement(
+                                       const bslstl::StringRef& name,
+                                       const bslstl::StringRef& attributeKey,
+                                       const bslstl::StringRef& attributeValue)
+    {
+        return SimpleXmlTag(name,
+                            generateAttributes(attributeKey, attributeValue));
+    }
+
+    static SimpleXmlTag generateElement(const bslstl::StringRef& name,
+                                        const bslstl::StringRef& attributeKey0,
+                                        const bslstl::StringRef& attributeValue0,
+                                        const bslstl::StringRef& attributeKey1,
+                                        const bslstl::StringRef& attributeValue1)
+    {
+        return SimpleXmlTag(name,
+                            generateAttributes(attributeKey0,
+                                               attributeValue0,
+                                               attributeKey1,
+                                               attributeValue1));
+    }
+
+    static SimpleXmlTag generateElement(const bslstl::StringRef& name,
+                                        const bslstl::StringRef& content)
+    {
+        return SimpleXmlTag(name, generateContent(content));
+    }
+
+    static SimpleXmlTag generateElement(const bslstl::StringRef& name,
+                                        const SimpleXmlTag&      child)
+    {
+        return SimpleXmlTag(name, generateContent(child));
+    }
+
+    static SimpleXmlTag generateElement(const bslstl::StringRef& name,
+                                        const SimpleXmlTag&      child0,
+                                        const SimpleXmlTag&      child1)
+    {
+        return SimpleXmlTag(name, generateContent(child0, child1));
+    }
+
+    static SimpleXmlTag generateElement(const bslstl::StringRef& name,
+                                        const bslstl::StringRef& attributeKey,
+                                        const bslstl::StringRef& attributeValue,
+                                        const SimpleXmlTag& child)
+    {
+        return SimpleXmlTag(name,
+                            generateAttributes(attributeKey, attributeValue),
+                            generateContent(child));
+    }
+};
+
+                          // ========================
+                          // class GenerateXmlElement
+                          // ========================
+
+class GenerateXmlElement {
+    // This in-core value-semantic class provides a function object whose
+    // function call operator can be used to generate 'SimpleXmlTag' objects.
+
+  public:
+    // TYPES
+    typedef SimpleXmlUtil Util;
+
+    // ACCESSORS
+    SimpleXmlTag operator()(const bslstl::StringRef& name) const
+    {
+        return Util::generateElement(name);
+    }
+
+    SimpleXmlTag operator()(const bslstl::StringRef& name,
+                            const bslstl::StringRef& attributeKey,
+                            const bslstl::StringRef& attributeValue) const
+    {
+        return Util::generateElement(name, attributeKey, attributeValue);
+    }
+
+    SimpleXmlTag operator()(const bslstl::StringRef& name,
+                            const bslstl::StringRef& attributeKey0,
+                            const bslstl::StringRef& attributeValue0,
+                            const bslstl::StringRef& attributeKey1,
+                            const bslstl::StringRef& attributeValue1) const
+    {
+        return Util::generateElement(name,
+                                     attributeKey0,
+                                     attributeValue0,
+                                     attributeKey1,
+                                     attributeValue1);
+    }
+
+    SimpleXmlTag operator()(const bslstl::StringRef& name,
+                            const bslstl::StringRef& content) const
+    {
+        return Util::generateElement(name, content);
+    }
+
+    SimpleXmlTag operator()(const bslstl::StringRef& name,
+                            const SimpleXmlTag&      child) const
+    {
+        return Util::generateElement(name, child);
+    }
+
+    SimpleXmlTag operator()(const bslstl::StringRef& name,
+                            const SimpleXmlTag&      child0,
+                            const SimpleXmlTag&      child1) const
+    {
+        return Util::generateElement(name, child0, child1);
+    }
+
+    SimpleXmlTag operator()(const bslstl::StringRef& name,
+                            const bslstl::StringRef& attributeKey,
+                            const bslstl::StringRef& attributeValue,
+                            const SimpleXmlTag&      child) const
+    {
+        return Util::generateElement(
+            name, attributeKey, attributeValue, child);
+    }
+};
+
+// ============================================================================
+//                        END XML GENERATION APPARATUS
+// ----------------------------------------------------------------------------
+
+// ============================================================================
+//                            BEGIN TEST APPARATUS
+// ----------------------------------------------------------------------------
+
+                       // ==============================
+                       // class TestCase19RowProtocolImp
+                       // ==============================
+
+class TestCase19RowProtocol {
+  public:
+    // CREATORS
+    virtual ~TestCase19RowProtocol() {}
+
+    // ACCESSORS
+    virtual bslma::ManagedPtr<TestCase19RowProtocol> clone(
+                                        bslma::Allocator *allocator) const = 0;
+    virtual void runTest() const                                           = 0;
+};
+
+                       // ==============================
+                       // class TestCase19RowProtocolImp
+                       // ==============================
+
+template <class VALUE_TYPE>
+class TestCase19RowProtocolImp : public TestCase19RowProtocol {
+  public:
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS DATA
+    enum {
+        e_DECODING_FAILS                  = 0,
+        e_DECODING_SUCCEEDS               = 1,
+        e_DECODING_YIELDS_DIFFERENT_VALUE = 2,
+    };
+
+  private:
+    // DATA
+    int                             d_line;
+    bslalg::ConstructorProxy<Value> d_value;
+    int                             d_encodingStatus;
+    int                             d_decodingStatus;
+    SimpleXmlTag                    d_xml;
+
+    // NOT IMPLEMENTED
+    TestCase19RowProtocolImp(const TestCase19RowProtocolImp&);
+    TestCase19RowProtocolImp& operator=(const TestCase19RowProtocolImp&);
+
+  public:
+    // CREATORS
+    explicit TestCase19RowProtocolImp(int                  line,
+                                      const Value&         value,
+                                      int                  encodingStatus,
+                                      int                  decodingStatus,
+                                      const SimpleXmlTag&  xml,
+                                      bslma::Allocator    *basicAllocator = 0)
+    : d_line(line)
+    , d_value(value, bslma::Default::allocator(basicAllocator))
+    , d_encodingStatus(encodingStatus)
+    , d_decodingStatus(decodingStatus)
+    , d_xml(xml)
+    {
+    }
+
+    ~TestCase19RowProtocolImp() BSLS_KEYWORD_OVERRIDE {}
+
+    // ACCESSORS
+    bslma::ManagedPtr<TestCase19RowProtocol> clone(
+                       bslma::Allocator *allocator) const BSLS_KEYWORD_OVERRIDE
+    {
+        bslma::Allocator *const basicAllocator = bslma::Default::allocator(
+                                                                     allocator);
+
+        return bslma::ManagedPtr<TestCase19RowProtocol>(
+            new (*basicAllocator) TestCase19RowProtocolImp(d_line,
+                                                           d_value.object(),
+                                                           d_encodingStatus,
+                                                           d_decodingStatus,
+                                                           d_xml,
+                                                           basicAllocator),
+            basicAllocator);
+    }
+
+    void runTest() const BSLS_KEYWORD_OVERRIDE
+    {
+        const int           LINE            = d_line;
+        const Value&        EXPECTED_VALUE  = d_value.object();
+        const int           DECODING_STATUS = d_decodingStatus;
+        const SimpleXmlTag& XML             = d_xml;
+
+        bdlsb::MemOutStreamBuf xmlOutStreamBuf;
+        bsl::ostream           xmlOutStream(&xmlOutStreamBuf);
+
+        XML.print(xmlOutStream);
+
+        balxml::MiniReader     reader;
+        balxml::ErrorInfo      errorInfo;
+        balxml::DecoderOptions options;
+
+        balxml::Decoder mX(&options, &reader, &errorInfo);
+
+        bdlsb::FixedMemInStreamBuf xmlStreamBuf(xmlOutStreamBuf.data(),
+                                                xmlOutStreamBuf.length());
+
+        Value value;
+        int   rc = mX.decode(&xmlStreamBuf, &value);
+        switch (DECODING_STATUS) {
+          case e_DECODING_FAILS: {
+              ASSERTV(LINE, rc, 0 != rc);
+          } break;
+          case e_DECODING_SUCCEEDS: {
+              ASSERTV(LINE, rc, 0 == rc);
+              if (0 != rc) {
+                  P(mX.loggedMessages());
+              }
+
+              ASSERTV(LINE, EXPECTED_VALUE, value, EXPECTED_VALUE == value);
+          } break;
+          case e_DECODING_YIELDS_DIFFERENT_VALUE: {
+              ASSERTV(LINE, rc, 0 == rc);
+              if (0 != rc) {
+                  P(mX.loggedMessages());
+              }
+
+              ASSERTV(LINE, EXPECTED_VALUE, value, EXPECTED_VALUE != value);
+          } break;
+        }
+    }
+};
+
+                            // ===================
+                            // class TestCase19Row
+                            // ===================
+
+class TestCase19Row {
+    // DATA
+    bslma::Allocator                         *d_allocator_p;
+    bslma::ManagedPtr<TestCase19RowProtocol>  d_imp;
+
+  public:
+    // CREATORS
+    template <class VALUE_TYPE>
+    TestCase19Row(int                  line,
+                  const VALUE_TYPE&    value,
+                  int                  encodingStatus,
+                  int                  decodingStatus,
+                  const SimpleXmlTag&  xml,
+                  bslma::Allocator    *basicAllocator = 0)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
+    , d_imp(new (*d_allocator_p)
+                TestCase19RowProtocolImp<VALUE_TYPE>(line,
+                                                     value,
+                                                     encodingStatus,
+                                                     decodingStatus,
+                                                     xml,
+                                                     d_allocator_p),
+            d_allocator_p)
+    {
+    }
+
+    TestCase19Row(const TestCase19Row&  original,
+                  bslma::Allocator     *basicAllocator = 0)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
+    , d_imp(original.d_imp->clone(d_allocator_p))
+    {
+    }
+
+    // MANIPULATORS
+    TestCase19Row& operator=(const TestCase19Row& original)
+    {
+        d_imp = original.d_imp->clone(d_allocator_p);
+        return *this;
+    }
+
+    // ACCESSORS
+    void runTest() const { d_imp->runTest(); }
+};
+
+// DATA
+extern const char attribute0Name[] = "attribute0";
+extern const char attribute1Name[] = "attribute1";
+
+extern const char enumerator0String[] = "enumerator0";
+extern const char enumerator1String[] = "enumerator1";
+
+extern const char selection0Name[] = "selection0";
+extern const char selection1Name[] = "selection1";
+
+// ============================================================================
+//                             END TEST APPARATUS
+// ----------------------------------------------------------------------------
+
 // ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -19914,6 +23881,641 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING NILLABLE ELEMENT DECODING
+        //   This case tests the 'balxml::Decoder::decode' operation when
+        //   decoding objects that may or may not be "nullable", and may or may
+        //   not have the "nillable" formatting mode applied.  In general, it
+        //   is expected that absent XML tags decode to null values, and
+        //   self-closing tags with the attribute 'xsi:nil="true"' decode
+        //   to null values only if the corresponding attribute is marked
+        //   nillable.  For backwards compatibility, it is expected that
+        //   self-closing tags with no attributes also decode to null values
+        //   only if the corresponding attribute is marked nillable.
+        //
+        // Concerns:
+        //: 1 Attributes of sequence types and selections of choice types that
+        //:   do not have the "nillable" formatting mode decode non-null values
+        //:   from XML representations of their value.
+        //:
+        //: 2 Attributes of sequence types and selections of choice types that
+        //:   do not have the "nillable" formatting mode decode null values
+        //:   absent XML tags.
+        //:
+        //: 3 Attributes of sequence types and selections of choice types
+        //:   that have the "nillable" formatting mode decode non-null values
+        //:   from XML representations of their value.
+        //:
+        //: 4 Attributes of sequence types and selections of choice types
+        //:   that have the "nillable" formatting mode decode null values from
+        //:   absent XML tags, self-closing tags with no attributes, and
+        //:   self-closing tags with the attribute 'xsi:nil="true"'.
+        //:
+        //: 5 Nullable types decode XML representations of their underlying
+        //:   value as non-null values.
+        //:
+        //: 6 Nullable types decode absent tags as the null value.
+        //:
+        //: 7 The above 6 properties hold for arbitrary nesting and
+        //:   permutation of 'bdlat' concept implementations.  For example,
+        //:   these properties should not only hold for a sequence of two
+        //:   integers, but also a sequence of an enumeration and a choice
+        //:   between an integer and a string.
+        //
+        // Plan:
+        //: 1 Create objects enumerating all 8 'bdlat' attribute type concepts,
+        //:   and where applicable, recursively up to a depth of 2.
+        //:
+        //: 2 For each of the above objects, create a variant that is non-null
+        //:   but not nillable, a variant that is null but not nillable, a
+        //:   variant that is non-null and nillable, and a variant that is null
+        //:   and nillable.
+        //:
+        //: 3 For each of the above objects, verify that their XML decoded
+        //:   values created by 'balxml::Decoder::decode' satisfy the 6
+        //:   properties defined in the "Concerns".
+        //
+        // Testing:
+        //   int decode(bsl::streambuf *buffer, TYPE *object);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Decoding of Nillable Elements"
+                          << "\n=====================================" << endl;
+
+        // Abbreviations for the names of 'bdlat' concept test implementations,
+        // which will become the tag names of the XML they generate.
+        const bslstl::StringRef S = "MySequence";
+        const bslstl::StringRef C = "MyChoice";
+        const bslstl::StringRef CT = "MyCustomizedType";
+        const bslstl::StringRef D = "MyDynamicType";
+        const bslstl::StringRef E = "MyEnumeration";
+
+        // Abbreviations for attribute and selection names.
+        const bslstl::StringRef A0 = "attribute0";
+        const bslstl::StringRef A1 = "attribute1";
+        const bslstl::StringRef E0 = "enumerator0";
+        const bslstl::StringRef E1 = "enumerator1";
+        const bslstl::StringRef S0 = "selection0";
+        const bslstl::StringRef S1 = "selection1";
+
+        // Abbreviations for some test values.
+        const int v0 = 0;
+        const int v1 = 1;
+        const double d0 = 1.5;
+
+        // Abbreviations for XML-encoded representations of some test values.
+        const bslstl::StringRef V0 = "0";
+        const bslstl::StringRef V1 = "1";
+        const bslstl::StringRef D0 = "1.5";
+
+        // Abbreviations for function objects used to generate objects that
+        // implement various 'bdlat' attribute type concepts.
+        const GenerateArray          a;
+        const GenerateChoice         c;
+        const GenerateCustomizedType ct;
+        const GenerateDynamicType    d;
+        const GenerateEnumeration    e;
+        const GenerateNullableValue  n;
+        const GenerateSequence       s;
+
+        // Abbreviations for some sequence attributes.
+        typedef TestAttribute<0, attribute0Name> A0Type;
+        const A0Type a0;
+
+        typedef TestAttribute<1, attribute1Name> A1Type;
+        const A1Type a1;
+
+        typedef TestAttribute<0,
+                              attribute0Name,
+                              TestAttributeDefaults::k_DEFAULT_ANNOTATION,
+                              bdlat_FormattingMode::e_NILLABLE>
+            AN0Type;
+        const AN0Type an0;
+
+        typedef TestAttribute<1,
+                              attribute1Name,
+                              TestAttributeDefaults::k_DEFAULT_ANNOTATION,
+                              bdlat_FormattingMode::e_NILLABLE>
+            AN1Type;
+        const AN1Type an1;
+
+        // Abbreviations for some enumeration enumerators.
+        typedef TestEnumerator<0, enumerator0String> E0Type;
+        const E0Type e0;
+
+        typedef TestEnumerator<1, enumerator1String> E1Type;
+        const E1Type e1;
+
+        // Abbreviations for some choice selections.
+        typedef TestSelection<0, selection0Name> S0Type;
+        const S0Type s0;
+
+        typedef TestSelection<1, selection1Name> S1Type;
+        const S1Type s1;
+
+        typedef TestSelection<0,
+                              selection0Name,
+                              TestSelectionDefaults::k_DEFAULT_ANNOTATION,
+                              bdlat_FormattingMode::e_NILLABLE>
+            SN0Type;
+        const SN0Type sn0;
+
+        typedef TestSelection<1,
+                              selection1Name,
+                              TestSelectionDefaults::k_DEFAULT_ANNOTATION,
+                              bdlat_FormattingMode::e_NILLABLE>
+            SN1Type;
+        const SN1Type sn1;
+
+        // Abbreviation for a function object used to generate XML document
+        // structures for printing.
+        const GenerateXmlElement x;
+
+        // Abbreviations for some XML attribute keys and values.
+        const bslstl::StringRef Nil = "xsi:nil";
+        const bslstl::StringRef T = "true";
+
+        // Abbreviations for function objects used to generate placeholders.
+        const PlaceHolder<int>               _i;
+        const PlaceHolder<double>            _f;
+        const GenerateArrayPlaceHolder       _a;
+        const GenerateChoicePlaceHolder      _c;
+        const GenerateDynamicPlaceHolder     _d;
+        const GenerateEnumerationPlaceHolder _e;
+        const GenerateNullablePlaceHolder    _n;
+        const GenerateSequencePlaceHolder    _s;
+
+        // Abbreviations for possible results of a decoding operation.
+        enum {
+            f = false, // 0, (en/de)coding fails
+            t = true,  // 1, (en/de)coding succeeds
+            _ = 2      // 2, (en/de)coding succeeds, but gives different value
+        };
+
+        // An abbreviation for an XML structure that will not be used when
+        // testing a particular row of the below test table.  The name is short
+        // for "Not Applicable."
+        const SimpleXmlTag NA("NA");
+
+        // An abbreviation for the name of the type used to represent one
+        // row in this table-based test.
+        typedef TestCase19Row R;
+
+        ///Implementation Note
+        ///-------------------
+        // The following test table shares its structure with the table in case
+        // 14 of the 'balxml_encoder' component test driver.  These two test
+        // cases share an identical test table structure in order to verify
+        // that, abstractly, the encoding and decoding operations they perform
+        // are "consistent".  Note that the "encoding result" is unused in this
+        // test driver.
+        const TestCase19Row DATA[] = {
+       //v--^                              ENCODING RESULT
+       //                                 /  DECODING RESULT
+       //LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
+       //---- ------------------------- -- -- -------------------------------
+       // Arrays.
+       R(L_,  a(_i)                    , f, t, NA                           ),
+       R(L_,  a(v0)                    , f, _, NA                           ),
+       // Single-selection choices.
+       R(L_,  c( s0,          v0   )   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c( s0, n(       _i  ))   , t, t, x(C                  )       ),
+       R(L_,  c( s0, n(       v0  ))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c( s0, n(       v0  ))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c( s0, n(       v0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c( s0,    a(_i     ) )   , t, t, x(C                  )       ),
+       R(L_,  c( s0, n(_a(_i     )))   , t, t, x(C                  )       ),
+       R(L_,  c( s0, n( a(_i     )))   , t, _, x(C                  )       ),
+       R(L_,  c( s0,    a(v0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c( s0, n( a(v0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c( s0,    c(s0, v0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+       R(L_,  c( s0, n(_c(s0, _i )))   , t, t, x(C                  )       ),
+       R(L_,  c( s0, n(_c(s0, _i )))   , _, _, x(C,x(S0         )   )       ),
+       R(L_,  c( s0, n(_c(s0, _i )))   , _, f, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c( s0, n( c(s0, v0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+       R(L_,  c( s0,    d(  a(v0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c( s0, n(_d( _a(_i))))   , t, t, x(C                  )       ),
+       R(L_,  c( s0, n( d(  a(v0))))   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c( s0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+       R(L_,  c( s0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+       R(L_,  c( s0, n(_e(e0     )))   , t, t, x(C                  )       ),
+       R(L_,  c( s0, n( e(e0, 0  )))   , t, t, x(C,x(S0,""      )   )       ),
+       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c( s0,    s(a0, v0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+       R(L_,  c( s0, n(_s(a0, _i )))   , t, t, x(C                  )       ),
+       R(L_,  c( s0, n( s(a0, v0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+       R(L_,  c( s0, n( s(a0, v0 )))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c( s0, n( s(a0, v0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c(sn0,          v0   )   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c(sn0, n(       _i  ))   , t, t, x(C                  )       ),
+       R(L_,  c(sn0, n(       _i  ))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c(sn0, n(       _i  ))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c(sn0, n(       v0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c(sn0,    a(_i     ) )   , t, t, x(C                  )       ),
+       R(L_,  c(sn0, n(_a(_i     )))   , t, t, x(C                  )       ),
+       R(L_,  c(sn0, n(_a(_i     )))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c(sn0, n(_a(_i     )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c(sn0, n( a(_i     )))   , t, _, x(C                  )       ),
+       R(L_,  c(sn0,    a(v0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c(sn0, n( a(v0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c(sn0,    c(s0, v0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+       R(L_,  c(sn0, n(_c(s0, _i )))   , t, t, x(C                  )       ),
+       R(L_,  c(sn0, n(_c(s0, _i )))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c(sn0, n(_c(s0, _i )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c(sn0, n( c(s0, v0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+       R(L_,  c(sn0,    d(  a(v0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c(sn0, n(_d( _a(_i))))   , t, t, x(C                  )       ),
+       R(L_,  c(sn0, n(_d( _a(_i))))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c(sn0, n(_d( _a(_i))))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c(sn0, n( d(  a(v0))))   , t, t, x(C,x(S0,V0      )   )       ),
+       R(L_,  c(sn0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+       R(L_,  c(sn0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+       R(L_,  c(sn0, n(_e(e0     )))   , t, t, x(C                  )       ),
+       R(L_,  c(sn0, n(_e(e0     )))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c(sn0, n(_e(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c(sn0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
+       R(L_,  c(sn0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+       R(L_,  c(sn0,    s(a0, v0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+       R(L_,  c(sn0, n(_s(a0, _i )))   , t, t, x(C                  )       ),
+       R(L_,  c(sn0, n(_s(a0, _i )))   , _, t, x(C,x(S0         )   )       ),
+       R(L_,  c(sn0, n(_s(a0, _i )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
+       R(L_,  c(sn0, n( s(a0, v0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+       // Double-selection choices.
+       R(L_,  c( s0, s1,  _i ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+       R(L_,  c( s0, s1,  _i ,n(_f))   , t, _, x(C            )             ),
+       R(L_,  c( s0, s1,  _i ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+       R(L_,  c( s0, s1,  v0 ,  _f )   , t, t, x(C,x(S0,V0   ))             ),
+       R(L_,  c( s0, s1,n(_i),  _f )   , t, t, x(C            )             ),
+       R(L_,  c( s0, s1,n(v0),  _f )   , t, t, x(C,x(S0,V0   ))             ),
+       R(L_,  c(sn0,sn1,  _i ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+       R(L_,  c(sn0,sn1,  _i ,n(_f))   , t, _, x(C            )             ),
+       R(L_,  c(sn0,sn1,  _i ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+       R(L_,  c(sn0,sn1,  v0 ,  _f )   , t, t, x(C,x(S0,V0   ))             ),
+       R(L_,  c(sn0,sn1,n(_i),  _f )   , t, t, x(C            )             ),
+       R(L_,  c(sn0,sn1,n(_i),  _f )   , _, t, x(C,x(S0      ))             ),
+       R(L_,  c(sn0,sn1,n(_i),  _f )   , _, t, x(C,x(S0,Nil,T))             ),
+       R(L_,  c(sn0,sn1,n(v0),  _f )   , t, t, x(C,x(S0,V0   ))             ),
+       // Customized types.
+       R(L_,  ct(v0,_i)                , t, t, x(CT,V0)                     ),
+       R(L_,  ct(d0,_f)                , t, t, x(CT,D0)                     ),
+       // Dynamic types.
+       R(L_,  d(a(_i)       )          , f, t, NA                           ),
+       R(L_,  d(a(v0)       )          , f, _, NA                           ),
+       R(L_,  d(a(v0,v1)    )          , f, _, NA                           ),
+       R(L_,  d(c( s0,  v0 ))          , t, t, x(D,x(S0,V0   ))             ),
+       R(L_,  d(c( s0,n(_i)))          , t, t, x(D            )             ),
+       R(L_,  d(c( s0,n(v0)))          , t, t, x(D,x(S0,V0   ))             ),
+       R(L_,  d(c(sn0,  v0 ))          , t, t, x(D,x(S0,V0   ))             ),
+       R(L_,  d(c(sn0,n(_i)))          , t, t, x(D            )             ),
+       R(L_,  d(c(sn0,n(_i)))          , _, t, x(D,x(S0      ))             ),
+       R(L_,  d(c(sn0,n(_i)))          , _, t, x(D,x(S0,Nil,T))             ),
+       R(L_,  d(c(sn0,n(v0)))          , t, t, x(D,x(S0,V0   ))             ),
+       R(L_,  d(s( a0,  v0 ))          , t, t, x(D,x(A0,V0   ))             ),
+       R(L_,  d(s( a0,n(_i)))          , t, t, x(D            )             ),
+       R(L_,  d(s( a0,n(_i)))          , _, t, x(D,x(S0      ))             ),
+       R(L_,  d(s( a0,n(_i)))          , _, t, x(D,x(S0,Nil,T))             ),
+       R(L_,  d(s( a0,n(v0)))          , t, t, x(D,x(A0,V0   ))             ),
+       R(L_,  d(s(an0,  v0 ))          , t, t, x(D,x(A0,V0   ))             ),
+       R(L_,  d(s(an0,n(_i)))          , t, t, x(D            )             ),
+       R(L_,  d(s(an0,n(_i)))          , _, t, x(D,x(S0      ))             ),
+       R(L_,  d(s(an0,n(_i)))          , _, t, x(D,x(S0,Nil,T))             ),
+       R(L_,  d(s(an0,n(v0)))          , t, t, x(D,x(A0,V0   ))             ),
+       // Enumerations.
+       R(L_,  e(e0, 0)                 , t, t, x(E,"")                      ),
+       R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
+       R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
+       R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
+       R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
+       // Nullable values.  Compilation fails in the decoder.
+     //R(L_,  n(_i)                    , f, f, NA                           ),
+     //R(L_,  n(v0)                    , f, f, NA                           ),
+     //R(L_,  n(_s(a0,_i))             , f, f, NA                           ),
+     //R(L_,  n( s(a0,v0))             , f, f, NA                           ),
+     //R(L_,  n( c(s0,s1,v0,_f))       , f, f, NA                           ),
+       // Single-attribute sequence.
+       R(L_,  s( a0,  v0)              , t, t, x(S,x(A0,V0))                ),
+       R(L_,  s( a0,n(_i))             , t, t, x(S)                         ),
+       R(L_,  s( a0,n(v0))             , t, t, x(S,x(A0,V0   ))             ),
+       R(L_,  s( a0,n(v0))             , _, t, x(S,x(A0      ))             ),
+       R(L_,  s( a0,n(v0))             , _, t, x(S,x(A0,Nil,T))             ),
+       R(L_,  s( a0,  a(_i   ) )       , t, t, x(S)                         ),
+       R(L_,  s( a0,  a(v0   ) )       , t, t, x(S,x(A0,V0))                ),
+       R(L_,  s( a0,  a(v0,v1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+       R(L_,  s( a0,n(a(_i   )))       , t, _, x(S)                         ),
+       R(L_,  s( a0,n(a(v0   )))       , t, t, x(S,x(A0,V0))                ),
+       R(L_,  s( a0,n(a(v0,v1)))       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+       R(L_,  s( a0,   c( s0,   v0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0,   c( s0, n(_i)) ) , t, t, x(S,x(A0         ))          ),
+       R(L_,  s( a0,   c( s0, n(v0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0,   c(sn0,   v0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0,   c(sn0, n(_i)) ) , t, t, x(S,x(A0         ))          ),
+       R(L_,  s( a0,   c(sn0, n(v0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0,n(_c( s0, _n(_i)))), t, t, x(S               )          ),
+       R(L_,  s( a0,n( c( s0,   v0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0,n( c( s0, n(_i)))) , t, t, x(S,x(A0         ))          ),
+       R(L_,  s( a0,n( c( s0, n(v0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0,n( c(sn0,   v0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0,n( c(sn0, n(_i)))) , t, t, x(S,x(A0         ))          ),
+       R(L_,  s( a0,n( c(sn0, n(v0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0, d( a(_i   )))     , t, t, x(S               )          ),
+       R(L_,  s( a0, d( a(v0   )))     , t, t, x(S,x(A0,V0)      )          ),
+       R(L_,  s( a0, d( a(v0,v1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+       R(L_,  s( a0, d( c(s0,v0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s( a0, d( s(a0,v0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+       R(L_,  s( a0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+       R(L_,  s( a0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+       R(L_,  s( a0,n(_e(e0,e1  )   )) , t, t, x(S         )                ),
+       R(L_,  s( a0,n( e(e0,e1,0)   )) , t, t, x(S,x(A0,""))                ),
+       R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+       R(L_,  s( a0,    s(a0,v0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+       R(L_,  s( a0, n(_s(a0,_i)))     , t, t, x(S               )          ),
+       R(L_,  s( a0, n( s(a0,v0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+       R(L_,  s(an0,  v0)              , t, t, x(S,x(A0,V0))                ),
+       R(L_,  s(an0,n(_i))             , t, t, x(S)                         ),
+       R(L_,  s(an0,n(_i))             , _, t, x(S,x(A0))                   ),
+       R(L_,  s(an0,n(_i))             , _, t, x(S,x(A0,Nil,T   ))          ),
+       R(L_,  s(an0,n(v0))             , t, t, x(S,x(A0,V0))                ),
+       R(L_,  s(an0,  a(_i   ) )       , t, t, x(S)                         ),
+       R(L_,  s(an0,  a(v0   ) )       , t, t, x(S,x(A0,V0))                ),
+       R(L_,  s(an0,  a(v0,v1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+       R(L_,  s(an0,n(a(_i   )))       , t, _, x(S)                         ),
+       R(L_,  s(an0,n(a(v0   )))       , t, t, x(S,x(A0,V0))                ),
+       R(L_,  s(an0,n(a(v0,v1)))       , t, _, x(S,x(A0,V0),x(A0,V1))       ),
+       R(L_,  s(an0,   c( s0,   v0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0,   c( s0, n(_i)) ) , t, t, x(S,x(A0         ))          ),
+       R(L_,  s(an0,   c( s0, n(v0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0,   c(sn0,   v0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0,   c(sn0, n(_i)) ) , t, t, x(S,x(A0         ))          ),
+       R(L_,  s(an0,   c(sn0, n(_i)) ) , _, t, x(S,x(A0,x(S0)))             ),
+       R(L_,  s(an0,   c(sn0, n(_i)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ),
+       R(L_,  s(an0,   c(sn0, n(v0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0,n(_c( s0, _n(_i)))), t, t, x(S               )          ),
+       R(L_,  s(an0,n(_c( s0, _n(_i)))), _, t, x(S,x(A0      )   )          ),
+       R(L_,  s(an0,n(_c( s0, _n(_i)))), _, t, x(S,x(A0,Nil,T)   )          ),
+       R(L_,  s(an0,n( c( s0,   v0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0,n( c( s0, n(_i)))) , t, _, x(S,x(A0         ))          ),
+       R(L_,  s(an0,n( c( s0, n(v0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0,n( c(sn0,   v0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0,n( c(sn0, n(_i)))) , t, _, x(S,x(A0         ))          ),
+       R(L_,  s(an0,n( c(sn0, n(v0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0, d( a(_i   )))     , t, t, x(S               )          ),
+       R(L_,  s(an0, d( a(v0   )))     , t, t, x(S,x(A0,V0)      )          ),
+       R(L_,  s(an0, d( a(v0,v1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+       R(L_,  s(an0, d( c(s0,v0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+       R(L_,  s(an0, d( s(a0,v0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+       R(L_,  s(an0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+       R(L_,  s(an0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+       R(L_,  s(an0,n(_e(e0,e1  )   )) , t, t, x(S         )                ),
+       R(L_,  s(an0,n(_e(e0,e1  )   )) , _, t, x(S,x(A0))                   ),
+       R(L_,  s(an0,n(_e(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ),
+       R(L_,  s(an0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
+       R(L_,  s(an0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+       R(L_,  s(an0,    s(a0,v0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+       R(L_,  s(an0, n(_s(a0,_i)))     , t, t, x(S               )          ),
+       R(L_,  s(an0, n(_s(a0,_i)))     , _, t, x(S,x(A0))                   ),
+       R(L_,  s(an0, n(_s(a0,_i)))     , _, t, x(S,x(A0,Nil,T))             ),
+       R(L_,  s(an0, n( s(a0,v0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+       // Double-attribute sequences.
+       R(L_,  s( a0, a1,  v0,   v1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+       R(L_,  s( a0, a1,  v0 ,n(_i))   , t, t, x(S,x(A0,V0   )            ) ),
+       R(L_,  s( a0, a1,  v0 ,n(v1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+       R(L_,  s( a0, a1,n(_i),  v1 )   , t, t, x(S            ,x(A1,V1   )) ),
+       R(L_,  s( a0, a1,n(_i),n(_i))   , t, t, x(S                        ) ),
+       R(L_,  s( a0, a1,n(_i),n(v1))   , t, t, x(S            ,x(A1,V1   )) ),
+       R(L_,  s( a0, a1,n(v0),  v1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+       R(L_,  s( a0, a1,n(v0),n(_i))   , t, t, x(S,x(A0,V0   )            ) ),
+       R(L_,  s( a0, a1,n(v0),n(v1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,  v0 ,  v1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,  v0 ,n(_i))   , t, t, x(S,x(A0,V0   )            ) ),
+       R(L_,  s(an0,an1,  v0 ,n(_i))   , _, t, x(S,x(A0,V0   ),x(A1      )) ),
+       R(L_,  s(an0,an1,  v0 ,n(_i))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ),
+       R(L_,  s(an0,an1,  v0 ,n(v1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(_i),  v1 )   , t, t, x(S            ,x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(_i),  v1 )   , _, t, x(S,x(A0      ),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(_i),  v1 )   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , t, t, x(S                        ) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S            ,x(A1      )) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S            ,x(A1,Nil,T)) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S,x(A0      )            ) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S,x(A0      ),x(A1      )) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S,x(A0      ),x(A1,Nil,T)) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S,x(A0,Nil,T)            ) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S,x(A0,Nil,T),x(A1      )) ),
+       R(L_,  s(an0,an1,n(_i),n(_i))   , _, t, x(S,x(A0,Nil,T),x(A1,Nil,T)) ),
+       R(L_,  s(an0,an1,n(_i),n(v1))   , t, t, x(S            ,x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(_i),n(v1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(_i),n(v1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(v0),  v1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+       R(L_,  s(an0,an1,n(v0),n(_i))   , t, t, x(S,x(A0,V0   )            ) ),
+       R(L_,  s(an0,an1,n(v0),n(_i))   , _, t, x(S,x(A0,V0   ),x(A1      )) ),
+       R(L_,  s(an0,an1,n(v0),n(_i))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ),
+       R(L_,  s(an0,an1,n(v0),n(v1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )
+       //^--v
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const TestCase19Row& ROW = DATA[i];
+
+            ROW.runTest();
+        }
+
+        if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING THE 'SimpleXmlTag' TEST FACILITY
+        //   The subsequent test case uses the 'SimpleXmlTag' class in order
+        //   to provide a concise notation for describing XML documents.  This
+        //   case tests the printing operations of 'SimpleXmlTag'.
+        //
+        // Concerns:
+        //: 1 Tags having no attributes nor any content print as self-closing
+        //:   tags with no attributes.
+        //:
+        //: 2 Tags having content but no attributes print as an opening tag,
+        //:   the content, and a closing tag.
+        //:
+        //: 3 Content may be text or zero or more child tags.
+        //:
+        //: 4 When printed, each attribute is separated from the previous token
+        //:   by 1 space character.
+        //:
+        //: 5 Printing supports arbitrary levels of nesting of child tags and
+        //:   content.
+        //
+        // Plan:
+        //: 1 Given a set of attribute sequences and a set of content, create
+        //:   a simple XML tag object given each element of the cartesian
+        //:   product of those sets.
+        //:
+        //: 2. Print each of the resulting simple XML tag objects, and verify
+        //:    that the resulting text is valid XML and that it represents
+        //:    the same value as the object.
+        //
+        // Testing:
+        //   SimpleXmlTag([allocator*]);
+        //   SimpleXmlTag(name[, allocator*]);
+        //   SimpleXmlTag(name, attributes[, allocator*]);
+        //   SimpleXmlTag(name, content[, allocator*]);
+        //   SimpleXmlTag(name, attributes, content[, allocator*]);
+        //   stream& operator<<(SimpleXmlTag&, stream&);
+        // --------------------------------------------------------------------
+
+        typedef SimpleXmlTag X;
+
+        typedef X::Attribute  Attribute;
+        typedef X::Attributes Attributes;
+        typedef X::Tags       Tags;
+        typedef X::Content    Content;
+
+        const Attribute A0("attr0", "val0");
+        const Attribute A1("attr1", "val1");
+
+        Attributes mAs0;
+        const Attributes& As0 = mAs0;
+        mAs0.push_back(A0);
+
+        Attributes mAs01;
+        const Attributes& As01 = mAs01;
+        mAs01.push_back(A0);
+        mAs01.push_back(A1);
+
+        Content mC0;
+        const Content& C0 = mC0;
+        mC0.createInPlace<bsl::string>("Lorem ipsum.");
+
+        Content mC1;
+        const Content& C1 = mC1;
+        mC1.createInPlace<Tags>();
+        mC1.the<Tags>().push_back(X("DEF"));
+
+        Content mC2;
+        const Content& C2 = mC2;
+        mC2.createInPlace<Tags>();
+        mC2.the<Tags>().push_back(X("GHI", As0));
+        mC2.the<Tags>().push_back(X("JKL", As01));
+
+        Content mC3;
+        const Content& C3 = mC3;
+        mC3.createInPlace<Tags>();
+        mC3.the<Tags>().push_back(X("MNO", C0));
+        mC3.the<Tags>().push_back(X("PQR", As0, C1));
+
+        const struct {
+            int           d_line;   // line number
+            SimpleXmlTag  d_xml;    // XML object representation
+            const char   *d_string; // expected printout of 'd_xml'
+        } DATA[] = {
+            //  LINE
+            // /     XML OBJECT     EXPECTED PRINTOUT OF XML OBJECT
+            //--- --------------- -------------------------------------
+            { L_ , X()           , "</>" },
+            { L_ , X("ABC")      , "<ABC/>" },
+            { L_ , X("ABC", As0) , "<ABC attr0='val0'/>" },
+            { L_ , X("ABC", As01), "<ABC attr0='val0' attr1='val1'/>" },
+
+            { L_ , X("ABC", C0),
+                 "<ABC>"
+                     "Lorem ipsum."
+                 "</ABC>" },
+
+            { L_ , X("ABC", C1),
+                 "<ABC>"
+                     "<DEF/>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", C2),
+                 "<ABC>"
+                     "<GHI attr0='val0'/>"
+                     "<JKL attr0='val0' attr1='val1'/>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", C3),
+                 "<ABC>"
+                     "<MNO>"
+                         "Lorem ipsum."
+                     "</MNO>"
+                     "<PQR attr0='val0'>"
+                         "<DEF/>"
+                     "</PQR>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", As0, C0),
+                 "<ABC attr0='val0'>"
+                     "Lorem ipsum."
+                 "</ABC>" },
+
+            { L_ , X("ABC", As0, C1),
+                 "<ABC attr0='val0'>"
+                     "<DEF/>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", As0, C2),
+                 "<ABC attr0='val0'>"
+                     "<GHI attr0='val0'/>"
+                     "<JKL attr0='val0' attr1='val1'/>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", As0, C3),
+                 "<ABC attr0='val0'>"
+                     "<MNO>"
+                         "Lorem ipsum."
+                     "</MNO>"
+                     "<PQR attr0='val0'>"
+                         "<DEF/>"
+                     "</PQR>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", As01, C0),
+                 "<ABC attr0='val0' attr1='val1'>"
+                     "Lorem ipsum."
+                 "</ABC>" },
+
+            { L_ , X("ABC", As01, C1),
+                 "<ABC attr0='val0' attr1='val1'>"
+                     "<DEF/>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", As01, C2),
+                 "<ABC attr0='val0' attr1='val1'>"
+                     "<GHI attr0='val0'/>"
+                     "<JKL attr0='val0' attr1='val1'/>"
+                 "</ABC>" },
+
+            { L_ , X("ABC", As01, C3),
+                 "<ABC attr0='val0' attr1='val1'>"
+                     "<MNO>"
+                         "Lorem ipsum."
+                     "</MNO>"
+                     "<PQR attr0='val0'>"
+                         "<DEF/>"
+                     "</PQR>"
+                 "</ABC>" }
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int           LINE   = DATA[i].d_line;
+            const SimpleXmlTag& XML    = DATA[i].d_xml;
+            const char *const   EXPECTED_STRING = DATA[i].d_string;
+
+            bdlsb::MemOutStreamBuf xmlStreamBuf;
+            bsl::ostream xmlStream(&xmlStreamBuf);
+            xmlStream << XML;
+
+            const bslstl::StringRef STRING(xmlStreamBuf.data(),
+                                           xmlStreamBuf.length());
+            ASSERTV(LINE, EXPECTED_STRING, STRING, EXPECTED_STRING == STRING);
+        }
+
+        if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
       case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES
@@ -30402,8 +35004,9 @@ int main(int argc, char *argv[])
             ATTRIBUTE3_VALUE.attribute1() = 987;
             ATTRIBUTE3_VALUE.attribute2() = "inner";
 
-            const char *INPUT[3]
+            const char *INPUT[4]
                             = {
+#if 1
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<MySequenceWithNillables " XSI ">\n"
                                 "    <Attribute1 xsi:nil='true'/>\n"
@@ -30413,6 +35016,17 @@ int main(int argc, char *argv[])
                                 "        <Attribute2>inner</Attribute2>\n"
                                 "    </Attribute3>\n"
                                 "</MySequenceWithNillables>\n",
+#else
+
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<MySequenceWithNillables " XSI ">\n"
+                                "    <Attribute2>test string</Attribute2>\n"
+                                "    <Attribute3>\n"
+                                "        <Attribute1>987</Attribute1>\n"
+                                "        <Attribute2>inner</Attribute2>\n"
+                                "    </Attribute3>\n"
+                                "</MySequenceWithNillables>\n",
+#endif
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<MySequenceWithNillables " XSI ">\n"
@@ -30424,12 +35038,22 @@ int main(int argc, char *argv[])
                                 "    </Attribute3>\n"
                                 "</MySequenceWithNillables>\n",
 
+#if 1
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<MySequenceWithNillables " XSI ">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3 xsi:nil='true'/>\n"
                                 "</MySequenceWithNillables>\n",
+#else
+
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<MySequenceWithNillables " XSI ">\n"
+                                "    <Attribute1>123</Attribute1>\n"
+                                "    <Attribute2>test string</Attribute2>\n"
+                                "    <Attribute3/>\n"
+                                "</MySequenceWithNillables>\n",
+#endif
                               };
 
             for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
@@ -30460,6 +35084,7 @@ int main(int argc, char *argv[])
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
+                options.setSkipUnknownElements(false);
 
                 balxml::Decoder decoder(&options,
                                         &reader,

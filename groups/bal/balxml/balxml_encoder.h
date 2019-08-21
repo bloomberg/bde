@@ -1070,14 +1070,14 @@ int Encoder_EncodeObject::executeImp(
 
     if (bdlat_NullableValueFunctions::isNull(object)) {
         if (formattingMode & bdlat_FormattingMode::e_NILLABLE) {
-            d_context_p->openElement(tag);
             if (!d_context_p->encoderOptions().objectNamespace().empty()
              && d_context_p->encoderOptions().outputXSIAlias()) {
                 // Only add the "xsi:nil" attribute if an object namespace was
                 // provided because only then can validation happen.
+                d_context_p->openElement(tag);
                 d_context_p->addAttribute("xsi:nil", "true");
+                d_context_p->closeElement(tag);
             }
-            d_context_p->closeElement(tag);
         }
 
         return d_context_p->status();                                 // RETURN
