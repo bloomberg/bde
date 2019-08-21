@@ -567,9 +567,17 @@ BSLS_IDENT("$Id: $")
 // [alg.search]:
 //..
 //  template<class ForwardIterator, class Searcher>
-//  constexpr ForwardIterator search(ForwardIterator first,
-//                                   ForwardIterator last,
-//                                   const Searcher& searcher);
+//  constexpr ForwardIterator std::search(ForwardIterator first,
+//                                        ForwardIterator last,
+//                                        const Searcher& searcher);
+//..
+//
+// Additionally, the 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' *also*
+// implies that the native library supplies the following class templates:
+//..
+//  std::default_searcher
+//  std::boyer_moore_searcher
+//  std::boyer_moore_horspool_searcher
 //..
 //
 // Currently the following compilers define this function template:

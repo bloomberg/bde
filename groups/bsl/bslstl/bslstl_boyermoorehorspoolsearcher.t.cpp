@@ -19,6 +19,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
@@ -39,6 +40,13 @@
 
 using namespace BloombergLP;
 namespace BSL = native_std;  // for Usage examples
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+    #include <functional>
+    namespace XYZ = native_std;
+#else
+    namespace XYZ = bsl;
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ============================================================================
 //                             TEST PLAN
@@ -3071,7 +3079,7 @@ static void usage()
 // Then, we create a 'default_searcher' object (a functor) using the given
 // 'word':
 //..
-    bsl::boyer_moore_horspool_searcher<const char *> searchForUnited(
+    XYZ::boyer_moore_horspool_searcher<const char *> searchForUnited(
                                                             word,
                                                             word
                                                           + BSL::strlen(word));
@@ -3119,7 +3127,7 @@ static void usage()
 // Now, specify 'bsl::boyer_moore_horspool_searcher' type for and create a
 // searcher object to search for 'word':
 //..
-    bsl::boyer_moore_horspool_searcher<const char *,
+    XYZ::boyer_moore_horspool_searcher<const char *,
                                        MyCaseInsensitiveCharHasher,
                                        MyCaseInsensitiveCharComparator>
                                                     searchForUnitedInsensitive(
@@ -3195,7 +3203,7 @@ static void usage()
 //..
 // Then, we define and create our searcher object:
 //..
-    bsl::boyer_moore_horspool_searcher<const float *>
+    XYZ::boyer_moore_horspool_searcher<const float *>
                                          searchForMarker(markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
@@ -3854,6 +3862,7 @@ int main(int argc, char *argv[])
                        "\n" "TEST 'boyer_moore_horspool_seacher' FACADE"
                        "\n" "==========================================" "\n");
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
         typedef CharArray<char>::const_iterator    RndAccConstItr;
         typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr>    MechChar;
         typedef bsl::boyer_moore_horspool_searcher<
@@ -4062,6 +4071,9 @@ int main(int argc, char *argv[])
             ASSERT_PASS(X(middleHaystack, middleHaystack + 0));
             ASSERT_PASS(X(middleHaystack, middleHaystack + 1));
         }
+#else        
+        if (verbose) printf("Test Skipped: native searcher class used\n");
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
       } break;
       case 7: {
         // --------------------------------------------------------------------

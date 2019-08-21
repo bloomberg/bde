@@ -14,6 +14,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_timeutil.h>  // TC -1
 #include <bsls_types.h>     // for 'bsls::Types::Int64'
@@ -31,6 +32,13 @@
 
 using namespace BloombergLP;
 namespace BSL = native_std;  // for Usage examples
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+    #include <functional>
+    namespace XYZ = native_std;
+#else
+    namespace XYZ = bsl;
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ============================================================================
 //                             TEST PLAN
@@ -2867,7 +2875,7 @@ static void usage()
 // Then, we create a 'bsl::default_searcher' object (a functor) using the given
 // 'word':
 //..
-    bsl::default_searcher<const char*> searchForUnited(
+    XYZ::default_searcher<const char*> searchForUnited(
                                                      word,
                                                      word + BSL::strlen(word));
 //..
@@ -2908,7 +2916,7 @@ static void usage()
 // Then, define a new 'bsl::default_searcher' type and create a searcher object
 // to search for 'word':
 //..
-    bsl::default_searcher<const char *,
+    XYZ::default_searcher<const char *,
                           struct MyCaseInsensitiveCharComparator>
                                                     searchForUnitedInsensitive(
                                                     word,
@@ -2982,7 +2990,7 @@ static void usage()
 //..
 // Then, we define and create our searcher object:
 //..
-    bsl::default_searcher<const float *> searchForMarker(markerSequence,
+    XYZ::default_searcher<const float *> searchForMarker(markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
 //..
@@ -3208,6 +3216,8 @@ int main(int argc, char *argv[])
                         "\n" "TEST 'default_seacher' FACADE"
                         "\n" "=============================" "\n");
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+
         typedef CharArray<char>::const_iterator                RndAccConstItr;
 
         typedef bsl::default_searcher<RndAccConstItr>                 MechChar;
@@ -3389,6 +3399,195 @@ int main(int argc, char *argv[])
             ASSERT_PASS(X(middleHaystack, middleHaystack + 0));
             ASSERT_PASS(X(middleHaystack, middleHaystack + 1));
         }
+#else
+        if (verbose) printf("Test Skipped: native searcher class used\n");
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+
+        typedef CharArray<char>::const_iterator                RndAccConstItr;
+
+        typedef bsl::default_searcher<RndAccConstItr>                 MechChar;
+        typedef bsl::default_searcher<RndAccConstItr,
+                                      MyCaseInsensitiveCharComparator>
+                                                                      MechGnrl;
+
+        typedef bsl::pair<RndAccConstItr, RndAccConstItr> Result;
+     // typedef bsl::hash<    char>                       DefaultHash;
+        typedef bsl::equal_to<char>                       DefaultEqual;
+
+        if (verbose) printf("\n" "Default Functors" "\n");
+        {
+            ASSERT((bsl::is_same<MechChar,
+                                 bsl::default_searcher<RndAccConstItr,
+                                                       bsl::equal_to<char> >
+                                >() ));
+        }
+
+        if (verbose) printf("\n" "Range Tests" "\n");
+        {
+            const struct {
+                int          d_line;
+
+                const char  *d_needleSource_p;
+                BSL::size_t  d_idxNeedleFirst;
+                BSL::size_t  d_idxNeedleLast;
+
+                const char  *d_hstckSource_p;
+                BSL::size_t  d_idxHstckFirst;
+                BSL::size_t  d_idxHstckLast;
+
+                BSL::size_t  d_idxExpectFirst;
+                BSL::size_t  d_idxExpectLast;
+
+            } DATA[] = {
+                  //LINE NS    NF  NL  HS   HF  HL  EF  EL
+                  //---- ---   --  --  --   --  --  --  --
+                  { L_,  "ab",  1,  2, "bb", 0,  2,  0,  1 }  // needle   first
+                , { L_,  "ba",  0,  1, "bb", 0,  2,  0,  1 }  // needle   last
+                , { L_ , "A",   0,  1, "Ab", 1,  2,  2,  2 }  // haystack first
+                , { L_ , "A",   0,  1, "bA", 0,  1,  1,  1 }  // haystack last
+            };
+
+            BSL::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE             = DATA[ti].d_line;
+                const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource_p;
+                const BSL::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
+                const BSL::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
+                const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource_p;
+                const BSL::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
+                const BSL::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
+                const BSL::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
+                const BSL::size_t IDX_EXPECT_LAST  = DATA[ti].d_idxExpectLast;
+
+                if (veryVerbose) {
+                    P(LINE)
+                    P_(NEEDLE_SOURCE)
+                    P_(IDX_NEEDLE_FIRST)
+                     P(IDX_NEEDLE_LAST)
+                    P_(HSTCK_SOURCE)
+                    P_(IDX_HSTCK_FIRST)
+                     P(IDX_HSTCK_LAST)
+                    P_(IDX_EXPECT_FIRST)
+                     P(IDX_EXPECT_LAST)
+                }
+
+                MechChar mXC(NEEDLE_SOURCE + IDX_NEEDLE_FIRST,
+                             NEEDLE_SOURCE + IDX_NEEDLE_LAST);
+                MechGnrl mXG(NEEDLE_SOURCE + IDX_NEEDLE_FIRST,
+                             NEEDLE_SOURCE + IDX_NEEDLE_LAST);
+
+                const MechChar& XC = mXC;
+                const MechGnrl& XG = mXG;
+
+                RndAccConstItr haystackFirst = HSTCK_SOURCE
+                                             + IDX_HSTCK_FIRST;
+                RndAccConstItr haystackLast  = HSTCK_SOURCE
+                                             + IDX_HSTCK_LAST;
+
+                const Result expected = BSL::make_pair(
+                                               HSTCK_SOURCE + IDX_EXPECT_FIRST,
+                                               HSTCK_SOURCE + IDX_EXPECT_LAST);
+
+                const Result resultXC = XC(haystackFirst, haystackLast);
+                const Result resultXG = XG(haystackFirst, haystackLast);
+
+                ASSERTV(LINE, expected == resultXC);
+                ASSERTV(LINE, expected == resultXG);
+            }
+        }
+
+        if (verbose) printf("\n" "Functor Forwarding" "\n");
+        {
+            typedef bsl::default_searcher<const char *,
+                                          DefaultEqual> Sensitive;
+
+            typedef bsl::default_searcher<
+                                  const char *,
+                                  MyCaseInsensitiveCharComparator> InSensitive;
+
+            typedef bsl::pair<const char *, const char*> Result;
+
+            const char *haystack =
+              "When 'polish' starts a sentence I confuse it with 'Polish'.";
+            // ----^----|----^----|----^----|----^----|----^----|----^----|
+            // 1     | 10        20        30        40        50 |      60
+
+            const char *needle = "Polish"; // length 6
+
+            const Result expectedSensitive(haystack + 51,
+                                           haystack + 51 + 6);
+
+            const Result expectedInSensitive(haystack + 6,
+                                             haystack + 6 + 6);
+
+            Sensitive caseSensitiveSearcher(needle,
+                                            needle + BSL::strlen(needle));
+
+            InSensitive caseInSensitiveSearcher(needle,
+                                                needle + BSL::strlen(needle));
+
+            const Result resultSensitive = caseSensitiveSearcher(
+                                             haystack,
+                                             haystack + BSL::strlen(haystack));
+
+            const Result resultInSensitive = caseInSensitiveSearcher(
+                                             haystack,
+                                             haystack + BSL::strlen(haystack));
+            if (veryVerbose) {
+                BSL::size_t offsetSensitive = resultSensitive.first
+                                            - haystack;
+                BSL::size_t lengthSensitive = resultSensitive.second
+                                            - resultSensitive.first;
+
+                BSL::size_t offsetInSensitive = resultInSensitive.first
+                                              - haystack;
+                BSL::size_t lengthInSensitive = resultInSensitive.second
+                                              - resultInSensitive.first;
+
+                P_(  offsetSensitive) P(  lengthSensitive)
+                P_(offsetInSensitive) P(lengthInSensitive)
+            }
+
+            ASSERT(  expectedSensitive ==   resultSensitive);
+            ASSERT(expectedInSensitive == resultInSensitive);
+        }
+
+        if (verbose) printf("\n" "Negative Tests" "\n");
+        {
+            CharArray<char> containerHavingRndAccIterators(
+                                                    bsl::vector<char>('b', 5));
+
+            typedef CharArray<char>::const_iterator       RndAccConstItr;
+            typedef bsl::default_searcher<RndAccConstItr> Mech;
+
+            RndAccConstItr middleNeedle =
+                                    containerHavingRndAccIterators.begin() + 2;
+
+            bsls::AssertTestHandlerGuard hG;
+
+            ASSERT_FAIL(Mech(middleNeedle, middleNeedle - 1));
+            ASSERT_PASS(Mech(middleNeedle, middleNeedle + 0));
+            ASSERT_PASS(Mech(middleNeedle, middleNeedle + 1));
+
+            // Create arbitrary "needle".
+            Mech mX(containerHavingRndAccIterators.begin(),
+                    containerHavingRndAccIterators.end()); const Mech& X = mX;
+
+            // Create arbitrary "haystack".
+
+            const CharArray<char> haystack(bsl::vector<char>('a', 5));
+
+            RndAccConstItr middleHaystack = haystack.begin() + 2;
+
+            ASSERT_FAIL(X(middleHaystack, middleHaystack - 1));
+            ASSERT_PASS(X(middleHaystack, middleHaystack + 0));
+            ASSERT_PASS(X(middleHaystack, middleHaystack + 1));
+        }
+#else
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
       } break;
       case 3: {
         // --------------------------------------------------------------------

@@ -606,6 +606,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
 
 #include <cstring>  // 'memcpy'
@@ -1110,7 +1111,9 @@ class BoyerMooreHorspoolSearcher {
 }  // close package namespace
 }  // close enterprise namespace
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 namespace bsl {
+
 
                         // ===================================
                         // class boyer_moore_horspool_searcher
@@ -1200,6 +1203,7 @@ class boyer_moore_horspool_searcher {
 };
 
 }  // close namespace 'bsl'
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ----------------------------------------------------------------------------
 //                          INLINE DEFINITIONS
@@ -2116,6 +2120,7 @@ BloombergLP::bslma::Allocator *BoyerMooreHorspoolSearcher<
 }  // close package namespace
 }  // close enterprise namespace
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 namespace bsl {
 
                         // -----------------------------------
@@ -2160,6 +2165,7 @@ pair<RandomAccessIterator2,
 }
 
 }  // close namespace 'bsl'
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ============================================================================
 //                                TYPE TRAITS

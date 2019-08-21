@@ -170,6 +170,7 @@ using namespace bslim;
 //
 //-----------------------------------------------------------------------------
 // [ 8] CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
+// [ 8] CONCERN: 'boyer_moore_searcher' usable when available.
 // [ 8] CONCERN: 'bsl::search' function is usable.
 // [ 5] CONCERN: Range functions are not ambiguous with 'std' under ADL
 // [ 6] CONCERN: 'forward_list' is available in C++11 builds
@@ -426,6 +427,7 @@ int main(int argc, char *argv[])
         //
         // Testing
         //   CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
+        //   CONCERN: 'boyer_moore_searcher' usable when available.
         //   CONCERN: 'bsl::search' function is usable.
         // --------------------------------------------------------------------
 
@@ -460,6 +462,17 @@ int main(int argc, char *argv[])
                                                               - haystackFirst);
         ASSERT(7 == bsl::search(haystackFirst, haystackLast, bmhSearcher)
                                                               - haystackFirst);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)
+        typedef bsl::boyer_moore_searcher<ConstItr> BmSearcher;
+
+        BmSearcher bmSearcher(needleFirst, needleLast);
+
+        const Result bmResult = bmSearcher(haystackFirst, haystackLast);
+
+        ASSERT(bmResult == bmhResult);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+
       } break;
       case 7: {
         // --------------------------------------------------------------------

@@ -1331,7 +1331,10 @@ int main(int argc, char *argv[])
         //: 2 When the flag is set, confirm that the overload exists, that it
         //:   accepts the searcher objects, and returns the expected result.
         //:
-        //: 3 When the flag is *not* set, specify 'using' directives to search
+        //: 3 When the flag is set, confirm that the three native types for
+        //:   searcher objects exist.
+        //:
+        //: 4 When the flag is *not* set, specify 'using' directives to search
         //:   for definitions in both the 'native_std' and the 'case13'
         //:   namespaces.  Then define an experession using the
         //:   namespace-unqualified name 'search'.  If there is a definition in
@@ -1353,20 +1356,36 @@ int main(int argc, char *argv[])
 
         case13::SearcherNull searcher;
 
-        const char  haystack[] = "hello";
-        const char *first      = haystack;
-        const char *last       = first + sizeof haystack - 1;
+        const char  needle[]      = "world";
+        const char *needleFirst   = needle;
+        const char *needleLast    = needle + sizeof needle - 1;
+
+        const char  haystack[]    = "Hello, world!";
+        const char *haystackFirst = haystack;
+        const char *haystackLast  = haystack + sizeof haystack - 1;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)
 
-        const char *result = native_std::search(first, last, searcher);
-        ASSERT(last == result);
+        const char *result = native_std::search(haystackFirst,
+                                                haystackLast,
+                                                searcher);
+        ASSERT(haystackLast == result);
+
+        native_std::default_searcher              dftSearcher(needleFirst,
+                                                              needleLast);
+        native_std::boyer_moore_searcher           bmSearcher(needleFirst,
+                                                              needleLast);
+        native_std::boyer_moore_horspool_searcher bmhSearcher(needleFirst,
+                                                              needleLast);
 #else
         using namespace native_std;
         using namespace case13;
 
-        const char *result = search(first, last, searcher);
-        ASSERT(last == result);
+        const char *result = search(haystackFirst, haystackLast, searcher);
+        ASSERT(haystackLast == result);
+
+        (void) needleFirst;
+        (void) needleLast;
 #endif
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 

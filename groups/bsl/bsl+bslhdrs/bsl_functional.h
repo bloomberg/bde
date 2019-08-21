@@ -102,6 +102,12 @@ namespace bsl {
 
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+    using native_std::default_searcher;
+    using native_std::boyer_moore_searcher;
+    using native_std::boyer_moore_horspool_searcher;
+#endif
+
 }  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
@@ -114,18 +120,21 @@ namespace bsl {
 #ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #include <bslstp_exfunctional.h>
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
-#include <bslstl_boyermoorehorspoolsearcher.h>
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 #include <bslstl_defaultsearcher.h>
+#include <bslstl_boyermoorehorspoolsearcher.h>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 #include <bslstl_equalto.h>
 #include <bslstl_function.h>
 #include <bslstl_hash.h>
 #include <bslstl_referencewrapper.h>
+
 #endif
 
 #endif // INCLUDED_BSL_FUNCTIONAL
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

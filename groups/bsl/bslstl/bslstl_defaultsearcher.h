@@ -310,6 +310,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_keyword.h>  // for 'BSLS_KEYWORD_CONSTEXPR'
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
 
 #include <cstring>  // for 'native_std::memcmp'
@@ -530,6 +531,7 @@ struct DefaultSearcher_ImpUtil {
 }  // close package namespace
 }  // close enterprise namespace
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 namespace bsl {
                         // ======================
                         // class default_searcher
@@ -609,6 +611,7 @@ class default_searcher {
 };
 
 }  // close namespace 'bsl'
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ----------------------------------------------------------------------------
 //                          INLINE DEFINITIONS
@@ -819,6 +822,7 @@ bsl::enable_if<
 }  // close package namespace
 }  // close enterprise namespace
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 namespace bsl {
                         // ----------------------
                         // class default_searcher
@@ -853,6 +857,7 @@ pair<ForwardIterator2,
 }
 
 }  // close namespace 'bsl'
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 
 #endif

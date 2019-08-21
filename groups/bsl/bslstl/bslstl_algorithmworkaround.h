@@ -33,6 +33,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_pair.h>
 
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
