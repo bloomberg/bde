@@ -167,7 +167,8 @@ int main(int argc, char *argv[])
         // Without relying on anything in, e.g., bslmt_threadutil, test that
         // this object likely forwards to an appropriate implementation.  We'll
         // test that timedWait on a default-constructed Condition object
-        // returns in roughly the right amount of time.
+        // returns in roughly the right amount of time.  Finally, we'll verify
+        // waiting with times in the past returns '-1'.
         // --------------------------------------------------------------------
           if (verbose) cout << "Basic forwarding test" << endl
                             << "=====================" << endl;
@@ -194,10 +195,21 @@ int main(int argc, char *argv[])
 
               lock.lock();
               bsls::Stopwatch timer;
+
               timer.start();
-              x.timedWait(&lock, bsls::SystemTime::nowRealtimeClock() + 2);
+              int    rv      = x.timedWait(&lock,
+                                     bsls::SystemTime::nowRealtimeClock() + 2);
               double elapsed = timer.elapsedTime();
+              ASSERT( -1 == rv);
               ASSERT(1.8 <= elapsed && elapsed <= 2.2);
+
+              timer.start();
+              rv      = x.timedWait(&lock,
+                                    bsls::SystemTime::nowRealtimeClock() - 1);
+              elapsed = timer.elapsedTime();
+              ASSERT( -1 == rv);
+              ASSERT(0.0 <= elapsed && elapsed <= 3.0);
+
               lock.unlock();
           }
 
@@ -210,10 +222,21 @@ int main(int argc, char *argv[])
 
               lock.lock();
               bsls::Stopwatch timer;
+
               timer.start();
-              x.timedWait(&lock, bsls::SystemTime::nowMonotonicClock() + 2);
+              int    rv      = x.timedWait(&lock,
+                                    bsls::SystemTime::nowMonotonicClock() + 2);
               double elapsed = timer.elapsedTime();
+              ASSERT( -1 == rv);
               ASSERT(1.8 <= elapsed && elapsed <= 2.2);
+
+              timer.start();
+              rv      = x.timedWait(&lock,
+                                    bsls::SystemTime::nowMonotonicClock() - 1);
+              elapsed = timer.elapsedTime();
+              ASSERT( -1 == rv);
+              ASSERT(0.0 <= elapsed && elapsed <= 3.0);
+
               lock.unlock();
           }
       } break;
