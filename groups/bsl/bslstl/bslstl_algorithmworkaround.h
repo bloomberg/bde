@@ -76,7 +76,8 @@ using native_std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM) || \
+   (defined (BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1910)
     // Use definition from '<algorithm>'.
 #else
 template<class ForwardIt, class Searcher>
@@ -95,7 +96,7 @@ ForwardIt search( ForwardIt first, ForwardIt last,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

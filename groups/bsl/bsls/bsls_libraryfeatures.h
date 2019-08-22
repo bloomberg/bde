@@ -542,16 +542,16 @@ BSLS_IDENT("$Id: $")
 //:
 //: o The following type aliases are provided by the native standard library in
 //:   the '<atomic>' header:
-//:   o atomic_int8_t;
-//:   o atomic_int16_t;
-//:   o atomic_int32_t;
-//:   o atomic_int64_t;
-//:   o atomic_uint8_t;
-//:   o atomic_uint16_t;
-//:   o atomic_uint32_t;
-//:   o atomic_uint64_t;
-//:   o atomic_intptr_t;
-//:   o atomic_uintptr_t;
+//:   o 'atomic_int8_t'
+//:   o 'atomic_int16_t'
+//:   o 'atomic_int32_t'
+//:   o 'atomic_int64_t'
+//:   o 'atomic_uint8_t'
+//:   o 'atomic_uint16_t'
+//:   o 'atomic_uint32_t'
+//:   o 'atomic_uint64_t'
+//:   o 'atomic_intptr_t'
+//:   o 'atomic_uintptr_t'
 //
 // Currently the following compilers will have this trait defined by default:
 //
@@ -562,7 +562,7 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM'
 ///-------------------------------------------------
 // The  'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' macro is defined if
-// <alogrithm> defines an overload for the 'search' function template that
+// '<algorithm>' defines an overload for the 'search' function template that
 // accepts instances of the searcher classes introduced in C++17.  See 
 // [alg.search]:
 //..
@@ -573,17 +573,17 @@ BSLS_IDENT("$Id: $")
 //..
 //
 // Additionally, the 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' *also*
-// implies that the native library supplies the following class templates:
-//..
-//  std::default_searcher
-//  std::boyer_moore_searcher
-//  std::boyer_moore_horspool_searcher
-//..
+// implies that the native library supplies the following class templates
+// in '<functional>':
+//
+//: o 'default_searcher'
+//: o 'boyer_moore_searcher'
+//: o 'boyer_moore_horspool_searcher'
 //
 // Currently the following compilers define this function template:
 //
 //:   o GCC 8.3.0
-//:   o MSVC 19.10
+//:   o MSVC 2019
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
@@ -1233,7 +1233,7 @@ BSLS_IDENT("$Id: $")
         #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     #endif
 
-    #if BSLS_PLATFORM_CMP_VERSION >= 1910  // Visual Studio 2017
+    #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2017
       #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
       #if !_HAS_AUTO_PTR_ETC
         #undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
