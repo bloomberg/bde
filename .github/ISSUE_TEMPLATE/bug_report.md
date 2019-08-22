@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Bloomberg users should *not* use Issues.  Please enter a DRQS to group 101
+about: Bloomberg (internal) users should *not* use Issues.  Please enter a DRQS to group 101
 
 ---
 
