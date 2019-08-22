@@ -455,6 +455,8 @@ int main(int argc, char *argv[])
         // Plan:
         //   Do a timedWait for a substantial time on a condition that never
         //   becomes true, and verify that the time has elapsed afterward.
+        //   Also verify the return value and elapsed time when the supplied
+        //   'absoluteTime' is in the past.
         //
         // Testing:
         //   int timedWait(bslmt::Mutex*, const bsls::TimeInterval&);
@@ -493,6 +495,13 @@ int main(int argc, char *argv[])
             cout << "Iterations: " << i << endl;
             cout << "Waited: " << finish << endl;
         }
+
+        startT = bsls::SystemTime::nowRealtimeClock();
+        sts    = cond.timedWait(&mutex, startT - 1);
+        double duration = (  bsls::SystemTime::nowRealtimeClock()
+                           - startT).totalSecondsAsDouble();
+        ASSERT( -1 == sts);
+        ASSERT(0.0 <= duration && duration <= 0.1);
     } break;
 
     case 1: {
