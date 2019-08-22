@@ -13,6 +13,8 @@
 BSLS_IDENT_RCSID(bslmt_conditionimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <bslmt_mutex.h>
+#include <bslmt_saturatedtimeconversionimputil.h>
+
 #include <bsls_systemtime.h>
 
 // Include 'synchapi.h' here to check that our declarations of windows API
@@ -37,12 +39,15 @@ int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::timedWait(
                                             const bsls::TimeInterval&  timeout)
 {
     LPCRITICAL_SECTION mtx = &mutex->nativeMutex();
-    bsls::TimeInterval duration = timeout - bsls::SystemTime::now(d_clockType);
+    unsigned int       duration;
+
+    bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+                      &duration, timeout - bsls::SystemTime::now(d_clockType));
 
     BOOL ret = SleepConditionVariableCS(
                           reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond),
                           mtx,
-                          static_cast<DWORD>(duration.totalMilliseconds()));
+                          static_cast<DWORD>(duration));
     if (ret != 0) {
         return 0;                                                     // RETURN
     }
