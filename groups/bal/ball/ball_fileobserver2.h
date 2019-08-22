@@ -1,12 +1,5 @@
 // ball_fileobserver2.h                                               -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_FILEOBSERVER2
 #define INCLUDED_BALL_FILEOBSERVER2
 
@@ -254,54 +247,57 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Publication Through the Logger Manager
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'ball::FileObserver2' within the 'ball'
-// logging system.
-//
-// First, we initialize the 'ball' logging subsystem with the default
-// configuration:
+///Example: Basic Usage
+/// - - - - - - - - - -
+// First, we create a 'ball::LoggerManagerConfiguration' object, 'lmConfig',
+// and set the logging "pass-through" level -- the level at which log records
+// are published to registered observers -- to 'DEBUG':
 //..
-//  ball::LoggerManagerConfiguration configuration;
-//  ball::LoggerManagerScopedGuard   guard(configuration);
-//
-//  ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//  int main()
+//  {
+//      ball::LoggerManagerConfiguration lmConfig;
+//      lmConfig.setDefaultThresholdLevelsIfValid(ball::Severity::e_DEBUG);
 //..
-// Note that the application is now prepared to log messages using the 'ball'
-// logging subsystem, but until the application registers an observer, all log
-// records will be discarded.
-//
-// Then, we create a shared pointer to a 'ball::FileObserver2' object,
-// 'observerPtr', having default attributes:
+// Next, create a 'ball::LoggerManagerScopedGuard' object whose constructor
+// takes the configuration object just created.  The guard will initialize the
+// logger manager singleton on creation and destroy the singleton upon
+// destruction.  This guarantees that any resources used by the logger manager
+// will be properly released when they are not needed:
 //..
-//  bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
-//  bsl::shared_ptr<ball::FileObserver2> observerPtr(
-//                                           new(*alloc) ball::FileObserver2(),
-//                                           alloc);
+//      ball::LoggerManagerScopedGuard guard(lmConfig);
+//      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// Next, we create a 'ball::FileObserver2' object and register it with the
+// 'ball' logging system;
+//..
+//      bsl::shared_ptr<ball::FileObserver2> observer =
+//                                     bsl::make_shared<ball::FileObserver2>();
 //..
 // Next, we configure the log file rotation rules:
 //..
-//  observerPtr->rotateOnSize(1024 * 128);
 //      // Rotate the file when its size becomes greater than or equal to 128
 //      // megabytes.
+//      observer->rotateOnSize(1024 * 128);
 //
-//  observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //      // Rotate the file every 24 hours.
+//      observer->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //..
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
 //
 // Then, we enable logging to a file:
 //..
-//  observerPtr->enableFileLogging("/var/log/task/task.log");
 //      // Create and log records to a file named "/var/log/task/task.log".
+//      observer->enableFileLogging("/var/log/task/task.log");
 //..
 // Finally, we register the file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
 // the 'publish' method:
 //..
-//  int rc = manager.registerObserver(observerPtr, "fileObserver");
-//  assert(0 == rc);
+//      int rc = manager.registerObserver(observer, "default");
+//      assert(0 == rc);
+//      return 0;
+//  }
 //..
 
 #include <balscm_version.h>

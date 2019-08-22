@@ -1,12 +1,4 @@
 // ball_fileobserver.h                                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_FILEOBSERVER
 #define INCLUDED_BALL_FILEOBSERVER
 
@@ -284,19 +276,35 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following code fragments illustrate the essentials of using a file
-// observer within the 'ball' logging system.
+// This section illustrates intended use of this component.
 //
-// First create a 'ball::FileObserver' named 'fileObserver':
+///Example: Basic Usage
+/// - - - - - - - - - -
+// First, we create a 'ball::LoggerManagerConfiguration' object, 'lmConfig',
+// and set the logging "pass-through" level -- the level at which log records
+// are published to registered observers -- to 'DEBUG':
 //..
-//  ball::FileObserver fileObserver;
+//  int main()
+//  {
+//      ball::LoggerManagerConfiguration lmConfig;
+//      lmConfig.setDefaultThresholdLevelsIfValid(ball::Severity::e_DEBUG);
 //..
-// The file observer must then be installed within the 'ball' logging system.
-// This can be done by passing 'fileObserver' to the 'ball::LoggerManager'
-// 'initSingleton' method:
+// Next, create a 'ball::LoggerManagerScopedGuard' object whose constructor
+// takes the configuration object just created.  The guard will initialize the
+// logger manager singleton on creation and destroy the singleton upon
+// destruction.  This guarantees that any resources used by the logger manager
+// will be properly released when they are not needed:
 //..
-//  ball::LoggerManagerConfiguration configuration;
-//  ball::LoggerManager::initSingleton(&fileObserver, configuration);
+//      ball::LoggerManagerScopedGuard guard(lmConfig);
+//      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// Next, we create a 'ball::FileObserver' object and register it with the
+// 'ball' logging system;
+//..
+//      bsl::shared_ptr<ball::FileObserver> observer =
+//                                      bsl::make_shared<ball::FileObserver>();
+//      int rc = manager.registerObserver(observer, "default");
+//      ASSERT(0 == rc);
 //..
 // The default format for outputting log records can be changed by calling the
 // 'setLogFormat' method.  The statement below outputs record timestamps in ISO
@@ -304,51 +312,55 @@ BSLS_IDENT("$Id: $")
 // 'stdout', where timestamps are output with millisecond precision in both
 // cases:
 //..
-//  observer.setLogFormat("\n%I %p:%t %s %f:%l %c %m\n",
-//                        "\n%d %p:%t %s %f:%l %c %m\n");
+//      observer->setLogFormat("%I %p:%t %s %f:%l %c %m\n",
+//                             "%d %p:%t %s %f:%l %c %m\n");
 //..
 // Note that both of the above format specifications omit user fields ('%u') in
-// the output.
+// the output.  Also note that, unlike the default, this format does not emit a
+// blank line between consecutive log messages.
 //
 // Henceforth, all messages that are published by the logging system will be
-// transmitted to the 'publish' method of 'fileObserver'.  By default, only the
+// transmitted to the 'publish' method of 'observer'.  By default, only the
 // messages with a 'e_WARN', 'e_ERROR', or 'e_FATAL' severity will be logged to
 // 'stdout':
 //..
-//  BALL_LOG_INFO << "Will not be published on 'stdout'.";
-//  BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
+//      BALL_LOG_SET_CATEGORY("main")
+//      BALL_LOG_INFO << "Will not be published on 'stdout'.";
+//      BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
 //..
 // This default can be changed by specifying an optional argument to the
 // 'ball::FileObserver' constructor or by calling the 'setStdoutThreshold'
 // method:
 //..
-//  fileObserver.setStdoutThreshold(ball::Severity::e_INFO);
+//      observer->setStdoutThreshold(ball::Severity::e_INFO);
 //
-//  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
-//  BALL_LOG_INFO  << "This info message *will* be published on 'stdout'.";
-//  BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
+//      BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
+//      BALL_LOG_INFO  << "This info message *will* be published on 'stdout'.";
+//      BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
 //..
 // The user can log all messages to a specified file and specify rotation rules
 // based on the size of the log file or its lifetime:
 //..
-//  fileObserver.enableFileLogging("/var/log/task/task.log");
 //      // Create and log records to a file named "/var/log/task/task.log".
+//      observer->enableFileLogging("/var/log/task/task.log");
 //
-//  fileObserver.setStdoutThreshold(ball::Severity::e_OFF);
 //      // Disable 'stdout' logging.
+//      observer->setStdoutThreshold(ball::Severity::e_OFF);
 //
-//  fileObserver.rotateOnSize(1024 * 256);
 //      // Rotate the file when its size becomes greater than or equal to 256
 //      // megabytes.
+//      observer->rotateOnSize(1024 * 256);
 //
-//  fileObserver.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //      // Rotate the file every 24 hours.
+//      observer->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //..
 // Note that in this configuration the user may end up with multiple log files
 // for any given day (because of the rotation-on-size rule).  This feature can
 // be disabled dynamically later:
 //..
-//  fileObserver.disableSizeRotation();
+//      observer->disableSizeRotation();
+//      return 0;
+//  }
 //..
 
 #include <balscm_version.h>

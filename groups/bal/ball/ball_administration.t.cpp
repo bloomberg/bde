@@ -1,27 +1,15 @@
 // ball_administration.t.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_administration.h>
 
 #include <ball_loggermanager.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
-#include <ball_streamobserver.h>
-#include <ball_testobserver.h>
 
 #include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
+#include <bsl_cstring.h>
 
-#include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -154,9 +142,6 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    ball::TestObserver  testObserver(&cout);
-    ball::TestObserver *TO = &testObserver;
-
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
         // --------------------------------------------------------------------
@@ -180,8 +165,12 @@ int main(int argc, char *argv[])
         {
             bsl::ostringstream cout;
 
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Managing Categories
+/// - - - - - - - - - - - - - - -
 // The code fragments in this example demonstrate several administration
 // utilities that are used to create categories, and to set and access their
 // threshold levels.
@@ -189,9 +178,8 @@ int main(int argc, char *argv[])
 // First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
-    ball::StreamObserver observer(&cout);
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManagerScopedGuard guard(&observer, configuration);
+    ball::LoggerManagerConfiguration lmConfig;
+    ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 //..
 // Next define some hypothetical category names:
 //..
@@ -367,8 +355,9 @@ int main(int argc, char *argv[])
                           << "TESTING: setAllThresholdLevels" << endl
                           << "==============================" << endl;
 
-        ball::LoggerManager::initSingleton(TO);  // initialize logger manager
-
+        // Initialize Logger Manager
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 
         if (verbose) cout
             << "\nTest 'setAllThresholdLevels' sets the default threshold"
@@ -507,7 +496,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing Registry Capacity Methods" << endl
                           << "=================================" << endl;
 
-        ball::LoggerManager::initSingleton(TO);  // initialize logger manager
+        // Initialize Logger Manager
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 
         ASSERT(0 == Obj::maxNumCategories());
 
@@ -607,7 +598,9 @@ int main(int argc, char *argv[])
                  << "===========================================" << endl;
         }
 
-        ball::LoggerManager::initSingleton(TO);  // initialize logger manager
+        // Initialize Logger Manager
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 
         static const struct {
             int         d_lineNum;          // source line number

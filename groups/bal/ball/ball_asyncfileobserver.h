@@ -363,31 +363,30 @@ BSLS_IDENT("$Id: $")
 // queue and will drop incoming log records when that queue is full.  (See
 // {Log Record Queue} for further information.)
 //..
-//  bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
-//  bsl::shared_ptr<ball::AsyncFileObserver> observerPtr(
-//                                       new(*alloc) ball::AsyncFileObserver(),
-//                                       alloc);
+//  bsl::shared_ptr<ball::AsyncFileObserver> observer =
+//                                 bsl::make_shared<ball::AsyncFileObserver>();
 //..
 // Next, we set the required logging format by calling the 'setLogFormat'
 // method.  The statement below outputs timestamps in ISO 8601 format to a log
 // file and in 'bdlt'-style (default) format to 'stdout', where timestamps are
 // output with millisecond precision in both cases:
 //..
-//  observerPtr->setLogFormat("\n%I %p:%t %s %f:%l %c %m\n",
-//                            "\n%d %p:%t %s %f:%l %c %m\n");
+//  observer->setLogFormat("%I %p:%t %s %f:%l %c %m\n",
+//                         "%d %p:%t %s %f:%l %c %m\n");
 //..
 // Note that both of the above format specifications omit user fields ('%u') in
-// the output.
+// the output.  Also note that, unlike the default, this format does not emit a
+// blank line between consecutive log messages.
 //
 // Next, we start the publication thread by invoking 'startPublicationThread':
 //..
-//  observerPtr->startPublicationThread();
+//  observer->startPublicationThread();
 //..
 // Then, we register the async file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
 // the 'publish' method:
 //..
-//  int rc = manager.registerObserver(observerPtr, "asyncObserver");
+//  int rc = manager.registerObserver(observer, "asyncObserver");
 //  assert(0 == rc);
 //..
 // Next, we set the log category and log a few records with different logging
@@ -411,22 +410,22 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we disable logging to 'stdout' and enable logging to a file:
 //..
-//  observerPtr->setStdoutThreshold(ball::Severity::e_OFF);
+//  observer->setStdoutThreshold(ball::Severity::e_OFF);
 //
-//  observerPtr->enableFileLogging("/var/log/task/task.log");
-//      // Create and log records to a file named "/var/log/task/task.log".
+//  // Create and log records to a file named "/var/log/task/task.log".
+//  observer->enableFileLogging("/var/log/task/task.log");
 //..
 // Note that logs are now asynchronously written to the file.
 //
 // Then, we specify rules for log file rotation based on the size and time
 // interval:
 //..
-//  observerPtr->rotateOnSize(1024 * 32);
-//      // Rotate the file when its size becomes greater than or equal to 32
-//      // megabytes.
+//  // Rotate the file when its size becomes greater than or equal to 32
+//  // megabytes.
+//  observer->rotateOnSize(1024 * 32);
 //
-//  observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
-//      // Rotate the file every 24 hours.
+//  // Rotate the file every 24 hours.
+//  observer->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //..
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
@@ -437,16 +436,16 @@ BSLS_IDENT("$Id: $")
 // records that were on the record queue on entry to 'stopPublicationThread'
 // have been published:
 //..
-//  observerPtr->stopPublicationThread();
+//  observer->stopPublicationThread();
 //..
 // Then, we disable the log rotation rules established earlier and also
 // completely disable logging to a file:
 //..
-//  observerPtr->disableSizeRotation();
+//  observer->disableSizeRotation();
 //
-//  observerPtr->disableTimeIntervalRotation();
+//  observer->disableTimeIntervalRotation();
 //
-//  observerPtr->disableFileLogging();
+//  observer->disableFileLogging();
 //..
 // Note that stopping the publication thread and disabling various features of
 // the async file observer is not strictly necessary before object destruction.

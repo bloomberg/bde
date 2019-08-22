@@ -34,9 +34,6 @@
 
 #include <bslmt_threadutil.h>
 
-#include <bslstl_sharedptr.h>
-#include <bslstl_stringref.h>
-
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
@@ -50,7 +47,9 @@
 #include <bsl_ctime.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>    // 'unsetenv'
@@ -137,6 +136,7 @@ using bsl::flush;
 // [ 6] CONCERN: 'FileObserver' can be created using 'allocate_shared'.
 // [ 5] CONCERN: CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
 // [ 4] CONCERN: ROTATION CALLBACK INVOCATION
+// [ 7] USAGE EXAMPLE
 
 // Note assert and debug macros all output to cerr instead of cout, unlike
 // most other test drivers.  This is necessary because test case 1 plays
@@ -661,6 +661,13 @@ void getDatetimeField(bsl::string        *result,
 
 }  // close unnamed namespace
 
+// ============================================================================
+//                               USAGE EXAMPLE 1
+// ----------------------------------------------------------------------------
+namespace BALL_FILEOBSERVER_USAGE_EXAMPLE
+{
+}  // close namespace BALL_FILEOBSERVER_USAGE_EXAMPLE
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -680,6 +687,119 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 7: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                             "\n=============" << endl;
+
+        // This is standard preamble to create the directory and filename for
+        // the test.
+        TempDirectoryGuard tempDirGuard;
+
+        bsl::string        fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "test.log");
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example: Basic Usage
+/// - - - - - - - - - -
+// First, we create a 'ball::LoggerManagerConfiguration' object, 'lmConfig',
+// and set the logging "pass-through" level -- the level at which log records
+// are published to registered observers -- to 'DEBUG':
+//..
+        ball::LoggerManagerConfiguration lmConfig;
+        lmConfig.setDefaultThresholdLevelsIfValid(ball::Severity::e_DEBUG);
+//..
+// Next, create a 'ball::LoggerManagerScopedGuard' object whose constructor
+// takes the configuration object just created.  The guard will initialize the
+// logger manager singleton on creation and destroy the singleton upon
+// destruction.  This guarantees that any resources used by the logger manager
+// will be properly released when they are not needed:
+//..
+        ball::LoggerManagerScopedGuard guard(lmConfig);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// Next, we create a 'ball::FileObserver' object and register it with the
+// 'ball' logging system:
+//..
+        bsl::shared_ptr<ball::FileObserver> observer =
+                                        bsl::make_shared<ball::FileObserver>();
+        int rc = manager.registerObserver(observer, "default");
+        ASSERT(0 == rc);
+//..
+// The default format for outputting log records can be changed by calling the
+// 'setLogFormat' method.  The statement below outputs record timestamps in ISO
+// 8601 format to the log file and in 'bdlt'-style (default) format to
+// 'stdout', where timestamps are output with millisecond precision in both
+// cases:
+//..
+        observer->setLogFormat("%I %p:%t %s %f:%l %c %m\n",
+                               "%d %p:%t %s %f:%l %c %m\n");
+//..
+// Note that both of the above format specifications omit user fields ('%u') in
+// the output.  Also note that, unlike the default, this format does not emit a
+// blank line between consecutive log messages.
+//
+// Henceforth, all messages that are published by the logging system will be
+// transmitted to the 'publish' method of 'observer'.  By default, only the
+// messages with a 'e_WARN', 'e_ERROR', or 'e_FATAL' severity will be logged to
+// 'stdout':
+//..
+        BALL_LOG_SET_CATEGORY("main")
+
+        BALL_LOG_INFO << "Will not be published on 'stdout'.";
+        BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
+//..
+// This default can be changed by specifying an optional argument to the
+// 'ball::FileObserver' constructor or by calling the 'setStdoutThreshold'
+// method:
+//..
+        observer->setStdoutThreshold(ball::Severity::e_INFO);
+
+        BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
+        BALL_LOG_INFO  << "This info message *will* be published on 'stdout'.";
+        BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
+//..
+// Finally, we configure additional loggin to a specified file and specify
+// rotation rules based on the size of the log file or its lifetime:
+//..
+        // Create and log records to a file named "test.log" in a temp folder
+        observer->enableFileLogging(fileName.c_str());
+
+        // Disable 'stdout' logging.
+        observer->setStdoutThreshold(ball::Severity::e_OFF);
+
+        // Rotate the file when its size becomes greater than or equal to 256
+        // megabytes.
+        observer->rotateOnSize(1024 * 256);
+
+        // Rotate the file every 24 hours.
+        observer->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
+//..
+// Note that in this configuration the user may end up with multiple log files
+// for any given day (because of the rotation-on-size rule).  This feature can
+// be disabled dynamically later:
+//..
+        observer->disableSizeRotation();
+//..
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // CONSTRUCTOR, MAKE_SHARED, AND ALLOCATE_SHARED TEST

@@ -1,12 +1,4 @@
 // ball_recordstringformatter.t.cpp                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_recordstringformatter.h>
 
 #include <ball_record.h>
@@ -868,8 +860,7 @@ int main(int argc, char *argv[])
                 X(oss, R);
 
                 if (veryVerbose) { P_(RECORDFILE);  P(OUTPUTFILE) }
-                LOOP_ASSERT(LINE, 0 == bsl::strcmp(OUTPUTFILE,
-                                                   oss.str().c_str()));
+                ASSERTV(LINE, 0 == bsl::strcmp(OUTPUTFILE, oss.str().c_str()));
             }
         }
 
@@ -1144,7 +1135,7 @@ int main(int argc, char *argv[])
             x.setFormat(FVALUES[i].d_format);
 
             Obj y(FVALUES[i].d_format); const Obj& Y = y;
-            LOOP_ASSERT(FVALUES[i].d_lineNum, Y == X);
+            ASSERTV(FVALUES[i].d_lineNum, Y == X);
         }
 
         for (int i = 0; i < NUM_TVALUES; ++i) {
@@ -1162,7 +1153,7 @@ int main(int argc, char *argv[])
                                         TVALUES[i].d_secs,
                                         TVALUES[i].d_msecs));
             const Obj& Y = y;
-            LOOP_ASSERT(TVALUES[i].d_lineNum, Y == X);
+            ASSERTV(TVALUES[i].d_lineNum, Y == X);
         }
 
         for (int i = 0; i < NUM_FVALUES; ++i) {
@@ -1184,8 +1175,7 @@ int main(int argc, char *argv[])
                                             TVALUES[j].d_secs,
                                             TVALUES[j].d_msecs));
                 const Obj& Y = y;
-                LOOP2_ASSERT(FVALUES[i].d_lineNum,
-                             TVALUES[j].d_lineNum, X == Y);
+                ASSERTV(FVALUES[i].d_lineNum, TVALUES[j].d_lineNum, X == Y);
             }
         }
       } break;
@@ -1274,14 +1264,14 @@ int main(int argc, char *argv[])
 
                         Obj w(V);  const Obj &W = w;          // control
                         u = V;
-                        LOOP4_ASSERT(FVALUES[i1].d_lineNum,
-                                     TVALUES[i2].d_lineNum,
-                                     FVALUES[j1].d_lineNum,
-                                     TVALUES[j2].d_lineNum, W == U);
-                        LOOP4_ASSERT(FVALUES[i1].d_lineNum,
-                                     TVALUES[i2].d_lineNum,
-                                     FVALUES[j1].d_lineNum,
-                                     TVALUES[j2].d_lineNum, W == V);
+                        ASSERTV(FVALUES[i1].d_lineNum,
+                                TVALUES[i2].d_lineNum,
+                                FVALUES[j1].d_lineNum,
+                                TVALUES[j2].d_lineNum, W == U);
+                        ASSERTV(FVALUES[i1].d_lineNum,
+                                TVALUES[i2].d_lineNum,
+                                FVALUES[j1].d_lineNum,
+                                TVALUES[j2].d_lineNum, W == V);
                     }
                 }
             }
@@ -1300,8 +1290,8 @@ int main(int argc, char *argv[])
                                             TVALUES[i2].d_msecs));
                 Obj w(U);  const Obj &W = w;
                 u = u;
-                LOOP2_ASSERT(FVALUES[i1].d_lineNum,
-                             TVALUES[i2].d_lineNum, W == U);
+                ASSERTV(FVALUES[i1].d_lineNum,
+                        TVALUES[i2].d_lineNum, W == U);
             }
         }
       } break;
@@ -1376,8 +1366,8 @@ int main(int argc, char *argv[])
             x.setTimestampOffset(interval);
 
             Obj y(X);  const Obj &Y = y;
-            LOOP_ASSERT(VALUES[i].d_lineNum, X == W);
-            LOOP_ASSERT(VALUES[i].d_lineNum, Y == W);
+            ASSERTV(VALUES[i].d_lineNum, X == W);
+            ASSERTV(VALUES[i].d_lineNum, Y == W);
         }
       } break;
       case 6: {
@@ -1463,26 +1453,26 @@ int main(int argc, char *argv[])
                                                      TVALUES[j2].d_msecs));
 
                         bool isSame = (i1 == j1) && (i2 == j2);
-                        LOOP4_ASSERT(FVALUES[i1].d_lineNum,
-                                     TVALUES[i2].d_lineNum,
-                                     FVALUES[j1].d_lineNum,
-                                     TVALUES[j2].d_lineNum,
-                                     isSame == (A == B));
-                        LOOP4_ASSERT(FVALUES[i1].d_lineNum,
-                                     TVALUES[i2].d_lineNum,
-                                     FVALUES[j1].d_lineNum,
-                                     TVALUES[j2].d_lineNum,
-                                     !isSame == (A != B));
-                        LOOP4_ASSERT(FVALUES[i1].d_lineNum,
-                                     TVALUES[i2].d_lineNum,
-                                     FVALUES[j1].d_lineNum,
-                                     TVALUES[j2].d_lineNum,
-                                     isSame == (B == A));
-                        LOOP4_ASSERT(FVALUES[i1].d_lineNum,
-                                     TVALUES[i2].d_lineNum,
-                                     FVALUES[j1].d_lineNum,
-                                     TVALUES[j2].d_lineNum,
-                                     !isSame == (B != A));
+                        ASSERTV(FVALUES[i1].d_lineNum,
+                                TVALUES[i2].d_lineNum,
+                                FVALUES[j1].d_lineNum,
+                                TVALUES[j2].d_lineNum,
+                                isSame == (A == B));
+                        ASSERTV(FVALUES[i1].d_lineNum,
+                                TVALUES[i2].d_lineNum,
+                                FVALUES[j1].d_lineNum,
+                                TVALUES[j2].d_lineNum,
+                                !isSame == (A != B));
+                        ASSERTV(FVALUES[i1].d_lineNum,
+                                TVALUES[i2].d_lineNum,
+                                FVALUES[j1].d_lineNum,
+                                TVALUES[j2].d_lineNum,
+                                isSame == (B == A));
+                        ASSERTV(FVALUES[i1].d_lineNum,
+                                TVALUES[i2].d_lineNum,
+                                FVALUES[j1].d_lineNum,
+                                TVALUES[j2].d_lineNum,
+                                !isSame == (B != A));
                     }
                 }
             }
@@ -1629,10 +1619,9 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 mX.setFormat(VALUES[i].d_format);
                 mX.setTimestampOffset(interval);
-                LOOP_ASSERT(VALUES[i].d_lineNum,
-                            0 == strcmp(VALUES[i].d_format, X.format()));
-                LOOP_ASSERT(VALUES[i].d_lineNum,
-                            interval == X.timestampOffset());
+                ASSERTV(VALUES[i].d_lineNum,
+                        0 == strcmp(VALUES[i].d_format, X.format()));
+                ASSERTV(VALUES[i].d_lineNum, interval == X.timestampOffset());
             }
 
             // reverse the order of two set* functions
@@ -1646,10 +1635,9 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 mX.setTimestampOffset(interval);
                 mX.setFormat(VALUES[i].d_format);
-                LOOP_ASSERT(VALUES[i].d_lineNum,
-                            0 == strcmp(VALUES[i].d_format, X.format()));
-                LOOP_ASSERT(VALUES[i].d_lineNum,
-                            interval == X.timestampOffset());
+                ASSERTV(VALUES[i].d_lineNum,
+                        0 == strcmp(VALUES[i].d_format, X.format()));
+                ASSERTV(VALUES[i].d_lineNum, interval == X.timestampOffset());
             }
         }
       } break;

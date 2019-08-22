@@ -1,25 +1,12 @@
 // ball_loggercategoryutil.t.cpp                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_loggercategoryutil.h>
 
 #include <ball_loggermanager.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
-#include <ball_testobserver.h>                  // for testing only
 #include <ball_thresholdaggregate.h>
 
 #include <bslim_testutil.h>
-
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -168,15 +155,12 @@ ball::LoggerManager::DefaultThresholdLevelsCallback dtlCallback(
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    int verbose         = argc > 2;
+    int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
-    BloombergLP::ball::TestObserver  testObserver(&bsl::cout);
-    BloombergLP::ball::TestObserver *TO = &testObserver;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
@@ -199,8 +183,12 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
         {
-            ball::LoggerManager::initSingleton(TO);
-            ball::LoggerManager& lm = ball::LoggerManager::singleton() ;
+            // Initialize Logger Manager.
+            ball::LoggerManagerConfiguration lmConfig;
+            ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
+
+            ball::LoggerManager& lm = ball::LoggerManager::singleton();
+
             lm.setDefaultThresholdLevels(191, 95, 63, 31);
 
             lm.addCategory("EQ", 192, 96, 64, 32);
@@ -249,11 +237,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing 'setThresholdLevels'" << endl
                                   << "============================" << endl;
 
-        // initialize logger manager
-        ball::LoggerManager::initSingleton(TO);
-        ball::LoggerManager *LM = &ball::LoggerManager::singleton();
+        // Initialize Logger Manager.
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 
-        const Cat& defaultCat = LM->defaultCategory();
+        ball::LoggerManager *lm = &ball::LoggerManager::singleton();
+
+        const Cat& defaultCat = lm->defaultCategory();
         ASSERT(0 == strcmp(DEFAULT_CATEGORY_NAME, defaultCat.categoryName()));
         const int DEFAULT_RECORD_LEVEL     = defaultCat.recordLevel();
         const int DEFAULT_PASS_LEVEL       = defaultCat.passLevel();
@@ -269,7 +259,7 @@ int main(int argc, char *argv[])
         const int NUM_NAME = sizeof NAME / sizeof *NAME;
 
         for (int n = 1; n < NUM_NAME; ++n) {  // skip *Default* *Category*
-            const Cat *p = LM->addCategory(NAME[n],
+            const Cat *p = lm->addCategory(NAME[n],
                                            DEFAULT_RECORD_LEVEL,
                                            DEFAULT_PASS_LEVEL,
                                            DEFAULT_TRIGGER_LEVEL,
@@ -336,17 +326,17 @@ int main(int argc, char *argv[])
 
                 for (int pat = 0; pat < NUM_PAT; ++pat) {
                     const int r =
-                      Obj::setThresholdLevels(LM,
+                      Obj::setThresholdLevels(lm,
                                               PAT[pat],
                                               RECORD_LEVEL,
                                               PASS_LEVEL,
                                               TRIGGER_LEVEL,
                                               TRIGGERALL_LEVEL);
-                    LOOP_ASSERT(LINE, 0 > r);
+                    ASSERTV(LINE, 0 > r);
                 }
 
                 for (int n = 0; n < NUM_NAME; ++n) {
-                     const Cat *p = LM->lookupCategory(NAME[n]);
+                     const Cat *p = lm->lookupCategory(NAME[n]);
                      ASSERT(DEFAULT_RECORD_LEVEL     == p->recordLevel());
                      ASSERT(DEFAULT_PASS_LEVEL       == p->passLevel());
                      ASSERT(DEFAULT_TRIGGER_LEVEL    == p->triggerLevel());
@@ -432,7 +422,7 @@ int main(int argc, char *argv[])
                     }
 
                     for (int n = 0; n < NUM_NAME; ++n) {
-                         Cat *p = LM->lookupCategory(NAME[n]);
+                         Cat *p = lm->lookupCategory(NAME[n]);
                          const int r = p->setLevels(DEFAULT_RECORD_LEVEL,
                                                     DEFAULT_PASS_LEVEL,
                                                     DEFAULT_TRIGGER_LEVEL,
@@ -440,16 +430,16 @@ int main(int argc, char *argv[])
                          ASSERT(0 == r);
                     }
 
-                    const int r = Obj::setThresholdLevels(LM,
+                    const int r = Obj::setThresholdLevels(lm,
                                                           PAT,
                                                           RECORD_LEVEL,
                                                           PASS_LEVEL,
                                                           TRIGGER_LEVEL,
                                                           TRIGGERALL_LEVEL);
-                    LOOP_ASSERT(PATLINE, MATCHES == r);
+                    ASSERTV(PATLINE, MATCHES == r);
 
                     for (int n = 0; n < NUM_NAME; ++n) {
-                         const Cat *p = LM->lookupCategory(NAME[n]);
+                         const Cat *p = lm->lookupCategory(NAME[n]);
                          if (MASK[n]) {
                              ASSERT(RECORD_LEVEL     == p->recordLevel());
                              ASSERT(PASS_LEVEL       == p->passLevel());
@@ -503,11 +493,13 @@ int main(int argc, char *argv[])
                           << "=========================================="
                           << endl;
 
-        // initialize logger manager
-        ball::LoggerManager::initSingleton(TO);
-        ball::LoggerManager *LM = &ball::LoggerManager::singleton();
+        // Initialize Logger Manager.
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 
-        const Cat& defaultCat = LM->defaultCategory();
+        ball::LoggerManager* lm = &ball::LoggerManager::singleton();
+
+        const Cat& defaultCat = lm->defaultCategory();
         ASSERT(0 == strcmp(DEFAULT_CATEGORY_NAME, defaultCat.categoryName()));
         const int DEFAULT_RECORD_LEVEL     = defaultCat.recordLevel();
         const int DEFAULT_PASS_LEVEL       = defaultCat.passLevel();
@@ -525,7 +517,7 @@ int main(int argc, char *argv[])
         const int NUM_NAME = sizeof NAME / sizeof *NAME;
 
         for (int n = 1; n < NUM_NAME; ++n) {  // skip *Default* *Category*
-            const Cat *p = LM->addCategory(NAME[n],
+            const Cat *p = lm->addCategory(NAME[n],
                                            DEFAULT_RECORD_LEVEL,
                                            DEFAULT_PASS_LEVEL,
                                            DEFAULT_TRIGGER_LEVEL,
@@ -594,24 +586,24 @@ int main(int argc, char *argv[])
 
                 for (int cn = 0; cn < NUM_CN; ++cn) {
                     const int r = Obj
-                        ::setThresholdLevelsHierarchically(LM,
+                        ::setThresholdLevelsHierarchically(lm,
                                                            CN[cn],
                                                            RECORD_LEVEL,
                                                            PASS_LEVEL,
                                                            TRIGGER_LEVEL,
                                                            TRIGGERALL_LEVEL);
-                    LOOP_ASSERT(LINE, 0 > r);
+                    ASSERTV(LINE, 0 > r);
                 }
 
                 for (int n = 0; n < NUM_NAME; ++n) {
-                     const Cat *p = LM->lookupCategory(NAME[n]);
+                     const Cat *p = lm->lookupCategory(NAME[n]);
                      ASSERT(DEFAULT_RECORD_LEVEL     == p->recordLevel());
                      ASSERT(DEFAULT_PASS_LEVEL       == p->passLevel());
                      ASSERT(DEFAULT_TRIGGER_LEVEL    == p->triggerLevel());
                      ASSERT(DEFAULT_TRIGGERALL_LEVEL == p->triggerAllLevel());
                 }
 
-                ASSERT(NUM_NAME == LM->numCategories());
+                ASSERT(NUM_NAME == lm->numCategories());
             }
         }
 
@@ -690,7 +682,7 @@ int main(int argc, char *argv[])
                     if (veryVeryVerbose) { T_; T_; P_(CNLINE); P_(CN); }
 
                     for (int n = 0; n < NUM_NAME; ++n) {
-                         Cat *p = LM->lookupCategory(NAME[n]);
+                         Cat *p = lm->lookupCategory(NAME[n]);
                          const int r = p->setLevels(DEFAULT_RECORD_LEVEL,
                                                     DEFAULT_PASS_LEVEL,
                                                     DEFAULT_TRIGGER_LEVEL,
@@ -699,7 +691,7 @@ int main(int argc, char *argv[])
                     }
 
                     const int r =
-                      Obj::setThresholdLevelsHierarchically(LM,
+                      Obj::setThresholdLevelsHierarchically(lm,
                                                             CN,
                                                             RECORD_LEVEL,
                                                             PASS_LEVEL,
@@ -707,7 +699,7 @@ int main(int argc, char *argv[])
                                                             TRIGGERALL_LEVEL);
                     int MATCHES = 0;
                     for (int n = 0; n < NUM_NAME; ++n) {
-                         const Cat *p = LM->lookupCategory(NAME[n]);
+                         const Cat *p = lm->lookupCategory(NAME[n]);
                          if (MASK[n]) {
                              ASSERT(RECORD_LEVEL     == p->recordLevel());
                              ASSERT(PASS_LEVEL       == p->passLevel());
@@ -726,7 +718,7 @@ int main(int argc, char *argv[])
                                                      == p->triggerAllLevel());
                          }
                     }
-                    LOOP_ASSERT(CNLINE, MATCHES == r);
+                    ASSERTV(CNLINE, MATCHES == r);
                 }
             }
         }
@@ -779,7 +771,7 @@ int main(int argc, char *argv[])
                                                               DTL,
                                                               DTAL));
             ball::LoggerManagerScopedGuard lmGuard(mLMC);
-            ball::LoggerManager *LM = &ball::LoggerManager::singleton();
+            ball::LoggerManager *lm = &ball::LoggerManager::singleton();
 
             if (USE_CALLBACK) {
                 CBDRL  += 10;
@@ -789,14 +781,14 @@ int main(int argc, char *argv[])
 
                 callbackLevels.setLevels(CBDRL, CBDPL, CBDTL, CBDTAL);
 
-                LM->setDefaultThresholdLevelsCallback(&dtlCallback);
+                lm->setDefaultThresholdLevelsCallback(&dtlCallback);
             }
 
             if (veryVerbose) {
                 cout << endl;    P_(USE_CALLBACK);    P_(DPL);    P(CBDPL);
             }
 
-            const Cat& defaultCat = LM->defaultCategory();
+            const Cat& defaultCat = lm->defaultCategory();
             ASSERT(0 == strcmp(DEFAULT_CATEGORY_NAME,
                                defaultCat.categoryName()));
 
@@ -846,12 +838,12 @@ int main(int argc, char *argv[])
             for (int n = 0; n < NUM_DATA && DATA[n].d_populated; ++n) {
                 bool isDefault = !strcmp("", DATA[n].d_name_p);
 
-                const Cat *p = LM->addCategory(DATA[n].d_name_p,
+                const Cat *p = lm->addCategory(DATA[n].d_name_p,
                                                DATA[n].d_recordLevel,
                                                DATA[n].d_passLevel,
                                                DATA[n].d_triggerLevel,
                                                DATA[n].d_triggerAllLevel);
-                LOOP_ASSERT(DATA[n].d_line, isDefault ? !p : !!p);
+                ASSERTV(DATA[n].d_line, isDefault ? !p : !!p);
             }
 
             if (verbose) cout << "Testing with mixed category names.\n";
@@ -863,7 +855,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) P(nname);
 
-                    const Cat *np = Obj::addCategoryHierarchically(LM, nname);
+                    const Cat *np = Obj::addCategoryHierarchically(lm, nname);
 
                     ASSERTV(nname, npop, !np, npop == !np);
 
@@ -887,7 +879,7 @@ int main(int argc, char *argv[])
 
                         if (veryVeryVerbose) { P_(iname); P_(bname); P(ename);}
 
-                        const Cat *icat = LM->lookupCategory(iname);
+                        const Cat *icat = lm->lookupCategory(iname);
 
                         ASSERTV(ii, (0 == ii) == (&defaultCat == icat));
                         ASSERTV(ii, np, (ii == nn) == (np == icat));
