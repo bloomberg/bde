@@ -367,6 +367,17 @@ struct bsls_Platform_Assert;
         BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
+    // Simplify Windows development by providing defaults for the following
+    // frequently-specified macros.  Note that the presence of other package
+    // group names in this list in no way implies a dependency of BSL on these
+    // other package groups.
+
+    // Do not define 'min' and 'max' as macros in the Windows headers.
+
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+
 // ---------------------------------------------------------------------------
 #elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
 
