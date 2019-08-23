@@ -1,3 +1,15 @@
+bsl-internal (3.33.2.0) unstable; urgency=low
+
+  * No commits found
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 23 Aug 2019 13:45:32 -0400
+
+bsl-internal (3.33.2.0) git; urgency=low
+
+  * 89de0b7bc Bump version to 3.33.2
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 23 Aug 2019 13:45:32 -0400
+
 bsl-internal (3.33.1.0) unstable; urgency=low
 
   * f1c4a17f3 Bump version to 3.33.1.0
