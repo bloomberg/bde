@@ -1,5 +1,22 @@
-bsl-internal (3.37.0.0) unstable; urgency=low
+bsl-internal (3.37.1.0) unstable; urgency=low
 
+  * a0211436f Bump version to 3.37.1.0
+  * 745c795ad Merge pull request #2471 from osubbotin/review/ball-usage-update-drqs-147317724
+  * e2d6ffb8b Merge pull request #2469 from osubbotin/review/oss-update-readme
+  * 5f75c15b6 Merge pull request #2431 from osubbotin/review/oss-compilation-fix
+  * ff93d5a62 Merge pull request #2468 from oimanuel/fix_striped_benchmark_tcs-drqs-147342289
+  * 916446486 Merge pull request #2467 from sbeckley/eventscheduler_typo
+  * dacffcf2f Merge pull request #2444 from oimanuel/add_benchmark_to_striped-drqs-140113926
+  * 38a7b9dbf Merge pull request #2465 from bde/revert-2456-searchers-drqs-142948762.3
+  * 424f93dce Merge pull request #2463 from jmendelsohn4/nb/20190819/transitive-include-issue
+  * b301a6567 Merge pull request #2454 from oimanuel/add_shutdown_bslmt_throughputbenchmark-drqs-146969724
+  * 4a47fb7c6 Merge pull request #2461 from osubbotin/review/doxygen-fixes
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 23 Aug 2019 13:55:13 -0400
+
+bsl-internal (3.37.0.0) git; urgency=low
+
+  * 8d9718ac4 Changelog for version 3.37.0.0
   * 2661ad7a1 Merge pull request #2450 from bchapman/bdlmt_signaler-guard-noncopyable-drqs-146237713
   * 40905f7f4 Merge pull request #2010 from bchapman/bsltf_streamutil-drqs-125550454
   * bdcb97569 Bump version to 3.37.0.0
@@ -13,7 +30,7 @@ bsl-internal (3.37.0.0) unstable; urgency=low
   * bdcc7187d Merge pull request #2449 from bchapman/balst-doc-balst-txt-performance-drqs-145270921
   * 418c92425 Merge pull request #2447 from oimanuel/fix_race_throughputbenchmark-drqs-146586504
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 16 Aug 2019 13:17:34 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 16 Aug 2019 14:08:50 -0400
 
 bsl-internal (3.36.0.0) git; urgency=low
 
