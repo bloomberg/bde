@@ -375,6 +375,19 @@ class ReaderWriterLock {
         // call to 'lockWrite', 'tryLockWrite', or 'upgradeToWriteLock'.  Note
         // that the behavior is undefined unless the calling thread currently
         // owns this read/write lock.
+
+    // ACCESSORS
+    bool isLocked() const;
+        // Return 'true' if this reader-write lock is currently read locked or
+        // write locked, and 'false' otherwise.
+
+    bool isLockedRead() const;
+        // Return 'true' if this reader-write lock is currently read locked,
+        // and 'false' otherwise.
+
+    bool isLockedWrite() const;
+        // Return 'true' if this reader-write lock is currently write locked,
+        // and 'false' otherwise.
 };
 
 }  // close package namespace
@@ -424,6 +437,43 @@ inline
 void bslmt::ReaderWriterLock::unlockWrite()
 {
     unlock();
+}
+
+// ACCESSORS
+inline
+bool bslmt::ReaderWriterLock::isLocked() const
+{
+    bsls::Types::Int64 rwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
+
+    if (rwcount & (READER_MASK|WRITER_MASK)) {
+        return true;                                                  // RETURN
+    } else {
+        return false;                                                 // RETURN
+    }
+}
+
+inline
+bool bslmt::ReaderWriterLock::isLockedRead() const
+{
+    bsls::Types::Int64 rwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
+
+    if (rwcount & READER_MASK) {
+        return true;                                                  // RETURN
+    } else {
+        return false;                                                 // RETURN
+    }
+}
+
+inline
+bool bslmt::ReaderWriterLock::isLockedWrite() const
+{
+    bsls::Types::Int64 rwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
+
+    if (rwcount & WRITER_MASK) {
+        return true;                                                  // RETURN
+    } else {
+        return false;                                                 // RETURN
+    }
 }
 
 }  // close enterprise namespace

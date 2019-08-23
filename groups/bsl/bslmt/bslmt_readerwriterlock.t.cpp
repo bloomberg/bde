@@ -48,9 +48,19 @@ using namespace bsl;  // automatically added by script
 // [ 3] void unlock();
 // [ 5] void unlock();
 // [ 2] void unlock();
+//
+// ACCESSORS
+// [12] bool isLocked() const;
+// [12] bool isLockedRead() const;
+// [12] bool isLockedWrite() const;
 //-----------------------------------------------------------------------------
 // [ 1] Breathing test
 // [ 6] USAGE Example
+// [ 7] CONCERN: Highly-parallel RW lock test: no upgrade
+// [ 8] CONCERN: Highly-parallel RW lock test: with upgrade
+// [ 9] CONCERN: Highly-parallel RW lock test: reserve/unreserve
+// [10] CONCERN: Highly-parallel RW lock test: reserve & upgrade
+// [11] CONCERN: Highly-parallel RW lock test: reserve & upgrade 2
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -880,6 +890,81 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 12: {
+        // --------------------------------------------------------------------
+        // ACCESSORS
+        //
+        // Concerns:
+        //: 1 Each accessor corre tly returns the known state of a lock object.
+        //:
+        //: 2 Each accessor is 'const' qualified.
+        //
+        // Plan:
+        //: 1 An ad-hoc sequence of (previously tested) lock and unlock
+        //:   operations is used to put a test object into different states.
+        //:   The accessors are used to corroborate those states.  (C-1)
+        //:
+        //: 2 Each accessor invocation is done via a 'const'-reference to the
+        //:   object under test.  (C-2)
+        //
+        // Testing:
+        //   bool isLocked() const;
+        //   bool isLockedRead() const;
+        //   bool isLockedWrite() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ACCESSORS" << endl
+                          << "=========" << endl;
+
+        Obj mX; const Obj& X = mX;
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.lockRead();
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.lockWrite();
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+        
+        int rcR = mX.tryLockRead();
+        ASSERT(0 == rcR);
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        int rcW = mX.tryLockWrite();
+        ASSERT(0 == rcW);
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+      } break;
       case 11: {
         if (veryVerbose)
             cout << "Highly-parallel RW lock test: reserve & upgrade 2"
