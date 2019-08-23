@@ -35,7 +35,7 @@
 
 /Component Synopsis
 /------------------
-: 'balst_objectfileformat':                                           !PRIVATE!
+: 'balst_objectfileformat':
 :      Provide platform-dependent object file format trait definitions.
 :
 : 'balst_stacktrace':
