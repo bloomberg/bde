@@ -1014,7 +1014,7 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS        1
     #endif
     #if __cplusplus > 201402L  // > C++14
-        #if BSLS_PLATFORM_CMP_VERSION >= 80300
+        #if BSLS_PLATFORM_CMP_VERSION >= 70301
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
         #endif
     #endif

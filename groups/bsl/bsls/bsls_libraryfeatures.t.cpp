@@ -1388,8 +1388,8 @@ int main(int argc, char *argv[])
         (void) needleFirst;
         (void) needleLast;
 #else 
-	if (veryVerbose) 
-	       printf("Skip Test: MSVC 2017 has 'search' but no searchers.\n");
+	    if (veryVerbose) 
+	           printf("Skip Test: MSVC 2017 has 'search' but no searchers.\n");
 #endif
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
