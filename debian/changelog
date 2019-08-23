@@ -1,11 +1,12 @@
 bsl-internal (3.33.2.0) unstable; urgency=low
 
+  * 9a41de1fd Changelog for version 3.33.2.0
   * 2717bf341 Changelog for version 3.33.2.0
   * ee8c93950 Merge pull request #2478 from hversche/revert-NOMINMAX
   * 2ab2549a4 Merge pull request #2475 from jmendelsohn4/drqs-147433439/3.33.x/bslmt_conditionimpl_win32-timeout-underflow
   * 89de0b7bc Bump version to 3.33.2
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 23 Aug 2019 14:46:58 -0400
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 23 Aug 2019 14:55:08 -0400
 
 bsl-internal (3.33.1.0) git; urgency=low
 
