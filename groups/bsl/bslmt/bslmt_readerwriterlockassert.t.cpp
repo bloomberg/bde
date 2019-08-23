@@ -1,4 +1,4 @@
-// bslmt_readerwritermutexassert.t.cpp                                -*-C++-*-
+// bslmt_readerwriterlockassert.t.cpp                                 -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,9 +7,9 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bslmt_readerwritermutexassert.h>
+#include <bslmt_readerwriterlockassert.h>
 
-#include <bslmt_readerwritermutex.h>
+#include <bslmt_readerwriterlock.h>
 #include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
@@ -43,26 +43,26 @@ namespace BSL = native_std;  // for Usage Examples
 //                              Overview
 //                              --------
 // Two main testing strategies are employed here:
-//: 1 Assert on a locked mutex and observe nothing happens.
-//: 2 Assert on an unlocked mutex with an assert handler installed that will
-//:   throw an exception, catch the exception, and verify that an exception
-//:   was thrown.
+//: 1 Assert on a locked lock object and observe nothing happens.
+//: 2 Assert on an unlocked lock object with an assert handler installed that
+//:   will throw an exception, catch the exception, and verify that an
+//:   exception was thrown.
 //-----------------------------------------------------------------------------
 // MACROS
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE'
-//: o 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE'
+//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT'
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
-// [ 2] CONCERN: Testing macros on mutexes locked by the current thread.
-// [ 2] CONCERN: Testing macros on unlocked mutexes.
+// [ 2] CONCERN: Testing macros on locks held by the current thread.
+// [ 2] CONCERN: Testing macros on unlocked lock objects.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -130,18 +130,17 @@ int veryVeryVerbose;
 // This example is an generalization of {'bslmt_mutexassert'|Example 1:
 // Checking Consistency Within a Private Method}.  In that example, a mutex was
 // used to control access.  Here, the (simple) mutex is replaced with a
-// 'bslmt::ReaderWriterMutex' that is allows multiple concurrent access to the
-// queue when conditions allow.  Note that a similar transformation is also
-// done in {'bslmt_readerwriterlockassert'|Example 1}.
+// 'bslmt::ReaderWriterLock' that is allows multiple concurrent access to the
+// queue when possible.
 //
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a lock.  The
-// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' family of assertions allows the
+// 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*' family of assertions allows the
 // programmers to detect, using defensive programming techniques, if the
 // required lock has *not* been acquired.
 //
 // Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal 'bslmt::ReaderWriterMutex' object.
+// guarded by an internal 'bslmt::ReaderWriterLock' object.
 //
 // First, we define the container class:
 //..
@@ -154,8 +153,8 @@ int veryVeryVerbose;
         bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
                                          // standard container
 
-        mutable bslmt::ReaderWriterMutex
-                             d_rwMutex;  // coordinate thread access
+        mutable bslmt::ReaderWriterLock
+                             d_rwLock;   // coordinate thread access
 
         // PRIVATE MANIPULATOR
         int popImp(int *result);
@@ -163,7 +162,7 @@ int veryVeryVerbose;
             // '*result', and remove the value at the front of the queue;
             // return 0 if the queue was not initially empty, and a non-zero
             // value (with no effect) otherwise.  The behavior is undefined
-            // unless 'd_rwMutex' is locked for writing.
+            // unless 'd_rwLock' is locked for writing.
 
         // PRIVATE ACCESSOR
         bsl::pair<int, double> getStats() const;
@@ -220,7 +219,7 @@ int veryVeryVerbose;
     // PRIVATE MANIPULATOR
     int MyThreadSafeQueue::popImp(int *result)
     {
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&d_rwMutex);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&d_rwLock);
 
         if (d_deque.empty()) {
             return -1;                                                // RETURN
@@ -237,9 +236,9 @@ int veryVeryVerbose;
     {
         BSLS_ASSERT(result);
 
-        d_rwMutex.lockWrite();
+        d_rwLock.lockWrite();
         int rc = popImp(result);
-        d_rwMutex.unlockWrite();
+        d_rwLock.unlockWrite();
         return rc;
     }
 
@@ -258,30 +257,30 @@ int veryVeryVerbose;
 
     void MyThreadSafeQueue::push(int value)
     {
-        d_rwMutex.lockWrite();
+        d_rwLock.lockWrite();
         d_deque.push_back(value);
-        d_rwMutex.unlockWrite();
+        d_rwLock.unlockWrite();
     }
 
     template <class INPUT_ITER>
     void MyThreadSafeQueue::pushRange(const INPUT_ITER& first,
                                       const INPUT_ITER& last)
     {
-        d_rwMutex.lockWrite();
+        d_rwLock.lockWrite();
         d_deque.insert(d_deque.begin(), first, last);
-        d_rwMutex.unlockWrite();
+        d_rwLock.unlockWrite();
     }
 //..
 // Notice that these implementations are identical to those shown in
 // {'bslmt_mutexassert'|Example 1} except that the 'lock' calls to the
 // 'bslmt::Mutex' there have been changed here to 'lockWrite' calls on a
-// 'bslmt::ReaderWriterMutex'.  Both operations provide exclusive access to the
+// 'bslmt::ReaderWriterLock'.  Both operations provide exclusive access to the
 // container.
 //
 // Also notice that, having learned the lesson of {'bslmt_mutexassert'|Example
 // 1}, we were careful to acquire a write lock for the duration of each of
 // these operation and to check the precondition of the the private 'popImp'
-// method by using the 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE' macro.
+// method by using the 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE' macro.
 //
 // Finally notice that we use the "normal" flavor of the macro (rather than the
 // '*_SAFE' version) because this test is not particularly expensive.
@@ -291,17 +290,17 @@ int veryVeryVerbose;
     // ACCESSORS
     double MyThreadSafeQueue::mean() const
     {
-        d_rwMutex.lockRead();
+        d_rwLock.lockRead();
         bsl::pair<int, double> result = getStats();
-        d_rwMutex.unlockRead();
+        d_rwLock.unlockRead();
         return result.second;
     }
 
     BSL::size_t MyThreadSafeQueue::numElements() const
     {
-        d_rwMutex.lockRead();
+        d_rwLock.lockRead();
         BSL::size_t numElements = d_deque.size();
-        d_rwMutex.unlockRead();
+        d_rwLock.unlockRead();
         return numElements;
     }
 //..
@@ -312,17 +311,17 @@ int veryVeryVerbose;
 // Also notice that the bulk of the work of 'mean' is done by the private
 // method 'getStats'.  One's might except the private method to confirm that a
 // lock was acquired by using the
-// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ' macro; however, the reason
+// 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ' macro; however, the reason
 // for creating that private method is so that it can be reused by the
 // 'purgeAll' method, a non-'const' method that requires a write lock.  Thus,
 // 'getStats' is an occassion to use the
-// 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED' check (for either a read lock *or*
+// 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED' check (for either a read lock *or*
 // a write lock).
 //..
     // PRIVATE ACCESSORS
     bsl::pair<int, double> MyThreadSafeQueue::getStats() const
     {
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&d_rwMutex);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&d_rwLock);
 
         int numElements = d_deque.size();
 
@@ -341,7 +340,7 @@ int veryVeryVerbose;
 //..
     void MyThreadSafeQueue::purgeAll(double limit)
     {
-        d_rwMutex.lockWrite();
+        d_rwLock.lockWrite();
         bsl::pair<int, double> results = getStats();      // requires some lock
         if (0 < results.first && limit < results.second) {
             for (int i = 0; i < results.first; ++i) {
@@ -350,7 +349,7 @@ int veryVeryVerbose;
                 ASSERT(0 == rc);
             }
         }
-        d_rwMutex.unlockWrite();
+        d_rwLock.unlockWrite();
     }
 //..
 // Finally, we confirm that our accessors work as expected:
@@ -381,16 +380,16 @@ int veryVeryVerbose;
                                   // ------
 
 struct TestCase3SubThread {
-    bslmt::ReaderWriterMutex *d_mutexToAssertOn_p;
-    bslmt::ReaderWriterMutex *d_mutexThatMainThreadWillUnlock_p;
-    bsls::AtomicInt          *d_subthreadWillIncrementValue_p;
+    bslmt::ReaderWriterLock *d_lockToAssertOn_p;
+    bslmt::ReaderWriterLock *d_lockThatMainThreadWillUnlock_p;
+    bsls::AtomicInt         *d_subthreadWillIncrementValue_p;
 
     void operator()()
         // Interact with the main thread.
     {
-        d_mutexToAssertOn_p->lockWrite();
+        d_lockToAssertOn_p->lockWrite();
         ++*d_subthreadWillIncrementValue_p;
-        d_mutexThatMainThreadWillUnlock_p->lockWrite();
+        d_lockThatMainThreadWillUnlock_p->lockWrite();
     }
 };
 
@@ -426,7 +425,7 @@ void myViolationHandler(const bsls::AssertViolation& violation)
         P_(violation.lineNumber())
          P(violation.assertLevel())
     }
-    const char *base   = "BSLMT_READERWRITERMUTEXASSERT_IS";
+    const char *base   = "BSLMT_READERWRITERLOCKASSERT_IS";
 
     const char *oper   = 'a' == cfg ? "_LOCKED"       :
                          'b' == cfg ? "_LOCKED_READ"  :
@@ -438,7 +437,7 @@ void myViolationHandler(const bsls::AssertViolation& violation)
                          e_OPT_MODE    == mode ? "_OPT"  :
                          /* else */       "UNKNOWN_MODE" ;
 
-    const char *suffix = "(&rwMutex)";
+    const char *suffix = "(&rwLock)";
 
     char expectedText[128];
 
@@ -500,77 +499,77 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*'
+        // TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*'
         //
         // Concerns:
-        //: 1 The 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*' macros do not call
-        //:   'bsls::Assert::invokeHander' if the reader-writer mutex is locked
+        //: 1 The 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*' macros do not call
+        //:   'bsls::Assert::invokeHander' if the reader-writer lock is locked
         //:   -- read locked, write locked, or either, depending on the macro.
         //:
         //: 2 In the expected build mode, if any of these macros are called
-        //:   when the reader-writer mutex does *not* have the expected lock,
+        //:   when the reader-writer lock does *not* have the expected lock,
         //:   the currently installed 'bsls::Assert::invokeHander' is called
         //:   with the expected values.
         //:
         //: 3 Each of these macros become no-ops except in the build mode for
         //:   which each is intended to be active.
         //
-        // Plan:
-        //: 1 With a reader-writer mutex locked for read, and the assert
-        //:   handler set to 'bsls::failAbort' (the default), call all the
-        //:   read-related macros and confirm that they do not fire.  Repeat
-        //:   with a write lock and the write-related macros.
+        //  Plan:
+        //: 1 With a reader-writer lock object locked for read, and the assert handler
+        //:   set to 'bsls::failAbort' (the default), call all the read-related
+        //:   macros and confirm that they do not fire.  Repeat with a write
+        //:   lock and the write-related macros.
         //:
         //: 2 For each build level: '_SAFE', "normal", and '_OPT' if build
         //:   modes where the macros are expected to be enabled, test each of
-        //:   the three on an unlocked reader-writer mutex and confirm that the
+        //:   the three on an unlocked reader-writer lock and confirm that the
         //:   custom 'TestCase2::myHandler" function is called.  That function
         //:   will confirm that it was called with the expected arguments.
         //
         //: 3 For each build level: '_SAFE', "normal", and '_OPT' if build
         //:   modes where the macros are expected to be *disabled*, test each
-        //:   of the three on an unlocked reader-writer mutex and confirm that
+        //:   of the three on an unlocked reader-writer lock and confirm that
         //:   the custom 'TestCase2::myHandler" function is *not* called.
         //
         // Testing:
-        //   CONCERN: Testing macros on mutexes locked by the current thread.
-        //   CONCERN: Testing macros on unlocked mutexes.
+        //   CONCERN: Testing macros on locks held by the current thread.
+        //   CONCERN: Testing macros on unlocked lock objectss.
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                     << "TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED*'\n"
+                     << "TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*'\n"
                         "==================================================\n";
 
-        if (veryVerbose) cout << "testing with reader-writer mutex locked\n";
+        if (veryVerbose) cout << "testing with reader-writer lock object locked\n";
         {
-            bslmt::ReaderWriterMutex rwMutex;
-            rwMutex.lockRead();
+            bslmt::ReaderWriterLock rwLock;
+            rwLock.lockRead();
 
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT( &rwMutex);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT( &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(&rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(     &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT( &rwLock);
 
-            rwMutex.unlockRead();
-            rwMutex.lockWrite();
+            rwLock.unlockRead();
+            rwLock.lockWrite();
 
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(&rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(     &rwMutex);
-            BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT( &rwMutex);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(     &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT( &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(     &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT( &rwLock);
 
-            rwMutex.unlockWrite();
+            rwLock.unlockWrite();
         }
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-        if (veryVerbose) cout << "testing with reader-writer mutex unlocked\n";
+        if (veryVerbose) cout << "testing with reader-writer lock unlocked\n";
         {
-            bslmt::ReaderWriterMutex rwMutex;
+            bslmt::ReaderWriterLock rwLock;
 
             bsls::Assert::ViolationHandler priorViolationHandler =
                                               bsls::Assert::violationHandler();
@@ -589,21 +588,21 @@ int main(int argc, char *argv[])
                     switch (cfg) {
                       case 'a': {
                         TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
                       case 'b': {
                         TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE(
-                                                                     &rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(
+                                                                      &rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
                       case 'c': {
                         TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(
-                                                                    &rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(
+                                                                      &rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
@@ -616,9 +615,9 @@ int main(int argc, char *argv[])
 
 #else  // BSLS_ASSERT_SAFE_IS_ACTIVE
             try {
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(      &rwMutex);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_SAFE( &rwMutex);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_SAFE(&rwMutex);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(      &rwLock);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE( &rwLock);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
             } catch (bsls::AssertTestException thrown) {
                 ASSERT(!"Reachable")
             }
@@ -636,20 +635,19 @@ int main(int argc, char *argv[])
                     switch (cfg) {
                       case 'a': {
                         TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(&rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
                       case 'b': {
                         TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ(&rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
                       case 'c': {
-                        TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(
-                                                                     &rwMutex);
+                        TestCase2::expectedLine = __LINE__ + 1;
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
@@ -661,9 +659,9 @@ int main(int argc, char *argv[])
             }
 #else  // BSLS_ASSERT_IS_ACTIVE
             try {
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(      &rwMutex);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ( &rwMutex);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE(&rwMutex);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(      &rwLock);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ( &rwLock);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
             } catch (bsls::AssertTestException thrown) {
                 ASSERT(!"Reachable")
             }
@@ -680,21 +678,21 @@ int main(int argc, char *argv[])
                     switch (cfg) {
                       case 'a': {
                         TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(&rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
                       case 'b': {
                         TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT(
-                                                                     &rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT(
+                                                                      &rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
                       case 'c': {
                         TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(
-                                                                     &rwMutex);
+                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(
+                                                                      &rwLock);
                         ASSERTV(cfg, !"Reachable")
                         break;
                       }
@@ -707,9 +705,9 @@ int main(int argc, char *argv[])
             }
 #else   // BSLS_ASSERT_OPT_IS_ACTIVE
             try {
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(      &rwMutex);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_READ_OPT( &rwMutex);
-                BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_WRITE_OPT(&rwMutex);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(      &rwLock);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT( &rwLock);
+                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(&rwLock);
             } catch (bsls::AssertTestException thrown) {
                 ASSERT(!"Reachable")
             }
@@ -732,8 +730,8 @@ int main(int argc, char *argv[])
         //: 1 The component is sufficiently same to justify comprehensive
         //:   testing.
         //:
-        //: 2 Create and destroy a reader-writer mutex, write lock it, and
-        //:   confirm that the three "IS_LOCKED" macros pass.
+        //: 2 Create and destroy a reader-writer lock, write lock it, and
+        //:   confirm that the three "IS_LOCKED*" macros pass.
         //
         // Plan
         //: 1 Exercise the component lightly.
@@ -745,21 +743,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        bslmt::ReaderWriterMutex mutex;
-        mutex.lockWrite();
+        bslmt::ReaderWriterLock lock;
+        lock.lockWrite();
 
         // All of these asserts should pass.
 
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_SAFE(&mutex);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED(     &mutex);
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT( &mutex);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&lock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(     &lock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT( &lock);
 
-        mutex.unlockWrite();
+        lock.unlockWrite();
 
       } break;
       case -1: {
         // ------------------------------------------------------------------
-        // TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT'
+        // TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT'
         //
         // Concerns:
         //: 1 The macros can actually abort the process.
@@ -771,18 +769,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                  << "TESTING 'BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT'\n"
+                  << "TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT'\n"
                      "=====================================================\n";
 
         if (veryVerbose) cout << "WATCH ASSERT BLOW UP\n"
                                  "====================\n";
 
-        bslmt::ReaderWriterMutex mutex;
+        bslmt::ReaderWriterLock lock;
 
         cout << "Expect opt assert fail now, line number is: " <<
                                                           __LINE__ + 2 << endl;
 
-        BSLMT_READERWRITERMUTEXASSERT_IS_LOCKED_OPT(&mutex);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(&lock);
 
         BSLS_ASSERT_OPT(0);
       } break;

@@ -17,6 +17,7 @@ bslmt_once
 bslmt_platform
 bslmt_qlock
 bslmt_readerwriterlock
+bslmt_readerwriterlockassert
 bslmt_readerwritermutex
 bslmt_readerwritermuteximpl
 bslmt_readerwritermutexassert
