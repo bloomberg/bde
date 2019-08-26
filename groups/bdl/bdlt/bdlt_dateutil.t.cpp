@@ -36,6 +36,7 @@ using namespace bsl;
 // [ 3] int convertFromYYYYMMDD(Date *result, int yyyymmddValue);
 // [ 2] Date convertFromYYYYMMDDRaw(int yyyymmddValue);
 // [ 4] int convertToYYYYMMDD(const Date& date);
+// [10] Date earliestDayOfWeekInMonth(year, month, dayOfWeek);
 // [ 1] bool isValidYYYYMMDD(int yyyymmddValue);
 // [17] Date lastDayInMonth(year, month);
 // [10] Date lastDayOfWeekInMonth(year, month, dayOfWeek);
@@ -972,14 +973,14 @@ if (veryVerbose)
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'lastDayOfWeekInMonth'
+        // TESTING 'earliestDayOfWeekInMonth' and 'lastDayOfWeekInMonth'
         //
         // Concerns:
-        //: 1 The function returns the last 'dayOfWeek' in 'month' and 'year'
-        //:   for all possible 'dayOfWeek' values.
+        //: 1 The function returns the first/last 'dayOfWeek' in 'month' and
+        //:   'year' for all possible 'dayOfWeek' values.
         //:
-        //: 2 The function works correctly if the last day of 'month' in 'year'
-        //:   falls on 'dayOfWeek'.
+        //: 2 The function works correctly if the first/last day of 'month' in
+        //:   'year' falls on 'dayOfWeek'.
         //:
         //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -988,7 +989,8 @@ if (veryVerbose)
         //:   valid inputs.  Verify that the function returns the correct
         //:   value.  Note that we do not need to do a very exhaustive test,
         //:   because most of the work is handled by the already tested
-        //:   function 'previousDayOfWeekInclusive'.  (C-1..2)
+        //:   function 'nextDatOfWeekInclusive'/'previousDayOfWeekInclusive'.
+        //:   (C-1..2)
         //:
         //: 2 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
@@ -996,53 +998,112 @@ if (veryVerbose)
         //:   (C-3)
         //
         // Testing:
+        //   Date earliestDayOfWeekInMonth(year, month, dayOfWeek);
         //   Date lastDayOfWeekInMonth(year, month, dayOfWeek);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'lastDayOfWeekInMonth'" << endl
-                          << "==============================" << endl;
+        if (verbose) {
+        cout << endl
+             << "TESTING 'earliestDayOfWeekInMonth' and 'lastDayOfWeekInMonth'"
+             << endl
+             << "============================================================="
+             << endl;
+        }
 
-        static const struct {
-            int                   d_line;   // source line number
-            int                   d_year;   // year
-            int                   d_month;  // month
-            bdlt::DayOfWeek::Enum d_dow;    // day of week
-            bdlt::Date            d_exp;    // expected result
-        } DATA[] = {
-            //LINE  YEAR  MONTH  DOW     EXP
-            //----  ----  -----  ---     ---
-            { L_,  2000,     1,  e_SUN,  bdlt::Date(2000, 1, 30) },
-            { L_,  2000,     1,  e_MON,  bdlt::Date(2000, 1, 31) },
-            { L_,  2000,     1,  e_TUE,  bdlt::Date(2000, 1, 25) },
-            { L_,  2000,     1,  e_WED,  bdlt::Date(2000, 1, 26) },
-            { L_,  2000,     1,  e_THU,  bdlt::Date(2000, 1, 27) },
-            { L_,  2000,     1,  e_FRI,  bdlt::Date(2000, 1, 28) },
-            { L_,  2000,     1,  e_SAT,  bdlt::Date(2000, 1, 29) }
-        };
+        {
+            // 'earliestDayOfWeekInMonth'
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            static const struct {
+                int                   d_line;   // source line number
+                int                   d_year;   // year
+                int                   d_month;  // month
+                bdlt::DayOfWeek::Enum d_dow;    // day of week
+                bdlt::Date            d_exp;    // expected result
+            } DATA[] = {
+                //LINE  YEAR  MONTH  DOW     EXP
+                //----  ----  -----  ---     ---
+                { L_,  2000,     1,  e_SUN,  bdlt::Date(2000, 1, 2) },
+                { L_,  2000,     1,  e_MON,  bdlt::Date(2000, 1, 3) },
+                { L_,  2000,     1,  e_TUE,  bdlt::Date(2000, 1, 4) },
+                { L_,  2000,     1,  e_WED,  bdlt::Date(2000, 1, 5) },
+                { L_,  2000,     1,  e_THU,  bdlt::Date(2000, 1, 6) },
+                { L_,  2000,     1,  e_FRI,  bdlt::Date(2000, 1, 7) },
+                { L_,  2000,     1,  e_SAT,  bdlt::Date(2000, 1, 1) }
+            };
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int                   LINE  = DATA[i].d_line;
-            const int                   YEAR  = DATA[i].d_year;
-            const int                   MONTH = DATA[i].d_month;
-            const bdlt::DayOfWeek::Enum DOW   = DATA[i].d_dow;
-            const bdlt::Date            EXP   = DATA[i].d_exp;
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            if (veryVerbose) {
-                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DOW) P(EXP);
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int                   LINE  = DATA[i].d_line;
+                const int                   YEAR  = DATA[i].d_year;
+                const int                   MONTH = DATA[i].d_month;
+                const bdlt::DayOfWeek::Enum DOW   = DATA[i].d_dow;
+                const bdlt::Date            EXP   = DATA[i].d_exp;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DOW) P(EXP);
+                }
+
+                const bdlt::Date result = Util::earliestDayOfWeekInMonth(YEAR,
+                                                                         MONTH,
+                                                                         DOW);
+                ASSERTV(LINE, EXP, result, EXP == result);
             }
+        }
 
-            const bdlt::Date result = Util::lastDayOfWeekInMonth(YEAR,
-                                                                 MONTH,
-                                                                 DOW);
-            ASSERTV(LINE, EXP, result, EXP == result);
+        {
+            // 'lastDayOfWeekInMonth'
+
+            static const struct {
+                int                   d_line;   // source line number
+                int                   d_year;   // year
+                int                   d_month;  // month
+                bdlt::DayOfWeek::Enum d_dow;    // day of week
+                bdlt::Date            d_exp;    // expected result
+            } DATA[] = {
+                //LINE  YEAR  MONTH  DOW     EXP
+                //----  ----  -----  ---     ---
+                { L_,  2000,     1,  e_SUN,  bdlt::Date(2000, 1, 30) },
+                { L_,  2000,     1,  e_MON,  bdlt::Date(2000, 1, 31) },
+                { L_,  2000,     1,  e_TUE,  bdlt::Date(2000, 1, 25) },
+                { L_,  2000,     1,  e_WED,  bdlt::Date(2000, 1, 26) },
+                { L_,  2000,     1,  e_THU,  bdlt::Date(2000, 1, 27) },
+                { L_,  2000,     1,  e_FRI,  bdlt::Date(2000, 1, 28) },
+                { L_,  2000,     1,  e_SAT,  bdlt::Date(2000, 1, 29) }
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int                   LINE  = DATA[i].d_line;
+                const int                   YEAR  = DATA[i].d_year;
+                const int                   MONTH = DATA[i].d_month;
+                const bdlt::DayOfWeek::Enum DOW   = DATA[i].d_dow;
+                const bdlt::Date            EXP   = DATA[i].d_exp;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DOW) P(EXP);
+                }
+
+                const bdlt::Date result = Util::lastDayOfWeekInMonth(YEAR,
+                                                                     MONTH,
+                                                                     DOW);
+                ASSERTV(LINE, EXP, result, EXP == result);
+            }
         }
 
         {
             // Test assertions
             bsls::AssertTestHandlerGuard hG;
+
+            ASSERT_SAFE_PASS(Util::earliestDayOfWeekInMonth(    1,  1, e_SUN));
+            ASSERT_SAFE_PASS(Util::earliestDayOfWeekInMonth( 9999,  1, e_SUN));
+            ASSERT_SAFE_FAIL(Util::earliestDayOfWeekInMonth(    0,  1, e_SUN));
+            ASSERT_SAFE_FAIL(Util::earliestDayOfWeekInMonth(10000,  1, e_SUN));
+
+            ASSERT_SAFE_PASS(Util::earliestDayOfWeekInMonth(    1, 12, e_SUN));
+            ASSERT_SAFE_FAIL(Util::earliestDayOfWeekInMonth(    1,  0, e_SUN));
+            ASSERT_SAFE_FAIL(Util::earliestDayOfWeekInMonth(    1, 13, e_SUN));
 
             ASSERT_SAFE_PASS(Util::lastDayOfWeekInMonth(    1,  1, e_SUN));
             ASSERT_SAFE_PASS(Util::lastDayOfWeekInMonth( 9999,  1, e_SUN));
