@@ -447,7 +447,8 @@ bool bslmt::ReaderWriterLock::isLocked() const
 
     if (rwcount & (READER_MASK|WRITER_MASK)) {
         return true;                                                  // RETURN
-    } else {
+    }
+    else {
         return false;                                                 // RETURN
     }
 }
@@ -459,7 +460,8 @@ bool bslmt::ReaderWriterLock::isLockedRead() const
 
     if (rwcount & READER_MASK) {
         return true;                                                  // RETURN
-    } else {
+    }
+    else {
         return false;                                                 // RETURN
     }
 }

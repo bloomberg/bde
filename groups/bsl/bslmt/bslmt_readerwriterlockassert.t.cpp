@@ -10,6 +10,7 @@
 #include <bslmt_readerwriterlockassert.h>
 
 #include <bslmt_readerwriterlock.h>
+#include <bslmt_readerwritermutex.h>
 #include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
@@ -17,20 +18,19 @@
 #include <bsls_assert.h>
 #include <bsls_asserttestexception.h>
 #include <bsls_atomic.h>
+#include <bsls_nameof.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
+#include <bsl_cstring.h> // 'BSL::strcpy' 'BSL::strcat'
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
-#include <bsl_ostream.h>
 #include <bsl_vector.h>
 
 #include <algorithm>  // 'BSL::for_each'
 #include <numeric>    // 'BSL::accumulate'
 #include <utility>    // 'BSL::make_pair'
 
-#include <cstring>    // 'BSL::strcpy' 'BSL::strcat'
 #include <float.h>    // 'DBL_MIN'
 
 using namespace BloombergLP;
@@ -458,6 +458,197 @@ void myViolationHandler(const bsls::AssertViolation& violation)
                                     violation.assertLevel());
 }
 
+template <class RW_LOCK>
+void test()
+{
+
+    if (verbose) {
+        P(bsls::NameOf<RW_LOCK>())
+    }
+
+    if (veryVerbose) cout << "testing with reader-writer lock object locked\n";
+    {
+        RW_LOCK rwLock;
+        rwLock.lockRead();
+
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT( &rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(&rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(     &rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT( &rwLock);
+
+        rwLock.unlockRead();
+        rwLock.lockWrite();
+
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(     &rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT( &rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(     &rwLock);
+        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT( &rwLock);
+
+        rwLock.unlockWrite();
+    }
+
+#ifdef BDE_BUILD_TARGET_EXC
+
+    if (veryVerbose) cout << "testing with reader-writer lock unlocked\n";
+    {
+        RW_LOCK rwLock;
+
+        bsls::Assert::ViolationHandler priorViolationHandler =
+                                              bsls::Assert::violationHandler();
+        bsls::Assert::setViolationHandler(&TestCase2::myViolationHandler);
+
+        if (veryVeryVerbose) cout << "testing '*_SAFE' macros" << endl;
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+        TestCase2::mode          = TestCase2::e_SAFE_MODE;
+        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_SAFE; 
+
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+            TestCase2::cfg = cfg;
+
+            try {
+                switch (cfg) {
+                  case 'a': {
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                  case 'b': {
+                    TestCase2::expectedLine = __LINE__ + 2;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(
+                                                                  &rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                  case 'c': {
+                    TestCase2::expectedLine = __LINE__ + 2;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(
+                                                                  &rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                }
+            } catch (bsls::AssertTestException thrown) {
+                ASSERT(0 == BSL::strcmp(thrown.level(),
+                                        bsls::Assert::k_LEVEL_SAFE));
+            }
+        }
+
+#else  // BSLS_ASSERT_SAFE_IS_ACTIVE
+        try {
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(      &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE( &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
+        } catch (bsls::AssertTestException thrown) {
+            ASSERT(!"Reachable")
+        }
+
+#endif // BSLS_ASSERT_SAFE_IS_ACTIVE
+
+        if (veryVeryVerbose) cout << "testing 'normal' macros" << endl;
+#ifdef BSLS_ASSERT_IS_ACTIVE
+        TestCase2::mode          = TestCase2::e_NORMAL_MODE;
+        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_ASSERT; 
+
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+            TestCase2::cfg = cfg;
+            try {
+                switch (cfg) {
+                  case 'a': {
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                  case 'b': {
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                  case 'c': {
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                }
+            } catch (bsls::AssertTestException thrown) {
+                ASSERT(0 == BSL::strcmp(thrown.level(),
+                                        bsls::Assert::k_LEVEL_ASSERT));
+            }
+        }
+#else  // BSLS_ASSERT_IS_ACTIVE
+        try {
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(      &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ( &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
+        } catch (bsls::AssertTestException thrown) {
+            ASSERT(!"Reachable")
+        }
+#endif // BSLS_ASSERT_IS_ACTIVE
+
+        if (veryVeryVerbose) cout << "testing '*_OPT' macros" << endl;
+#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+        TestCase2::mode          = TestCase2::e_OPT_MODE;
+        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_OPT; 
+
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+            TestCase2::cfg = cfg;
+            try {
+                switch (cfg) {
+                  case 'a': {
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(&rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                  case 'b': {
+                    TestCase2::expectedLine = __LINE__ + 2;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT(
+                                                                  &rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                  case 'c': {
+                    TestCase2::expectedLine = __LINE__ + 2;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(
+                                                                  &rwLock);
+                    ASSERTV(cfg, !"Reachable")
+                    break;
+                  }
+                }
+            } catch (bsls::AssertTestException thrown) {
+                ASSERTV(thrown.level(),
+                                0 == BSL::strcmp(thrown.level(),
+                                        bsls::Assert::k_LEVEL_OPT));
+            }
+        }
+#else   // BSLS_ASSERT_OPT_IS_ACTIVE
+        try {
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(      &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT( &rwLock);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(&rwLock);
+        } catch (bsls::AssertTestException thrown) {
+            ASSERT(!"Reachable")
+        }
+#endif // BSLS_ASSERT_OPT_IS_ACTIVE
+
+        bsls::Assert::setViolationHandler(priorViolationHandler);
+    }
+#else  // BDE_BUILD_TARGET_EXC
+
+    if (verbose) cout << "Some tests skipped in non-exception build"
+                      << endl;
+
+#endif // BDE_BUILD_TARGET_EXC
+}
+
 #endif // BDE_BUILD_TARGET_EXC
 
 }  // close namespace TestCase2
@@ -513,12 +704,16 @@ int main(int argc, char *argv[])
         //:
         //: 3 Each of these macros become no-ops except in the build mode for
         //:   which each is intended to be active.
+        //:
+        //: 4 The macros perform identically irrespective of the type of lock
+        //:   used -- provide the lock provides 'isLocked', 'isLockedRead', and
+        //:   'isLockWrite' methods.
         //
-        //  Plan:
-        //: 1 With a reader-writer lock object locked for read, and the assert handler
-        //:   set to 'bsls::failAbort' (the default), call all the read-related
-        //:   macros and confirm that they do not fire.  Repeat with a write
-        //:   lock and the write-related macros.
+        // Plan:
+        //: 1 With a reader-writer lock object locked for read, and the assert
+        //:   handler set to 'bsls::failAbort' (the default), call all the
+        //:   read-related macros and confirm that they do not fire.  Repeat
+        //:   with a write lock and the write-related macros.
         //:
         //: 2 For each build level: '_SAFE', "normal", and '_OPT' if build
         //:   modes where the macros are expected to be enabled, test each of
@@ -530,6 +725,12 @@ int main(int argc, char *argv[])
         //:   modes where the macros are expected to be *disabled*, test each
         //:   of the three on an unlocked reader-writer lock and confirm that
         //:   the custom 'TestCase2::myHandler" function is *not* called.
+        //:
+        //: 4 Write the test as a function templated on the lock type and
+        //:   instantiate the test for two lock types that meet the
+        //:   requirements:
+        //:   o 'bslmt::ReaderWriterLock'
+        //:   o 'bslmt::ReaderWriterMutex'
         //
         // Testing:
         //   CONCERN: Testing macros on locks held by the current thread.
@@ -538,189 +739,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                      << "TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*'\n"
-                        "==================================================\n";
+                        "=================================================\n";
 
-        if (veryVerbose) cout << "testing with reader-writer lock object locked\n";
-        {
-            bslmt::ReaderWriterLock rwLock;
-            rwLock.lockRead();
+        TestCase2::test<bslmt::ReaderWriterLock>();
+        TestCase2::test<bslmt::ReaderWriterMutex>();
 
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT( &rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(&rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(     &rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT( &rwLock);
-
-            rwLock.unlockRead();
-            rwLock.lockWrite();
-
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(     &rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT( &rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(     &rwLock);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT( &rwLock);
-
-            rwLock.unlockWrite();
-        }
-
-#ifdef BDE_BUILD_TARGET_EXC
-
-        if (veryVerbose) cout << "testing with reader-writer lock unlocked\n";
-        {
-            bslmt::ReaderWriterLock rwLock;
-
-            bsls::Assert::ViolationHandler priorViolationHandler =
-                                              bsls::Assert::violationHandler();
-            bsls::Assert::setViolationHandler(&TestCase2::myViolationHandler);
-
-            if (veryVeryVerbose) cout << "testing '*_SAFE' macros" << endl;
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-            TestCase2::mode          = TestCase2::e_SAFE_MODE;
-            TestCase2::expectedLevel = bsls::Assert::k_LEVEL_SAFE; 
-
-            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-
-                TestCase2::cfg = cfg;
-
-                try {
-                    switch (cfg) {
-                      case 'a': {
-                        TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(&rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                      case 'b': {
-                        TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(
-                                                                      &rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                      case 'c': {
-                        TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(
-                                                                      &rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                    }
-                } catch (bsls::AssertTestException thrown) {
-                    ASSERT(0 == BSL::strcmp(thrown.level(),
-                                            bsls::Assert::k_LEVEL_SAFE));
-                }
-            }
-
-#else  // BSLS_ASSERT_SAFE_IS_ACTIVE
-            try {
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE(      &rwLock);
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE( &rwLock);
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
-            } catch (bsls::AssertTestException thrown) {
-                ASSERT(!"Reachable")
-            }
-
-#endif // BSLS_ASSERT_SAFE_IS_ACTIVE
-
-            if (veryVeryVerbose) cout << "testing 'normal' macros" << endl;
-#ifdef BSLS_ASSERT_IS_ACTIVE
-            TestCase2::mode          = TestCase2::e_NORMAL_MODE;
-            TestCase2::expectedLevel = bsls::Assert::k_LEVEL_ASSERT; 
-
-            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-                TestCase2::cfg = cfg;
-                try {
-                    switch (cfg) {
-                      case 'a': {
-                        TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                      case 'b': {
-                        TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                      case 'c': {
-                        TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                    }
-                } catch (bsls::AssertTestException thrown) {
-                    ASSERT(0 == BSL::strcmp(thrown.level(),
-                                            bsls::Assert::k_LEVEL_ASSERT));
-                }
-            }
-#else  // BSLS_ASSERT_IS_ACTIVE
-            try {
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(      &rwLock);
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ( &rwLock);
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&rwLock);
-            } catch (bsls::AssertTestException thrown) {
-                ASSERT(!"Reachable")
-            }
-#endif // BSLS_ASSERT_IS_ACTIVE
-
-            if (veryVeryVerbose) cout << "testing '*_OPT' macros" << endl;
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-            TestCase2::mode          = TestCase2::e_OPT_MODE;
-            TestCase2::expectedLevel = bsls::Assert::k_LEVEL_OPT; 
-
-            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-                TestCase2::cfg = cfg;
-                try {
-                    switch (cfg) {
-                      case 'a': {
-                        TestCase2::expectedLine = __LINE__ + 1;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(&rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                      case 'b': {
-                        TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT(
-                                                                      &rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                      case 'c': {
-                        TestCase2::expectedLine = __LINE__ + 2;
-                        BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(
-                                                                      &rwLock);
-                        ASSERTV(cfg, !"Reachable")
-                        break;
-                      }
-                    }
-                } catch (bsls::AssertTestException thrown) {
-                    ASSERTV(thrown.level(),
-                                    0 == BSL::strcmp(thrown.level(),
-                                            bsls::Assert::k_LEVEL_OPT));
-                }
-            }
-#else   // BSLS_ASSERT_OPT_IS_ACTIVE
-            try {
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(      &rwLock);
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT( &rwLock);
-                BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(&rwLock);
-            } catch (bsls::AssertTestException thrown) {
-                ASSERT(!"Reachable")
-            }
-#endif // BSLS_ASSERT_OPT_IS_ACTIVE
-
-            bsls::Assert::setViolationHandler(priorViolationHandler);
-        }
-#else  // BDE_BUILD_TARGET_EXC
-
-        if (verbose) cout << "Some tests skipped in non-exception build"
-                          << endl;
-
-#endif // BDE_BUILD_TARGET_EXC
       } break;
       case 1: {
         // ------------------------------------------------------------------

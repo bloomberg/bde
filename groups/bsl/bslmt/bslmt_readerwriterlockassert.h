@@ -20,16 +20,16 @@ BSLS_IDENT("$Id: $")
 //  BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE: test in safe    mode
 //  BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT:  test in all     modes
 //
-//@SEE_ALSO: bslmt_lockassert, bslmt_readerwriterlock, 
-///          bslmt_readerwritermutexassert
+//@SEE_ALSO: bslmt_lockassert, bslmt_readerwriterlock, bslmt_readerwritermutex
 //
 //@DESCRIPTION: This component provides macros for asserting that a
-// reader-writer lock is locked.  It does not distinguish between locks held
-// by the current thread or other threads.  If the macro is active in the
-// current build mode, when the macro is called, if the supplied lock is
-// unlocked, the assert handler installed for 'BSLS_ASSERT' will be called.
-// The assert handler installed by default will report an error and abort the
-// task.
+// reader-writer lock is locked.  It does not distinguish between locks held by
+// the current thread or other threads.  If the macro is active in the current
+// build mode, when the macro is called, if the supplied lock is unlocked, the
+// assert handler installed for 'BSLS_ASSERT' will be called.  The assert
+// handler installed by default will report an error and abort the task.  Note
+// that the type of lock (pointer) passed to each of these macros is determined
+// at compile-time.  See {Requirements on the Lock Type} below.
 //
 // The nine macros defined by the component are analogous to the macros defined
 // by 'BSLS_ASSERT':
@@ -70,6 +70,23 @@ BSLS_IDENT("$Id: $")
 // existence of a lock does not guarantee that the complete precondition is
 // met.
 //
+///Requirements on the Lock Type
+///-----------------------------
+// This system of macros accept pointers to reader-write lock objects that
+// provide the methods:
+//: o 'isLocked',
+//: o 'isLockedRead', and
+//: o 'isLockedWrite'
+// 
+// Two compatible classes are:
+//: o 'bslmt::ReaderWriteLock' and
+//: o 'bslmt::ReaderWriteMutex'
+//
+// Although the required methods are typically 'const'-qualified (i.e.,
+// "accessor" methods), that is not a requriement.  Some client lock classes
+// may implement these methods in terms of 'tryLock'/'unlock' methods that
+// require non-'const' access to the lock.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -80,8 +97,7 @@ BSLS_IDENT("$Id: $")
 // Checking Consistency Within a Private Method}.  In that example, a mutex was
 // used to control access.  Here, the (simple) mutex is replaced with a
 // 'bslmt::ReaderWriterLock' that is allows multiple concurrent access to the
-// queue when conditions allow.  Note that a similar transformation is also
-// done in {'bslmt_readerwritermutexassert'|Example 1}.
+// queue when conditions allow.
 //
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a lock.  The
@@ -327,11 +343,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmt_readerwriterlock.h>
-
 #include <bsls_assert.h>
 
-#include <cstring>  // 'native_std::strcmp'
+#include <bsl_string.h>  // 'native_std::strcmp'
 
 // ----------------------------------------------------------------------------
 
@@ -464,11 +478,12 @@ struct ReaderWriterLockAssert_Imp {
     // This class should *not* be used directly in client code.
 
     // CLASS METHODS
-    static void assertIsLocked(ReaderWriterLock *rwLock,
-                               const char       *text,
-                               const char       *file,
-                               int               line,
-                               const char       *level);
+    template <class RW_LOCK>
+    static void assertIsLocked(RW_LOCK    *rwLock,
+                               const char *text,
+                               const char *file,
+                               int         line,
+                               const char *level);
         // If the specified 'rwLock' is not locked (i.e., neither a read lock
         // or a write lock), call 'bsls::Assert::invokeHandler' with the
         // specified 'text', 'file', 'line', and 'level', where 'text' is text
@@ -481,11 +496,12 @@ struct ReaderWriterLockAssert_Imp {
         // 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED_OPT' and should not otherwise
         // be called directly.
 
-    static void assertIsLockedRead(ReaderWriterLock *rwLock,
-                                   const char       *text,
-                                   const char       *file,
-                                   int               line,
-                                   const char       *level);
+    template <class RW_LOCK>
+    static void assertIsLockedRead(RW_LOCK    *rwLock,
+                                   const char *text,
+                                   const char *file,
+                                   int         line,
+                                   const char *level);
         // If the specified 'rwLock' is not locked for reading, call
         // 'bsls::Assert::invokeHandler' with the specified 'text', 'file',
         // 'line', and 'level', where 'text' is text describing the assertion
@@ -498,11 +514,12 @@ struct ReaderWriterLockAssert_Imp {
         // 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED_READ_OPT' and should not
         // otherwise be called directly.
 
-    static void assertIsLockedWrite(ReaderWriterLock *rwLock,
-                                    const char       *text,
-                                    const char       *file,
-                                    int               line,
-                                    const char       *level);
+    template <class RW_LOCK>
+    static void assertIsLockedWrite(RW_LOCK     *rwLock,
+                                    const char  *text,
+                                    const char  *file,
+                                    int          line,
+                                    const char  *level);
         // If the specified 'rwLock' is not locked for writing, call
         // 'bsls::Assert::invokeHandler' with the specified 'text', 'file',
         // 'line', and 'level', where 'text' is text describing the assertion
@@ -530,12 +547,13 @@ struct ReaderWriterLockAssert_Imp {
 
 
 // CLASS METHODS
+template <class RW_LOCK>
 inline
-void ReaderWriterLockAssert_Imp::assertIsLocked(ReaderWriterLock *rwLock,
-                                                 const char      *text,
-                                                 const char      *file,
-                                                 int              line,
-                                                 const char      *level)
+void ReaderWriterLockAssert_Imp::assertIsLocked(RW_LOCK    *rwLock,
+                                                const char *text,
+                                                const char *file,
+                                                int         line,
+                                                const char *level)
 {
     BSLS_ASSERT(rwLock);
     BSLS_ASSERT(text);
@@ -549,12 +567,13 @@ void ReaderWriterLockAssert_Imp::assertIsLocked(ReaderWriterLock *rwLock,
     }
 }
 
+template <class RW_LOCK>
 inline
-void ReaderWriterLockAssert_Imp::assertIsLockedRead(ReaderWriterLock *rwLock,
-                                                    const char       *text,
-                                                    const char       *file,
-                                                    int               line,
-                                                    const char       *level)
+void ReaderWriterLockAssert_Imp::assertIsLockedRead(RW_LOCK    *rwLock,
+                                                    const char *text,
+                                                    const char *file,
+                                                    int         line,
+                                                    const char *level)
 {
     BSLS_ASSERT(rwLock);
     BSLS_ASSERT(text);
@@ -568,12 +587,13 @@ void ReaderWriterLockAssert_Imp::assertIsLockedRead(ReaderWriterLock *rwLock,
     }
 }
 
+template <class RW_LOCK>
 inline
-void ReaderWriterLockAssert_Imp::assertIsLockedWrite(ReaderWriterLock *rwLock,
-                                                     const char       *text,
-                                                     const char       *file,
-                                                     int               line,
-                                                     const char       *level)
+void ReaderWriterLockAssert_Imp::assertIsLockedWrite(RW_LOCK    *rwLock,
+                                                     const char *text,
+                                                     const char *file,
+                                                     int         line,
+                                                     const char *level)
 {
     BSLS_ASSERT(rwLock);
     BSLS_ASSERT(text);

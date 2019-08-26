@@ -12,8 +12,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_lock_cpp,"$Id$ $CSID$")
 
-#include <bslmt_readerwriterlock.h>
-#include <bslmt_threadutil.h>     // for testing only
+#include <bslmt_readerwriterlock.h>  // for testing only
+#include <bslmt_readerwritermutex.h> // for testing only
+#include <bslmt_threadutil.h>        // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
