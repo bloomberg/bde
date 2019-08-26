@@ -158,14 +158,6 @@ void MultiQueueThreadPool_Queue::drainWaitWhilePausing()
 
 void MultiQueueThreadPool_Queue::executeFront()
 {
-    // If the queue is being deleted, the functor about to be popped is
-    // 'deleteQueueCb' and is not counted in 'd_numEnqueued' so must not be
-    // counted in 'd_numExecuted'.
-
-    if (e_DELETING != d_enqueueState) {
-        ++d_multiQueueThreadPool_p->d_numExecuted;
-    }
-
     Job functor;
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
@@ -176,6 +168,14 @@ void MultiQueueThreadPool_Queue::executeFront()
             setPaused();
 
             return;                                                   // RETURN
+        }
+
+        // If the queue is being deleted, the functor about to be popped is
+        // 'deleteQueueCb' and is not counted in 'd_numEnqueued' so must not be
+        // counted in 'd_numExecuted'.
+
+        if (e_DELETING != d_enqueueState) {
+            ++d_multiQueueThreadPool_p->d_numExecuted;
         }
 
         functor = d_list.front();
