@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmt' package currently has 48 components having 18 levels of physical
+ The 'bslmt' package currently has 49 components having 18 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -25,6 +25,7 @@
   18. bslmt_testutil
 
   17. bslmt_once
+      bslmt_readerwriterlockassert
       bslmt_rwmutex                                      !DEPRECATED!
 
   16. bslmt_latch
@@ -40,9 +41,10 @@
 
   13. bslmt_conditionimpl_win32                                       !PRIVATE!
 
-  12. bslmt_sluice
+  12. bslmt_readerwritermutex
+      bslmt_sluice
 
-  11. bslmt_readerwritermutex
+  11. bslmt_readerwritermuteximpl
       bslmt_threadgroup
 
   10. bslmt_semaphore
@@ -82,7 +84,6 @@
 
    1. bslmt_lockguard
       bslmt_platform
-      bslmt_readerwritermuteximpl
       bslmt_readlockguard
       bslmt_threadlocalvariable
       bslmt_throughputbenchmarkresult
@@ -147,6 +148,9 @@
 :
 : 'bslmt_readerwriterlock':
 :      Provide a multi-reader/single-writer lock.
+:
+: 'bslmt_readerwriterlockassert':
+:      Provide an assert macro for verifying reader-writer lock status.
 :
 : 'bslmt_readerwritermutex':
 :      Provide a multi-reader/single-writer lock.
