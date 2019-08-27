@@ -1129,7 +1129,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 {
     ObjectNode *p;
     do {
-        p = d_freeObjectsList.loadRelaxed();
+        p = d_freeObjectsList.loadAcquire();
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!p)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
