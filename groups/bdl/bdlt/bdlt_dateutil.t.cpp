@@ -973,7 +973,7 @@ if (veryVerbose)
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'earliestDayOfWeekInMonth' and 'lastDayOfWeekInMonth'
+        // TESTING 'earliestDayOfWeekInMonth' AND 'lastDayOfWeekInMonth'
         //
         // Concerns:
         //: 1 The function returns the first/last 'dayOfWeek' in 'month' and
@@ -1004,7 +1004,7 @@ if (veryVerbose)
 
         if (verbose) {
         cout << endl
-             << "TESTING 'earliestDayOfWeekInMonth' and 'lastDayOfWeekInMonth'"
+             << "TESTING 'earliestDayOfWeekInMonth' AND 'lastDayOfWeekInMonth'"
              << endl
              << "============================================================="
              << endl;
