@@ -353,10 +353,7 @@ void BlobUtil::append(Blob *dest, const char *source, int length)
             return;                                                   // RETURN
         }
     }
-    else {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-    }
-
+    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     append(dest, source, 0, length);
 }
 

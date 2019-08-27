@@ -587,9 +587,8 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::makeDecimal64(long long mantissa,
 
         return makeDecimalRaw64(mantissa, exponent);                  // RETURN
     }
-    else {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-    }
+
+    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
     if (exponent >= Properties64::maxExponent + Properties64::digits) {
 
