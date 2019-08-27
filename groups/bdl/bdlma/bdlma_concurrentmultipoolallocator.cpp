@@ -42,7 +42,9 @@ void ConcurrentMultipoolAllocator::deallocate(void *address)
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(address != 0)) {
         d_multipool.deallocate(address);
     }
-    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+    }
 }
 
 void ConcurrentMultipoolAllocator::release()
