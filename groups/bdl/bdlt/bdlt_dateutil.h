@@ -28,8 +28,9 @@ BSLS_IDENT("$Id: $")
 //  'previousDayOfWeek'
 //  'previousDayOfWeekInclusive'
 //
-//  'nthDayOfWeekInMonth'         o Find a specified day of the week in a
-//  'lastDayOfWeekInMonth'          specified year and month.
+//  'earliestDayOfWeekInMonth'    o Find a specified day of the week in a
+//  'nthDayOfWeekInMonth'           specified year and month.
+//  'lastDayOfWeekInMonth'
 //  'lastDayInMonth'
 //
 //  'addMonthsEom'                o Add a specified number of months to a date
@@ -406,6 +407,17 @@ inline
 int DateUtil::convertToYYYYMMDD(const Date& date)
 {
     return date.year() * 10000 + date.month() * 100 + date.day();
+}
+
+inline
+Date DateUtil::earliestDayOfWeekInMonth(int             year,
+                                        int             month,
+                                        DayOfWeek::Enum dayOfWeek)
+{
+    BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
+    BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
+
+    return nextDayOfWeekInclusive(dayOfWeek, Date(year, month, 1));
 }
 
 inline
