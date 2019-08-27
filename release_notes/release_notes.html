@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>BDE 3.33.1: Production Release &mdash; BDE Documentation  documentation</title>
+  <title>Release Notes &mdash; BDE Documentation  documentation</title>
   
 
   
@@ -30,8 +30,8 @@
   <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BDE 3.32.0: Production Release" href="BDE_3.32.0.html" />
-    <link rel="prev" title="BDE 3.34.0: Production Release" href="BDE_3.34.0.html" /> 
+    <link rel="next" title="BDE 3.37.1: Production Release" href="BDE_3.37.1.html" />
+    <link rel="prev" title="Source Code" href="../library_information/source_code.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -133,7 +133,7 @@
 <li class="toctree-l2"><a class="reference external" href="https://github.com/bloomberg/bde-tools">Build Tools</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Release Notes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.37.1.html">BDE 3.37.1: Production Release</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="BDE_3.37.1.html#schedule">Schedule</a></li>
 <li class="toctree-l3"><a class="reference internal" href="BDE_3.37.1.html#bde-3-37-1-highlights">BDE 3.37.1 Highlights</a></li>
@@ -161,13 +161,13 @@
 <li class="toctree-l3"><a class="reference internal" href="BDE_3.34.0.html#fixed-requests-3-34-0">Fixed requests: 3.34.0</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.33.1: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bde-3-33-1-highlights">BDE 3.33.1 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#new-component-bdlmt-signaler-for-connecting-signals-and-slots">New Component: <code class="docutils literal notranslate"><span class="pre">bdlmt_signaler</span></code> for connecting signals and slots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.33.1.html">BDE 3.33.1: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.33.1.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.33.1.html#bde-3-33-1-highlights">BDE 3.33.1 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="BDE_3.33.1.html#new-component-bdlmt-signaler-for-connecting-signals-and-slots">New Component: <code class="docutils literal notranslate"><span class="pre">bdlmt_signaler</span></code> for connecting signals and slots</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#fixed-requests-3-33-0">Fixed requests: 3.33.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.33.1.html#fixed-requests-3-33-0">Fixed requests: 3.33.0</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.32.0.html">BDE 3.32.0: Production Release</a><ul>
@@ -597,9 +597,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
-        
-      <li>BDE 3.33.1: Production Release</li>
+      <li>Release Notes</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -613,10 +611,10 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="BDE_3.32.0.html" class="btn btn-neutral float-right" title="BDE 3.32.0: Production Release" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="BDE_3.37.1.html" class="btn btn-neutral float-right" title="BDE 3.37.1: Production Release" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="BDE_3.34.0.html" class="btn btn-neutral" title="BDE 3.34.0: Production Release" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../library_information/source_code.html" class="btn btn-neutral" title="Source Code" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
   </div>
   
@@ -625,73 +623,43 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="bde-3-33-1-production-release">
-<span id="bde3-33-1-top"></span><h1>BDE 3.33.1: Production Release<a class="headerlink" href="#bde-3-33-1-production-release" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="schedule">
-<span id="bde3-33-1-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul class="simple">
-<li>The BDE team is pleased to announce that the BDE 3.33.1 production release
-was completed on <strong>Monday, July 15th, 2019</strong></li>
+  <div class="section" id="release-notes">
+<h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.37.1.html">BDE 3.37.1: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.36.0.html">BDE 3.36.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.35.0.html">BDE 3.35.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.34.0.html">BDE 3.34.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.33.1.html">BDE 3.33.1: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.32.0.html">BDE 3.32.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.31.0.html">BDE 3.31.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.30.0.html">BDE 3.30.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.29.0.html">BDE 3.29.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.28.0.html">BDE 3.28.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.27.0.html">BDE 3.27.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.26.0.html">BDE 3.26.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.25.0.html">BDE 3.25.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.24.0.html">BDE 3.24.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.23.1.html">BDE 3.23.1: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.21.0.html">BDE 3.21.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.20.0.html">BDE 3.20.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.19.0.html">BDE 3.19.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.18.0.html">BDE 3.18.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.17.0.html">BDE 3.17.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.16.0.html">BDE 3.16.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.15.0.html">BDE 3.15.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.14.0.html">BDE 3.14.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.13.0.html">BDE 3.13.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.12.0.html">BDE 3.12.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.11.0.html">BDE 3.11.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.10.0.html">BDE 3.10.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.9.0.html">BDE 3.9.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.8.0.html">BDE 3.8.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.7.1.html">BDE 3.7.1: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.7.0.html">BDE 3.7.0: Production Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BDE_3.6.0.html">BDE 3.6.0: Production Release</a></li>
 </ul>
-</div></blockquote>
-</div>
-<div class="section" id="bde-3-33-1-highlights">
-<span id="bde3-33-1-highlights"></span><h2>BDE 3.33.1 Highlights<a class="headerlink" href="#bde-3-33-1-highlights" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="new-component-bdlmt-signaler-for-connecting-signals-and-slots">
-<h3>New Component: <code class="docutils literal notranslate"><span class="pre">bdlmt_signaler</span></code> for connecting signals and slots<a class="headerlink" href="#new-component-bdlmt-signaler-for-connecting-signals-and-slots" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><code class="docutils literal notranslate"><span class="pre">bdlmt::Signaler&lt;PROT&gt;</span></code> has been contributed to BDE, a utility that
-provides an implementation of a <code class="docutils literal notranslate"><span class="pre">signals</span></code> and <code class="docutils literal notranslate"><span class="pre">slots</span></code> framework.  This
-component provides a way to generate a function object (a <code class="docutils literal notranslate"><span class="pre">signal</span></code>) that
-can, in a thread safe manner, be attached to any number of compatible
-callable <code class="docutils literal notranslate"><span class="pre">slots</span></code>.  Slots can be connected and disconnected from a signal
-asynchronously, and signals can be emitted concurrently.</div></blockquote>
-</div>
-</div>
-<div class="section" id="fixed-requests-3-33-0">
-<span id="bde3-33-1-fixed"></span><h2>Fixed requests: 3.33.0<a class="headerlink" href="#fixed-requests-3-33-0" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="colwidths-given docutils align-left">
-<colgroup>
-<col width="100%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Description</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">bdlmt_signaler</span></code>: managed signals and slots system for BDE (copy mwcu)</td>
-</tr>
-<tr class="row-odd"><td>Correct test driver run failure for bdesu_processutil on Windows</td>
-</tr>
-<tr class="row-even"><td>MultiqueueThreadPool returning negative values</td>
-</tr>
-<tr class="row-odd"><td>Avoid unnecessary use of <code class="docutils literal notranslate"><span class="pre">bslmf::MetaInt</span></code></td>
-</tr>
-<tr class="row-even"><td>Prevent <code class="docutils literal notranslate"><span class="pre">bdef_Function&lt;T&gt;</span></code> from being instantiated if <code class="docutils literal notranslate"><span class="pre">T</span></code> is not a function</td>
-</tr>
-<tr class="row-odd"><td>Fix compilation failure in bslim_gtestutil</td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">bsl::is_nothrow_move_constructible</span></code> give bad result in many cases</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">bslmt_throughputbenchmark</span></code> TD allocation failure</td>
-</tr>
-<tr class="row-even"><td>Correct nightly build test compile issues with bsls_annotation.t.cpp</td>
-</tr>
-<tr class="row-odd"><td>Avoid a dangling functor in <code class="docutils literal notranslate"><span class="pre">bslmt_throughputbenchmark</span></code></td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">bdlmt_signaler</span></code>: cpp17: bind doesn’t mix with noexcept</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">system_error</span></code> is broken with BSL_OVERRIDES_STD</td>
-</tr>
-<tr class="row-even"><td>Correct <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code> test driver case 3</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">bdlcc::SkipList</span></code>: excessive calls to ‘replenish’ causing b</td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">bdlbb::BlobUtil::append</span></code>: Excessive Memory Usage</td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
 
