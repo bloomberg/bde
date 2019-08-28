@@ -66,7 +66,7 @@ void MultiQueueThreadPool_Queue::setPaused()
         int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_list.front());
 
-        BSLS_ASSERT(0 == status);  (void)status;
+        BSLS_ASSERT_OPT(0 == status);  (void)status;
 
         // Note that 'd_numActiveQueues' is decremented at the completion of
         // 'deleteQueueCb', and hence should not be modified on this execution
@@ -210,7 +210,7 @@ void MultiQueueThreadPool_Queue::executeFront()
                 int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_processingCb);
 
-                BSLS_ASSERT(0 == status);  (void)status;
+                BSLS_ASSERT_OPT(0 == status);  (void)status;
             }
             else {
                 d_runState = e_NOT_SCHEDULED;
@@ -255,7 +255,7 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
 
         int rc = d_multiQueueThreadPool_p->d_threadPool_p->enqueueJob(job);
 
-        BSLS_ASSERT(0 == rc);  (void)rc;
+        BSLS_ASSERT_OPT(0 == rc);  (void)rc;
     }
     else {
         // Note that under no circumstance is 'd_numExecuted' incremented when
@@ -309,7 +309,7 @@ int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
             int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_processingCb);
 
-            BSLS_ASSERT(0 == status);  (void)status;
+            BSLS_ASSERT_OPT(0 == status);  (void)status;
         }
 
         return 0;                                                     // RETURN
@@ -336,7 +336,7 @@ int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
             int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_processingCb);
 
-            BSLS_ASSERT(0 == status);  (void)status;
+            BSLS_ASSERT_OPT(0 == status);  (void)status;
         }
 
         return 0;                                                     // RETURN
