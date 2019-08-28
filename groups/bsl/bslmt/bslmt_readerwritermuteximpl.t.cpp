@@ -5,6 +5,8 @@
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -42,6 +44,11 @@ using namespace bsl;
 // [ 7] void unlock();
 // [ 5] void unlockRead();
 // [ 6] void unlockWrite();
+//
+// ACCESSORS
+// [10] bool isLocked() const;
+// [10] bool isLockedRead() const;
+// [10] bool isLockedWrite() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -191,13 +198,13 @@ struct TestImpl {
                 && s_script[s_scriptAt] >= 0) {
                 int  script           = s_script[s_scriptAt];
 
-                int  numReader        = script % 10;
-                int  numPendingWriter = (script / 10) % 10;
+                int  numReader        =  script        % 10;
+                int  numPendingWriter = (script /  10) % 10;
                 int  numWriter        = (script / 100) % 10;
 
-                EXP = k_READER * numReader
+                EXP = k_READER         * numReader
                     + k_PENDING_WRITER * numPendingWriter
-                    + k_WRITER * numWriter;
+                    + k_WRITER         * numWriter;
 
                 bsls::Types::Int64 state =
                                    bsls::AtomicOperations::getInt64(s_state_p);
@@ -206,9 +213,9 @@ struct TestImpl {
 
                 if (veryVerbose && EXP != state) {
                     printScript(static_cast<int>(
-                                     state % k_PENDING_WRITER
+                                      state % k_PENDING_WRITER
                                    + (state % k_WRITER) / k_PENDING_WRITER * 10
-                                   + state / k_WRITER * 100));
+                                   +  state / k_WRITER * 100));
                 }
 
                 ++s_scriptAt;
@@ -217,8 +224,8 @@ struct TestImpl {
                 && s_script[s_scriptAt] >= 0) {
                 int  script           = s_script[s_scriptAt];
 
-                int  numReader        = script % 10;
-                int  numPendingWriter = (script / 10) % 10;
+                int  numReader        =  script        % 10;
+                int  numPendingWriter = (script /  10) % 10;
                 int  numWriter        = (script / 100) % 10;
 
                 set = k_READER * numReader
@@ -260,7 +267,7 @@ struct TestImpl {
     static void assignScript(const bsl::vector<int>& script)
         // Assign the specified 'script' for verification.
     {
-        s_script = script;
+        s_script   = script;
         s_scriptAt = 0;
     }
 
@@ -286,7 +293,7 @@ struct TestImpl {
     }
 
     static bsls::Types::Int64 getInt64(
-                          bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
+                    const bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
         ASSERT(pState == s_state_p);
 
         processFunction(k_GET);
@@ -294,7 +301,7 @@ struct TestImpl {
     }
 
     static bsls::Types::Int64 getInt64Acquire(
-                          bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
+                   const bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
         ASSERT(pState == s_state_p);
 
         processFunction(k_GET);
@@ -413,6 +420,11 @@ bsls::Types::size_type                      TestImpl::s_scriptAt = 0;
 
 typedef bslmt::ReaderWriterMutexImpl<TestImpl, TestImpl, TestImpl>  Obj;
 
+typedef bslmt::ReaderWriterMutexImpl<bsls::AtomicOperations,
+                                     bslmt::Mutex,
+                                     bslmt::Semaphore>              RealObj;
+
+
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -434,6 +446,78 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 10: {
+        // --------------------------------------------------------------------
+        // ACCESSORS
+        //
+        // Concerns:
+        //: 1 Each accessor correctly returns the known state of a lock object.
+        //:
+        //: 2 Each accessor is 'const' qualified.
+        //
+        // Plan:
+        //: 1 An ad-hoc sequence of (previously tested) lock and unlock
+        //:   operations is used to put a test object into different state.
+        //:   The accessors are used to corroborate those states.  (C-1)
+        //:
+        //: 2 Each accessor invocation is done via a 'const'-reference to the
+        //:   object under test.  (C-2)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING ACCESSORS" << endl
+                 << "=================" << endl;
+        }
+
+        RealObj mX; const RealObj& X = mX;
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.lockRead();
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.lockWrite();
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+        
+        int rcR = mX.tryLockRead();
+        ASSERT(0 == rcR);
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        int rcW = mX.tryLockWrite();
+        ASSERT(0 == rcW);
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING 'tryLockWrite'

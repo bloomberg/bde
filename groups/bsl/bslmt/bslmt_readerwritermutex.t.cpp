@@ -40,10 +40,15 @@ using namespace bsl;
 // [ 2] void unlock();
 // [ 2] void unlockRead();
 // [ 2] void unlockWrite();
+//
+// ACCESSORS
+// [ 4] bool isLocked() const;
+// [ 4] bool isLockedRead() const;
+// [ 4] bool isLockedWrite() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] WRITER BIAS
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -348,7 +353,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -382,6 +387,82 @@ int main(int argc, char *argv[])
     account.deposit(paycheckInPennies);
     ASSERT(15075 == account.balanceInPennies());
 //..
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // ACCESSORS
+        //
+        // Concerns:
+        //: 1 Each accessor forwards to the corresponding accessor in that
+        //:   object's 'bslmt_ReaderWriterMutexImpl' member.
+        //:
+        //: 2 Each accessor is 'const' qualified.
+        //
+        // Plan:
+        //: 1 An ad-hoc sequence of (previously tested) lock and unlock
+        //:   operations is used to put a test object into different states.
+        //:   The accessors are used to corroborate those states.  (C-1)
+        //:
+        //: 2 Each accessor invocation is done via a 'const'-reference to the
+        //:   object under test.  (C-2)
+        //
+        // Testing:
+        //   bool isLocked() const;
+        //   bool isLockedRead() const;
+        //   bool isLockedWrite() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ACCESSORS" << endl
+                          << "=========" << endl;
+
+        Obj mX; const Obj& X = mX;
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.lockRead();
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.lockWrite();
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+        
+        int rcR = mX.tryLockRead();
+        ASSERT(0 == rcR);
+        ASSERT(true  == X.isLocked());
+        ASSERT(true  == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        mX.unlockRead();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
+        int rcW = mX.tryLockWrite();
+        ASSERT(0 == rcW);
+        ASSERT(true  == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(true  == X.isLockedWrite());
+
+        mX.unlockWrite();
+        ASSERT(false == X.isLocked());
+        ASSERT(false == X.isLockedRead());
+        ASSERT(false == X.isLockedWrite());
+
       } break;
       case 3: {
         // --------------------------------------------------------------------

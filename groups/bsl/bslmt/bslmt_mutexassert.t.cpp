@@ -309,8 +309,8 @@ int veryVerbose;
                                   // ------
 
 struct TestCase3SubThread {
-    bslmt::Mutex     *d_mutexToAssertOn;
-    bslmt::Mutex     *d_mutexThatMainThreadWillUnlock;
+    bslmt::Mutex    *d_mutexToAssertOn;
+    bslmt::Mutex    *d_mutexThatMainThreadWillUnlock;
     bsls::AtomicInt *d_subthreadWillIncrementValue;
 
     void operator()()
@@ -427,18 +427,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING LOCK HELD BY OTHER THREAD\n"
                              "=================================\n";
 
-        bslmt::Mutex     mutexToAssertOn;
-        bslmt::Mutex     mutexThatMainThreadWillUnlock;
+        bslmt::Mutex    mutexToAssertOn;
+        bslmt::Mutex    mutexThatMainThreadWillUnlock;
         bsls::AtomicInt subthreadWillIncrementValue;
 
         subthreadWillIncrementValue = 0;
         mutexThatMainThreadWillUnlock.lock();
 
         TestCase3SubThread functor;
-        functor.d_mutexToAssertOn = &mutexToAssertOn;
+        functor.d_mutexToAssertOn               = &mutexToAssertOn;
         functor.d_mutexThatMainThreadWillUnlock =
-                                        &mutexThatMainThreadWillUnlock;
-        functor.d_subthreadWillIncrementValue = &subthreadWillIncrementValue;
+                                                &mutexThatMainThreadWillUnlock;
+        functor.d_subthreadWillIncrementValue   = &subthreadWillIncrementValue;
 
         bslmt::ThreadUtil::Handle handle;
         int sts = bslmt::ThreadUtil::create(&handle, functor);
