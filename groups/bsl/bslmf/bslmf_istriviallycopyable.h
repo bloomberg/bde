@@ -152,10 +152,6 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
-#include <bslmf_nil.h>
-#endif
-
 namespace bsl {
 
 template <class TYPE>
@@ -168,6 +164,8 @@ namespace BloombergLP {
 namespace bsls { class TimeInterval; }
 
 namespace bslmf {
+
+class Nil;
 
                          // ==============================
                          // struct IsTriviallyCopyable_Imp
