@@ -165,7 +165,7 @@ namespace bsls { class TimeInterval; }
 
 namespace bslmf {
 
-class Nil;
+struct Nil;
 
                          // ==============================
                          // struct IsTriviallyCopyable_Imp
