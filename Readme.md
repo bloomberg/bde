@@ -12,7 +12,7 @@ Open Source
 
 * [Online Library Documentation](https://bloomberg.github.io/bde)
 * [BDE Build Tools](https://bloomberg.github.io/bde-tools/)
-* [BDE Build Howto](https://bloomberg.github.io/bde/knowledge_base/build.html)
+* [BDE Build Howto](https://bloomberg.github.io/bde/library_information/build.html)
 
 
 Bloomberg LP (internal)
@@ -20,8 +20,48 @@ Bloomberg LP (internal)
 
 * [Online Library Documentation](https://bde.bloomberg.com/bde)
 * [BDE Build Tools](https://bde.bloomberg.com/bde-tools/)
-* [BDE Build Howto](https://bde.bloomberg.com/bde/knowledge_base/build.html)
+* [BDE Build Howto](https://bde.bloomberg.com/bde/library_information/build.html)
 
+
+Basic Build Instructions (Open Source)
+======================================
+
+BDE uses a build system based on [cmake](https://cmake.org), which is located
+in the BDE Tools repository.
+
+The following commands can be used to configure and build the BDE repository:
+1. Clone the `bde` resporitory and add `bde-tools` to your `PATH`:
+   ```shell
+   $ git clone https://github.com/bloomberg/bde.git
+   $ git clone https://github.com/bloomberg/bde-tools.git
+   $ export PATH=$PWD/bde-tools/bin:$PATH      # add bde-tools to the 'PATH'
+   $ cd bde
+   ```
+
+2. From the root of this source repository, run:
+
+   ```shell
+   $ export BDE_CMAKE_BUILD_DIR=$PWD/_build   # configure the build directory
+   $ cmake_build.py configure -u dbg_exc_mt_64_cpp14
+   ```
+
+3. To build the libraries, but not the test drivers, run:
+
+   ```shell
+   $ cmake_build.py build
+   ```
+
+   To also build the test drivers, run:
+
+   ```shell
+   $ cmake_build.py build --test build
+   ```
+
+   To build and run the test drivers, run:
+
+   ```shell
+   $ cmake_build.py build --test run
+   ```
 
 Basic Build Instructions (internal)
 ===================================
@@ -42,7 +82,7 @@ The following commands can be used to configure and build the BDE repository:
 
    ```shell
    $ export BDE_CMAKE_BUILD_DIR=$PWD/_build   # configure the build directory
-   $ cmake_build.py configure -u dbg_exc_mt_64_cpp11
+   $ cmake_build.py configure -u dbg_exc_mt_64_cpp14
    ```
 
 3. To build the libraries, but not the test drivers, run:
