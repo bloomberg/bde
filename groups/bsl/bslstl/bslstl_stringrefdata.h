@@ -161,6 +161,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_nativestd.h>
 
+#include <iosfwd>
+
 namespace BloombergLP {
 
 namespace bslstl {

@@ -125,7 +125,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
-#include <bsls_timeinterval.h>
 
 #include <stddef.h>
 
@@ -165,6 +164,9 @@ struct is_trivially_copyable;
 }  // close namespace bsl
 
 namespace BloombergLP {
+
+namespace bsls { class TimeInterval; }
+
 namespace bslmf {
 
                          // ==============================
