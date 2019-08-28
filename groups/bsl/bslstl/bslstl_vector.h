@@ -5461,7 +5461,9 @@ void vector<VALUE_TYPE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
                                                    ContainerBase::allocator());
         this->d_dataEnd_p = this->d_dataBegin_p;
     }
-    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+    }
 }
 
 // ACCESSORS
