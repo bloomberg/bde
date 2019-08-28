@@ -30,11 +30,11 @@ BDE uses a build system based on [cmake](https://cmake.org), which is located
 in the BDE Tools repository.
 
 The following commands can be used to configure and build the BDE repository:
-1. Clone the `bde` resporitory and add `bde-tools` to your `PATH`:
+1. Clone the `bde-tools` and `bde` repositories and add `bde-tools` to your `PATH`:
    ```shell
-   $ git clone https://github.com/bloomberg/bde.git
    $ git clone https://github.com/bloomberg/bde-tools.git
    $ export PATH=$PWD/bde-tools/bin:$PATH      # add bde-tools to the 'PATH'
+   $ git clone https://github.com/bloomberg/bde.git
    $ cd bde
    ```
 
@@ -70,11 +70,11 @@ BDE uses a build system based on [cmake](https://cmake.org), which is located
 in the BDE Tools repository.
 
 The following commands can be used to configure and build the BDE repository:
-1. Clone the `bde` resporitory and add `bde-tools` to your `PATH`:
+1. Clone the `bde-tools` and `bde` repositories and add `bde-tools` to your `PATH`:
    ```shell
-   $ git clone bbgithub:bde/bde
    $ git clone bbgithub:bde/bde-tools
    $ export PATH=$PWD/bde-tools/bin:$PATH      # add bde-tools to the 'PATH'
+   $ git clone bbgithub:bde/bde
    $ cd bde
    ```
 
