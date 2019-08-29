@@ -25,7 +25,8 @@
 # include <condition_variable>
 # include <forward_list>
 # include <future>
-//include <initializer_list>  COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+//include <initializer_list>
+//                       BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 # include <mutex>
 # include <random>
 # include <regex>
@@ -57,13 +58,49 @@
     // mode, finding our own intercept headers that simply forward to the
     // original platform header, assuming it is available.
 # include <any>
-# include <charconv>
-# include <execution>
-# include <filesystem>
-# include <memory_resource>
+//include <charconv>         // BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV
+//include <execution>        // BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS
+//include <filesystem>       // BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM
+//include <memory_resource>  // BSLS_LIBRARYFEATURES_SUPPORT_PMR
 # include <optional>
 # include <string_view>
 # include <variant>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+    // Verify assumption that <charconv> is includeable.  Note that we must
+    // actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <charconv>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS)
+    // Verify assumption that <execution> is includeable.  Note that we must
+    // actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <execution>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM)
+    // Verify assumption that <filesystem> is includeable.  Note that we must
+    // actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <filesystem>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+    // Verify assumption that <memory_resource> is includeable.  Note that we
+    // must actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <memory_resource>
 #endif
 
 // ============================================================================
@@ -370,7 +407,7 @@ typename CONTAINER::iterator end(CONTAINER & c)
 
         // Function defined in '<utility>'
         int X(0);
-        int Y = native_std::exchange(X, 1);  (void) Y;
+        int Y = native_std::exchange(X, 1);    (void) Y;
 
         { // UDLs for <complex>
             using namespace native_std::complex_literals;
@@ -854,6 +891,10 @@ static void printFlags()
 {
     printf("printFlags: Enter\n");
 
+    printf("\n  BSLS_PLATFORM_CMP_VERSION: %s\n",
+                                         STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
+    printf("\n  __cplusplus: %s\n", STRINGIFY(__cplusplus));
+
     printf("\n  printFlags: bsls_libraryfeatures Macros\n");
 
     printf("\n  BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS: ");
@@ -1060,6 +1101,38 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_STLPORT
     printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_STLPORT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV: ");
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV
+    printf("%s\n",
+                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS: ");
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS
+    printf("%s\n",
+                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM: ");
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM
+    printf("%s\n",
+                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_PMR: ");
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+    printf("%s\n",
+                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_PMR) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1442,8 +1515,8 @@ int main(int argc, char *argv[])
         case12::TestType mX = { 12 };
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS)
         {
-            int *from = std::begin(mX); (void) from;
-            int *to   = std::end(mX);   (void) to;
+            int *from = std::begin(mX);    (void) from;
+            int *to   = std::end(mX);      (void) to;
         }
 #else
         {
@@ -1453,8 +1526,8 @@ int main(int argc, char *argv[])
             using namespace std;
             using namespace case12;
 
-            int *from = begin(mX); (void) from;
-            int *to   = end(mX);   (void) to;
+            int *from = begin(mX);         (void) from;
+            int *to   = end(mX);           (void) to;
         }
 #endif
 
@@ -1493,7 +1566,7 @@ int main(int argc, char *argv[])
          P(u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined)
         }
 
-        if(u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined)
+        if (u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined)
         {
             ASSERT(true ==
                       u_BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES_defined);
@@ -1917,7 +1990,7 @@ int main(int argc, char *argv[])
          P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
         }
 
-        if(u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
+        if (u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
         {
             ASSERT(true == u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined);
             ASSERT(true ==
