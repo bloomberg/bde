@@ -40,6 +40,10 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_STDCPP_MSVC: implementation is MSVC
 //  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: implementation is Sun's (RogueWave)
 //  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: implementation is STLPort
+//  BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV: <charconv>
+//  BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM: <filesystem>
+//  BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS: <execution>
+//  BSLS_LIBRARYFEATURES_SUPPORT_PMR: <memory_resource>
 //
 //@SEE_ALSO: bsls_platform, bsls_compilerfeatures, bsls_nativestd
 //
@@ -415,7 +419,7 @@ BSLS_IDENT("$Id: $")
 //
 // Currently the following compilers will have this trait defined by default:
 //
-//:   o gcc 7.0
+//:   o gcc 7.0, gcc 8.0, gcc 9.0, clang 7, clang 8
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
@@ -1034,6 +1038,16 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
         #endif
     #endif
+    #if __cplusplus >= 201703L
+        #if BSLS_PLATFORM_CMP_VERSION >= 70000
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+        #endif
+        #if BSLS_PLATFORM_CMP_VERSION >= 90000
+            #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
+            #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
+            #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
+        #endif
+    #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
         // that precise bitwidth atomics exist, but the libstdc++ shipping with
@@ -1201,8 +1215,7 @@ BSLS_IDENT("$Id: $")
             #endif
         #endif
         #if __cplusplus >= 201703L
-            // Check if the library we're using has a requisite header.
-            #if __has_include(<charconv>)
+            #if BSLS_PLATFORM_CMP_VERSION >= 70000
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
             #endif
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
