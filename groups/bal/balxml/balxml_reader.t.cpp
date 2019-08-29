@@ -117,6 +117,14 @@ namespace UsageExample {
         // node.
 
         // TYPES
+        struct Attribute {
+            // This struct represents the qualified name and value of an XML
+            // attribute.
+
+            const char *d_qname;  // qualified name of the attribute
+            const char *d_value;  // value of the attribute
+        };
+
         enum {
             k_NUM_ATTRIBUTES = 5
         };
@@ -129,19 +137,17 @@ namespace UsageExample {
             // qualified name of the node
 
         const char               *d_nodeValue;
-            // Value of the XML node if null, then hasValue() returns false
+            // value of the XML node (if it's null, 'hasValue()' returns
+            // 'false')
 
         int                       d_depthChange;
-            // Adjustment for the depth level of 'TestReader', valid values are
+            // adjustment for the depth level of 'TestReader', valid values are
             // -1, 0 or 1
 
         bool                      d_isEmpty;
             // flag indicating whether the element is empty
 
-        struct {
-            const char *d_qname;  // qualified name of the attribute
-            const char *d_value;  // value of the attribute
-        } d_attributes[k_NUM_ATTRIBUTES];
+        Attribute d_attributes[k_NUM_ATTRIBUTES];
             // array of attributes
     };
 
@@ -307,8 +313,11 @@ namespace UsageExample {
     inline
     void TestReader::adjustPrefixStack()
     {
-        // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
-        // push a namespace prefixed on the prefix stack.
+        // Each time this object reads a 'BAEXML_NODE_TYPE_ELEMENT' node, it
+        // must push a namespace prefix onto the prefix stack to handle
+        // in-scope namespace calculations that happen inside XML documents
+        // where inner namespaces can override outer ones.
+
         if (balxml::Reader::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
             for (int ii = 0; ii < TestNode::k_NUM_ATTRIBUTES; ++ii) {
                 const char *prefix = d_currentNode->d_attributes[ii].d_qname;
@@ -416,9 +425,8 @@ namespace UsageExample {
         const TestNode *nextNode = d_currentNode + 1;
 
         if (balxml::Reader::e_NODE_TYPE_NONE == nextNode->d_type) {
-            // If the node type is BAEXML_NODE_TYPE_NONE after we have just
-            // incremented to the next node, that mean we are at the end of the
-            // document.
+            // The document ends when the type of the next node is
+            // 'BAEXML_NODE_TYPE_NONE'.
             d_prefixes->reset();
             return 1;                                                 // RETURN
         }
@@ -426,11 +434,11 @@ namespace UsageExample {
         d_currentNode = nextNode;
 
         if (d_prefixes && 1 == d_nodeDepth) {
-            // The 'TestReader' only recognizes namespace URIs with the prefix
-            // "xmlns:" on the top level element, these URIs will be added to
-            // the prefix stack.  Namespace URI declarations on any other
-            // elements will be treated like normal attributes.  The prefix
-            // stack will be reset once the top level element is closed.
+            // A 'TestReader' only recognizes namespace URIs that have the
+            // prefix "xmlns:" on the top-level element. A 'TestReader' adds
+            // such URIs to its prefix stack. It treats namespace URI
+            // declarations on any other elements like normal attributes, and
+            // resets its prefix stack once the top level element closes.
             adjustPrefixStack();
         }
 
@@ -546,9 +554,10 @@ namespace UsageExample {
             return 0;                                                 // RETURN
         }
 
-        // Our simple 'TestReader' does not understand XML with qualified node
-        // names, as such local name always equals qualified name.  Simply
-        // return d_qname.
+        // This simple 'TestReader' does not understand XML that contains
+        // qualified node names. This means the local name of a node is always
+        // equal to its qualified name, so this function simply returns
+        // 'd_qname'.
         return d_currentNode->d_qname;
     }
 
@@ -620,7 +629,8 @@ namespace UsageExample {
         return 0;
     }
 //..
-// Finally, we can make an object to be used in the Example 1.
+// Finally, our implementation of 'balxml::Reader' is complete. We may use this
+// implementation as the 'TestReader' in the first example.
 
 int usageExample()
 {
@@ -661,11 +671,11 @@ int usageExample()
     ASSERT(&prefixStack == reader.prefixStack());
 //..
 // Next, we call the 'open' method to setup the reader for parsing using the
-// data contained in the in the XML string.
+// data contained in the XML string.
 //..
     reader.open(TEST_XML_STRING, sizeof(TEST_XML_STRING) -1, 0, "UTF-8");
 //..
-// And confirm that the 'bdem::Reader' has opened properly
+// Confirm that the 'bdem::Reader' has opened properly.
 //..
     ASSERT(true == reader.isOpen());
 //..
