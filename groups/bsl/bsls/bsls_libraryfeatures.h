@@ -419,7 +419,7 @@ BSLS_IDENT("$Id: $")
 //
 // Currently the following compilers will have this trait defined by default:
 //
-//:   o gcc 7.0, gcc 8.0, gcc 9.0, clang 7, clang 8
+//:   o gcc 7, gcc 8, gcc 9, clang 7, clang 8
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
