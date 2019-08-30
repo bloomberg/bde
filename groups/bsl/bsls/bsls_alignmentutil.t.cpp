@@ -495,6 +495,9 @@ int main(int argc, char *argv[])
         //   int bsls::AlignmentUtil::calculateAlignmentOffset(void *, int);
         // --------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_AIX)
+        if (verbose) cout << "Test diabled on AIX GNU\n";
+#else
         if (verbose) cout << endl << "Test calculateAlignmentOffset" << endl
                                   << "=============================" << endl;
 
@@ -506,14 +509,13 @@ int main(int argc, char *argv[])
         // necessary to force the alignment of a stack variable beyond what
         // the compiler requires.  Moreover, this trick does not even work for
         // gcc builds on AIX.
-#if !defined(BSLS_PLATFORM_CMP_GNU) || !defined(BSLS_PLATFORM_OS_AIX)
+
         const int BUF_SIZE = 3 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         static union {
             char                                d_buffer[BUF_SIZE];
             bsls::AlignmentUtil::MaxAlignedType d_align;
         } alignedBuf;
-#endif
 
         char *baseAddr = alignedBuf.d_buffer;
 
@@ -610,6 +612,7 @@ int main(int argc, char *argv[])
                 "\nDISABLED in this (non-exception) build mode." << endl;
 #endif
         }
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------

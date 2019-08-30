@@ -481,7 +481,7 @@ struct ConcurrencyTest {
 
 };
 
-static void* concurrencyTest(void* args)
+extern "C" void* concurrencyTest(void* args)
     // Perform a concurrency test using the specified 'args'.  The behavior is
     // undefined unless 'args' points to a 'ConcurrencyTest' object.
 {
