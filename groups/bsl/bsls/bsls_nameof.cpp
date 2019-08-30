@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 
 #include <cstring>
 
@@ -266,7 +267,7 @@ const char *NameOf_Base::initBuffer(char       *buffer,
 # else
     // Linux clang
 
-#   if __cplusplus < 201703L
+#   if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
     char stringName[] = { "std::basic_string<char>" };
 #   else
     char stringName[] = { "std::basic_string<char, std::char_traits<char>,"
