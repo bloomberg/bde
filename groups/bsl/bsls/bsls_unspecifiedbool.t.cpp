@@ -510,7 +510,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\t1.10 'for' loop\n");
 
-            for ( ; bt; ) {
+            BoolType vbt = bt;
+
+            for (; vbt; vbt = BoolType()) {
                 ASSERT(false);
             }
 

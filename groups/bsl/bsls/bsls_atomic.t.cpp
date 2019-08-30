@@ -302,7 +302,7 @@ public:
         int spin = g_spinCount;
 
         while (d().flags[1 - d_id].loadAcquire()
-            && d().turn.loadAcquire() == 1 - d_id)
+            && static_cast<int>(d().turn.loadAcquire()) == 1 - d_id)
             // Contrary to justsoftwaresolutions 'turn' load needs to be
             // 'loadAcquire'.
         {
@@ -350,7 +350,8 @@ public:
 
         int spin = g_spinCount;
 
-        while (d().flags[1 - d_id] && d().turn == 1 - d_id)
+        while (d().flags[1 - d_id] &&
+                         static_cast<bsls::Types::Int64>(d().turn) == 1 - d_id)
         {
             if (--spin == 0) {
                 yield();

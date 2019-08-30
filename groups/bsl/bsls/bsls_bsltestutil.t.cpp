@@ -7,8 +7,8 @@
 #include <limits.h>    // PATH_MAX on linux, CHAR_BIT
 #include <stddef.h>    // ptrdiff_t
 #include <stdio.h>
-#include <stdlib.h>    // abort
-#include <string.h>    // strnlen
+#include <stdlib.h>    // abort, mkstmp
+#include <string.h>    // strnlen, strlen
 #include <sys/types.h> // struct stat[64]: required on Sun and Windows only
 #include <sys/stat.h>  // struct stat[64]: required on Sun and Windows only
 
@@ -661,7 +661,7 @@ enum {
 };
 
 // STATIC DATA
-static int verbose, veryVerbose, veryVeryVerbose;
+static int test, verbose, veryVerbose, veryVeryVerbose;
 
 // ============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -794,14 +794,26 @@ bool tempFileName(char *result)
         return false;
     }
 #else
-    char *fn = tempnam(0, "bsls");
-    if (fn) {
-        strncpy(result, fn, PATH_BUFFER_SIZE);
-        result[PATH_BUFFER_SIZE - 1] = '\0';
-        free(fn);
-    } else {
-        return false;                                                 // RETURN
+    ::snprintf(result, PATH_BUFFER_SIZE,
+                                 "./tmp.bsls_bsltestutil.%d.txt.XXXXXX", test);
+    if (::strnlen(result, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+        printf("tempFileName: buffer overflow\n");
+        return false;
     }
+    if (! ::strstr(result, "XXXXXX")) {
+        printf("tempFileName: pattern garbled\n");
+        return false;
+    }
+    int fd = ::mkstemp(result);
+    if (fd < 0) {
+        printf("tempFileName: ::mkstemp failed\n");
+        return false;
+    }
+    if (::strnlen(result, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+        printf("tempFileName: ::mkstemp buffer overflow\n");
+        return false;
+    }
+    ::close(fd);
 #endif
 
     if (veryVerbose) printf("\tUse '%s' as a base filename.\n", result);
@@ -1971,7 +1983,7 @@ void checkStackCorruptionTest()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;

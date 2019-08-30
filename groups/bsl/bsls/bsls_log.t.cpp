@@ -178,6 +178,7 @@ static const size_t LOG_FORMATTED_STACK_BUFFER_SIZE        = 1024;
 
 
 // Standard test driver globals:
+static int                 test;
 static bool             verbose;
 static bool         veryVerbose;
 static bool     veryVeryVerbose;
@@ -1137,22 +1138,32 @@ bool OutputRedirector::generateTempFileName()
         return false;                                                 // RETURN
     }
 #else
-    char *fn = tempnam(0, "bsls");
-    if (fn) {
-        strncpy(d_fileName, fn, PATH_BUFFER_SIZE);
-        free(fn);
-        if(d_fileName[PATH_BUFFER_SIZE - 1] != '\0') {
-            // Uh-oh! 'strncpy' didn't pad with zeroes.  Just fail here.
-            return false;                                             // RETURN
-        }
-    } else {
-        return false;                                                 // RETURN
+    ::snprintf(d_fileName, PATH_BUFFER_SIZE,
+                                         "./tmp.bsls_log.%d.txt.XXXXXX", test);
+    if (::strnlen(d_fileName, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+        printf("generateTempFileName: buffer overflow\n");
+        return false;
     }
+    if (! ::strstr(d_fileName, "XXXXXX")) {
+        printf("generateTempFileName: pattern garbled\n");
+        return false;
+    }
+    int fd = ::mkstemp(d_fileName);
+    if (fd < 0) {
+        printf("generateTempFileName: ::mkstemp failed\n");
+        return false;
+    }
+    if (::strnlen(d_fileName, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+        printf("generateTempFileName: ::mkstemp buffer overflow\n");
+        return false;
+    }
+    ::close(fd);
 #endif
     if (veryVerbose) {
         fprintf(nonRedirectedStream(),
                 "\tUsing '%s' as a base filename.\n",
                 d_fileName);
+        fflush(stdout);
     }
     return '\0' != d_fileName[0]; // Ensure that 'd_fileName' is not empty
 }
@@ -1652,7 +1663,7 @@ void handleErrorFlexible(const char *file, int line, int code)
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-    int         test = argc > 1 ? atoi(argv[1]) : 0;
+                   test = argc > 1 ? atoi(argv[1]) : 0;
                 verbose = argc > 2;
             veryVerbose = argc > 3;
         veryVeryVerbose = argc > 4;
@@ -3873,6 +3884,11 @@ int main(int argc, char *argv[]) {
         testStatus = -1;
       }
     }
+
+    // silence 'unused' warning
+
+    (void) &WINDOWS_SUBPROCESS_EVENT_NAME;
+    (void) &WINDOWS_DEBUG_STACK_BUFFER_SIZE;
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

@@ -14,10 +14,6 @@
 #include <initializer_list>
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-# include_next<cstdio>  // Preprocessor feature test: this *IS* the check.
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -153,7 +149,14 @@ class OracleMiscompile {
     unsigned d_data[2];
 
   public:
+    // CREATOR
     constexpr OracleMiscompile();
+
+    // ACCESSOR
+    const unsigned *data()
+    {
+        return d_data;
+    }
 };
 
 constexpr OracleMiscompile::OracleMiscompile()
@@ -170,7 +173,7 @@ struct aggregate_derived : aggregate_base<TYPE> {};
 void test_dependent_constexpr_aggregate() {
     // The following line is a regression that will not compile with Oracle CC
     // 12.5/6, and is a significant problem for type traits.
-    constexpr aggregate_derived<bool> X{};
+    constexpr aggregate_derived<bool> X{};    (void) X;
 }
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
@@ -186,7 +189,10 @@ void test_dependent_constexpr_aggregate() {
 namespace {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
-char testFuncForDecltype(int);
+char testFuncForDecltype(int)
+{
+    return 'x';
+}
 #endif
 
 template <class T, class U>
@@ -515,7 +521,8 @@ struct AClassTemplate {};
 void showRefCollapsingBug()
 {
     AClassTemplate< RValueeRef<int>& > X;
-    (void)X;
+    (void) X;                        // silence 'unused'
+    (void) &showRefCollapsingBug;    // silence 'never called'
 }
 
 #endif
@@ -2086,7 +2093,7 @@ will not improve the flavor.
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
+        RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));    (void) obj;
 
         TemplateType<int> x = make_rvalue<TemplateType<int> >();
         x = make_rvalue<TemplateType<int> >();
@@ -2533,6 +2540,7 @@ will not improve the flavor.
         if (verbose) printf("Feature not supported in this configuration.\n");
 #else
         constexpr OracleMiscompile d; // Just declaring 'd' crashes CC 12.4.
+        (void) d;
 
         constexpr int v = A(true).m;
         ASSERT(v == 42);
@@ -2579,6 +2587,25 @@ will not improve the flavor.
         testStatus = -1;
       }
     }
+
+    // silence 'never called'
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    (void) &testFuncForDecltype;
+#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
+    (void) &test_default_template_args;
+#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+    typedef void (*OverloadForNullPtrFuncTYpe)(int);
+    OverloadForNullPtrFuncTYpe ofnp = &OverloadForNullptr;    (void) ofnp;
+#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+    (void) &showRefCollapsingBug;
+#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+    (void) &test_func;
+#endif
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

@@ -355,6 +355,17 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING USAGE EXAMPLE"
                             "\n=====================\n");
 
+#undef    FAIL_USAGE_EXPLICIT
+//#define FAIL_USAGE_EXPLICIT
+#undef    FAIL_USAGE_FINAL_CLASS
+//#define FAIL_USAGE_FINAL_CLASS
+#undef    FAIL_USAGE_FINAL_FUNCTION
+//#define FAIL_USAGE_FINAL_FUNCTION
+#undef    FAIL_USAGE_OVERRIDE_TYPE
+//#define FAIL_USAGE_OVERRIDE_TYPE
+#undef    FAIL_USAGE_NO_OVERRIDE
+//#define FAIL_USAGE_NO_OVERRIDE
+
         Optional<int> value;
         ASSERT(bool(value) == false);
         if (value) { /*... */ }
@@ -443,12 +454,14 @@ int main(int argc, char *argv[])
         };
         struct OverrideFailure: OverrideBase
         {
+#if !defined(FAIL_USAGE_OVERRIDE_TYPE) && !defined(FAIL_USAGE_NO_OVERRIDE)
+            int f() const BSLS_KEYWORD_OVERRIDE
+#elif defined(FAIL_USAGE_OVERRIDE_TYPE)
+            int f() BSLS_KEYWORD_OVERRIDE
+#elif defined(FAIL_USAGE_NO_OVERRIDE)
             int f()
-                // Returns a value associated with the type.
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) \
- || defined(FAIL_USAGE_OVERRIDE)
-                BSLS_KEYWORD_OVERRIDE
 #endif
+                // Returns a value associated with the type.
             { return 2; }
         };
 
@@ -459,7 +472,15 @@ int main(int argc, char *argv[])
         ASSERT(static_cast<const OverrideBase&>(overrideSuccess).f() == 1);
         OverrideFailure overrideFailure;
         ASSERT(overrideFailure.f() == 2);
+#if defined(FAIL_USAGE_NO_OVERRIDE)
+        // We expect the following to fail
+
+        ASSERT(static_cast<const OverrideBase&>(overrideFailure).f() == 2);
+
+        // We expect the following to succeed
+
         ASSERT(static_cast<const OverrideBase&>(overrideFailure).f() == 0);
+#endif
 
 ///Example 2: Creating an extended 'constexpr' function
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -474,6 +495,12 @@ int main(int argc, char *argv[])
    int result = complexConstexprFunc(true);
    ASSERT(42 == result);
 //..
+
+#undef    FAIL_USAGE_EXPLICIT
+#undef    FAIL_USAGE_FINAL_CLASS
+#undef    FAIL_USAGE_FINAL_FUNCTION
+#undef    FAIL_USAGE_OVERRIDE_TYPE
+#undef    FAIL_USAGE_NO_OVERRIDE
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -534,6 +561,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING: BSLS_KEYWORD_OVERRIDE"
                             "\n==============================\n");
 
+#undef    FAIL_OVERRIDE_TYPE
+//#define FAIL_OVERRIDE_TYPE
+#undef    FAIL_NO_OVERRIDE
+//#define FAIL_NO_OVERRIDE
+
+        const char *expected =
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE)
+            "override";
+#else
+            "";
+#endif
+        ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_OVERRIDE), expected) == 0);
+
         struct Base
         {
             virtual int f() const
@@ -554,11 +594,14 @@ int main(int argc, char *argv[])
         struct OverrideFail
             : Base
         {
+#if   !defined(FAIL_OVERRIDE_TYPE) && !defined(FAIL_NO_OVERRIDE)
+            int f() const BSLS_KEYWORD_OVERRIDE
+#elif  defined(FAIL_OVERRIDE_TYPE)
+            int f()       BSLS_KEYWORD_OVERRIDE
+#elif  defined(FAIL_NO_OVERRIDE)
             int f()
-                // Returns a value specific to this type.
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) || defined(FAIL_OVERRIDE)
-                BSLS_KEYWORD_OVERRIDE
 #endif
+                // Returns a value specific to this type.
             {
                 return 2;
             }
@@ -569,15 +612,20 @@ int main(int argc, char *argv[])
         ASSERT(static_cast<const Base&>(ok).f() == 1);
         OverrideFail fail;
         ASSERT(fail.f() == 2);
-        ASSERT(static_cast<const Base&>(fail).f() == 0);
+#if defined(FAIL_NO_OVERRIDE)
+        // expect to fail
 
-        const char *expected =
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE)
-            "override";
-#else
-            "";
+        ASSERT(static_cast<const Base&>(fail).f() == 2);
+
+        // expect to succeed
+
+        ASSERT(static_cast<const Base&>(fail).f() == 0);
+#elif !defined(FAIL_OVERRIDE_TYPE) && !defined(FAIL_NO_OVERRIDE)
+        ASSERT(static_cast<const Base&>(fail).f() == 2);
 #endif
-        ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_OVERRIDE), expected) == 0);
+
+#undef    FAIL_OVERRIDE_TYPE
+#undef    FAIL_NO_OVERRIDE
       } break;
       case 7: {
         // --------------------------------------------------------------------

@@ -226,7 +226,11 @@ void Review::failBySleep(const ReviewViolation& violation)
 void Review::failByThrow(const ReviewViolation& violation)
 {
 #ifdef BDE_BUILD_TARGET_EXC
+# if __cplusplus < 201703L
     if (!std::uncaught_exception()) {
+# else
+    if (0 == std::uncaught_exceptions()) {
+# endif
         throw AssertTestException(violation.comment(),
                                   violation.fileName(),
                                   violation.lineNumber(),

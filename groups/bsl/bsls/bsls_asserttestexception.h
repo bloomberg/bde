@@ -56,6 +56,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -78,7 +80,8 @@ class AssertTestException {
 
   private:
     // NOT IMPLEMENTED
-    AssertTestException& operator=(const AssertTestException&);
+    AssertTestException& operator=(const AssertTestException&)
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS

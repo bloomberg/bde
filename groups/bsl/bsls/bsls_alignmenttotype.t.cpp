@@ -89,7 +89,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace {
+namespace Usage {
 
 ///Usage
 ///-----
@@ -462,6 +462,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUSAGE" << endl
                           << "\n=====" << endl;
 
+        using namespace Usage;
+
 // Clients of the 'Response' class can use it as follows:
 //..
     double value1 = 111.2, value2 = 92.5;
@@ -477,7 +479,6 @@ int main(int argc, char *argv[])
         // Process response object
     }
 //..
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
