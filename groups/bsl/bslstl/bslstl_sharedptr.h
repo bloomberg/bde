@@ -2276,9 +2276,9 @@ class shared_ptr {
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class COMPATIBLE_TYPE>
-    typename enable_if<
-        is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
-        shared_ptr&>::type
+    typename
+            enable_if<is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
+                      shared_ptr&>::type
     operator=(shared_ptr<COMPATIBLE_TYPE>&& rhs) BSLS_KEYWORD_NOEXCEPT;
         // Make this shared pointer refer to and manage the same modifiable
         // object as the specified 'rhs' shared pointer to the (template
@@ -2297,9 +2297,9 @@ class shared_ptr {
         // assignment.
 #else
     template <class COMPATIBLE_TYPE>
-    typename enable_if<
-        is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
-        shared_ptr&>::type
+    typename
+            enable_if<is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
+                      shared_ptr&>::type
     operator=(BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
         // Make this shared pointer refer to and manage the same modifiable
@@ -2318,6 +2318,26 @@ class shared_ptr {
         // is empty, then this shared pointer will also be empty after the
         // assignment.
 #endif
+
+    template <class COMPATIBLE_TYPE>
+    typename enable_if<
+        is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
+        shared_ptr&>::type
+    operator=(BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE> rhs);
+        // Transfer, to this shared pointer, ownership of the modifiable object
+        // managed by the specified 'rhs' managed pointer to the (template
+        // parameter) type 'COMPATIBLE_TYPE', and make this shared pointer
+        // refer to '(ELEMENT_TYPE *)rhs.ptr()'.  The deleter used in the 'rhs'
+        // will be used to destroy the shared object when all references have
+        // been released.  If this shared pointer is already managing a
+        // (possibly shared) object, then release the reference to that shared
+        // object, and destroy it using its associated deleter if this shared
+        // pointer held the last shared reference to that object.  Note that if
+        // 'rhs' is empty, then this shared pointer will be empty after the
+        // assignment.  Also note that if 'rhs' owns a reference to another
+        // shared object (due to a previous call to
+        // 'shared_ptr<T>::managedPtr') then this 'shared_ptr' will adopt the
+        // 'ManagedPtr's ownership of that shared object.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
     template <class COMPATIBLE_TYPE>
@@ -5717,17 +5737,15 @@ shared_ptr<ELEMENT_TYPE>::operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs)
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
-typename enable_if<
-    is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
-    shared_ptr<ELEMENT_TYPE>&>::type
+typename enable_if<is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
+                   shared_ptr<ELEMENT_TYPE>&>::type
 shared_ptr<ELEMENT_TYPE>::operator=(shared_ptr<COMPATIBLE_TYPE>&& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 #else
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
-typename enable_if<
-    is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
-    shared_ptr<ELEMENT_TYPE>&>::type
+typename enable_if<is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
+                   shared_ptr<ELEMENT_TYPE>&>::type
 shared_ptr<ELEMENT_TYPE>::operator=(
               BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
@@ -5738,6 +5756,19 @@ shared_ptr<ELEMENT_TYPE>::operator=(
 
     shared_ptr(BloombergLP::bslmf::MovableRefUtil::move(rhs)).swap(*this);
 
+    return *this;
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+inline
+typename enable_if<
+    is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
+    shared_ptr<ELEMENT_TYPE>&>::type
+shared_ptr<ELEMENT_TYPE>::operator=(
+                           BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE> rhs)
+{
+    SelfType(rhs).swap(*this);
     return *this;
 }
 
