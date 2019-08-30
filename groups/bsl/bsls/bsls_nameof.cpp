@@ -266,7 +266,12 @@ const char *NameOf_Base::initBuffer(char       *buffer,
 # else
     // Linux clang
 
+#   if __cplusplus < 201703L
     char stringName[] = { "std::basic_string<char>" };
+#   else
+    char stringName[] = { "std::basic_string<char, std::char_traits<char>,"
+                                                    " std::allocator<char>>" };
+#   endif
 # endif
     static const char anonymous[] = { "(anonymous namespace)::" };
 #endif

@@ -156,7 +156,7 @@ void aSsErT(bool b, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class EvilType {
+struct EvilType {
     // This class supplies an overload for the unary 'operator&' in order to
     // test the correct behavior of the 'bsls::Util::addressOf' function.  Each
     // 'EvilType' object will reports its address as that returned by the
@@ -442,6 +442,7 @@ int main(int argc, char *argv[])
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         static constexpr int ce1 = 42;                             // Concern 5
         constexpr const int& ce1Result = bsls::Util::forward<const int&>(ce1);
+        (void) ce1Result;
 # endif
 
 #endif

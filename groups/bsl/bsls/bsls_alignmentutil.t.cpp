@@ -177,7 +177,7 @@ struct Test8BytesAlignedType {
 // assuming that we have some user-defined type, 'MyType', comprising several
 // data members:
 //..
-    class MyType {          // size 24; actual alignment 8; natural alignment 8
+    struct MyType {         // size 24; actual alignment 8; natural alignment 8
         int     d_int;
         double  d_double;   // Assume 8-byte alignment.
         char   *d_charPtr;  // Assume size <= 8 bytes.

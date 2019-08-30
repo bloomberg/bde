@@ -322,7 +322,11 @@ void Assert::failByThrow(const bsls::AssertViolation& violation)
 {
 
 #ifdef BDE_BUILD_TARGET_EXC
+# if __cplusplus < 201703L
     if (!std::uncaught_exception()) {
+# else
+    if (0 == std::uncaught_exceptions()) {
+# endif
         throw AssertTestException(violation.comment(),
                                   violation.fileName(),
                                   violation.lineNumber(),
@@ -363,7 +367,11 @@ void Assert::failThrow(const char *comment, const char *file, int line)
 {
 
 #ifdef BDE_BUILD_TARGET_EXC
+# if __cplusplus < 201703L
     if (!std::uncaught_exception()) {
+# else
+    if (0 == std::uncaught_exceptions()) {
+# endif
         throw AssertTestException(comment,
                                   file,
                                   line,

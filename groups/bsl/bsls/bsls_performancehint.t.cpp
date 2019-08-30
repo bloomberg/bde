@@ -96,9 +96,10 @@ const int TESTSIZE = 10;
 const int TESTSIZE = 100;
 #endif
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
+                               defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wlarger-than="
+#pragma GCC diagnostic ignored "-Wlarger-than=" // clang doesn't recognize this
 #endif
 
 volatile int array1[SIZE]; // for 'addWithPrefetch'

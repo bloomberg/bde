@@ -293,6 +293,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
+    (void) testFunction();      // suppress 'unused' warning.
     (void) usageFunction(0);    // suppress 'unused' warning.
 
     return testStatus;

@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_lineNum;  // source line number
-            Enum        d_value;    // enumerator value
+            int         d_value;    // enumerator value
             const char *d_exp;      // expected result
         } DATA[] = {
             // line         enumerator value        expected result
@@ -205,15 +205,15 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_REALTIME,             "REALTIME"        },
             {  L_,     Obj::e_MONOTONIC,            "MONOTONIC"       },
 
-            {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
-            {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
+            {  L_,     NUM_ENUMERATORS,             UNKNOWN_FORMAT    },
+            {  L_,     99,                          UNKNOWN_FORMAT    }
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nVerify enumerator values are sequential.\n");
 
         for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
-            const Enum VALUE = DATA[ti].d_value;
+            const Enum VALUE = static_cast<Enum>(DATA[ti].d_value);
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
-            const Enum  VALUE = DATA[ti].d_value;
+            const Enum  VALUE = static_cast<Enum>(DATA[ti].d_value);
             const char *EXP   = DATA[ti].d_exp;
 
             const char *result = Obj::toAscii(VALUE);

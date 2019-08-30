@@ -206,7 +206,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #if BSLS_PLATFORM_CMP_VER_MAJOR >= 40300 // gcc >= 4.3
     Types::Int64 value = atomicInt->d_value;
     return __sync_val_compare_and_swap(
-                const_cast<Types::Int64 * volatile>(&atomicInt->d_value),
+                const_cast<Types::Int64 *>(&atomicInt->d_value),
                 value,
                 value);
 #else

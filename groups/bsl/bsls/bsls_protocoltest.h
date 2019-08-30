@@ -171,6 +171,7 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
+#include <bsls_objectbuffer.h>
 #include <cstdio>
 
 namespace BloombergLP {
@@ -497,7 +498,8 @@ template <class T>
 inline
 ProtocolTest_MethodReturnRefType::operator T&() const
 {
-    return *reinterpret_cast<T *>(0);
+    static bsls::ObjectBuffer<T> buffer;
+    return *reinterpret_cast<T *>(buffer.address());
 }
 
                        // -----------------------
