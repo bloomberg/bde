@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -346,6 +346,34 @@ int main(int argc, char *argv[])
         ASSERT(!bsl::is_trivially_copyable_v<MyNonTriviallyCopyableType>);
 #endif
 //..
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING: 'bsl::is_trivially_copyable<bslmf::Nil>'
+        //   Ensure that 'bsl::is_trivially_copyable' meta-function is
+        //   specialized correctly for 'bsls::TimeInterval'.
+        //
+        // NOTE: This is not tested in 'bsls' for dependency reasons.
+        //
+        // Concerns:
+        //: 1 'bsl::is_trivially_copyable<bslmf::Nil>' is 'true'
+        //
+        // Plan:
+        //: 1 Verify 'bsl::is_trivially_copyable<bslmf::Nil>' is 'true'
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+              "\nTESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'\n"
+              "\n=========================================================\n");
+
+        // C-1
+        ASSERT(bsl::is_trivially_copyable<bslmf::Nil>::value);
+
 
       } break;
       case 3: {
