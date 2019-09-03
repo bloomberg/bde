@@ -71,6 +71,9 @@ BSLS_IDENT("$Id: $")
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <chrono>
+#if 0 && defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+# include <experimental/chrono>    // TBD: decide what to do about this
+#endif
 
 namespace bsl {
 
@@ -91,7 +94,12 @@ namespace bsl {
         using native_std::chrono::microseconds;
         using native_std::chrono::nanoseconds;
 
-#if defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+<<<<<<< HEAD
+#if 0 && defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        namespace experimental {
+            using native_std::chrono::experimental::treat_as_floating_point_v;
+        }  // close namespace experimental
+#elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
         template <class TYPE>
         constexpr bool treat_as_floating_point_v =
                       native_std::chrono::treat_as_floating_point<TYPE>::value;

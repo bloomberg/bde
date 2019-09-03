@@ -616,6 +616,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
@@ -799,8 +800,8 @@ class TimeQueue {
 
   private:
     // NOT IMPLEMENTED
-    TimeQueue(const TimeQueue&);
-    TimeQueue& operator=(const TimeQueue&);
+    TimeQueue(const TimeQueue&) BSLS_KEYWORD_DELETED;
+    TimeQueue& operator=(const TimeQueue&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
@@ -1032,6 +1033,9 @@ class TimeQueueItem {
         // allocator.
 
     // MANIPULATORS
+    TimeQueueItem& operator=(const TimeQueueItem<DATA>& rhs);
+        // Set the value of this 'TimeQueueItem' to that of 'rhs'.
+
     bsls::TimeInterval& time();
         // Return the modifiable time value associated with this item.
 
@@ -1213,6 +1217,19 @@ TimeQueue<DATA>::~TimeQueue()
 }
 
 // MANIPULATORS
+template <class DATA>
+inline
+TimeQueueItem<DATA>& TimeQueueItem<DATA>::operator=(
+                                                const TimeQueueItem<DATA>& rhs)
+{
+    d_time   = rhs.d_time;
+    d_data   = rhs.d_data;
+    d_handle = rhs.d_handle;
+    d_key    = rhs.d_key;
+
+    return *this;
+}
+
 template <class DATA>
 inline
 typename TimeQueue<DATA>:: Handle TimeQueue<DATA>::add(
