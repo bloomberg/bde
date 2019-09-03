@@ -13,6 +13,7 @@ BSLS_IDENT_RCSID(bdlb_bitstringutil_cpp,"$Id$ $CSID$")
 #include <bsls_alignmentfromtype.h>
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -170,7 +171,7 @@ class BitPtrDiff {
 
   private:
     // NOT IMPLEMENTED
-    BitPtrDiff& operator=(const BitPtrDiff&);
+    BitPtrDiff& operator=(const BitPtrDiff&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS

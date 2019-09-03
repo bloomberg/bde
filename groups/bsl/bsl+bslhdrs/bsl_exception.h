@@ -33,9 +33,16 @@ namespace bsl {
 
 #if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     // These names are removed by C++17
+
     using native_std::set_unexpected;
     using native_std::unexpected;
     using native_std::unexpected_handler;
+#endif
+
+#if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS
+    // Not defined until C++17
+
+    using native_std::uncaught_exceptions;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
