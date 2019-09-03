@@ -123,7 +123,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">Download BDE tools</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Set build environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Configure, build and install BDE</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">Plain CMake build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Plain CMake build</a></li>
 </ul>
 </li>
 </ul>
@@ -720,6 +720,13 @@ compiler and build directory for subsequent commands:</p>
 </pre></div>
 </div>
 </li>
+<li><p class="first">Build and run all BDE unit tests ( see
+<a class="reference external" href="/bde-tools/cmake/examples.html#example-2-component-development">Component development</a>
+for testing individual components ):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py build --test=run
+</pre></div>
+</div>
+</li>
 <li><p class="first">Install BDE libraries and headers:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py --install_dir=/bde_install --prefix=/ install
 </pre></div>
@@ -926,6 +933,13 @@ compiler and build directory for subsequent commands:</p>
 </pre></div>
 </div>
 </li>
+<li><p class="first">Build and run all BDE unit tests ( see
+<a class="reference external" href="/bde-tools/cmake/examples.html#example-2-component-development">Component development</a>
+for testing individual components ):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py build --test=run
+</pre></div>
+</div>
+</li>
 <li><p class="first">Install BDE libraries and headers:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py --install_dir=/bde_install --prefix=/ install
 </pre></div>
@@ -934,8 +948,8 @@ compiler and build directory for subsequent commands:</p>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id7">
-<h3>Plain CMake build<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Plain CMake build<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>BDE can be compiled without provided python tools with plain CMake.
 Commands provided here for illustration purposes only:</p>
