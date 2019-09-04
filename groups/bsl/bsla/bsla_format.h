@@ -77,34 +77,32 @@ BSLS_IDENT("$Id: $")
 //      return buf;
 //  }
 //..
-// Next, in 'main', we call 'printf' and 'scanf' using the return value of
+// Next, in 'main', we call 'printf' and 'sscanf' using the return value of
 // 'prefixName'.  No warnings occur when correct arguments are passed:
 //..
 //  char buffer[1000];
 //  ::printf(prefixName(buffer, e_SPANISH, "%s\n"), "Michael Bloomberg");
 //
 //  char name[100];
-//  ::scanf(prefixName(buffer, e_FRENCH, "%so"), name);
+//  ::sscanf("Emmanuel Macron", prefixName(buffer, e_FRENCH, "%s"), name);
 //..
-// Now, we call 'printf' and 'scanf' passing arguments that won't match the
+// Now, we call 'printf' and 'sscanf' passing arguments that won't match the
 // resulting format string:
 //..
 //  ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
 //  int x;
-//  ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
+//  ::sscanf("Sharon den Adel", prefixName(buffer, e_DUTCH, "%s"), &x);
 //..
-// Finally, we observe the following warning messages with clang:
+// Finally, we observe the following warning messages with g++:
 //..
-//  .../bsla_format.t.cpp:300:53: warning: format specifies type 'char *' but
-//  the argument has type 'double' [-Wformat]
-//      ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
-//                                              ~~      ^~~
-//                                              %f
-//  .../bsla_format.t.cpp:302:48: warning: format specifies type 'char *' but
-//  the argument has type 'int *' [-Wformat]
-//      ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
-//                                           ~~    ^~
-//                                           %d
+//  .../bsla/bsla_format.t.cpp:306:56: warning: format '%s' expects argument
+//   of type 'char*', but argument 2 has type 'double' [-Wformat=]
+//       ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
+//                                                          ^
+//  .../bsla_format.t.cpp:308:70: warning: format '%s' expects argument of
+//   type 'char*', but argument 3 has type 'int*' [-Wformat=]
+//       ::sscanf("Sharon den Adel", prefixName(buffer, e_DUTCH, "%s"), &x);
+//                                                                      ~~^
 //..
 
 #include <bsls_platform.h>
