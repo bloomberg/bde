@@ -6,8 +6,10 @@ bslstl_badweakptr
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool
 bslstl_bitset
+bslstl_boyermoorehorspoolsearcher
 bslstl_chrono
 bslstl_complex
+bslstl_defaultsearcher
 bslstl_deque
 bslstl_deque_test
 bslstl_equalto
