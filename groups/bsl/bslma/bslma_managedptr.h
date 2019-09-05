@@ -32,11 +32,35 @@ BSLS_IDENT("$Id$ $CSID$")
 // An object that will be managed by a 'ManagedPtr' object is typically
 // dynamically allocated and destroyed by a factory.  For the purposes of this,
 // component, a factory is any class that provides a 'deleteObject' function
-// taking a single argument of the (pointer) type of the managed pointer.
-// E.g., 'bslma::Allocator' is a commonly used factory, and the currently
-// installed default allocator is the factory that is assumed to be used if
-// neither a factory nor deleter (see below) are specified when supplying a
-// pointer to be managed.
+// taking a single argument of the (pointer) type of the managed pointer.  The
+// following is an example of a factory deleter:
+//..
+//  class my_Factory {
+//
+//     // . . .
+//
+//     // MANIPULATORS
+//     my_Type *createObject(bslma::Allocator *basicAllocator = 0);
+//         // Create a 'my_Type' object.  Optionally specify a
+//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//         // 0, the currently installed default allocator is used.
+//
+//     void deleteObject(my_Type *object);
+//         // Delete the specified 'object'.
+//  };
+//
+//  class my_Allocator : public bslma::Allocator { /* ... */ };
+//..
+// Note that 'deleteObject' is provided by all 'bslma' allocators and by any
+// object that implements the 'bdlma::Deleter' protocol.  Thus, any of these
+// objects can be used as a factory deleter.  The purpose of this design is to
+// allow 'bslma' allocators and factories to be used seamlessly as deleters.
+//
+// Note that when the 'ManagedPtr(MANAGED_TYPE *)' constructor is used, the
+// managed object will be destroyed with a built-in deleter that calls
+// 'delete ptr', but when the 'ManagedPtr(MANAGED_TYPE *, FACTORY_TYPE *)'
+// constructor is called with '0 == factory', the currently installed default
+// allocator will be used as the factory.
 //
 ///Deleters
 ///--------
@@ -888,19 +912,18 @@ class ManagedPtr {
     explicit ManagedPtr(MANAGED_TYPE *ptr);
         // Create a managed pointer having a target object referenced by the
         // specified 'ptr', owning the managed object '*ptr', and having a
-        // deleter that uses the currently installed default allocator to
-        // destroy the managed object when invoked (e.g., when this managed
-        // pointer object is destroyed), unless '0 == ptr', in which case
-        // create an empty managed pointer.  The deleter will invoke the
-        // destructor of 'MANAGED_TYPE' rather than the destructor of
-        // 'TARGET_TYPE'.  This constructor will not compile unless
-        // 'MANAGED_TYPE *' is convertible to 'TARGET_TYPE *'.  The behavior is
-        // undefined unless the managed object (if any) can be destroyed by the
-        // currently installed default allocator, or if the lifetime of the
-        // managed object is already managed by another object.  Note that this
-        // behavior allows 'ManagedPtr' to be defined for 'void' pointers, and
-        // to call the correct destructor for the managed object, even if the
-        // destructor for 'TARGET_TYPE' is not declared as 'virtual'.
+        // deleter that will call 'delete ptr' to destroy the managed object
+        // when invoked (e.g., when this managed pointer object is destroyed),
+        // unless '0 == ptr', in which case create an empty managed pointer.
+        // The deleter will invoke the destructor of 'MANAGED_TYPE' rather than
+        // the destructor of 'TARGET_TYPE'.  This constructor will not compile
+        // unless 'MANAGED_TYPE *' is convertible to 'TARGET_TYPE *'.  Note
+        // that this behavior allows 'ManagedPtr' to be defined for 'void'
+        // pointers, and to call the correct destructor for the managed object,
+        // even if the destructor for 'TARGET_TYPE' is not declared as
+        // 'virtual'.  The behavior is undefined unless the managed object (if
+        // any) can be destroyed by 'delete', or if the lifetime of the managed
+        // object is already managed by another object.
 
     ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref)
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
