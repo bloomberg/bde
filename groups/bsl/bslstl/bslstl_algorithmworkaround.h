@@ -85,6 +85,9 @@ inline
 BSLS_KEYWORD_CONSTEXPR_RELAXED
 ForwardIt search( ForwardIt first, ForwardIt last,
                   const Searcher& searcher )
+    // Return the position in the specified range '[first, last)' of the first
+    // occurence of the pattern sought by the specified 'searcher' if found,
+    // and 'last' otherwise.  See [alg.search].
 {
     bsl::pair<ForwardIt, ForwardIt> result = searcher(first, last);
     return result.first;

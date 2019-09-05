@@ -1202,7 +1202,7 @@ class boyer_moore_horspool_searcher {
         // '[last, last)' is returned.
 };
 
-}  // close namespace 'bsl'
+}  // close namespace bsl
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ----------------------------------------------------------------------------
@@ -2164,7 +2164,7 @@ pair<RandomAccessIterator2,
     return d_imp(first, last);
 }
 
-}  // close namespace 'bsl'
+}  // close namespace bsl
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ============================================================================
@@ -2205,7 +2205,7 @@ struct UsesBslmaAllocator<
     > : bsl::true_type
 {};
 
-}  // close namespace 'bslma'
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

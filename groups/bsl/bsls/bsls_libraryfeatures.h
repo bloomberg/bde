@@ -563,7 +563,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------------------------------------
 // The  'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' macro is defined if
 // '<algorithm>' defines an overload for the 'search' function template that
-// accepts instances of the searcher classes introduced in C++17.  See 
+// accepts instances of the searcher classes introduced in C++17.  See
 // [alg.search]:
 //..
 //  template<class ForwardIterator, class Searcher>
@@ -573,8 +573,8 @@ BSLS_IDENT("$Id: $")
 //..
 //
 // Additionally, the 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' *also*
-// implies that the native library supplies the following class templates
-// in '<functional>':
+// implies that the native library supplies the following class templates in
+// '<functional>':
 //
 //: o 'default_searcher'
 //: o 'boyer_moore_searcher'

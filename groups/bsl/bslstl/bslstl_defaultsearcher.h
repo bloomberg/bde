@@ -610,7 +610,7 @@ class default_searcher {
         // range '[last, last)' is returned.
 };
 
-}  // close namespace 'bsl'
+}  // close namespace bsl
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 // ----------------------------------------------------------------------------
@@ -856,7 +856,7 @@ pair<ForwardIterator2,
     return d_imp(first, last);
 }
 
-}  // close namespace 'bsl'
+}  // close namespace bsl
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
 
 

@@ -89,21 +89,23 @@ namespace BSL = native_std;  // for Usage examples
 // [ 8] boyer_moore_horspool_searcher: facade forwards correctly
 // [ 9] TRAITS
 // [ 9] PUBLIC TYPES
-// ----------------------------------------------------------------------------
-//
+
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
@@ -2480,7 +2482,7 @@ const static DATA_t U_DATA_BINARY[] = {
     // Windows disallows "strings" longer than 65,535 bytes.  The word "Honor",
     // the final word of the document, is not found in the shorted text used
     // on the Windows platform
-    
+
   , { L_,  true, // "Honor"
                     "0100100001101111011011100110111101110010"
     }
@@ -3401,8 +3403,8 @@ static const char *performanceSyntaxMessage(int test)
 static int getHaystack(const char **haystackFirstPtr,
                        const char **haystackLastPtr,
                        const char  *haystackOption)
-    // Load to the specified 'haystackFirst' and 'haystackLast' the beginning
-    // and end address of the statically defined test haystack data
+    // Load to the specified 'haystackFirstPtr' and 'haystackLastPtr' the
+    // beginning and end address of the statically defined test haystack data
     // corresponding to the specified 'haystackOption'.  Return 0 on success
     // and a non-zero value if 'haystackOption' is not recognized.
 {
@@ -3526,7 +3528,7 @@ static bool expectAllocationCase7(Int64             dstNumBytes,
     // implementation (for 'char *') from the source object initially holding
     // the specified 'dstNumBytes' from the the specified 'dstAllocator' to the
     // destination object initially holding the specified 'srcNumBytes' from
-    // the'srcAllocator' will allocate memory from 'dstAllocator', and 'false'
+    // the 'srcAllocator' will allocate memory from 'dstAllocator', and 'false'
     // otherwise.
 {
     ASSERT(dstAllocator);
@@ -4071,7 +4073,7 @@ int main(int argc, char *argv[])
             ASSERT_PASS(X(middleHaystack, middleHaystack + 0));
             ASSERT_PASS(X(middleHaystack, middleHaystack + 1));
         }
-#else        
+#else
         if (verbose) printf("Test Skipped: native searcher class used\n");
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
       } break;

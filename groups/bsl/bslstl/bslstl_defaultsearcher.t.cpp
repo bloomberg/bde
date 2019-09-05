@@ -69,21 +69,23 @@ namespace BSL = native_std;  // for Usage examples
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
 // [ 4] default_searcher: facade forwards correctly
-// ----------------------------------------------------------------------------
-//
+
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
@@ -3050,6 +3052,10 @@ static const char *performanceSyntaxMessage(int test)
 static int getHaystack(const char **haystackFirstPtr,
                        const char **haystackLastPtr,
                        const char  *haystackOption)
+    // Load to the specified 'haystackFirstPtr' and 'haystackLastPtr' the
+    // beginning and end address of the statically defined test haystack data
+    // corresponding to the specified 'haystackOption'.  Return 0 on success
+    // and a non-zero value if 'haystackOption' is not recognized.
 {
     assert(haystackFirstPtr);
     assert(haystackLastPtr);
