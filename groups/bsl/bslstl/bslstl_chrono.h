@@ -94,7 +94,6 @@ namespace bsl {
         using native_std::chrono::microseconds;
         using native_std::chrono::nanoseconds;
 
-<<<<<<< HEAD
 #if 0 && defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
         namespace experimental {
             using native_std::chrono::experimental::treat_as_floating_point_v;

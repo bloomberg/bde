@@ -58,10 +58,10 @@
     // mode, finding our own intercept headers that simply forward to the
     // original platform header, assuming it is available.
 # include <any>
-//include <charconv>         // BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV
-//include <execution>        // BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS
-//include <filesystem>       // BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM
-//include <memory_resource>  // BSLS_LIBRARYFEATURES_SUPPORT_PMR
+//include <charconv>        // BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV
+//include <execution>       // BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS
+//include <filesystem>      // BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM
+//include <memory_resource> // BSLS_LIBRARYFEATURES_SUPPORT_PMR
 # include <optional>
 # include <string_view>
 # include <variant>
@@ -1109,7 +1109,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS: ");
 #ifdef BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS) );
+                 STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1983,7 +1983,7 @@ int main(int argc, char *argv[])
          P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
         }
 
-        if (u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
+        if(u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
         {
             ASSERT(true == u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined);
             ASSERT(true ==

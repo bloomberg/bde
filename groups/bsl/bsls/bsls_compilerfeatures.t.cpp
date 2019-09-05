@@ -187,20 +187,33 @@ void test_dependent_constexpr_aggregate() {
 #endif
 
 namespace {
+namespace u {
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
-char testFuncForDecltype(int)
-{
-    return 'x';
-}
-#endif
+#pragma GCC diagnostic ignored "-Wunused-function"
+
+char testFuncForDecltype(int);
+
+#pragma GCC diagnostic warning "-Wunused-function"
 
 template <class T, class U>
-auto my_max(T t, U u) -> decltype(t > u ? t : u)
+auto my_max(const T& t, const U& u) -> decltype(t > u ? t : u)
 {
     return t > u ? t : u;
 }
 
+template <class TYPE>
+bool isSame(TYPE&, TYPE&)
+{
+    return true;
+}
+
+template <class LHSTYPE, class RHSTYPE>
+bool isSame(LHSTYPE&, RHSTYPE&)
+{
+    return false;
+}
+
+}  // close namespace u
 }  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -1568,7 +1581,10 @@ will not improve the flavor.
         if (verbose) printf("Test disabled as exceptions are NOT enabled.\n");
 #else
         struct LocalClass {
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated"
             static void test() throw (std::bad_exception, double) {
+# pragma GCC diagnostic pop
                 throw 13;
             }
 
@@ -2382,14 +2398,16 @@ will not improve the flavor.
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
         if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        int                               obj1; (void) obj1;
-        decltype(obj1)                    obj2; (void) obj2;
-        decltype(testFuncForDecltype(10)) obj3; (void) obj3;
+        int                                  obj1; (void) obj1;
+        decltype(obj1)                       obj2; (void) obj2;
+        decltype(u::testFuncForDecltype(10)) obj3; (void) obj3;
 
-        auto maxVal = my_max(short(10), 'a');
+        const short  s = 1000;
+        const double d = 3.2;
+        const auto maxVal = u::my_max(s, d);
 
-        ASSERT(sizeof(maxVal) == sizeof(int));
-        ASSERT(maxVal == 'a');
+        ASSERT(u::isSame(maxVal, d));
+        ASSERT(maxVal == s);
 #endif
 
       } break;
@@ -2517,10 +2535,6 @@ will not improve the flavor.
       }
     }
 
-    // silence 'never called'
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
-    (void) &testFuncForDecltype;
-#endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
     (void) &test_default_template_args;
 #endif

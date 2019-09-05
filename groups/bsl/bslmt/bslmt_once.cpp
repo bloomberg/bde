@@ -17,7 +17,7 @@ BSLS_IDENT_RCSID(bslmt_once_cpp,"$Id$ $CSID$")
 #include <bslmt_threadutil.h>          // for testing only
 
 #include <bsls_assert.h>
-#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_exception.h>
 
@@ -78,10 +78,10 @@ bslmt::OnceGuard::~OnceGuard()
         return;                                                       // RETURN
     }
 #if ! defined(BSLS_PLATFORM_CMP_MSVC)
-# if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
-    else if (bsl::uncaught_exception()) {
-# else
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     else if (0 != bsl::uncaught_exceptions()) {
+# else
+    else if (bsl::uncaught_exception()) {
 # endif
         d_once->cancel(&d_onceLock);
     }

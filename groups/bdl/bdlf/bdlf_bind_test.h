@@ -291,6 +291,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
@@ -443,7 +444,9 @@ class Bind_TestArgNoAlloc {
     Bind_TestArgNoAlloc(int value);                                 // IMPLICIT
         // Create an object having the specified 'value'.
 
-    Bind_TestArgNoAlloc(const Bind_TestArgNoAlloc&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    Bind_TestArgNoAlloc(const Bind_TestArgNoAlloc&) = default;
+#endif
 
     // MANIPULATORS
     Bind_TestArgNoAlloc& operator=(const Bind_TestArgNoAlloc &rhs);
@@ -896,14 +899,6 @@ template <int ID>
 inline
 Bind_TestArgNoAlloc<ID>::Bind_TestArgNoAlloc(int value)
 : d_value(value)
-{
-}
-
-template <int ID>
-inline
-Bind_TestArgNoAlloc<ID>::Bind_TestArgNoAlloc(
-                                           const Bind_TestArgNoAlloc &original)
-: d_value(original.d_value)
 {
 }
 
