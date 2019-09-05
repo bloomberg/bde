@@ -7,6 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
 #include <bsls_keyword.h>             // for testing only
+#include <bsls_libraryfeatures.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_pointercastutil.h>
@@ -226,10 +227,10 @@ void Review::failBySleep(const ReviewViolation& violation)
 void Review::failByThrow(const ReviewViolation& violation)
 {
 #ifdef BDE_BUILD_TARGET_EXC
-# if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
-    if (!std::uncaught_exception()) {
-# else
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (0 == std::uncaught_exceptions()) {
+# else
+    if (!std::uncaught_exception()) {
 # endif
         throw AssertTestException(violation.comment(),
                                   violation.fileName(),

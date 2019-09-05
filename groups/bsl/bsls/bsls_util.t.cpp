@@ -157,7 +157,7 @@ void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 struct EvilType {
-    // This class supplies an overload for the unary 'operator&' in order to
+    // This 'struct' supplies an overload for the unary 'operator&' in order to
     // test the correct behavior of the 'bsls::Util::addressOf' function.  Each
     // 'EvilType' object will reports its address as that returned by the
     // 'bogusPtr' method, which points to some statically allocated memory

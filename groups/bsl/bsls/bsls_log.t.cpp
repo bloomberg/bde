@@ -1153,11 +1153,11 @@ bool OutputRedirector::generateTempFileName()
         printf("generateTempFileName: ::mkstemp failed\n");
         return false;
     }
+    ::close(fd);
     if (::strnlen(d_fileName, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
         printf("generateTempFileName: ::mkstemp buffer overflow\n");
         return false;
     }
-    ::close(fd);
 #endif
     if (veryVerbose) {
         fprintf(nonRedirectedStream(),

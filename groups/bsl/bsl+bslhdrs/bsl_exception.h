@@ -39,7 +39,7 @@ namespace bsl {
     using native_std::unexpected_handler;
 #endif
 
-#if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // Not defined until C++17
 
     using native_std::uncaught_exceptions;

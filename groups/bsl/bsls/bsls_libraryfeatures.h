@@ -1070,6 +1070,7 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
             #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
         #endif
+        //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
     #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
@@ -1242,6 +1243,11 @@ BSLS_IDENT("$Id: $")
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
             #endif
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
+
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
         #endif
     #endif
 

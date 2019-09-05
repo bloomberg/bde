@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
             int f()
                 // Returns a value associated with the type.
 #if !defined(FAIL_USAGE_OVERRIDE)
-const BSLS_CPP11_OVERRIDE
+                    const BSLS_CPP11_OVERRIDE
 #endif
             { return 2; }
         };
@@ -471,7 +471,7 @@ const BSLS_CPP11_OVERRIDE
             int f()
                 // Returns a value specific to this type.
 #if !defined(FAIL_OVERRIDE)
-const BSLS_CPP11_OVERRIDE
+                    const BSLS_CPP11_OVERRIDE
 #endif
             {
                 return 2;

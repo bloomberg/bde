@@ -809,11 +809,11 @@ bool tempFileName(char *result)
         printf("tempFileName: ::mkstemp failed\n");
         return false;
     }
+    ::close(fd);
     if (::strnlen(result, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
         printf("tempFileName: ::mkstemp buffer overflow\n");
         return false;
     }
-    ::close(fd);
 #endif
 
     if (veryVerbose) printf("\tUse '%s' as a base filename.\n", result);
