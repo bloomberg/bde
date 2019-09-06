@@ -10,6 +10,8 @@ BSLS_IDENT_RCSID(bdlde_crc32c_cpp,"$Id$ $CSID$")
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 
+#include <bsla_unused.h>
+
 #include <bslmt_once.h>
 
 #include <bsls_annotation.h>
@@ -665,7 +667,7 @@ const unsigned int k_CRC_TABLE_IL8_O88[256] =
 };
 
 // Compute CRC32-C for 1024 bytes using SSE & recombine using lookup tables
-const unsigned int k_MUL_TABLE1_336[256] =
+const unsigned int k_MUL_TABLE1_336[256] BSLA_UNUSED =
 {
     0x00000000, 0x8F158014, 0x1BC776D9, 0x94D2F6CD,
     0x378EEDB2, 0xB89B6DA6, 0x2C499B6B, 0xA35C1B7F,
@@ -733,7 +735,7 @@ const unsigned int k_MUL_TABLE1_336[256] =
     0xA45D5B2A, 0x2B48DB3E, 0xBF9A2DF3, 0x308FADE7
 };
 
-const unsigned int k_MUL_TABLE1_672[256] =
+const unsigned int k_MUL_TABLE1_672[256] BSLA_UNUSED =
 {
     0x00000000, 0xE417F38A, 0xCDC391E5, 0x29D4626F,
     0x9E6B553B, 0x7A7CA6B1, 0x53A8C4DE, 0xB7BF3754,

@@ -67,6 +67,14 @@ void releaseTlsKey(TlsKey *key)
     semaphoreAllocator().deleteObjectRaw(key);
 }
 
+inline
+bool notEqual(void *a, void *b)
+    // Return 'true' is 'a != b' and 'false' otherwise.  This function is used
+    // to circumvent compiler complaints about comparing 'this' to 0.
+{
+    return a != b;
+}
+
 struct SemaphoreKeyGuard {
     // A guard class that ensures, on destruction, that the global TLS key (for
     // the thread-local semaphores) is released.  Note that a single static
@@ -263,6 +271,8 @@ void bslmt::QLock_EventFlag::waitUntilSet(int spinRetryCount)
 void bslmt::QLockGuard::unlockRaw()
 {
     enum { k_SPIN = 1000 };
+
+    BSLS_ASSERT(notEqual(this, 0));
 
     QLockGuard *tail = (QLockGuard *)bsls::AtomicOperations::testAndSwapPtr(
                                         &d_qlock_p->d_guardQueueTail, this, 0);
