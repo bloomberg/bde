@@ -10,6 +10,8 @@ BSLS_IDENT_RCSID(bdlb_bitstringutil_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
+#include <bsla_unused.h>
+
 #include <bsls_alignmentfromtype.h>
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
@@ -242,6 +244,7 @@ BitPtrDiff BitPtrDiff::operator-() const
 }
 
 // FREE OPERATORS
+bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs) BSLA_UNUSED;
 inline
 bool operator>(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is greater than the specified

@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdldfp_decimalimputil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_uint128.h>
 
+#include <bsla_unused.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 
@@ -488,12 +490,11 @@ struct Properties64
     // Properties64, contains constants and member functions identifying key
     // properties of the 64-bit decimal type.
 {
-    static const int         digits          = 16;
-    static const int         bias            = 398;
-    static const int         maxExponent     = 369;
-    //static const long long smallLimit      = 1000000000000000ll;  // unused
-    static const long long   mediumLimit     = 10000000000000000ll;
-
+    static const int       digits      BSLA_UNUSED = 16;
+    static const int       bias        BSLA_UNUSED = 398;
+    static const int       maxExponent BSLA_UNUSED = 369;
+    static const long long smallLimit  BSLA_UNUSED = 1000000000000000ll;
+    static const long long mediumLimit BSLA_UNUSED = 10000000000000000ll;
 };
 
                         // classification functions
