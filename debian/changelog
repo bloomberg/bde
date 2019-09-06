@@ -1,5 +1,6 @@
 bsl-internal (3.38.0.0) unstable; urgency=low
 
+  * ee93f4f9d Changelog for version 3.38.0.0
   * 8dbe37263 Bump version to 3.38.0.0.
   * 328cbe43f Merge pull request #2495 from hversche/revert-include-drqs131017375
   * 36bc00dad Merge pull request #2457 from bchapman/bdlcc_multipriorityqueue-move-semantics-drqs-146802316
@@ -18,7 +19,7 @@ bsl-internal (3.38.0.0) unstable; urgency=low
   * b30211367 Merge pull request #2481 from jmendelsohn4/drqs-147640278/bdlt_dateutil-missing-earliestDayOfWeekInMonth
   * c6ff71370 Merge pull request #2479 from jmendelsohn4/drqs-143578129/bdlmt_multiqueuethreadpool-negative-numElements-part-2
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 6 Sep 2019 14:27:46 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 6 Sep 2019 14:33:43 -0400
 
 bsl-internal (3.37.1.0) git; urgency=low
 
