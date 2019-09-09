@@ -37,6 +37,7 @@
 #include <bsls_types.h>
 
 #include <bsltf_templatetestfacility.h>
+#include <bsltf_streamutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_list.h>
