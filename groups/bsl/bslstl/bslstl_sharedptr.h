@@ -4777,7 +4777,7 @@ struct SharedPtr_TestIsCallable {
 
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if false && defined(BSLS_PLATFORM_CMP_MSVC)
 // Microsoft needs a workaround to correctly handle calling through function
 // pointers with incompatible types.
 
