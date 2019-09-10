@@ -82,6 +82,7 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../news/news.html">BDE News</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-38-0-production-release">BDE 3.38.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-37-1-production-release">BDE 3.37.1: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-36-0-production-release">BDE 3.36.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-35-0-production-release">BDE 3.35.0: Production Release</a></li>
@@ -134,6 +135,16 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.38.0.html">BDE 3.38.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.38.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.38.0.html#bde-3-38-0-highlights">BDE 3.38.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.38.0.html#c-17-searcher-classes">C++17 Searcher Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.38.0.html#new-component-bslmt-readerwriterlockassert">New Component: <code class="docutils literal notranslate"><span class="pre">bslmt_readerwriterlockassert</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.38.0.html#fixed-requests-3-38-0">Fixed requests: 3.38.0</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.37.1.html">BDE 3.37.1: Production Release</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.37.1.html#schedule">Schedule</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.37.1.html#bde-3-37-1-highlights">BDE 3.37.1 Highlights</a></li>
@@ -480,6 +491,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#basic-markup">12.1 Basic Markup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#displays">12.2 Displays</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#headings">12.3 Headings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#links">12.4 Links</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#deprecation">13 Deprecation</a><ul>
@@ -629,11 +641,11 @@
 <div><div class="line-block">
 <div class="line"><br /></div>
 <div class="line-block">
-<div class="line"><em>August 26, 2019</em></div>
+<div class="line"><em>September 10, 2019</em></div>
 </div>
 </div>
 </div></blockquote>
-<p>Download PDF version of <a class="reference external" href="/bde-resources/pdfs/CodingStandards_082619.pdf">BDE C++ Coding Standards</a></p>
+<p>Download PDF version of <a class="reference external" href="/bde-resources/pdfs/CodingStandards_091019.pdf">BDE C++ Coding Standards</a></p>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
@@ -715,16 +727,17 @@
 <li><a class="reference internal" href="#basic-markup" id="id62">12.1 Basic Markup</a></li>
 <li><a class="reference internal" href="#displays" id="id63">12.2 Displays</a></li>
 <li><a class="reference internal" href="#headings" id="id64">12.3 Headings</a></li>
+<li><a class="reference internal" href="#links" id="id65">12.4 Links</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#deprecation" id="id65">13 Deprecation</a><ul>
-<li><a class="reference internal" href="#general-meaning" id="id66">13.1 General Meaning</a></li>
-<li><a class="reference internal" href="#section-13-2" id="id67">13.2 Markup</a></li>
+<li><a class="reference internal" href="#deprecation" id="id66">13 Deprecation</a><ul>
+<li><a class="reference internal" href="#general-meaning" id="id67">13.1 General Meaning</a></li>
+<li><a class="reference internal" href="#section-13-2" id="id68">13.2 Markup</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#appendix-1-obsolete-rules" id="id68">14 Appendix 1: Obsolete Rules</a></li>
-<li><a class="reference internal" href="#appendix-2-rationale" id="id69">15 Appendix 2: Rationale</a><ul>
-<li><a class="reference internal" href="#r-7-3-rationale-function-signatures" id="id70">R.7.3 Rationale: Function Signatures</a></li>
+<li><a class="reference internal" href="#appendix-1-obsolete-rules" id="id69">14 Appendix 1: Obsolete Rules</a></li>
+<li><a class="reference internal" href="#appendix-2-rationale" id="id70">15 Appendix 2: Rationale</a><ul>
+<li><a class="reference internal" href="#r-7-3-rationale-function-signatures" id="id71">R.7.3 Rationale: Function Signatures</a></li>
 </ul>
 </li>
 </ul>
@@ -4332,11 +4345,82 @@ necessary.</p>
 </dd>
 </dl>
 </div>
+<div class="section" id="links">
+<span id="section-12-4"></span><h3><a class="toc-backref" href="#id65">12.4 Links</a><a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>A <em>link</em> is a textual reference (the <em>link</em> <em>text</em>) to some other location in
+the documentation set (the <em>link</em> <em>target</em>).</p>
+<p><strong>Note:</strong> When component comments are converted to other represenations
+(e.g., <code class="docutils literal notranslate"><span class="pre">html</span></code>) the BDE markups links are typically converted to
+clickable hyperlinks.</p>
+</div></blockquote>
+<dl class="docutils" id="rule-12-4-1">
+<dt><em>12.4.1</em></dt>
+<dd><p class="first">Each <em>link</em> must refer to a unique other location the documentation set.
+The following are valid link targets:</p>
+<ul class="last simple">
+<li>A (tagged) comment field (see <a class="reference internal" href="#section-8-1"><span class="std std-ref">Comment Fields</span></a>)
+in the current file.</li>
+<li>A heading (see <a class="reference internal" href="#section-12-3"><span class="std std-ref">Headings</span></a>) within the current file.</li>
+<li>The start of documentation of some other component, package, or package
+group file.</li>
+<li>A (tagged) comment field or heading in some other component, package, or
+package group file.</li>
+</ul>
+</dd>
+</dl>
+<dl class="docutils" id="rule-12-4-2">
+<dt><em>12.4.2</em></dt>
+<dd><p class="first">The link is denoted by surrounding the link text by a pair of open <code class="docutils literal notranslate"><span class="pre">{</span></code> and
+close <code class="docutils literal notranslate"><span class="pre">}</span></code> braces.</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// See {Usage} under {DESCRIPTION} above.</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Notice that link text to a tagged section does <em>not</em> include the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> sign.</p>
+<p>Link text must exactly match that of the link target, including font markup.
+For example, if a heading uses font markup (see <a class="reference internal" href="#section-12-1"><span class="std std-ref">Basic Markup</span></a>),
+then the link text to that target must also do so.</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// See {Using &#39;MyClass&#39; Directly (*Not* *Recommended*)}.</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Link text can be broken (between words) across two lines.</p>
+<blockquote class="last">
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">//            ... See {Using &#39;MyClass&#39; Directly (*Not*</span>
+<span class="c1">// *Recommended*)}.</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="docutils" id="rule-12-4-3">
+<dt><em>12.4.3</em></dt>
+<dd><p class="first">Link text to the start of component (package, package group) documentation is
+denoted by giving the entity name surrounded by single ticks.</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// See {&#39;bdlt_datetime&#39;} for details.  {&#39;bdlt&#39;} provides an overview</span>
+<span class="c1">// of the different time conventions used in this package.</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>A heading in another component is denoted by the component name, delimited
+by single tick characters, a pipe symbol (<code class="docutils literal notranslate"><span class="pre">|</span></code>), followed the heading text.</p>
+<blockquote class="last">
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// See {&#39;bdlt_date&#39;|Usage} for related examples.</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd>
+</dl>
+</div>
 </div>
 <div class="section" id="deprecation">
-<span id="section-13"></span><h2><a class="toc-backref" href="#id65">13 Deprecation</a><a class="headerlink" href="#deprecation" title="Permalink to this headline">¶</a></h2>
+<span id="section-13"></span><h2><a class="toc-backref" href="#id66">13 Deprecation</a><a class="headerlink" href="#deprecation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="general-meaning">
-<span id="section-13-1"></span><h3><a class="toc-backref" href="#id66">13.1 General Meaning</a><a class="headerlink" href="#general-meaning" title="Permalink to this headline">¶</a></h3>
+<span id="section-13-1"></span><h3><a class="toc-backref" href="#id67">13.1 General Meaning</a><a class="headerlink" href="#general-meaning" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils" id="rule-13-1-1">
 <dt><em>13.1.1</em></dt>
 <dd><p class="first">Code that is slated to be removed from a unit of release is said to be
@@ -4378,7 +4462,7 @@ following section.</dd>
 </dl>
 </div>
 <div class="section" id="section-13-2">
-<span id="id2"></span><h3><a class="toc-backref" href="#id67">13.2 Markup</a><a class="headerlink" href="#section-13-2" title="Permalink to this headline">¶</a></h3>
+<span id="id2"></span><h3><a class="toc-backref" href="#id68">13.2 Markup</a><a class="headerlink" href="#section-13-2" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils" id="rule-13-2-1">
 <dt><em>13.2.1</em></dt>
 <dd><p class="first">To deprecate a component, package, or package group, the <code class="docutils literal notranslate"><span class="pre">&#64;DEPRECATED</span></code>
@@ -4494,7 +4578,7 @@ enumerator documentation (Rule <a class="reference internal" href="#rule-6-4-4">
 </div>
 </div>
 <div class="section" id="appendix-1-obsolete-rules">
-<h2><a class="toc-backref" href="#id68">14 Appendix 1: Obsolete Rules</a><a class="headerlink" href="#appendix-1-obsolete-rules" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id69">14 Appendix 1: Obsolete Rules</a><a class="headerlink" href="#appendix-1-obsolete-rules" title="Permalink to this headline">¶</a></h2>
 <p>This appendix contains the references to the obsolete rules.</p>
 <dl class="docutils" id="rule-14-1">
 <dt><em>14.1</em></dt>
@@ -4536,9 +4620,9 @@ in the following:</p>
 </dl>
 </div>
 <div class="section" id="appendix-2-rationale">
-<h2><a class="toc-backref" href="#id69">15 Appendix 2: Rationale</a><a class="headerlink" href="#appendix-2-rationale" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id70">15 Appendix 2: Rationale</a><a class="headerlink" href="#appendix-2-rationale" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="r-7-3-rationale-function-signatures">
-<span id="section-7-3-rationale"></span><h3><a class="toc-backref" href="#id70">R.7.3 Rationale: Function Signatures</a><a class="headerlink" href="#r-7-3-rationale-function-signatures" title="Permalink to this headline">¶</a></h3>
+<span id="section-7-3-rationale"></span><h3><a class="toc-backref" href="#id71">R.7.3 Rationale: Function Signatures</a><a class="headerlink" href="#r-7-3-rationale-function-signatures" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils" id="rule-7-3-6-rationale">
 <dt><em>R.7.3.6 Rationale:</em> <a class="reference internal" href="#rule-7-3-6"><span class="std std-ref">Rule 7.3.6</span></a></dt>
 <dd><p class="first">C++11 introduced the <code class="code docutils literal notranslate"><span class="pre">override</span></code> keyword to catch developer mistakes
