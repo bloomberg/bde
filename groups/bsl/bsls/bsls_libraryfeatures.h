@@ -1235,9 +1235,10 @@ BSLS_IDENT("$Id: $")
 
     #if BSLS_PLATFORM_CMP_VERSION >= 1910  // Visual Studio 2017
       #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
-      #if !_HAS_AUTO_PTR_ETC
+    #endif
+
+    #if defined _HAS_AUTO_PTR_ETC && !_HAS_AUTO_PTR_ETC
         #undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
-      #endif
     #endif
 #endif
 

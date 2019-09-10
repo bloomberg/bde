@@ -97,10 +97,7 @@ namespace bsl {
     using native_std::unique_copy;
     using native_std::upper_bound;
 
-#if __cplusplus < 201703L                 \
- &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
-     BSLS_PLATFORM_CMP_VERSION >= 1910 && \
-     !_HAS_AUTO_PTR_ETC)
+#if __cplusplus < 201703L && !(defined _HAS_AUTO_PTR_ETC && !_HAS_AUTO_PTR_ETC)
     // These names are removed by C++17
     using native_std::random_shuffle;
 #endif
