@@ -43,8 +43,11 @@ namespace bsl {
     using native_std::plus;
     using native_std::unary_negate;
 
-#if __cplusplus < 201703L || _HAS_AUTO_PTR_ETC
-    // These names are removed by C++17 but can be brought back in MSVC.
+#if __cplusplus < 201703L                 \
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
+     BSLS_PLATFORM_CMP_VERSION >= 1910 && \
+     !_HAS_AUTO_PTR_ETC)
+    // These names are removed by C++17
     using native_std::binary_function;
     using native_std::bind1st;
     using native_std::bind2nd;
