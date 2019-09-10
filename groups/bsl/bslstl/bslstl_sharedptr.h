@@ -4778,8 +4778,7 @@ struct SharedPtr_TestIsCallable {
 };
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && \
-    BSLS_PLATFORM_CMP_VERSION >= 1920 && \
-    BSLS_PLATFORM_CMP_VERSION < 1920
+    BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION < 1920
 // Microsoft needs a workaround to correctly handle calling through function
 // pointers with incompatible types for C++17 before Visual Studio 2019.
 
