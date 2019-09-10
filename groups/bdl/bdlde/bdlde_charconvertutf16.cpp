@@ -267,7 +267,7 @@ unsigned short hostToSwapped<unsigned short, 2>(unsigned short uc)
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 
-#if 16 == WCHAR_WIDTH  // remove unused function warning
+#if !defined(WCHAR_WIDTH) || 16 == WCHAR_WIDTH  // remove unused func. warning
 template <>
 inline
 wchar_t swappedToHost<wchar_t, 2>(wchar_t uc)
