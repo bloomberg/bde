@@ -161,10 +161,12 @@ class BitPtrDiff {
                           // event of overflow.
 
     // FRIENDS
-    friend bool operator< (const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator> (const BitPtrDiff&, const BitPtrDiff&);
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    friend bool operator< (const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator<=(const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator>=(const BitPtrDiff&, const BitPtrDiff&);
+#endif
 
   private:
     // NOT IMPLEMENTED
@@ -240,21 +242,22 @@ BitPtrDiff BitPtrDiff::operator-() const
 
 // FREE OPERATORS
 inline
-bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
-    // Return 'true' if the specified 'lhs' is less than the specified 'rhs',
-    // and 'false' otherwise.
-{
-    return lhs.d_hi <  rhs.d_hi ||
-          (lhs.d_hi == rhs.d_hi && lhs.d_lo < rhs.d_lo);
-}
-
-inline
 bool operator>(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is greater than the specified
     // 'rhs', and 'false' otherwise.
 {
     return lhs.d_hi >  rhs.d_hi ||
           (lhs.d_hi == rhs.d_hi && lhs.d_lo > rhs.d_lo);
+}
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+inline
+bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
+    // Return 'true' if the specified 'lhs' is less than the specified 'rhs',
+    // and 'false' otherwise.
+{
+    return lhs.d_hi <  rhs.d_hi ||
+          (lhs.d_hi == rhs.d_hi && lhs.d_lo < rhs.d_lo);
 }
 
 inline
@@ -274,6 +277,7 @@ bool operator>=(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     return lhs.d_hi >  rhs.d_hi ||
           (lhs.d_hi == rhs.d_hi && lhs.d_lo >= rhs.d_lo);
 }
+#endif
 
                               // ------------
                               // class BitPtr

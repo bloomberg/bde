@@ -806,6 +806,7 @@ bool isIllegalFourOctetValue(unsigned int uc)
     return uc > 0x10ffff;
 }
 
+#if defined(BSLS_ASSERT_IS_ACTIVE)
 static inline
 bool isLegalUtf32ErrorWord(unsigned int uc)
     // Return 'true' if the specified 32-bit value 'uc' is legal to be
@@ -813,6 +814,7 @@ bool isLegalUtf32ErrorWord(unsigned int uc)
 {
     return uc < 0xd800 || (uc >= 0xe000 && uc <= 0x10ffff);
 }
+#endif
 
 static inline
 const OctetType *skipUtf8CodePoint(const OctetType *input)

@@ -491,7 +491,7 @@ struct Properties64
     static const int         digits          = 16;
     static const int         bias            = 398;
     static const int         maxExponent     = 369;
-    static const long long   smallLimit      = 1000000000000000ll;
+    //static const long long smallLimit      = 1000000000000000ll;  // unused
     static const long long   mediumLimit     = 10000000000000000ll;
 
 };

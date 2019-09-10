@@ -298,7 +298,7 @@ DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
     // hold, use that number instead.
 {
     DECIMAL_TYPE result;
-    char         buffer[32];
+    char         buffer[42];
     if (!restoreSingularDecimalFromBinary(&result, binary)) {
         int rc = snprintf(
                         buffer,
