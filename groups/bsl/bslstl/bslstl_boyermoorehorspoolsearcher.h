@@ -325,7 +325,7 @@ BSLS_IDENT("$Id: $")
 // worthwhile to cache the searcher objects for reuse.
 //
 ///The Problem
-///-----------
+/// -  -  -  -
 // Suppose we have a long list of names, each consisting of a given name (first
 // name) and a surname (last name), and that we wish to identify instances of
 // reduplication of the given name in the surname.  That is, we want to
@@ -341,7 +341,7 @@ BSLS_IDENT("$Id: $")
 // reconstructed for each search of a surname.
 //
 ///Design Choices
-///--------------
+/// -  -  -  -  -
 // To implement our cache we will use a 'bsl::unordered_map' container.
 // Allocating types must meet certain requirements to work properly with
 // allocator-enabled containers such as 'bsl::unordered_map'.
@@ -355,7 +355,7 @@ BSLS_IDENT("$Id: $")
 // is copied.
 //
 ///Steps
-///-----
+/// -  -
 // First, we define our cache class:
 //..
 //                      // ====================================
