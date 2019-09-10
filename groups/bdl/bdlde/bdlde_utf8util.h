@@ -485,10 +485,10 @@ struct Utf8Util {
         // behavior is undefined unless 'string' is a valid UTF-8 string.
 
     static int getByteSize(const char* codepoint);
-        // Return the size in bytes of the specified UTF-8 'codepoint'. Note
-        // that behavior is undefined unless 'codepoint' points to a valid
-        // UTF-8 character in contiguous memory.  Note that an empty
-        // 'codepoint' will result in a return value of '1', since the 'NUL'
+        // Return the size in bytes of the specified UTF-8 'codepoint'.  The
+        // behavior is undefined unless 'codepoint' points to a valid UTF-8
+        // character in contiguous memory.  Note that a 'codepoint' pointing to
+        // a '\0' 'char' will result in a return value of '1', since the '\0'
         // byte is a 1-byte encoding.
 
     static int appendUtf8Character(bsl::string  *output,

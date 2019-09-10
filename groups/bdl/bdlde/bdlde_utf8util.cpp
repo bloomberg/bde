@@ -9,8 +9,6 @@
 
 #include <bdlde_utf8util.h>
 
-#include <bdlde_charconvertutf32.h>
-
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 
@@ -53,7 +51,8 @@ enum {
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
-bool validUtf8(const char *character)
+bool isValidUtf8(const char *character)
+    // Return 'true' if 'character' points to a valid UTF-8 codepoint.
 {
     return (character[0] & k_ONEBYTEHEAD_TEST)   == k_ONEBYTEHEAD_RES ||
           ((character[1] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
@@ -66,8 +65,10 @@ bool validUtf8(const char *character)
 
 #endif // defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
-// This assumes its a valid Utf8 character
-int Utf8Size(char character)
+int utf8Size(char character)
+    // Return the length of the UTF-8 codepoint for which the specified
+    // 'character' is the first 'char'.  The behavior is undefined unless
+    // 'character' is the first 'char' of a UTF-8 codepoint.
 {
     if ((character & k_ONEBYTEHEAD_TEST) == k_ONEBYTEHEAD_RES) {
         return 1;                                                     // RETURN
@@ -1106,8 +1107,8 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
     // validation functions our work is very simple.
 
     for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
-        BSLS_ASSERT_SAFE(validUtf8(string[numBytes]));
-        numBytes += Utf8Size(string[numBytes]);
+        BSLS_ASSERT_SAFE(isValidUtf8(string[numBytes]));
+        numBytes += utf8Size(string[numBytes]);
     }
 
     if (numBytes > string.length()) {
@@ -1119,29 +1120,56 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
 
 int Utf8Util::getByteSize(const char* character)
 {
-    BSLS_ASSERT_SAFE(validUtf8(character));
-    return Utf8Size(character[0]);
+    BSLS_ASSERT_SAFE(isValidUtf8(character));
+    return utf8Size(character[0]);
 }
 
-int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepoint)
+int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
 {
     BSLS_ASSERT(output);
 
-    char        buffer[8];
-    bsl::size_t numBytesWritten = 0;
+    ///IMPLEMENTATION NOTES
+    ///--------------------
+    // This UTF-8 documentation was copied verbatim from RFC 3629.  The
+    // original version was downloaded from:
+    //..
+    //     http://tools.ietf.org/html/rfc3629
+    //..
+    ///////////////////////// BEGIN VERBATIM RFC TEXT /////////////////////////
+    // Char number range   |        UTF-8 octet sequence
+    //    (hexadecimal)    |              (binary)
+    // --------------------+---------------------------------------------
+    // 0000 0000-0000 007F | 0xxxxxxx
+    // 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+    // 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
 
-    int res = CharConvertUtf32::utf32ToUtf8(
-        buffer, sizeof(buffer), &codepoint, 1, NULL, &numBytesWritten);
-
-    if (0 != res) {
-        return -1;
+    if (codepnt < 0x80U) {
+        output->push_back(static_cast<char>(codepnt));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x800U) {
+        output->push_back(static_cast<char>((codepnt >>   6)          | 0xC0));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x10000U) {
+        output->push_back(static_cast<char>((codepnt  >> 12)          | 0xE0));
+        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x110000U) {
+        output->push_back(static_cast<char>((codepnt  >> 18)          | 0xF0));
+        output->push_back(static_cast<char>(((codepnt >> 12) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
     }
 
-    // 'numBytesWritten' includes the trailing '\0' in its count, which we
-    // don't want in '*output'.
-    output->append(buffer, numBytesWritten - 1);
-
-    return 0;
+    // Invalid code point.
+    return -1;
 }
 
 }  // close package namespace
