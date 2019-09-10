@@ -21,6 +21,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsl_algorithm.h>  // 'min'
 #include <bsl_climits.h>    // 'CHAR_BIT'
+#include <bsl_cstdint.h>    // 'WCHAR_WIDTH'
 
 ///IMPLEMENTATION NOTES
 ///--------------------
@@ -266,6 +267,7 @@ unsigned short hostToSwapped<unsigned short, 2>(unsigned short uc)
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 
+#if 16 == WCHAR_WIDTH  // remove unused function warning
 template <>
 inline
 wchar_t swappedToHost<wchar_t, 2>(wchar_t uc)
@@ -283,6 +285,7 @@ wchar_t hostToSwapped<wchar_t, 2>(wchar_t uc)
 {
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
+#endif
 
 template <>
 inline

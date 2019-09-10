@@ -32,7 +32,6 @@ static const char EQ_ = QuotedPrintableDecoder::e_EQ_;
 static const char WS_ = QuotedPrintableDecoder::e_WS_;
 static const char CR_ = QuotedPrintableDecoder::e_CR_;
 static const char LC_ = QuotedPrintableDecoder::e_LC_;
-static const char LL_ = QuotedPrintableDecoder::e_LL_;
 static const char UC_ = QuotedPrintableDecoder::e_UC_;
 
 // Relaxed-mode equivalence class symbols
@@ -42,7 +41,6 @@ static const char EQ = QuotedPrintableDecoder::e_EQ;
 static const char WS = QuotedPrintableDecoder::e_WS;
 static const char CR = QuotedPrintableDecoder::e_CR;
 static const char LC = QuotedPrintableDecoder::e_LC;
-static const char LL = QuotedPrintableDecoder::e_LL;
 static const char UC = QuotedPrintableDecoder::e_UC;
 
 // The following table is a map of an 8-bit index value to the corresponding

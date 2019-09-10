@@ -66,8 +66,9 @@ bsl::ostream& DatetimeTz::print(bsl::ostream& stream,
     const int  minutes = '-' == sign ? -d_offset : d_offset;
     const int  hours   = minutes / 60;
 
-    //       space usage: +-  hh  mm  nil
-    const int offsetSize = 1 + 2 + 2 + 1;
+    //       space usage: +-   hh   mm  nil
+    const int offsetSize = 1 + 10 + 10 + 1;  // to avoid compiler warning, must
+                                             // presume full range on the 'int'
     char      offsetBuffer[offsetSize];
 
     // Use only 2 digits for 'hours' (DRQS 12693813).
