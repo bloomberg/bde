@@ -4780,7 +4780,8 @@ struct SharedPtr_TestIsCallable {
 #if defined(BSLS_PLATFORM_CMP_MSVC) && \
     BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION < 1920
 // Microsoft needs a workaround to correctly handle calling through function
-// pointers with incompatible types for C++17 before Visual Studio 2019.
+// pointers with incompatible types in Visual Studio 2017.  In Visual Studio
+// 2019 the workaround isn't needed and crashes the compiler if present!
 
 template <class RESULT, class PARAM>
 struct SharedPtr_TestIsCallable<RESULT(PARAM)> {
