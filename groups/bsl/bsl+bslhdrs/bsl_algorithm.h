@@ -97,8 +97,8 @@ namespace bsl {
     using native_std::unique_copy;
     using native_std::upper_bound;
 
-#if __cplusplus < 201703L && !(defined _HAS_AUTO_PTR_ETC && !_HAS_AUTO_PTR_ETC)
-    // These names are removed by C++17
+#if __cplusplus < 201703L || _HAS_AUTO_PTR_ETC
+    // These names are removed by C++17 but can be brought back in MSVC.
     using native_std::random_shuffle;
 #endif
 
