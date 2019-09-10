@@ -79,8 +79,8 @@ BSLS_IDENT("$Id: $")
 //: o 'isLockedWrite'
 // 
 // Two compatible classes are:
-//: o 'bslmt::ReaderWriteLock' and
-//: o 'bslmt::ReaderWriteMutex'
+//: o 'bslmt::ReaderWriterLock' and
+//: o 'bslmt::ReaderWriterMutex'
 //
 // Although the required methods are typically 'const'-qualified (i.e.,
 // "accessor" methods), that is not a requriement.  Some client lock classes
