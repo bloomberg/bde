@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Validating Strings and Counting Unicode Code Points
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this usage example, we will encode some Unicode code points in UTF-8
-// strings and demonstrate which ones are valid and which ones are not.
+// strings and demonstrate those that are valid and those that are not.
 //
 // First, we build an unquestionably valid UTF-8 string:
 //..
@@ -479,10 +479,11 @@ struct Utf8Util {
 
     static IntPtr numBytesIfValid(const bslstl::StringRef& string,
                                   IntPtr                   numCodePoints);
-        // Return the number of bytes used by the first 'numCodePoints' utf8
-        // characters in the specified 'string', or a value less than zero if
-        // 'string' contains less than 'numCharacters' UTF-8 characters.  The
-        // behavior is undefined unless 'string' is a valid UTF-8 string.
+        // Return the number of bytes used by the specified 'numCodePoints'
+        // first utf8 characters in the specified 'string', or a value less
+        // than zero if 'string' contains less than 'numCharacters' UTF-8
+        // characters.  The behavior is undefined unless 'string' is a valid
+        // UTF-8 string.
 
     static int getByteSize(const char* codepoint);
         // Return the size in bytes of the specified UTF-8 'codepoint'.  The
@@ -528,6 +529,18 @@ bool Utf8Util::isValid(const char *string, size_type length)
 }
 
 inline
+Utf8Util::IntPtr Utf8Util::numCharacters(const char *string)
+{
+    return numCodePointsRaw(string);
+}
+
+inline
+Utf8Util::IntPtr Utf8Util::numCharacters(const char *string, size_type length)
+{
+    return numCodePointsRaw(string, length);
+}
+
+inline
 Utf8Util::IntPtr Utf8Util::numCharactersIfValid(const char **invalidString,
                                                 const char  *string)
 {
@@ -540,18 +553,6 @@ Utf8Util::IntPtr Utf8Util::numCharactersIfValid(const char **invalidString,
                                                 size_type    length)
 {
     return numCodePointsIfValid(invalidString, string, length);
-}
-
-inline
-Utf8Util::IntPtr Utf8Util::numCharacters(const char *string)
-{
-    return numCodePointsRaw(string);
-}
-
-inline
-Utf8Util::IntPtr Utf8Util::numCharacters(const char *string, size_type length)
-{
-    return numCodePointsRaw(string, length);
 }
 
 inline

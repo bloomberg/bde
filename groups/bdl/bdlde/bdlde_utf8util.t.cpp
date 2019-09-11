@@ -11,17 +11,18 @@
 
 #include <bdlb_random.h>
 
+#include <bslim_testutil.h>
+
 #include <bsls_review.h>
 #include <bsls_types.h>
-
-#include <bsl_iostream.h>
-#include <bsl_string.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -30,6 +31,13 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 using bsl::size_t;
+
+// Suppress some bde_verify warnings for this test driver.
+// BDE_VERIFY pragma: -IND01
+// BDE_VERIFY pragma: -IND04
+// BDE_VERIFY pragma: -SP01
+// BDE_VERIFY pragma: -SP03
+// BDE_VERIFY pragma: -TP21
 
 //=============================================================================
 //                             TEST PLAN
@@ -54,17 +62,27 @@ using bsl::size_t;
 // [12] int appendUtf8Character(bsl::string *, unsigned int);
 // [11] int getByteSize(const char *);
 // [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
-// [ 7] int advanceIfValid(int *, const char **, const char *, int); on prose
-// [ 7] int advanceIfValid(int *, const char **, const char *, int, int); prose
-// [ 7] int advanceRaw(const char **, const char *, int); on prose
-// [ 7] int advanceRaw(const char **, const char *, int, int); on prose
+// [ 8] int advanceIfValid(int *, const char **, const char *, int);
+// [ 8] int advanceIfValid(int *, const char **, const char *, int, int);
+// [ 8] int advanceRaw(const char **, const char *, int);
+// [ 8] int advanceRaw(const char **, const char *, int, int);
+// [ 7] int advanceIfValid(int *, const char **, const char *, int); prose
+// [ 7] int advanceIfValid(int*,const char**,const char *,int,int); prose
+// [ 7] int advanceRaw(const char **, const char *, int); prose
+// [ 7] int advanceRaw(const char **, const char *, int, int); prose
 // [ 6] bool isValid(const char *s);
 // [ 6] bool isValid(const char *s, int len);
 // [ 6] bool isValid(const char **err, const char *s);
 // [ 6] bool isValid(const char **err, const char *s, int len);
 // [ 6] int numCodePointsIfValid(**err, const char *s);
 // [ 6] int numCodePointsIfValid(**err, const char *s, int len);
+// [ 6] int numCharactersIfValid(**err, const char *s);
+// [ 6] int numCharactersIfValid(**err, const char *s, int len);
 // [ 5] int numCodePointsRaw(const char *s);
+// [ 5] int numCharacters(const char *s, int len);
+// [ 5] int numCharacters(const char *s);
+// [ 5] int numCharactersRaw(const char *s, int len);
+// [ 5] int numCharactersRaw(const char *s);
 // [ 5] int numCodePointsRaw(const char *s, int len);
 // [ 5] int numCodePoints(const char *s);
 // [ 5] int numCodePoints(const char *s, int len);
@@ -81,71 +99,53 @@ using bsl::size_t;
 // [ 2] TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
 // [13] USAGE EXAMPLE 1
 // [14] USAGE EXAMPLE 2
-// [ 9] Testing: 'advanceIfValid' on correct input followed by incorrect input
-// [ 8] Testing: all 'advance*' on machine-generated correct input
+// [ 9] 'advanceIfValid' on correct input followed by incorrect input
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-#define PP(X) (cout << #X " = " << (X) << endl, 0) // Print name and value,
-                                                   // then return false.
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
@@ -1785,6 +1785,7 @@ bsl::string dumpVec(const bsl::vector<int>& vec)
 
 static
 bsl::string dumpStr(const bsl::string& str)
+    // Returns the specified 'str' in a human-readable hex format.
 {
     bsl::string ret;
 
@@ -1798,8 +1799,8 @@ bsl::string dumpStr(const bsl::string& str)
 
         for (int shiftDown = 4; shiftDown >= 0; shiftDown -= 4) {
             int digit = (*pc >> shiftDown) & 0xf;
-            ret.push_back(digit < 10 ? (char) ('0' + digit)
-                                     : (char) ('a' + digit - 10));
+            ret.push_back(digit < 10 ? char('0' + digit)
+                                     : char('a' + digit - 10));
         }
     }
 
@@ -1808,6 +1809,7 @@ bsl::string dumpStr(const bsl::string& str)
 
 static inline
 unsigned int randUnsigned()
+    // Return a pseudo-random unsigned integer.
 {
     static unsigned int key = 0x87654321U;
 
@@ -1819,6 +1821,7 @@ unsigned int randUnsigned()
 
 static
 void appendRand1Byte(bsl::string *dst)
+    // Append a random 1-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =    1,
@@ -1833,11 +1836,12 @@ void appendRand1Byte(bsl::string *dst)
     buf[0] = static_cast<unsigned char>(val);
     buf[1] = 0;
 
-    *dst += (const char *) &buf[0];
+    *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
 static
 void appendRand2Byte(bsl::string *dst)
+    // Append a random 2-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x80,
@@ -1853,11 +1857,12 @@ void appendRand2Byte(bsl::string *dst)
     buf[1] = static_cast<unsigned char> ((val &  0x3f)       | 0x80);
     buf[2] = 0;
 
-    *dst += (const char *) &buf[0];
+    *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
 static
 void appendRand3Byte(bsl::string *dst)
+    // Append a random 3-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x800,
@@ -1877,11 +1882,12 @@ void appendRand3Byte(bsl::string *dst)
     buf[2] = static_cast<unsigned char> ((val &   0x3f)        | 0x80);
     buf[3] = 0;
 
-    *dst += (const char *) &buf[0];
+    *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
 static
 void appendRand4Byte(bsl::string *dst)
+    // Append a random 4-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x10000,
@@ -1899,11 +1905,13 @@ void appendRand4Byte(bsl::string *dst)
     buf[3] = static_cast<unsigned char> ((val &     0x3f)        | 0x80);
     buf[4] = 0;
 
-    *dst += (const char *) &buf[0];
+    *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
 static
 void appendRandCorrectCodePoint(bsl::string *dst, bool useZero)
+    // Append a random valid UTF-8 character to the specified '*dst'.  The '\0'
+    // byte is only possible if the specified 'useZero' is 'true'.
 {
     unsigned r = randUnsigned();
     r = useZero ? r % 5
@@ -1932,18 +1940,22 @@ void appendRandCorrectCodePoint(bsl::string *dst, bool useZero)
 }
 
 bsl::string code8(int b)
+    // Return the encoded representation of the specified 7-bit UTF-8 codepoint
+    // 'b'.  Note that this is simply 'b'.
 {
     bsl::string ret;
 
     ASSERT(0 == (b & ~0x7f));
 
-    ret += (char) b;
+    ret += char(b);
 
     return ret;
 }
 
 static
 bsl::string code16(int b)
+    // Return the encoded representation of the specified 2-byte UTF-8
+    // codepoint 'b'.
 {
     ASSERT(0 == (b & ~0x7ff));
 
@@ -1952,11 +1964,13 @@ bsl::string code16(int b)
     buf[1] = static_cast<unsigned char> ((b &  0x3f)       | 0x80);
     buf[2] = 0;
 
-    return (char *) buf;
+    return reinterpret_cast<char *>(buf);
 }
 
 static
 bsl::string code24(int b)
+    // Return the encoded representation of the specified 3-byte UTF-8
+    // codepoint 'b'.
 {
     ASSERT(0 == (b & ~0xffff));
 
@@ -1966,11 +1980,13 @@ bsl::string code24(int b)
     buf[2] = static_cast<unsigned char> ((b &   0x3f)        | 0x80);
     buf[3] = 0;
 
-    return (char *) buf;
+    return reinterpret_cast<char *>(buf);
 }
 
 static
 bsl::string code32(int b)
+    // Return the encoded representation of the specified 4-byte UTF-8
+    // codepoint 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -1981,11 +1997,12 @@ bsl::string code32(int b)
     buf[3] = static_cast<unsigned char> ((b &     0x3f)        | 0x80);
     buf[4] = 0;
 
-    return (char *) buf;
+    return reinterpret_cast<char *>(buf);
 }
 
 static
 bsl::string utf8Encode(int b)
+    // Return the encoded representation of the specified UTF-8 codepoint 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -2004,6 +2021,7 @@ bsl::string utf8Encode(int b)
 
 static
 bsl::string codeBOM()
+    // Return the encoded representation of a UTF-8 Byte Order Mark.
 {
     unsigned char buf[4];
     buf[0] = 0xef;
@@ -2011,14 +2029,16 @@ bsl::string codeBOM()
     buf[2] = 0xbf;
     buf[3] = 0;
 
-    return (char *) buf;
+    return reinterpret_cast<char *>(buf);
 }
 
-// note these decoders all assume they can look as far as they want down the
+// Note these decoders all assume they can look as far as they want down the
 // stream of bytes without provoking a segfault.
 
 static
 unsigned int decode8(const char *pc)
+    // Return the decoded value of the 1-byte UTF-8 codepoint pointed to by
+    // the specified 'pc'.  Note that this is just '*pc'.
 {
     ASSERT(!(~0x7f & *pc));
 
@@ -2027,6 +2047,8 @@ unsigned int decode8(const char *pc)
 
 static
 unsigned int decode16(const char *pc)
+    // Return the decoded value of the 2-byte UTF-8 codepoint pointed to by
+    // the specified 'pc'.
 {
     ASSERT(0xc0 == (*pc & 0xe0) && 0x80 == (pc[1] & 0xc0));
 
@@ -2035,6 +2057,8 @@ unsigned int decode16(const char *pc)
 
 static
 unsigned int decode24(const char *pc)
+    // Return the decoded value of the 3-byte UTF-8 codepoint pointed to by
+    // the specified 'pc'.
 {
     ASSERT(0xe0 == (*pc & 0xf0) && 0x80 == (pc[1] & 0xc0) &&
                                    0x80 == (pc[2] & 0xc0));
@@ -2044,6 +2068,8 @@ unsigned int decode24(const char *pc)
 
 static
 unsigned int decode32(const char *pc)
+    // Return the decoded value of the 4-byte UTF-8 codepoint pointed to by
+    // the specified 'pc'.
 {
     ASSERT(0xf0 == (*pc & 0xf8) && 0x80 == (pc[1] & 0xc0) &&
                              0x80 == (pc[2] & 0xc0) && 0x80 == (pc[3] & 0xc0));
@@ -2054,6 +2080,8 @@ unsigned int decode32(const char *pc)
 
 static
 unsigned int decode(const char **pc)
+    // Return the decoded value of the UTF-8 codepoint pointed to by the
+    // specified '*pc', updating '*pc' to point to the next codepoint.
 {
     int ret;
 
@@ -2081,6 +2109,8 @@ unsigned int decode(const char **pc)
 
 static
 unsigned int decode(const char *pc)
+    // Return the decoded value of the UTF-8 codepoint pointed to by the
+    // specified 'pc'.
 {
     return decode(&pc);
 }
@@ -2092,17 +2122,20 @@ int randNum()
     // MMIX Linear Congruential Generator algorithm by Donald Knuth
 {
     randAccum = randAccum * 6364136223846793005LL + 1442695040888963407LL;
-    return (int) (randAccum >> 32);
+    return int(randAccum >> 32);
 }
 
 static
 int randVal()
+    // Return a random integer in the '[0..0x1fffff]' range.
 {
     return (randNum() >> 9) & 0x1fffff;
 }
 
 static
 int randVal8(bool never0 = false)
+    // Return a random integer in the '[1..0x7f]' range.  If the optionally
+    // specified 'never0' is 'true', the range is '[0..0x7f]'.
 {
     int ret;
     do {
@@ -2114,6 +2147,7 @@ int randVal8(bool never0 = false)
 
 static
 int randVal16()
+    // Return a random integer in the '[0x80..0x7ff]' range.
 {
     int ret;
     do {
@@ -2125,6 +2159,9 @@ int randVal16()
 
 static
 int randVal24(bool neverSurrogates = false)
+    // Return a random integer in the '[0x800..0xffff]' range.  If the
+    // optionally specified 'neverSurrogates' is 'true', do not return values
+    // in the '[0xd800..0xdfff]' surrogates range.
 {
     int ret;
     do {
@@ -2137,6 +2174,7 @@ int randVal24(bool neverSurrogates = false)
 
 static
 int randVal32()
+    // Return a random integer in the '[0x10000..0x10ffff]' range.
 {
     int ret;
     do {
@@ -2148,6 +2186,10 @@ int randVal32()
 
 static
 int randValue(bool strict = false, bool never0 = false)
+    // Return a random integer in the '[0..0x10ffff]' range.  If the optionally
+    // specified 'strict' is 'true', do not return values in the
+    // '[0xd800..0xdfff]' surrogates range.  If the optionally specified
+    // 'never0' is true, the range is '[1..0x10ffff]'.
 {
     int type = randVal();
     switch (type & 3) {
@@ -2171,6 +2213,8 @@ int randValue(bool strict = false, bool never0 = false)
 
 static
 bool allValid(const bsl::string& str)
+    // Return true if all the UTF-8 codepoints in the specified 'str' are
+    // valid.
 {
     bool a = Obj::isValid(str.c_str());
     ASSERT(Obj::isValid(str.data(), str.length()) == a);
@@ -2180,6 +2224,7 @@ bool allValid(const bsl::string& str)
 
 static
 int allNumCodePoints(const bsl::string& str)
+    // Return the total number of codepoints in the specified UTF-8 'str'.
 {
     int len = Obj::numCharacters(str.data(), str.length());
     ASSERT(Obj::numCharacters(str.c_str()) == len);
@@ -2189,6 +2234,8 @@ int allNumCodePoints(const bsl::string& str)
 
 static
 bsl::string clone(const char *pc, int length)
+    // Return a 'bsl::string' containing the specified 'length' bytes from the
+    // specified 'pc'.
 {
     bsl::string ret;
 
@@ -2484,14 +2531,27 @@ namespace USAGE {
 
 namespace BDEDE_UTF8UTIL_CASE_4 {
 
-const int surrogates[] = { 0xd800, 0xd811, 0xd9a3, 0xd9ff,
-                           0xda00, 0xda35, 0xdb80, 0xdbff,
-                           0xdc00, 0xdc48, 0xdd84, 0xddff,
-                           0xde00, 0xde73, 0xdf24, 0xdfff };
-const int *loSgates = surrogates;
-const int *hiSgates = surrogates + 8;
+const int  surrogates[] = {0xd800,
+                          0xd811,
+                          0xd9a3,
+                          0xd9ff,
+                          0xda00,
+                          0xda35,
+                          0xdb80,
+                          0xdbff,
+                          0xdc00,
+                          0xdc48,
+                          0xdd84,
+                          0xddff,
+                          0xde00,
+                          0xde73,
+                          0xdf24,
+                          0xdfff};
+const int *loSgates     = surrogates;
+const int *hiSgates     = surrogates + 8;
 
 bsl::string codeRandSurrogate()
+    // Return a random surrogate.
 {
     int val = randNum();
     if (val &0x1800) {
@@ -2505,6 +2565,7 @@ bsl::string codeRandSurrogate()
 }
 
 bsl::string codeRandSurrogatePair()
+    // Return a pair of random surrogates.
 {
     int val = randNum();
     int loSgate, hiSgate;
@@ -2520,8 +2581,8 @@ bsl::string codeRandSurrogatePair()
     return code24(loSgate) + code24(hiSgate);
 }
 
-// encode with no zeroes or surrogates
 bsl::string codeRandBenign()
+    // Return a random UTF-8 codepoint with no zeroes or surrogates.
 {
     int val;
     do {
@@ -2540,6 +2601,8 @@ bsl::string codeRandBenign()
 namespace BDEDE_UTF8UTIL_CASE_2 {
 
 bsl::string makeString(const char *pc, size_t len)
+    // Return a 'bsl::string' containing the specified 'len' bytes from the
+    // specified 'pc'.
 {
     bsl::string ret;
 
@@ -2741,14 +2804,14 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2: 'advance'.
+        // USAGE EXAMPLE 2: 'advance'
         //
         // Concerns:
-        //   Demonstrate the 'advance*' functions.
+        //: 1 Demonstrate the 'advance*' functions.
         //
         // Plan:
-        //   Use the 'appendUtf8Character' function to build an example string,
-        //   then advance through it.
+        //: 1 Use the 'appendUtf8Character' function to build an example
+        //:   string, then advance through it.
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -2779,8 +2842,8 @@ int main(int argc, char *argv[])
 //..
 // Then, declare a few variables we'll need:
 //..
-    int rc, status;
-    const char *result;
+    int               rc, status;
+    const char       *result;
     const char *const start = string.c_str();
 //..
 // Next, try advancing 2 code points, then 3, then 4, observing that the value
@@ -2852,14 +2915,14 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 1: 'isValid' and 'numCodePoints*'
+        // USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'
         //
         // Concerns:
-        //   Demonstrate the routines by encoding some UTF-8 strings and
-        //   validating them and counting their code points.
+        //: 1 Demonstrate the routines by encoding some UTF-8 strings and
+        //:   validating them and counting their code points.
         //
         // Plan:
-        //   Create both UTF-8 and modified UTF-8 strings and validate them.
+        //: 1 Create both UTF-8 and modified UTF-8 strings and validate them.
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -2868,11 +2931,11 @@ int main(int argc, char *argv[])
         using namespace USAGE;
 
         if (verbose) cout <<
-                           "USAGE EXAMPLE 1: 'isValid' and 'numCodePoints*'\n"
+                           "USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'\n"
                            "===============================================\n";
 
 // In this usage example, we will encode some Unicode code points in UTF-8
-// strings and demonstrate which ones are valid and which ones are not.
+// strings and demonstrate those that are valid and those that are not.
 //
 // First, we build an unquestionably valid UTF-8 string:
 //..
@@ -2954,15 +3017,15 @@ int main(int argc, char *argv[])
         // TESTING 'appendUtf8Character'
         //
         // Concerns:
-        //   The method under test produce the expected results on valid
-        //   codepoints.  The principal concern is that the append is performed
-        //   correctly.
+        //: 1 The method under test produce the expected results on valid
+        //:   codepoints.  The principal concern is that the append is
+        //:   performed correctly.
         //
         // Plan:
-        //   Use the table-driven approach to verify correct behavior when
-        //   appending various valid codepoints to both empty and non-empty
-        //   strings.  This is sufficient since the routine under test is
-        //   implemented in terms of an already tested component.
+        //: 1 Use the table-driven approach to verify correct behavior when
+        //:   appending various valid codepoints to both empty and non-empty
+        //:   strings.  This is sufficient since the routine under test is
+        //:   implemented in terms of an already tested component.
         //
         // Testing:
         //   int appendUtf8Character(bsl::string *, unsigned int);
@@ -2998,12 +3061,12 @@ int main(int argc, char *argv[])
         // TESTING 'getByteSize'
         //
         // Concerns:
-        //   The method under test produce the expected results on valid UTF-8
-        //   codepoints.
+        //: 1 The method under test produce the expected results on valid UTF-8
+        //:   codepoints.
         //
         // Plan:
-        //   Use the table-driven approach to verify correct behavior on
-        //   various valid UTF-8 codepoints.
+        //: 1 Use the table-driven approach to verify correct behavior on
+        //:   various valid UTF-8 codepoints.
         //
         // Testing:
         //   int getByteSize(const char *);
@@ -3030,13 +3093,13 @@ int main(int argc, char *argv[])
         // TESTING 'numBytesIfValid'
         //
         // Concerns:
-        //   The method under test produce the expected results on valid UTF-8
-        //   strings whether or not embedded '\0' characters are present.
+        //: 1 The method under test produce the expected results on valid UTF-8
+        //:   strings whether or not embedded '\0' characters are present.
         //
         // Plan:
-        //   Use the table-driven approach to verify correct behavior on
-        //   various valid UTF-8 strings.  Append a '\0' to each candidate
-        //   string, then repeat appending each table entry again.
+        //: 1 Use the table-driven approach to verify correct behavior on
+        //:   various valid UTF-8 strings.  Append a '\0' to each candidate
+        //:   string, then repeat appending each table entry again.
         //
         // Testing:
         //   IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
@@ -3088,24 +3151,23 @@ int main(int argc, char *argv[])
         // TESTING CORRECT + BROKEN GLASS
         //
         // CONCERN:
-        //: o That 'advanceIfValid' will detect all forms of error sequences
+        //: 1 That 'advanceIfValid' will detect all forms of error sequences
         //:   and properly terminate and report them.
         //
         // PLAN:
-        //: o In TC 8, we generated correct sequences containing up to 2 of
+        //: 1 In TC 8, we generated correct sequences containing up to 2 of
         //:   every type of correct Unicode code point.  In this sequence, we
         //:   will generate correct sequences of only up to 1 of every type of
         //:   correct Unicode code point.
-        //: o We will follow these correct sequences with an error sequence,
+        //: 2 We will follow these correct sequences with an error sequence,
         //:   and observe the 'advanceIfValid' detects and returns a pointer to
         //:   the incorrect sequence every time.
-        //: o If the error sequence was truncated, we will repeat the test,
+        //: 3 If the error sequence was truncated, we will repeat the test,
         //:   appending a correct sequence after the error sequence, and
         //:   observe this makes no difference to the result.
         //
         // Testing:
-        //   int advanceIfValid(int *, const char **, const char *, int);
-        //   int advanceIfValid(int *, const char **, const char *, int, int);
+        //   'advanceIfValid' on correct input followed by incorrect input
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CORRECT + BROKEN GLASS\n"
@@ -3114,7 +3176,7 @@ int main(int argc, char *argv[])
         typedef void (*AppendFunc)(bsl::string *);
 
         struct {
-            const char *d_string;
+            const char *d_string_p;
             unsigned    d_truncatedBy;
             AppendFunc  d_appendFunc;
             unsigned    d_index;    // only used for debugging
@@ -3229,7 +3291,7 @@ int main(int argc, char *argv[])
                     }
 
                     for (int ti = 0; ti < NUM_DATA; ++ti) {
-                        const char *ERROR_STR    = DATA[ti].d_string;
+                        const char *ERROR_STR    = DATA[ti].d_string_p;
                         const int   TRUNCATED_BY = DATA[ti].d_truncatedBy;
                         AppendFunc  APPEND_FUNC  = DATA[ti].d_appendFunc;
 
@@ -3250,8 +3312,8 @@ int main(int argc, char *argv[])
                         const char *       end;
                         int                numCodePoints;
                         int                sts;
-                        const int          numCodePointsArg = (int) vec.size();
-                        const int          strLength   = (int) str.length();
+                        const int          numCodePointsArg = int(vec.size());
+                        const int          strLength   = int(str.length());
 
                         if (!useZero) {
                             sts = -2;
@@ -3318,45 +3380,45 @@ int main(int argc, char *argv[])
         // TESTING EXHAUSTIVE CORRECT SEQUENCES
         //
         // CONCERN:
-        //: o That 'advanceIfValid' and 'advanceRaw' perform as documented on
+        //: 1 That 'advanceIfValid' and 'advanceRaw' perform as documented on
         //:   computer-generated sequences of correct UTF-8 input.
         //
         // PLAN:
-        //: o We create static functions 'appendRand*Char(bsl::string*)' that
+        //: 1 We create static functions 'appendRand*Char(bsl::string*)' that
         //:   will append one random Unicode code point of the 4 possible valid
         //:   lengths to a string.
-        //: o There are 5 types of code points we will have in the input
+        //: 2 There are 5 types of code points we will have in the input
         //:   strings: non-zero Unicode values of the 4 possible lengths, and
         //:   the zero char.  We represent string containing up to two of each
         //:   of those values with a vector 'vec' of integers, where value
         //:   '1-4' represent non-zero Unicode code points of the length
         //:   indicated by the number, and 0 representing a 0 code point.
-        //: o We do our tests twice, once where we don't include any 0 code
+        //: 3 We do our tests twice, once where we don't include any 0 code
         //:   points for testing functions that take zero-terminated input, and
         //:   again including 0 code points, by iterating on 'useZero',
         //:   effectively a boolean.
-        //: o We have an integer key, where the bottom several bits of the
+        //: 4 We have an integer key, where the bottom several bits of the
         //:   value indicate whether Unicode code points of a given length will
         //:   be present in the value.  The key is 8 bits long if 0 is not
         //:   used, 10 bits long if 0 is used (two bits for each length, to
         //:   indicate the presence or absence of up to 2 instances of Unicode
         //:   code points).
-        //: o The key is processed into 'vec', where each element of vec
+        //: 5 The key is processed into 'vec', where each element of vec
         //:   indicates the Unicode code point length (or 0 value) of a Unicode
         //:   code point to be present in the test string.
-        //: o We then iterate through all permutations of 'vec'.
-        //: o For each permutation, we translate 'vec' into a string, using the
+        //: 6 We then iterate through all permutations of 'vec'.
+        //: 7 For each permutation, we translate 'vec' into a string, using the
         //:   'appendRaw*Char' functions described above.
-        //: o We then call all forms of 'advance*' function on this string, and
+        //: 8 We then call all forms of 'advance*' function on this string, and
         //:   observe that the return values are as expected.
-        //: o We then push a random garbage char onto the end of the string.
+        //: 9 We then push a random garbage char onto the end of the string.
         //:   Since we 'reserve'd a long length for the string, this will not
         //:   cause a reallocation of the buffer or invalidation of any of our
         //:   pointers at or into the string.
-        //: o We then call the 'advance' functions that either don't take 0
-        //:   terminated input, or that are passed 'numCodePoints', which will
-        //:   tell the 'advance*' to finish before examining the garbage byte,
-        //:   and observe the functions succeed.
+        //: 10 We then call the 'advance' functions that either don't take 0
+        //:    terminated input, or that are passed 'numCodePoints', which will
+        //:    tell the 'advance*' to finish before examining the garbage byte,
+        //:    and observe the functions succeed.
         //
         // Testing:
         //   int advanceIfValid(int *, const char **, const char *, int);
@@ -3398,7 +3460,7 @@ int main(int argc, char *argv[])
             // permutations isn't a problem until you get up to 9 or 10.
 
             int totalValues = useZero
-                            ? (int) (2 * numValues * (0.5 + fraction * 0.5))
+                            ? int(2 * numValues * (0.5 + fraction * 0.5))
                             : 2 * numValues;
             int iterations  = 1 << totalValues;
             if (veryVerbose) P(totalValues);
@@ -3467,8 +3529,8 @@ int main(int argc, char *argv[])
                     const char *       end;
                     int                numCodePoints;
                     int                sts;
-                    const int          numCodePointsArg = (int) vec.size();
-                    const int          strLength   = (int) str.length();
+                    const int          numCodePointsArg = int(vec.size());
+                    const int          strLength   = int(str.length());
 
                     if (!useZero) {
                         end = "woof";
@@ -3513,7 +3575,7 @@ int main(int argc, char *argv[])
 
                     // Don't use 'c == 0' as we already tested that above.
 
-                    char c = (char) (randUnsigned() % 256 - 128);
+                    char c = char(randUnsigned() % 256 - 128);
                     c = c ? c : 'a';
                     str.push_back(c);
 
@@ -3584,19 +3646,19 @@ int main(int argc, char *argv[])
         // TESTING REAL PROSE
         //
         // Concerns:
-        //   That 'advanceIfValid' and 'advanceRaw', in both their forms, can
-        //   handle a long sequence of correct UTF-8.
+        //: 1 That 'advanceIfValid' and 'advanceRaw', in both their forms, can
+        //:   handle a long sequence of correct UTF-8.
         //
         // Plan:
-        //   Run both forms of 'advanceIfValid' and 'advanceRaw', respectively
-        //   on our string 'charUtf8MultiLang', and observe that they count the
-        //   code points correctly, and don't report any errors.
+        //: 1 Run both forms of 'advanceIfValid' and 'advanceRaw', respectively
+        //:   on our string 'charUtf8MultiLang', and observe that they count
+        //:   the code points correctly, and don't report any errors.
         //
         // Testing:
-        //   int advanceIfValid(int *, const char **, const char *, int);
-        //   int advanceIfValid(int *, const char **, const char *, int, int);
-        //   int advanceRaw(const char **, const char *, int);
-        //   int advanceRaw(const char **, const char *, int, int);
+        //   int advanceIfValid(int *, const char **, const char *, int); prose
+        //   int advanceIfValid(int*,const char**,const char *,int,int); prose
+        //   int advanceRaw(const char **, const char *, int); prose
+        //   int advanceRaw(const char **, const char *, int, int); prose
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING REAL PROSE\n"
@@ -3683,18 +3745,20 @@ int main(int argc, char *argv[])
         // TESTING 'isValid' & 'numCodePointsIfValid'
         //
         // Concerns:
-        //   The methods under test produce the expected results on both
-        //   valid and invalid UTF-8 strings.
+        //: 1 The methods under test produce the expected results on both
+        //:   valid and invalid UTF-8 strings.
         //
         // Plan:
-        //   Use the table-driven approach to verify correct behavior on
-        //   various valid and invalid UTF-8 strings.
+        //: 1 Use the table-driven approach to verify correct behavior on
+        //:   various valid and invalid UTF-8 strings.
         //
         // Testing:
         //   bool isValid(const char *s);
         //   bool isValid(const char *s, int len);
         //   bool isValid(const char **err, const char *s);
         //   bool isValid(const char **err, const char *s, int len);
+        //   int numCharactersIfValid(**err, const char *s);
+        //   int numCharactersIfValid(**err, const char *s, int len);
         //   int numCodePointsIfValid(**err, const char *s);
         //   int numCodePointsIfValid(**err, const char *s, int len);
         // --------------------------------------------------------------------
@@ -3816,16 +3880,22 @@ int main(int argc, char *argv[])
         // TESTING 'numCharactersRaw'
         //
         // Concerns:
-        //   The methods under test produce the expected results on both
-        //   valid and invalid UTF-8 strings.
+        //: 1 The methods under test produce the expected results on both
+        //:   valid and invalid UTF-8 strings.
         //
         // Plan:
-        //   Use the table-driven approach to verify correct behavior on
-        //   various valid and invalid UTF-8 strings.
+        //: 1 Use the table-driven approach to verify correct behavior on
+        //:   various valid and invalid UTF-8 strings.
         //
         // Testing:
+        //   int numCharacters(const char *s);
+        //   int numCharacters(const char *s, int len);
+        //   int numCharactersRaw(const char *s);
+        //   int numCharactersRaw(const char *s, int len);
         //   int numCodePointsRaw(const char *s);
         //   int numCodePointsRaw(const char *s, int len);
+        //   int numCodePoints(const char *s);
+        //   int numCodePoints(const char *s, int len);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING 'numCharactersRaw'" << endl
@@ -3881,13 +3951,13 @@ int main(int argc, char *argv[])
         // TESTING SURROGATES
         //
         // Concerns:
-        //   Create some strings containing surrogate pairs and verify that
-        //   the validation routines interpret them properly.
+        //: 1 Create some strings containing surrogate pairs and verify that
+        //:   the validation routines interpret them properly.
         //
         // Plan:
-        //   Create a large number of strings containing valid and invalid
-        //   surrogates and verify that the validation routines handle them
-        //   properly.
+        //: 1 Create a large number of strings containing valid and invalid
+        //:   surrogates and verify that the validation routines handle them
+        //:   properly.
         //
         // Testing:
         //   bool isValid(const char *s);
@@ -3947,12 +4017,13 @@ int main(int argc, char *argv[])
         // TESTING BYTE-ORDER MARK
         //
         // Concerns:
-        //   Verify byte-order mark is accepted by all the validation routines.
+        //: 1 Verify byte-order mark is accepted by all the validation
+        //:   routines.
         //
         // Plan:
-        //   Create a byte-order mark and feed it to the validation routines,
-        //   it should always be acceptable.  Also create UTF-16 BOM's of both
-        //   byte orders, they should be rejected.
+        //: 1 Create a byte-order mark and feed it to the validation routines,
+        //:   it should always be acceptable.  Also create UTF-16 BOM's of both
+        //:   byte orders, they should be rejected.
         //
         // Testing:
         //   bool isValid(const char *s);
@@ -3968,9 +4039,9 @@ int main(int argc, char *argv[])
 
         typedef const char Char;
 
-        Char c    = (char) 0x80;    // 'c'ontinuation
-        Char b3   = (char) 0xe0;    // 'b'eginning of 3-byte
-        Char b4   = (char) 0xf0;    // 'b'eginning of 4-byte
+        Char c    = char(0x80);    // 'c'ontinuation
+        Char b3   = char(0xe0);    // 'b'eginning of 3-byte
+        Char b4   = char(0xf0);    // 'b'eginning of 4-byte
 
         Char encode4a[] = { b4, char(c | 0x10), c, c };    // 0x10000
 
@@ -4014,8 +4085,8 @@ int main(int argc, char *argv[])
 
         ASSERT(allValid(lStr));
 
-        Char encode16BomLe[] = { (char) 0xff, (char) 0xfe };
-        Char encode16BomBe[] = { (char) 0xfe, (char) 0xff };
+        Char encode16BomLe[] = { char(0xff), char(0xfe) };
+        Char encode16BomBe[] = { char(0xfe), char(0xff) };
 
         bsl::string bomLe = STR(16BomLe);
         bsl::string bomBe = STR(16BomBe);
@@ -4046,18 +4117,21 @@ int main(int argc, char *argv[])
         // TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
         //
         // Concerns:
-        //   Test encoding, decoding, and validation on data that is table
-        //   driven rather than randomly generated.
+        //: 1 Test encoding, decoding, and validation on data that is table
+        //:   driven rather than randomly generated.
         //
         // Plan:
-        //   Encode some const char strings with specific values, try encoding
-        //   them and verify the expected results are yields.  Run the
-        //   validation routines on them and verify the expected results.  Code
-        //   various forms of invalid strings and observe that the validators
-        //   reject them appropriately.  Several types of encodings are
-        //   represented.  UTF-8 zero, Modified UTF-8 zero, many values that
-        //   are valid in both UTF-8 and modified UTF-8, overlong values other
-        //   than zero, blatantly invalid values, and short values.
+        //: 1 Encode some const char strings with specific values, try encoding
+        //:   them and verify the expected results are yields.  Run the
+        //:   validation routines on them and verify the expected results.
+        //:   Code various forms of invalid strings and observe that the
+        //:   validators reject them appropriately.  Several types of encodings
+        //:   are represented.  UTF-8 zero, Modified UTF-8 zero, many values
+        //:   that are valid in both UTF-8 and modified UTF-8, overlong values
+        //:   other than zero, blatantly invalid values, and short values.
+        //
+        // Testing:
+        //   TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -4068,13 +4142,13 @@ int main(int argc, char *argv[])
 
         typedef const char Char;
 
-        Char c    = (char) 0x80;    // 'c'ontinuation
-        Char b2   = (char) 0xc0;    // 'b'eginning of 2-byte
-        Char b3   = (char) 0xe0;    // 'b'eginning of 3-byte
-        Char b4   = (char) 0xf0;    // 'b'eginning of 4-byte
-        Char b5   = (char) 0xf8;    // 'b'eginning of 5-byte
-        Char b6   = (char) 0xfc;    // 'b'eginning of 6-byte
-        Char b7   = (char) 0xfe;    // 'b'eginning of 6-byte
+        Char c    = char(0x80);    // 'c'ontinuation
+        Char b2   = char(0xc0);    // 'b'eginning of 2-byte
+        Char b3   = char(0xe0);    // 'b'eginning of 3-byte
+        Char b4   = char(0xf0);    // 'b'eginning of 4-byte
+        Char b5   = char(0xf8);    // 'b'eginning of 5-byte
+        Char b6   = char(0xfc);    // 'b'eginning of 6-byte
+        Char b7   = char(0xfe);    // 'b'eginning of 6-byte
 
         Char encode1a[] = { 0 };                        int val1a = 0;
         Char encode1b[] = { 0x35 };                     int val1b = 0x35;
@@ -4243,7 +4317,7 @@ int main(int argc, char *argv[])
         Char encode2i5[] = { b2 | 2, b5 };
         Char encode2i6[] = { b2 | 2, b6 };
         Char encode2i7[] = { b2 | 2, b7 };
-        Char encode2i8[] = { b2 | 2, (char) 0xff };
+        Char encode2i8[] = { b2 | 2, char(0xff) };
 
         Char encode3i1[] = { b3, c | 0x20, 0 };
         Char encode3i2[] = { b3, c | 0x20, b2 };
@@ -4252,7 +4326,7 @@ int main(int argc, char *argv[])
         Char encode3i5[] = { b3, c | 0x20, b5 };
         Char encode3i6[] = { b3, c | 0x20, b6 };
         Char encode3i7[] = { b3, c | 0x20, b7 };
-        Char encode3i8[] = { b3, c | 0x20, (char) 0xff };
+        Char encode3i8[] = { b3, c | 0x20, char(0xff) };
         Char encode3i9[] = { b3, 0x3f, c };
         Char encode3ia[] = { b3, b2, c };
         Char encode3ib[] = { b3, b3, c };
@@ -4260,7 +4334,7 @@ int main(int argc, char *argv[])
         Char encode3id[] = { b3, b5, c };
         Char encode3ie[] = { b3, b6, c };
         Char encode3if[] = { b3, b7, c };
-        Char encode3ig[] = { b3, (char) 0xff, c };
+        Char encode3ig[] = { b3, char(0xff), c };
 
         Char encode4i1[] = { b4, c | 0x10, c, 0 };
         Char encode4i2[] = { b4, c | 0x10, c, b2 };
@@ -4269,7 +4343,7 @@ int main(int argc, char *argv[])
         Char encode4i5[] = { b4, c | 0x10, c, b5 };
         Char encode4i6[] = { b4, c | 0x10, c, b6 };
         Char encode4i7[] = { b4, c | 0x10, c, b7 };
-        Char encode4i8[] = { b4, c | 0x10, c, (char) 0xff };
+        Char encode4i8[] = { b4, c | 0x10, c, char(0xff) };
         Char encode4i9[] = { b4, c | 0x10, 0, c };
         Char encode4ia[] = { b4, c | 0x10, b2, c };
         Char encode4ib[] = { b4, c | 0x10, b3, c };
@@ -4277,7 +4351,7 @@ int main(int argc, char *argv[])
         Char encode4id[] = { b4, c | 0x10, b5, c };
         Char encode4ie[] = { b4, c | 0x10, b6, c };
         Char encode4if[] = { b4, c | 0x10, b7, c };
-        Char encode4ig[] = { b4, c | 0x10, (char) 0xff, c };
+        Char encode4ig[] = { b4, c | 0x10, char(0xff), c };
         Char encode4ih[] = { b4, 0, c, c };
         Char encode4ii[] = { b4, b2, c, c };
         Char encode4ij[] = { b4, b3, c, c };
@@ -4285,7 +4359,7 @@ int main(int argc, char *argv[])
         Char encode4il[] = { b4, b5, c, c };
         Char encode4im[] = { b4, b6, c, c };
         Char encode4in[] = { b4, b7, c, c };
-        Char encode4io[] = { b4, (char) 0xff, c, c };
+        Char encode4io[] = { b4, char(0xff), c, c };
 
         Char encode5i1[] = { b5, c, c, c, c };
 
@@ -4293,7 +4367,7 @@ int main(int argc, char *argv[])
 
         Char encode7i1[] = { b7, c, c, c, c, c, c };
 
-        Char encode8i1[] = { (char) 0xff, c, c, c, c, c, c, c };
+        Char encode8i1[] = { char(0xff), c, c, c, c, c, c, c };
 
 #define TEST(testId) do {                                                   \
             bsl::string str = STR(testId);                                  \
@@ -4371,7 +4445,7 @@ int main(int argc, char *argv[])
         TEST(4s1);      TEST(4s2);      TEST(4s3);
 #undef TEST
 
-        // s'u'rrogate values
+        // surrogate values
         Char encode3u1[] = { b3 | 0xd, c | 0x20, c };        // 0xd800
         Char encode3u2[] = { b3 | 0xd, c | 0x20, c | 0x37 }; // 0xd837
         Char encode3u3[] = { b3 | 0xd, c | 0x30, c };        // 0xdc00
@@ -4409,15 +4483,18 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Test basic methods
+        //: 1 Test basic methods
         //
         // Plan:
-        //   Test the various test functions and verify that they work as
-        //   designed.
+        //: 1 Test the various test functions and verify that they work as
+        //:   designed.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nBreathing Test\n"
-                               "==============\n";
+        if (verbose) cout << "\n" "BREATHING TEST" "\n"
+                                  "==============" "\n";
 
         randAccum = 0;
         bsl::string str;
@@ -4786,15 +4863,18 @@ int main(int argc, char *argv[])
         // RANDOM NUMBER GENERATORS TEST
         //
         // Concerns:
-        //   Random number generators work properly.
+        //: 1 Random number generators work properly.
         //
         // Plan:
-        //   Test the various random number generators 2 ways -- print out a
-        //   bunch of values for visual inspection, and run a much larger
-        //   number of values for programmatic verification.
+        //: 1 Test the various random number generators 2 ways -- print out a
+        //:   bunch of values for visual inspection, and run a much larger
+        //:   number of values for programmatic verification.
+        //
+        // Testing:
+        //   random number generator
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Random number generators test\n"
+        if (verbose) cout << "RANDOM NUMBER GENERATORS TEST\n"
                              "=============================\n";
 
         cout << "randVal8()\n";
@@ -4879,11 +4959,14 @@ int main(int argc, char *argv[])
         // VERIFY TEST APPARATUS
         //
         // Concerns:
-        //   The test apparatus works properly.
+        //: 1 The test apparatus works properly.
         //
         // Plan:
-        //   Test the various test functions and verify that they work as
-        //   expected.
+        //: 1 Test the various test functions and verify that they work as
+        //:   expected.
+        //
+        // Testing:
+        //   'utf8Encode', 'decode'
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nVERIFY TEST APPARATUS\n"
@@ -4976,20 +5059,6 @@ int main(int argc, char *argv[])
             ASSERT(bsl::strlen(str.c_str()) == str.length());
         }
       } break;
-      case -3: {
-        const char badString[]="\xff\xff";
-        const char *dummy = 0;
-
-        if (veryVerbose) {
-            P(Obj::numCodePointsIfValid(&dummy, badString));
-            P(Obj::isValid(badString));
-        }
-
-
-        ASSERT(Obj::numCodePointsIfValid(&dummy, badString) < 0);
-        ASSERT(!Obj::isValid(badString));
-      } break;
-
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

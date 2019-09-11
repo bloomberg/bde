@@ -630,8 +630,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
         if (UNLIKELY(ret >= numCodePoints)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            // Success.  We have successfully advanced 'numCodePoints'
-            // code points.
+            // Success.  We have successfully advanced 'numCodePoints' code
+            // points.
 
             BSLS_ASSERT(ret == numCodePoints);           // impossible to fail
 
@@ -971,6 +971,68 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
     return ret;
 }
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AN01     // 'codepoint' parameter renamed for line
+                                // length.
+// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
+// BDE_VERIFY pragma: -SP03     // 'codepnt' is not a typo.
+
+int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
+{
+    BSLS_ASSERT(output);
+
+    ///IMPLEMENTATION NOTES
+    ///--------------------
+    // This UTF-8 documentation was copied verbatim from RFC 3629.  The
+    // original version was downloaded from:
+    //..
+    //     http://tools.ietf.org/html/rfc3629
+    //..
+    ///////////////////////// BEGIN VERBATIM RFC TEXT /////////////////////////
+    // Char number range   |        UTF-8 octet sequence
+    //    (hexadecimal)    |              (binary)
+    // --------------------+---------------------------------------------
+    // 0000 0000-0000 007F | 0xxxxxxx
+    // 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+    // 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
+
+    if (codepnt < 0x80U) {
+        output->push_back(static_cast<char>(codepnt));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x800U) {
+        output->push_back(static_cast<char>((codepnt >>   6)          | 0xC0));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x10000U) {
+        output->push_back(static_cast<char>((codepnt  >> 12)          | 0xE0));
+        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x110000U) {
+        output->push_back(static_cast<char>((codepnt  >> 18)          | 0xF0));
+        output->push_back(static_cast<char>(((codepnt >> 12) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+
+    // Invalid code point.
+    return -1;
+}
+
+// BDE_VERIFY pragma: pop
+
+int Utf8Util::getByteSize(const char* codepoint)
+{
+    BSLS_ASSERT_SAFE(isValidUtf8(codepoint));
+    return utf8Size(codepoint[0]);
+}
+
 bool Utf8Util::isValid(const char **invalidString, const char *string)
 {
     BSLS_ASSERT(invalidString);
@@ -1112,64 +1174,10 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
     }
 
     if (numBytes > string.length()) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return numBytes;
-}
-
-int Utf8Util::getByteSize(const char* character)
-{
-    BSLS_ASSERT_SAFE(isValidUtf8(character));
-    return utf8Size(character[0]);
-}
-
-int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
-{
-    BSLS_ASSERT(output);
-
-    ///IMPLEMENTATION NOTES
-    ///--------------------
-    // This UTF-8 documentation was copied verbatim from RFC 3629.  The
-    // original version was downloaded from:
-    //..
-    //     http://tools.ietf.org/html/rfc3629
-    //..
-    ///////////////////////// BEGIN VERBATIM RFC TEXT /////////////////////////
-    // Char number range   |        UTF-8 octet sequence
-    //    (hexadecimal)    |              (binary)
-    // --------------------+---------------------------------------------
-    // 0000 0000-0000 007F | 0xxxxxxx
-    // 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-    // 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-    ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
-
-    if (codepnt < 0x80U) {
-        output->push_back(static_cast<char>(codepnt));
-        return 0;                                                     // RETURN
-    }
-    else if (codepnt < 0x800U) {
-        output->push_back(static_cast<char>((codepnt >>   6)          | 0xC0));
-        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
-        return 0;                                                     // RETURN
-    }
-    else if (codepnt < 0x10000U) {
-        output->push_back(static_cast<char>((codepnt  >> 12)          | 0xE0));
-        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
-        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
-        return 0;                                                     // RETURN
-    }
-    else if (codepnt < 0x110000U) {
-        output->push_back(static_cast<char>((codepnt  >> 18)          | 0xF0));
-        output->push_back(static_cast<char>(((codepnt >> 12) & 0x3FU) | 0x80));
-        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
-        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
-        return 0;                                                     // RETURN
-    }
-
-    // Invalid code point.
-    return -1;
 }
 
 }  // close package namespace
