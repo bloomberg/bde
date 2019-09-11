@@ -80,6 +80,12 @@ void aSsErT(bool condition, const char *message, int line)
 # define BSLMF_ISMEMBERPOINTER_NO_ABOMINABLE_TYPES 1
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1920 && \
+    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+// Visual Studio 2019 in C++17 mode runs out of heap space.
+# define DO_LESS 1
+#endif
+
 // #define BSLMF_ISMEMBERPOINTER_SHOW_FAIL_FOR_DIAGNOSTICS 1
 //   Define this macro to generate expected test failures for types that might
 //   have awkward diagnostics, to verify that all the necessary information is
@@ -631,6 +637,7 @@ int main(int argc, char *argv[])
         TEST_FUNCTION(bsl::is_member_pointer, int (MemFnType) );
 
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_09)    );
+#if !DO_LESS
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_10)    );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_11)    );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_12)    );
@@ -641,6 +648,7 @@ int main(int argc, char *argv[])
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_17)    );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_18)    );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_19)    );
+#endif
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_20)    );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_21)    );
 
@@ -651,6 +659,7 @@ int main(int argc, char *argv[])
         TEST_FUNCTION(bsl::is_member_pointer, void (int...)   );
 
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_09...) );
+#if !DO_LESS
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_10...) );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_11...) );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_12...) );
@@ -661,6 +670,7 @@ int main(int argc, char *argv[])
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_17...) );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_18...) );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_19...) );
+#endif
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_20...) );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_21...) );
 
@@ -710,6 +720,7 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_pointer, void (X::*)(int)      );
 
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_09)    );
+#if !DO_LESS
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_10)    );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_11)    );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_12)    );
@@ -720,6 +731,7 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_17)    );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_18)    );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_19)    );
+#endif
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_20)    );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_21)    );
 
@@ -730,6 +742,7 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_pointer, void (X::*)(int...)   );
 
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_09...) );
+#if !DO_LESS
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_10...) );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_11...) );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_12...) );
@@ -740,6 +753,7 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_17...) );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_18...) );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_19...) );
+#endif
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_20...) );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_21...) );
       } break;
