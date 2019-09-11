@@ -1233,8 +1233,10 @@ BSLS_IDENT("$Id: $")
         #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     #endif
 
-    #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2017
-      #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
+    #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM   1
+        #endif
     #endif
 
     #if _HAS_AUTO_PTR_ETC
