@@ -15,6 +15,7 @@ BSLS_IDENT_RCSID(bslmt_saturatedtimeconversionimputil_cpp,"$Id$ $CSID$")
 #include <bslmf_conditional.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 
@@ -40,6 +41,11 @@ TYPE minOf(const TYPE&)
 {
     return bsl::numeric_limits<TYPE>::min();
 };
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 static inline
 void toTimeTImp(int *dst, bsls::Types::Int64 src)
@@ -118,6 +124,10 @@ void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
 
     *dst = result;
 }
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
 
 // PUBLIC CLASS METHODS
 void bslmt::SaturatedTimeConversionImpUtil::toTimeSpec(
