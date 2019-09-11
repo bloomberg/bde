@@ -264,8 +264,6 @@ void bslmt::QLockGuard::unlockRaw()
 {
     enum { k_SPIN = 1000 };
 
-    BSLS_ASSERT(this != 0);
-
     QLockGuard *tail = (QLockGuard *)bsls::AtomicOperations::testAndSwapPtr(
                                         &d_qlock_p->d_guardQueueTail, this, 0);
 
