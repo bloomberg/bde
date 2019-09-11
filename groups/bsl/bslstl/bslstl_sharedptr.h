@@ -1497,6 +1497,15 @@ BSL_OVERRIDES_STD mode"
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS) \
  && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1900)
 # define BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS 1
+
+#if BSLS_PLATFORM_CMP_VERSION >= 1910 &&                                      \
+    BSLS_PLATFORM_CMP_VERSION <  1920 &&                                      \
+    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+// Visual Studio 2017 in C++17 mode crashes with an internal compiler error on
+// the shared pointer SFINAE code.  See {DRQS 148281696}.
+# undef BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
+#endif
+
 // If the macro 'BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS' is defined, then a
 // conforming C++11 compiler will define the constructors in this component in
 // such a way that they will not be selected during overload resolution unless
