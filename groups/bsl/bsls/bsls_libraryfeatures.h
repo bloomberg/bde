@@ -1235,9 +1235,10 @@ BSLS_IDENT("$Id: $")
 
     #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2017
       #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
-      #if !_HAS_AUTO_PTR_ETC
-        #undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
-      #endif
+    #endif
+
+    #if _HAS_AUTO_PTR_ETC
+      #define BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_FORCE           1
     #endif
 #endif
 
@@ -1256,13 +1257,14 @@ BSLS_IDENT("$Id: $")
 // Now, after detecting support, unconditionally undefine macros for features
 // that have been removed from later standards.
 
-#if __cplusplus > 201103L
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 201103L
 # undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     // 'gets' is removed immediately from C++14, so undefine for any standard
     // version identifier greater than that of C++11.
 #endif
 
-#if __cplusplus > 201402L
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L &&                             \
+    !defined BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_FORCE
 # undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
     // 'auto_ptr' is removed from C++17, so undefine for any standard version
     // identifier greater than that of C++14.
