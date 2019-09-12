@@ -71,9 +71,6 @@ BSLS_IDENT("$Id: $")
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <chrono>
-#if 0 && defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
-# include <experimental/chrono>    // TBD: decide what to do about this
-#endif
 
 namespace bsl {
 

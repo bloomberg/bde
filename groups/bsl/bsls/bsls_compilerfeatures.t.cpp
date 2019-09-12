@@ -189,11 +189,12 @@ void test_dependent_constexpr_aggregate() {
 namespace {
 namespace u {
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 
 char testFuncForDecltype(int);
 
-#pragma GCC diagnostic warning "-Wunused-function"
+#pragma GCC diagnostic pop
 
 template <class T, class U>
 auto my_max(const T& t, const U& u) -> decltype(t > u ? t : u)
@@ -202,13 +203,13 @@ auto my_max(const T& t, const U& u) -> decltype(t > u ? t : u)
 }
 
 template <class TYPE>
-bool isSame(TYPE&, TYPE&)
+bool isSameType(TYPE&, TYPE&)
 {
     return true;
 }
 
 template <class LHSTYPE, class RHSTYPE>
-bool isSame(LHSTYPE&, RHSTYPE&)
+bool isSameType(LHSTYPE&, RHSTYPE&)
 {
     return false;
 }
@@ -2477,7 +2478,7 @@ will not improve the flavor.
         const double d = 3.2;
         const auto maxVal = u::my_max(s, d);
 
-        ASSERT(u::isSame(maxVal, d));
+        ASSERT(u::isSameType(maxVal, d));
         ASSERT(maxVal == s);
 #endif
 

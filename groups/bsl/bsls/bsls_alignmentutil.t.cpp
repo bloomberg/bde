@@ -297,8 +297,10 @@ int main(int argc, char *argv[])
 // when variables of these types are on the stack, the compiler does not
 // make any effort to align the stack frame to 8 bytes.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-        static
+static
 #endif
+
+//
         union {
             bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
             char                                d_buffer[BUFFER_SIZE];
@@ -496,7 +498,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_AIX)
-        if (verbose) cout << "Test diabled on AIX GNU\n";
+        if (verbose) cout << "Test disabled on AIX GNU\n";
 #else
         if (verbose) cout << endl << "Test calculateAlignmentOffset" << endl
                                   << "=============================" << endl;
