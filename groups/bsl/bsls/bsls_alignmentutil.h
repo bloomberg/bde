@@ -53,10 +53,10 @@ BSLS_IDENT("$Id: $")
 // block returned must also have an alignment that is sufficient for any
 // conceivable object of that size.  To achieve a fully factored
 // implementation, we might choose to provide a low-level helper function
-// 'naturallyAlign' that, given the 'address' of the next available byte in the
-// larger chunk along with the requested block 'size' (in bytes), returns the
-// first appropriately (or *naturally*) aligned address for the requested block
-// at or after 'address':
+// 'naturallyAlign' that, given the 'address' of the next available byte in
+// the larger chunk along with the requested block 'size' (in bytes), returns
+// the first appropriately (or *naturally*) aligned address for the requested
+// block at or after 'address':
 //..
 //  void *naturallyAlign(void **currentAddress, int size);
 //      // Return the closest memory address at or after the specified
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 // assuming that we have some user-defined type, 'MyType', comprising several
 // data members:
 //..
-//  class MyType {          // size 24; actual alignment 8; natural alignment 8
+//  struct MyType {         // size 24; actual alignment 8; natural alignment 8
 //      int     d_int;
 //      double  d_double;   // Assume 8-byte alignment.
 //      char   *d_charPtr;  // Assume size <= 8 bytes.
@@ -101,7 +101,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  void f()
 //  {
-//      const int BUFFER_SIZE = 1024;
+//      // The remainder of the usage example is in the USAGE test case.
+//  }
+//
 //      union {
 //          bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
 //          char                                d_buffer[BUFFER_SIZE];
@@ -110,34 +112,35 @@ BSLS_IDENT("$Id: $")
 // Next we use the 'bsls::AlignmentUtil' functions directly to confirm that
 // 'buffer' is sufficiently aligned to accommodate a 'MaxAlignedType' object:
 //..
-//  int alignment = bsls::AlignmentFromType<
-//                              bsls::AlignmentUtil::MaxAlignedType>::VALUE;
-//  int offset    = bsls::AlignmentUtil::calculateAlignmentOffset(
-//                                                         buffer.d_buffer,
-//                                                         alignment);
-//  assert(0 == offset);  // sufficient alignment
+//      int alignment = bsls::AlignmentFromType<
+//                                 bsls::AlignmentUtil::MaxAlignedType>::VALUE;
+//      int offset =
+//                bsls::AlignmentUtil::calculateAlignmentOffset(
+//                                                             buffer.d_buffer,
+//                                                             alignment);
+//      assert(0 == offset);  // sufficient alignment
 //..
 // Below we perform various memory allocations using our 'naturallyAlign'
 // helper function:
 //..
-//  void *p         = static_cast<void *>(buffer.d_buffer);
+//      void *p         = static_cast<void *>(buffer.d_buffer);
 //
-//  void *charPtr   = naturallyAlign(&p, sizeof(char));
+//      (void)            naturallyAlign(&p, sizeof(char));
 //
-//  void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
-//..
+//      void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
+//
 // Note that the address held in 'shortPtr' is numerically divisible by the
 // alignment of a 'short' on the current platform:
 //..
-//  assert(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
-//                                  bsls::AlignmentFromType<short>::VALUE));
+//      assert(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
+//                                     bsls::AlignmentFromType<short>::VALUE));
 //
-//  assert(bsls::AlignmentUtil::is2ByteAligned(shortPtr5));
+//      assert(bsls::AlignmentUtil::is2ByteAligned(shortPtr5));
 //..
 // Next we use 'naturallyAlign' to allocate a block of appropriate size and
 // sufficient alignment to store a 'MyType' object:
 //..
-//  void *objPtr = naturallyAlign(&p, sizeof(MyType));
+//      void *objPtr = naturallyAlign(&p, sizeof(MyType));
 //..
 // Note that the alignment of the address held in 'objPtr' is numerically
 // divisible by the actual alignment requirement:
@@ -145,13 +148,12 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
 //                                    objPtr,
 //                                    bsls::AlignmentFromType<MyType>::VALUE));
-//  }
 //..
 // Assuming 'buffer' has sufficient capacity, and the alignments for 'char',
 // 'short', and 'MyType' are, respectively, 1, 2, and 8, we would expect this
 // layout within 'buffer.d_buffer':
 //..
-//  charPtr shortPtr5                                               objPtr
+//  charPtr shortPtr5                            objPtr
 //  |       |                                                       |
 //  V       V                                                       V
 //  .---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.-
@@ -159,11 +161,11 @@ BSLS_IDENT("$Id: $")
 //  ^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^-
 //  0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18
 //..
-// Note that on an atypical 32-bit platform where a 'double' is 4-byte aligned,
-// the actual alignment of 'MyType' would be 4, but its natural alignment would
-// still be 8 because its size would be 16; it is highly unlikely that 'MyType'
-// would have an actual (and therefore natural) alignment of 4 on a 64-bit
-// platform when using default compiler settings.
+// Note that on an atypical 32-bit platform where a 'double' is 4-byte
+// aligned, the actual alignment of 'MyType' would be 4, but its natural
+// alignment would still be 8 because its size would be 16; it is highly
+// unlikely that 'MyType' would have an actual (and therefore natural)
+// alignment of 4 on a 64-bit platform when using default compiler settings.
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentimp.h>

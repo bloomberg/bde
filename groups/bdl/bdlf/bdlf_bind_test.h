@@ -292,7 +292,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdio.h>
