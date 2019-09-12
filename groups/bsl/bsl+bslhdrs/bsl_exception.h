@@ -31,7 +31,7 @@ namespace bsl {
     using native_std::terminate_handler;
     using native_std::uncaught_exception;
 
-#if __cplusplus < 201703L                 \
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L \
  &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
      BSLS_PLATFORM_CMP_VERSION >= 1910 && \
      !_HAS_AUTO_PTR_ETC)
@@ -55,7 +55,7 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-# if __cplusplus < 201703L                 \
+# if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L \
  &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
      BSLS_PLATFORM_CMP_VERSION >= 1910 && \
      !_HAS_AUTO_PTR_ETC)

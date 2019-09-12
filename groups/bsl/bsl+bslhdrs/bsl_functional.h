@@ -43,7 +43,7 @@ namespace bsl {
     using native_std::plus;
     using native_std::unary_negate;
 
-#if __cplusplus < 201703L                 \
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L \
  &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
      BSLS_PLATFORM_CMP_VERSION >= 1910 && \
      !_HAS_AUTO_PTR_ETC)
