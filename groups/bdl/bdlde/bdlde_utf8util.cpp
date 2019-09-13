@@ -1169,7 +1169,7 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
     // validation functions our work is very simple.
 
     for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
-        BSLS_ASSERT_SAFE(isValidUtf8(string[numBytes]));
+        BSLS_ASSERT_SAFE(isValidUtf8(&string[numBytes]));
         numBytes += utf8Size(string[numBytes]);
     }
 
