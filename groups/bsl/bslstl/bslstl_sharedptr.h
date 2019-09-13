@@ -4786,11 +4786,13 @@ struct SharedPtr_TestIsCallable {
 
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && \
-    BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION < 1920
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1920
 // Microsoft needs a workaround to correctly handle calling through function
 // pointers with incompatible types in Visual Studio 2017.  In Visual Studio
-// 2019 the workaround isn't needed and crashes the compiler if present!
+// 2019 the workaround isn't needed and crashes the compiler if enabled!
+// (Visual Studio versions prior to 2017 appear to not need the workaround,
+// based on further testing, but it's being left in place so as not to alter
+// this code for people using older compiler versions.)
 
 template <class RESULT, class PARAM>
 struct SharedPtr_TestIsCallable<RESULT(PARAM)> {

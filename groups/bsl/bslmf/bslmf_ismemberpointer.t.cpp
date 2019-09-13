@@ -83,7 +83,7 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1920 && \
     BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 // Visual Studio 2019 in C++17 mode runs out of heap space.
-# define DO_LESS 1
+# define DO_FEWER_TESTS 1
 #endif
 
 // #define BSLMF_ISMEMBERPOINTER_SHOW_FAIL_FOR_DIAGNOSTICS 1
@@ -637,7 +637,7 @@ int main(int argc, char *argv[])
         TEST_FUNCTION(bsl::is_member_pointer, int (MemFnType) );
 
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_09)    );
-#if !DO_LESS
+#if !DO_FEWER_TESTS
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_10)    );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_11)    );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_12)    );
@@ -659,7 +659,7 @@ int main(int argc, char *argv[])
         TEST_FUNCTION(bsl::is_member_pointer, void (int...)   );
 
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_09...) );
-#if !DO_LESS
+#if !DO_FEWER_TESTS
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_10...) );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_11...) );
         TEST_FUNCTION(bsl::is_member_pointer, int (INT_12...) );
@@ -720,7 +720,7 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_pointer, void (X::*)(int)      );
 
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_09)    );
-#if !DO_LESS
+#if !DO_FEWER_TESTS
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_10)    );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_11)    );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_12)    );
@@ -742,7 +742,7 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_pointer, void (X::*)(int...)   );
 
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_09...) );
-#if !DO_LESS
+#if !DO_FEWER_TESTS
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_10...) );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_11...) );
         TEST_MEMFUN(bsl::is_member_pointer, int (X::*)(INT_12...) );
