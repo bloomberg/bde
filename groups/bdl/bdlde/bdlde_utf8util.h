@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // meaning that only 1-, 2-, 3-, and 4-byte sequences are allowed.  Values
 // above 'U+10ffff' are also not allowed.
 //
-// Three types of functions are provided:
+// Six types of functions are provided:
 //
 //: o 'isValid', which checks for validity, per RFC 3629, of a (candidate)
 //:   UTF-8 string.  "Overlong values", that is, values encoded in more bytes
@@ -45,6 +45,15 @@ BSLS_IDENT("$Id: $")
 //:   Unicode code points in a UTF-8 string.  Note that 'numCodePointsIfValid'
 //:   both validates a (candidate) UTF-8 string and counts the number of
 //:   Unicode code points that it contains.
+//:
+//: o 'numBytesIfValid', which returns the number of bytes a specified number
+//:   of Unicode code points occupy in a UTF-8 string.
+//:
+//: o 'getByteSize', which returns the length of a single UTF-8 encoded
+//:   character.
+//:
+//: o 'appendUtf8Character', which appends a single Unicode code point to a
+//:   UTF-8 string.
 //
 // Embedded null bytes are allowed in strings that are accompanied by an
 // explicit length argument.  Naturally, null-terminated C-style strings cannot
@@ -66,20 +75,20 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Validating Strings and Counting Unicode Code Points
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this usage example, we will encode some Unicode code points in UTF-8
-// strings and demonstrate which ones are valid and which ones are not.
+// strings and demonstrate those that are valid and those that are not.
 //
 // First, we build an unquestionably valid UTF-8 string:
 //..
 //  bsl::string string;
-//  utf8Append(&string, 0xff00);
-//  utf8Append(&string, 0x856);
-//  utf8Append(&string, 'a');
-//  utf8Append(&string, 0x1008aa);
-//  utf8Append(&string, 0xfff);
-//  utf8Append(&string, 'w');
-//  utf8Append(&string, 0x1abcd);
-//  utf8Append(&string, '.');
-//  utf8Append(&string, '\n');
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x856);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'a');
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0xfff);
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'w');
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);
+//  bdlde::Utf8Util::appendUtf8Character(&string, '.');
+//  bdlde::Utf8Util::appendUtf8Character(&string, '\n');
 //..
 // Then, we check its validity and measure its length:
 //..
@@ -90,7 +99,8 @@ BSLS_IDENT("$Id: $")
 //                                                   string.length()));
 //  assert(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next, we encode a lone surrogate value, which is not allowed:
+// Next, we encode a lone surrogate value, which is not allowed, using
+// 'utf8Append' instead of 'appendUtf8Character' to avoid validation:
 //..
 //  bsl::string stringWithSurrogate = string;
 //  utf8Append(&stringWithSurrogate, 0xd8ab);
@@ -147,20 +157,20 @@ BSLS_IDENT("$Id: $")
 // In this example, we will use the various 'advance' functions to advance
 // through a UTF-8 string.
 //
-// First, build the string using 'utf8Append', keeping track of how many bytes
-// are in each Unicode code point:
+// First, build the string using 'appendUtf8Character', keeping track of how
+// many bytes are in each Unicode code point:
 //..
 //  bsl::string string;
-//  utf8Append(&string, 0xff00);        // 3 bytes
-//  utf8Append(&string, 0x1ff);         // 2 bytes
-//  utf8Append(&string, 'a');           // 1 byte
-//  utf8Append(&string, 0x1008aa);      // 4 bytes
-//  utf8Append(&string, 0x1abcd);       // 4 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);        // 3 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1ff);         // 2 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'a');           // 1 byte
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);      // 4 bytes
+//  bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);       // 4 bytes
 //  string += "\xe3\x8f\xfe";           // 3 bytes (invalid 3-byte sequence,
 //                                      // the first 2 bytes are valid but the
 //                                      // last continuation byte is invalid)
-//  utf8Append(&string, 'w');           // 1 byte
-//  utf8Append(&string, '\n');          // 1 byte
+//  bdlde::Utf8Util::appendUtf8Character(&string, 'w');           // 1 byte
+//  bdlde::Utf8Util::appendUtf8Character(&string, '\n');          // 1 byte
 //..
 // Then, declare a few variables we'll need:
 //..
@@ -183,7 +193,6 @@ BSLS_IDENT("$Id: $")
 //  assert(3 + 2 == result - start);
 //
 //  rc = bdlde::Utf8Util::advanceRaw(             &result, start, 3);
-//  assert(0 == status);
 //  assert(3 == rc);
 //  assert(3 + 2 + 1 == result - start);
 //
@@ -240,8 +249,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
+#include <bsls_types.h>
 
 #include <bsl_cstddef.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 
@@ -253,14 +264,20 @@ namespace bdlde {
 struct Utf8Util {
     // This struct provides a namespace for static methods used for validating
     // UTF-8 strings, for counting the number of Unicode code points in them,
-    // and for advancing pointers through UTF-8 strings by a specified number
-    // of Unicode code points.
+    // for advancing pointers through UTF-8 strings by a specified number of
+    // Unicode code points, for counting the number of bytes a UTF-8 leading
+    // substring occupies, for counting the number of bytes in a UTF-8
+    // character, and for appending a Unicode character to a UTF-8 string.
+
+    // PUBLIC TYPES
+    typedef bsls::Types::size_type       size_type;
+    typedef bsls::Types::IntPtr          IntPtr;
 
     // CLASS METHODS
-    static int advanceIfValid(int         *status,
-                              const char **result,
-                              const char  *string,
-                              int          numCodePoints);
+    static IntPtr advanceIfValid(int         *status,
+                                 const char **result,
+                                 const char  *string,
+                                 IntPtr       numCodePoints);
         // Advance past 0 or more consecutive *valid* Unicode code points at
         // the beginning of the specified 'string', until either the specified
         // 'numCodePoints' have been traversed, or the terminating null byte or
@@ -276,11 +293,11 @@ struct Utf8Util {
         // Also note that 'string' may contain less than 'bsl::strlen(string)'
         // Unicode code points.
 
-    static int advanceIfValid(int         *status,
-                              const char **result,
-                              const char  *string,
-                              bsl::size_t  length,
-                              int          numCodePoints);
+    static IntPtr advanceIfValid(int         *status,
+                                 const char **result,
+                                 const char  *string,
+                                 size_type    length,
+                                 IntPtr       numCodePoints);
         // Advance past 0 or more consecutive *valid* Unicode code points at
         // the beginning of the specified 'string' having the specified
         // 'length' (in bytes), until either the specified 'numCodePoints' or
@@ -296,8 +313,9 @@ struct Utf8Util {
         // range '[0 .. numCodePoints]'.  Also note that 'string' may contain
         // less than 'length' Unicode code points.
 
-    static int
-    advanceRaw(const char **result, const char *string, int numCodePoints);
+    static IntPtr advanceRaw(const char **result,
+                             const char  *string,
+                             IntPtr       numCodePoints);
         // Advance past 0 or more consecutive Unicode code points at the
         // beginning of the specified 'string', until either the specified
         // 'numCodePoints' have been traversed or the terminating null byte is
@@ -312,10 +330,10 @@ struct Utf8Util {
         // that 'string' may contain less than 'bsl::strlen(string)' Unicode
         // code points.
 
-    static int advanceRaw(const char  **result,
-                          const char   *string,
-                          bsl::size_t   length,
-                          int           numCodePoints);
+    static IntPtr advanceRaw(const char **result,
+                             const char  *string,
+                             size_type    length,
+                             IntPtr       numCodePoints);
         // Advance past 0 or more consecutive Unicode code points at the
         // beginning of the specified 'string' having the specified 'length'
         // (in bytes), until either the specified 'numCodePoints' or 'length'
@@ -335,7 +353,7 @@ struct Utf8Util {
         // 'false' otherwise.  'string' is necessarily null-terminated, so it
         // cannot contain embedded null bytes.
 
-    static bool isValid(const char *string, bsl::size_t length);
+    static bool isValid(const char *string, size_type length);
         // Return 'true' if the specified 'string' having the specified
         // 'length' (in bytes) contains valid UTF-8, and 'false' otherwise.
         // 'string' need not be null-terminated and can contain embedded null
@@ -350,10 +368,9 @@ struct Utf8Util {
         // necessarily null-terminated, so it cannot contain embedded null
         // bytes.
 
-    static bool
-    isValid(const char  **invalidString,
-            const char   *string,
-            bsl::size_t   length);
+    static bool isValid(const char **invalidString,
+                        const char  *string,
+                        size_type    length);
         // Return 'true' if the specified 'string' having the specified
         // 'length' (in bytes) contains valid UTF-8, and 'false' otherwise.  If
         // 'string' contains invalid UTF-8, load into the specified
@@ -362,8 +379,8 @@ struct Utf8Util {
         // only valid UTF-8.  'string' need not be null-terminated and can
         // contain embedded null bytes.
 
-    static int numCharactersIfValid(const char **invalidString,
-                                    const char  *string);
+    static IntPtr numCharactersIfValid(const char **invalidString,
+                                       const char  *string);
         // Return the number of Unicode code points in the specified 'string'
         // if it contains valid UTF-8, with no effect on the specified
         // 'invalidString'.  Otherwise, return a negative value and load into
@@ -374,21 +391,21 @@ struct Utf8Util {
         //
         // DEPRECATED: Use 'numCodePointsIfValid' instead.
 
-    static int numCharactersIfValid(const char  **invalidString,
-                                    const char   *string,
-                                    bsl::size_t   length);
+    static IntPtr numCharactersIfValid(const char **invalidString,
+                                       const char  *string,
+                                       size_type    length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes) if 'string' contains valid
         // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
-        // return a negative value and load into 'invalidString' the address
-        // of the byte after the last valid Unicode code point traversed.
+        // return a negative value and load into 'invalidString' the address of
+        // the byte after the last valid Unicode code point traversed.
         // 'string' need not be null-terminated and may contain embedded null
         // bytes.  Note that 'string' may contain less than 'length' Unicode
         // code points.
         //
         // DEPRECATED: Use 'numCodePointsIfValid' instead.
 
-    static int numCharactersRaw(const char *string);
+    static IntPtr numCharactersRaw(const char *string);
         // Return the number of Unicode code points in the specified 'string'.
         // 'string' is necessarily null-terminated, so it cannot contain
         // embedded null bytes.  The behavior is undefined unless 'string'
@@ -397,7 +414,7 @@ struct Utf8Util {
         //
         // DEPRECATED: Use 'numCodePointsRaw' instead.
 
-    static int numCharactersRaw(const char *string, bsl::size_t length);
+    static IntPtr numCharactersRaw(const char *string, size_type length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes).  'string' need not be
         // null-terminated and can contain embedded null bytes.  The behavior
@@ -406,7 +423,7 @@ struct Utf8Util {
         //
         // DEPRECATED: Use 'numCodePointsRaw' instead.
 
-    static int numCharacters(const char *string);
+    static IntPtr numCharacters(const char *string);
         // Return the number of Unicode code points in the specified 'string'.
         // 'string' is necessarily null-terminated, so it cannot contain
         // embedded null bytes.  The behavior is undefined unless 'string'
@@ -415,7 +432,7 @@ struct Utf8Util {
         //
         // DEPRECATED: Use 'numCodePointsRaw' instead.
 
-    static int numCharacters(const char *string, bsl::size_t length);
+    static IntPtr numCharacters(const char *string, size_type length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes).  'string' need not be
         // null-terminated and can contain embedded null bytes.  The behavior
@@ -424,8 +441,8 @@ struct Utf8Util {
         //
         // DEPRECATED: Use 'numCodePointsRaw' instead.
 
-    static int numCodePointsIfValid(const char **invalidString,
-                                    const char  *string);
+    static IntPtr numCodePointsIfValid(const char **invalidString,
+                                       const char  *string);
         // Return the number of Unicode code points in the specified 'string'
         // if it contains valid UTF-8, with no effect on the specified
         // 'invalidString'.  Otherwise, return a negative value and load into
@@ -434,9 +451,9 @@ struct Utf8Util {
         // it cannot contain embedded null bytes.  Note that 'string' may
         // contain less than 'bsl::strlen(string)' Unicode code points.
 
-    static int numCodePointsIfValid(const char  **invalidString,
-                                    const char   *string,
-                                    bsl::size_t   length);
+    static IntPtr numCodePointsIfValid(const char **invalidString,
+                                       const char  *string,
+                                       size_type    length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes) if 'string' contains valid
         // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
@@ -446,19 +463,40 @@ struct Utf8Util {
         // bytes.  Note that 'string' may contain less than 'length' Unicode
         // code points.
 
-    static int numCodePointsRaw(const char *string);
+    static IntPtr numCodePointsRaw(const char *string);
         // Return the number of Unicode code points in the specified 'string'.
         // 'string' is necessarily null-terminated, so it cannot contain
         // embedded null bytes.  The behavior is undefined unless 'string'
         // contains valid UTF-8.  Note that 'string' may contain less than
         // 'bsl::strlen(string)' Unicode code points.
 
-    static int numCodePointsRaw(const char *string, bsl::size_t length);
+    static IntPtr numCodePointsRaw(const char *string, size_type length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes).  'string' need not be
         // null-terminated and can contain embedded null bytes.  The behavior
         // is undefined unless 'string' contains valid UTF-8.  Note that
         // 'string' may contain less than 'length' Unicode code points.
+
+    static IntPtr numBytesIfValid(const bslstl::StringRef& string,
+                                  IntPtr                   numCodePoints);
+        // Return the number of bytes used by the specified 'numCodePoints'
+        // first utf8 characters in the specified 'string', or a value less
+        // than zero if 'string' contains less than 'numCharacters' UTF-8
+        // characters.  The behavior is undefined unless 'string' is a valid
+        // UTF-8 string.
+
+    static int getByteSize(const char* codepoint);
+        // Return the size in bytes of the specified UTF-8 'codepoint'.  The
+        // behavior is undefined unless 'codepoint' points to a valid UTF-8
+        // character in contiguous memory.  Note that a 'codepoint' pointing to
+        // a '\0' 'char' will result in a return value of '1', since the '\0'
+        // byte is a 1-byte encoding.
+
+    static int appendUtf8Character(bsl::string  *output,
+                                   unsigned int  codepoint);
+        // Write the specified 'codepoint' unicode code point encoded in UTF-8
+        // to the end of the specified 'output'.  Return 0 on success, and a
+        // non-zero value otherwise.
 };
 
 // ============================================================================
@@ -481,7 +519,7 @@ bool Utf8Util::isValid(const char *string)
 }
 
 inline
-bool Utf8Util::isValid(const char *string, bsl::size_t length)
+bool Utf8Util::isValid(const char *string, size_type length)
 {
     BSLS_ASSERT(string);
 
@@ -491,40 +529,41 @@ bool Utf8Util::isValid(const char *string, bsl::size_t length)
 }
 
 inline
-int Utf8Util::numCharactersIfValid(const char **invalidString,
-                                   const char  *string)
-{
-    return numCodePointsIfValid(invalidString, string);
-}
-
-inline
-int Utf8Util::numCharactersIfValid(const char  **invalidString,
-                                   const char   *string,
-                                   bsl::size_t   length)
-{
-    return numCodePointsIfValid(invalidString, string, length);
-}
-
-inline
-int Utf8Util::numCharacters(const char *string)
+Utf8Util::IntPtr Utf8Util::numCharacters(const char *string)
 {
     return numCodePointsRaw(string);
 }
 
 inline
-int Utf8Util::numCharacters(const char *string, bsl::size_t length)
+Utf8Util::IntPtr Utf8Util::numCharacters(const char *string, size_type length)
 {
     return numCodePointsRaw(string, length);
 }
 
 inline
-int Utf8Util::numCharactersRaw(const char *string)
+Utf8Util::IntPtr Utf8Util::numCharactersIfValid(const char **invalidString,
+                                                const char  *string)
+{
+    return numCodePointsIfValid(invalidString, string);
+}
+
+inline
+Utf8Util::IntPtr Utf8Util::numCharactersIfValid(const char **invalidString,
+                                                const char  *string,
+                                                size_type    length)
+{
+    return numCodePointsIfValid(invalidString, string, length);
+}
+
+inline
+Utf8Util::IntPtr Utf8Util::numCharactersRaw(const char *string)
 {
     return numCodePointsRaw(string);
 }
 
 inline
-int Utf8Util::numCharactersRaw(const char *string, bsl::size_t length)
+Utf8Util::IntPtr Utf8Util::numCharactersRaw(const char *string,
+                                            size_type   length)
 {
     return numCodePointsRaw(string, length);
 }

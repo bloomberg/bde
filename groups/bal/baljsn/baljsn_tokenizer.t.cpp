@@ -152,7 +152,7 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
         ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
     }
 
-    int numAvail = sb->in_avail();
+    bsl::streamsize numAvail = sb->in_avail();
     if (sbEmptyInitially) {
         ASSERTV(LINE, numAvail, 0 == numAvail || -1 == numAvail);
     }
@@ -169,7 +169,7 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
         bsl::string actual;
         actual.resize(NAVAIL);
 
-        rc = sb->sgetn(&actual[0], NAVAIL);
+        bsl::streamsize rc = sb->sgetn(&actual[0], NAVAIL);
         ASSERTV(LINE, NAVAIL, rc, NAVAIL == rc);
         ASSERTV(LINE, EXPECTED, actual, EXPECTED == actual);
     }

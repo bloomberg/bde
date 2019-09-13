@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
-#include <bsls_types.h>
 
 // LOCAL MACROS
 
@@ -24,6 +23,8 @@ BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 
 namespace {
 
+using namespace BloombergLP;
+
 enum {
     k_MIN_2_BYTE_VALUE = 0x80,     // min value that requires 2 bytes to encode
     k_MIN_3_BYTE_VALUE = 0x800,    // min value that requires 3 bytes to encode
@@ -31,11 +32,56 @@ enum {
 
     k_MIN_SURROGATE    = 0xd800,   // min surrogate value
 
-    k_MAX_VALID = 0x10ffff,        // max value that can be encoded in UTF-8
+    k_MAX_VALID        = 0x10ffff,  // max value that can be encoded in UTF-8
 
-    k_CONT_VALUE_MASK = 0x3f       // part of a continuation byte that contains
-                                   // the 6 bits of value info
+    k_CONT_VALUE_MASK  = 0x3f,      // part of a continuation byte that
+                                    // contains the 6 bits of value info
+
+    k_ONEBYTEHEAD_TEST   = 0x80,  // 1 byte Utf8
+    k_ONEBYTEHEAD_RES    = 0,
+    k_TWOBYTEHEAD_TEST   = 0xE0,  // 2 byte Utf8
+    k_TWOBYTEHEAD_RES    = 0XC0,
+    k_THREEBYTEHEAD_TEST = 0xF0,  // 3 byte Utf8
+    k_THREEBYTEHEAD_RES  = 0XE0,
+    k_FOURBYTEHEAD_TEST  = 0xF8,  // 4 byte Utf8
+    k_FOURBYTEHEAD_RES   = 0XF0,
+    k_MULTIPLEBYTE_TEST  = 0xC0,  // 2nd, 3rd, 4th byte
+    k_MULTIPLEBYTE_RES   = 0X80
 };
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+
+bool isValidUtf8(const char *character)
+    // Return 'true' if 'character' points to a valid UTF-8 codepoint.
+{
+    return (character[0] & k_ONEBYTEHEAD_TEST)   == k_ONEBYTEHEAD_RES ||
+          ((character[1] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
+          ((character[0] & k_TWOBYTEHEAD_TEST)   == k_TWOBYTEHEAD_RES ||
+          ((character[2] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
+          ((character[0] & k_THREEBYTEHEAD_TEST) == k_THREEBYTEHEAD_RES ||
+          ((character[3] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
+           (character[0] & k_FOURBYTEHEAD_TEST)  == k_FOURBYTEHEAD_RES )))));
+}
+
+#endif // defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+
+int utf8Size(char character)
+    // Return the length of the UTF-8 codepoint for which the specified
+    // 'character' is the first 'char'.  The behavior is undefined unless
+    // 'character' is the first 'char' of a UTF-8 codepoint.
+{
+    if ((character & k_ONEBYTEHEAD_TEST) == k_ONEBYTEHEAD_RES) {
+        return 1;                                                     // RETURN
+    }
+    else if ((character & k_TWOBYTEHEAD_TEST) == k_TWOBYTEHEAD_RES) {
+        return 2;                                                     // RETURN
+    }
+    else if ((character & k_THREEBYTEHEAD_TEST) == k_THREEBYTEHEAD_RES) {
+        return 3;                                                     // RETURN
+    }
+
+    return 4;
+}
 
 }  // close unnamed namespace
 
@@ -193,26 +239,25 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
     }
 }
 
-static
-int validateAndCountCodePoints(
-                              const char                       **invalidString,
-                              const char                        *string,
-                              BloombergLP::bsls::Types::IntPtr   length)
+static int validateAndCountCodePoints(const char             **invalidString,
+                                      const char              *string,
+                                      bsls::Types::size_type   length)
     // Return the number of Unicode code points in the specified 'string'
     // having the specified 'length' (in bytes) if 'string' contains valid
     // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
     // return a negative value and load into 'invalidString' the address of the
     // first byte in 'string' that does not constitute the start of a valid
     // UTF-8 encoding.  'string' need not be null-terminated and can contain
-    // embedded null bytes.  The behavior is undefined unless '0 <= length'.
-    // Note that 'string' may contain less than 'length' Unicode code points.
+    // embedded null bytes.  The behavior is undefined unless
+    // '0 <= IntPtr(length)'.  Note that 'string' may contain less than
+    // 'length' Unicode code points.
 {
     // The following assertions are redundant with those in the CLASS METHODS.
     // Hence, 'BSLS_ASSERT_SAFE' is used.
 
     BSLS_ASSERT_SAFE(invalidString);
     BSLS_ASSERT_SAFE(string);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_ASSERT_SAFE(0 <= bsls::Types::IntPtr(length));
 
     const char       *pc     = string;
     const char *const pcEnd4 = string + length - 4;
@@ -354,6 +399,7 @@ int validateAndCountCodePoints(
     return count;
 }
 
+
 namespace BloombergLP {
 
 namespace bdlde {
@@ -362,17 +408,18 @@ namespace bdlde {
                               // ---------------
 
 // CLASS METHODS
-int Utf8Util::advanceIfValid(int         *status,
-                             const char **result,
-                             const char  *string,
-                             int          numCodePoints)
+
+Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
+                                          const char **result,
+                                          const char  *string,
+                                          IntPtr       numCodePoints)
 {
     BSLS_ASSERT(status);
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(numCodePoints >= 0);
 
-    int         ret = 0;      // return value -- number of code points advanced
+    IntPtr      ret = 0;      // return value -- number of code points advanced
     const char *next;         // 'next' is calculated during the loop as the
                               // starting position to start parsing the next
                               // code point, and assigned to 'string' between
@@ -543,18 +590,18 @@ int Utf8Util::advanceIfValid(int         *status,
     return ret;
 }
 
-int Utf8Util::advanceIfValid(int          *status,
-                             const char  **result,
-                             const char   *string,
-                             bsl::size_t   length,
-                             int           numCodePoints)
+Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
+                                          const char **result,
+                                          const char  *string,
+                                          size_type    length,
+                                          IntPtr       numCodePoints)
 {
     BSLS_ASSERT(status);
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(numCodePoints >= 0);
 
-    int         ret = 0;      // return value -- number of code points advanced
+    IntPtr      ret = 0;      // return value -- number of code points advanced
     const char *next;         // 'next' is advanced during the loop to the
                               // starting position to start parsing the next
                               // code point, and assigned to 'string' between
@@ -583,8 +630,8 @@ int Utf8Util::advanceIfValid(int          *status,
         if (UNLIKELY(ret >= numCodePoints)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            // Success.  We have successfully advanced 'numCodePoints'
-            // code points.
+            // Success.  We have successfully advanced 'numCodePoints' code
+            // points.
 
             BSLS_ASSERT(ret == numCodePoints);           // impossible to fail
 
@@ -751,15 +798,15 @@ int Utf8Util::advanceIfValid(int          *status,
     return ret;
 }
 
-int Utf8Util::advanceRaw(const char **result,
-                         const char  *string,
-                         int          numCodePoints)
+Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
+                                      const char  *string,
+                                      IntPtr       numCodePoints)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(numCodePoints >= 0);
 
-    int ret = 0;        // return value, # of code points advanced
+    IntPtr ret = 0;        // return value, # of code points advanced
 
     for (; ret < numCodePoints; ++ret) {
         // There's a 'break' at the end of this loop, so any case in the switch
@@ -831,16 +878,16 @@ int Utf8Util::advanceRaw(const char **result,
     return ret;
 }
 
-int Utf8Util::advanceRaw(const char  **result,
-                         const char   *string,
-                         bsl::size_t   length,
-                         int           numCodePoints)
+Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
+                                      const char  *string,
+                                      size_type    length,
+                                      IntPtr       numCodePoints)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(numCodePoints >= 0);
 
-    int ret = 0;        // return value, # of code points advanced
+    IntPtr ret = 0;  // return value, # of code points advanced
 
     const char * const endOfInput = string + length;
 
@@ -924,6 +971,68 @@ int Utf8Util::advanceRaw(const char  **result,
     return ret;
 }
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AN01     // 'codepoint' parameter renamed for line
+                                // length.
+// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
+// BDE_VERIFY pragma: -SP03     // 'codepnt' is not a typo.
+
+int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
+{
+    BSLS_ASSERT(output);
+
+    ///IMPLEMENTATION NOTES
+    ///--------------------
+    // This UTF-8 documentation was copied verbatim from RFC 3629.  The
+    // original version was downloaded from:
+    //..
+    //     http://tools.ietf.org/html/rfc3629
+    //..
+    ///////////////////////// BEGIN VERBATIM RFC TEXT /////////////////////////
+    // Char number range   |        UTF-8 octet sequence
+    //    (hexadecimal)    |              (binary)
+    // --------------------+---------------------------------------------
+    // 0000 0000-0000 007F | 0xxxxxxx
+    // 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+    // 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
+
+    if (codepnt < 0x80U) {
+        output->push_back(static_cast<char>(codepnt));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x800U) {
+        output->push_back(static_cast<char>((codepnt >>   6)          | 0xC0));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x10000U) {
+        output->push_back(static_cast<char>((codepnt  >> 12)          | 0xE0));
+        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+    else if (codepnt < 0x110000U) {
+        output->push_back(static_cast<char>((codepnt  >> 18)          | 0xF0));
+        output->push_back(static_cast<char>(((codepnt >> 12) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
+        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+        return 0;                                                     // RETURN
+    }
+
+    // Invalid code point.
+    return -1;
+}
+
+// BDE_VERIFY pragma: pop
+
+int Utf8Util::getByteSize(const char* codepoint)
+{
+    BSLS_ASSERT_SAFE(isValidUtf8(codepoint));
+    return utf8Size(codepoint[0]);
+}
+
 bool Utf8Util::isValid(const char **invalidString, const char *string)
 {
     BSLS_ASSERT(invalidString);
@@ -932,18 +1041,19 @@ bool Utf8Util::isValid(const char **invalidString, const char *string)
     return validateAndCountCodePoints(invalidString, string) >= 0;
 }
 
-bool Utf8Util::isValid(const char  **invalidString,
-                       const char   *string,
-                       bsl::size_t   length)
+bool Utf8Util::isValid(const char **invalidString,
+                       const char  *string,
+                       size_type    length)
 {
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= bsls::Types::IntPtr(length));
 
     return validateAndCountCodePoints(invalidString, string, length) >= 0;
 }
 
-int Utf8Util::numCodePointsIfValid(const char **invalidString,
-                                   const char  *string)
+Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(const char **invalidString,
+                                                const char  *string)
 {
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);
@@ -951,21 +1061,22 @@ int Utf8Util::numCodePointsIfValid(const char **invalidString,
     return validateAndCountCodePoints(invalidString, string);
 }
 
-int Utf8Util::numCodePointsIfValid(const char  **invalidString,
-                                   const char   *string,
-                                   bsl::size_t   length)
+Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(const char **invalidString,
+                                                const char  *string,
+                                                size_type    length)
 {
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= bsls::Types::IntPtr(length));
 
     return validateAndCountCodePoints(invalidString, string, length);
 }
 
-int Utf8Util::numCodePointsRaw(const char *string)
+Utf8Util::IntPtr Utf8Util::numCodePointsRaw(const char *string)
 {
     BSLS_ASSERT(string);
 
-    int count = 0;
+    IntPtr count = 0;
 
     // Note that since we assume the string contains valid UTF-8, our work is
     // very simple.
@@ -1001,11 +1112,12 @@ int Utf8Util::numCodePointsRaw(const char *string)
     }
 }
 
-int Utf8Util::numCodePointsRaw(const char *string, bsl::size_t length)
+Utf8Util::IntPtr Utf8Util::numCodePointsRaw(const char *string,
+                                            size_type   length)
 {
     BSLS_ASSERT(string);
 
-    int count = 0;
+    IntPtr count = 0;
 
     // Note that since we assume the string contains valid UTF-8, our work is
     // very simple.
@@ -1043,6 +1155,31 @@ int Utf8Util::numCodePointsRaw(const char *string, bsl::size_t length)
 
     return count;
 }
+
+Utf8Util::IntPtr Utf8Util::numBytesIfValid(
+                                        const bslstl::StringRef& string,
+                                        IntPtr                   numCodePoints)
+{
+    BSLS_ASSERT(string.isEmpty() || string.data());
+    BSLS_ASSERT(0 <= numCodePoints);
+
+    size_t numBytes = 0;
+
+    // Note that since we are assuming the string already passed one of the
+    // validation functions our work is very simple.
+
+    for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
+        BSLS_ASSERT_SAFE(isValidUtf8(&string[numBytes]));
+        numBytes += utf8Size(string[numBytes]);
+    }
+
+    if (numBytes > string.length()) {
+        return -1;                                                    // RETURN
+    }
+
+    return numBytes;
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace
