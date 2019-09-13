@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM: searcher object overloads
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: 'ptr_fun' et al. gone
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -585,6 +586,17 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 8.3.0
 //:   o MSVC 2019
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED'
+///---------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED' macro is defined for
+// libraries that do not export names removed in C++17, such as 'std::ptr_fun'.
+// It is essentially the same as 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR', and
+// roughly equivalent to '__cplusplus >= 201703L'.  This definition is somewhat
+// complicated by Visual Studio, which, without a compiler flag available only
+// on newer versions, leaves '__cplusplus' set to '199711L', and also has a
+// macro '_HAS_AUTO_PTR_ETC' that can be (or is) defined to include the names
+// anyway.
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' macro is defined if
@@ -966,6 +978,11 @@ BSLS_IDENT("$Id: $")
     // version/platform combination tested.  Assume universally available until
     // the day tool chains start removing this deprecated class template.
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+#define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED             1
+    // Set when C++17 is detected.  Adjusted below for Visual Studio due to
+    // difficulties with its settings of standard version macros.
+#endif
 
 // ============================================================================
 //                     PLATFORM SPECIFIC FEATURE DETECTION
@@ -1239,8 +1256,14 @@ BSLS_IDENT("$Id: $")
         #endif
     #endif
 
-    #if _HAS_AUTO_PTR_ETC
-      #define BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_FORCE           1
+    // If _HAS_AUTO_PTR_ETC is defined, use its value as the deciding one for
+    // whether the C++17 deprecated names are gone.
+    #if defined _HAS_AUTO_PTR_ETC
+        #if _HAS_AUTO_PTR_ETC
+          # undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+        #else
+          #define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED   1
+        #endif
     #endif
 #endif
 
@@ -1265,8 +1288,7 @@ BSLS_IDENT("$Id: $")
     // version identifier greater than that of C++11.
 #endif
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L &&                             \
-    !defined BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_FORCE
+#if defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
 # undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
     // 'auto_ptr' is removed from C++17, so undefine for any standard version
     // identifier greater than that of C++14.

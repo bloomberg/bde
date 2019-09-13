@@ -43,8 +43,7 @@ namespace bsl {
     using native_std::plus;
     using native_std::unary_negate;
 
-#if defined(_HAS_AUTO_PTR_ETC) ? _HAS_AUTO_PTR_ETC : \
-                                 BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
+#if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     // These names are removed by C++17
     using native_std::binary_function;
     using native_std::bind1st;

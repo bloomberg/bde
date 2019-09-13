@@ -97,8 +97,7 @@ namespace bsl {
     using native_std::unique_copy;
     using native_std::upper_bound;
 
-#if defined(_HAS_AUTO_PTR_ETC) ? _HAS_AUTO_PTR_ETC : \
-                                 BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
+#if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     // These names are removed by C++17
     using native_std::random_shuffle;
 #endif

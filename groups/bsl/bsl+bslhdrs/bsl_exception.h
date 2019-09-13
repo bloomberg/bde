@@ -31,8 +31,7 @@ namespace bsl {
     using native_std::terminate_handler;
     using native_std::uncaught_exception;
 
-#if defined(_HAS_AUTO_PTR_ETC) ? _HAS_AUTO_PTR_ETC : \
-                                 BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
+#if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     // These names are removed by C++17
     using native_std::set_unexpected;
     using native_std::unexpected;
@@ -53,8 +52,7 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-#if defined(_HAS_AUTO_PTR_ETC) ? _HAS_AUTO_PTR_ETC : \
-                                 BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
+#if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     using native_std::get_unexpected;
 # endif
     using native_std::get_terminate;
