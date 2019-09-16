@@ -1206,7 +1206,10 @@ BSLS_IDENT("$Id: $")
             #endif
         #endif
         #if __cplusplus >= 201703L
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+            // Check if the library we're using has a requisite header.
+            #if __has_include(<charconv>)
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+            #endif
         #endif
     #endif
 
