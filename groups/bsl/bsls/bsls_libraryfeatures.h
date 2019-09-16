@@ -1049,6 +1049,9 @@ BSLS_IDENT("$Id: $")
         // standard mode, so there is no need for an additional check.
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS       1
     #endif
+    #if _GLIBCXX_USE_DEPRECATED
+        # undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+    #endif
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
