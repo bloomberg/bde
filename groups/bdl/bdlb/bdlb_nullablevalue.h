@@ -179,6 +179,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 /*
 namespace std {
 template <class TYPE>
@@ -192,6 +193,7 @@ struct __domain_allocator_traits<TYPE, typename bsl::enable_if<
 	}
 };
 }
+
 */
 
 template <class TYPE>
@@ -334,6 +336,7 @@ namespace bdlb {
 // =========================
 // class NullableValue<TYPE>
 // =========================
+
 
 template<typename TYPE>
 using optional_base = std::conditional_t<bslma::UsesBslmaAllocator<TYPE>::value,
@@ -953,6 +956,7 @@ NullableValue<TYPE>::NullableValue(
                             !bsl::is_convertible<BDE_OTHER_TYPE,
                                                  bslma::Allocator *>::value,
                             void>::type *)
+
 : optional_base<TYPE>(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
 {
 }
@@ -965,6 +969,7 @@ NullableValue<TYPE>::NullableValue(
     bslma::Allocator                                  *basicAllocator,
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             void>::type *)
+
 : optional_base<TYPE>(std::allocator_arg_t{},
           std::pmr::polymorphic_allocator<void>((std::pmr::memory_resource*)
         		  (bslma::Default::allocator(basicAllocator))),
@@ -977,6 +982,7 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                                  const NullableValue<BDE_OTHER_TYPE>& original)
+
 : optional_base<TYPE>((std::pmr::optional<BDE_OTHER_TYPE>)original)
 {
 }
@@ -987,6 +993,7 @@ inline
 NullableValue<TYPE>::NullableValue(
                           const NullableValue<BDE_OTHER_TYPE>&  original,
                           bslma::Allocator                     *basicAllocator)
+
 : optional_base<TYPE>(std::allocator_arg_t{},
         std::pmr::polymorphic_allocator<void>((std::pmr::memory_resource*)
         		(bslma::Default::allocator(basicAllocator))))

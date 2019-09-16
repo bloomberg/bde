@@ -45,6 +45,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 	template <class _Tp, class _Alloc>
 	struct __domain_allocator_detector< _Tp, _Alloc,
+
 	__void_t<decltype(_Tp::domain_alloc_convert)>>
 	: true_type
 	{
