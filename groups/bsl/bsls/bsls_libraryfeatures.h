@@ -1210,6 +1210,7 @@ BSLS_IDENT("$Id: $")
             #if __has_include(<charconv>)
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
             #endif
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
         #endif
     #endif
 
