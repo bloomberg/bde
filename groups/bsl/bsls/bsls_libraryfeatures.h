@@ -590,12 +590,17 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED' macro is defined for
 // libraries that do not export names removed in C++17, such as 'std::ptr_fun'.
-// It is essentially the same as 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR', and
-// roughly equivalent to '__cplusplus >= 201703L'.  This definition is somewhat
-// complicated by Visual Studio, which, without a compiler flag available only
-// on newer versions, leaves '__cplusplus' set to '199711L', and also has a
-// macro '_HAS_AUTO_PTR_ETC' that can be (or is) defined to include the names
-// anyway.
+// It is the opposite of 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR', and roughly
+// equivalent to '__cplusplus >= 201703L'.  We do not use this equivalent
+// formulation directly due to complications in Visual Studio.  (Visual Studio
+// leaves the '__cplusplus' set to '199711L' unless a '/Zc:__cplusplus' option
+// is specified, but that option itself is available only from Visual Studio
+// 2017 version 15.7 onwards.  There is a macro '_MSVC_LANG' which holds the
+// actual C++ version, and that one is available from Visual Studio 2015 Update
+// 3 and onwards; when it is defined, 'BSLS_COMPILERFEATURES_CPLUSPLUS' is set
+// to it.  Finally, the Visual Studio libraries have a macro,
+// '_HAS_AUTO_PTR_ETC', which when defined to a non-zero value, causes the
+// deprecated names to still be defined in the 'std' namespace.)
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
