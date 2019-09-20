@@ -1,8 +1,18 @@
-bsl-internal (3.38.0.1) unstable; urgency=low
+bsl-internal (3.39.0.0) unstable; urgency=low
 
-  * No commits found
+  * b1f246b57 Bump versions
+  * c0621bda2 Merge pull request #2474 from mgiroux/import-dlcu_utf8util-drqs14279549
+  * 04b1c5356 Merge pull request #2499 from jmendelsohn4/drqs-148368977/bsl-compile-warning-20190911
+  * 36a2c03c5 Merge pull request #2497 from jmendelsohn4/drqs-148309729/bdl-compile-warning-20190910
+  * cc883b6e2 Merge pull request #2496 from bchapman/bdlcc_multipriorityqueue-include-bsltf_streamutil-drqs-148250562
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 6 Sep 2019 14:40:21 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 20 Sep 2019 12:28:06 -0400
+
+bsl-internal (3.38.0.1) git; urgency=low
+
+  * 991f2ee2e Changelog for version 3.38.0.1
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 9 Sep 2019 09:38:00 -0400
 
 bsl-internal (3.38.0.0) git; urgency=low
 
