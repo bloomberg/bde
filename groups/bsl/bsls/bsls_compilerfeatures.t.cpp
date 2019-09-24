@@ -58,6 +58,7 @@
 // [12] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 // [13] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 // [14] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+// [28] BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 // [19] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 // [15] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // [16] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
@@ -1198,6 +1199,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS) );
@@ -1487,6 +1495,38 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS' is defined
+        //:    only when the compiler properly supports C++11 raw string
+        //:    literals.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS' is
+        //:   defined then compile code that attempts to use a raw string.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+           "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'"
+           "\n===================================================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
+        if (verbose) printf("Feature is supported in this configuration.\n");
+        const char raw_string[] = R"RAW(
+This is a raw string.  It is not, however, an "uncooked" string - baking it
+will not improve the flavor.
+)RAW";
+        (void)raw_string;
+#endif
+      } break;
       case 27: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'

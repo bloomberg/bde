@@ -36,6 +36,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
 //  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: 'explicit' operator
 //  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: 'override' keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS: C++11-style R"tag(string)tag"
 //  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ref-qualified member function
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
@@ -170,6 +171,10 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
 //:     This macro is defined if the 'override' keyword is supported by the
 //:     current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'
+//:     This macro is defined if the compiler supports C++-11 style
+//:     R"tag(string)tag" strings.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
 //:     This macro is defined if member functions with trailing reference
@@ -515,7 +520,19 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 4.7
 //:   o Clang 3.0
 //:   o MSVC 2012
-//:   o IBM xlC 11.1
+//:   o IBM xlC 11.1 (Not yet supported by this component)
+//:   o Oracle CC 12.4
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'
+///- - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the use of C++11-style
+// R"tag(string)tag" strings.
+//
+//: o Compiler support:
+//:   o GCC 4.5
+//:   o Clang 3.3
+//:   o MSVC 2013
+//:   o xlC 13.1.3
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
@@ -663,6 +680,9 @@ BSLS_IDENT("$Id: $")
 #    undef  BSLS_COMPILERFEATURES_CPLUSPLUS
 #    define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
 #  endif
+#  if BSLS_PLATFORM_CMP_VERSION >= 40500
+#    define BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+#  endif
 #  if BSLS_PLATFORM_CMP_VERSION >= 40800
 #    define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #    define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
@@ -753,6 +773,9 @@ BSLS_IDENT("$Id: $")
 #endif
 #if __has_feature(cxx_noexcept)
 #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#endif
+#if __has_feature(cxx_raw_string_literals)
+#define BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 #endif
 // Clang 3.1
 #if __has_feature(cxx_constexpr)
@@ -855,6 +878,7 @@ BSLS_IDENT("$Id: $")
 # define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 # define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 # define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+# define BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 # define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 # define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 # define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -972,6 +996,7 @@ BSLS_IDENT("$Id: $")
 //#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
 // Not yet tested for support
+// # define BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 // # define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 
 // Not yet enabling C++17 support, but pro-active test drivers may want to add
@@ -1006,6 +1031,7 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #   define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #   define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#   define BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 #   define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 # endif
