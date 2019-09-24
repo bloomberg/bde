@@ -520,7 +520,7 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 4.7
 //:   o Clang 3.0
 //:   o MSVC 2012
-//:   o IBM xlC 11.1 (Not yet supported by this component)
+//:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'
@@ -532,7 +532,7 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 4.5
 //:   o Clang 3.3
 //:   o MSVC 2013
-//:   o xlC 13.1.3
+//:   o xlC 13.1.3 (Not yet supported by this component)
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
