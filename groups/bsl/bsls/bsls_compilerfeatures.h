@@ -261,6 +261,9 @@ BSLS_IDENT("$Id: $")
 ///Feature Support in Compilers
 ///----------------------------
 //
+// Note that https://en.cppreference.com/w/cpp/compiler_support is a useful
+// reference for initial versions to test for support for various features.
+//
 ///'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports syntax to introduce a
