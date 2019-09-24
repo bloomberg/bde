@@ -225,16 +225,16 @@ class SingleConsumerQueueImpl {
     // PRIVATE CONSTANTS
     enum {
         // These value are used as values for 'd_state' in 'Node'.  A node is
-        // writable at creation and after a read completes (when the single
-        // consumer can write to the node).  A node is readable after it is
-        // written (when the node can be read by a consumer).  The states
+        // writable at creation and after a read completes (when the producers
+        // can write to the node).  A node is readable after it is written
+        // (when the node can be read by the single consumer).  The states
         // in-between these two states (e.g., writing) are not needed by this
         // implementation of the queue.
 
         e_READABLE,              // node can be read
         e_WRITABLE,              // node can be written
         e_WRITABLE_AND_BLOCKED,  // node can be written and has blocked reader
-        e_RECLAIM                // node suffered exception while reading
+        e_RECLAIM                // node suffered exception while writing
     };
 
     // The following constants are used to maintain the queue's 'd_state'
