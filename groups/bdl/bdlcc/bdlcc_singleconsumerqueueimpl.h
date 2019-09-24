@@ -234,7 +234,7 @@ class SingleConsumerQueueImpl {
         e_READABLE,              // node can be read
         e_WRITABLE,              // node can be written
         e_WRITABLE_AND_BLOCKED,  // node can be written and has blocked reader
-        e_RECLAIM                // node suffered exception while writing
+        e_RECLAIM                // node suffered exception while being written
     };
 
     // The following constants are used to maintain the queue's 'd_state'
