@@ -10,10 +10,51 @@ Architecture: any
 Description: bsl-internal bde metadata
  bde metadata for the bsl-internal source package
 
-Package: libbsl-dev
+
+
+Package: libbal-extra-dev
+Depends: libbdl-extra-dev, libbsl-extra-dev
 Architecture: any
-Description: BSL
- groups/bsl development files
+Description: BAL
+ groups/bal extra libraries
+
+Package: libbbl-extra-dev
+Depends: libbdl-extra-dev, libbsl-extra-dev
+Architecture: any
+Description: BBL
+ groups/bbl extra libraries
+
+Package: libbdl-extra-dev
+Depends: libbsl-extra-dev, libinteldfp-dev, libpcre2-dev
+Architecture: any
+Description: BDL
+ groups/bdl extra libraries
+
+Package: libbsl-extra-dev
+Architecture: any
+Description: BSL 
+ groups/bsl extra libraries
+
+
+
+
+Package: libbal-dev
+Depends: libbal-extra-dev, libbdl-dev, libbsl-dev
+Architecture: any
+Description: BAL
+ groups/bal development files
+
+Package: libbbl-dev
+Depends: libbbl-extra-dev, libbdl-dev, libbsl-dev
+Architecture: any
+Description: BBL
+ groups/bbl development files
+
+Package: libbdl-dev
+Depends: libbdl-extra-dev, libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
+Architecture: any
+Description: BDL
+ groups/bdl development files
 
 Package: libbos-dev
 Depends: libbsl-dev
@@ -22,23 +63,11 @@ XB-X-Blp-Private-Dependency-From: robobuild-meta, bsloverridesstd, bvalgsacmsg, 
 Description: BOS
  groups/bos 'BSL_OVERRIDES_STD' development files.  This library is private, do not use it.
 
-Package: libbdl-dev
-Depends: libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
+Package: libbsl-dev
+Depends: libbsl-extra-dev
 Architecture: any
-Description: BDL
- groups/bdl development files
-
-Package: libbal-dev
-Depends: libbsl-dev, libbdl-dev
-Architecture: any
-Description: BAL
- groups/bal development files
-
-Package: libbbl-dev
-Depends: libbsl-dev, libbdl-dev
-Architecture: any
-Description: BBL
- groups/bbl development files
+Description: BSL 
+ groups/bsl development files
 
 Package: libdecnumber-dev
 Architecture: any
