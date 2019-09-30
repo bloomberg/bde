@@ -1609,7 +1609,8 @@ int main(int argc, char *argv[])
               case e_NO_ALLOC_ATTR_NAME:
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
-#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||  \
+      defined(BSLS_PLATFORM_OS_SOLARIS)
                 LOOP2_ASSERT(cm, threadName, tn == threadName);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                 // The threadname will only be visible if we're running on
