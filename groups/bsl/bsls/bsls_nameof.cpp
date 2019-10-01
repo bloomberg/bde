@@ -215,6 +215,8 @@ const char *NameOf_Base::initBuffer(char       *buffer,
                                            // which shouldn't be a problem.
     BSLS_ASSERT(std::strlen(buffer) == static_cast<std::size_t>(end - pc));
 
+    u::substitute(buffer,     " >",            ">");
+
 #if   defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_GNU)
     char stringName[] = { "std::basic_string<char, std::char_traits<char>,"
                                                     " std::allocator<char>>" };
@@ -260,24 +262,27 @@ const char *NameOf_Base::initBuffer(char       *buffer,
     // Linux clang, and Darwin clang
 
 # if BSLS_PLATFORM_OS_DARWIN
-    char stringName[] = { "std::__1::basic_string<char>" };
+    static char stringName[] = { "std::__1::basic_string<char>" };
 
     u::substitute(buffer,     stringName,   "std::string");
     u::substitute(stringName, "std::__1::",  "std::");
 # else
     // Linux clang
 
-#   if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
     char stringName[] = { "std::basic_string<char>" };
-#   else
-    char stringName[] = { "std::basic_string<char, std::char_traits<char>,"
-                                                    " std::allocator<char>>" };
+
+#   if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L 
+
+    char longName[] = { "std::basic_string<char,"
+                            " std::char_traits<char>, std::allocator<char>>" };
+    u::substitute(buffer, longName, stringName);
+    u::substitute(longName, "std::", "bsl::");
+    u::substitute(buffer, longName,  "bsl::basic_string<char>");
+
 #   endif
 # endif
     static const char anonymous[] = { "(anonymous namespace)::" };
 #endif
-
-    u::substitute(buffer,     " >",            ">");
 
     u::substitute(buffer,     stringName,      "std::string");
     u::substitute(stringName, "std::basic",    "bsl::basic");

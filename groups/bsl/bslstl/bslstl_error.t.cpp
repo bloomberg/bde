@@ -1335,7 +1335,7 @@ int main(int argc, char *argv[])
                                  system_category()),
         };
         for (int i = 0; i < 4; ++i) {
-            bsl::hash<bsl::error_condition> hasher;
+            native_std::hash<bsl::error_condition> hasher;
             const bsl::error_condition &ci = conditions[i];
             if (veryVeryVerbose) {
                 printf("%d %s %d %zu\n",
