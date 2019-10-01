@@ -1497,6 +1497,15 @@ BSL_OVERRIDES_STD mode"
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS) \
  && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1900)
 # define BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS 1
+
+#if BSLS_PLATFORM_CMP_VERSION >= 1910 &&                                      \
+    BSLS_PLATFORM_CMP_VERSION <  1920 &&                                      \
+    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+// Visual Studio 2017 in C++17 mode crashes with an internal compiler error on
+// the shared pointer SFINAE code.  See {DRQS 148281696}.
+# undef BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
+#endif
+
 // If the macro 'BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS' is defined, then a
 // conforming C++11 compiler will define the constructors in this component in
 // such a way that they will not be selected during overload resolution unless
@@ -4777,9 +4786,13 @@ struct SharedPtr_TestIsCallable {
 
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1920
 // Microsoft needs a workaround to correctly handle calling through function
-// pointers with incompatible types.
+// pointers with incompatible types in Visual Studio 2017.  In Visual Studio
+// 2019 the workaround isn't needed and crashes the compiler if enabled!
+// (Visual Studio versions prior to 2017 appear to not need the workaround,
+// based on further testing, but it's being left in place so as not to alter
+// this code for people using older compiler versions.)
 
 template <class RESULT, class PARAM>
 struct SharedPtr_TestIsCallable<RESULT(PARAM)> {

@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM: searcher object overloads
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: 'ptr_fun' et al. gone
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -585,6 +586,16 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 8.3.0
 //:   o MSVC 2019
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED'
+///---------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED' macro is defined for
+// libraries that do not export names removed in C++17, such as 'std::ptr_fun'.
+// 'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED' is generally the
+// negation of 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR'.  Although the removal
+// of deprecated C++17 types is conceptually equivalent to
+// '__cplusplus >= 201703L', standard library implementations often provide
+// configuration flags to expose the deprecated library features.
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' macro is defined if
@@ -966,6 +977,11 @@ BSLS_IDENT("$Id: $")
     // version/platform combination tested.  Assume universally available until
     // the day tool chains start removing this deprecated class template.
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+#define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED             1
+    // Set when C++17 is detected.  Adjusted below for implementations that
+    // keep deprecated functions available.
+#endif
 
 // ============================================================================
 //                     PLATFORM SPECIFIC FEATURE DETECTION
@@ -1027,6 +1043,9 @@ BSLS_IDENT("$Id: $")
         // will already only be defined when compiling in at least C++17
         // standard mode, so there is no need for an additional check.
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS       1
+    #endif
+    #if _GLIBCXX_USE_DEPRECATED
+        # undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     #endif
 #endif
 
@@ -1182,7 +1201,11 @@ BSLS_IDENT("$Id: $")
             #endif
         #endif
         #if __cplusplus >= 201703L
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+            // Check if the library we're using has a requisite header.
+            #if __has_include(<charconv>)
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+            #endif
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
         #endif
     #endif
 
@@ -1233,11 +1256,20 @@ BSLS_IDENT("$Id: $")
         #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     #endif
 
-    #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2017
-      #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM         1
-      #if !_HAS_AUTO_PTR_ETC
-        #undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
-      #endif
+    #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM   1
+        #endif
+    #endif
+
+    // If _HAS_AUTO_PTR_ETC is defined, use its value as the deciding one for
+    // whether the C++17 deprecated names are gone.
+    #if defined _HAS_AUTO_PTR_ETC
+        #if _HAS_AUTO_PTR_ETC
+          # undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+        #else
+          #define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED   1
+        #endif
     #endif
 #endif
 
@@ -1256,13 +1288,13 @@ BSLS_IDENT("$Id: $")
 // Now, after detecting support, unconditionally undefine macros for features
 // that have been removed from later standards.
 
-#if __cplusplus > 201103L
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 201103L
 # undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     // 'gets' is removed immediately from C++14, so undefine for any standard
     // version identifier greater than that of C++11.
 #endif
 
-#if __cplusplus > 201402L
+#if defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
 # undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
     // 'auto_ptr' is removed from C++17, so undefine for any standard version
     // identifier greater than that of C++14.
