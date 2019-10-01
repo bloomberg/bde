@@ -159,9 +159,8 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [ 2] TEST MACHINERY
 // [ 7] (implicit) bool operator!() const;  // via operator BoolType()
-// [16] USAGE EXAMPLE 1
-// [17] USAGE EXAMPLE 2
-// [18] CASTING EXAMPLES
+// [18] USAGE EXAMPLE
+// [19] CASTING EXAMPLES
 // [-1] VERIFYING FAILURES TO COMPILE
 
 // ============================================================================
@@ -753,6 +752,192 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 == cf.count());
     }
 //..
+//
+///Example 5: Inplace object creation
+/// - - - - - - - - - - - - - - - - -
+// Suppose we want to allocate memory for an object, construct it and obtain a
+// managed pointer referring to this object.  This can be done in one step
+// using the special free functions.
+//
+// First, we create a simple class clearly showing the features of these
+// functions:
+//..
+    class String {
+        // Simple class, that stores the copy of the null-terminated c-string.
+
+      private:
+        // DATA
+        char             *d_str_p;    // stored value (owned)
+        bslma::Allocator *d_alloc_p;  // allocator to allocate any dynamic
+                                      // memory (held, not owned)
+
+      public:
+        // CREATORS
+        String(const char *str, bslma::Allocator *alloc)
+            // Create an object having the same value as the specified 'str'
+            // using the specified 'alloc' to supply memory.
+        : d_alloc_p(alloc)
+        {
+            ASSERT(str);
+            size_t length = strlen(str);
+
+            d_str_p = static_cast<char *>(d_alloc_p->allocate(
+                                                 (length + 1) * sizeof(char)));
+            strncpy(d_str_p, str, length + 1);
+        }
+
+        virtual ~String()
+            // Destroy this object.  Use the stored allocator to release any
+            // memory that was previously allocated.
+        {
+            d_alloc_p->deallocate(d_str_p);
+        }
+
+        // ACCESSORS
+        bslma::Allocator *allocator() const
+            // Return a pointer providing modifiable access to the allocator
+            // associated with this 'String'.
+        {
+            return d_alloc_p;
+        }
+
+    };
+//..
+// Next, create a fragment of code that will construct an object of 'String'
+// class using default allocator to supply memory:
+//..
+    void testInplaceCreation()
+    {
+//..
+// Suppose we want to have different allocator to supply memory allocated by
+// the object:
+//..
+        bslma::TestAllocator ta;
+        bsls::Types::Int64   testBytesInUse = ta.numBytesInUse();
+
+        ASSERT(0 == testBytesInUse);
+
+        bslma::TestAllocator         da;
+        bslma::DefaultAllocatorGuard dag(&da);
+        bsls::Types::Int64           defaultBytesInUse = da.numBytesInUse();
+
+        ASSERT(0 == defaultBytesInUse);
+//..
+// Then, create a string to copy:
+//..
+        const char *STR        = "Test string";
+        const int   STR_LENGTH = static_cast<int>(strlen(STR));
+//..
+// Next, dynamically create an object and obtain the managed pointer, referring
+// to it, using 'bslma::makeManaged' function:
+//..
+        {
+            bslma::ManagedPtr<String> stringManagedPtr =
+                                          bslma::makeManaged<String>(STR, &ta);
+//..
+// Note that memory for object itself is supplied by default allocator, while
+// memory for the copy of passed string is supplied by another allocator:
+//:
+            ASSERT(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
+            ASSERT(&ta == stringManagedPtr->allocator());
+            ASSERT(STR_LENGTH + 1 == ta.numBytesInUse());
+        }
+//..
+// Then, make sure that all allocated memory is successfully released after
+// managed pointer destruction :
+//..
+        ASSERT(0 == da.numBytesInUse());
+        ASSERT(0 == ta.numBytesInUse());
+//..
+// If you want to use an allocator other than the default allocator, then the
+// 'bslma::AllocateManaged()' function should be used:
+//..
+        bslma::TestAllocator oa;
+        bsls::Types::Int64   objectBytesInUse = oa.numBytesInUse();
+        ASSERT(0 == objectBytesInUse);
+
+        {
+            bslma::ManagedPtr<String> stringManagedPtr =
+                                 bslma::allocateManaged<String>(&oa, STR, &ta);
+
+            ASSERT(static_cast<int>(sizeof(String)) <= oa.numBytesInUse());
+            ASSERT(&ta == stringManagedPtr->allocator());
+            ASSERT(STR_LENGTH + 1 == ta.numBytesInUse());
+            ASSERT(0 == da.numBytesInUse());
+        }
+
+        ASSERT(0 == da.numBytesInUse());
+        ASSERT(0 == ta.numBytesInUse());
+        ASSERT(0 == oa.numBytesInUse());
+    }
+//..
+// Note that if object's type uses 'bslma' allocators, then supplied allocator
+// is implicitly passed to the object's constructor as an extra argument in the
+// final position:
+//..
+    class StringAlloc : public String {
+        // The heir to the 'String' class that explicitly claims to use 'bslma'
+        // allocators.
+      public:
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(StringAlloc, bslma::UsesBslmaAllocator);
+
+        // CREATORS
+        StringAlloc(const char *str, bslma::Allocator *alloc)
+            // Create an object having the same value as the specified 'str'
+            // using the specified 'alloc' to supply memory.
+        : String(str, alloc)
+        {
+        }
+
+        virtual ~StringAlloc()
+            // Destroy this object.  Use the stored allocator to release any
+            // memory that was previously allocated.
+        {
+        }
+    };
+
+    void testUsesAllocatorInplaceCreation()
+    {
+        bslma::TestAllocator ta;
+        bsls::Types::Int64   testBytesInUse = ta.numBytesInUse();
+
+        ASSERT(0 == testBytesInUse);
+
+        bslma::TestAllocator         da;
+        bslma::DefaultAllocatorGuard dag(&da);
+        bsls::Types::Int64           defaultBytesInUse = da.numBytesInUse();
+
+        ASSERT(0 == defaultBytesInUse);
+
+        const char *STR        = "Test string";
+        const int   STR_LENGTH = static_cast<int>(strlen(STR));
+
+        {
+            bslma::ManagedPtr<StringAlloc> stringManagedPtr =
+                                          bslma::makeManaged<StringAlloc>(STR);
+
+            ASSERT(static_cast<int>(sizeof(String)) + STR_LENGTH + 1 <=
+                                                           da.numBytesInUse());
+            ASSERT(&da == stringManagedPtr->allocator());
+            ASSERT(0 == ta.numBytesInUse());
+        }
+
+        {
+            bslma::ManagedPtr<StringAlloc> stringManagedPtr =
+                                 bslma::allocateManaged<StringAlloc>(&ta, STR);
+
+            ASSERT(static_cast<int>(sizeof(String)) + STR_LENGTH + 1 <=
+                                                           ta.numBytesInUse());
+            ASSERT(&ta == stringManagedPtr->allocator());
+            ASSERT(0 == da.numBytesInUse());
+        }
+
+        ASSERT(0 == da.numBytesInUse());
+        ASSERT(0 == ta.numBytesInUse());
+    }
+//..
+
 }  // close namespace USAGE_EXAMPLES
 
 //=============================================================================
@@ -6631,60 +6816,7 @@ int main(int argc, char *argv[])
     ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
-      case 20: {
-        // --------------------------------------------------------------------
-        // Concerns:
-        // TBD:
-        // This test case recreates an issue discovered in client code when
-        // building a big with the C++11 development branch.  The plan is to
-        // fold this kind of testing into another more relevant test case
-        // rather than having a separate one.
-        //
-        // Plan:
-        //
-        // Testing:
-        //
-        // --------------------------------------------------------------------
-        bslma::ManagedPtr<int> r;
-        bslma::ManagedPtr<int> s;
-        r = bslmf::MovableRefUtil::move_if_noexcept(s);
-      } break;
       case 19: {
-        // --------------------------------------------------------------------
-        // DRQS 30670366
-        //
-        // Concerns
-        //   Swapping a cookie of type 'void *' and a deletion functor of type
-        //   'void deleter(DERIVED_TYPE *, void *)' supplies the correct cookie
-        //   to the deletion functor.  Note that this test for deprecated
-        //   functionality will become redundant and ultimately vanish, as the
-        //   deprecated functionality is removed.
-        //
-        // Plan:
-        //   Replicated the .
-        //
-        // Testing:
-        //
-        // --------------------------------------------------------------------
-        using namespace DRQS_30670366_NAMESPACE;
-        if (verbose) printf("\nDRQS 30670366"
-                            "\n=============\n");
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        {
-            int cookie = 100;
-            bslma::ManagedPtr<int> test(&cookie,
-                                        static_cast<void *>(&cookie),
-                                        &testDeleter);
-        }
-        {
-            int cookie = 100;
-            bslma::ManagedPtr<int> test;
-            test.load(&cookie, static_cast<void *>(&cookie), &testDeleter);
-        }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-      } break;
-      case 18: {
         // --------------------------------------------------------------------
         // TESTING CASTING EXAMPLES
         //
@@ -6735,9 +6867,9 @@ int main(int argc, char *argv[])
 
         ASSERTV(numdels, 20202 == numdels);
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
+        // USAGE EXAMPLE
         //
         // Concerns
         //: 1 The usage example provided in the component header file must
@@ -6748,36 +6880,71 @@ int main(int argc, char *argv[])
         //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE 2
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
-        if (verbose) printf("\nTESTING USAGE EXAMPLE 2"
-                            "\n=======================\n");
+        USAGE_EXAMPLES::testShapes();                        // Example 1
+        USAGE_EXAMPLES::testShapesToo();                     // Example 1
+        USAGE_EXAMPLES::aliasExample();                      // Example 2
+        USAGE_EXAMPLES::testCountedFactory();                // Example 3
+        USAGE_EXAMPLES::testInplaceCreation();               // Example 5
+        USAGE_EXAMPLES::testUsesAllocatorInplaceCreation();  // Example 5
 
-        USAGE_EXAMPLES::aliasExample();
-
-        // move usage-example 3 up to its own case
-        USAGE_EXAMPLES::testCountedFactory();
-
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // Concerns:
+        // TBD:
+        // This test case recreates an issue discovered in client code when
+        // building a big with the C++11 development branch.  The plan is to
+        // fold this kind of testing into another more relevant test case
+        // rather than having a separate one.
+        //
+        // Plan:
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+        bslma::ManagedPtr<int> r;
+        bslma::ManagedPtr<int> s;
+        r = bslmf::MovableRefUtil::move_if_noexcept(s);
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
+        // DRQS 30670366
         //
         // Concerns
-        //: 1 The usage example compiles and runs correctly.
+        //   Swapping a cookie of type 'void *' and a deletion functor of type
+        //   'void deleter(DERIVED_TYPE *, void *)' supplies the correct cookie
+        //   to the deletion functor.  Note that this test for deprecated
+        //   functionality will become redundant and ultimately vanish, as the
+        //   deprecated functionality is removed.
         //
         // Plan:
-        //: 1 Compile and run the usage example (C-1)
+        //   Replicated the .
         //
         // Testing:
-        //   USAGE EXAMPLE 1
+        //
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING USAGE EXAMPLE 1"
-                            "\n=======================\n");
+        using namespace DRQS_30670366_NAMESPACE;
+        if (verbose) printf("\nDRQS 30670366"
+                            "\n=============\n");
 
-        USAGE_EXAMPLES::testShapes();
-        USAGE_EXAMPLES::testShapesToo();
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        {
+            int cookie = 100;
+            bslma::ManagedPtr<int> test(&cookie,
+                                        static_cast<void *>(&cookie),
+                                        &testDeleter);
+        }
+        {
+            int cookie = 100;
+            bslma::ManagedPtr<int> test;
+            test.load(&cookie, static_cast<void *>(&cookie), &testDeleter);
+        }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 15: {
         // --------------------------------------------------------------------

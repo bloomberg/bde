@@ -687,6 +687,191 @@ BSLS_IDENT("$Id$ $CSID$")
 // transferred to 'bPtr'; otherwise, 'aPtr' is to be modified.  As previously
 // stated, the managed object will be destroyed correctly regardless of how it
 // is cast.
+//
+///Example 5: Inplace object creation
+/// - - - - - - - - - - - - - - - - -
+// Suppose we want to allocate memory for an object, construct it and obtain a
+// managed pointer referring to this object.  This can be done in one step
+// using the special free functions.
+//
+// First, we create a simple class clearly showing the features of these
+// functions:
+//..
+//  class String {
+//      // Simple class, that stores the copy of the null-terminated c-string.
+//
+//    private:
+//      // DATA
+//      char             *d_str_p;    // stored value (owned)
+//      bslma::Allocator *d_alloc_p;  // allocator to allocate any dynamic
+//                                    // memory (held, not owned)
+//
+//    public:
+//      // CREATORS
+//      String(const char *str, bslma::Allocator *alloc)
+//          // Create an object having the same value as the specified 'str'
+//          // using the specified 'alloc' to supply memory.
+//      : d_alloc_p(alloc)
+//      {
+//          assert(str);
+//          size_t length = strlen(str);
+//
+//          d_str_p = static_cast<char *>(d_alloc_p->allocate(
+//                                               (length + 1) * sizeof(char)));
+//          strncpy(d_str_p, str, length + 1);
+//      }
+//
+//      virtual ~String()
+//          // Destroy this object.  Use the stored allocator to release any
+//          // memory that was previously allocated.
+//      {
+//          d_alloc_p->deallocate(d_str_p);
+//      }
+//
+//      // ACCESSORS
+//      bslma::Allocator *allocator() const
+//          // Return a pointer providing modifiable access to the allocator
+//          // associated with this 'String'.
+//      {
+//          return d_alloc_p;
+//      }
+//
+//  };
+//..
+// Next, create a fragment of code that will construct an object of 'String'
+// class using default allocator to supply memory:
+//..
+//  void testInplaceCreation()
+//  {
+//..
+// Suppose we want to have different allocator to supply memory allocated by
+// the object:
+//..
+//      bslma::TestAllocator ta;
+//      bsls::Types::Int64   testBytesInUse = ta.numBytesInUse();
+//
+//      assert(0 == testBytesInUse);
+//
+//      bslma::TestAllocator         da;
+//      bslma::DefaultAllocatorGuard dag(&da);
+//      bsls::Types::Int64           defaultBytesInUse = da.numBytesInUse();
+//
+//      assert(0 == defaultBytesInUse);
+//..
+// Then, create a string to copy:
+//..
+//      const char *STR        = "Test string";
+//      const int   STR_LENGTH = static_cast<int>(strlen(STR));
+//..
+// Next, dynamically create an object and obtain the managed pointer, referring
+// to it, using 'bslma::makeManaged' function:
+//..
+//      {
+//          bslma::ManagedPtr<String> stringManagedPtr =
+//                                        bslma::makeManaged<String>(STR, &ta);
+//..
+// Note that memory for object itself is supplied by default allocator, while
+// memory for the copy of passed string is supplied by another allocator:
+//:
+//          assert(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
+//          assert(&ta == stringManagedPtr->allocator());
+//          assert(STR_LENGTH + 1 == ta.numBytesInUse());
+//      }
+//..
+// Then, make sure that all allocated memory is successfully released after
+// managed pointer destruction :
+//..
+//      assert(0 == da.numBytesInUse());
+//      assert(0 == ta.numBytesInUse());
+//..
+// If you want to use an allocator other than the default allocator, then the
+// 'bslma::AllocateManaged()' function should be used:
+//..
+//      bslma::TestAllocator oa;
+//      bsls::Types::Int64   objectBytesInUse = oa.numBytesInUse();
+//      assert(0 == objectBytesInUse);
+//
+//      {
+//          bslma::ManagedPtr<String> stringManagedPtr =
+//                               bslma::allocateManaged<String>(&oa, STR, &ta);
+//
+//          assert(static_cast<int>(sizeof(String)) <= oa.numBytesInUse());
+//          assert(&ta == stringManagedPtr->allocator());
+//          assert(STR_LENGTH + 1 == ta.numBytesInUse());
+//          assert(0 == da.numBytesInUse());
+//      }
+//
+//      assert(0 == da.numBytesInUse());
+//      assert(0 == ta.numBytesInUse());
+//      assert(0 == oa.numBytesInUse());
+//  }
+//..
+// Note that if object's type uses 'bslma' allocators, then supplied allocator
+// is implicitly passed to the object's constructor as an extra argument in the
+// final position:
+//..
+//  class StringAlloc : public String {
+//      // The heir to the 'String' class that explicitly claims to use 'bslma'
+//      // allocators.
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(StringAlloc, bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      StringAlloc(const char *str, bslma::Allocator *alloc)
+//          // Create an object having the same value as the specified 'str'
+//          // using the specified 'alloc' to supply memory.
+//      : String(str, alloc)
+//      {
+//      }
+//
+//      virtual ~StringAlloc()
+//          // Destroy this object.  Use the stored allocator to release any
+//          // memory that was previously allocated.
+//      {
+//      }
+//  };
+//
+//  void testUsesAllocatorInplaceCreation()
+//  {
+//      bslma::TestAllocator ta;
+//      bsls::Types::Int64   testBytesInUse = ta.numBytesInUse();
+//
+//      assert(0 == testBytesInUse);
+//
+//      bslma::TestAllocator         da;
+//      bslma::DefaultAllocatorGuard dag(&da);
+//      bsls::Types::Int64           defaultBytesInUse = da.numBytesInUse();
+//
+//      assert(0 == defaultBytesInUse);
+//
+//      const char *STR        = "Test string";
+//      const int   STR_LENGTH = static_cast<int>(strlen(STR));
+//
+//      {
+//          bslma::ManagedPtr<StringAlloc> stringManagedPtr =
+//                                        bslma::makeManaged<StringAlloc>(STR);
+//
+//          assert(static_cast<int>(sizeof(String)) + STR_LENGTH + 1 <=
+//                                                         da.numBytesInUse());
+//          assert(&da == stringManagedPtr->allocator());
+//          assert(0 == ta.numBytesInUse());
+//      }
+//
+//      {
+//          bslma::ManagedPtr<StringAlloc> stringManagedPtr =
+//                               bslma::allocateManaged<StringAlloc>(&ta, STR);
+//
+//          assert(static_cast<int>(sizeof(String)) + STR_LENGTH + 1 <=
+//                                                         ta.numBytesInUse());
+//          assert(&ta == stringManagedPtr->allocator());
+//          assert(0 == da.numBytesInUse());
+//      }
+//
+//      assert(0 == da.numBytesInUse());
+//      assert(0 == ta.numBytesInUse());
+//  }
+//..
 
 #include <bslscm_version.h>
 
@@ -696,6 +881,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_managedptr_members.h>
 #include <bslma_managedptr_pairproxy.h>
 #include <bslma_managedptrdeleter.h>
+#include <bslma_stdallocator.h>
 
 #include <bslmf_addreference.h>
 #include <bslmf_assert.h>
@@ -712,8 +898,24 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_nullptr.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
+
+# if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER 1
+// If the macro 'BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER' is
+// defined, we recognize that some compilers need an extra hint to disambiguate
+// overload resolution when passed a 'bslma::Allocator *' pointer, that might
+// also deduce (incorrectly) as a C++11-style allocator.  Compilers known to
+// have this problem are gcc and IBM xlC, which were tested as recently as gcc
+// 4.9.2, and xlC 12.2.  Both of these compilers have a problem partially
+// ordering function templates that differ only by the first argument deducing
+// as any object type ('T'), or deducting to the a pointer to something ('T*'),
+// The rules for partial ordering should make the second overload a stronger
+// match when passed a pointer; however, both of these compilers complain about
+// ambiguities when additional parameters are invovled.
+#endif
 
 namespace BloombergLP {
 namespace bslma {
@@ -1335,6 +1537,988 @@ void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+    // work-around for gcc variadic template bug - confirm not fixed by 4.9?
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator, ARGS&&... args);
+// Return a 'ManagedPtr' object referring to and managing a new 'ELEMENT_TYPE'
+// object.  The specified 'basicAllocator' will be used to supply a single
+// contiguous region of memory holding the returned managed pointer's internal
+// representation and the new 'ELEMENT_TYPE' object, which is initialized by
+// calling 'allocator_traits<ALLOC>::construct' passing 'basicAllocator', an
+// 'ELEMENT_TYPE *' pointer to space for the new managed object, and the
+// specified arguments 'std::forward<ARGS>(args)...'.
+
+template <class ELEMENT_TYPE, class ALLOC, class... ARGS>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                                         ARGS&&...  args);
+    // Return a 'ManagedPtr' object referring to and managing a new
+    // 'ELEMENT_TYPE' object.  The specified 'basicAllocator' will be used to
+    // supply a single contiguous region of memory holding the returned managed
+    // pointer's internal representation and the new 'ELEMENT_TYPE' object,
+    // which is initialized using the 'ELEMENT_TYPE' constructor that takes the
+    // specified arguments 'std::forward<ARGS>(args)...'.  If 'ELEMENT_TYPE'
+    // uses 'bslma' allocators, then 'basicAllocator' is passed as an extra
+    // argument in the final position.  If 'basicAllocator' is 0, then the
+    // default allocator will be used instead, and passed as the allocator,
+    // when appropriate, to the 'ELEMENT_TYPE' constructor.
+
+template<class ELEMENT_TYPE, class... ARGS>
+ManagedPtr<ELEMENT_TYPE> makeManaged(ARGS&&... args);
+    // Return a 'ManagedPtr' object referring to and managing a new
+    // 'ELEMENT_TYPE' object.  The default allocator will be used to supply a
+    // single contiguous region of memory holding the returned managed
+    // pointer's internal representation and the new 'ELEMENT_TYPE' object,
+    // which is initialized using the 'ELEMENT_TYPE' constructor that takes the
+    // specified arguments 'std::forward<ARGS>(args)...'.  If 'ELEMENT_TYPE'
+    // uses 'bslma' allocators, then the default allocator is passed as an
+    // extra argument in the final position.
+
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=14 bslma_managedptr.h
+#ifndef BSLMA_MANAGEDPTR_VARIADIC_LIMIT
+#define BSLMA_MANAGEDPTR_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A
+#define BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A BSLMA_MANAGEDPTR_VARIADIC_LIMIT
+#endif
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 0
+template<class ELEMENT_TYPE, class ALLOC>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 0
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 1
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 1
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 2
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 2
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 3
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 3
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 4
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 4
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 5
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 5
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 6
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 6
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 7
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 7
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 8
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 8
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 9
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 9
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 10
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 10
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 11
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 11
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 12
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 12
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 13
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12,
+                                          class ARGS_13>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 13
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 14
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12,
+                                          class ARGS_13,
+                                          class ARGS_14>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 14
+
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 0
+template <class ELEMENT_TYPE, class ALLOC>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 0
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 1
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 1
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 2
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 2
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 3
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 3
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 4
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 4
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 5
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 5
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 6
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 6
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 7
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 7
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 8
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07,
+                                           class ARGS_08>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 8
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 9
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07,
+                                           class ARGS_08,
+                                           class ARGS_09>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 9
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 10
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07,
+                                           class ARGS_08,
+                                           class ARGS_09,
+                                           class ARGS_10>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 10
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 11
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07,
+                                           class ARGS_08,
+                                           class ARGS_09,
+                                           class ARGS_10,
+                                           class ARGS_11>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 11
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 12
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07,
+                                           class ARGS_08,
+                                           class ARGS_09,
+                                           class ARGS_10,
+                                           class ARGS_11,
+                                           class ARGS_12>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 12
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 13
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07,
+                                           class ARGS_08,
+                                           class ARGS_09,
+                                           class ARGS_10,
+                                           class ARGS_11,
+                                           class ARGS_12,
+                                           class ARGS_13>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 13
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 14
+template <class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                           class ARGS_02,
+                                           class ARGS_03,
+                                           class ARGS_04,
+                                           class ARGS_05,
+                                           class ARGS_06,
+                                           class ARGS_07,
+                                           class ARGS_08,
+                                           class ARGS_09,
+                                           class ARGS_10,
+                                           class ARGS_11,
+                                           class ARGS_12,
+                                           class ARGS_13,
+                                           class ARGS_14>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 14
+
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 0
+template<class ELEMENT_TYPE>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                              );
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 0
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 1
+template<class ELEMENT_TYPE, class ARGS_01>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 1
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 2
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 2
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 3
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 3
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 4
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 4
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 5
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 5
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 6
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 6
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 7
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 7
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 8
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 8
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 9
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 9
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 10
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 10
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 11
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 11
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 12
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11,
+                             class ARGS_12>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 12
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 13
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11,
+                             class ARGS_12,
+                             class ARGS_13>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 13
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 14
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11,
+                             class ARGS_12,
+                             class ARGS_13,
+                             class ARGS_14>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14);
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_A >= 14
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+
+template <class ELEMENT_TYPE, class ALLOC, class... ARGS>
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC     *basicAllocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+
+template<class ELEMENT_TYPE, class... ARGS>
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+
+// }}} END GENERATED CODE
+#endif
                         // =====================
                         // struct ManagedPtrUtil
                         // =====================
@@ -1346,6 +2530,12 @@ struct ManagedPtrUtil {
     // CLASS METHODS
     static void noOpDeleter(void *, void *);
         // Deleter function that does nothing.
+
+    template <class TYPE>
+    static TYPE *unqualify(const volatile TYPE *address) BSLS_KEYWORD_NOEXCEPT;
+        // Return the specified 'address' of a potentially 'cv'-qualified
+        // object of the given (template parameter) 'TYPE', cast as a pointer
+        // to a modifiable non-volatile object of the given 'TYPE'.
 };
 
                      // ===========================
@@ -1400,6 +2590,145 @@ struct ManagedPtr_DefaultDeleter {
     static void deleter(void *ptr, void *);
         // Cast the specified 'ptr' to (template parameter) type
         // 'MANAGED_TYPE *', and then call 'delete' with the cast pointer.
+};
+
+                 // ===================================
+                 // class ManagedPtr_AllocateInplaceRep
+                 // ===================================
+
+template <class TYPE, class ALLOCATOR>
+class ManagedPtr_AllocateInplaceRep {
+    // This class provides a managed pointer representation for in-place
+    // instances of the (template parameter) 'TYPE'.  Objects of this class are
+    // intended to be used as 'factory' objects for managed pointers.  The
+    // function 'disposeRep' is responsible for destroying this object, it is
+    // called when the factory method 'deleteObject' is called.  Thus, the
+    // destructor of this object is declared as private and should never be
+    // invoked.  Upon destruction of this object, the destructor of 'TYPE' is
+    // invoked on the managed object.
+
+    // PRIVATE TYPES
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                          template rebind_traits<ManagedPtr_AllocateInplaceRep>
+                                                                 ReboundTraits;
+
+  public:
+    // PUBLIC TYPES
+    typedef typename ReboundTraits::allocator_type ReboundAllocator;
+
+  private:
+    // DATA
+    ReboundAllocator         d_allocator; // copy of this object's allocator
+    bsls::ObjectBuffer<TYPE> d_instance;  // beginning of the in-place buffer
+
+    // Note that 'd_instance' must be last in this layout to allow for the
+    // possibility of creating an in-place uninitialized buffer, where it is
+    // possible to access memory beyond the 'd_instance' footprint.
+
+  private:
+    // NOT IMPLEMENTED
+    ManagedPtr_AllocateInplaceRep(const ManagedPtr_AllocateInplaceRep&);
+    ManagedPtr_AllocateInplaceRep& operator=(
+                                         const ManagedPtr_AllocateInplaceRep&);
+
+    // PRIVATE CREATORS
+    explicit ManagedPtr_AllocateInplaceRep(
+                                       const ReboundAllocator& basicAllocator);
+        // Create a 'ManagedPtr_AllocateInplaceRep' object having uninitialized
+        // storage for an in-place instance of the parameterized 'TYPE'.  Use
+        // the specified 'basicAllocator' to supply memory and, upon a call to
+        // 'disposeObject', to destroy the inplace object, and upon a call to
+        // 'disposeRep' to destroy the copy the allocator and reclaim storage
+        // for this object.
+
+    ~ManagedPtr_AllocateInplaceRep();  // = delete
+        // The destructor for this object should never be called.  The in-place
+        // 'TYPE' object will be destroyed by a call to 'destroyObject' and the
+        // stored allocator for this object will be destroyed by a call to
+        // 'destroyRep', which will then reclaim the storage occupied by this
+        // object.
+
+  public:
+    // CLASS METHODS
+    static ManagedPtr_AllocateInplaceRep *makeRep(
+                                              ReboundAllocator basicAllocator);
+        // Create a 'ManagedPtr_AllocateInplaceRep' object having storage for
+        // an in-place uninitialized object of (template parameter) 'TYPE', and
+        // return its address.  Use the specified 'basicAllocator' to supply
+        // memory and, upon a call to 'disposeRep', to destroy this
+        // representation (and the in-place managed object).  Note that the
+        // function members 'ptr' and 'originalPtr' will return the address of
+        // an uninitialized object.  This object should be explicitly
+        // initialized by the caller, and it is undefined behavior to call
+        // 'disposeRep' until this object has been successfully constructed.
+
+    // MANIPULATORS
+    virtual void deleteObject(TYPE *);
+        // Release a reference to the object referred to by this
+        // representation, disposing of this object, and disposing of this
+        // representation.
+
+    virtual void disposeObject();
+        // Destroy the object being referred to by this representation.  This
+        // method is automatically invoked by 'releaseRef' when the number of
+        // shared references reaches zero and should not be explicitly invoked
+        // otherwise.
+
+    virtual void disposeRep();
+        // Destroy this representation object and deallocate the associated
+        // memory.  This method is automatically invoked by 'deleteObject' when
+        // the destructor of managed pointer is called and should not be
+        // explicitly invoked otherwise.  The behavior is undefined unless
+        // 'disposeObject' has already been called for this representation.
+        // Note that this method effectively serves as the representation
+        // object's destructor.
+
+    TYPE *ptr();
+        // Return the address of the modifiable managed object to which this
+        // object refers.  Note that in order to return a pointer to a
+        // modifiable object, this function cannot be 'const' qualified as the
+        // referenced object is stored internally as a data member.
+};
+                        // ===========================
+                        // class ManagedPtr_RepProctor
+                        // ===========================
+
+template <class TYPE, class ALLOCATOR>
+class ManagedPtr_RepProctor {
+    // This 'class' implements a proctor that, unless its 'release' method has
+    // previously been invoked, automatically releases a reference held by the
+    // 'ManagedPtr_AllocateInplaceRep' object that is supplied at construction.
+
+  private:
+    // TYPES
+    typedef ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR> Representation;
+
+    // DATA
+    Representation *d_rep_p;  // Address of representation being managed
+
+  private:
+    // NOT IMPLEMENTED
+    ManagedPtr_RepProctor(const ManagedPtr_RepProctor&);
+    ManagedPtr_RepProctor& operator=(const ManagedPtr_RepProctor&);
+
+  public:
+    // CREATORS
+    explicit ManagedPtr_RepProctor(Representation *rep) BSLS_KEYWORD_NOEXCEPT;
+        // Create a 'ManagedPtr_RepProctor' that conditionally manages the
+        // specified 'rep' (if non-zero).
+
+    ~ManagedPtr_RepProctor();
+        // Destroy this 'ManagedPtr_RepProctor', and dispose of (deallocate)
+        // the 'ManagedPtr_AllocateInplaceRep' it manages (if any).  If no such
+        // object is currently being managed, this method has no effect.  Note
+        // that the destructor of the 'ManagedPtr_RepProctor' will not be
+        // called.
+
+    // MANIPULATORS
+    void release() BSLS_KEYWORD_NOEXCEPT;
+        // Release from management the object currently managed by this
+        // proctor.  If no object is currently being managed, this method has
+        // no effect.
 };
 
 // ============================================================================
@@ -2025,6 +3354,2098 @@ void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
     a.swap(b);
 }
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+    // work-around for gcc variadic template bug - confirm not fixed by 4.9?
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator, ARGS&&... args)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator, ARGS&&... args)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+// 'makeManaged' using the default allocator
+
+template<class ELEMENT_TYPE, class... ARGS>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(ARGS&&... args)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=14 bslma_managedptr.h
+#ifndef BSLMA_MANAGEDPTR_VARIADIC_LIMIT
+#define BSLMA_MANAGEDPTR_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B
+#define BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B BSLMA_MANAGEDPTR_VARIADIC_LIMIT
+#endif
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 0
+template<class ELEMENT_TYPE, class ALLOC>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 0
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 1
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 1
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 2
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 2
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 3
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 3
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 4
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 4
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 5
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 5
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 6
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 6
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 7
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 7
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 8
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 8
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 9
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 9
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 10
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 10
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 11
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 11
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 12
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 12
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 13
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12,
+                                          class ARGS_13>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 13
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 14
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12,
+                                          class ARGS_13,
+                                          class ARGS_14>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_14,args_14));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 14
+
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 0
+template<class ELEMENT_TYPE, class ALLOC>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 0
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 1
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 1
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 2
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 2
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 3
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 3
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 4
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 4
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 5
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 5
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 6
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 6
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 7
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 7
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 8
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 8
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 9
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 9
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 10
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 10
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 11
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 11
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 12
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 12
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 13
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12,
+                                          class ARGS_13>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 13
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 14
+template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
+                                          class ARGS_02,
+                                          class ARGS_03,
+                                          class ARGS_04,
+                                          class ARGS_05,
+                                          class ARGS_06,
+                                          class ARGS_07,
+                                          class ARGS_08,
+                                          class ARGS_09,
+                                          class ARGS_10,
+                                          class ARGS_11,
+                                          class ARGS_12,
+                                          class ARGS_13,
+                                          class ARGS_14>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_14,args_14));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 14
+
+
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 0
+template<class ELEMENT_TYPE>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                               )
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 0
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 1
+template<class ELEMENT_TYPE, class ARGS_01>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 1
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 2
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 2
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 3
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 3
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 4
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 4
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 5
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 5
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 6
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 6
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 7
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 7
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 8
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 8
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 9
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 9
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 10
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 10
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 11
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 11
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 12
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11,
+                             class ARGS_12>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 12
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 13
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11,
+                             class ARGS_12,
+                             class ARGS_13>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 13
+
+#if BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 14
+template<class ELEMENT_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10,
+                             class ARGS_11,
+                             class ARGS_12,
+                             class ARGS_13,
+                             class ARGS_14>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_14,args_14));
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+#endif  // BSLMA_MANAGEDPTR_VARIADIC_LIMIT_B >= 14
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+# if defined(BSLMA_MANAGEDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        ManagedPtr<ELEMENT_TYPE> >::type
+# else
+ManagedPtr<ELEMENT_TYPE>
+# endif
+allocateManaged(ALLOC basicAllocator,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, ALLOC> Rep;
+
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, ALLOC> proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ManagedPtrUtil::unqualify(rep_p->ptr()),
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+inline
+ManagedPtr<ELEMENT_TYPE> allocateManaged(ALLOC *basicAllocator,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+
+template<class ELEMENT_TYPE, class... ARGS>
+inline
+ManagedPtr<ELEMENT_TYPE> makeManaged(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    typedef bsl::allocator<char>                 AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType> AllocatorTraits;
+
+    typedef ManagedPtr_AllocateInplaceRep<ELEMENT_TYPE, AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator);
+
+    ManagedPtr_RepProctor<ELEMENT_TYPE, AllocatorType> proctor(rep_p);
+    AllocatorTraits::construct(basicAllocator,
+                               ManagedPtrUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+
+    return ManagedPtr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+// }}} END GENERATED CODE
+#endif
+
+                      // --------------------
+                      // class ManagedPtrUtil
+                      // --------------------
+template <class TYPE>
+inline
+TYPE *ManagedPtrUtil::unqualify(const volatile TYPE *address)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return const_cast<typename bsl::remove_cv<TYPE>::type *>(address);
+}
+
                       // --------------------------
                       // class ManagedPtrNilDeleter
                       // --------------------------
@@ -2046,6 +5467,103 @@ inline
 void ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter(void *ptr, void *)
 {
     delete reinterpret_cast<MANAGED_TYPE *>(ptr);
+}
+
+                  // -----------------------------------
+                  // class ManagedPtr_AllocateInplaceRep
+                  // -----------------------------------
+
+// PRIVATE CREATORS
+template <class TYPE, class ALLOCATOR>
+inline
+ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR>::ManagedPtr_AllocateInplaceRep(
+                                        const ReboundAllocator& basicAllocator)
+: d_allocator(basicAllocator)
+// 'd_instance' is intentionally left uninitialized.
+{
+}
+
+template <class TYPE, class ALLOCATOR>
+ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR>::
+~ManagedPtr_AllocateInplaceRep()
+{
+    BSLS_ASSERT_OPT(0);
+}
+
+// CLASS METHODS
+template <class TYPE, class ALLOCATOR>
+inline
+ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR> *
+ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR>::makeRep(
+                                               ReboundAllocator basicAllocator)
+{
+    ManagedPtr_AllocateInplaceRep *rep_p =
+                                    ReboundTraits::allocate(basicAllocator, 1);
+    new(rep_p) ManagedPtr_AllocateInplaceRep(basicAllocator);
+    return rep_p;
+}
+
+// MANIPULATORS
+template <class TYPE, class ALLOCATOR>
+inline
+void ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR>::deleteObject(TYPE *)
+{
+    disposeObject();
+    disposeRep();
+}
+
+template <class TYPE, class ALLOCATOR>
+inline
+void ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR>::disposeObject()
+{
+    ReboundTraits::destroy(d_allocator, ptr());
+}
+
+template <class TYPE, class ALLOCATOR>
+inline
+void ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR>::disposeRep()
+{
+    ReboundAllocator alloc(d_allocator);
+    this->d_allocator.~ReboundAllocator();
+    ReboundTraits::deallocate(alloc, this, 1);
+}
+
+template <class TYPE, class ALLOCATOR>
+inline
+TYPE *ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR>::ptr()
+{
+    return d_instance.address();
+}
+
+                        // ---------------------------
+                        // class ManagedPtr_RepProctor
+                        // ---------------------------
+
+// CREATORS
+template <class TYPE, class ALLOCATOR>
+inline
+ManagedPtr_RepProctor<TYPE, ALLOCATOR>::ManagedPtr_RepProctor(
+                           ManagedPtr_AllocateInplaceRep<TYPE, ALLOCATOR> *rep)
+                                                          BSLS_KEYWORD_NOEXCEPT
+: d_rep_p(rep)
+{
+}
+
+template <class TYPE, class ALLOCATOR>
+inline
+ManagedPtr_RepProctor<TYPE, ALLOCATOR>::~ManagedPtr_RepProctor()
+{
+    if (d_rep_p) {
+        d_rep_p->disposeRep();
+    }
+}
+
+// MANIPULATORS
+template <class TYPE, class ALLOCATOR>
+inline
+void ManagedPtr_RepProctor<TYPE, ALLOCATOR>::release() BSLS_KEYWORD_NOEXCEPT
+{
+    d_rep_p = 0;
 }
 
 }  // close package namespace
