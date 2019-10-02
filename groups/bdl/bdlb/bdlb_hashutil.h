@@ -834,10 +834,9 @@ unsigned int HashUtil::hash0(int key, int modulus)
         return static_cast<unsigned int>(key)
              % static_cast<unsigned int>(modulus);                    // RETURN
     }
-    else {
-        return (static_cast<unsigned int>(key) & 0xFFFFFFFF)
-              % static_cast<unsigned int>(modulus);                   // RETURN
-    }
+
+    return (static_cast<unsigned int>(key) & 0xFFFFFFFF)
+          % static_cast<unsigned int>(modulus);
 }
 
 inline
