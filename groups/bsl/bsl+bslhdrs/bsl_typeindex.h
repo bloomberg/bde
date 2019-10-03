@@ -19,15 +19,19 @@ BSLS_IDENT("$Id: $")
 
 #include <typeindex>
 
-namespace bsl {
+// Include Bloomberg's implementation, unless compilation is configured to
+// override native types in the 'std' namespace with Bloomberg's
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
 
-    using native_std::type_index;
-}  // close package namespace
+#ifndef BSL_OVERRIDES_STD
+#include <bslstl_typeindex.h>
+#endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -64,6 +64,7 @@ bslstl_systemerror
 bslstl_treeiterator
 bslstl_treenode
 bslstl_treenodepool
+bslstl_typeindex
 bslstl_unorderedmap
 bslstl_unorderedmap_test
 bslstl_unorderedmapkeyconfiguration

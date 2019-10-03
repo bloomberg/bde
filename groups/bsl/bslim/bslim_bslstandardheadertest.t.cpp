@@ -102,10 +102,11 @@
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_strstream.h>
-#include <bsl_system_error.h>
+#include <bsl_system_error.h>     // C++11 header ported to C++03
+#include <bsl_typeindex.h>        // C++11 header ported to C++03
 #include <bsl_typeinfo.h>
-#include <bsl_unordered_map.h>
-#include <bsl_unordered_set.h>
+#include <bsl_unordered_map.h>    // C++11 header ported to C++03
+#include <bsl_unordered_set.h>    // C++11 header ported to C++03
 #include <bsl_utility.h>
 #include <bsl_valarray.h>
 #include <bsl_vector.h>
@@ -137,11 +138,9 @@
 #include <bsl_ratio.h>
 #include <bsl_regex.h>
 #include <bsl_scoped_allocator.h>
-#include <bsl_system_error.h>
 #include <bsl_thread.h>
 #include <bsl_tuple.h>
 #include <bsl_type_traits.h>
-#include <bsl_typeindex.h>
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
