@@ -19791,9 +19791,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<int>& object)
 // TRAITS
 namespace bdlat_ArrayFunctions {
 
-template <class TYPE>
-struct ElementType<bsl::vector<TYPE> > {
-    typedef TYPE Type;
+template <>
+struct ElementType<bsl::vector<int> > {
+    typedef int Type;
 };
 
 }  // close bdlat_ArrayFunctions namespace
