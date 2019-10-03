@@ -55,6 +55,7 @@ namespace pmr {
 
 #define __cpp_lib_pmroptional 201810
 
+
 	template <class _Tp, typename =  __void_t<>>
 	struct __get_allocator_present
 	: false_type
@@ -92,7 +93,6 @@ namespace pmr {
 	  				_Stored_type(__other._M_get());
 	  		this->_M_engaged = true;
 	  	}
-
       }
 
 
@@ -274,8 +274,7 @@ template <typename _Tp>
 	}
 
 
-
-      _Storage<_Stored_type> _M_payload;
+      struct _Empty_byte { };
 
 	template<typename _Up>
 	union _Storage
@@ -447,6 +446,7 @@ template <typename _Tp>
 	      this->_M_engaged = true;
         }
      
+
       
       void
       _M_destroy() noexcept
@@ -605,6 +605,7 @@ template <typename _Tp>
       // The _M_get() operations have _M_engaged as a precondition.
       // They exist to access the contained value with the appropriate
       // const-qualification, because _M_payload has had the const removed.
+
       _Tp&
       _M_get() noexcept
       { return this->_M_payload._M_value; }
@@ -823,10 +824,6 @@ template <typename _Tp>
       
       __pmroptional() noexcept {
       }
-      
-      // Destructor needs to destroy the contained value:
-      ~_Optional_payload() { this->_M_reset(); }
-    };
 
       __pmroptional(nullopt_t) noexcept { }
 
@@ -1117,7 +1114,6 @@ template <typename _Tp>
      	}
       template<typename... _Args,
 	       _Requires<is_constructible<_Tp, _Args&&...>> = false>
-
 	explicit
 	__pmroptional(in_place_t, allocator_arg_t, const allocator_type& __a, _Args&&... __args)
 	: _Base(allocator_arg,  __a) 
@@ -1310,7 +1306,7 @@ template <typename _Tp>
       operator->() const
       { return std::__addressof(this->_M_get()); }
 
-      constexpr _Tp*
+      _Tp*
       operator->()
       { return std::__addressof(this->_M_get()); }
 
@@ -1380,7 +1376,7 @@ template <typename _Tp>
 	}
 
       template<typename _Up>
-	constexpr _Tp
+	_Tp
 	value_or(_Up&& __u) &&
 	{
 	  static_assert(is_move_constructible_v<_Tp>);
@@ -1499,7 +1495,7 @@ template <typename _Tp>
       }
 
     template<typename _Tp, typename _Up>
-    auto
+      auto
       operator>=(const __pmroptional<_Tp>& __lhs, const std::optional<_Up>& __rhs)
       -> __optional_relop_t<decltype(declval<_Tp>() >= declval<_Up>())>
       {
@@ -1508,7 +1504,7 @@ template <typename _Tp>
     
 	
   template<typename _Tp, typename _Up>
-auto
+	auto
 	operator==(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
 	-> __optional_relop_t<decltype(declval<_Tp>() == declval<_Up>())>
 	{
@@ -1517,7 +1513,7 @@ auto
 	}
 
   template<typename _Tp, typename _Up>
-auto
+	auto
 	operator!=(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
 	-> __optional_relop_t<decltype(declval<_Tp>() != declval<_Up>())>
 	{
@@ -1526,7 +1522,7 @@ auto
 	}
 
   template<typename _Tp, typename _Up>
-auto
+	auto
 	operator<(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
 	-> __optional_relop_t<decltype(declval<_Tp>() < declval<_Up>())>
 	{
@@ -1534,7 +1530,7 @@ auto
 	}
 
   template<typename _Tp, typename _Up>
-auto
+	auto
 	operator>(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
 	-> __optional_relop_t<decltype(declval<_Tp>() > declval<_Up>())>
 	{
@@ -1542,7 +1538,7 @@ auto
 	}
 
   template<typename _Tp, typename _Up>
-auto
+	auto
 	operator<=(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
 	-> __optional_relop_t<decltype(declval<_Tp>() <= declval<_Up>())>
 	{
@@ -1550,7 +1546,7 @@ auto
 	}
 
   template<typename _Tp, typename _Up>
-auto
+	auto
 	operator>=(const std::optional<_Tp>& __lhs, const __pmroptional<_Up>& __rhs)
 	-> __optional_relop_t<decltype(declval<_Tp>() >= declval<_Up>())>
 	{
@@ -1558,134 +1554,134 @@ auto
 	}
   // Comparisons with nullopt.
   template<typename _Tp>
-auto
+    bool
     operator==(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return !__lhs; }
 
   template<typename _Tp>
-bool
+    bool
     operator==(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return !__rhs; }
 
   template<typename _Tp>
-bool
+    bool
     operator!=(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return static_cast<bool>(__lhs); }
 
   template<typename _Tp>
-bool
+    bool
     operator!=(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return static_cast<bool>(__rhs); }
 
   template<typename _Tp>
-bool
+    bool
     operator<(const __pmroptional<_Tp>& /* __lhs */, nullopt_t) noexcept
     { return false; }
 
   template<typename _Tp>
-bool
+    bool
     operator<(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return static_cast<bool>(__rhs); }
 
   template<typename _Tp>
-bool
+    bool
     operator>(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return static_cast<bool>(__lhs); }
 
   template<typename _Tp>
-bool
+    bool
     operator>(nullopt_t, const __pmroptional<_Tp>& /* __rhs */) noexcept
     { return false; }
 
   template<typename _Tp>
-bool
+    bool
     operator<=(const __pmroptional<_Tp>& __lhs, nullopt_t) noexcept
     { return !__lhs; }
 
   template<typename _Tp>
-bool
+    bool
     operator<=(nullopt_t, const __pmroptional<_Tp>& /* __rhs */) noexcept
     { return true; }
 
   template<typename _Tp>
-bool
+    bool
     operator>=(const __pmroptional<_Tp>& /* __lhs */, nullopt_t) noexcept
     { return true; }
 
   template<typename _Tp>
-bool
+    bool
     operator>=(nullopt_t, const __pmroptional<_Tp>& __rhs) noexcept
     { return !__rhs; }
 
   // Comparisons with value type.
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator==(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() == declval<_Up>())>
     { return __lhs && *__lhs == __rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator==(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() == declval<_Tp>())>
     { return __rhs && __lhs == *__rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator!=(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() != declval<_Up>())>
     { return !__lhs || *__lhs != __rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator!=(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() != declval<_Tp>())>
     { return !__rhs || __lhs != *__rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator<(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() < declval<_Up>())>
     { return !__lhs || *__lhs < __rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator<(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() < declval<_Tp>())>
     { return __rhs && __lhs < *__rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator>(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() > declval<_Up>())>
     { return __lhs && *__lhs > __rhs; }
 
   template<typename _Tp, typename _Up>
- auto
+    auto
     operator>(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() > declval<_Tp>())>
     { return !__rhs || __lhs > *__rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator<=(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() <= declval<_Up>())>
     { return !__lhs || *__lhs <= __rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator<=(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() <= declval<_Tp>())>
     { return __rhs && __lhs <= *__rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator>=(const __pmroptional<_Tp>& __lhs, const _Up& __rhs)
     -> __optional_relop_t<decltype(declval<_Tp>() >= declval<_Up>())>
     { return __lhs && *__lhs >= __rhs; }
 
   template<typename _Tp, typename _Up>
-auto
+    auto
     operator>=(const _Up& __lhs, const __pmroptional<_Tp>& __rhs)
     -> __optional_relop_t<decltype(declval<_Up>() >= declval<_Tp>())>
     { return !__rhs || __lhs >= *__rhs; }
@@ -1725,6 +1721,7 @@ auto
     optional<_Tp>
     make_optional(initializer_list<_Up> __il, _Args&&... __args)
     { return optional<_Tp> ( in_place, __il, std::forward<_Args>(__args)... ); }
+
 
   template<typename _Tp>
   enable_if_t<std::uses_allocator<_Tp, polymorphic_allocator<void>>::value,
@@ -1783,6 +1780,11 @@ auto
 
   /// @}
  
+/* todo:remove
+  template<typename _Tp>
+    struct uses_allocator<std::pmr::__pmroptional<_Tp>, std::pmr::polymorphic_allocator<void>>
+    : public uses_allocator<_Tp, std::pmr::polymorphic_allocator<void>>::type { };
+*/
   _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace std
 
