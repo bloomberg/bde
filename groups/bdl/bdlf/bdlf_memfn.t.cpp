@@ -14,6 +14,7 @@
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>    // bsl::find_if, bsl::for_each
@@ -234,6 +235,11 @@ L14(M)
         return 0;
     }
 
+    int testNEFunc0() BSLS_KEYWORD_NOEXCEPT
+    {
+        return 0;
+    }
+
 #undef H
 #define H(n) d_a##n = a##n;
 #undef N
@@ -241,6 +247,12 @@ L14(M)
 #undef M
 #define M(n)                                                                  \
     int testFunc##n(C##n(N))                                                  \
+    {                                                                         \
+        S##n(H,)                                                              \
+        return n;                                                             \
+    }                                                                         \
+                                                                              \
+    int testNEFunc##n(C##n(N)) BSLS_KEYWORD_NOEXCEPT                          \
     {                                                                         \
         S##n(H,)                                                              \
         return n;                                                             \
@@ -260,6 +272,11 @@ L14(M)
         return 0;
     }
 
+    int testCNEFunc0() const
+    {
+        return 0;
+    }
+
 #undef H
 #define H(n) s_a##n = a##n;
 #undef N
@@ -267,6 +284,12 @@ L14(M)
 #undef M
 #define M(n)                                                                  \
     int testCFunc##n(C##n(N)) const                                           \
+    {                                                                         \
+        S##n(H,)                                                              \
+        return n;                                                             \
+    }                                                                         \
+                                                                              \
+    int testCNEFunc##n(C##n(N)) const BSLS_KEYWORD_NOEXCEPT                   \
     {                                                                         \
         S##n(H,)                                                              \
         return n;                                                             \
@@ -365,9 +388,9 @@ struct ConstructibleFromPointerToSelf {
     }
 };
 
-                        // ========================
-                        // class NotBitwiseMoveable
-                        // ========================
+                          // ========================
+                          // class NotBitwiseMoveable
+                          // ========================
 
 struct NotBitwiseMoveable {
     int d_data;
@@ -495,13 +518,12 @@ int globalVerbose = 0;
         MyConnection *nextAvailable() const;
     };
 //..
-// The 'nextAvailable' function returns the next 'MyConnection' object that
-// is available.  The 'find_if' algorithm is used to search the list for the
-// first 'MyConnection' object that is available.  'find_if' invokes the
-// provided function object for each item in the list until a true result is
-// returned or the end of the list is reached.  A 'bdlf::MemFn' object bound to
-// the 'MyConnection::isAvailable' member function is used as the test
-// functor:
+// The 'nextAvailable' function returns the next 'MyConnection' object that is
+// available.  The 'find_if' algorithm is used to search the list for the first
+// 'MyConnection' object that is available.  'find_if' invokes the provided
+// function object for each item in the list until a true result is returned or
+// the end of the list is reached.  A 'bdlf::MemFn' object bound to the
+// 'MyConnection::isAvailable' member function is used as the test functor:
 //..
     MyConnection *MyConnectionManager::nextAvailable() const
     {
@@ -621,6 +643,8 @@ DEFINE_TEST_CASE(10) {
 
             ASSERT(func());
         }
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(9) {
@@ -761,6 +785,49 @@ DEFINE_TEST_CASE(8) {
                         EXP == InplaceTestObj::statics());
         }
 
+        if (verbose) cout << "\tnon-'const' noexcept member functions..."
+                          << endl;
+        {
+            typedef bdlf::MemFn<
+                int (InplaceTestObj::*)(TestArg1) BSLS_KEYWORD_NOEXCEPT>
+                                                                     MemFnType;
+
+            InplaceTestObj mX; const InplaceTestObj& X = mX;
+            const InplaceTestObj EXP(V1);
+
+            TestPtrWrapper<InplaceTestObj> smartPtr(&mX);
+
+            MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc1));
+            const MemFnType& F = mF;
+
+            ASSERT(1 == F(smartPtr, V1));
+
+            LOOP_ASSERT(X, EXP == X);
+        }
+
+        if (verbose) cout << "\t'const' noexcept member functions..." << endl;
+        {
+            typedef bdlf::MemFn<
+                int (InplaceTestObj::*)(TestArg1) const BSLS_KEYWORD_NOEXCEPT>
+                                                                     MemFnType;
+
+            InplaceTestObj::reset();
+            InplaceTestObj mX; const InplaceTestObj& X = mX;
+            const InplaceTestObj EXP(V1);
+
+            TestPtrWrapper<const InplaceTestObj> smartPtr(&X);
+
+            MemFnType mF(
+                        bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc1));
+            const MemFnType& F = mF;
+
+            ASSERT(1 == F(smartPtr, V1));
+
+            LOOP_ASSERT(X, InplaceTestObj() == X);
+            LOOP_ASSERT(InplaceTestObj::statics(),
+                        EXP == InplaceTestObj::statics());
+        }
+
         if (verbose) cout << "Testing 'bdlf::MemFnInstance':" << endl;
 
         if (verbose) cout << "\tnon-'const' member functions..." << endl;
@@ -834,6 +901,97 @@ DEFINE_TEST_CASE(8) {
             TestPtrWrapper<InplaceTestObj> smartPtr(&mX);
 
             MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc1,
+                                               smartPtr));
+
+            const Int64 NUM_DEFAULT_ALLOCS = da.numAllocations();
+            const Int64 NUM_ALLOCS         = ta.numAllocations();
+
+            MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
+            ASSERT(1 == G(V1));
+
+            ASSERT(NUM_DEFAULT_ALLOCS == da.numAllocations());
+            ASSERT(NUM_ALLOCS         <  ta.numAllocations());
+
+            LOOP_ASSERT(X, InplaceTestObj() == X);
+            LOOP_ASSERT(InplaceTestObj::statics(),
+                        EXP == InplaceTestObj::statics());
+        }
+
+        if (verbose) cout << "\tnon-'const' noexcept member functions..."
+                          << endl;
+        {
+            typedef bdlf::MemFnInstance<
+                       int (InplaceTestObj::*)(TestArg1) BSLS_KEYWORD_NOEXCEPT,
+                                   TestPtrWrapper<InplaceTestObj> >  MemFnType;
+
+
+            InplaceTestObj mX; const InplaceTestObj& X = mX;
+            const InplaceTestObj EXP(V1);
+
+            TestPtrWrapper<InplaceTestObj> smartPtr(&mX);
+
+            MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc1,
+                                               smartPtr));
+
+            const Int64 NUM_DEFAULT_ALLOCS = da.numAllocations();
+            const Int64 NUM_ALLOCS         = ta.numAllocations();
+
+            MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
+            ASSERT(1 == G(V1));
+
+            ASSERT(NUM_DEFAULT_ALLOCS == da.numAllocations());
+            ASSERT(NUM_ALLOCS         <  ta.numAllocations());
+
+            LOOP_ASSERT(X, EXP == X);
+        }
+
+        if (verbose)
+            cout << "\t'const' noexcept member functions and instances..."
+                 << endl;
+        {
+            typedef bdlf::MemFnInstance<
+                int (InplaceTestObj::*)(TestArg1) const BSLS_KEYWORD_NOEXCEPT,
+                              TestPtrWrapper<const InplaceTestObj> > MemFnType;
+
+            InplaceTestObj::reset();
+            InplaceTestObj mX; const InplaceTestObj& X = mX;
+            const InplaceTestObj EXP(V1);
+
+            TestPtrWrapper<const InplaceTestObj> smartPtr(&X);
+
+            MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc1,
+                                               smartPtr));
+
+            const Int64 NUM_DEFAULT_ALLOCS = da.numAllocations();
+            const Int64 NUM_ALLOCS         = ta.numAllocations();
+
+            MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
+            ASSERT(1 == G(V1));
+
+            ASSERT(NUM_DEFAULT_ALLOCS == da.numAllocations());
+            ASSERT(NUM_ALLOCS         <  ta.numAllocations());
+
+            LOOP_ASSERT(X, InplaceTestObj() == X);
+            LOOP_ASSERT(InplaceTestObj::statics(),
+                        EXP == InplaceTestObj::statics());
+        }
+
+        if (verbose)
+            cout << "\t'const' noexcept member functions and "
+                 << "non-'const' instances..."
+                 << endl;
+        {
+            typedef bdlf::MemFnInstance<
+                int (InplaceTestObj::*)(TestArg1) const BSLS_KEYWORD_NOEXCEPT,
+                                    TestPtrWrapper<InplaceTestObj> > MemFnType;
+
+            InplaceTestObj::reset();
+            InplaceTestObj mX; const InplaceTestObj& X = mX;
+            const InplaceTestObj EXP(V1);
+
+            TestPtrWrapper<InplaceTestObj> smartPtr(&mX);
+
+            MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc1,
                                                smartPtr));
 
             const Int64 NUM_DEFAULT_ALLOCS = da.numAllocations();
@@ -924,6 +1082,19 @@ DEFINE_TEST_CASE(7) {
                         EXP == InplaceTestObj::statics());
         }
 
+        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        {
+            InplaceTestObj::reset();
+            static const InplaceTestObj EXP;
+
+            ASSERT(0 ==
+                 bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc0, EXP)());
+
+            if (veryVerbose) { P(InplaceTestObj::statics()); };
+            LOOP_ASSERT(InplaceTestObj::statics(),
+                        EXP == InplaceTestObj::statics());
+        }
+
 #undef N
 #define N(n) V##n
 #undef M
@@ -935,6 +1106,25 @@ DEFINE_TEST_CASE(7) {
                                                                               \
             ASSERT(n ==                                                       \
                    bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc##n, EXP) \
+                                                                  (C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
+            LOOP_ASSERT(InplaceTestObj::statics(),                            \
+                        EXP == InplaceTestObj::statics());                    \
+        }
+        L14(M)
+
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        {                                                                     \
+            InplaceTestObj::reset();                                          \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                 bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc##n, EXP) \
                                                                   (C##n(N))); \
                                                                               \
             if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
@@ -1016,6 +1206,18 @@ DEFINE_TEST_CASE(6) {
             LOOP_ASSERT(X, EXP == X);
         }
 
+        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        {
+            InplaceTestObj x; InplaceTestObj const &X=x;
+            static const InplaceTestObj EXP;
+
+            ASSERT(0 ==
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc0, &x)());
+
+            if (veryVerbose) { P(X); };
+            LOOP_ASSERT(X, EXP == X);
+        }
+
 #undef N
 #define N(n) V##n
 #undef M
@@ -1027,6 +1229,24 @@ DEFINE_TEST_CASE(6) {
                                                                               \
             ASSERT(n ==                                                       \
                    bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc##n, &x)   \
+                                                                  (C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(X) }                                         \
+            LOOP_ASSERT(X, EXP == X);                                         \
+        }
+        L14(M)
+
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        {                                                                     \
+            InplaceTestObj x; InplaceTestObj const &X=x;                      \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc##n, &x) \
                                                                   (C##n(N))); \
                                                                               \
             if (veryVerbose) { P(X) }                                         \
@@ -1108,6 +1328,19 @@ DEFINE_TEST_CASE(5) {
                         EXP == InplaceTestObj::statics());
         }
 
+        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        {
+            InplaceTestObj::reset();
+            static const InplaceTestObj EXP;
+
+            ASSERT(0 ==
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc0)(EXP));
+
+            if (veryVerbose) { P(InplaceTestObj::statics()); };
+            LOOP_ASSERT(InplaceTestObj::statics(),
+                        EXP == InplaceTestObj::statics());
+        }
+
 #undef N
 #define N(n) V##n
 #undef M
@@ -1119,6 +1352,25 @@ DEFINE_TEST_CASE(5) {
                                                                               \
             ASSERT(n ==                                                       \
                    bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc##n)      \
+                                                             (EXP, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
+            LOOP_ASSERT(InplaceTestObj::statics(),                            \
+                        EXP == InplaceTestObj::statics());                    \
+        }
+        L14(M)
+
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        {                                                                     \
+            InplaceTestObj::reset();                                          \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc##n)    \
                                                              (EXP, C##n(N))); \
                                                                               \
             if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
@@ -1199,6 +1451,18 @@ DEFINE_TEST_CASE(4) {
             LOOP_ASSERT(X, EXP == X);
         }
 
+        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        {
+            InplaceTestObj x; InplaceTestObj const &X=x;
+            static const InplaceTestObj EXP;
+
+            ASSERT(
+                 0 == bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc0)(x));
+
+            if (veryVerbose) { P(X); };
+            LOOP_ASSERT(X, EXP == X);
+        }
+
 #undef N
 #define N(n) V##n
 #undef M
@@ -1209,6 +1473,23 @@ DEFINE_TEST_CASE(4) {
             static const InplaceTestObj EXP(C##n(N));                         \
                                                                               \
             ASSERT(n == bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc##n)  \
+                                                               (x, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(X) }                                         \
+            LOOP_ASSERT(X, EXP == X);                                         \
+        }
+        L14(M)
+
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        {                                                                     \
+            InplaceTestObj x; InplaceTestObj const &X=x;                      \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n == bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc##n)\
                                                                (x, C##n(N))); \
                                                                               \
             if (veryVerbose) { P(X) }                                         \
@@ -1291,6 +1572,19 @@ DEFINE_TEST_CASE(3) {
                         EXP == InplaceTestObj::statics());
         }
 
+        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        {
+            InplaceTestObj::reset();
+            static const InplaceTestObj EXP;
+
+            ASSERT(0 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc0)
+                           (&EXP)));
+
+            if (veryVerbose) { P(InplaceTestObj::statics()); };
+            LOOP_ASSERT(InplaceTestObj::statics(),
+                        EXP == InplaceTestObj::statics());
+        }
+
 #undef N
 #define N(n) V##n
 #undef M
@@ -1302,6 +1596,25 @@ DEFINE_TEST_CASE(3) {
                                                                               \
             ASSERT(n ==                                                       \
                    bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc##n)      \
+                                                            (&EXP, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
+            LOOP_ASSERT(InplaceTestObj::statics(),                            \
+                        EXP == InplaceTestObj::statics());                    \
+        }
+        L14(M)
+
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        {                                                                     \
+            InplaceTestObj::reset();                                          \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCNEFunc##n)    \
                                                             (&EXP, C##n(N))); \
                                                                               \
             if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
@@ -1382,6 +1695,18 @@ DEFINE_TEST_CASE(2) {
             LOOP_ASSERT(X, EXP == X);
         }
 
+        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        {
+            InplaceTestObj x; InplaceTestObj const &X=x;
+            static const InplaceTestObj EXP;
+
+            ASSERT(0 ==
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc0)(&x));
+
+            if (veryVerbose) { P(X); };
+            LOOP_ASSERT(X, EXP == X);
+        }
+
 #undef N
 #define N(n) V##n
 #undef M
@@ -1393,6 +1718,24 @@ DEFINE_TEST_CASE(2) {
                                                                               \
             ASSERT(n ==                                                       \
                    bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc##n)       \
+                                                              (&x, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(X) }                                         \
+            LOOP_ASSERT(X, EXP == X);                                         \
+        }
+        L14(M)
+
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        {                                                                     \
+            InplaceTestObj x; InplaceTestObj const &X=x;                      \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testNEFunc##n)     \
                                                               (&x, C##n(N))); \
                                                                               \
             if (veryVerbose) { P(X) }                                         \

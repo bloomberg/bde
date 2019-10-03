@@ -54,7 +54,7 @@
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 // [11] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-// [  ] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+// [29] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 // [12] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 // [13] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 // [14] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
@@ -911,6 +911,34 @@ void runTest([[maybe_unused]] int i) {
 #endif
 }  // close namespace test_case_26
 
+                    // case 29
+
+namespace test_case_29 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+
+void foo()
+{
+}
+
+void bar() noexcept
+{
+}
+
+template <typename U, typename V>
+struct is_same
+{
+    static const bool value = false;
+};
+
+template <typename T>
+struct is_same<T,T>
+{
+    static const bool value = true;
+};
+
+#endif
+}  // close namespace test_case_29
+
 // ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -1334,6 +1362,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_PLATFORM_CMP_VERSION: ");
+#ifdef BSLS_PLATFORM_CMP_VERSION
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  __APPLE_CC__: ");
 #ifdef __APPLE_CC__
     printf("%s\n", STRINGIFY(__APPLE_CC__) );
@@ -1495,6 +1530,40 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 29: {
+          // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES' is defined whenever 
+        //:    'noexcept' is part of the type system.
+        //
+        // Plan:
+        //: 1 Verify that the types of functions with a 'noexcept' qualifier
+        //:   are different if the macro is defined, and are the same if not.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+           "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'"
+           "\n======================================================\n");
+
+        using namespace test_case_29;
+        
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+        if (verbose) printf("noexcept not supported in this configuration\n");
+#else  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT(( !is_same< decltype(foo), decltype(bar) >::value ));
+#else
+        ASSERT(( is_same< decltype(foo), decltype(bar) >::value ));
+#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        
+      } break;
       case 28: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'

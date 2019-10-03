@@ -22,13 +22,12 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlf_bind
 //
-//@DESCRIPTION: This component provides a member function pointer wrapper
-// that wraps a member function pointer such that it can be invoked in
-// syntactically the same manner as a free function.  Two wrappers, each
-// supporting member function pointers that accept from zero to fourteen
-// arguments, are provided, as well as a utility to create such wrappers.
-// Member function wrappers are commonly used as function objects for standard
-// algorithms.
+//@DESCRIPTION: This component provides a member function pointer wrapper that
+// wraps a member function pointer such that it can be invoked in syntactically
+// the same manner as a free function.  Two wrappers, each supporting member
+// function pointers that accept from zero to fourteen arguments, are provided,
+// as well as a utility to create such wrappers.  Member function wrappers are
+// commonly used as function objects for standard algorithms.
 //
 // The first wrapper, 'bdlf::MemFn', contains a member function pointer and
 // must be invoked with the first argument being a pointer or reference to the

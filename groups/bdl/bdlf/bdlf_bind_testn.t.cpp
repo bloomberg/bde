@@ -1,6 +1,11 @@
 // bdlf_bind_testn.t.cpp                                              -*-C++-*-
 #include <bdlf_bind_testn.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wnoexcept-type"
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
 #include <bdlf_bind.h>
 #include <bdlf_bind_test.h>
 #include <bdlf_placeholder.h>
@@ -169,6 +174,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define BBT_TESTFUNCAn       BBT_C(AllocTestType::testFunc)
 #define BBT_TESTFUNCNAn      BBT_C(NoAllocTestType::testFunc)
 
+#define BBT_FUNCNEAn         BBT_C(bdlf::Bind_TestFunctionsAlloc::funcNE)
+#define BBT_FUNCNENAn        BBT_C(bdlf::Bind_TestFunctionsNoAlloc::funcNE)
+#define BBT_TESTFUNCNEAn     BBT_C(AllocNETestType::testFunc)
+#define BBT_TESTFUNCNENAn    BBT_C(NoAllocNETestType::testFunc)
+
 #define BBT_ALLOCTESTARGn    BBT_N(AllocTestArg)
 #define BBT_In               BBT_N(I)
 #define BBT_NOALLOCTESTARGn  BBT_N(NoAllocTestArg)
@@ -274,6 +284,7 @@ typedef bdlf::Bind_TestArgNoAlloc<13>  NoAllocTestArg13;
 typedef bdlf::Bind_TestArgNoAlloc<14>  NoAllocTestArg14;
 
 typedef bdlf::Bind_TestTypeNoAlloc     NoAllocTestType;
+typedef bdlf::Bind_TestTypeNoAllocNE   NoAllocNETestType;
 
 typedef bdlf::Bind_TestSlotsAlloc      SlotsAlloc;
 
@@ -293,6 +304,7 @@ typedef bdlf::Bind_TestArgAlloc<13>    AllocTestArg13;
 typedef bdlf::Bind_TestArgAlloc<14>    AllocTestArg14;
 
 typedef bdlf::Bind_TestTypeAlloc       AllocTestType;
+typedef bdlf::Bind_TestTypeAllocNE     AllocNETestType;
 
 // Placeholder types for the corresponding _1, _2, etc.
 
@@ -425,27 +437,25 @@ DEFINE_TEST_CASE(17) {
         // TESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L>>'
         //
         // Concerns:
-        //: 1 The bitwise moveable trait is true for 'Bind<RET,FUNC,LIST>'
-        //:   if the bitwise moveable trait is true for 'FUNC' and for all
-        //:   of the types in 'LIST'.
+        //: 1 The bitwise moveable trait is true for 'Bind<RET,FUNC,LIST>' if
+        //:   the bitwise moveable trait is true for 'FUNC' and for all of the
+        //:   types in 'LIST'.
         //: 2 Placeholders are treated as bitwise moveable.
-        //: 3 The bitwise moveable trait is false for
-        //:   'Bind<RET,FUNC,LIST>' if the bitwise moveable trait is
-        //:   false for 'FUNC'.
-        //: 4 The bitwise moveable trait is false for
-        //:   'Bind<RET,FUNC,LIST>' if the bitwise moveable trait is
-        //:   false for any of the types in 'LIST'.
-        //: 5 The 'RET' type has no affect on whether
-        //:   'Bind<RET,FUNC,LIST>' has the bitwise moveable trait.
+        //: 3 The bitwise moveable trait is false for 'Bind<RET,FUNC,LIST>' if
+        //:   the bitwise moveable trait is false for 'FUNC'.
+        //: 4 The bitwise moveable trait is false for 'Bind<RET,FUNC,LIST>' if
+        //:   the bitwise moveable trait is false for any of the types in
+        //:   'LIST'.
+        //: 5 The 'RET' type has no affect on whether 'Bind<RET,FUNC,LIST>' has
+        //:   the bitwise moveable trait.
         //: 6 The concerns above apply to the types as returned from
-        //:   'BindUtil::bind', 'BindUtil::bindA', and
-        //:   'BindUtil::bindR'.
+        //:   'BindUtil::bind', 'BindUtil::bindA', and 'BindUtil::bindR'.
         //
         // Plan:
-        //: 1 For concern 1, instantate 'Bind' with a bitwise moveable
-        //:   'FUNC' and a 'LIST' type comprising types that are all bitwise
-        //:   moveable.  Verify that the resulting specialization has the
-        //:   bitwise moveable trait.
+        //: 1 For concern 1, instantate 'Bind' with a bitwise moveable 'FUNC'
+        //:   and a 'LIST' type comprising types that are all bitwise moveable.
+        //:   Verify that the resulting specialization has the bitwise moveable
+        //:   trait.
         //: 2 For concern 2, repeat step 1 except replace one of the types in
         //:   'LIST' with a placeholder.  Verify that the resulting
         //:   specialization has the bitwise moveable trait.
@@ -453,19 +463,18 @@ DEFINE_TEST_CASE(17) {
         //:   that is not bitwise moveable.  Verify that the resulting
         //:   specialization *does not* have the bitwise moveable trait.
         //: 4 For concern 4, repeat step 2 except replace one of the types in
-        //:   'LIST' with a type that is not bitwise moveable.  Verify that
-        //:   the resulting specialization *does not* have the bitwise
-        //:   moveable trait.
+        //:   'LIST' with a type that is not bitwise moveable.  Verify that the
+        //:   resulting specialization *does not* have the bitwise moveable
+        //:   trait.
         //: 5 For concern 5, repeat step 2 except replace 'RET' with a type
         //:   that is not bitwise moveable.  Verify that the resulting
         //:   specialization *still has* the bitwise moveable trait.
         //: 6 For concern 6, create a function template,
         //:   'isBitwiseMoveableArg(const T&)', that returns true iff 'T' has
-        //:   the bitwise moveable trait. Invoke 'isBitwiseMoveableArg' on
-        //:   calls to
-        //:   'BindUtil::bind', 'BindUtil::bindA', and
-        //:   'BindUtil::bindR' with arguments that would result in the
-        //:   various combinations above.
+        //:   the bitwise moveable trait.  Invoke 'isBitwiseMoveableArg' on
+        //:   calls to 'BindUtil::bind', 'BindUtil::bindA', and
+        //:   'BindUtil::bindR' with arguments that would result in the various
+        //:   combinations above.
         //
         // Testing:
         //      bslmf::IsBitwiseMoveable<bdlf::Bind<RET,FUNC,LIST>>
@@ -579,7 +588,7 @@ DEFINE_TEST_CASE(17) {
 DEFINE_TEST_CASE(16) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDR WITH FUNCTION OBJECT PASSED BY VALUE
+        // TESTING BDLF::BINDUTIL::BINDR WITH FUNCTION OBJECT PASSED BY VALUE
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bindR' static method returns a
@@ -599,6 +608,8 @@ DEFINE_TEST_CASE(16) {
         // Testing:
         //   bdlf::BindUtil::bindR(Func const&, ...);
         // --------------------------------------------------------------------
+
+        (void)veryVerbose;
 
         if (verbose)
             printf("\nTESTING 'bdlf::BindUtil::bindR' WITH FUNCTION OBJECT"
@@ -740,7 +751,7 @@ DEFINE_TEST_CASE(16) {
 DEFINE_TEST_CASE(15) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDR WITH FUNCTION OBJECT PASSED BY ADDRESS
+        // TESTING BDLF::BINDUTIL::BINDR WITH FUNCTION OBJECT PASSED BY ADDRESS
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bindR' static method returns a
@@ -894,7 +905,7 @@ DEFINE_TEST_CASE(15) {
 DEFINE_TEST_CASE(14) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BIND WITH MEMBER FUNCTION POINTER
+        // TESTING BDLF::BINDUTIL::BIND WITH MEMBER FUNCTION POINTER
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bindR' static method returns a
@@ -1056,13 +1067,13 @@ DEFINE_TEST_CASE(14) {
 #endif
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
         }
-#endif
+#endif // BBT_n == 14
       }
 
 DEFINE_TEST_CASE(13) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDR WITH FREE FUNCTION REFERENCES
+        // TESTING BDLF::BINDUTIL::BINDR WITH FREE FUNCTION REFERENCES
         //
         // Concerns and plans:
         //   Identical to case 12, except passing 'funcN' instead of
@@ -1211,13 +1222,13 @@ DEFINE_TEST_CASE(13) {
 #endif
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
         }
-#endif
+#endif // BBT_n == 14
       }
 
 DEFINE_TEST_CASE(12) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDR WITH FREE FUNCTION POINTER
+        // TESTING BDLF::BINDUTIL::BINDR WITH FREE FUNCTION POINTER
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bindR' static method returns a
@@ -1379,7 +1390,7 @@ DEFINE_TEST_CASE(12) {
 #endif
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
         }
-#endif
+#endif // BBT_n == 14
       }
 
 DEFINE_TEST_CASE(11) {
@@ -1391,7 +1402,7 @@ DEFINE_TEST_CASE(11) {
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDA WITH FUNCTION OBJECT PASSED BY VALUE
+        // TESTING BDLF::BINDUTIL::BINDA WITH FUNCTION OBJECT PASSED BY VALUE
         //
         // Concerns and plan:
         //   Identical to case 7, except passing 'mX' instead of '&mX'.
@@ -1589,7 +1600,7 @@ DEFINE_TEST_CASE(10) {
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDA WITH FUNCTION OBJECT PASSED BY ADDRESS
+        // TESTING BDLF::BINDUTIL::BINDA WITH FUNCTION OBJECT PASSED BY ADDRESS
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bindA' static method returns a
@@ -1809,7 +1820,7 @@ DEFINE_TEST_CASE(9) {
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDA WITH MEMBER FUNCTION POINTER
+        // TESTING BDLF::BINDUTIL::BINDA WITH MEMBER FUNCTION POINTER
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bindA' static method returns a
@@ -2029,7 +2040,7 @@ DEFINE_TEST_CASE(9) {
                 printf("\tLINE: %d PARAMS: %d X: ", L_, PARAMS); X.print();
             }
         }
-#endif
+#endif // BBT_n == 14
 #endif // #if 0
       }
 
@@ -2042,7 +2053,7 @@ DEFINE_TEST_CASE(8) {
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDA WITH FREE FUNCTION REFERENCE
+        // TESTING BDLF::BINDUTIL::BINDA WITH FREE FUNCTION REFERENCE
         //
         // Concerns and plan:
         //   Identical to case 7, except passing 'funcN' instead of
@@ -2244,7 +2255,7 @@ DEFINE_TEST_CASE(8) {
                 printf("\tLINE: %d PARAMS: %d X: ", L_, PARAMS); X.print();
             }
         }
-#endif
+#endif // BBT_n == 14
 #endif // #if 0
       }
 
@@ -2257,7 +2268,7 @@ DEFINE_TEST_CASE(7) {
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BINDA WITH FREE FUNCTION POINTER
+        // TESTING BDLF::BINDUTIL::BINDA WITH FREE FUNCTION POINTER
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bindA' static method returns a
@@ -2475,14 +2486,14 @@ DEFINE_TEST_CASE(7) {
                 printf("\tLINE: %d PARAMS: %d X: ", L_, PARAMS); X.print();
             }
         }
-#endif
+#endif // BBT_n == 14
 #endif // #if 0
       }
 
 DEFINE_TEST_CASE(6) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BIND WITH FUNCTION OBJECT PASSED BY VALUE
+        // TESTING BDLF::BINDUTIL::BIND WITH FUNCTION OBJECT PASSED BY VALUE
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bind' static method returns a
@@ -2641,7 +2652,7 @@ DEFINE_TEST_CASE(6) {
 DEFINE_TEST_CASE(5) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BIND WITH FUNCTION OBJECT PASSED BY ADDRESS
+        // TESTING BDLF::BINDUTIL::BIND WITH FUNCTION OBJECT PASSED BY ADDRESS
         //
         // Concerns and plan:
         //   Identical to case 4, except passing '&mX' instead of 'mX'.
@@ -2783,12 +2794,131 @@ DEFINE_TEST_CASE(5) {
 #endif
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
         }
+
+        if (verbose) printf("\tTest 'noexcept' types that do *not* "
+                            "take an allocator.\n");
+
+        // In this test case sequences (using 'NoAllocTestType'), no allocation
+        // at all should take place regardless of whether place-holders are
+        // used or not.
+
+        if (verbose) printf("\t\t'noexcept' With placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 BBT_K(&mX, BBT_phn))(BBT_In));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' Without placeholder.\n");
+        {
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        BBT_K(&mX, BBT_In))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\tTest 'noexcept'  types that *do* "
+                            "take an allocator.\n");
+
+        // In this and the next test sequence (using 'AllocNETestType'), PARAMS
+        // allocations should take place via the 'Z1' allocator (one per each
+        // argument) as triggered in the 'AllocNETestType::testFunc*' methods.
+
+        if (verbose) printf("\t\t'noexcept' With placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+            // No default allocation should take place if placeholders are
+            // used, because the 'AllocTestValue' arguments will be passed only
+            // at invocation time.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 BBT_K(&mX, BBT_phn))(BBT_Vn));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' Without placeholder.\n");
+        {
+            // Default allocation should occur for each bound argument of type
+            // 'AllocTestValue', as those are copied into the binder object
+            // twice: once for making the tuple list type to be passed to the
+            // binder constructor, and a second time for copying that tuple
+            // into the binder.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        BBT_K(&mX, BBT_Vn))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+#ifndef BSLS_PLATFORM_CMP_MSVC
+            // MSVC 2005 does NOT use the RVO
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
+#endif
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
       }
 
 DEFINE_TEST_CASE(4) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BIND WITH MEMBER FUNCTION POINTER
+        // TESTING BDLF::BINDUTIL::BIND WITH MEMBER FUNCTION POINTER
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bind' static method returns a
@@ -2945,13 +3075,136 @@ DEFINE_TEST_CASE(4) {
 #endif
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
         }
+
+        if (verbose) printf("\tTest 'noexcept' types that do *not* "
+                            "take an allocator.\n");
+
+        // In this test case sequences (using 'NoAllocTestType'), no allocation
+        // at all should take place regardless of whether place-holders are
+        // used or not.
+
+        if (verbose) printf("\t\tWith placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 &BBT_TESTFUNCNENAn,
+                                                 BBT_K(&mX, BBT_phn))(BBT_In));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' Without placeholder.\n");
+        {
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        &BBT_TESTFUNCNENAn,
+                                                        BBT_K(&mX, BBT_In))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\tTest 'noexcept' types that *do* "
+                            "take an allocator.\n");
+
+        // In this and the next test sequence (using 'AllocNETestType'), PARAMS
+        // allocations should take place via the 'Z1' allocator (one per each
+        // argument) as triggered in the 'AllocNETestType::testFunc*' methods.
+
+        if (verbose) printf("\t\tWith placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+            // No default allocation should take place if placeholders are
+            // used, because the 'AllocTestValue' arguments will be passed only
+            // at invocation time.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 &BBT_TESTFUNCNEAn,
+                                                 BBT_K(&mX, BBT_phn))(BBT_Vn));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' Without placeholder.\n");
+        {
+            // Default allocation should occur for each bound argument of type
+            // 'AllocTestValue', as those are copied into the binder object
+            // twice: once for making the tuple list type to be passed to the
+            // binder constructor, and a second time for copying that tuple
+            // into the binder.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        &BBT_TESTFUNCNEAn,
+                                                        BBT_K(&mX, BBT_Vn))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+#ifndef BSLS_PLATFORM_CMP_MSVC
+            // MSVC 2005 does NOT use the RVO
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
+#endif // BBT_n == 14
       }
 
 DEFINE_TEST_CASE(3) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BIND WITH FREE FUNCTION REFERENCE
+        // TESTING BDLF::BINDUTIL::BIND WITH FREE FUNCTION REFERENCE
         //
         // Concerns and plans:
         //    Identical to case 2, except passing 'funcN' instead of
@@ -3096,13 +3349,135 @@ DEFINE_TEST_CASE(3) {
 #endif
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
         }
+
+        if (verbose) printf("\tTest 'noexcept' types that do *not* "
+                            "take an allocator.\n");
+
+        // In this test case sequences (using 'NoAllocTestType'), no allocation
+        // at all should take place regardless of whether place-holders are
+        // used or not.
+
+        if (verbose) printf("\t\t'noexcept' With placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 BBT_FUNCNENAn,
+                                                 BBT_K(&mX, BBT_phn))(BBT_In));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' Without placeholder.\n");
+        {
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        BBT_FUNCNENAn,
+                                                        BBT_K(&mX, BBT_In))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\tTest types that *do* take an allocator.\n");
+
+        // In this and the next test sequence (using 'AllocNETestType'), PARAMS
+        // allocations should take place via the 'Z1' allocator (one per each
+        // argument) as triggered in the 'AllocNETestType::testFunc*' methods.
+
+        if (verbose) printf("\t\t'noexcept' With placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+            // No default allocation should take place if placeholders are
+            // used, because the 'AllocTestValue' arguments will be passed only
+            // at invocation time.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 BBT_FUNCNEAn,
+                                                 BBT_K(&mX, BBT_phn))(BBT_Vn));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' Without placeholder.\n");
+        {
+            // Default allocation should occur for each bound argument of type
+            // 'AllocTestValue', as those are copied into the binder object
+            // twice: once for making the tuple list type to be passed to the
+            // binder constructor, and a second time for copying that tuple
+            // into the binder.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        BBT_FUNCNEAn,
+                                                        BBT_K(&mX, BBT_Vn))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+#ifndef BSLS_PLATFORM_CMP_MSVC
+            // MSVC 2005 does NOT use the RVO
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
+#endif // BBT_n == 14
       }
 
 DEFINE_TEST_CASE(2) {
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
-        // TESTING BDEF_BINDUTIL::BIND WITH FREE FUNCTION POINTER
+        // TESTING BDLF::BINDUTIL::BIND WITH FREE FUNCTION POINTER
         //
         // Concerns:
         //   That the 'bdlf::BindUtil::bind' static method returns a
@@ -3260,7 +3635,123 @@ DEFINE_TEST_CASE(2) {
 #endif
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
         }
+
+        if (verbose) printf("\tTest 'noexcept' types that do *not* "
+                            "take an allocator.\n");
+
+        // In this test case sequences (using 'NoAllocTestType'), no allocation
+        // at all should take place regardless of whether place-holders are
+        // used or not.
+
+        if (verbose) printf("\t\t'noexcept' With placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 &BBT_FUNCNENAn,
+                                                 BBT_K(&mX, BBT_phn))(BBT_In));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\'noexcept' tWithout placeholder.\n");
+        {
+                  NoAllocNETestType  mX;
+            const NoAllocNETestType& X = mX;
+            const NoAllocNETestType  BBT_OBJ(EXPECTED, BBT_In);
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        &BBT_FUNCNENAn,
+                                                        BBT_K(&mX, BBT_In))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' With placeholder.\n");
+        {
+            using namespace bdlf::PlaceHolders;
+
+            // No default allocation should take place if placeholders are
+            // used, because the 'AllocTestValue' arguments will be passed only
+            // at invocation time.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                 &BBT_FUNCNEAn,
+                                                 BBT_K(&mX, BBT_phn))(BBT_Vn));
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
+
+        if (verbose) printf("\t\t'noexcept' Without placeholder.\n");
+        {
+            // Default allocation should occur for each bound argument of type
+            // 'AllocTestValue', as those are copied into the binder object
+            // twice: once for making the tuple list type to be passed to the
+            // binder constructor, and a second time for copying that tuple
+            // into the binder.
+
+                  AllocNETestType  mX(Z1);
+            const AllocNETestType& X = mX;
+            const AllocNETestType  EXPECTED(BBT_K(Z1, BBT_Vn));
+            LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
+
+            LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
+                                                        &BBT_FUNCNEAn,
+                                                        BBT_K(&mX, BBT_Vn))());
+
+            LOOP_ASSERT(PARAMS, EXPECTED == X);
+
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
+
+#ifndef BSLS_PLATFORM_CMP_MSVC
+            // MSVC 2005 does NOT use the RVO
+            LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
+            LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
+        }
+#endif // BBT_n == 14
       }
 
 DEFINE_TEST_CASE(1) {
