@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides preprocessor macros to indicate that a
 // variadic function's arguments are terminated by 'NULL', or, in the case of
 // 'BSLA_NULLTERMINATEDAT', by 'NULL' at a certain index.  Note that the

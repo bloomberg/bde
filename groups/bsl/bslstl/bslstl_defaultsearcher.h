@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_boyermoorehorspoolsearcher
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component defines two class templates,
 // 'bsl::default_searcher' and 'bslstl::DefaultSearcher'.  Both are compliant
 // with section '[func.search.default]' of the C++ Standard (C++17 and later).

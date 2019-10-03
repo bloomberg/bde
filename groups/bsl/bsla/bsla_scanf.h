@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a preprocessor macro that indicates
 // that one of the arguments to a function is a 'scanf'-style format string,
 // and that the arguments starting at a certain index are to be checked for

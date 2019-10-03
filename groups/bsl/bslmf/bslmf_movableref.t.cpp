@@ -1096,7 +1096,7 @@ int main(int argc, char *argv[])
         //:    copy and move constructors, even when declared 'noexcept'.
         //:
         //:  3 For a user-defined trivially copyable class type that is
-        //:    correctly associated with either of the the C++03 trait
+        //:    correctly associated with either of the C++03 trait
         //:    customization facilities, both the native trait oracle and the
         //:    'bsl' trait return 'true' for the potentially const-qualified
         //:    type, and 'false' for volatile-qualified versions of that type.
@@ -1111,7 +1111,7 @@ int main(int argc, char *argv[])
         //:             // TYPES THAT DISAGREE BETWEEN C++03 AND C++11
         //:
         //:  5 For a user-defined trivially copyable class type that is not
-        //:    associated with either of the the C++03 trait customization
+        //:    associated with either of the C++03 trait customization
         //:    facilities, the trait returns 'false' for all cv-qualified
         //:    variations of this type in C++03, but correctly deduces 'true'
         //:    for potentially 'const' (but not 'volatile') qualified versions

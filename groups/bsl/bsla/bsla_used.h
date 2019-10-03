@@ -13,21 +13,19 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a preprocessor macro that will
 // guarantee the emission of a local function, type, or variable whether it is
 // used or not.
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_USED'
-//:     This annotation indicates that the so-annotated function, variable, or
-//:     type must be emitted even if it appears that it is not referenced.
+//: 'BSLA_USED':
+//:    This annotation indicates that the so-annotated function, variable, or
+//:    type must be emitted even if it appears that it is not referenced.
 //:
-//: 'BSLA_USED_IS_ACTIVE'
-//:     The macro 'BSLA_USED_IS_ACTIVE' is defined to 0 if 'BSLA_USED' expands
-//:     to nothing and 1 otherwise.
+//: 'BSLA_USED_IS_ACTIVE':
+//:    The macro 'BSLA_USED_IS_ACTIVE' is defined to 0 if 'BSLA_USED' expands
+//:    to nothing and 1 otherwise.
 //
 ///Usage
 ///-----

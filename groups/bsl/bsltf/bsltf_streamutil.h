@@ -13,7 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslim_testutil, bslmt_testutil
 //
-//@AUTHOR: Bill Chapman (bchapman2)
 
 //@DESCRIPTION: BDE components that define types normally define the
 // 'operator<<' used to stream the type out to standard library streams.

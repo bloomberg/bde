@@ -13,22 +13,20 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a preprocessor macro that will suppress
 // "unused" warnings on a locally defined function, type, or variable that is
 // not used.
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_UNUSED'
-//:     This annotation indicates that the so-annotated function, variable, or
-//:     type is possibly unused and the compiler should not generate a warning
-//:     for the unused identifier.
-//
-//: 'BSLA_UNUSED_IS_ACTIVE'
-//:     The macro 'BSLA_UNUSED_IS_ACTIVE' is defined to 0 if 'BSLA_UNUSED'
-//:     expands to nothing and 1 otherwise.
+//: 'BSLA_UNUSED':
+//:    This annotation indicates that the so-annotated function, variable, or
+//:    type is possibly unused and the compiler should not generate a warning
+//:    for the unused identifier.
+//:
+//: 'BSLA_UNUSED_IS_ACTIVE':
+//:    The macro 'BSLA_UNUSED_IS_ACTIVE' is defined to 0 if 'BSLA_UNUSED'
+//:    expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----

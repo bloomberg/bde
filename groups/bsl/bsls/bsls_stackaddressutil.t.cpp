@@ -792,7 +792,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Repeatedly call formatCheapStack from the same place in a loop.
         //:
-        //: 2 Increase the buffer size given to formatCheapStack in in each
+        //: 2 Increase the buffer size given to formatCheapStack in each
         //:   iteration of the loop.
         //:
         //: 3 Verify that each consecutive call extends the output of the

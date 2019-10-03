@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides preprocessor macros that hint to the
 // compiler that a function, variable, type, 'typedef', 'struct' member, 'enum'
 // type, or template specialization is deprecated.  This is useful, for
@@ -24,30 +22,30 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_DEPRECATED'
-//:     This annotation will, when used, cause a compile-time warning if the
-//:     so-annotated function, variable, type, 'typedef', 'struct' member,
-//:     'enum' type, or template specialization is used anywhere within the
-//:     source file.  The warning includes the location of the declaration of
-//:     the deprecated entity to enable users to find further information about
-//:     the deprecation, or what they should use instead.
-//
-//: 'BSLA_DEPRECATED_MESSAGE(QUOTED_MESSAGE)'
-//:     This annotation will, when used, cause a compile-time warning if the
-//:     so-annotated function, variable, type, 'typedef', 'struct' member,
-//:     'enum' type, or template specialization is used anywhere within the
-//:     source file.  The compiler warning will contain the contents of the
-//:     specified 'QUOTED_MESSAGE', which must be a double-quoted string.  The
-//:     warning includes the location of the declaration of the deprecated
-//:     entity to enable users to find further information about the
-//:     deprecation, and what they should use instead.  Note that on some
-//:     compilers 'QUOTED_MESSAGE' is ignored.
-//
-//: 'BSLA_DEPRECATED_IS_ACTIVE'
-//:     The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined to 0 if
-//:     'BSLA_DEPRECATED' and 'BSLA_DEPRECATED_MESSAGE' both expand to nothing
-//:     and 1 if they are both enabled and have the desired effect.  Either
-//:     both of them work or neither works.
+//: 'BSLA_DEPRECATED':
+//:    This annotation will, when used, cause a compile-time warning if the
+//:    so-annotated function, variable, type, 'typedef', 'struct' member,
+//:    'enum' type, or template specialization is used anywhere within the
+//:    source file.  The warning includes the location of the declaration of
+//:    the deprecated entity to enable users to find further information about
+//:    the deprecation, or what they should use instead.
+//:
+//: 'BSLA_DEPRECATED_MESSAGE(QUOTED_MESSAGE)':
+//:    This annotation will, when used, cause a compile-time warning if the
+//:    so-annotated function, variable, type, 'typedef', 'struct' member,
+//:    'enum' type, or template specialization is used anywhere within the
+//:    source file.  The compiler warning will contain the contents of the
+//:    specified 'QUOTED_MESSAGE', which must be a double-quoted string.  The
+//:    warning includes the location of the declaration of the deprecated
+//:    entity to enable users to find further information about the
+//:    deprecation, and what they should use instead.  Note that on some
+//:    compilers 'QUOTED_MESSAGE' is ignored.
+//:
+//: 'BSLA_DEPRECATED_IS_ACTIVE':
+//:    The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined to 0 if
+//:    'BSLA_DEPRECATED' and 'BSLA_DEPRECATED_MESSAGE' both expand to nothing
+//:    and 1 if they are both enabled and have the desired effect.  Either
+//:    both of them work or neither works.
 //
 ///Usage
 ///-----

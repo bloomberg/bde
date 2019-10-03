@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::SingleProducerSingleConsumerBoundedQueue: SPSCB concurrent queue
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component defines a type,
 // 'bdlcc::SingleProducerSingleConsumerBoundedQueue', that provides an
 // efficient, thread-aware bounded (capacity fixed at construction) queue of

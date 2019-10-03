@@ -245,7 +245,7 @@ BSLS_IDENT("$Id: $")
 //
 // Also notice that, having learned the lesson of {'bslmt_mutexassert'|Example
 // 1}, we were careful to acquire a write lock for the duration of each of
-// these operation and to check the precondition of the the private 'popImp'
+// these operation and to check the precondition of the private 'popImp'
 // method by using the 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE' macro.
 //
 // Finally notice that we use the "normal" flavor of the macro (rather than the

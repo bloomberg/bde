@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //  bostst::BosMap: mechanism to test that 'bsl::map' and 'std::map' are the
 //                  same type
 //
-//@AUTHOR: Mike Giroux (mgiroux)
-//
 //@DESCRIPTION: This component provides a mechanism class, 'bostst::BosMap',
 // that simply checks that 'bsl::map' and 'std::map' are the same type.
 //

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlcc_fixedqueue
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component defines a type, 'bdlcc::BoundedQueue', that
 // provides an efficient, thread-aware bounded (capacity fixed at construction)
 // queue of values.  This class is ideal for synchronization and communication
