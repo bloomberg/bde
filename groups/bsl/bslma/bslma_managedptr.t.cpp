@@ -2563,10 +2563,6 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
     // Load the 'bslma::ManagedPtr' and check that the previous state is
     // correctly cleared.
     if (!negativeTesting) {
-        typedef typename
-        bslma::ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::type
-                                                                  DeleterClass;
-
         const bslma::ManagedPtrDeleter del;
 
         ObjectType  *pO = 0;
