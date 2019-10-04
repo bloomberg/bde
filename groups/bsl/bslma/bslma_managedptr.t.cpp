@@ -833,7 +833,7 @@ namespace USAGE_EXAMPLES {
 //..
         {
             bslma::ManagedPtr<String> stringManagedPtr =
-                                          bslma::makeManaged<String>(STR, &ta);
+                          bslma::ManagedPtrUtil::makeManaged<String>(STR, &ta);
 //..
 // Note that memory for object itself is supplied by default allocator, while
 // memory for the copy of passed string is supplied by another allocator:
@@ -858,7 +858,7 @@ namespace USAGE_EXAMPLES {
 
         {
             bslma::ManagedPtr<String> stringManagedPtr =
-                                 bslma::allocateManaged<String>(&oa, STR, &ta);
+                 bslma::ManagedPtrUtil::allocateManaged<String>(&oa, STR, &ta);
 
             ASSERT(static_cast<int>(sizeof(String)) <= oa.numBytesInUse());
             ASSERT(&ta == stringManagedPtr->allocator());
@@ -915,7 +915,7 @@ namespace USAGE_EXAMPLES {
 
         {
             bslma::ManagedPtr<StringAlloc> stringManagedPtr =
-                                          bslma::makeManaged<StringAlloc>(STR);
+                          bslma::ManagedPtrUtil::makeManaged<StringAlloc>(STR);
 
             ASSERT(static_cast<int>(sizeof(String)) + STR_LENGTH + 1 <=
                                                            da.numBytesInUse());
@@ -925,7 +925,7 @@ namespace USAGE_EXAMPLES {
 
         {
             bslma::ManagedPtr<StringAlloc> stringManagedPtr =
-                                 bslma::allocateManaged<StringAlloc>(&ta, STR);
+                 bslma::ManagedPtrUtil::allocateManaged<StringAlloc>(&ta, STR);
 
             ASSERT(static_cast<int>(sizeof(String)) + STR_LENGTH + 1 <=
                                                            ta.numBytesInUse());
