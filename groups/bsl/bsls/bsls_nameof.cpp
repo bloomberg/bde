@@ -215,7 +215,7 @@ const char *NameOf_Base::initBuffer(char       *buffer,
                                            // which shouldn't be a problem.
     BSLS_ASSERT(std::strlen(buffer) == static_cast<std::size_t>(end - pc));
 
-    u::substitute(buffer,     " >",            ">");
+    u::substitute(buffer, " >", ">");
 
 #if   defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_GNU)
     char stringName[] = { "std::basic_string<char, std::char_traits<char>,"
