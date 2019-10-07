@@ -1335,8 +1335,30 @@ int main(int argc, char *argv[])
                                  system_category()),
         };
         for (int i = 0; i < 4; ++i) {
-            native_std::hash<bsl::error_condition> hasher;
-            const bsl::error_condition &ci = conditions[i];
+            bsl::hash<bsl::error_code> hasher;
+            const bsl::error_code&     ci = codes[i];
+            if (veryVeryVerbose) {
+                printf("%d %s %d %zu\n",
+                       i, ci.category().name(), ci.value(), hasher(ci));
+            }
+            for (int j = i; j < 4; ++j) {
+                const bsl::error_code &cj = codes[j];
+                if (veryVeryVerbose) {
+                    printf("\t%d %s %d %zu\n",
+                           j, cj.category().name(), cj.value(), hasher(cj));
+                }
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                // Windows implementation appears to not include the category.
+                bool equal = ci.value() == cj.value();
+#else
+                bool equal = i == j;
+#endif
+                ASSERT(equal == (hasher(ci) == hasher(cj)));
+            }
+        }
+        for (int i = 0; i < 4; ++i) {
+            bsl::hash<bsl::error_condition> hasher;
+            const bsl::error_condition&     ci = conditions[i];
             if (veryVeryVerbose) {
                 printf("%d %s %d %zu\n",
                        i, ci.category().name(), ci.value(), hasher(ci));

@@ -1219,19 +1219,6 @@ TimeQueue<DATA>::~TimeQueue()
 // MANIPULATORS
 template <class DATA>
 inline
-TimeQueueItem<DATA>& TimeQueueItem<DATA>::operator=(
-                                                const TimeQueueItem<DATA>& rhs)
-{
-    d_time   = rhs.d_time;
-    d_data   = rhs.d_data;
-    d_handle = rhs.d_handle;
-    d_key    = rhs.d_key;
-
-    return *this;
-}
-
-template <class DATA>
-inline
 typename TimeQueue<DATA>:: Handle TimeQueue<DATA>::add(
                                           const bsls::TimeInterval&  time,
                                           const DATA&                data,
@@ -1765,6 +1752,19 @@ TimeQueueItem(const bsls::TimeInterval&  time,
 }
 
 // MANIPULATORS
+template <class DATA>
+inline
+TimeQueueItem<DATA>& TimeQueueItem<DATA>::operator=(
+                                                const TimeQueueItem<DATA>& rhs)
+{
+    d_time   = rhs.d_time;
+    d_data   = rhs.d_data;
+    d_handle = rhs.d_handle;
+    d_key    = rhs.d_key;
+
+    return *this;
+}
+
 template <class DATA>
 inline
 bsls::TimeInterval& TimeQueueItem<DATA>::time()

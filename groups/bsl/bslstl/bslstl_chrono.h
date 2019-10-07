@@ -91,7 +91,7 @@ namespace bsl {
         using native_std::chrono::microseconds;
         using native_std::chrono::nanoseconds;
 
-#if defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
         template <class TYPE>
         constexpr bool treat_as_floating_point_v =
                       native_std::chrono::treat_as_floating_point<TYPE>::value;
