@@ -84,7 +84,7 @@ class MutexImpl<Platform::PosixThreads> {
         // Create a mutex initialized to an unlocked state.
 
     ~MutexImpl();
-        // Destroy this mutex object.  The behavior is undefined in the mutex
+        // Destroy this mutex object.  The behavior is undefined if the mutex
         // is in a locked state.
 
     // MANIPULATORS
