@@ -527,7 +527,7 @@ struct ThreadUtil {
 
     static void getThreadName(bsl::string *threadName);
         // Load the name of the current thread into the specified
-        // '*threadName'.  Note that this method clears '*threadName' on all
+        // '*threadName'.  Note that this method clears '*threadName' on
         // platforms other than Linux, Solaris, Darwin, and Windows.
 
     static int join(Handle& threadHandle, void **status = 0);
@@ -548,7 +548,7 @@ struct ThreadUtil {
 
     static void setThreadName(const bslstl::StringRef& threadName);
         // Set the name of the current thread to the specified 'threadName'.
-        // On all platforms other than Linux, Solaris, Darwin and Windows this
+        // On platforms other than Linux, Solaris, Darwin and Windows this
         // method has no effect.  Note that on those two platforms 'threadName'
         // will be truncated to a length of 15 bytes, not including the
         // terminating '\0'.

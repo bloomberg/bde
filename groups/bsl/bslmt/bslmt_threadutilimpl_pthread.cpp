@@ -56,6 +56,17 @@ namespace u {
 
 using namespace BloombergLP;
 
+// 'man (2) prctl' from Linux 2.6.9 says the thread name buffer must
+// accommodate at least 16 bytes, for both setting and getting.
+
+// http://linux.die.net/man/3/pthread_getname_np says 'pthread_getname_np'
+// requires a buffer at least 16 bytes long (and says that 'pthread_setname_np'
+// can't handle a string longer than 16 bytes, including the terminating '\0').
+
+// 'man pthread_setname_np' on Solaris says the max thread name length is 31
+// characters.  It diescussed no limit for 'pthread_getname_np', but the buffer
+// length is passed to that call.
+
 enum {
     k_THREAD_NAME_BUF_SIZE =
 # if defined(BSLS_PLATFORM_OS_SOLARIS)
@@ -418,18 +429,6 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::getThreadName(
 
 #if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
     defined(BSLS_PLATFORM_OS_SOLARIS)
-    // 'man (2) prctl' from Linux 2.6.9 says the buffer must accommodate at
-    // least 16 bytes.
-
-    // 'man pthread_setname_np' on Solaris says the max thread name length is
-    // 31 characters.
-
-    // http://linux.die.net/man/3/pthread_getname_np says 'pthread_getname_np'
-    // requires a buffer at least 16 bytes long (and says that
-    // 'pthread_setname_np' can't handle a string longer than 16 bytes,
-    // including the terminating '\0').
-
-    // On Linux, 'man prctl' says the name length is limited to 16 bytes.
 
     char localBuf[u::k_THREAD_NAME_BUF_SIZE];
 
@@ -482,15 +481,6 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::setThreadName(
 {
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||    \
     defined(BSLS_PLATFORM_OS_SOLARIS)
-    // http://linux.die.net/man/2/prctl says that 'prctl(PR_SET_NAME, ...)' can
-    // only handle names up to 16 bytes, including the terminating '\0'.
-
-    // http://linux.die.net/man/3/pthread_getname_np says that
-    // 'pthread_setname_np' can't handle a string longer than 16 bytes,
-    // including the terminating '\0'.
-
-    // 'man pthread_setname_np' on Solaris says the max thread name length is
-    // 31 characters.
 
     char buffer[u::k_THREAD_NAME_BUF_SIZE];
     const bsl::size_t len = bsl::min(sizeof(buffer) - 1, threadName.length());
