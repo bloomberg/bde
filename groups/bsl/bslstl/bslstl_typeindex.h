@@ -34,16 +34,20 @@ BSLS_IDENT("$Id: $")
 // Assume you are implementing a graphics library, and need to represent a
 // variety of shapes.  You might have a simple hierarchy, such as:
 //..
-//                              .---------.
-//                             (   Shape   )
-//                              `---------'
-//                              ^    ^    ^
-//                            /      |      \
-//                           /       |       \
-//                          /        |        \
-//                 ,------.      ,--------.     ,-------.
-//                ( Circle )    ( Triangle )   ( Polygon )
-//                 `------'      `--------'     `-------'
+//  +-----------------------------------------------------------------+
+//  |                                                                 |
+//  |                           .---------.                           |
+//  |                          (   Shape   )                          |
+//  |                           `---------'                           |
+//  |                           ^    ^    ^                           |
+//  |                         /      |      \                         |
+//  |                        /       |       \                        |
+//  |                       /        |        \                       |
+//  |              ,------.      ,--------.     ,-------.             |
+//  |             ( Circle )    ( Triangle )   ( Polygon )            |
+//  |              `------'      `--------'     `-------'             |
+//  |                                                                 |
+//  +-----------------------------------------------------------------+
 //..
 // In order to manage the creation of objects in our hierarchy, we might deploy
 // the Abstract Factory pattern:

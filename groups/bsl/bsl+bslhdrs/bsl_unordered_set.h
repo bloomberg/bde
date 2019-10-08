@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
 #ifdef BSL_OVERRIDES_STD
@@ -24,16 +25,16 @@ BSLS_IDENT("$Id: $")
 
 # include <unordered_set>
 #elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
 // The unordered containers are a feature of the C++11 library, rather than
 // C++03, so might not be present in all native libraries on the platforms we
 // support.  Detect the native header using '__has_include' where available.
-# if __has_include(<unordered_set>)
-#  include <unordered_set>
+#   if __has_include(<unordered_set>)
+#     include <unordered_set>
+#   endif
+# else
+#   include <unordered_set>
 # endif
-#else
-# include <unordered_set>
-#endif
 #endif
 
 // Include Bloomberg's implementation, unless compilation is configured to
