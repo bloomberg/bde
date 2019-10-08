@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 //  |        Greenland Standard Time | America/Godthab     |
 //  |        Greenwich Standard Time | Atlantic/Reykjavik  |
 //  |         Hawaiian Standard Time | Pacific/Honolulu    |
-//  |            India Standard Time | Asia/Calcutta       |
+//  |            India Standard Time | Asia/Kolkata        |
 //  |             Iran Standard Time | Asia/Tehran         |
 //  |           Israel Standard Time | Asia/Jerusalem      |
 //  |           Jordan Standard Time | Asia/Amman          |
