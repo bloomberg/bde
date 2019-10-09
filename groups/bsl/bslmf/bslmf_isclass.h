@@ -75,13 +75,13 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_removecv.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
+#include <bslmf_removecv.h>
 #include <cstdlib>  // TBD Robo transitively needs this for 'bsl::atoi', etc.
 #endif
 
@@ -92,23 +92,16 @@ namespace bslmf {
                              // struct IsClass_Imp
                              // ==================
 
-template <class TYPE>
-struct IsClass_Imp {
+template <class TYPE, class = void>
+struct IsClass_Imp  : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a class type.
+};
 
-    typedef struct { char a; }    YesType;
-    typedef struct { char a[2]; } NoType;
-
-    template <class TEST_TYPE>
-    static
-    YesType test(int TEST_TYPE::*);
-
-    template <class TEST_TYPE>
-    static
-    NoType test(...);
-
-    enum { Value = (sizeof(test<TYPE>(0)) == sizeof(YesType)) };
+template <class TYPE>
+struct IsClass_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>  : bsl::true_type {
+    // This 'struct' template provides a meta-function to determine whether the
+    // (template parameter) 'TYPE' is a class type.
 };
 
 }  // close package namespace
@@ -121,9 +114,7 @@ namespace bsl {
                              // ===============
 
 template <class TYPE>
-struct is_class : integral_constant<bool,
-                                 BloombergLP::bslmf::IsClass_Imp<
-                                      typename remove_cv<TYPE>::type>::Value> {
+struct is_class : BloombergLP::bslmf::IsClass_Imp<TYPE>::type {
     // This 'struct' template implements the 'is_class' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a class.  Note that for implementations without
@@ -177,7 +168,7 @@ struct IsClass : bsl::is_class<TYPE>::type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

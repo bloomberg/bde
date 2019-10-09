@@ -71,6 +71,16 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                      DEFECT DETECTION MACROS
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+    // The older Microsoft compilers cannot parse "abominable" function types
+    // that have trailing cv-qualifiers.
+# define BSLMF_ISEMPTY_NO_ABOMINABLE_TYPES 1
+#endif
+
 //=============================================================================
 //                      WARNING SUPPRESSION
 //-----------------------------------------------------------------------------
@@ -342,15 +352,21 @@ int main(int argc, char *argv[])
 
         // Concern 4,6:
 #define TEST_IS_EMPTY(T, EXP)                                 \
-        ASSERT(EXP == bsl::is_empty<               T>::value);\
-        ASSERT(EXP == bsl::is_empty<const          T>::value);\
-        ASSERT(EXP == bsl::is_empty<      volatile T>::value);\
-        ASSERT(EXP == bsl::is_empty<const volatile T>::value);\
-        ASSERT_V_SAME(               T);                      \
-        ASSERT_V_SAME(const          T);                      \
-        ASSERT_V_SAME(      volatile T);                      \
-        ASSERT_V_SAME(const volatile T)
+        ASSERT(EXP == bsl::is_empty<T               >::value);\
+        ASSERT(EXP == bsl::is_empty<T const         >::value);\
+        ASSERT(EXP == bsl::is_empty<T       volatile>::value);\
+        ASSERT(EXP == bsl::is_empty<T const volatile>::value);\
+        ASSERT_V_SAME(T               );                      \
+        ASSERT_V_SAME(T const         );                      \
+        ASSERT_V_SAME(T       volatile);                      \
+        ASSERT_V_SAME(T const volatile)
         // Macro to add cv qualifiers and test
+        // 'is_empty<T>::value == is_empty_v<T>'
+
+#define TEST_IS_EMPTY_NO_CV(T, EXP)                           \
+        ASSERT(EXP == bsl::is_empty<               T>::value);\
+        ASSERT_V_SAME(               T)
+        // Macro to test whether a non-ccv-qualfiable type is empty, and that
         // 'is_empty<T>::value == is_empty_v<T>'
 
         // Concern 1: empty classes
@@ -367,21 +383,15 @@ int main(int argc, char *argv[])
         TEST_IS_EMPTY(void, false);
         TEST_IS_EMPTY(int, false);
         TEST_IS_EMPTY(double, false);
-        TEST_IS_EMPTY(EmptyStruct*, false);
-        TEST_IS_EMPTY(EmptyStruct&, false);
-#if defined(BSLS_PLATFORM_CMP_IBM)
-          // IBM xlC will not compile an attempt to cv-qualify a function type,
-          // which should simply be ignored.
-        ASSERT(false == bsl::is_empty<function_type>::value);
-#else
-        TEST_IS_EMPTY(function_type, false);
-#endif
         TEST_IS_EMPTY(EnumType, false);
-        TEST_IS_EMPTY(UnionType, false);
-        // Tiny union doesn't work because is_class cannot be fully implemented
-        // without compiler support.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-        TEST_IS_EMPTY(TinyUnionType, false);
+        TEST_IS_EMPTY(EmptyStruct*, false);
+        TEST_IS_EMPTY(int EmptyStruct::*, false);
+
+        TEST_IS_EMPTY_NO_CV(EmptyStruct&, false);
+        TEST_IS_EMPTY_NO_CV(int(), false);
+        TEST_IS_EMPTY_NO_CV(int(...), false);
+#if !defined(BSLMF_ISEMPTY_NO_ABOMINABLE_TYPES)
+        TEST_IS_EMPTY_NO_CV(int(...) const, false);
 #endif
 
         // Concern 3: non-empty classes
@@ -389,6 +399,16 @@ int main(int argc, char *argv[])
         TEST_IS_EMPTY(StructWithVirtualDestructor, false);
         TEST_IS_EMPTY(ClassWithVirtualBase, false);
         TEST_IS_EMPTY(ClassWithNonEmptyBase, false);
+
+        // Unions and C++11 'final' types need special handling to avoid errors
+        // implementing the test for emptiness.
+
+        TEST_IS_EMPTY(UnionType, false);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        TEST_IS_EMPTY(TinyUnionType, false);
+            // Tiny union doesn't work because is_class cannot be fully
+            // implemented without compiler support.
+#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
         TEST_IS_EMPTY(   EmptyFinalStruct, true );
@@ -446,7 +466,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

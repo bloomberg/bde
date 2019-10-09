@@ -6,13 +6,15 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslmf_assert.h>            // for testing only
-#include <bslmf_integralconstant.h>  // for testing only
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+namespace BloombergLP {
+namespace bslmf {
+
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
