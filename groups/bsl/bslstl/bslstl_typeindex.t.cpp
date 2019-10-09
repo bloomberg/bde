@@ -179,16 +179,20 @@ namespace usage {
 // Assume you are implementing a graphics library, and need to represent a
 // variety of shapes.  You might have a simple hierarchy, such as:
 //..
-//                              .---------.
-//                             (   Shape   )
-//                              `---------'
-//                              ^    ^    ^
-//                            /      |      \
-//                           /       |       \
-//                          /        |        \
-//                 ,------.      ,--------.     ,-------.
-//                ( Circle )    ( Triangle )   ( Polygon )
-//                 `------'      `--------'     `-------'
+//  +-----------------------------------------------------------------+
+//  |                                                                 |
+//  |                           .---------.                           |
+//  |                          (   Shape   )                          |
+//  |                           `---------'                           |
+//  |                           ^    ^    ^                           |
+//  |                         /      |      \                         |
+//  |                        /       |       \                        |
+//  |                       /        |        \                       |
+//  |              ,------.      ,--------.     ,-------.             |
+//  |             ( Circle )    ( Triangle )   ( Polygon )            |
+//  |              `------'      `--------'     `-------'             |
+//  |                                                                 |
+//  +-----------------------------------------------------------------+
 //..
 // In order to manage the creation of objects in our hierarchy, we might deploy
 // the Abstract Factory pattern:
@@ -800,9 +804,10 @@ int main(int argc, char *argv[])
         //:   'hashAppend' will produce distinct values (via the 'hasher'
         //:   proxy) (C-1,2,5):
         //:
-        //:   1 In the outer loop, create reference objects 'X' and 'V' having
-        //:     the value corresponding to the same index in the global table
-        //:     of test values.
+        //:   1 On each iteration of the outer loop, create an object 'x', a
+        //:     'const' reference to that object, 'X', and an immutable object
+        //:     'V', all having the value corresponding to the same index in
+        //:     the global table of test values.
         //:
         //:   2 Verify that 'hasher(x)' and 'hasher(V)' produce the same value.
         //:
