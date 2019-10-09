@@ -19848,9 +19848,7 @@ class TestSelection {
     }
 
     // CREATORS
-    TestSelection()
-    {
-    }
+    TestSelection() {}
 };
 
 // CLASS DATA
@@ -20604,18 +20602,18 @@ struct TestDynamicType_ArrayImpUtil<VALUE_TYPE, false> {
     template <class ACCESSOR>
     static int accessElement(const Value&, ACCESSOR, int)
     {
-        return -1;
+        bsl::abort();
     }
 
     template <class MANIPULATOR>
     static int manipulateElement(Value *, MANIPULATOR&, int)
     {
-        return -1;
+        bsl::abort();
     }
 
-    static void resize(Value *, int) {}
+    static void resize(Value *, int) { bsl::abort(); }
 
-    static bsl::size_t size(const Value&) { return 0; }
+    static bsl::size_t size(const Value&) { bsl::abort(); }
 };
 
                     // ===================================
@@ -20719,24 +20717,214 @@ struct TestDynamicType_ChoiceImpUtil<VALUE_TYPE, false> {
     template <class ACCESSOR>
     static int accessSelection(const Value&, ACCESSOR&)
     {
-        return -1;
+        bsl::abort();
     }
 
-    static bool hasSelection(const Value&, int) { return false; }
+    static bool hasSelection(const Value&, int) { bsl::abort(); }
 
-    static bool hasSelection(const Value&, const char *, int) { return false; }
+    static bool hasSelection(const Value&, const char *, int) { bsl::abort(); }
 
-    static int makeSelection(Value *, int) { return -1; }
+    static int makeSelection(Value *, int) { bsl::abort(); }
 
-    static int makeSelection(Value *, const char *, int) { return -1; }
+    static int makeSelection(Value *, const char *, int) { bsl::abort(); }
 
     template <class MANIPULATOR>
     static int manipulateSelection(Value *, MANIPULATOR&)
     {
-        return -1;
+        bsl::abort();
     }
 
-    static int selectionId(const Value&) { return 0; }
+    static int selectionId(const Value&) { bsl::abort(); }
+};
+
+                // ===========================================
+                // class TestDynamicType_CustomizedTypeImpUtil
+                // ===========================================
+
+template <class VALUE_TYPE,
+          bool IS_CUSTOMIZED_TYPE =
+              bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
+struct TestDynamicType_CustomizedTypeImpUtil {
+    // This utility 'struct' provides a namespace for a suite of utility
+    // fucntinos used by 'TestDynamicType' to implement the 'bdlat'
+    // 'CustomizedType' concept for 'VALUE_TYPE' template parameters that
+    // themselves satisfy the 'bdlat' 'CustomizedType' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+    typedef
+        typename bdlat_CustomizedTypeFunctions::template BaseType<Value>::Type
+            BaseType;
+
+    // CLASS METHODS
+    template <class BASE_TYPE>
+    static int convertFromBaseType(Value *value, const BASE_TYPE& object)
+    {
+        return bdlat_CustomizedTypeFunctions::convertFromBaseType(value,
+                                                                  object);
+    }
+
+    static const BaseType& convertToBaseType(const Value& value)
+    {
+        return bdlat_CustomizedTypeFunctions::convertToBaseType(value);
+    }
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_CustomizedTypeImpUtil<VALUE_TYPE, false> {
+    // This utility 'struct' provides a namespace for a suite of utility
+    // functions used by 'TestDynamicType' to provide a stub implementation of
+    // the 'bdlat' 'CustomizedType' concept for 'VALUE_TYPE' template
+    // parameters that do not satisfy the 'bdlat' 'CustomizedType' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+    typedef VALUE_TYPE BaseType;
+
+    // CLASS METHODS
+    template <class BASE_TYPE>
+    static int convertFromBaseType(Value *, const BASE_TYPE&)
+    {
+        bsl::abort();
+    }
+
+    static const BaseType& convertToBaseType(const Value& value)
+    {
+        bsl::abort();
+    }
+};
+
+                  // ========================================
+                  // class TestDynamicType_EnumerationImpUtil
+                  // ========================================
+
+template <class VALUE_TYPE,
+          bool IS_ENUMERATION =
+              bdlat_TypeCategory::e_ENUMERATION_CATEGORY ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
+struct TestDynamicType_EnumerationImpUtil {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to implement the 'bdlat' 'Enumeration' concept for
+    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
+    // 'Enumeration' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    static int fromInt(Value *value, int integer)
+    {
+        return bdlat_EnumFunctions::fromInt(value, integer);
+    }
+
+    static int fromString(Value *value, const char *string, int stringLength)
+    {
+        return bdlat_EnumFunctions::fromString(value, string, stringLength);
+    }
+
+    static void toInt(int *result, const Value& value)
+    {
+        return bdlat_EnumFunctions::toInt(result, value);
+    }
+
+    static void toString(bsl::string *result, const Value& value)
+    {
+        return bdlat_EnumFunctions::toString(result, value);
+    }
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_EnumerationImpUtil<VALUE_TYPE, false> {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
+    // 'Enumeration' concept for 'VALUE_TYPE' template parameters that do not
+    // satisfy the 'bdlat' 'Enumeration' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    static int fromInt(Value *, int) { bsl::abort(); }
+
+    static int fromString(Value *, const char *, int) { bsl::abort(); }
+
+    static void toInt(int *, const Value&) { bsl::abort(); }
+
+    static void toString(bsl::string *, const Value&) { bsl::abort(); }
+};
+
+                 // ==========================================
+                 // class TestDynamicType_NullableValueImpUtil
+                 // ==========================================
+
+template <class VALUE_TYPE,
+          bool IS_NULLABLE_VALUE =
+              bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
+struct TestDynamicType_NullableValueImpUtil {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to implement the 'bdlat' 'NullableValue' concept
+    // for 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
+    // 'NullableValue' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    static void makeValue(Value *value)
+    {
+        bdlat_NullableValueFunctions::makeValue(value);
+    }
+
+    template <class MANIPULATOR>
+    static int manipulateValue(Value *value, MANIPULATOR& manipulator)
+    {
+        return bdlat_NullableValueFunctions::manipulateValue(value,
+                                                             manipulator);
+    }
+
+    template <class ACCESSOR>
+    static int accessValue(const Value& value, ACCESSOR& accessor)
+    {
+        return bdlat_NullableValueFunctions::accessValue(value, accessor);
+    }
+
+    static bool isNull(const Value& value)
+    {
+        return bdlat_NullableValueFunctions::isNull(value);
+    }
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_NullableValueImpUtil<VALUE_TYPE, false> {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
+    // 'NullableValue' concept for 'VALUE_TYPE' template parameters that do not
+    // satisfy the 'bdlat' 'NullableValue' concept.
+
+    // TYPES
+    typedef VALUE_TYPE Value;
+
+    // CLASS METHODS
+    static void makeValue(Value *) { bsl::abort(); }
+
+    template <class MANIPULATOR>
+    static int manipulateValue(Value *, MANIPULATOR&)
+    {
+        bsl::abort();
+    }
+
+    template <class ACCESSOR>
+    static int accessValue(const Value&, ACCESSOR&)
+    {
+        bsl::abort();
+    }
+
+    static bool isNull(const Value&) { bsl::abort(); }
 };
 
                    // =====================================
@@ -20876,41 +21064,41 @@ struct TestDynamicType_SequenceImpUtil<VALUE_TYPE, false> {
     template <class ACCESSOR>
     static int accessAttribute(const Value&, ACCESSOR&, const char *, int)
     {
-        return -1;
+        bsl::abort();
     }
 
     template <class ACCESSOR>
     static int accessAttribute(const Value&, ACCESSOR&, int)
     {
-        return -1;
+        bsl::abort();
     }
 
     template <class ACCESSOR>
     static int accessAttributes(const Value&, ACCESSOR&)
     {
-        return -1;
+        bsl::abort();
     }
 
-    static bool hasAttribute(const Value&, const char *, int) { return false; }
+    static bool hasAttribute(const Value&, const char *, int) { bsl::abort(); }
 
-    static bool hasAttribute(const Value&, int) { return false; }
+    static bool hasAttribute(const Value&, int) { bsl::abort(); }
 
     template <class MANIPULATOR>
     static int manipulateAttribute(Value *, MANIPULATOR&, const char *, int)
     {
-        return -1;
+        bsl::abort();
     }
 
     template <class MANIPULATOR>
     static int manipulateAttribute(Value *, MANIPULATOR&, int)
     {
-        return -1;
+        bsl::abort();
     }
 
     template <class MANIPULATOR>
     static int manipulateAttributes(Value *, MANIPULATOR&)
     {
-        return -1;
+        bsl::abort();
     }
 };
 
@@ -20920,16 +21108,15 @@ struct TestDynamicType_SequenceImpUtil<VALUE_TYPE, false> {
 
 template <class VALUE_TYPE>
 class TestDynamicType {
-    // This in-core value-semantic class provides a basic implementation *of*
-    // *a* *subset* of the 'bdlat' 'DynamicType' concept.  The template
-    // parameter 'VALUE_TYPE' specifies the underlying value of this type, and
-    // further, specifies which of the 'bdlat' attribute concepts this type
-    // implements.  The 'VALUE_TYPE' must implement exactly 1 of 3 'bdlat'
-    // concepts: 'Array', 'Choice', or 'Sequence'.  This type implements the
-    // same 'bdlat' concept as the 'VALUE_TYPE' through the 'bdlat'
-    // 'DynamicType' interface.  The program is ill-formed unless 'VALUE_TYPE'
-    // meets the requirements of exactly one of the 'bdlat' 'Array', 'Choice',
-    // or 'Sequence' concepts.
+    // This in-core value-semantic class provides a basic implementation of the
+    // 'bdlat' 'DynamicType' concept.  The template parameter 'VALUE_TYPE'
+    // specifies the underlying value of this type, and further, specifies
+    // which of the 'bdlat' attribute concepts this type implements.  This type
+    // implements the same 'bdlat' concept as the 'VALUE_TYPE' through the
+    // 'bdlat' 'DynamicType' interface.  The program is ill-formed unless
+    // 'VALUE_TYPE' meets the requirements of at least one of the 'bdlat'
+    // 'Array', 'Choice', 'CustomizedType', 'Enumeration', 'NullableValue', or
+    // 'Sequence' concepts.
 
   public:
     // TYPES
@@ -20939,25 +21126,31 @@ class TestDynamicType {
 
   private:
     // PRIVATE TYPES
-    typedef TestDynamicType_ArrayImpUtil<VALUE_TYPE>    ArrayImpUtil;
-    typedef TestDynamicType_ChoiceImpUtil<VALUE_TYPE>   ChoiceImpUtil;
+    typedef TestDynamicType_ArrayImpUtil<VALUE_TYPE>  ArrayImpUtil;
+    typedef TestDynamicType_ChoiceImpUtil<VALUE_TYPE> ChoiceImpUtil;
+    typedef TestDynamicType_CustomizedTypeImpUtil<VALUE_TYPE>
+                                                           CustomizedTypeImpUtil;
+    typedef TestDynamicType_EnumerationImpUtil<VALUE_TYPE> EnumerationImpUtil;
+    typedef TestDynamicType_NullableValueImpUtil<VALUE_TYPE>
+                                                        NullableValueImpUtil;
     typedef TestDynamicType_SequenceImpUtil<VALUE_TYPE> SequenceImpUtil;
 
     // PRIVATE CLASS DATA
     enum {
-        e_ARRAY    = bdlat_TypeCategory::e_ARRAY_CATEGORY,
-        e_CHOICE   = bdlat_TypeCategory::e_CHOICE_CATEGORY,
-        e_SEQUENCE = bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+        e_ARRAY           = bdlat_TypeCategory::e_ARRAY_CATEGORY,
+        e_CHOICE          = bdlat_TypeCategory::e_CHOICE_CATEGORY,
+        e_CUSTOMIZED_TYPE = bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY,
+        e_ENUMERATION     = bdlat_TypeCategory::e_ENUMERATION_CATEGORY,
+        e_NULLABLE_VALUE  = bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY,
+        e_SEQUENCE        = bdlat_TypeCategory::e_SEQUENCE_CATEGORY
     };
 
     // PRIVATE CLASS FUNCTIONS
     static bool valueHasCategory(int category)
         // Return 'true' if the 'VALUE_TYPE' implements the 'bdlat' concept
         // identified by the specified 'category'.  The behavior is undefined
-        // unless the value of 'category' is equal to one of
-        // 'bdlat_TypeCategory::e_ARRAY_CATEGORY',
-        // 'bdlat_TypeCategory::e_CHOICE_CATEGORY', or
-        // 'bdlat_TypeCategory::e_SEQUENCE_CATEGORY'.
+        // unless 'category' is equal to one of the enumerators of
+        // 'bdlat_TypeCategory::Value'.
     {
         return category == bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION;
     }
@@ -21066,6 +21259,64 @@ class TestDynamicType {
 
         return ChoiceImpUtil::manipulateSelection(&d_value.object(),
                                                   manipulator);
+    }
+
+    template <class BASE_TYPE>
+    int customizedTypeConvertFromBaseType(const BASE_TYPE& base)
+        // If an explicit conversion from the specified 'BASE_TYPE' type to the
+        // 'Value' type exists, load into the value of this object the value of
+        // the specified 'base' object explicitly converted to 'Value'.  Return
+        // 0 on success, and a non-zero value otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CUSTOMIZED_TYPE));
+
+        return CustomizedTypeImpUtil::convertFromBaseType(&d_value.object(),
+                                                          base);
+    }
+
+    int enumerationFromInt(int number)
+        // Load into the underlying value of this object the enumerator
+        // matching the specified 'number'.  Return 0 on success, and a
+        // non-zero value with no effect on 'value' if 'number' does not match
+        // any enumerator.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ENUMERATION));
+
+        return EnumerationImpUtil::fromInt(&d_value.object(), number);
+    }
+
+    int enumerationFromString(const char *string, int stringLength)
+        // Load into the underlying value of this object the enumerator
+        // matching the specified 'string' of the specified 'stringLength'.
+        // Return 0 on success, and a non-zero value with no effect on 'result'
+        // if 'string' and 'stringLength' do not match any enumerator.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ENUMERATION));
+
+        return EnumerationImpUtil::fromString(
+            &d_value.object(), string, stringLength);
+    }
+
+    void nullableValueMakeValue()
+        // Assign to the the underlying value of this object the default value
+        // the contained type.
+    {
+        BSLS_ASSERT(valueHasCategory(e_NULLABLE_VALUE));
+
+        return NullableValueImpUtil::makeValue(&d_value.object());
+    }
+
+    template <class MANIPULATOR>
+    int nullableValueManipulateValue(MANIPULATOR& manipulator)
+        // Invoke the specified 'manipulator' on the address of the underlying
+        // value of this object.  Return the value from the invocation of
+        // 'manipulator'.  The behavior is undefined unless this object does
+        // not contain a null value.
+    {
+        BSLS_ASSERT(valueHasCategory(e_NULLABLE_VALUE));
+
+        return NullableValueImpUtil::manipulateValue(&d_value.object(),
+                                                     manipulator);
     }
 
     template <class MANIPULATOR>
@@ -21189,6 +21440,57 @@ class TestDynamicType {
         BSLS_ASSERT(valueHasCategory(e_CHOICE));
 
         return ChoiceImpUtil::selectionId(d_value.object());
+    }
+
+    const typename CustomizedTypeImpUtil::BaseType&
+    customizedTypeConvertToBaseType() const
+        // Return a reference providing non-modifiable access to the 'Base'
+        // subobject of the underlying value of this object.
+    {
+        BSLS_ASSERT(valueHasCategory(e_CUSTOMIZED_TYPE));
+
+        return CustomizedTypeImpUtil::convertToBaseType(d_value.object());
+    }
+
+    void enumerationToInt(int *result) const
+        // Load into the specified 'result' the integer representation exactly
+        // matching the enumerator name corresponding to the underlying value
+        // of this object.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ENUMERATION));
+
+        EnumerationImpUtil::toInt(result, d_value.object());
+    }
+
+    void enumerationToString(bsl::string *result) const
+        // Load into the specified 'result' the string representation exactly
+        // matching the enumerator name corresponding to the underlying value
+        // of this object.
+    {
+        BSLS_ASSERT(valueHasCategory(e_ENUMERATION));
+
+        EnumerationImpUtil::toString(result, d_value.object());
+    }
+
+    template <class ACCESSOR>
+    int nullableValueAccessValue(ACCESSOR& accessor) const
+        // Invoke the specified 'accessor' on the non-modifiable underlying
+        // value of this object.  Return the value from the invocation of
+        // 'accessor'.  The behavior is undefined unless the underlying value
+        // of this object does not contain a null value.
+    {
+        BSLS_ASSERT(valueHasCategory(e_NULLABLE_VALUE));
+
+        return NullableValueImpUtil::accessValue(d_value.object(), accessor);
+    }
+
+    bool nullableValueIsNull() const
+        // Return 'true' if the underlying value of this object contains a null
+        // value, and 'false' otherwise.
+    {
+        BSLS_ASSERT(valueHasCategory(e_NULLABLE_VALUE));
+
+        return NullableValueImpUtil::isNull(d_value.object());
     }
 
     template <class ACCESSOR>
@@ -21410,6 +21712,108 @@ bool bdlat_choiceHasSelection(
     return object.choiceHasSelection(selectionName, selectionNameLength);
 }
 
+template <class VALUE_TYPE, class BASE_TYPE>
+int bdlat_customizedTypeConvertFromBaseType(
+                                           TestDynamicType<VALUE_TYPE> *object,
+                                           const BASE_TYPE&             value)
+    // If an explicit conversion from the specified 'BASE_TYPE' type to the
+    // specified 'VALUE_TYPE' type exists, load into the underlying value of
+    // the specified 'object' the value of the specified 'base' object
+    // explicitly converted to 'VALUE_TYPE'.  Return 0 on success, and a
+    // non-zero value otherwise.
+{
+    return object->customizedTypeConvertFromBaseType(value);
+}
+
+template <class VALUE_TYPE>
+const typename TestDynamicType<VALUE_TYPE>::BaseType&
+bdlat_customizedTypeConvertToBaseType(
+                                     const TestDynamicType<VALUE_TYPE>& object)
+    // Return a reference providing non-modifiable access to the 'Base'
+    // subobject of the underlying value of the specified 'object'.
+{
+    return object.customizedTypeConvertToBaseType();
+}
+
+template <class VALUE_TYPE>
+int bdlat_enumFromInt(TestDynamicType<VALUE_TYPE> *object, int number)
+    // Load into the specified 'object' the enumerator matching the specified
+    // 'number'.  Return 0 on success, and a non-zero value with no effect on
+    // 'value' if 'number' does not match any enumerator.
+{
+    return object->enumerationFromInt(number);
+}
+
+template <class VALUE_TYPE>
+int bdlat_enumFromString(TestDynamicType<VALUE_TYPE> *object,
+                         const char                  *string,
+                         int                          stringLength)
+    // Load into the specified 'object' the enumerator matching the specified
+    // 'string' of the specified 'stringLength'.  Return 0 on success, and a
+    // non-zero value with no effect on 'result' if 'string' and 'stringLength'
+    // do not match any enumerator.
+{
+    return object->enumerationFromString(string, stringLength);
+}
+
+template <class VALUE_TYPE>
+void bdlat_enumToInt(int *result, const TestDynamicType<VALUE_TYPE>& object)
+    // Load into the specified 'result' the integer representation exactly
+    // matching the enumerator name corresponding to the specified enumeration
+    // 'object'.
+{
+    return object.enumerationToInt(result);
+}
+
+template <class VALUE_TYPE>
+void bdlat_enumToString(bsl::string                        *result,
+                        const TestDynamicType<VALUE_TYPE>&  object)
+    // Load into the specified 'result' the string representation exactly
+    // matching the enumerator name corresponding to the specified enumeration
+    // 'object'.
+{
+    return object.enumerationToString(result);
+}
+
+template <class VALUE_TYPE>
+void bdlat_nullableValueMakeValue(TestDynamicType<VALUE_TYPE> *object)
+    // Assign to the specified "nullable" 'object' the default value for the
+    // contained type.
+{
+    object->nullableValueMakeValue();
+}
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_nullableValueManipulateValue(
+                                      TestDynamicType<VALUE_TYPE> *object,
+                                      MANIPULATOR&                 manipulator)
+    // Invoke the specified 'manipulator' on the address of the value stored in
+    // the specified "nullable" 'object'.  Return the value from the invocation
+    // of 'manipulator'.  The behavior is undefined unless 'object' does not
+    // contain a null value.
+{
+    return object->nullableValueManipulateValue(manipulator);
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_nullableValueAccessValue(const TestDynamicType<VALUE_TYPE>& object,
+                                   ACCESSOR&                          accessor)
+    // Invoke the specified 'accessor' on the non-modifiable value stored in
+    // the specified "nullable" 'object'.  Return the value from the invocation
+    // of 'accessor'.  The behavior is undefined unless 'object' does not
+    // contain a null value.
+{
+    return object.nullableValueAccessValue(accessor);
+}
+
+template <class VALUE_TYPE>
+bool bdlat_nullableValueIsNull(const TestDynamicType<VALUE_TYPE>& object)
+    // Return 'true' if the specified "nullable" 'object' contains a null
+    // value, and 'false' otherwise.
+{
+    return object.nullableValueIsNull();
+}
+
 template <class VALUE_TYPE>
 int bdlat_choiceSelectionId(const TestDynamicType<VALUE_TYPE>& object)
     // Return the id of the current selection of the specified 'object' if the
@@ -21563,33 +21967,112 @@ struct ElementType<TestDynamicType<VALUE_TYPE> > {
 
 template <class VALUE_TYPE>
 struct IsArray<TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = 1 };
+    enum { VALUE = IsArray<VALUE_TYPE>::VALUE };
 };
 
 }  // close bdlat_ArrayFunctions namespace
 
 template <class VALUE_TYPE>
-struct bdlat_IsBasicChoice<TestDynamicType<VALUE_TYPE> > : bsl::true_type {
+struct bdlat_IsBasicChoice<TestDynamicType<VALUE_TYPE> >
+: bdlat_IsBasicChoice<VALUE_TYPE> {
 };
 
 namespace bdlat_ChoiceFunctions {
 
 template <class VALUE_TYPE>
 struct IsChoice<TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = 1 };
+    enum { VALUE = IsChoice<VALUE_TYPE>::VALUE };
 };
 
 }  // close bdlat_ChoiceFunctions namespace
 
+template <class VALUE_TYPE,
+          bool IS_CUSTOMIZED_TYPE =
+              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+              bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY>
+struct TestDynamicType_BaseTypeImpl {
+    typedef typename bdlat_CustomizedTypeFunctions::BaseType<VALUE_TYPE>::Type
+        Type;
+};
+
 template <class VALUE_TYPE>
-struct bdlat_IsBasicSequence<TestDynamicType<VALUE_TYPE> > : bsl::true_type {
+struct TestDynamicType_BaseTypeImpl<VALUE_TYPE, false> {
+    typedef struct {
+    } Type;
+};
+
+template <class VALUE_TYPE>
+struct bdlat_IsBasicCustomizedType<TestDynamicType<VALUE_TYPE> >
+: bdlat_IsBasicCustomizedType<VALUE_TYPE> {
+};
+
+namespace bdlat_CustomizedTypeFunctions {
+
+template <class VALUE_TYPE>
+struct BaseType<TestDynamicType<VALUE_TYPE> > {
+    typedef typename TestDynamicType_BaseTypeImpl<VALUE_TYPE>::Type Type;
+};
+
+template <class VALUE_TYPE>
+struct IsCustomizedType<TestDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsCustomizedType<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_CustomizedTypeFunctions namespace
+
+template <class VALUE_TYPE>
+struct bdlat_IsBasicEnumeration<TestDynamicType<VALUE_TYPE> >
+: bdlat_IsBasicEnumeration<VALUE_TYPE> {
+};
+
+namespace bdlat_EnumFunctions {
+
+template <class VALUE_TYPE>
+struct IsEnumeration<TestDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsEnumeration<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_EnumFunctions namespace
+
+template <class VALUE_TYPE,
+          bool IS_NULLABLE_VALUE =
+              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+              bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY>
+struct TestDynamicType_ValueTypeImpl {
+    typedef typename bdlat_NullableValueFunctions::ValueType<VALUE_TYPE>::Type
+        Type;
+};
+
+template <class VALUE_TYPE>
+struct TestDynamicType_ValueTypeImpl<VALUE_TYPE, false> {
+    typedef struct {
+    } Type;
+};
+
+namespace bdlat_NullableValueFunctions {
+
+template <class VALUE_TYPE>
+struct ValueType<TestDynamicType<VALUE_TYPE> > {
+    typedef typename TestDynamicType_ValueTypeImpl<VALUE_TYPE>::Type Type;
+};
+
+template <class VALUE_TYPE>
+struct IsNullableValue<TestDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsNullableValue<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_NullableValueFunctions namespace
+
+template <class VALUE_TYPE>
+struct bdlat_IsBasicSequence<TestDynamicType<VALUE_TYPE> >
+: bdlat_IsBasicSequence<VALUE_TYPE> {
 };
 
 namespace bdlat_SequenceFunctions {
 
 template <class VALUE_TYPE>
 struct IsSequence<TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = 1 };
+    enum { VALUE = IsSequence<VALUE_TYPE>::VALUE };
 };
 
 }  // close bdlat_SequenceFunctions namespace
@@ -21614,9 +22097,7 @@ class TestEnumerator {
     static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
 
     // CREATORS
-    TestEnumerator()
-    {
-    }
+    TestEnumerator() {}
 };
 
 // CLASS DATA
@@ -21943,9 +22424,7 @@ class TestAttribute {
     }
 
     // CREATORS
-    TestAttribute()
-    {
-    }
+    TestAttribute() {}
 };
 
 // CLASS DATA
@@ -22581,6 +23060,1046 @@ struct IsSequence<TestSequence<V0, V1, V2> > {
 
 }  // close bdlat_SequenceFunctions namespace
 
+                      // ===============================
+                      // class TestTaggedValue_ArrayBase
+                      // ===============================
+
+// FORWARD DECLARATIONS
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue;
+
+template <class TAG_TYPE,
+          class VALUE_TYPE,
+          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_ARRAY_CATEGORY ||
+                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+class TestTaggedValue_ArrayBase {
+    // This class provides a base class and member functions implementing the
+    // 'bdlat' 'Array' concept for 'TestTaggedValue' specializations having a
+    // 'VALUE_TYPE' that itself implements the 'bdlat' 'Array' concept.
+
+  public:
+    // TYPES
+    typedef typename bdlat_ArrayFunctions::ElementType<VALUE_TYPE>::Type
+        ElementType;
+
+    // CLASS DATA
+    enum {
+        k_IS_ARRAY = bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE,
+    };
+
+  private:
+    // PRIVATE MANIPULATORS
+    VALUE_TYPE& object()
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<Derived *>(this)->d_value.object();
+    }
+
+    // PRIVATE ACCESSORS
+    const VALUE_TYPE& object() const
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<const Derived *>(this)->d_value.object();
+    }
+
+  public:
+    // MANIPULATORS
+    template <class MANIPULATOR>
+    int manipulateElement(MANIPULATOR& manipulator, int index)
+    {
+        return bdlat_ArrayFunctions::manipulateElement(
+            &this->object(), manipulator, index);
+    }
+
+    void resize(int newSize)
+    {
+        return bdlat_ArrayFunctions::resize(&this->object(), newSize);
+    }
+
+    // ACCESSORS
+    template <class ACCESSOR>
+    int accessElement(ACCESSOR& accessor, int index) const
+    {
+        return bdlat_ArrayFunctions::accessElement(
+            this->object(), accessor, index);
+    }
+
+    bsl::size_t size() const
+    {
+        return bdlat_ArrayFunctions::size(this->object());
+    }
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue_ArrayBase<TAG_TYPE, VALUE_TYPE, false> {
+    // This class provides a base class for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Array'
+    // concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_ARRAY = false };
+};
+
+                      // ================================
+                      // class TestTaggedValue_ChoiceBase
+                      // ================================
+
+template <class TAG_TYPE,
+          class VALUE_TYPE,
+          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_CHOICE_CATEGORY ||
+                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+class TestTaggedValue_ChoiceBase {
+    // This class provides a base class and member functions implementing the
+    // 'bdlat' 'Choice' concept for 'TestTaggedValue' specializations having a
+    // 'VALUE_TYPE' that itself implements the 'bdlat' 'Choice' concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::VALUE };
+
+  private:
+    // PRIVATE MANIPULATORS
+    VALUE_TYPE& object()
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<Derived *>(this)->d_value.object();
+    }
+
+    // PRIVATE ACCESSORS
+    const VALUE_TYPE& object() const
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<const Derived *>(this)->d_value.object();
+    }
+
+  public:
+    // MANIPULATORS
+    int makeSelection(int selectionId)
+    {
+        return bdlat_ChoiceFunctions::makeSelection(&this->object(),
+                                                    selectionId);
+    }
+
+    int makeSelection(const char *selectionName, int selectionNameLength)
+    {
+        return bdlat_ChoiceFunctions::makeSelection(
+            &this->object(), selectionName, selectionNameLength);
+    }
+
+    template <class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator)
+    {
+        return bdlat_ChoiceFunctions::manipulateSelection(&this->object(),
+                                                          manipulator);
+    }
+
+    // ACCESSORS
+    template <class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const
+    {
+        return bdlat_ChoiceFunctions::accessSelection(this->object(),
+                                                      accessor);
+    }
+
+    bool hasSelection(int selectionId) const
+    {
+        return bdlat_ChoiceFunctions::hasSelection(this->object(),
+                                                   selectionId);
+    }
+
+    bool hasSelection(const char *selectionName, int selectionNameLength) const
+    {
+        return bdlat_ChoiceFunctions::hasSelection(
+            this->object(), selectionName, selectionNameLength);
+    }
+
+    int selectionId() const
+    {
+        return bdlat_ChoiceFunctions::selectionId(this->object());
+    }
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue_ChoiceBase<TAG_TYPE, VALUE_TYPE, false> {
+    // This class provides a base class for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Choice'
+    // concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_CHOICE = false };
+};
+
+                  // ========================================
+                  // class TestTaggedValue_CustomizedTypeBase
+                  // ========================================
+
+template <class TAG_TYPE,
+          class VALUE_TYPE,
+          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY ||
+                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+class TestTaggedValue_CustomizedTypeBase {
+    // This class provides a base class and member functions implementing the
+    // 'bdlat' 'CustomizedType' concept for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that itself implements the 'bdlat'
+    // 'CustomizedType' concept.
+
+  public:
+    // TYPES
+    typedef typename bdlat_CustomizedTypeFunctions::BaseType<VALUE_TYPE>::Type
+        BaseType;
+
+    // CLASS DATA
+    enum {
+        k_IS_CUSTOMIZED_TYPE =
+            bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::VALUE
+    };
+
+  private:
+    // PRIVATE MANIPULATORS
+    VALUE_TYPE& object()
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<Derived *>(this)->d_value.object();
+    }
+
+    // PRIVATE ACCESSORS
+    const VALUE_TYPE& object() const
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<const Derived *>(this)->d_value.object();
+    }
+
+  public:
+    // MANIPULATORS
+    template <class BASE_TYPE>
+    int convertFromBaseType(const BASE_TYPE& object)
+    {
+        return bdlat_CustomizedTypeFunctions::convertFromBaseType(
+            &this->object(), object);
+    }
+
+    // ACCESSORS
+    const BaseType& convertToBaseType() const
+    {
+        return bdlat_CustomizedTypeFunctions::convertToBaseType(
+            this->object());
+    }
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue_CustomizedTypeBase<TAG_TYPE, VALUE_TYPE, false> {
+    // This class provides a base class for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that does not implement the 'bdlat'
+    // 'CustomizedType' concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_CUSTOMIZED_TYPE = false };
+};
+
+                   // =====================================
+                   // class TestTaggedValue_DynamicTypeBase
+                   // =====================================
+
+template <class TAG_TYPE,
+          class VALUE_TYPE,
+          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                 bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+class TestTaggedValue_DynamicTypeBase {
+    // This class provides a base class and member functions implementing the
+    // 'bdlat' 'DynamicType' concept for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that itself implements the 'bdlat' 'DynamicType'
+    // concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_DYNAMIC_TYPE = true };
+
+  private:
+    // PRIVATE ACCESSORS
+    const VALUE_TYPE& object() const
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<const Derived *>(this)->d_value.object();
+    }
+
+  public:
+    // ACCESSORS
+    bdlat_TypeCategory::Value select() const
+    {
+        return bdlat_TypeCategoryFunctions::select(this->object());
+    }
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue_DynamicTypeBase<TAG_TYPE, VALUE_TYPE, false> {
+    // This class provides a base class for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'DynamicType'
+    // concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_DYNAMIC_TYPE = false };
+};
+
+                   // =====================================
+                   // class TestTaggedValue_EnumerationBase
+                   // =====================================
+
+template <class TAG_TYPE,
+          class VALUE_TYPE,
+          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_ENUMERATION_CATEGORY ||
+                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+class TestTaggedValue_EnumerationBase {
+    // This class provides a base class and member functions implementing the
+    // 'bdlat' 'Enumeration' concept for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that itself implements the 'bdlat' 'Enumeration'
+    // concept.
+
+  public:
+    // CLASS DATA
+    enum {
+        k_IS_ENUMERATION =
+            bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::VALUE
+    };
+
+  private:
+    // PRIVATE MANIPULATORS
+    VALUE_TYPE& object()
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<Derived *>(this)->d_value.object();
+    }
+
+    // PRIVATE ACCESSORS
+    const VALUE_TYPE& object() const
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<const Derived *>(this)->d_value.object();
+    }
+
+  public:
+    // MANIPULATORS
+    int fromInt(int value)
+    {
+        return bdlat_EnumFunctions::fromInt(&this->object(), value);
+    }
+
+    int fromString(const char *string, int stringLength)
+    {
+        return bdlat_EnumFunctions::fromString(
+            &this->object(), string, stringLength);
+    }
+
+    // ACCESSORS
+    void toInt(int *result) const
+    {
+        bdlat_EnumFunctions::toInt(result, this->object());
+    }
+
+    void toString(bsl::string *result) const
+    {
+        bdlat_EnumFunctions::toString(result, this->object());
+    }
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue_EnumerationBase<TAG_TYPE, VALUE_TYPE, false> {
+    // This class provides a base class for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Enumeration'
+    // concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_ENUMERATION = false };
+};
+
+                  // =======================================
+                  // class TestTaggedValue_NullableValueBase
+                  // =======================================
+
+template <class TAG_TYPE,
+          class VALUE_TYPE,
+          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY ||
+                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+class TestTaggedValue_NullableValueBase {
+    // This class provides a base class and member functions implementing the
+    // 'bdlat' 'NullableValue' concept for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that itself implements the 'bdlat' 'NullableValue'
+    // concept.
+
+  public:
+    // TYPES
+    typedef typename bdlat_NullableValueFunctions::template ValueType<
+        VALUE_TYPE>::Type ValueType;
+
+    // CLASS DATA
+    enum {
+        k_IS_NULLABLE_VALUE =
+            bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::VALUE
+    };
+
+  private:
+    // PRIVATE MANIPULATORS
+    VALUE_TYPE& object()
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<Derived *>(this)->d_value.object();
+    }
+
+    // PRIVATE ACCESSORS
+    const VALUE_TYPE& object() const
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<const Derived *>(this)->d_value.object();
+    }
+
+  public:
+    // MANIPULATORS
+    void makeValue()
+    {
+        bdlat_NullableValueFunctions::makeValue(&this->object());
+    }
+
+    template <class MANIPULATOR>
+    int manipulateValue(MANIPULATOR& manipulator)
+    {
+        return bdlat_NullableValueFunctions::manipulateValue(&this->object(),
+                                                             manipulator);
+    }
+
+    // ACCESSORS
+    template <class ACCESSOR>
+    int accessValue(ACCESSOR& accessor) const
+    {
+        return bdlat_NullableValueFunctions::accessValue(this->object(),
+                                                         accessor);
+    }
+
+    bool isNull() const
+    {
+        return bdlat_NullableValueFunctions::isNull(this->object());
+    }
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue_NullableValueBase<TAG_TYPE, VALUE_TYPE, false> {
+    // This class provides a base class for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that does not implement the 'bdlat'
+    // 'NullableValue' concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_NULLABLE_VALUE = false };
+};
+
+                     // ==================================
+                     // class TestTaggedValue_SequenceBase
+                     // ==================================
+
+template <class TAG_TYPE,
+          class VALUE_TYPE,
+          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_SEQUENCE_CATEGORY ||
+                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+class TestTaggedValue_SequenceBase {
+    // This class provides a base class and member functions implementing the
+    // 'bdlat' 'Sequence' concept for 'TestTaggedValue' specializations having
+    // a 'VALUE_TYPE' that itself implements the 'bdlat' 'Sequence' concept.
+
+  public:
+    // CLASS DATA
+    enum {
+        k_IS_SEQUENCE = bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::VALUE
+    };
+
+  private:
+    // PRIVATE MANIPULATORS
+    VALUE_TYPE& object()
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<Derived *>(this)->d_value.object();
+    }
+
+    // PRIVATE ACCESSORS
+    const VALUE_TYPE& object() const
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> Derived;
+        return static_cast<const Derived *>(this)->d_value.object();
+    }
+
+  public:
+    // MANIPULATORS
+    template <class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int attributeId)
+    {
+        return bdlat_SequenceFunctions::manipulateAttribute(
+            &this->object(), manipulator, attributeId);
+    }
+
+    template <class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *attributeName,
+                            int           attributeNameLength)
+    {
+        return bdlat_SequenceFunctions::manipulateAttribute(
+            &this->object(), manipulator, attributeName, attributeNameLength);
+    }
+
+    template <class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator)
+    {
+        return bdlat_SequenceFunctions::manipulateAttributes(&this->object(),
+                                                             manipulator);
+    }
+
+    // ACCESSORS
+    template <class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int attributeId) const
+    {
+        return bdlat_SequenceFunctions::accessAttribute(
+            this->object(), accessor, attributeId);
+    }
+
+    template <class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *attributeName,
+                        int         attributeNameLength) const
+    {
+        return bdlat_SequenceFunctions::accessAttribute(
+            this->object(), accessor, attributeName, attributeNameLength);
+    }
+
+    template <class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const
+    {
+        return bdlat_SequenceFunctions::accessAttributes(this->object(),
+                                                         accessor);
+    }
+
+    bool hasAttribute(int attributeId) const
+    {
+        return bdlat_SequenceFunctions::hasAttribute(this->object(),
+                                                     attributeId);
+    }
+
+    bool hasAttribute(const char *attributeName, int attributeNameLength) const
+    {
+        return bdlat_SequenceFunctions::hasAttribute(
+            this->object(), attributeName, attributeNameLength);
+    }
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue_SequenceBase<TAG_TYPE, VALUE_TYPE, false> {
+    // This class provides a base class for 'TestTaggedValue' specializations
+    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Sequence'
+    // concept.
+
+  public:
+    // CLASS DATA
+    enum { k_IS_SEQUENCE = false };
+};
+
+                           // =====================
+                           // class TestTaggedValue
+                           // =====================
+
+template <class TAG_TYPE, class VALUE_TYPE>
+class TestTaggedValue
+: public TestTaggedValue_ArrayBase<TAG_TYPE, VALUE_TYPE>,
+  public TestTaggedValue_ChoiceBase<TAG_TYPE, VALUE_TYPE>,
+  public TestTaggedValue_CustomizedTypeBase<TAG_TYPE, VALUE_TYPE>,
+  public TestTaggedValue_DynamicTypeBase<TAG_TYPE, VALUE_TYPE>,
+  public TestTaggedValue_EnumerationBase<TAG_TYPE, VALUE_TYPE>,
+  public TestTaggedValue_NullableValueBase<TAG_TYPE, VALUE_TYPE>,
+  public TestTaggedValue_SequenceBase<TAG_TYPE, VALUE_TYPE> {
+    // This class provides a wrapper around an object of the specified
+    // 'VALUE_TYPE' that implements all 'bdlat' value category concepts the
+    // 'VALUE_TYPE' implements by delegating the implementation to the wrapped
+    // object.  However, more than just forwarding these operations, this class
+    // permits one to overload particular 'bdlat' operations of the underlying
+    // 'VALUE_TYPE' object by providing an overload for the corresponding
+    // 'bdlat' free function with a particular 'TAG_TYPE'.  Such overloads will
+    // be better matches during overload resolution.
+
+  public:
+    // TYPES
+    typedef TAG_TYPE   Tag;
+    typedef VALUE_TYPE Value;
+
+  private:
+    // DATA
+    bslalg::ConstructorProxy<Value>  d_value;
+    bslma::Allocator                *d_allocator_p;
+
+    // FRIENDS
+    friend class TestTaggedValue_ArrayBase<TAG_TYPE, VALUE_TYPE>;
+    friend class TestTaggedValue_ChoiceBase<TAG_TYPE, VALUE_TYPE>;
+    friend class TestTaggedValue_CustomizedTypeBase<TAG_TYPE, VALUE_TYPE>;
+    friend class TestTaggedValue_DynamicTypeBase<TAG_TYPE, VALUE_TYPE>;
+    friend class TestTaggedValue_EnumerationBase<TAG_TYPE, VALUE_TYPE>;
+    friend class TestTaggedValue_NullableValueBase<TAG_TYPE, VALUE_TYPE>;
+    friend class TestTaggedValue_SequenceBase<TAG_TYPE, VALUE_TYPE>;
+
+  public:
+    // CLASS METHODS
+    bool areEqual(const TestTaggedValue& lhs, const TestTaggedValue& rhs)
+    {
+        return lhs.d_value.object() == rhs.d_value.object();
+    }
+
+    // CREATORS
+    TestTaggedValue()
+    : d_value(bslma::Default::allocator())
+    , d_allocator_p(bslma::Default::allocator())
+    {
+    }
+
+    explicit TestTaggedValue(bslma::Allocator *basicAllocator)
+    : d_value(bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    explicit TestTaggedValue(const Value&      value,
+                             bslma::Allocator *basicAllocator = 0)
+    : d_value(value, bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    TestTaggedValue(const TestTaggedValue&  original,
+                    bslma::Allocator       *basicAllocator = 0)
+    : d_value(original.d_value.object(),
+              bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    // MANIPULATORS
+    TestTaggedValue& operator=(const TestTaggedValue& original)
+    {
+        d_value.object() = original.d_value.object();
+        return *this;
+    }
+
+    int assign(const VALUE_TYPE& rhs)
+    {
+        return bdlat_ValueTypeFunctions::assign(&d_value.object(), rhs);
+    }
+
+    int assign(const TestTaggedValue& rhs)
+    {
+        return bdlat_ValueTypeFunctions::assign(&d_value.object(),
+                                                rhs.d_value.object());
+    }
+
+    void reset() { bdlat_ValueTypeFunctions::reset(&d_value.object()); }
+
+    // ACCESSORS
+    const char *className() const { return "MyTaggedValue"; }
+};
+
+// FREE FUNCTIONS
+template <class TAG_TYPE, class VALUE_TYPE>
+bool operator==(const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& lhs,
+                const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& rhs)
+{
+    return TestTaggedValue<TAG_TYPE, VALUE_TYPE>::areEqual(lhs, rhs);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bool operator!=(const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& lhs,
+                const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& rhs)
+{
+    return TestTaggedValue<TAG_TYPE, VALUE_TYPE>::areEqual(lhs, rhs);
+}
+
+// TRAITS
+template <class TAG_TYPE, class VALUE_TYPE, class MANIPULATOR>
+int bdlat_arrayManipulateElement(
+                            TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                            MANIPULATOR&                           manipulator,
+                            int                                    index)
+{
+    return object->manipulateElement(manipulator, index);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+void bdlat_arrayResize(TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                       int                                    newSize)
+{
+    object->resize(newSize);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class ACCESSOR>
+int bdlat_arrayAccessElement(
+                         const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object,
+                         ACCESSOR&                                    accessor,
+                         int                                          index)
+{
+    return object->accessElement(accessor, index);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bsl::size_t bdlat_arraySize(
+                           const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object)
+{
+    return object.size();
+}
+
+namespace bdlat_ArrayFunctions {
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct IsArray<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    enum { VALUE = TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_ARRAY };
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct ElementType<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    typedef typename TestTaggedValue<TAG_TYPE, VALUE_TYPE>::ElementType Type;
+};
+
+}  // close bdlat_ArrayFunctions namespace
+
+template <class TAG_TYPE, class VALUE_TYPE>
+int bdlat_choiceMakeSelection(
+                            TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                            int                                    selectionId)
+{
+    return object->makeSelection(selectionId);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+int bdlat_choiceMakeSelection(
+                    TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                    const char                            *selectionName,
+                    int                                    selectionNameLength)
+{
+    return object->makeSelection(selectionName, selectionNameLength);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class MANIPULATOR>
+int bdlat_choiceManipulateSelection(
+                            TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                            MANIPULATOR&                           manipulator)
+{
+    return object->manipulateSelection(manipulator);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class ACCESSOR>
+int bdlat_choiceAccessSelection(
+                         const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object,
+                         ACCESSOR&                                    accessor)
+{
+    return object.accessSelection(accessor);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bool bdlat_choiceHasSelection(
+                      const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object,
+                      int                                          selectionId)
+{
+    return object.hasSelection(selectionId);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bool bdlat_choiceHasSelection(
+             const TestTaggedValue<TAG_TYPE, VALUE_TYPE>&  object,
+             const char                                   *selectionName,
+             int                                           selectionNameLength)
+{
+    return object.hasSelection(selectionName, selectionNameLength);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+int bdlat_choiceSelectionId(
+                           const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object)
+{
+    return object.selectionId();
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct bdlat_IsBasicChoice<TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: bsl::integral_constant<bool,
+                         TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_CHOICE> {
+};
+
+namespace bdlat_ChoiceFunctions {
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct IsChoice<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    enum { VALUE = TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_CHOICE };
+};
+
+}  // close bdlat_ChoiceFunctions namespace
+
+template <class TAG_TYPE, class VALUE_TYPE, class BASE_TYPE>
+int bdlat_customizedTypeConvertFromBaseType(
+                                 TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                                 const BASE_TYPE&                       value)
+{
+    return object->convertFromBaseType(value);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+const typename TestTaggedValue<TAG_TYPE, VALUE_TYPE>::BaseType&
+bdlat_customizedTypeConvertToBaseType(
+                           const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object)
+{
+    return object.convertToBaseType();
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct bdlat_IsBasicCustomizedType<TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: bsl::integral_constant<
+      bool,
+      TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_CUSTOMIZED_TYPE> {
+};
+
+namespace bdlat_CustomizedTypeFunctions {
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct IsCustomizedType<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    enum {
+        VALUE = TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_CUSTOMIZED_TYPE
+    };
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct BaseType<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    typedef typename TestTaggedValue<TAG_TYPE, VALUE_TYPE>::BaseType Type;
+};
+
+}  // close bdlat_CustomizedTypeFunctions namespace
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bdlat_TypeCategory::Value bdlat_typeCategorySelect(
+                           const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object)
+{
+    return object.select();
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct bdlat_TypeCategoryDeclareDynamic<
+    TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    enum { VALUE = TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_DYNAMIC_TYPE };
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+int bdlat_enumFromInt(TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object, int value)
+{
+    return object->fromInt(value);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+int bdlat_enumFromString(TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                         const char                            *string,
+                         int                                    stringLength)
+{
+    return object->fromString(string, stringLength);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+void bdlat_enumToInt(int                                          *result,
+                     const TestTaggedValue<TAG_TYPE, VALUE_TYPE>&  object)
+{
+    return object.toInt(result);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+void bdlat_enumToString(bsl::string                                  *result,
+                        const TestTaggedValue<TAG_TYPE, VALUE_TYPE>&  object)
+{
+    return object.toString(result);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct bdlat_IsBasicEnumeration<TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: bsl::integral_constant<
+      bool,
+      TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_ENUMERATION> {
+};
+
+namespace bdlat_EnumFunctions {
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct IsEnumeration<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    enum { VALUE = TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_ENUMERATION };
+};
+
+}  // close bdlat_EnumFunctions namespace
+
+template <class TAG_TYPE, class VALUE_TYPE>
+void bdlat_nullableValueMakeValue(
+                                 TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object)
+{
+    object->makeValue();
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class MANIPULATOR>
+int bdlat_nullableValueManipulateValue(
+                            TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                            MANIPULATOR&                           manipulator)
+{
+    return object->manipulateValue(manipulator);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class ACCESSOR>
+int bdlat_nullableValueAccessValue(
+                         const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object,
+                         ACCESSOR&                                    accessor)
+{
+    return object.accessValue(accessor);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bool bdlat_nullableValueIsNull(
+                           const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object)
+{
+    return object.isNull();
+}
+
+namespace bdlat_NullableValueFunctions {
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct IsNullableValue<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    enum {
+        VALUE = TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_NULLABLE_VALUE
+    };
+};
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct ValueType<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    typedef typename TestTaggedValue<TAG_TYPE, VALUE_TYPE>::ValueType Type;
+};
+
+}  // close bdlat_NullableValueFunctions namespace
+
+template <class TAG_TYPE, class VALUE_TYPE, class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(
+                            TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                            MANIPULATOR&                           manipulator,
+                            int                                    attributeId)
+{
+    return object->manipulateAttribute(manipulator, attributeId);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(
+                    TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                    MANIPULATOR&                           manipulator,
+                    const char                            *attributeName,
+                    int                                    attributeNameLength)
+{
+    return object->manipulateAttribute(
+        manipulator, attributeName, attributeNameLength);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class MANIPULATOR>
+int bdlat_sequenceManipulateAttributes(
+                            TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                            MANIPULATOR&                           manipulator)
+{
+    return object->manipulateAttributes(manipulator);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class ACCESSOR>
+int bdlat_sequenceAccessAttribute(
+                      const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object,
+                      ACCESSOR&                                    accessor,
+                      int                                          attributeId)
+{
+    return object.accessAttribute(accessor, attributeId);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class ACCESSOR>
+int bdlat_sequenceAccessAttribute(
+             const TestTaggedValue<TAG_TYPE, VALUE_TYPE>&  object,
+             ACCESSOR&                                     accessor,
+             const char                                   *attributeName,
+             int                                           attributeNameLength)
+{
+    return object.accessAttribute(
+        accessor, attributeName, attributeNameLength);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE, class ACCESSOR>
+int bdlat_sequenceAccessAttributes(
+                         const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object,
+                         ACCESSOR&                                    accessor)
+{
+    return object.accessAttributes(accessor);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bool bdlat_sequenceHasAttribute(
+                      const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object,
+                      int                                          attributeId)
+{
+    return object.hasAttribute(attributeId);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+bool bdlat_sequenceHasAttribute(
+             const TestTaggedValue<TAG_TYPE, VALUE_TYPE>&  object,
+             const char                                   *attributeName,
+             int                                           attributeNameLength)
+{
+    return object.hasAttribute(attributeName, attributeNameLength);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct bdlat_IsBasicSequence<TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_SEQUENCE> {
+};
+
+namespace bdlat_SequenceFunctions {
+
+template <class TAG_TYPE, class VALUE_TYPE>
+struct IsSequence<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
+    enum { VALUE = TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_SEQUENCE };
+};
+
+}  // close bdlat_SequenceFunctions namespace
+
+template <class TAG_TYPE, class VALUE_TYPE>
+const char *bdlat_TypeName_className(
+                           const TestTaggedValue<TAG_TYPE, VALUE_TYPE>& object)
+{
+    return object.className();
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+int bdlat_valueTypeAssign(TestTaggedValue<TAG_TYPE, VALUE_TYPE> *object,
+                          const VALUE_TYPE&                      value)
+{
+    return object->assign(value);
+}
+
+template <class TAG_TYPE, class VALUE_TYPE>
+int bdlat_valueTypeAssign(TestTaggedValue<TAG_TYPE, VALUE_TYPE>        *object,
+                          const TestTaggedValue<TAG_TYPE, VALUE_TYPE>&  value)
+{
+    return object->assign(value);
+}
+
                              // =================
                              // class PlaceHolder
                              // =================
@@ -22596,9 +24115,7 @@ class PlaceHolder {
 
   public:
     // CREATORS
-    PlaceHolder()
-    {
-    }
+    PlaceHolder() {}
 };
 
                           // ========================
@@ -22645,8 +24162,8 @@ struct AttributeTypeUtil {
 
     template <class SELECTION_0, class TYPE_0>
     static TestChoice<TypedTestSelection<TYPE_0, SELECTION_0> > generateChoice(
-                                                  const SELECTION_0&,
-                                                  const TYPE_0&      value)
+                                                      const SELECTION_0& ,
+                                                      const TYPE_0&      value)
     {
         typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
 
@@ -22658,7 +24175,7 @@ struct AttributeTypeUtil {
                       TypedTestSelection<TYPE_1, SELECTION_1> >
     generateChoice(const SELECTION_0&,
                    const SELECTION_1&,
-                   const TYPE_0&      value,
+                   const TYPE_0& value,
                    const PlaceHolder<TYPE_1>&)
     {
         typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
@@ -22792,6 +24309,24 @@ struct AttributeTypeUtil {
 
         return PlaceHolder<Sequence>();
     }
+
+    template <class TAG_TYPE, class VALUE_TYPE>
+    static TestTaggedValue<TAG_TYPE, VALUE_TYPE> generateTaggedValue(
+                                            const PlaceHolder<TAG_TYPE>& ,
+                                            const VALUE_TYPE&            value)
+    {
+        return TestTaggedValue<TAG_TYPE, VALUE_TYPE>(value);
+    }
+
+    template <class TAG_TYPE, class VALUE_TYPE>
+    static PlaceHolder<TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+    generateTaggedValuePlaceHolder(const PlaceHolder<TAG_TYPE>&   ,
+                                   const PlaceHolder<VALUE_TYPE>&)
+    {
+        typedef TestTaggedValue<TAG_TYPE, VALUE_TYPE> TaggedValue;
+
+        return PlaceHolder<TaggedValue>();
+    }
 };
 
                           // =======================
@@ -22808,9 +24343,7 @@ class GenerateTestArray {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestArray()
-    {
-    }
+    GenerateTestArray() {}
 
     // ACCESSORS
     template <class VALUE_TYPE>
@@ -22847,14 +24380,12 @@ class GenerateTestArrayPlaceHolder {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestArrayPlaceHolder()
-    {
-    }
+    GenerateTestArrayPlaceHolder() {}
 
     // ACCESSORS
     template <class VALUE_TYPE>
     PlaceHolder<bsl::vector<VALUE_TYPE> > operator()(
-                                          const PlaceHolder<VALUE_TYPE>&) const
+                                                const PlaceHolder<VALUE_TYPE>&) const
     {
         return PlaceHolder<bsl::vector<VALUE_TYPE> >();
     }
@@ -22874,9 +24405,7 @@ class GenerateTestChoice {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestChoice()
-    {
-    }
+    GenerateTestChoice() {}
 
     // ACCESSORS
     template <class SELECTION_0, class TYPE_0>
@@ -22926,9 +24455,7 @@ class GenerateTestChoicePlaceHolder {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestChoicePlaceHolder()
-    {
-    }
+    GenerateTestChoicePlaceHolder() {}
 
     // ACCESSORS
     template <class SELECTION_0, class TYPE_0>
@@ -22971,9 +24498,7 @@ class GenerateTestCustomizedType {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestCustomizedType()
-    {
-    }
+    GenerateTestCustomizedType() {}
 
     // ACCESSORS
     template <class VALUE_TYPE, class BASE_TYPE>
@@ -22999,9 +24524,7 @@ class GenerateTestDynamicType {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestDynamicType()
-    {
-    }
+    GenerateTestDynamicType() {}
 
     // ACCESSORS
     template <class VALUE_TYPE>
@@ -23025,14 +24548,12 @@ class GenerateTestDynamicPlaceHolder {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestDynamicPlaceHolder()
-    {
-    }
+    GenerateTestDynamicPlaceHolder() {}
 
     // ACCESSORS
     template <class VALUE_TYPE>
     PlaceHolder<TestDynamicType<VALUE_TYPE> > operator()(
-                                          const PlaceHolder<VALUE_TYPE>&) const
+                                                const PlaceHolder<VALUE_TYPE>&) const
     {
         return PlaceHolder<TestDynamicType<VALUE_TYPE> >();
     }
@@ -23052,9 +24573,7 @@ class GenerateTestEnumeration {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestEnumeration()
-    {
-    }
+    GenerateTestEnumeration() {}
 
     // ACCESSORS
     template <class ENUMERATOR_0>
@@ -23088,9 +24607,7 @@ class GenerateTestEnumerationPlaceHolder {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestEnumerationPlaceHolder()
-    {
-    }
+    GenerateTestEnumerationPlaceHolder() {}
 
     // ACCESSORS
     template <class ENUMERATOR_0>
@@ -23123,14 +24640,11 @@ class GenerateTestNullableValue {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestNullableValue()
-    {
-    }
+    GenerateTestNullableValue() {}
 
     // ACCESSORS
     template <class VALUE_TYPE>
-    bdlb::NullableValue<VALUE_TYPE> operator()(
-                                          const PlaceHolder<VALUE_TYPE>&) const
+    bdlb::NullableValue<VALUE_TYPE> operator()(const PlaceHolder<VALUE_TYPE>&) const
     {
         return Util::generateNullableValue(PlaceHolder<VALUE_TYPE>());
     }
@@ -23156,14 +24670,12 @@ class GenerateTestNullablePlaceHolder {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestNullablePlaceHolder()
-    {
-    }
+    GenerateTestNullablePlaceHolder() {}
 
     // ACCESSOR
     template <class VALUE_TYPE>
     PlaceHolder<bdlb::NullableValue<VALUE_TYPE> > operator()(
-                                          const PlaceHolder<VALUE_TYPE>&) const
+                                                const PlaceHolder<VALUE_TYPE>&) const
     {
         return PlaceHolder<bdlb::NullableValue<VALUE_TYPE> >();
     }
@@ -23183,9 +24695,7 @@ class GenerateTestSequence {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestSequence()
-    {
-    }
+    GenerateTestSequence() {}
 
     // ACCESSORS
     template <class ATTRIBUTE_0, class TYPE_0>
@@ -23222,9 +24732,7 @@ class GenerateTestSequencePlaceHolder {
     typedef AttributeTypeUtil Util;
 
     // CREATORS
-    GenerateTestSequencePlaceHolder()
-    {
-    }
+    GenerateTestSequencePlaceHolder() {}
 
     // ACCESSORS
     template <class ATTRIBUTE_0, class TYPE_0>
@@ -23245,6 +24753,44 @@ class GenerateTestSequencePlaceHolder {
     {
         return Util::generateSequencePlaceHolder(
             attribute0, attribute1, value0, value1);
+    }
+};
+
+                       // =============================
+                       // class GenerateTestTaggedValue
+                       // =============================
+
+class GenerateTestTaggedValue {
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class TAG_TYPE, class VALUE_TYPE>
+    TestTaggedValue<TAG_TYPE, VALUE_TYPE> operator()(
+                                      const PlaceHolder<TAG_TYPE>& tag,
+                                      const VALUE_TYPE&            value) const
+    {
+        return Util::generateTaggedValue(tag, value);
+    }
+};
+
+                  // ========================================
+                  // class GenerateTestTaggedValuePlaceHolder
+                  // ========================================
+
+class GenerateTestTaggedValuePlaceHolder {
+  public:
+    // TYPES
+    typedef AttributeTypeUtil Util;
+
+    // ACCESSORS
+    template <class TAG_TYPE, class VALUE_TYPE>
+    PlaceHolder<TestTaggedValue<TAG_TYPE, VALUE_TYPE> > operator()(
+                                    const PlaceHolder<TAG_TYPE>&   tag,
+                                    const PlaceHolder<VALUE_TYPE>& value) const
+    {
+        return Util::generateTaggedValuePlaceHolder(tag, value);
     }
 };
 
@@ -23772,6 +25318,270 @@ class TestCase19Row {
     void runTest() const { d_imp->runTest(); }
 };
 
+                         // ==========================
+                         // struct FailToManipulateTag
+                         // ==========================
+
+///Implementation Note
+///-------------------
+// The following tag type and 'bdlat' customization point function overloads
+// allow one to conditionally cause the associated 'bdlat' operations of
+// 'TestTaggedType' specializations having a 'TAG_TYPE' of
+// 'FailToManipulateSequenceTag' to return non-zero status codes.
+
+struct DefaultTag {
+    // This tag type may be used as the 'TAG_TYPE' of a 'TestTaggedType' in
+    // order to indicate that no 'bdlat' operations of its underlying
+    // 'VALUE_TYPE' are to be overloaded.
+};
+
+struct FailToManipulateSequenceTag {
+    // This tag type may be used as the 'TAG_TYPE' of a 'TestTaggedType' in
+    // order to overload the 'sequenceManipulateAttribute' and
+    // 'typeCategoryManipulateSequence' operations of its underlying
+    // 'VALUE_TYPE' with implementations that return non-zero.
+};
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(
+                    TestTaggedValue<FailToManipulateSequenceTag, VALUE_TYPE> *,
+                    MANIPULATOR&                                              ,
+                    const char *,
+                    int)
+{
+    return -1;
+}
+
+template <class VALUE_TYPE, class MANIPULATOR>
+int bdlat_typeCategoryManipulateSequence(
+  TestTaggedValue<FailToManipulateSequenceTag, TestDynamicType<VALUE_TYPE> > *,
+  MANIPULATOR&)
+{
+    return -1;
+}
+
+                        // ===========================
+                        // class TestCase20RowProtocol
+                        // ===========================
+
+class TestCase20RowProtocol {
+    // This pure abstract base class provides a protocol for running test case
+    // 20, which tests that errors returned from 'bdlat' operations of
+    // 'DynamicType' objects having 'Sequence' dynamic categories cause the
+    // whole decoding operation to fail.
+
+  public:
+    // CREATORS
+    virtual ~TestCase20RowProtocol()
+        // Destroy this object.
+    {
+    }
+
+    // ACCESSORS
+    virtual bslma::ManagedPtr<TestCase20RowProtocol> clone(
+                               bslma::Allocator *basicAllocator = 0) const = 0;
+        // Return a managed pointer that manages a copy of the value of this
+        // object.  Optionally specify a 'basicAllocator' used to supply memory
+        // to the resultant copy.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+
+    virtual void runTest() const = 0;
+        // Check some correctness properties of 'balxml::Decoder' and increment
+        // the global 'testStatus' variable for each failed correctness check,
+        // if any, and write relevant testing information to 'bsl::cout' and/or
+        // 'bsl::cerr'.  Note that if no checks fail, the value of 'testStatus'
+        // is left unmodified.
+};
+
+                       // ==============================
+                       // class TestCase20RowProtocolImp
+                       // ==============================
+
+template <class VALUE_TYPE>
+class TestCase20RowProtocolImp : public TestCase20RowProtocol {
+    // This concrete class provides an implementation of the
+    // 'TestCase20RowProtocol' to verify some correctness properties of the
+    // 'balxml::Decoder::decode' operation when applied to 'VALUE_TYPE'
+    // objects.  See test case 20 for documentation for what specific checks
+    // are performed by this test.
+
+  public:
+    // TYPES
+    typedef VALUE_TYPE Value;
+        // Alias to the 'bdlat' value type for which this
+        // 'TestCase20RowProtocol' implementation supplies to
+        // 'balxml::Decoder::decode' in order to check some correctness
+        // properties of the 'decode' operation.
+
+  private:
+    // DATA
+    int            d_line;       // line number
+    TestXmlElement d_xml;        // specification for xml to decode from
+    bool d_decodeSuccessStatus;  // whether or not decoding should succeed
+
+    // NOT IMPLEMENTED
+    TestCase20RowProtocolImp(const TestCase20RowProtocolImp&) BSLS_KEYWORD_DELETED;
+    TestCase20RowProtocolImp& operator=(const TestCase20RowProtocolImp) BSLS_KEYWORD_DELETED;
+
+  public:
+    // CREATORS
+    TestCase20RowProtocolImp(int                    line,
+                             const TestXmlElement&  xml,
+                             bool                   decodeSuccessStatus,
+                             bslma::Allocator      *basicAllocator = 0)
+    : d_line(line)
+    , d_xml(xml, basicAllocator)
+    , d_decodeSuccessStatus(decodeSuccessStatus)
+    {
+    }
+
+    ~TestCase20RowProtocolImp() BSLS_KEYWORD_OVERRIDE
+        // Destroy this object.
+    {
+    }
+
+    // ACCESSORS
+    bslma::ManagedPtr<TestCase20RowProtocol> clone(
+              bslma::Allocator *basicAllocator = 0) const BSLS_KEYWORD_OVERRIDE
+        // Return a managed pointer that manages a copy of the value of this
+        // object.  Optionally specify a 'basicAllocator' used to supply memory
+        // to the resultant copy.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+    {
+        bslma::Allocator *const allocator = bslma::Default::allocator(
+                                                                basicAllocator);
+        return bslma::ManagedPtr<TestCase20RowProtocol>(
+
+            new (*allocator)
+                TestCase20RowProtocolImp(d_line,
+                                         d_xml,
+                                         d_decodeSuccessStatus,
+                                         allocator),
+            allocator);
+    }
+
+    void runTest() const BSLS_KEYWORD_OVERRIDE
+        // Check some correctness properties of 'balxml::Decoder' and increment
+        // the global 'testStatus' variable for each failed correctness check,
+        // if any, and write relevant testing information to 'bsl::cout' and/or
+        // 'bsl::cerr'.  Note that if no checks fail, the value of 'testStatus'
+        // is left unmodified.   See test case 20 for documentation for what
+        // specific checks are performed by this test.
+    {
+        const int             LINE                  = d_line;
+        const TestXmlElement& XML                   = d_xml;
+        const bool            DECODE_SUCCESS_STATUS = d_decodeSuccessStatus;
+
+        bdlsb::MemOutStreamBuf xmlOutStreamBuf;
+        bsl::ostream xmlOutStream(&xmlOutStreamBuf);
+        XML.print(xmlOutStream);
+
+        bdlsb::FixedMemInStreamBuf xmlInStreamBuf(xmlOutStreamBuf.data(),
+                                                  xmlOutStreamBuf.length());
+
+        balxml::MiniReader reader;
+        balxml::ErrorInfo errorInfo;
+        balxml::DecoderOptions options;
+        options.setSkipUnknownElements(false);
+
+        bdlsb::MemOutStreamBuf errorStreamBuf;
+        bsl::ostream errorStream(&errorStreamBuf);
+
+        bdlsb::MemOutStreamBuf warningStreamBuf;
+        bsl::ostream warningStream(&warningStreamBuf);
+
+        balxml::Decoder mX(&options, &reader, &errorInfo, &errorStream,
+                           &warningStream);
+
+        Value value;
+        int rc = mX.decode(&xmlInStreamBuf, &value);
+
+        const bslstl::StringRef errors(errorStreamBuf.data(),
+                                       errorStreamBuf.length());
+
+        const bslstl::StringRef warnings(warningStreamBuf.data(),
+                                         warningStreamBuf.length());
+
+        if (DECODE_SUCCESS_STATUS) {
+            ASSERTV(L_, LINE, rc, 0 == rc);
+            if (0 != rc) {
+                P(warnings);
+                P(errors);
+            }
+        }
+        else {
+            ASSERTV(L_, LINE, rc, 0 != rc);
+        }
+    }
+
+};
+
+                            // ===================
+                            // class TestCase20Row
+                            // ===================
+
+class TestCase20Row {
+    // This class provides a wrapper around a specialization of
+    // 'TestCase20RowProtocolImp' supplied on construction, and erases the
+    // associated 'VALUE_TYPE', so that multiple 'TestCase20RowProtocolImp'
+    // specializations for different 'VALUE_TYPE' types may be stored in an
+    // array of 'TestCase20Row' in order to create a "test table".
+
+    // PRIVATE
+    bslma::ManagedPtr<TestCase20RowProtocol>  d_imp;          // managed imp
+    bslma::Allocator                         *d_allocator_p;  // memory supply
+
+  public:
+    // CREATORS
+    template <class VALUE_TYPE>
+    TestCase20Row(int                             line,
+                  const PlaceHolder<VALUE_TYPE>&  value,
+                  const TestXmlElement&           xml,
+                  bool                            decodingSucceeds,
+                  bslma::Allocator               *basicAllocator = 0)
+    : d_imp(new (*bslma::Default::allocator(basicAllocator))
+                TestCase20RowProtocolImp<VALUE_TYPE>(line,
+                                                     xml,
+                                                     decodingSucceeds,
+                                                     basicAllocator),
+            bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    TestCase20Row(const TestCase20Row&  original,
+                  bslma::Allocator     *basicAllocator = 0)
+    : d_imp(original.d_imp->clone(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    void runTest() const
+        // Check some correctness properties of 'balxml::Decoder' and increment
+        // the global 'testStatus' variable for each failed correctness check,
+        // if any, and write relevant testing information to 'bsl::cout' and/or
+        // 'bsl::cerr'.  Note that if no checks fail, the value of 'testStatus'
+        // is left unmodified.   See test case 20 for documentation for what
+        // specific checks are performed by this test.
+    {
+        d_imp->runTest();
+    }
+
+    // MANIPULATORS
+    TestCase20Row& operator=(const TestCase20Row& original)
+    {
+        d_imp = original.d_imp->clone(d_allocator_p);
+
+        return *this;
+    }
+};
+
+///Implementation Note
+///-------------------
+// The below set of string variables use constant-initialization, have external
+// linkage, and have static storage duration so that they may be used as
+// arguments for non-type template parameters (of 'const char *' type).
+
 // DATA
 extern const char attribute0Name[] = "attribute0";
 extern const char attribute1Name[] = "attribute1";
@@ -24002,6 +25812,136 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING ERROR CODE PROPOGATION FOR DYNAMIC TYPES
+        //   This case tests that the 'balxml::Decoder::decode' operation
+        //   returns a non-zero value when it invokes a 'bdlat' manipulation
+        //   operation of a dynamic type that returns a non-zero value.
+        //
+        // Concerns:
+        //: 1 Attempting to decode XML into a 'bdlat' 'Sequence' object that
+        //:   returns a non-zero value when its 'manipulatAttribute' operation
+        //:   is invoked causes the whole decoding operation to fail, and
+        //:   thereby also return non-zero.  Note that the decoder invokes
+        //:   'manipulateAttribute' on any 'Sequence' object in order to load
+        //:   values into its attribute(s).
+        //:
+        //: 2 Attempting to decode XML into a 'bdlat' 'Sequence' object that
+        //:   returns zero for all 'bdlat' operations causes the whole decode
+        //:   operation to succeed, and thereby also return zero.
+        //:
+        //: 3 Attempting to decode XML into a 'bdlat' 'DynamicType' object
+        //:   that has a dynamic category of 'Sequence' and that returns a
+        //:   non-zero value when its 'typeCategoryManipulateSequence'
+        //:   operation is invoked causes the whole decoding operation to fail,
+        //:   and thereby also return non-zero.  Note that the decoder invokes
+        //:   'typeCategoryManipulateSequence' in order to load a value into
+        //:   any 'DynamicType' object having a 'Sequence' dynamic category.
+        //:
+        //: 4 Attempting to decode XML into a 'bdlat' 'DynamicType' object
+        //:   that has a dynamic category of 'Sequence' and that returns
+        //:   zero for all 'bdlat' operations causes the whole decode
+        //:   operation to succeed, and thereby also return zero.
+        //
+        // Plan:
+        //: 1 Verify that decoding suitable XML into a 'Sequence' object that
+        //:   returns zero for all 'bdlat' operations suceeds.
+        //:
+        //: 2 Verify the same property for such a 'Sequence' wrapped in a
+        //:   'TestTaggedValue' that overrides no operations of the
+        //:   underlying 'Sequence'.
+        //:
+        //: 3 Verify that wrapping such a 'Sequence' in a 'TestTaggedValue'
+        //:   that causes some 'bdlat' operations to fail during decoding
+        //:   causes the decoding operation to fail.
+        //:
+        //: 4 Verify the above 3 properties for a 'Sequence' object that is
+        //:   wrapped in a 'TestDynamicType'.
+        //
+        // Testing:
+        //   int decode(bsl::streambuf *buffer, TYPE *object);
+        // --------------------------------------------------------------------
+
+        // Abbreviations for the names of 'bdlat' concept test implementations,
+        // which will become the tag names of the XML they generate.
+        const bslstl::StringRef D = "MyDynamicType";
+        const bslstl::StringRef S = "MySequence";
+        const bslstl::StringRef T = "MyTaggedValue";
+
+        // Abbreviation for an attribute name.
+        const bslstl::StringRef A0 = "attribute0";
+
+        // Abbreviation for a test value.
+        const bslstl::StringRef I1 = "1";
+
+        // Abbreviation for a sequence attribute.
+        typedef TestAttribute<0, attribute0Name> Attribute0;
+        const Attribute0 a0;
+
+        // Abbreviations for function objects used to generate placeholders.
+        const PlaceHolder<int>                   i_;
+        const GenerateTestDynamicPlaceHolder     d_;
+        const GenerateTestSequencePlaceHolder    s_;
+        const GenerateTestTaggedValuePlaceHolder t_;
+
+        // Abbreviations for tag type place holders used to control
+        // the overload resolution for 'bdlat' customization point functions
+        // for 'TestTaggedValue' specializations with the corresponding tag.
+        const PlaceHolder<DefaultTag>                  td_;
+        const PlaceHolder<FailToManipulateSequenceTag> tf_;
+
+        // Abbreviation for a function object used to generate XML document
+        // structures for printing.
+        const GenerateXmlElement x;
+
+        // Abbreviation for the type used to implement each row of this
+        // table-based test.
+        typedef TestCase20Row R;
+
+        // Abbreviations for boolean values.
+        enum {
+            no = false,
+            yes = true
+        };
+
+        const TestCase20Row DATA[] = {
+            //   LINE                DECODING SUCCESS STATUS
+            //  .----                -----------------------.
+            // /  VALUE TYPE PLACEHOLDER        XML         |
+            //-- ------------------------ ---------------- ----
+            // Verify that decoding into a 'Sequence' that returns zero for
+            // all 'bdlat' operations succeeds.
+            R(L_,            s_(a0, i_)  , x(S, x(A0, I1)), yes),
+            // Verify the same property for a 'Sequence' wrapped in a
+            // 'TestTaggedValue' that does not change the behavior of the
+            // underlying sequence.
+            R(L_, t_(td_,    s_(a0, i_) ), x(S, x(A0, I1)), yes),
+            // Verify that, for the same sequence value, wrapping it in a
+            // 'TestTaggedValue' that overrides the 'manipulateAttribute'
+            // operation to return non-zero causes the decode operation to
+            // fail.
+            R(L_, t_(tf_,    s_(a0, i_) ), x(S, x(A0, I1)), no ),
+            // Verify the above first two properties for 'DynamicType' objects
+            // having a dynamic type wrapping the above 'Sequence'.
+            R(L_,         d_(s_(a0, i_)) , x(D, x(A0, I1)), yes),
+            R(L_, t_(td_, d_(s_(a0, i_))), x(T, x(A0, I1)), yes),
+            // And note that this 'TestTaggedValue' overrides the
+            // 'typeCategoryManipulateSequence' operation of the 'DynamicType'
+            // to return non-zero, which should also cause the decode operation
+            // to fail.
+            R(L_, t_(tf_, d_(s_(a0, i_))), x(T, x(A0, I1)), no ),
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const TestCase20Row& ROW = DATA[i];
+
+            ROW.runTest();
+        }
+
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING NILLABLE ELEMENT DECODING

@@ -2047,7 +2047,10 @@ int Decoder::decode(TYPE *object)
     typedef typename
     bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    this->decodeImp(object, TypeCategory());
+    int ret = this->decodeImp(object, TypeCategory());
+    if (0 != ret) {
+        return ret;                                                   // RETURN
+    }
 
     return this->errorCount();
 }
