@@ -1217,10 +1217,8 @@ BSLS_IDENT("$Id: $")
             #endif
         #endif
         #if __cplusplus >= 201703L
-            #if BSLS_PLATFORM_CMP_VERSION >= 70000
-                #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
-            #endif
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY       1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM       1
 
             //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
             //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
