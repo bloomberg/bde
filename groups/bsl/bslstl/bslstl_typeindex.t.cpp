@@ -56,11 +56,16 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test defines an in-core value-semantic type (for
-// terminology, see 'bsldoc_glossary'), 'bsl::type_index'...
+// 'bsl::type_index' is an in-core value-semantic attribute type.  As such, the
+// test driver follows a pre-set formula consisting of a breathing test, then
+// tests of the value constructor (acting as basic manipulator), test
+// machinery, basic accessors (which double up for the comparison operators),
+// then printing, copy construction, swap, and assignment, followed by any
+// remaining accessors, manipulators, and global test concerns, and finally a
+// real-world usage example.
 //
 // Primary Manipulators:
-//: o Value constructor 'type_index(const native_std::type_index &target)'
+//: o value constructor 'type_index(const native_std::type_index &target)'
 //
 // Basic Accessors:
 //: o 'operator=='
@@ -101,11 +106,12 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
 // [ 5] void debugprint(const type_info& object);
-// [ *] CONCERN: In no case does memory come from the global allocator.
-// [ *] CONCERN: In no case does memory come from the default allocator.
-// [13] CONCERN: Type detects as trivial for all relevant traits
-// [ 3] CONCERN: Test machinery functions as expected
-// [ 8] Reserved for 'swap' testing.
+// [ *] CONCERN: in no case does memory come from the global allocator.
+// [ *] CONCERN: in no case does memory come from the default allocator.
+// [13] CONCERN: type detects as trivial for all relevant traits
+// [ 3] CONCERN: test machinery functions as expected
+// [ 6] REDUNDANT: test case for equality comparison
+// [ 8] CONCERN: supports standard use of 'swap'
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -196,12 +202,12 @@ namespace usage {
         virtual ~Shape() = 0;
             // Destroy this object.
 
-        // Further details elided for example
+        // Further details elided for example.
     };
 //..
 // Then, we create a utility class containing a registry of factory functions
 // indexed by their corresponding 'std::type_info', using 'bsl::type_index' to
-// provide the value-semantic wrapper needed for the key to the container.
+// provide the value-semantic wrapper needed for the key used in the container.
 // This registry will enable us to abstract away different constructors of the
 // concrete object types.
 //..
@@ -218,9 +224,10 @@ namespace usage {
 
         template <class SHAPE_TYPE>
         static bsl::shared_ptr<Shape> make(int x, int y);
-            // Create an object of (template parameter) 'SHAPE_TYPE' at the
-            // specified position '(x, y)' if 'SHAPE_TYPE' has been registered
-            // with this utility, and an empty 'shared_ptr' otherwise.
+            // Return a 'shared_ptr' owning a newly created object of (template
+            // parameter) 'SHAPE_TYPE' at the specified position '(x, y)' if
+            // 'SHAPE_TYPE' has been registered with this utility, and an empty
+            // 'shared_ptr' otherwise.
 
         template <class SHAPE_TYPE, class FACTORY>
         static bool registerFactory(FACTORY factory);
@@ -230,7 +237,7 @@ namespace usage {
             // 'false' otherwise.
 
       private:
-        static AbstractFactory s_registry;      // Registry for factories
+        static AbstractFactory s_registry;      // registry for factories
     };
 //..
 // Now, we can implement the register and make functions, using the standard
@@ -255,14 +262,13 @@ namespace usage {
 // demonstrate use of this hierarchy.
 //..
     class Circle : public Shape {
-        // This class represents a circle, described by a position and its
-        // radius.
+        // This class represents a circle, described by a position and radius.
 
       public:
         // CREATORS
 
         Circle(int x, int y, int radius);
-            // Create a 'Triangle' having the it centre at the specified
+            // Create a 'Triangle' having the it center at the specified
             // position '(x, y)', and having the specified 'radius'.
 
         ~Circle();
@@ -328,7 +334,7 @@ namespace usage {
     int main()
         // Simulated test driver.
     {
-        // Install a test allocator to confirm there are no leaks.
+        // Install a test allocator to confirm there are no memory leaks.
         bslma::TestAllocator         ta("Usage example default allocator");
         bslma::DefaultAllocatorGuard guard(&ta);
 
@@ -451,6 +457,7 @@ void sink(...) {}
     // This function swallows any scalar value without issuing a compiler
     // warning.  It is intended to support testing that there is only one
     // overload of a given function name within a class.
+
 }  // close unnamed namespace
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -460,8 +467,8 @@ void sink(...) {}
 // the type system, looking for QoI concerns if type information collides for
 // some types on a specific platform.  The type system is rich in variations of
 // function types, function pointer types, and pointer-to-member types, so
-// exhaustively cover that space as most likely to hide a collision.  There is
-// no need to test cv-qualified types or reference types, as top-level
+// exhaustively covering that space as most likely to uncover a collision.
+// There is no need to test cv-qualified types or reference types, as top-level
 // cv-qualifiers and references are stripped by the 'typeid' operator.
 // Likewise, abominable function types are not supported.  However,
 // pointers-to-cv-qualified types should be distinct, and tested, as should
@@ -470,7 +477,7 @@ void sink(...) {}
 
 namespace {
 
-class Host; // Incomplete type used to form pointer-to-member types for testing
+class Host; // incomplete type used to form pointer-to-member types for testing
 
 const native_std::type_info *const DEFAULT_DATA[] = {
       &typeid(void)
@@ -748,7 +755,7 @@ int main(int argc, char *argv[])
         //: 1 Directly test each trait for the expected value. (C-1..5)
         //
         // Testing:
-        //   CONCERN: Type detects as trivial for all relevant traits
+        //   CONCERN: type detects as trivial for all relevant traits
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TYPE TRAITS"
@@ -777,7 +784,7 @@ int main(int argc, char *argv[])
         //:   input values.
         //:
         //: 3 'hashAppend' combines the hash value into the accumulated state,
-        //:   i,e, does not simply replace the accumulated state.
+        //:   i.e., does not simply replace the accumulated state.
         //:
         //: 4 Works for 'const' and non-'const' type-indices.
         //:
@@ -992,8 +999,7 @@ int main(int argc, char *argv[])
         //:     (QoI: C-1) (C-4)
         //:
         //:   6 Compare the hash code values of both 'X' and 'Y' to confirm
-        //:     that they do not collide
-        //:     (QoI: C-2) (C-4)
+        //:     that they do not collide. (QoI: C-2) (C-4)
         //:
         //: 2 Using the 'sink' function, verify there are no additional
         //:   overloads for each accessor, ensuring that 'const' and
@@ -1372,7 +1378,7 @@ int main(int argc, char *argv[])
         //:   (C-2)
         //
         // Testing:
-        //   Reserved for 'swap' testing.
+        //   CONCERN: supports standard use of 'swap'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'swap'"
@@ -1507,6 +1513,7 @@ int main(int argc, char *argv[])
         //: 1 No plan needed
         //
         // Testing:
+        //   REDUNDANT: test case for equality comparison
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING EQUALITY-COMPARISON OPERATORS"
@@ -1569,9 +1576,9 @@ int main(int argc, char *argv[])
             const char *cursor = text;
 
             const char *S_PREFIX = "type_index{\"";
-            for (size_t i = 0; S_PREFIX[i] != 0; ++i, ++cursor) {
-                ASSERTV(i, text, S_PREFIX[i],   *cursor,
-                                 S_PREFIX[i] == *cursor);
+            for (size_t j = 0; S_PREFIX[j] != 0; ++j, ++cursor) {
+                ASSERTV(i, j, text, S_PREFIX[j],   *cursor,
+                                    S_PREFIX[j] == *cursor);
 
                 if (*cursor == 0) {
                     break;
@@ -1590,9 +1597,9 @@ int main(int argc, char *argv[])
             }
 
             const char *S_SUFFIX = "\"}";
-            for (size_t i = 0; S_SUFFIX[i] != 0; ++i, ++cursor) {
-                ASSERTV(i, text, S_SUFFIX[i],   *cursor,
-                                 S_SUFFIX[i] == *cursor);
+            for (size_t j = 0; S_SUFFIX[j] != 0; ++j, ++cursor) {
+                ASSERTV(i, j, text, S_SUFFIX[j],   *cursor,
+                                    S_SUFFIX[j] == *cursor);
 
                 if (*cursor == 0) {
                     break;
@@ -1707,7 +1714,7 @@ int main(int argc, char *argv[])
         //:   array, as earlier values are already tested.
         //
         // Testing:
-        //   CONCERN: Test machinery functions as expected
+        //   CONCERN: test machinery functions as expected
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING THE TEST MACHINERY"

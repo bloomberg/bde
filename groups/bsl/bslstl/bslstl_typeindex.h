@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we create a utility class containing a registry of factory functions
 // indexed by their corresponding 'std::type_info', using 'bsl::type_index' to
-// provide the value-semantic wrapper needed for the key to the container.
+// provide the value-semantic wrapper needed for the key used in the container.
 // This registry will enable us to abstract away different constructors of the
 // concrete object types.
 //..
@@ -83,9 +83,10 @@ BSLS_IDENT("$Id: $")
 //
 //      template <class SHAPE_TYPE>
 //      static bsl::shared_ptr<Shape> make(int x, int y);
-//          // Create an object of (template parameter) 'SHAPE_TYPE' at the
-//          // specified position '(x, y)' if 'SHAPE_TYPE' has been registered
-//          // with this utility, and an empty 'shared_ptr' otherwise.
+            // Return a 'shared_ptr' owning a newly created object of (template
+            // parameter) 'SHAPE_TYPE' at the specified position '(x, y)' if
+            // 'SHAPE_TYPE' has been registered with this utility, and an empty
+            // 'shared_ptr' otherwise.
 //
 //      template <class SHAPE_TYPE, class FACTORY>
 //      static bool registerFactory(FACTORY factory);
@@ -95,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //          // 'false' otherwise.
 //
 //    private:
-//      static AbstractFactory s_registry;      // Registry for factories
+//      static AbstractFactory s_registry;      // registry for factories
 //  };
 //..
 // Now, we can implement the register and make functions, using the standard
@@ -120,14 +121,13 @@ BSLS_IDENT("$Id: $")
 // demonstrate use of this hierarchy.
 //..
 //  class Circle : public Shape {
-//      // This class represents a circle, described by a position and its
-//      // radius.
+//      // This class represents a circle, described by a position and radius.
 //
 //    public:
 //      // CREATORS
 //
 //      Circle(int x, int y, int radius);
-//          // Create a 'Triangle' having the it centre at the specified
+//          // Create a 'Triangle' having the it center at the specified
 //          // position '(x, y)', and having the specified 'radius'.
 //
 //      ~Circle();
@@ -193,7 +193,7 @@ BSLS_IDENT("$Id: $")
 //  int main()
 //      // Simulated test driver.
 //  {
-//      // Install a test allocator to confirm there are no leaks.
+//      // Install a test allocator to confirm there are no memory leaks.
 //      bslma::TestAllocator         ta("Usage example default allocator");
 //      bslma::DefaultAllocatorGuard guard(&ta);
 //
@@ -252,7 +252,7 @@ class type_index {
         // Create a 'type_index' object having a reference to the type
         // designated by the specified 'target'.
 
-    //! Date(const type_index& original) = default;
+    //! type_index(const type_index& original) = default;
         // Create a 'type_index' object having the value of the specified
         // 'original' date.  Note that this trivial function is implicitly
         // supplied by the compiler.
@@ -286,8 +286,8 @@ class type_index {
         // and 'false' otherwise.
 
     bool operator<=(const type_index& other) const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the type referenced by this object the same as the
-        // type referenced by the specified 'other' object, or is ordered
+        // Return 'true' if the type referenced by this object is the same as
+        // the type referenced by the specified 'other' object, or ordered
         // before the type referenced by the 'other' in the implementation
         // defined ordering of types defined by the compiler, and 'false'
         // otherwise.
@@ -299,10 +299,11 @@ class type_index {
         // and 'false' otherwise.
 
     bool operator>=(const type_index& other) const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the type referenced by this object the same as the
-        // type referenced by the specified 'other' object, or is ordered after
-        // the type referenced by the 'other' in the implementation defined
-        // ordering of types defined by the compiler, and 'false' otherwise.
+        // Return 'true' if the type referenced by this object is the same as
+        // the type referenced by the specified 'other' object, or ordered
+        // after the type referenced by the 'other' in the implementation
+        // defined ordering of types defined by the compiler, and 'false'
+        // otherwise.
 
     size_t hash_code() const BSLS_KEYWORD_NOEXCEPT;
         // Return the 'hash_code' of the referenced 'type_info' object.
