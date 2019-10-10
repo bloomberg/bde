@@ -457,12 +457,14 @@ void debugprint(const type_index& object)
 }  // close namespace bsl
 
 namespace {
+
 void sink(...) {}
     // This function swallows any scalar value without issuing a compiler
     // warning.  It is intended to support testing that there is only one
     // overload of a given function name within a class.
 
 }  // close unnamed namespace
+
 // ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------

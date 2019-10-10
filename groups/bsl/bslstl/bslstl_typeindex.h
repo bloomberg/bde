@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //      virtual ~Shape() = 0;
 //          // Destroy this object.
 //
-//      // Further details elided for example
+//      // Further details elided for example.
 //  };
 //..
 // Then, we create a utility class containing a registry of factory functions
@@ -83,10 +83,10 @@ BSLS_IDENT("$Id: $")
 //
 //      template <class SHAPE_TYPE>
 //      static bsl::shared_ptr<Shape> make(int x, int y);
-            // Return a 'shared_ptr' owning a newly created object of (template
-            // parameter) 'SHAPE_TYPE' at the specified position '(x, y)' if
-            // 'SHAPE_TYPE' has been registered with this utility, and an empty
-            // 'shared_ptr' otherwise.
+//          // Return a 'shared_ptr' owning a newly created object of (template
+//          // parameter) 'SHAPE_TYPE' at the specified position '(x, y)' if
+//          // 'SHAPE_TYPE' has been registered with this utility, and an empty
+//          // 'shared_ptr' otherwise.
 //
 //      template <class SHAPE_TYPE, class FACTORY>
 //      static bool registerFactory(FACTORY factory);
