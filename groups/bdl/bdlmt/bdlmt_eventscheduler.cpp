@@ -184,6 +184,7 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
 }
@@ -202,6 +203,7 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_waitCount(0)
 , d_clockType(clockType)
 {
 }
@@ -221,6 +223,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 {
 }
@@ -241,6 +244,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_waitCount(0)
 , d_clockType(clockType)
 {
 }
