@@ -206,7 +206,7 @@ namespace usage {
         virtual ~Shape() = 0;
             // Destroy this object.
 
-        // Further details elided for example.
+        // Further details elided from example.
     };
 //..
 // Then, we create a utility class containing a registry of factory functions
