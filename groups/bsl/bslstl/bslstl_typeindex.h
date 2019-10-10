@@ -19,11 +19,12 @@ BSLS_IDENT("$Id: $")
 // associative or unordered container.
 //
 // This implementation of 'type_index' satisfies the contracts for the native
-// 'std:type_index' specified in the ISO standard, with one exception.  This
-// class does not provide a specialization for 'std::hash', but instead
-// provides an overload for 'hashAppend' to support the 'bsl::hash' type.
-// Users of 'bsl' containers should use the 'bsl::type_index' class, while
-// users of 'std' containers should use the 'std::type_index' class.
+// 'std:type_index' specified in the ISO standard, including a specialization
+// for the native standard library 'std::hash'.  It further provides an
+// overload for 'hashAppend' to support the BDE hashing framework, and so
+// 'bsl::hash'.  In general, the recommended best practice is that users of
+// 'bsl' containers should use the 'bsl::type_index' class, while users of
+// 'std' containers should use the 'std::type_index' class.
 //
 ///Usage
 ///-----
@@ -225,8 +226,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
+#include <functional>
 #include <typeinfo>
 
 #include <stddef.h>
@@ -400,6 +403,48 @@ void bsl::hashAppend(HASHALG& hashAlg, const type_index& object)
     using ::BloombergLP::bslh::hashAppend;
     hashAppend(hashAlg, object.hash_code());
 }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# ifdef std
+#   undef std
+#   define BSLSTL_ERROR_STD_DEFINED
+# endif // std
+
+namespace std
+{
+                        // ---------------------------
+                        // class hash<bsl::type_index>
+                        // ---------------------------
+
+template <>
+struct hash<bsl::type_index> {
+    // This 'struct' provides an explicit specialization of the standard
+    // 'hash' template, enabling 'bsl::type_index' to be used as the key type
+    // for standard unordered associative containers.
+
+    // ACCESSORS
+
+    size_t operator()(const bsl::type_index& target) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Return the 'hash_code' of the 'type_info' object associated with the
+        // specified 'target'.
+
+};
+
+inline
+size_t hash<bsl::type_index>::operator()(const bsl::type_index& target) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return target.hash_code();
+};
+
+}  // close namespace std
+
+# ifdef BSLSTL_ERROR_STD_DEFINED
+#   undef BSLSTL_ERROR_STD_DEFINED
+#   define std bsl
+# endif // BSLSTL_ERROR_STD_DEFINED
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #endif
 
