@@ -265,7 +265,9 @@ struct ClassWithDeletedOps {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
 
-namespace {
+namespace TESTING_EXTERN_TEMPLATE {
+// Note that extern template declarations cannot have internal linkage, so are
+// not allowed in unnamed namespces, even for testing the feature.
 
 // define class template
 template <class TYPE>
@@ -277,7 +279,7 @@ extern template class ExternTemplateClass<char>;
 // instantiate in this translation unit
 template class ExternTemplateClass<char>;
 
-}  // close unnamed namespace
+}  // close namespace  TESTING_EXTERN_TEMPLATE
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 
@@ -2340,7 +2342,7 @@ will not improve the flavor.
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
         if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        ExternTemplateClass<char> obj; (void) obj;
+        TESTING_EXTERN_TEMPLATE::ExternTemplateClass<char> obj; (void) obj;
 #endif
 
       } break;

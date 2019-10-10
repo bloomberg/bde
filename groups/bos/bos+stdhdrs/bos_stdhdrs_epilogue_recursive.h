@@ -287,6 +287,13 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_TYPEINDEX
+# ifndef INCLUDED_BSLSTL_TYPEINDEX
+#   include <bslstl_typeindex.h>
+#   define INCLUDE_BOS_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 // If '<utility>' was included, then include our implementation of 'pair'.
 #ifdef INCLUDED_NATIVE_UTILITY
 # ifndef INCLUDED_BSLSTL_PAIR
