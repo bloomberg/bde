@@ -198,7 +198,7 @@ static int initPthreadAttribute(pthread_attr_t                 *destination,
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
 
-lass MachClockGuard {
+class MachClockGuard {
     // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
     // destruction.
 
