@@ -21,10 +21,10 @@ BSLS_IDENT("$Id: $")
 // This implementation of 'type_index' satisfies the contracts for the native
 // 'std:type_index' specified in the ISO standard, including a specialization
 // for the native standard library 'std::hash'.  It further provides an
-// overload for 'hashAppend' to support the BDE hashing framework, and so
-// 'bsl::hash'.  In general, the recommended best practice is that users of
-// 'bsl' containers should use the 'bsl::type_index' class, while users of
-// 'std' containers should use the 'std::type_index' class.
+// overload for 'hashAppend' to support the BDE hashing framework, and therefor
+// idiomatic usage with 'bsl::hash'.  In general, the recommended best practice
+// is that users of 'bsl' containers should use the 'bsl::type_index' class,
+// while users of 'std' containers should use the 'std::type_index' class.
 //
 ///Usage
 ///-----
@@ -410,8 +410,7 @@ void bsl::hashAppend(HASHALG& hashAlg, const type_index& object)
 #   define BSLSTL_ERROR_STD_DEFINED
 # endif // std
 
-namespace std
-{
+namespace std {
                         // ---------------------------
                         // class hash<bsl::type_index>
                         // ---------------------------
@@ -425,17 +424,12 @@ struct hash<bsl::type_index> {
     // ACCESSORS
 
     size_t operator()(const bsl::type_index& target) const
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                          BSLS_KEYWORD_NOEXCEPT
         // Return the 'hash_code' of the 'type_info' object associated with the
         // specified 'target'.
-
-};
-
-inline
-size_t hash<bsl::type_index>::operator()(const bsl::type_index& target) const
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return target.hash_code();
+    {
+        return target.hash_code();
+    }
 };
 
 }  // close namespace std
