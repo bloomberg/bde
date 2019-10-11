@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, add the offset to the UTC time to obtain the local time:
 //..
-//  bsls::TimeInterval local = utc;
+//  bdlt::Datetime local = utc;
 //  local.addSeconds(localOffset.seconds());
 //..
 // Finally, stream the two time values to 'stdout':
