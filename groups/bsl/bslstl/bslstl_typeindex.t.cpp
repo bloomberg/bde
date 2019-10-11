@@ -56,6 +56,18 @@ using namespace BloombergLP;
 # endif
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
+# if defined(BSLS_PLATFORM_CMP_MSVC)
+    // MSVC does not correctly parse pointer-to-rvalue-ref-qualfied-member
+    // function types inside operators such as 'sizeof' and 'typeid'.  It has
+    // no issues with these types outside of such operators, nor using a
+    // typedef to such a type with the operator expression.  Likewise it
+    // correctly parses pointer-to-lvalue-ref-qualfied-member functions in all
+    // contexts.
+#   define BSLSTL_TYPEINDEX_MSVC_RVALUE_QUALIFIER_BUG   1
+# endif
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -575,6 +587,7 @@ const native_std::type_info *const DEFAULT_DATA[] = {
     , &typeid(int(Host::*)(int...) const volatile &)
     , &typeid(int(Host::*)(int, int) const volatile &)
     , &typeid(int(Host::*)(int, int...) const volatile &)
+# if !defined(BSLSTL_TYPEINDEX_MSVC_RVALUE_QUALIFIER_BUG)
     , &typeid(int(Host::*)() &&)
     , &typeid(int(Host::*)(...) &&)
     , &typeid(int(Host::*)(int) &&)
@@ -599,6 +612,7 @@ const native_std::type_info *const DEFAULT_DATA[] = {
     , &typeid(int(Host::*)(int...) const volatile &&)
     , &typeid(int(Host::*)(int, int) const volatile &&)
     , &typeid(int(Host::*)(int, int...) const volatile &&)
+# endif
 #endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
     , &typeid(int() noexcept)
@@ -662,6 +676,7 @@ const native_std::type_info *const DEFAULT_DATA[] = {
     , &typeid(int(Host::*)(int...) const volatile & noexcept)
     , &typeid(int(Host::*)(int, int) const volatile & noexcept)
     , &typeid(int(Host::*)(int, int...) const volatile & noexcept)
+# if !defined(BSLSTL_TYPEINDEX_MSVC_RVALUE_QUALIFIER_BUG)
     , &typeid(int(Host::*)() && noexcept)
     , &typeid(int(Host::*)(...) && noexcept)
     , &typeid(int(Host::*)(int) && noexcept)
@@ -686,6 +701,7 @@ const native_std::type_info *const DEFAULT_DATA[] = {
     , &typeid(int(Host::*)(int...) const volatile && noexcept)
     , &typeid(int(Host::*)(int, int) const volatile && noexcept)
     , &typeid(int(Host::*)(int, int...) const volatile && noexcept)
+# endif
 #endif
     };
 
