@@ -44,6 +44,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
 
 #include <errno.h>
@@ -676,8 +677,15 @@ bool operator<(const error_condition& lhs, const error_condition& rhs)
 #endif
 
 namespace std {
-template <class TYPE>
-struct hash;
+
+#ifndef BSLS_PLATFORM_OS_DARWIN
+  // On C++03 on Darwin, the template struct 'hash' is forward declared with
+  // different attributes in <typetraits> that conflict with this forward
+  // declaration.
+
+  template <class TYPE>
+  struct hash;
+#endif
 
 template <>
 struct hash<bsl::error_code> : BloombergLP::bslh::Hash<>

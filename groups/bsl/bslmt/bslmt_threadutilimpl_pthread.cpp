@@ -51,7 +51,30 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <errno.h>         // constant 'EINTR'
 
-namespace BloombergLP {
+namespace {
+namespace u {
+
+using namespace BloombergLP;
+
+// 'man (2) prctl' from Linux 2.6.9 says the thread name buffer must
+// accommodate at least 16 bytes, for both setting and getting.
+
+// http://linux.die.net/man/3/pthread_getname_np says 'pthread_getname_np'
+// requires a buffer at least 16 bytes long (and says that 'pthread_setname_np'
+// can't handle a string longer than 16 bytes, including the terminating '\0').
+
+// 'man pthread_setname_np' on Solaris says the max thread name length is 31
+// characters.  It diescussed no limit for 'pthread_getname_np', but the buffer
+// length is passed to that call.
+
+enum {
+    k_THREAD_NAME_BUF_SIZE =
+# if defined(BSLS_PLATFORM_OS_SOLARIS)
+                              32
+# else
+                              16
+# endif
+};
 
 static inline
 int localPthreadsPolicy(int policy)
@@ -111,7 +134,7 @@ static int initPthreadAttribute(pthread_attr_t                 *destination,
         rc |= pthread_attr_setinheritsched(destination,
                                            PTHREAD_EXPLICIT_SCHED);
 
-        int pthreadPolicy = localPthreadsPolicy(src.schedulingPolicy());
+        int pthreadPolicy = u::localPthreadsPolicy(src.schedulingPolicy());
         rc |= pthread_attr_setschedpolicy(destination, pthreadPolicy);
 
         int priority = src.schedulingPriority();
@@ -175,8 +198,6 @@ static int initPthreadAttribute(pthread_attr_t                 *destination,
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
 
-namespace {
-
 class MachClockGuard {
     // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
     // destruction.
@@ -199,13 +220,16 @@ class MachClockGuard {
     }
 };
 
-}  // close unnamed namespace
-
 #endif  // defined(BSLS_PLATFORM_OS_DARWIN)
+
+}  // close namespace u
+}  // close unnamed namespace
 
                // --------------------------------------------
                // class ThreadUtilImpl<Platform::PosixThreads>
                // --------------------------------------------
+
+namespace BloombergLP {
 
 // CLASS DATA
 const pthread_t
@@ -222,7 +246,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
     int rc;
     pthread_attr_t pthreadAttr;
 
-    rc = initPthreadAttribute(&pthreadAttr, attributes);
+    rc = u::initPthreadAttribute(&pthreadAttr, attributes);
     if (rc) {
         return -1;                                                    // RETURN
     }
@@ -403,28 +427,20 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::getThreadName(
 {
     BSLS_ASSERT(threadName);
 
-#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN)
-    // 'man (2) prctl' from Linux 2.6.9 says the buffer must accommodate at
-    // least 16 bytes.
+#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
 
-    // http://linux.die.net/man/3/pthread_getname_np says 'pthread_getname_np'
-    // requires a buffer at least 16 bytes long (and says that
-    // 'pthread_setname_np' can't handle a string longer than 16 bytes,
-    // including the terminating '\0').
-
-    enum { k_BUF_SIZE = 16 };
-    char localBuf[k_BUF_SIZE];
+    char localBuf[u::k_THREAD_NAME_BUF_SIZE];
 
 # if defined(BSLS_PLATFORM_OS_LINUX)
-
     const int rc = prctl(PR_GET_NAME, localBuf, 0, 0, 0);
-# elif defined(BSLS_PLATFORM_OS_DARWIN)
+# elif defined(BSLS_PLATFORM_OS_DARWIN) || defined(BSLS_PLATFORM_OS_SOLARIS)
     const int rc = pthread_getname_np(pthread_self(),
                                       localBuf,
-                                      k_BUF_SIZE);
+                                      u::k_THREAD_NAME_BUF_SIZE);
 # endif
 
-    localBuf[k_BUF_SIZE - 1] = 0;
+    localBuf[u::k_THREAD_NAME_BUF_SIZE - 1] = 0;
     BSLS_ASSERT(0 == rc);        (void)rc;    // suppress unused warnings
 
     *threadName = localBuf;
@@ -463,25 +479,21 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::microSleep(
 void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::setThreadName(
                                            const bslstl::StringRef& threadName)
 {
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-    // http://linux.die.net/man/2/prctl says that 'prctl(PR_SET_NAME, ...)' can
-    // only handle names up to 16 bytes, including the terminating '\0'.
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||    \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
 
-    // http://linux.die.net/man/3/pthread_getname_np says that
-    // 'pthread_setname_np' can't handle a string longer than 16 bytes,
-    // including the terminating '\0'.
+    char buffer[u::k_THREAD_NAME_BUF_SIZE];
+    const bsl::size_t len = bsl::min(sizeof(buffer) - 1, threadName.length());
 
-    enum { k_BUF_SIZE = 16 };   // 16 is appropriate for both Linux and Darwin.
-    char localBuf[k_BUF_SIZE];
-    const bsl::size_t len = bsl::min<bsl::size_t>(k_BUF_SIZE - 1,
-                                                  threadName.length());
-    bsl::strncpy(localBuf, threadName.data(), len);
-    localBuf[len] = 0;
+    bsl::strncpy(buffer, threadName.data(), len);
+    buffer[len] = 0;
 
 # if   defined(BSLS_PLATFORM_OS_LINUX)
-    const int rc = prctl(PR_SET_NAME, localBuf, 0, 0, 0);
+    const int rc = prctl(PR_SET_NAME, buffer, 0, 0, 0);
 # elif defined(BSLS_PLATFORM_OS_DARWIN)
-    const int rc = pthread_setname_np(localBuf);
+    const int rc = pthread_setname_np(buffer);
+# elif defined(BSLS_PLATFORM_OS_SOLARIS)
+    const int rc = pthread_setname_np(pthread_self(), buffer);
 # endif
 
     BSLS_ASSERT(0 == rc);        (void)rc;    // suppress unused warnings
@@ -552,7 +564,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
     kern_return_t status = host_get_clock_service(mach_host_self(),
                                                   REALTIME_CLOCK,
                                                   &clock);
-    MachClockGuard clockGuard(clock);
+    u::MachClockGuard clockGuard(clock);
 
     if (0 != status) {
         return status;                                                // RETURN
@@ -630,7 +642,6 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::hardwareConcurrency()
 
     return 0 > result ? 0 : static_cast<unsigned int>(result);
 }
-
 
 }  // close enterprise namespace
 
