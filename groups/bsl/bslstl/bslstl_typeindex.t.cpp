@@ -23,11 +23,16 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_nativestd.h>
 #include <bsls_outputredirector.h>
 #include <bsls_platform.h>
 
 #include <algorithm>    // 'swap' prior to C++11
 #include <utility>      // 'swap' in C++11 or later
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# include <unordered_set>
+#endif
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -104,14 +109,15 @@ using namespace BloombergLP;
 // [12] void hashAppend(HASHALG& alg, const type_index& object);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
+// [ 3] CONCERN: test machinery functions as expected
 // [ 5] void debugprint(const type_info& object);
 // [ *] CONCERN: in no case does memory come from the global allocator.
 // [ *] CONCERN: in no case does memory come from the default allocator.
-// [13] CONCERN: type detects as trivial for all relevant traits
-// [ 3] CONCERN: test machinery functions as expected
 // [ 6] REDUNDANT: test case for equality comparison
 // [ 8] CONCERN: supports standard use of 'swap'
+// [13] CONCERN: type detects as trivial for all relevant traits
+// [14] CONCERN: works with 'native_std::hash'
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -716,7 +722,7 @@ int main(int argc, char *argv[])
     ASSERTV(bslma::Default::allocator(0) == &defaultAllocator);
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -738,6 +744,51 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         usage::main();
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'native_std::hash'
+        //   Ensure that 'bsl::type_index' can be stored in native unordered
+        //   containers on platforms that support hashing.
+        //
+        // Concerns:
+        //: 1 The native standard library containers can use 'bsl::type_index'
+        //:   as their key type.
+        //
+        // Plan:
+        //: 1 Create an object of type 'native_std::set<bsl::type_index>'.
+        //:
+        //: 2 For each value in the global table of test values:
+        //:
+        //:   1 Create a 'const' object of type 'bsl::type_index' having that
+        //:     value.
+        //:
+        //:   2 Verify 'X' can be inserted into the 'unordered_set'. (C-1)
+        //
+        // Testing:
+        //   CONCERN: works with 'native_std::hash'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'native_std::hash'"
+                            "\n==========================\n");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+        if (verbose) printf("\nTesting 'native_std::hash'\n");
+        {
+            native_std::unordered_set<bsl::type_index> container;
+
+            for (size_t i = 0; i != DEFAULT_NUM_DATA; ++i) {
+                const Obj X = *DEFAULT_DATA[i];
+
+                bool inserted = container.insert(X).second;
+                ASSERTV(i, X, inserted, inserted);
+            }
+        }
+#else
+        if (verbose) printf(
+                     "'native_std::hash' is not supported on this platform\n");
+#endif
+
       } break;
       case 13: {
         // --------------------------------------------------------------------
