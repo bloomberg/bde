@@ -13393,6 +13393,16 @@ int main(int argc, char *argv[])
         // non-modifiable reference to content number 4
         const Content& C4 = mC4;
 
+        // modifiable content number 5, which has a child nesting depth of 3,
+        // and 3 children.
+        Content mC5;
+        mC5.createInPlace<Elements>();
+        mC5.the<Elements>().push_back(X("STU", C4));
+        mC5.the<Elements>().push_back(X("VWX"));
+        mC5.the<Elements>().push_back(X("YZ1"));
+        // non-modifiable reference to content number 5
+        const Content& C5 = mC5;
+
         const struct {
             int           d_line;   // line number
             TestXmlElement  d_xml;    // XML object representation
@@ -13431,6 +13441,19 @@ int main(int argc, char *argv[])
                                            "</PQR>"
                                        "</ABC>" },
 
+            { L_ , X("ABC", C5)      , "<ABC>"
+                                           "<STU>"
+                                               "<MNO>"
+                                                   "Lorem ipsum."
+                                               "</MNO>"
+                                               "<PQR attr0='val0'>"
+                                                   "<DEF/>"
+                                               "</PQR>"
+                                           "</STU>"
+                                           "<VWX/>"
+                                           "<YZ1/>"
+                                       "</ABC>" },
+
             { L_ , X("ABC", As0, C0) , "<ABC attr0='val0'>"
                                        "</ABC>" },
 
@@ -13454,6 +13477,19 @@ int main(int argc, char *argv[])
                                            "<PQR attr0='val0'>"
                                                "<DEF/>"
                                            "</PQR>"
+                                       "</ABC>" },
+
+            { L_ , X("ABC", As0, C5) , "<ABC attr0='val0'>"
+                                           "<STU>"
+                                               "<MNO>"
+                                                   "Lorem ipsum."
+                                               "</MNO>"
+                                               "<PQR attr0='val0'>"
+                                                   "<DEF/>"
+                                               "</PQR>"
+                                           "</STU>"
+                                           "<VWX/>"
+                                           "<YZ1/>"
                                        "</ABC>" },
 
             { L_ , X("ABC", As01, C0), "<ABC attr0='val0' attr1='val1'>"
@@ -13481,6 +13517,19 @@ int main(int argc, char *argv[])
                                            "</PQR>"
                                        "</ABC>" },
 
+            { L_ , X("ABC", As01, C5), "<ABC attr0='val0' attr1='val1'>"
+                                           "<STU>"
+                                               "<MNO>"
+                                                   "Lorem ipsum."
+                                               "</MNO>"
+                                               "<PQR attr0='val0'>"
+                                                   "<DEF/>"
+                                               "</PQR>"
+                                           "</STU>"
+                                           "<VWX/>"
+                                           "<YZ1/>"
+                                       "</ABC>" },
+
             { L_ , X("ABC", As02, C0), "<ABC attr0='val0' attr2=''>"
                                        "</ABC>" },
 
@@ -13504,6 +13553,19 @@ int main(int argc, char *argv[])
                                            "<PQR attr0='val0'>"
                                                "<DEF/>"
                                            "</PQR>"
+                                       "</ABC>" },
+
+            { L_ , X("ABC", As02, C5), "<ABC attr0='val0' attr2=''>"
+                                           "<STU>"
+                                               "<MNO>"
+                                                   "Lorem ipsum."
+                                               "</MNO>"
+                                               "<PQR attr0='val0'>"
+                                                   "<DEF/>"
+                                               "</PQR>"
+                                           "</STU>"
+                                           "<VWX/>"
+                                           "<YZ1/>"
                                        "</ABC>" }
         };
 
