@@ -8651,9 +8651,9 @@ bsl::ostream& Employee::print(
 
 namespace BloombergLP {
 
-                            // ==================
-                            // class TestNilValue
-                            // ==================
+                             // ==================
+                             // class TestNilValue
+                             // ==================
 
 class TestNilValue {
     // This in-memory value-semantic class provides a representation of the
@@ -8757,11 +8757,11 @@ struct TestSelectionDefaults {
 
 // CLASS DATA
 const char TestSelectionDefaults::k_DEFAULT_ANNOTATION[1] = "";
-const char TestSelectionDefaults::k_DEFAULT_NAME[1] = "";
+const char TestSelectionDefaults::k_DEFAULT_NAME[1]       = "";
 
-                             // ===================
-                             // class TestSelection
-                             // ===================
+                            // ===================
+                            // class TestSelection
+                            // ===================
 
 template <int         ID,
           const char *NAME = TestSelectionDefaults::k_DEFAULT_NAME,
@@ -8864,10 +8864,10 @@ class TestChoice {
     // are also 'TestNilValue'.
     //
     // The 'Type' and 'Selection' member type definitions of the template
-    // arguments define the type and 'bdlat_SelectionInfo' of the selections
-    // of the 'bdlat' 'Choice' implementation provided by this class.  A
-    // template argument having a 'TestNilValue' 'Type' indicates that the
-    // corresponding selection does not exist.
+    // arguments define the type and 'bdlat_SelectionInfo' of the selections of
+    // the 'bdlat' 'Choice' implementation provided by this class.  A template
+    // argument having a 'TestNilValue' 'Type' indicates that the corresponding
+    // selection does not exist.
 
   public:
     // TYPES
@@ -8881,7 +8881,7 @@ class TestChoice {
   private:
     // PRIVATE TYPES
     typedef bdlb::Variant<Selection0Type, Selection1Type, Selection2Type>
-            Value;
+        Value;
 
     // PRIVATE CLASS DATA
     enum {
@@ -8941,8 +8941,8 @@ class TestChoice {
 
     int makeSelection(int selectionId)
         // Set the value of this object to the default for the selection
-        // indicated by the specified 'selectionId'.  Return 0 on success,
-        // and a non-zero value otherwise.
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // a non-zero value otherwise.
     {
         switch (selectionId) {
           case 0: {
@@ -9002,11 +9002,11 @@ class TestChoice {
 
     template <class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator)
-        // Invoke the specified 'manipulator' on the address of the (modifiable)
-        // selection of this object, supplying 'manipulator' with the
-        // corresponding selection information structure.  Return -1 if the
-        // selection is undefined, and the value returned from the
-        // invocation of 'manipulator' otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) selection of this object, supplying 'manipulator' with
+        // the corresponding selection information structure.  Return -1 if the
+        // selection is undefined, and the value returned from the invocation
+        // of 'manipulator' otherwise.
     {
         switch (d_value.object().typeIndex()) {
           case 0: {
@@ -9015,30 +9015,30 @@ class TestChoice {
           case 1: {
             BSLS_ASSERT(k_HAS_CHOICE_0);
             BSLS_ASSERT(d_value.object().template is<Selection0Type>());
-            return manipulator(&d_value.object().template the<Selection0Type>(),
-                               Selection0::selectionInfo());          // RETURN
+            return manipulator(
+                &d_value.object().template the<Selection0Type>(),
+                Selection0::selectionInfo());                         // RETURN
           } break;
           case 2: {
             BSLS_ASSERT(k_HAS_CHOICE_1);
             BSLS_ASSERT(d_value.object().template is<Selection1Type>());
-            return manipulator(&d_value.object().template the<Selection1Type>(),
-                               Selection1::selectionInfo());          // RETURN
+            return manipulator(
+                &d_value.object().template the<Selection1Type>(),
+                Selection1::selectionInfo());                         // RETURN
           } break;
           case 3: {
             BSLS_ASSERT(k_HAS_CHOICE_2);
             BSLS_ASSERT(d_value.object().template is<Selection2Type>());
-            return manipulator(&d_value.object().template the<Selection2Type>(),
-                               Selection2::selectionInfo());          // RETURN
+            return manipulator(
+                &d_value.object().template the<Selection2Type>(),
+                Selection2::selectionInfo());                         // RETURN
           } break;
         }
 
         return -1;
     }
 
-    void reset()
-    {
-        d_value.object().template createInPlace<Selection0Type>();
-    }
+    void reset() { d_value.object().template createInPlace<Selection0Type>(); }
 
     // ACCESSORS
     template <class ACCESSOR>
@@ -9093,8 +9093,7 @@ class TestChoice {
         return false;
     }
 
-    bool hasSelection(const char *selectionName,
-                      int selectionNameLength) const
+    bool hasSelection(const char *selectionName, int selectionNameLength) const
     {
         const bslstl::StringRef selection(selectionName, selectionNameLength);
 
@@ -9120,10 +9119,7 @@ class TestChoice {
         return "MyChoice";
     }
 
-    int selectionId() const
-    {
-        return d_value.object().typeIndex() - 1;
-    }
+    int selectionId() const { return d_value.object().typeIndex() - 1; }
 
     const Selection0Type& theSelection0() const
     {
@@ -9197,9 +9193,9 @@ const char *bdlat_TypeName_className(const TestChoice<C0, C1, C2>& object)
 
 template <class C0, class C1, class C2>
 int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object, int selectionId)
-    // Set the value of the specified 'object' to the default for the
-    // selection indicated by the specified 'selectionId'.  Return 0 on
-    // success, and a non-zero value otherwise.
+    // Set the value of the specified 'object' to the default for the selection
+    // indicated by the specified 'selectionId'.  Return 0 on success, and a
+    // non-zero value otherwise.
 {
     return object->makeSelection(selectionId);
 }
@@ -9241,16 +9237,17 @@ int bdlat_choiceAccessSelection(const TestChoice<C0, C1, C2>& object,
 }
 
 template <class C0, class C1, class C2>
-bool bdlat_choiceHasSelection(const TestChoice<C0, C1, C2>& object,
-                              const char *selectionName,
-                              int selectionNameLength)
+bool bdlat_choiceHasSelection(
+                            const TestChoice<C0, C1, C2>&  object,
+                            const char                    *selectionName,
+                            int                            selectionNameLength)
 {
     return object.hasSelection(selectionName, selectionNameLength);
 }
 
 template <class C0, class C1, class C2>
 bool bdlat_choiceHasSelection(const TestChoice<C0, C1, C2>& object,
-                              int selectionId)
+                              int                           selectionId)
 {
     return object.hasSelection(selectionId);
 }
@@ -9264,8 +9261,8 @@ int bdlat_choiceSelectionId(const TestChoice<C0, C1, C2>& object)
 }
 
 template <class C0, class C1, class C2>
-int bdlat_valueTypeAssign(TestChoice<C0, C1, C2> *lhs,
-                          const TestChoice<C0, C1, C2>& rhs)
+int bdlat_valueTypeAssign(TestChoice<C0, C1, C2>        *lhs,
+                          const TestChoice<C0, C1, C2>&  rhs)
 {
     *lhs = rhs;
     return 0;
@@ -9307,7 +9304,7 @@ class TestCustomizedType {
   public:
     // TYPES
     typedef VALUE_TYPE Value;
-    typedef BASE_TYPE BaseType;
+    typedef BASE_TYPE  BaseType;
 
   private:
     // DATA
@@ -9317,7 +9314,7 @@ class TestCustomizedType {
   public:
     // CLASS METHODS
     static bool areEqual(const TestCustomizedType& lhs,
-                              const TestCustomizedType& rhs)
+                         const TestCustomizedType& rhs)
     {
         return lhs.d_value.object() == rhs.d_value.object();
     }
@@ -9374,10 +9371,7 @@ class TestCustomizedType {
 
     void setValue(const Value& value) { d_value.object() = value; }
 
-    void reset()
-    {
-        d_value.object() = Value();
-    }
+    void reset() { d_value.object() = Value(); }
 
     // ACCESSORS
     const char *className() const
@@ -9456,8 +9450,9 @@ const BASE_TYPE& bdlat_customizedTypeConvertToBaseType(
 }
 
 template <class VALUE_TYPE, class BASE_TYPE>
-int bdlat_valueTypeAssign(TestCustomizedType<VALUE_TYPE, BASE_TYPE> *lhs,
-                          const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& rhs)
+int bdlat_valueTypeAssign(
+                         TestCustomizedType<VALUE_TYPE, BASE_TYPE>        *lhs,
+                         const TestCustomizedType<VALUE_TYPE, BASE_TYPE>&  rhs)
 {
     *lhs = rhs;
     return 0;
@@ -9575,7 +9570,7 @@ struct TestDynamicType_ArrayImpUtil<VALUE_TYPE, false> {
 
 template <class VALUE_TYPE,
           bool IS_CHOICE = bdlat_TypeCategory::e_CHOICE_CATEGORY ==
-          bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
+                           bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
 struct TestDynamicType_ChoiceImpUtil {
     // This utility 'struct' provides a namespace for a suite of functions used
     // by 'TestDynamicType' to implement the 'bdlat' 'Choice' concept for
@@ -9587,8 +9582,7 @@ struct TestDynamicType_ChoiceImpUtil {
 
     // CLASS METHODS
     template <class ACCESSOR>
-    static int accessSelection(const Value& value,
-                               ACCESSOR& accessor)
+    static int accessSelection(const Value& value, ACCESSOR& accessor)
         // Invoke the specified 'accessor' on the (non-modifiable) selection of
         // the specified 'value', supplying 'accessor' with the corresponding
         // selection information structure.  Return -1 if the selection is
@@ -9598,24 +9592,22 @@ struct TestDynamicType_ChoiceImpUtil {
         return bdlat_ChoiceFunctions::accessSelection(value, accessor);
     }
 
-    static bool hasSelection(const Value& value,
-                             int selectionId)
+    static bool hasSelection(const Value& value, int selectionId)
         // Return 'true' if the specified 'value' has a selection with the
         // specified 'selectionId', and 'false' otherwise.
     {
         return bdlat_ChoiceFunctions::hasSelection(value, selectionId);
     }
 
-    static bool hasSelection(const Value& value,
-                             const char *selectionName,
-                             int selectionNameLength)
+    static bool hasSelection(const Value&  value,
+                             const char   *selectionName,
+                             int           selectionNameLength)
         // Return 'true' if the specified 'value' has a selection with the
         // specified 'selectionName' of the specified 'selectionNameLength',
         // and 'false' otherwise.
     {
-        return bdlat_ChoiceFunctions::hasSelection(value,
-                                                   selectionName,
-                                                   selectionNameLength);
+        return bdlat_ChoiceFunctions::hasSelection(
+            value, selectionName, selectionNameLength);
     }
 
     static int makeSelection(Value *value, int selectionId)
@@ -9626,8 +9618,9 @@ struct TestDynamicType_ChoiceImpUtil {
         return bdlat_ChoiceFunctions::makeSelection(value, selectionId);
     }
 
-    static int makeSelection(Value *value, const char *selectionName,
-                             int selectionNameLength)
+    static int makeSelection(Value      *value,
+                             const char *selectionName,
+                             int         selectionNameLength)
         // Set the value of the specified 'value' to be the default for the
         // selection indicated by the specified 'selectionName' of the
         // specified 'selectionNameLength'.  Return 0 on success, and a
@@ -9638,8 +9631,7 @@ struct TestDynamicType_ChoiceImpUtil {
     }
 
     template <class MANIPULATOR>
-    static int manipulateSelection(Value *value,
-                                   MANIPULATOR& manipulator)
+    static int manipulateSelection(Value *value, MANIPULATOR& manipulator)
         // Invoke the specified 'manipulator' on the address of the
         // (modifiable) selection of the specified 'value', supplying
         // 'manipulator' with the corresponding selection information
@@ -9914,13 +9906,13 @@ class TestDynamicType {
     }
 
     // DATA
-    bslalg::ConstructorProxy<Value> d_value; // underlying value
-    bslma::Allocator *d_allocator_p; // memory supply (held, not owned)
+    bslalg::ConstructorProxy<Value> d_value;  // underlying value
+    bslma::Allocator *d_allocator_p;  // memory supply (held, not owned)
 
   public:
     // CLASS METHODS
     static bool areEqual(const TestDynamicType& lhs,
-                              const TestDynamicType& rhs)
+                         const TestDynamicType& rhs)
     {
         return lhs.d_value.object() == rhs.d_value.object();
     }
@@ -9938,15 +9930,14 @@ class TestDynamicType {
     {
     }
 
-    TestDynamicType(const Value& value,
-                    bslma::Allocator *basicAllocator = 0)
+    TestDynamicType(const Value& value, bslma::Allocator *basicAllocator = 0)
     : d_value(value, basicAllocator)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
-    TestDynamicType(const TestDynamicType& original,
-                    bslma::Allocator *basicAllocator = 0)
+    TestDynamicType(const TestDynamicType&  original,
+                    bslma::Allocator       *basicAllocator = 0)
     : d_value(original.d_value.object(), basicAllocator)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
@@ -9968,7 +9959,8 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_ARRAY));
 
-        return ArrayImpUtil::manipulateElement(&d_value.object(), manipulator, index);
+        return ArrayImpUtil::manipulateElement(
+            &d_value.object(), manipulator, index);
     }
 
     void arrayResize(int newSize)
@@ -9990,12 +9982,10 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_CHOICE));
 
-        return ChoiceImpUtil::makeSelection(&d_value.object(),
-                                            selectionId);
+        return ChoiceImpUtil::makeSelection(&d_value.object(), selectionId);
     }
 
-    int choiceMakeSelection(const char *selectionName,
-                            int selectionNameLength)
+    int choiceMakeSelection(const char *selectionName, int selectionNameLength)
         // Set the value of this object to be the default for the selection
         // indicated by the specified 'selectionName' of the specified
         // 'selectionNameLength'.  Return 0 on success, and a non-zero value
@@ -10003,9 +9993,8 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_CHOICE));
 
-        return ChoiceImpUtil::makeSelection(&d_value.object(),
-                                            selectionName,
-                                            selectionNameLength);
+        return ChoiceImpUtil::makeSelection(
+            &d_value.object(), selectionName, selectionNameLength);
     }
 
     template <class MANIPULATOR>
@@ -10023,9 +10012,9 @@ class TestDynamicType {
     }
 
     template <class MANIPULATOR>
-    int sequenceManipulateAttribute(MANIPULATOR& manipulator,
-                                    const char *attributeName,
-                                    int attributeNameLength)
+    int sequenceManipulateAttribute(MANIPULATOR&  manipulator,
+                                    const char   *attributeName,
+                                    int           attributeNameLength)
         // Invoke the specified 'manipulator' on the address of the
         // (modifiable) attribute indicated by the specified 'attributeName' of
         // the specified 'attributeNameLength' of this object, supplying
@@ -10036,13 +10025,14 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
 
-        return SequenceImpUtil::manipulateAttribute(
-            &d_value.object(), manipulator, attributeName, attributeNameLength);
+        return SequenceImpUtil::manipulateAttribute(&d_value.object(),
+                                                    manipulator,
+                                                    attributeName,
+                                                    attributeNameLength);
     }
 
     template <class MANIPULATOR>
-    int sequenceManipulateAttribute(MANIPULATOR& manipulator,
-                                    int attributeId)
+    int sequenceManipulateAttribute(MANIPULATOR& manipulator, int attributeId)
         // Invoke the specified 'manipulator' on the address of the
         // (modifiable) attribute indicated by the specified 'attributeId' of
         // this object, supplying 'manipulator' with the corresponding
@@ -10067,18 +10057,12 @@ class TestDynamicType {
         BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
 
         return SequenceImpUtil::manipulateAttributes(&d_value.object(),
-                                                   manipulator);
+                                                     manipulator);
     }
 
-    void reset()
-    {
-        bdlat_ValueTypeFunctions::reset(&d_value.object());
-    }
+    void reset() { bdlat_ValueTypeFunctions::reset(&d_value.object()); }
 
-    void setValue(const Value& value)
-    {
-        d_value.object() = value;
-    }
+    void setValue(const Value& value) { d_value.object() = value; }
 
     // ACCESSORS
     const char *className() const
@@ -10097,9 +10081,7 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_ARRAY));
 
-        return ArrayImpUtil::accessElement(d_value.object(),
-                                           accessor,
-                                           index);
+        return ArrayImpUtil::accessElement(d_value.object(), accessor, index);
     }
 
     bsl::size_t arraySize() const
@@ -10139,9 +10121,8 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_CHOICE));
 
-        return ChoiceImpUtil::hasSelection(d_value.object(),
-                                           selectionName,
-                                           selectionNameLength);
+        return ChoiceImpUtil::hasSelection(
+            d_value.object(), selectionName, selectionNameLength);
     }
 
     int choiceSelectionId() const
@@ -10154,9 +10135,9 @@ class TestDynamicType {
     }
 
     template <class ACCESSOR>
-    int sequenceAccessAttribute(ACCESSOR& accessor,
+    int sequenceAccessAttribute(ACCESSOR&   accessor,
                                 const char *attributeName,
-                                int attributeNameLength) const
+                                int         attributeNameLength) const
         // Invoke the specified 'accessor' on the (non-modifiable) attribute of
         // this object indicated by the specified 'attributeName' of the
         // specified 'attributeNameLength', supplying 'accessor' with the
@@ -10166,10 +10147,8 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
 
-        return SequenceImpUtil::accessAttribute(d_value.object(),
-                                                accessor,
-                                                attributeName,
-                                                attributeNameLength);
+        return SequenceImpUtil::accessAttribute(
+            d_value.object(), accessor, attributeName, attributeNameLength);
     }
 
     template <class ACCESSOR>
@@ -10182,9 +10161,8 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
 
-        return SequenceImpUtil::accessAttribute(d_value.object(),
-                                                accessor,
-                                                attributeId);
+        return SequenceImpUtil::accessAttribute(
+            d_value.object(), accessor, attributeId);
     }
 
     template <class ACCESSOR>
@@ -10196,26 +10174,24 @@ class TestDynamicType {
     {
         BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
 
-        return SequenceImpUtil::accessAttributes(d_value.object(),
-                                                 accessor);
+        return SequenceImpUtil::accessAttributes(d_value.object(), accessor);
     }
 
     bool sequenceHasAttribute(const char *attributeName,
-                              int attributeNameLength) const
-        // Return 'true' if this object has an attribute with the
-        // specified 'attributeName' of the specified 'attributeNameLength',
-        // and 'false' otherwise.
+                              int         attributeNameLength) const
+        // Return 'true' if this object has an attribute with the specified
+        // 'attributeName' of the specified 'attributeNameLength', and 'false'
+        // otherwise.
     {
         BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
 
-        return SequenceImpUtil::hasAttribute(d_value.object(),
-                                             attributeName,
-                                             attributeNameLength);
+        return SequenceImpUtil::hasAttribute(
+            d_value.object(), attributeName, attributeNameLength);
     }
 
     bool sequenceHasAttribute(int attributeId) const
-        // Return 'true' if this object has an attribute with the
-        // specified 'attributeId', and 'false' otherwise.
+        // Return 'true' if this object has an attribute with the specified
+        // 'attributeId', and 'false' otherwise.
     {
         BSLS_ASSERT(valueHasCategory(e_SEQUENCE));
 
@@ -10230,10 +10206,7 @@ class TestDynamicType {
             bdlat_TypeCategory::Select<Value>::e_SELECTION);
     }
 
-    const Value& value() const
-    {
-        return d_value.object();
-    }
+    const Value& value() const { return d_value.object(); }
 };
 
 // FREE OPERATORS
@@ -10264,8 +10237,8 @@ bool operator!=(const TestDynamicType<VALUE_TYPE>& lhs,
 // TRAITS
 template <class VALUE_TYPE>
 const char *bdlat_TypeName_className(const TestDynamicType<VALUE_TYPE>& object)
-    // Return a null-terminated string containing the exported name for
-    // the type of the specified 'object'.
+    // Return a null-terminated string containing the exported name for the
+    // type of the specified 'object'.
 {
     return object.className();
 }
@@ -10273,11 +10246,11 @@ const char *bdlat_TypeName_className(const TestDynamicType<VALUE_TYPE>& object)
 template <class VALUE_TYPE, class MANIPULATOR>
 int bdlat_arrayManipulateElement(TestDynamicType<VALUE_TYPE> *object,
                                  MANIPULATOR&                 manipulator,
-                                     int                          index)
-    // Invoke the specified 'manipulator' on the address of the element at
-    // the specified 'index' of the specified array 'object'.  Return the
-    // value from the invocation of 'manipulator'.  The behavior is
-    // undefined unless '0 <= index' and 'index < size(*value)'.
+                                 int                          index)
+    // Invoke the specified 'manipulator' on the address of the element at the
+    // specified 'index' of the specified array 'object'.  Return the value
+    // from the invocation of 'manipulator'.  The behavior is undefined unless
+    // '0 <= index' and 'index < size(*value)'.
 {
     return object->arrayManipulateElement(manipulator, index);
 }
@@ -10285,8 +10258,8 @@ int bdlat_arrayManipulateElement(TestDynamicType<VALUE_TYPE> *object,
 template <class VALUE_TYPE>
 void bdlat_arrayResize(TestDynamicType<VALUE_TYPE> *object, int newSize)
     // Set the sizes of the specified array 'value' to the specified 'newSize'.
-    // If 'newSize > size(*object)', then 'newSize - size(*object)' new elements
-    // with default values are appended to 'value'.  If
+    // If 'newSize > size(*object)', then 'newSize - size(*object)' new
+    // elements with default values are appended to 'value'.  If
     // 'newSize < size(*object)' then the 'size(*object) - newSize' elements at
     // the end of 'object' are destroyed.  The behavior is undefined unless
     // '0 <= newSize'.
@@ -10498,8 +10471,8 @@ int bdlat_sequenceManipulateAttributes(
 template <class VALUE_TYPE>
 bdlat_TypeCategory::Value bdlat_typeCategorySelect(
                                      const TestDynamicType<VALUE_TYPE>& object)
-        // Return the 'bdlat_TypeCategory::Value' value that identifies the
-        // 'bdlat' concept of the specified 'object'.
+    // Return the 'bdlat_TypeCategory::Value' value that identifies the 'bdlat'
+    // concept of the specified 'object'.
 {
     return object.select();
 }
@@ -10519,7 +10492,8 @@ struct TestDynamicType_ElementTypeImpl {
 
 template <class VALUE_TYPE>
 struct TestDynamicType_ElementTypeImpl<VALUE_TYPE, false> {
-    typedef struct { } Type;
+    typedef struct {
+    } Type;
 };
 
 namespace bdlat_ArrayFunctions {
@@ -10568,9 +10542,9 @@ struct IsSequence<TestDynamicType<VALUE_TYPE> > {
 
 template <int INT_VALUE, const char *STRING_VALUE>
 class TestEnumerator {
-    // This class provides a namespace for a suite of constant-initialized
-    // data that can be used to specify the integer and string values of
-    // an enumerator for a 'bdlat' 'Enumeration' type.
+    // This class provides a namespace for a suite of constant-initialized data
+    // that can be used to specify the integer and string values of an
+    // enumerator for a 'bdlat' 'Enumeration' type.
 
   public:
     // CLASS DATA
@@ -10578,7 +10552,7 @@ class TestEnumerator {
     enum { k_INT_VALUE = INT_VALUE };
 
     // CLASS METHODS
-    static int intValue() { return k_INT_VALUE; }
+    static int               intValue() { return k_INT_VALUE; }
     static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
 };
 
@@ -10587,9 +10561,9 @@ template <int INT_VALUE, const char *STRING_VALUE>
 const char *TestEnumerator<INT_VALUE, STRING_VALUE>::k_STRING_VALUE =
     STRING_VALUE;
 
-                           // =======================
-                           // class TestNilEnumerator
-                           // =======================
+                          // =======================
+                          // class TestNilEnumerator
+                          // =======================
 
 class TestNilEnumerator {
     // This class provides a namespace for a type having a set of public
@@ -10602,7 +10576,7 @@ class TestNilEnumerator {
     enum { k_INT_VALUE = 0 };
 
     // CLASS METHODS
-    static int intValue() { return k_INT_VALUE; }
+    static int               intValue() { return k_INT_VALUE; }
     static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
 };
 
@@ -10613,9 +10587,7 @@ const char *TestNilEnumerator::k_STRING_VALUE = "";
                            // class TestEnumeration
                            // =====================
 
-template <class E0,
-          class E1 = TestNilEnumerator,
-          class E2 = TestNilEnumerator>
+template <class E0, class E1 = TestNilEnumerator, class E2 = TestNilEnumerator>
 class TestEnumeration {
     // This in-core value-semantic class provides a basic implementation of the
     // 'bdlat' 'Enumeration' concept.
@@ -10642,7 +10614,7 @@ class TestEnumeration {
   public:
     // CLASS METHODS
     static bool areEqual(const TestEnumeration& lhs,
-                              const TestEnumeration& rhs)
+                         const TestEnumeration& rhs)
     {
         return lhs.d_value == rhs.d_value;
     }
@@ -10658,7 +10630,7 @@ class TestEnumeration {
     {
     }
 
-    TestEnumeration(const TestEnumeration&  original)
+    TestEnumeration(const TestEnumeration& original)
     : d_value(original.d_value)
     {
     }
@@ -10810,8 +10782,8 @@ int bdlat_enumFromInt(TestEnumeration<E0, E1, E2> *result, int number)
 
 template <class E0, class E1, class E2>
 int bdlat_enumFromString(TestEnumeration<E0, E1, E2> *result,
-                         const char      *string,
-                         int              stringLength)
+                         const char                  *string,
+                         int                          stringLength)
     // Load into the specified 'result' the enumerator matching the specified
     // 'string' of the specified 'stringLength'.  Return 0 on success, and a
     // non-zero value with no effect on 'result' if 'string' and 'stringLength'
@@ -10860,14 +10832,12 @@ struct TestAttributeDefaults {
     // CLASS DATA
     static const char k_DEFAULT_ANNOTATION[1];
     static const char k_DEFAULT_NAME[1];
-    enum {
-        k_DEFAULT_FORMATTING_MODE = 0
-    };
+    enum { k_DEFAULT_FORMATTING_MODE = 0 };
 };
 
 // CLASS DATA
 const char TestAttributeDefaults::k_DEFAULT_ANNOTATION[1] = "";
-const char TestAttributeDefaults::k_DEFAULT_NAME[1] = "";
+const char TestAttributeDefaults::k_DEFAULT_NAME[1]       = "";
 
                             // ===================
                             // class TestAttribute
@@ -10932,9 +10902,9 @@ const char
 
 template <class TYPE, class TEST_ATTRIBUTE>
 class TypedTestAttribute {
-    // This class provides two member type definitions, 'Type', and 'Attribute',
-    // which are aliases to the arguments supplied to the 'TYPE' and
-    // 'TEST_SELECTION' template parameters, respectively.
+    // This class provides two member type definitions, 'Type', and
+    // 'Attribute', which are aliases to the arguments supplied to the 'TYPE'
+    // and 'TEST_SELECTION' template parameters, respectively.
 
   public:
     // TYPES
@@ -10957,7 +10927,8 @@ class TestSequence {
     // concept defined by the 'bdlat' 'Sequence' type category.  The template
     // parameters 'TYPED_ATTRIBUTE_0', 'TYPED_ATTRIBUTE_1', and
     // 'TYPED_ATTRIBUTE_2' must all satisfy the following requirements:
-    //: o The type must have two member type definitions, 'Type' and 'Attribute'.
+    //: o The type must have two member type definitions, 'Type' and
+    // 'Attribute'.
     //: o 'Type' must meet the requirements of an in-core value-semantic type.
     //: o 'Type' must meet the requirements of exactly one of the
     //:    'bdlat' value categories.
@@ -10968,12 +10939,12 @@ class TestSequence {
     // 'TestSequence' specialization.
     //
     // Additionally, the 'Type' of any template argument may be 'TestNilValue'
-    // if all 'Type' member type definitions of subsequent template
-    // arguments are also 'TestNilValue'.
+    // if all 'Type' member type definitions of subsequent template arguments
+    // are also 'TestNilValue'.
     //
     // The 'Type' and 'Attribute' member type definitions of the template
-    // arguments define the type and 'bdlat_AttributeInfo' of the attributes
-    // of the 'bdlat' 'Selection' implementation provided by this class.  A
+    // arguments define the type and 'bdlat_AttributeInfo' of the attributes of
+    // the 'bdlat' 'Selection' implementation provided by this class.  A
     // template argument having a 'TestNilValue' 'Type' indicates that the
     // corresponding attribute does not exist.
 
@@ -10992,8 +10963,7 @@ class TestSequence {
             !bslmf::IsSame<TestNilValue, Attribute0Type>::value,
         k_HAS_ATTRIBUTE_1 =
             !bslmf::IsSame<TestNilValue, Attribute1Type>::value,
-        k_HAS_ATTRIBUTE_2 =
-            !bslmf::IsSame<TestNilValue, Attribute2Type>::value
+        k_HAS_ATTRIBUTE_2 = !bslmf::IsSame<TestNilValue, Attribute2Type>::value
     };
 
   private:
@@ -11413,10 +11383,10 @@ const char *bdlat_TypeName_className(const TestSequence<V0, V1, V2>& object)
 
 template <class V0, class V1, class V2, class MANIPULATOR>
 int bdlat_sequenceManipulateAttribute(
-                                     TestSequence<V0, V1, V2> *object,
-                                     MANIPULATOR&          manipulator,
-                                     const char           *attributeName,
-                                     int                   attributeNameLength)
+                                 TestSequence<V0, V1, V2> *object,
+                                 MANIPULATOR&              manipulator,
+                                 const char               *attributeName,
+                                 int                       attributeNameLength)
     // Invoke the specified 'manipulator' on the address of the (modifiable)
     // attribute indicated by the specified 'attributeName' and
     // 'attributeNameLength' of the specified 'object', supplying 'manipulator'
@@ -11430,8 +11400,8 @@ int bdlat_sequenceManipulateAttribute(
 
 template <class V0, class V1, class V2, class MANIPULATOR>
 int bdlat_sequenceManipulateAttribute(TestSequence<V0, V1, V2> *object,
-                                      MANIPULATOR&          manipulator,
-                                      int                   attributeId)
+                                      MANIPULATOR&              manipulator,
+                                      int                       attributeId)
     // Invoke the specified 'manipulator' on the address of the (modifiable)
     // attribute indicated by the specified 'attributeId' of the specified
     // 'object', supplying 'manipulator' with the corresponding attribute
@@ -11444,7 +11414,7 @@ int bdlat_sequenceManipulateAttribute(TestSequence<V0, V1, V2> *object,
 
 template <class V0, class V1, class V2, class MANIPULATOR>
 int bdlat_sequenceManipulateAttributes(TestSequence<V0, V1, V2> *object,
-                                       MANIPULATOR&          manipulator)
+                                       MANIPULATOR&              manipulator)
     // Invoke the specified 'manipulator' sequentially on the address of each
     // (modifiable) attribute of the specified 'object', supplying
     // 'manipulator' with the corresponding attribute information structure
@@ -11456,10 +11426,10 @@ int bdlat_sequenceManipulateAttributes(TestSequence<V0, V1, V2> *object,
 
 template <class V0, class V1, class V2, class ACCESSOR>
 int bdlat_sequenceAccessAttribute(
-                              const TestSequence<V0, V1, V2>&  object,
-                              ACCESSOR&                    accessor,
-                              const char                  *attributeName,
-                              int                          attributeNameLength)
+                          const TestSequence<V0, V1, V2>&  object,
+                          ACCESSOR&                        accessor,
+                          const char                      *attributeName,
+                          int                              attributeNameLength)
     // Invoke the specified 'accessor' on the (non-modifiable) attribute of the
     // specified 'object' indicated by the specified 'attributeName' and
     // 'attributeNameLength', supplying 'accessor' with the corresponding
@@ -11473,8 +11443,8 @@ int bdlat_sequenceAccessAttribute(
 
 template <class V0, class V1, class V2, class ACCESSOR>
 int bdlat_sequenceAccessAttribute(const TestSequence<V0, V1, V2>& object,
-                                  ACCESSOR&                   accessor,
-                                  int                         attributeId)
+                                  ACCESSOR&                       accessor,
+                                  int                             attributeId)
     // Invoke the specified 'accessor' on the attribute of the specified
     // 'object' with the given 'attributeId', supplying 'accessor' with the
     // corresponding attribute information structure.  Return non-zero if the
@@ -11486,7 +11456,7 @@ int bdlat_sequenceAccessAttribute(const TestSequence<V0, V1, V2>& object,
 
 template <class V0, class V1, class V2, class ACCESSOR>
 int bdlat_sequenceAccessAttributes(const TestSequence<V0, V1, V2>& object,
-                                   ACCESSOR&                   accessor)
+                                   ACCESSOR&                       accessor)
     // Invoke the specified 'accessor' sequentially on each attribute of the
     // specified 'object', supplying 'accessor' with the corresponding
     // attribute information structure until such invocation returns a non-zero
@@ -11497,9 +11467,9 @@ int bdlat_sequenceAccessAttributes(const TestSequence<V0, V1, V2>& object,
 
 template <class V0, class V1, class V2>
 bool bdlat_sequenceHasAttribute(
-                              const TestSequence<V0, V1, V2>&  object,
-                              const char                  *attributeName,
-                              int                          attributeNameLength)
+                          const TestSequence<V0, V1, V2>&  object,
+                          const char                      *attributeName,
+                          int                              attributeNameLength)
     // Return 'true' if the specified 'object' has an attribute with the
     // specified 'attributeName' of the specified 'attributeNameLength', and
     // 'false' otherwise.
@@ -11509,7 +11479,7 @@ bool bdlat_sequenceHasAttribute(
 
 template <class V0, class V1, class V2>
 bool bdlat_sequenceHasAttribute(const TestSequence<V0, V1, V2>& object,
-                                int                         attributeId)
+                                int                             attributeId)
     // Return 'true' if the specified 'object' has an attribute with the
     // specified 'attributeId', and 'false' otherwise.
 {
@@ -11517,8 +11487,8 @@ bool bdlat_sequenceHasAttribute(const TestSequence<V0, V1, V2>& object,
 }
 
 template <class V0, class V1, class V2>
-int bdlat_valueTypeAssign(TestSequence<V0, V1, V2> *lhs,
-                          const TestSequence<V0, V1, V2>& rhs)
+int bdlat_valueTypeAssign(TestSequence<V0, V1, V2>        *lhs,
+                          const TestSequence<V0, V1, V2>&  rhs)
 {
     *lhs = rhs;
     return 0;
@@ -11661,10 +11631,10 @@ struct AttributeTypeUtil {
     }
 
     template <class ENUMERATOR_0, class ENUMERATOR_1>
-    static TestEnumeration<ENUMERATOR_0, ENUMERATOR_1>
-    generateEnumeration(const ENUMERATOR_0&,
-                        const ENUMERATOR_1&,
-                        int value)
+    static TestEnumeration<ENUMERATOR_0, ENUMERATOR_1> generateEnumeration(
+                                                     const ENUMERATOR_0& ,
+                                                     const ENUMERATOR_1& ,
+                                                     int                 value)
     {
         return TestEnumeration<ENUMERATOR_0, ENUMERATOR_1>(value);
     }
@@ -11712,8 +11682,9 @@ struct AttributeTypeUtil {
 
     template <class ATTRIBUTE_0, class ATTRIBUTE_1, class TYPE_0, class TYPE_1>
     static TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0>,
-            TypedTestAttribute<TYPE_1, ATTRIBUTE_1> >
-    generateSequence(const ATTRIBUTE_0&, const ATTRIBUTE_1&,
+                        TypedTestAttribute<TYPE_1, ATTRIBUTE_1> >
+    generateSequence(const ATTRIBUTE_0&,
+                     const ATTRIBUTE_1&,
                      const TYPE_0& value0,
                      const TYPE_1& value1)
     {
@@ -11725,18 +11696,17 @@ struct AttributeTypeUtil {
 
     template <class ATTRIBUTE_0, class TYPE_0>
     static PlaceHolder<TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0> > >
-    generateSequencePlaceHolder(const ATTRIBUTE_0&,
-                                const PlaceHolder<TYPE_0>&)
+    generateSequencePlaceHolder(const ATTRIBUTE_0&, const PlaceHolder<TYPE_0>&)
     {
         typedef TypedTestAttribute<TYPE_0, ATTRIBUTE_0> Attribute0;
-        typedef TestSequence<Attribute0> Sequence;
+        typedef TestSequence<Attribute0>                Sequence;
 
         return PlaceHolder<Sequence>();
     }
 
     template <class ATTRIBUTE_0, class ATTRIBUTE_1, class TYPE_0, class TYPE_1>
     static PlaceHolder<TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0>,
-            TypedTestAttribute<TYPE_1, ATTRIBUTE_1> > >
+                                    TypedTestAttribute<TYPE_1, ATTRIBUTE_1> > >
     generateSequencePlaceHolder(const ATTRIBUTE_0&,
                                 const ATTRIBUTE_1&,
                                 const PlaceHolder<TYPE_0>&,
@@ -11744,15 +11714,15 @@ struct AttributeTypeUtil {
     {
         typedef TypedTestAttribute<TYPE_0, ATTRIBUTE_0> Attribute0;
         typedef TypedTestAttribute<TYPE_1, ATTRIBUTE_1> Attribute1;
-        typedef TestSequence<Attribute0, Attribute1> Sequence;
+        typedef TestSequence<Attribute0, Attribute1>    Sequence;
 
         return PlaceHolder<Sequence>();
     }
 };
 
-                            // ===================
-                            // class GenerateTestArray
-                            // ===================
+                          // =======================
+                          // class GenerateTestArray
+                          // =======================
 
 class GenerateTestArray {
     // This in-core value-semantic class provides a function object whose
@@ -11784,9 +11754,9 @@ class GenerateTestArray {
     }
 };
 
-                       // ==============================
-                       // class GenerateTestArrayPlaceHolder
-                       // ==============================
+                     // ==================================
+                     // class GenerateTestArrayPlaceHolder
+                     // ==================================
 
 class GenerateTestArrayPlaceHolder {
     // This in-core value-semantic class provides a function object whose
@@ -11806,9 +11776,9 @@ class GenerateTestArrayPlaceHolder {
     }
 };
 
-                            // ====================
-                            // class GenerateTestChoice
-                            // ====================
+                          // ========================
+                          // class GenerateTestChoice
+                          // ========================
 
 class GenerateTestChoice {
     // This in-core value-semantic class provides a function object whose
@@ -11853,9 +11823,9 @@ class GenerateTestChoice {
     }
 };
 
-                      // ===============================
-                      // class GenerateTestChoicePlaceHolder
-                      // ===============================
+                    // ===================================
+                    // class GenerateTestChoicePlaceHolder
+                    // ===================================
 
 class GenerateTestChoicePlaceHolder {
     // This in-core value-semantic class provides a function object whose
@@ -11869,11 +11839,10 @@ class GenerateTestChoicePlaceHolder {
     // ACCESSORS
     template <class SELECTION_0, class TYPE_0>
     PlaceHolder<TestChoice<TypedTestSelection<TYPE_0, SELECTION_0> > >
-    operator()(const SELECTION_0&,
-               const PlaceHolder<TYPE_0>&) const
+    operator()(const SELECTION_0&, const PlaceHolder<TYPE_0>&) const
     {
         typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
-        typedef TestChoice<Selection0> Choice;
+        typedef TestChoice<Selection0>                  Choice;
 
         return PlaceHolder<Choice>();
     }
@@ -11894,9 +11863,9 @@ class GenerateTestChoicePlaceHolder {
     }
 };
 
-                        // ============================
-                        // class GenerateTestCustomizedType
-                        // ============================
+                      // ================================
+                      // class GenerateTestCustomizedType
+                      // ================================
 
 class GenerateTestCustomizedType {
     // This in-core value-semantic class provides a function object whose
@@ -11917,9 +11886,9 @@ class GenerateTestCustomizedType {
     }
 };
 
-                         // =========================
-                         // class GenerateTestDynamicType
-                         // =========================
+                       // =============================
+                       // class GenerateTestDynamicType
+                       // =============================
 
 class GenerateTestDynamicType {
     // This in-core value-semantic class provides a function object whose
@@ -11938,9 +11907,9 @@ class GenerateTestDynamicType {
     }
 };
 
-                      // ================================
-                      // class GenerateTestDynamicPlaceHolder
-                      // ================================
+                    // ====================================
+                    // class GenerateTestDynamicPlaceHolder
+                    // ====================================
 
 class GenerateTestDynamicPlaceHolder {
     // This in-core value-semantic class provides a function object whose
@@ -11960,9 +11929,9 @@ class GenerateTestDynamicPlaceHolder {
     }
 };
 
-                         // =========================
-                         // class GenerateTestEnumeration
-                         // =========================
+                       // =============================
+                       // class GenerateTestEnumeration
+                       // =============================
 
 class GenerateTestEnumeration {
     // This in-core value-semantic class provides a function object whose
@@ -11991,9 +11960,9 @@ class GenerateTestEnumeration {
     }
 };
 
-                    // ====================================
-                    // class GenerateTestEnumerationPlaceHolder
-                    // ====================================
+                  // ========================================
+                  // class GenerateTestEnumerationPlaceHolder
+                  // ========================================
 
 class GenerateTestEnumerationPlaceHolder {
     // This in-core value-semantic class provides a function object whose
@@ -12021,9 +11990,9 @@ class GenerateTestEnumerationPlaceHolder {
     }
 };
 
-                        // ===========================
-                        // class GenerateTestNullableValue
-                        // ===========================
+                      // ===============================
+                      // class GenerateTestNullableValue
+                      // ===============================
 
 class GenerateTestNullableValue {
     // This in-core value-semantic class provides a function object whose
@@ -12048,9 +12017,9 @@ class GenerateTestNullableValue {
     }
 };
 
-                     // =================================
-                     // class GenerateTestNullablePlaceHolder
-                     // =================================
+                   // =====================================
+                   // class GenerateTestNullablePlaceHolder
+                   // =====================================
 
 class GenerateTestNullablePlaceHolder {
     // This in-core value-semantic class provides a function object whose
@@ -12070,14 +12039,14 @@ class GenerateTestNullablePlaceHolder {
     }
 };
 
-                           // ======================
-                           // class GenerateTestSequence
-                           // ======================
+                         // ==========================
+                         // class GenerateTestSequence
+                         // ==========================
 
 class GenerateTestSequence {
     // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate objects of
-    // 'TestSequence' specializations.
+    // function call operator can be used to generate objects of 'TestSequence'
+    // specializations.
 
   public:
     // TYPES
@@ -12104,9 +12073,9 @@ class GenerateTestSequence {
     }
 };
 
-                     // =================================
-                     // class GenerateTestSequencePlaceHolder
-                     // =================================
+                   // =====================================
+                   // class GenerateTestSequencePlaceHolder
+                   // =====================================
 
 class GenerateTestSequencePlaceHolder {
     // This in-core value-semantic class provides a function object whose
@@ -13017,250 +12986,259 @@ int main(int argc, char *argv[])
         // that, abstractly, the encoding and decoding operations they perform
         // are "consistent".  Note that the "decoding result" is unused in this
         // test driver.
+        //
+        // Test case rows labeled with an asterisk "*" verify that different
+        // encodings of null values that may be produced by the encoder are
+        // treated as representing the same value (null) by the decoder.  In
+        // particular, lines with a "1" after the asterisk verify the nullness
+        // of decoded values of omitted tags, lines with a "2" verify the
+        // nullness of decoded values of self-closing tags, and lines with a
+        // "3" verify the nullness of decoded values of self-closing tags with
+        // an 'xsi:nil="true"' attribute.
         const TestCase14Row DATA[] = {
-       //v--^                              ENCODING RESULT
-       //                                 /  DECODING RESULT
-       //LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
-       //---- ------------------------- -- -- -------------------------------
-       // Arrays.
-       R(L_,  a(i_)                    , f, t, NA                           ),
-       R(L_,  a(i0)                    , f, _, NA                           ),
-       // Single-selection choices.
-       R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0, n(       i_  ))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c( s0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0,    a(i_     ) )   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n(a_(i_     )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( a(i_     )))   , t, _, x(C                  )       ),
-       R(L_,  c( s0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c( s0, n(c_(s0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n(c_(s0, i_ )))   , _, _, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n(c_(s0, i_ )))   , _, f, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c( s0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c( s0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c( s0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
-       R(L_,  c( s0, n(e_(e0     )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , t, t, x(C,x(S0,""      )   )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c( s0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0,    a(i_     ) )   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(a_(i_     )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( a(i_     )))   , t, _, x(C                  )       ),
-       R(L_,  c(ns0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c(ns0, n(c_(s0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c(ns0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
-       R(L_,  c(ns0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c(ns0, n(e_(e0     )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
-       R(L_,  c(ns0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c(ns0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       R(L_,  c(ns0, n(s_(a0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       // Double-selection choices.
-       R(L_,  c( s0, s1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c( s0, s1,  i_ ,n(f_))   , t, _, x(C            )             ),
-       R(L_,  c( s0, s1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c( s0, s1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       R(L_,  c( s0, s1,n(i_),  f_ )   , t, t, x(C            )             ),
-       R(L_,  c( s0, s1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       R(L_,  c(ns0,ns1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c(ns0,ns1,  i_ ,n(f_))   , t, _, x(C            )             ),
-       R(L_,  c(ns0,ns1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c(ns0,ns1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       R(L_,  c(ns0,ns1,n(i_),  f_ )   , t, t, x(C            )             ),
-       R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0      ))             ),
-       R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0,Nil,T))             ),
-       R(L_,  c(ns0,ns1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       // Customized types.
-       R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
-       R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
-       // Dynamic types.
-       R(L_,  d(a(i_)       )          , f, t, NA                           ),
-       R(L_,  d(a(i0)       )          , f, _, NA                           ),
-       R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
-       R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(c(ns0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(c(ns0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0      ))             ),
-       R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ),
-       R(L_,  d(c(ns0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(s( a0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
-       R(L_,  d(s( a0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0      ))             ),
-       R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ),
-       R(L_,  d(s( a0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
-       R(L_,  d(s(na0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
-       R(L_,  d(s(na0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0      ))             ),
-       R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ),
-       R(L_,  d(s(na0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
-       // Enumerations.
-       R(L_,  e(e0, 0)                 , t, t, x(E,"")                      ),
-       R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
-       R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
-       R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
-       R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
-       // Nullable values.  Compilation fails in the decoder.
-       R(L_,  n(i_)                    , f, f, NA                           ),
-       R(L_,  n(i0)                    , f, f, NA                           ),
-       R(L_,  n(s_(a0,i_))             , f, f, NA                           ),
-       R(L_,  n( s(a0,i0))             , f, f, NA                           ),
-       R(L_,  n( c(s0,s1,i0,f_))       , f, f, NA                           ),
-       // Single-attribute sequence.
-       R(L_,  s( a0,  i0)              , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s( a0,n(i_))             , t, t, x(S)                         ),
-       R(L_,  s( a0,n(i0))             , t, t, x(S,x(A0,V0   ))             ),
-       R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0      ))             ),
-       R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0,Nil,T))             ),
-       R(L_,  s( a0,  a(i_   ) )       , t, t, x(S)                         ),
-       R(L_,  s( a0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s( a0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s( a0,n(a(i_   )))       , t, _, x(S)                         ),
-       R(L_,  s( a0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s( a0,n(a(i0,i1)))       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s( a0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
-       R(L_,  s( a0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n( c( s0, n(i_)))) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n( c(ns0, n(i_)))) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0, d( a(i_   )))     , t, t, x(S               )          ),
-       R(L_,  s( a0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
-       R(L_,  s( a0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s( a0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s( a0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
-       R(L_,  s( a0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s( a0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
-       R(L_,  s( a0,n( e(e0,e1,0)   )) , t, t, x(S,x(A0,""))                ),
-       R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
-       R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,n(i_))             , t, t, x(S)                         ),
-       R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ),
-       R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ),
-       R(L_,  s(na0,n(i0))             , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,  a(i_   ) )       , t, t, x(S)                         ),
-       R(L_,  s(na0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s(na0,n(a(i_   )))       , t, _, x(S)                         ),
-       R(L_,  s(na0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,n(a(i0,i1)))       , t, _, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ),
-       R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ),
-       R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
-       R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ),
-       R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ),
-       R(L_,  s(na0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n( c( s0, n(i_)))) , t, _, x(S,x(A0         ))          ),
-       R(L_,  s(na0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n( c(ns0, n(i_)))) , t, _, x(S,x(A0         ))          ),
-       R(L_,  s(na0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0, d( a(i_   )))     , t, t, x(S               )          ),
-       R(L_,  s(na0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
-       R(L_,  s(na0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
-       R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
-       R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ),
-       R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ),
-       R(L_,  s(na0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
-       R(L_,  s(na0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s(na0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s(na0, n(s_(a0,i_)))     , t, t, x(S               )          ),
-       R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ),
-       R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ),
-       R(L_,  s(na0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       // Double-attribute sequences.
-       R(L_,  s( a0, a1,  i0,   i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s( a0, a1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s( a0, a1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i_),n(i_))   , t, t, x(S                        ) ),
-       R(L_,  s( a0, a1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s( a0, a1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,  i0 ,  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ),
-       R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0      ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , t, t, x(S                        ) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1      )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      )            ) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1      )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T)            ) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1      )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ),
-       R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )
-       //^--v
+//v---------^                       ENCODING RESULT
+//                                 /  DECODING RESULT
+//LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
+//---- ------------------------- -- -- -------------------------------
+// Arrays.
+R(L_,  a(i_)                    , f, t, NA                           ),
+R(L_,  a(i0)                    , f, _, NA                           ),
+// Single-selection choices.
+R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    a(i_     ) )   , t, t, x(C                  )       ),
+R(L_,  c( s0, n(a_(i_     )))   , t, t, x(C                  )       ),
+R(L_,  c( s0, n( a(i_     )))   , t, _, x(C                  )       ),
+R(L_,  c( s0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c( s0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n(c_(s0, i_ )))   , _, _, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n(c_(s0, i_ )))   , _, f, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c( s0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
+R(L_,  c( s0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c( s0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c( s0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n( e(e0, 0  )))   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    a(i_     ) )   , t, t, x(C                  )       ),
+R(L_,  c(ns0, n(a_(i_     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( a(i_     )))   , t, _, x(C                  )       ),
+R(L_,  c(ns0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c(ns0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c(ns0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n(d_( a_(i_))))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c(ns0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c(ns0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
+R(L_,  c(ns0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c(ns0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c(ns0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+// Double-selection choices.
+R(L_,  c( s0, s1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c( s0, s1,  i_ ,n(f_))   , t, _, x(C            )             ),
+R(L_,  c( s0, s1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c( s0, s1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c( s0, s1,n(i_),  f_ )   , t, t, x(C            )             ),
+R(L_,  c( s0, s1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c(ns0,ns1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c(ns0,ns1,  i_ ,n(f_))   , t, _, x(C            )             ),
+R(L_,  c(ns0,ns1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c(ns0,ns1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , t, t, x(C            )             ), // * 1
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0      ))             ), // * 2
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0,Nil,T))             ), // * 3
+R(L_,  c(ns0,ns1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+// Customized types.
+R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
+R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
+// Dynamic types.
+R(L_,  d(a(i_)       )          , f, t, NA                           ),
+R(L_,  d(a(i0)       )          , f, _, NA                           ),
+R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
+R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
+R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c(ns0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c(ns0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+R(L_,  d(c(ns0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(s( a0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+R(L_,  d(s( a0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+R(L_,  d(s( a0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
+R(L_,  d(s(na0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+R(L_,  d(s(na0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+R(L_,  d(s(na0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
+// Enumerations.
+R(L_,  e(e0, 0)                 , t, t, x(E,"")                      ),
+R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
+R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
+R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
+R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
+// Nullable values.  Compilation fails in the decoder.
+R(L_,  n(i_)                    , f, f, NA                           ),
+R(L_,  n(i0)                    , f, f, NA                           ),
+R(L_,  n(s_(a0,i_))             , f, f, NA                           ),
+R(L_,  n( s(a0,i0))             , f, f, NA                           ),
+R(L_,  n( c(s0,s1,i0,f_))       , f, f, NA                           ),
+// Single-attribute sequence.
+R(L_,  s( a0,  i0)              , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,n(i_))             , t, t, x(S)                         ), // * 1
+R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0      ))             ), // * 2
+R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s( a0,n(i0))             , t, t, x(S,x(A0,V0   ))             ),
+R(L_,  s( a0,  a(i_   ) )       , t, t, x(S)                         ),
+R(L_,  s( a0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0,n(a(i_   )))       , t, _, x(S)                         ),
+R(L_,  s( a0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,n(a(i0,i1)))       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
+R(L_,  s( a0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c( s0, n(i_)))) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c(ns0, n(i_)))) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0, d( a(i_   )))     , t, t, x(S               )          ),
+R(L_,  s( a0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
+R(L_,  s( a0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s( a0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+R(L_,  s( a0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s( a0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
+R(L_,  s( a0,n( e(e0,e1,0)   )) , t, t, x(S,x(A0,""))                ),
+R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
+R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,n(i_))             , t, t, x(S)                         ), // * 1
+R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ), // * 3
+R(L_,  s(na0,n(i0))             , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,  a(i_   ) )       , t, t, x(S)                         ),
+R(L_,  s(na0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0,n(a(i_   )))       , t, _, x(S)                         ),
+R(L_,  s(na0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,n(a(i0,i1)))       , t, _, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ), // * 1
+R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ), // * 2
+R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ), // * 3
+R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ), // * 1
+R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ), // * 2
+R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ), // * 3
+R(L_,  s(na0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c( s0, n(i_)))) , t, _, x(S,x(A0         ))          ),
+R(L_,  s(na0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c(ns0, n(i_)))) , t, _, x(S,x(A0         ))          ),
+R(L_,  s(na0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0, d( a(i_   )))     , t, t, x(S               )          ),
+R(L_,  s(na0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
+R(L_,  s(na0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ), // * 1
+R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s(na0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
+R(L_,  s(na0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s(na0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0, n(s_(a0,i_)))     , t, t, x(S               )          ), // * 1
+R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s(na0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+// Double-attribute sequences.
+R(L_,  s( a0, a1,  i0,   i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
+R(L_,  s( a0, a1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i_),n(i_))   , t, t, x(S                        ) ),
+R(L_,  s( a0, a1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
+R(L_,  s( a0, a1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s(na0,na1,  i0 ,  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , t, t, x(S                        ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      )            ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T)            ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
+//^---------v
         };
 
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
@@ -13404,9 +13382,9 @@ int main(int argc, char *argv[])
         const Content& C5 = mC5;
 
         const struct {
-            int           d_line;   // line number
-            TestXmlElement  d_xml;    // XML object representation
-            const char   *d_string; // expected printout of 'd_xml'
+            int             d_line;    // line number
+            TestXmlElement  d_xml;     // XML object representation
+            const char     *d_string;  // expected printout of 'd_xml'
         } DATA[] = {
             //  LINE
             // /      XML OBJECT         EXPECTED PRINTOUT OF XML OBJECT

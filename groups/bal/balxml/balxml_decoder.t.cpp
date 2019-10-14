@@ -24101,250 +24101,259 @@ int main(int argc, char *argv[])
         // that, abstractly, the encoding and decoding operations they perform
         // are "consistent".  Note that the "encoding result" is unused in this
         // test driver.
+        //
+        // Test case rows labeled with an asterisk "*" verify that different
+        // encodings of null values that may be produced by the encoder are
+        // treated as representing the same value (null) by the decoder.  In
+        // particular, lines with a "1" after the asterisk verify the nullness
+        // of decoded values of omitted tags, lines with a "2" verify the
+        // nullness of decoded values of self-closing tags, and lines with a
+        // "3" verify the nullness of decoded values of self-closing tags with
+        // an 'xsi:nil="true"' attribute.
         const TestCase19Row DATA[] = {
-       //v--^                              ENCODING RESULT
-       //                                 /  DECODING RESULT
-       //LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
-       //---- ------------------------- -- -- -------------------------------
-       // Arrays.
-       R(L_,  a(i_)                    , f, t, NA                           ),
-       R(L_,  a(i0)                    , f, _, NA                           ),
-       // Single-selection choices.
-       R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0, n(       i_  ))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c( s0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0,    a(i_     ) )   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n(a_(i_     )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( a(i_     )))   , t, _, x(C                  )       ),
-       R(L_,  c( s0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c( s0, n(c_(s0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n(c_(s0, i_ )))   , _, _, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n(c_(s0, i_ )))   , _, f, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c( s0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c( s0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c( s0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c( s0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
-       R(L_,  c( s0, n(e_(e0     )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , t, t, x(C,x(S0,""      )   )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c( s0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0,    a(i_     ) )   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(a_(i_     )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( a(i_     )))   , t, _, x(C                  )       ),
-       R(L_,  c(ns0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c(ns0, n(c_(s0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-       R(L_,  c(ns0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
-       R(L_,  c(ns0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
-       R(L_,  c(ns0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c(ns0, n(e_(e0     )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
-       R(L_,  c(ns0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
-       R(L_,  c(ns0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       R(L_,  c(ns0, n(s_(a0, i_ )))   , t, t, x(C                  )       ),
-       R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ),
-       R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ),
-       R(L_,  c(ns0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-       // Double-selection choices.
-       R(L_,  c( s0, s1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c( s0, s1,  i_ ,n(f_))   , t, _, x(C            )             ),
-       R(L_,  c( s0, s1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c( s0, s1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       R(L_,  c( s0, s1,n(i_),  f_ )   , t, t, x(C            )             ),
-       R(L_,  c( s0, s1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       R(L_,  c(ns0,ns1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c(ns0,ns1,  i_ ,n(f_))   , t, _, x(C            )             ),
-       R(L_,  c(ns0,ns1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
-       R(L_,  c(ns0,ns1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       R(L_,  c(ns0,ns1,n(i_),  f_ )   , t, t, x(C            )             ),
-       R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0      ))             ),
-       R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0,Nil,T))             ),
-       R(L_,  c(ns0,ns1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-       // Customized types.
-       R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
-       R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
-       // Dynamic types.
-       R(L_,  d(a(i_)       )          , f, t, NA                           ),
-       R(L_,  d(a(i0)       )          , f, _, NA                           ),
-       R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
-       R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(c(ns0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(c(ns0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0      ))             ),
-       R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ),
-       R(L_,  d(c(ns0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
-       R(L_,  d(s( a0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
-       R(L_,  d(s( a0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0      ))             ),
-       R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ),
-       R(L_,  d(s( a0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
-       R(L_,  d(s(na0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
-       R(L_,  d(s(na0,n(i_)))          , t, t, x(D            )             ),
-       R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0      ))             ),
-       R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ),
-       R(L_,  d(s(na0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
-       // Enumerations.
-       R(L_,  e(e0, 0)                 , t, t, x(E,"")                      ),
-       R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
-       R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
-       R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
-       R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
-       // Nullable values.  Compilation fails in the decoder.
-     //R(L_,  n(i_)                    , f, f, NA                           ),
-     //R(L_,  n(i0)                    , f, f, NA                           ),
-     //R(L_,  n(s_(a0,i_))             , f, f, NA                           ),
-     //R(L_,  n( s(a0,i0))             , f, f, NA                           ),
-     //R(L_,  n( c(s0,s1,i0,f_))       , f, f, NA                           ),
-       // Single-attribute sequence.
-       R(L_,  s( a0,  i0)              , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s( a0,n(i_))             , t, t, x(S)                         ),
-       R(L_,  s( a0,n(i0))             , t, t, x(S,x(A0,V0   ))             ),
-       R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0      ))             ),
-       R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0,Nil,T))             ),
-       R(L_,  s( a0,  a(i_   ) )       , t, t, x(S)                         ),
-       R(L_,  s( a0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s( a0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s( a0,n(a(i_   )))       , t, _, x(S)                         ),
-       R(L_,  s( a0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s( a0,n(a(i0,i1)))       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s( a0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
-       R(L_,  s( a0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n( c( s0, n(i_)))) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0,n( c(ns0, n(i_)))) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s( a0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0, d( a(i_   )))     , t, t, x(S               )          ),
-       R(L_,  s( a0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
-       R(L_,  s( a0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s( a0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s( a0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s( a0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
-       R(L_,  s( a0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s( a0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
-       R(L_,  s( a0,n( e(e0,e1,0)   )) , t, t, x(S,x(A0,""))                ),
-       R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
-       R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,n(i_))             , t, t, x(S)                         ),
-       R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ),
-       R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ),
-       R(L_,  s(na0,n(i0))             , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,  a(i_   ) )       , t, t, x(S)                         ),
-       R(L_,  s(na0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s(na0,n(a(i_   )))       , t, _, x(S)                         ),
-       R(L_,  s(na0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
-       R(L_,  s(na0,n(a(i0,i1)))       , t, _, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-       R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ),
-       R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ),
-       R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
-       R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ),
-       R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ),
-       R(L_,  s(na0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n( c( s0, n(i_)))) , t, _, x(S,x(A0         ))          ),
-       R(L_,  s(na0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0,n( c(ns0, n(i_)))) , t, _, x(S,x(A0         ))          ),
-       R(L_,  s(na0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0, d( a(i_   )))     , t, t, x(S               )          ),
-       R(L_,  s(na0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
-       R(L_,  s(na0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-       R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
-       R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
-       R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
-       R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ),
-       R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ),
-       R(L_,  s(na0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
-       R(L_,  s(na0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
-       R(L_,  s(na0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       R(L_,  s(na0, n(s_(a0,i_)))     , t, t, x(S               )          ),
-       R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ),
-       R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ),
-       R(L_,  s(na0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-       // Double-attribute sequences.
-       R(L_,  s( a0, a1,  i0,   i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s( a0, a1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s( a0, a1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i_),n(i_))   , t, t, x(S                        ) ),
-       R(L_,  s( a0, a1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s( a0, a1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s( a0, a1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,  i0 ,  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ),
-       R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0      ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , t, t, x(S                        ) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1      )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      )            ) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1      )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T)            ) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1      )) ),
-       R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-       R(L_,  s(na0,na1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-       R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ),
-       R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ),
-       R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )
-       //^--v
+//v---------^                       ENCODING RESULT
+//                                 /  DECODING RESULT
+//LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
+//---- ------------------------- -- -- -------------------------------
+// Arrays.
+R(L_,  a(i_)                    , f, t, NA                           ),
+R(L_,  a(i0)                    , f, _, NA                           ),
+// Single-selection choices.
+R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    a(i_     ) )   , t, t, x(C                  )       ),
+R(L_,  c( s0, n(a_(i_     )))   , t, t, x(C                  )       ),
+R(L_,  c( s0, n( a(i_     )))   , t, _, x(C                  )       ),
+R(L_,  c( s0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c( s0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n(c_(s0, i_ )))   , _, _, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n(c_(s0, i_ )))   , _, f, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c( s0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
+R(L_,  c( s0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c( s0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c( s0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n( e(e0, 0  )))   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    a(i_     ) )   , t, t, x(C                  )       ),
+R(L_,  c(ns0, n(a_(i_     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( a(i_     )))   , t, _, x(C                  )       ),
+R(L_,  c(ns0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c(ns0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c(ns0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n(d_( a_(i_))))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c(ns0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c(ns0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
+R(L_,  c(ns0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c(ns0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c(ns0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+// Double-selection choices.
+R(L_,  c( s0, s1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c( s0, s1,  i_ ,n(f_))   , t, _, x(C            )             ),
+R(L_,  c( s0, s1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c( s0, s1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c( s0, s1,n(i_),  f_ )   , t, t, x(C            )             ),
+R(L_,  c( s0, s1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c(ns0,ns1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c(ns0,ns1,  i_ ,n(f_))   , t, _, x(C            )             ),
+R(L_,  c(ns0,ns1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c(ns0,ns1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , t, t, x(C            )             ), // * 1
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0      ))             ), // * 2
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0,Nil,T))             ), // * 3
+R(L_,  c(ns0,ns1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+// Customized types.
+R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
+R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
+// Dynamic types.
+R(L_,  d(a(i_)       )          , f, t, NA                           ),
+R(L_,  d(a(i0)       )          , f, _, NA                           ),
+R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
+R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
+R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c(ns0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c(ns0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+R(L_,  d(c(ns0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(s( a0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+R(L_,  d(s( a0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+R(L_,  d(s( a0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
+R(L_,  d(s(na0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+R(L_,  d(s(na0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+R(L_,  d(s(na0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
+// Enumerations.
+R(L_,  e(e0, 0)                 , t, t, x(E,"")                      ),
+R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
+R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
+R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
+R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
+// Nullable values.  Compilation fails in the decoder.
+//R(L_,  n(i_)                    , f, f, NA                           ),
+//R(L_,  n(i0)                    , f, f, NA                           ),
+//R(L_,  n(s_(a0,i_))             , f, f, NA                           ),
+//R(L_,  n( s(a0,i0))             , f, f, NA                           ),
+//R(L_,  n( c(s0,s1,i0,f_))       , f, f, NA                           ),
+// Single-attribute sequence.
+R(L_,  s( a0,  i0)              , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,n(i_))             , t, t, x(S)                         ), // * 1
+R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0      ))             ), // * 2
+R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s( a0,n(i0))             , t, t, x(S,x(A0,V0   ))             ),
+R(L_,  s( a0,  a(i_   ) )       , t, t, x(S)                         ),
+R(L_,  s( a0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0,n(a(i_   )))       , t, _, x(S)                         ),
+R(L_,  s( a0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,n(a(i0,i1)))       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
+R(L_,  s( a0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c( s0, n(i_)))) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c(ns0, n(i_)))) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0, d( a(i_   )))     , t, t, x(S               )          ),
+R(L_,  s( a0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
+R(L_,  s( a0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s( a0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+R(L_,  s( a0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s( a0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
+R(L_,  s( a0,n( e(e0,e1,0)   )) , t, t, x(S,x(A0,""))                ),
+R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
+R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,n(i_))             , t, t, x(S)                         ), // * 1
+R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ), // * 3
+R(L_,  s(na0,n(i0))             , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,  a(i_   ) )       , t, t, x(S)                         ),
+R(L_,  s(na0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0,n(a(i_   )))       , t, _, x(S)                         ),
+R(L_,  s(na0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,n(a(i0,i1)))       , t, _, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ), // * 1
+R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ), // * 2
+R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ), // * 3
+R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ), // * 1
+R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ), // * 2
+R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ), // * 3
+R(L_,  s(na0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c( s0, n(i_)))) , t, _, x(S,x(A0         ))          ),
+R(L_,  s(na0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c(ns0, n(i_)))) , t, _, x(S,x(A0         ))          ),
+R(L_,  s(na0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0, d( a(i_   )))     , t, t, x(S               )          ),
+R(L_,  s(na0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
+R(L_,  s(na0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ), // * 1
+R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s(na0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
+R(L_,  s(na0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s(na0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0, n(s_(a0,i_)))     , t, t, x(S               )          ), // * 1
+R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s(na0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+// Double-attribute sequences.
+R(L_,  s( a0, a1,  i0,   i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
+R(L_,  s( a0, a1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i_),n(i_))   , t, t, x(S                        ) ),
+R(L_,  s( a0, a1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
+R(L_,  s( a0, a1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s(na0,na1,  i0 ,  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , t, t, x(S                        ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      )            ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T)            ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
+//^---------v
         };
 
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
@@ -24488,9 +24497,9 @@ int main(int argc, char *argv[])
         const Content& C5 = mC5;
 
         const struct {
-            int           d_line;   // line number
-            TestXmlElement  d_xml;    // XML object representation
-            const char   *d_string; // expected printout of 'd_xml'
+            int             d_line;    // line number
+            TestXmlElement  d_xml;     // XML object representation
+            const char     *d_string;  // expected printout of 'd_xml'
         } DATA[] = {
             //  LINE
             // /      XML OBJECT         EXPECTED PRINTOUT OF XML OBJECT
@@ -24662,7 +24671,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf xmlStreamBuf;
             bsl::ostream xmlStream(&xmlStreamBuf);
-            xmlStream << XML;
+            xmlStream << XML;                                           // TEST
 
             const bslstl::StringRef STRING(xmlStreamBuf.data(),
                                            xmlStreamBuf.length());
