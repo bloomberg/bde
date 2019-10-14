@@ -23187,17 +23187,17 @@ class TestXmlElement {
 
   public:
     // TYPES
-    typedef class bsl::pair<bsl::string, bsl::string> Attribute;
-    typedef class bsl::vector<Attribute>              Attributes;
-    typedef class TestXmlElement                        Element;
-    typedef class bsl::vector<Element>                    Elements;
-    typedef class bdlb::Variant<Elements, bsl::string>    Content;
+    typedef class bsl::pair<bsl::string, bsl::string>  Attribute;
+    typedef class bsl::vector<Attribute>               Attributes;
+    typedef class TestXmlElement                       Element;
+    typedef class bsl::vector<Element>                 Elements;
+    typedef class bdlb::Variant<Elements, bsl::string> Content;
 
   private:
     // DATA
-    bsl::string d_name;       // name of the tag
-    Attributes  d_attributes; // sequence of key-value pairs
-    Content     d_content;    // textual or sequence-of-children content
+    bsl::string d_name;        // name of the tag
+    Attributes  d_attributes;  // sequence of key-value pairs
+    Content     d_content;     // textual or sequence-of-children content
 
   public:
     // CREATORS
@@ -23216,7 +23216,7 @@ class TestXmlElement {
     }
 
     TestXmlElement(const bslstl::StringRef&  name,
-                 bslma::Allocator         *basicAllocator = 0)
+                   bslma::Allocator         *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(basicAllocator)
     , d_content(Elements(), basicAllocator)
@@ -23224,8 +23224,8 @@ class TestXmlElement {
     }
 
     TestXmlElement(const bslstl::StringRef&  name,
-                 const Attributes&         attributes,
-                 bslma::Allocator         *basicAllocator = 0)
+                   const Attributes&         attributes,
+                   bslma::Allocator         *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(attributes, basicAllocator)
     , d_content(Elements(), basicAllocator)
@@ -23233,8 +23233,8 @@ class TestXmlElement {
     }
 
     TestXmlElement(const bslstl::StringRef&  name,
-                 const Content&            content,
-                 bslma::Allocator         *basicAllocator = 0)
+                   const Content&            content,
+                   bslma::Allocator         *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(basicAllocator)
     , d_content(content, basicAllocator)
@@ -23242,9 +23242,9 @@ class TestXmlElement {
     }
 
     TestXmlElement(const bslstl::StringRef&  name,
-                 const Attributes&         attributes,
-                 const Content&            content,
-                 bslma::Allocator         *basicAllocator = 0)
+                   const Attributes&         attributes,
+                   const Content&            content,
+                   bslma::Allocator         *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(attributes, basicAllocator)
     , d_content(content, basicAllocator)
@@ -23252,7 +23252,7 @@ class TestXmlElement {
     }
 
     TestXmlElement(const TestXmlElement&  original,
-                 bslma::Allocator    *basicAllocator = 0)
+                   bslma::Allocator      *basicAllocator = 0)
     : d_name(original.d_name, basicAllocator)
     , d_attributes(original.d_attributes, basicAllocator)
     , d_content(original.d_content, basicAllocator)
@@ -23262,16 +23262,16 @@ class TestXmlElement {
     // MANIPULATORS
     TestXmlElement& operator=(const TestXmlElement& original)
     {
-        d_name = original.d_name;
+        d_name       = original.d_name;
         d_attributes = original.d_attributes;
-        d_content = original.d_content;
+        d_content    = original.d_content;
         return *this;
     }
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream) const
-        // Write the value of this object to the specified output 'stream'
-        // in the XML format and return a reference to 'stream'.
+        // Write the value of this object to the specified output 'stream' in
+        // the XML format and return a reference to 'stream'.
     {
         stream << "<" << d_name;
 
@@ -23316,9 +23316,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestXmlElement& object)
     return object.print(stream);
 }
 
-                            // ====================
-                            // struct TestXmlUtil
-                            // ====================
+                             // ==================
+                             // struct TestXmlUtil
+                             // ==================
 
 struct TestXmlUtil {
     // This utility 'struct' provides a namespace for a suite of functions that
@@ -23326,7 +23326,7 @@ struct TestXmlUtil {
 
     // TYPES
     typedef TestXmlElement::Attribute Attribute;
-    typedef TestXmlElement::Content Content;
+    typedef TestXmlElement::Content   Content;
 
     // CLASS METHODS
     static bsl::vector<Attribute> generateAttributes(
@@ -23386,50 +23386,52 @@ struct TestXmlUtil {
                                        const bslstl::StringRef& attributeKey,
                                        const bslstl::StringRef& attributeValue)
     {
-        return TestXmlElement(name,
-                            generateAttributes(attributeKey, attributeValue));
+        return TestXmlElement(
+            name, generateAttributes(attributeKey, attributeValue));
     }
 
-    static TestXmlElement generateElement(const bslstl::StringRef& name,
-                                        const bslstl::StringRef& attributeKey0,
-                                        const bslstl::StringRef& attributeValue0,
-                                        const bslstl::StringRef& attributeKey1,
-                                        const bslstl::StringRef& attributeValue1)
+    static TestXmlElement generateElement(
+                                      const bslstl::StringRef& name,
+                                      const bslstl::StringRef& attributeKey0,
+                                      const bslstl::StringRef& attributeValue0,
+                                      const bslstl::StringRef& attributeKey1,
+                                      const bslstl::StringRef& attributeValue1)
     {
         return TestXmlElement(name,
-                            generateAttributes(attributeKey0,
-                                               attributeValue0,
-                                               attributeKey1,
-                                               attributeValue1));
+                              generateAttributes(attributeKey0,
+                                                 attributeValue0,
+                                                 attributeKey1,
+                                                 attributeValue1));
     }
 
     static TestXmlElement generateElement(const bslstl::StringRef& name,
-                                        const bslstl::StringRef& content)
+                                          const bslstl::StringRef& content)
     {
         return TestXmlElement(name, generateContent(content));
     }
 
     static TestXmlElement generateElement(const bslstl::StringRef& name,
-                                        const TestXmlElement&      child)
+                                          const TestXmlElement&    child)
     {
         return TestXmlElement(name, generateContent(child));
     }
 
     static TestXmlElement generateElement(const bslstl::StringRef& name,
-                                        const TestXmlElement&      child0,
-                                        const TestXmlElement&      child1)
+                                          const TestXmlElement&    child0,
+                                          const TestXmlElement&    child1)
     {
         return TestXmlElement(name, generateContent(child0, child1));
     }
 
-    static TestXmlElement generateElement(const bslstl::StringRef& name,
-                                        const bslstl::StringRef& attributeKey,
-                                        const bslstl::StringRef& attributeValue,
-                                        const TestXmlElement& child)
+    static TestXmlElement generateElement(
+                                       const bslstl::StringRef& name,
+                                       const bslstl::StringRef& attributeKey,
+                                       const bslstl::StringRef& attributeValue,
+                                       const TestXmlElement&    child)
     {
         return TestXmlElement(name,
-                            generateAttributes(attributeKey, attributeValue),
-                            generateContent(child));
+                              generateAttributes(attributeKey, attributeValue),
+                              generateContent(child));
     }
 };
 
@@ -23452,17 +23454,17 @@ class GenerateXmlElement {
     }
 
     TestXmlElement operator()(const bslstl::StringRef& name,
-                            const bslstl::StringRef& attributeKey,
-                            const bslstl::StringRef& attributeValue) const
+                              const bslstl::StringRef& attributeKey,
+                              const bslstl::StringRef& attributeValue) const
     {
         return Util::generateElement(name, attributeKey, attributeValue);
     }
 
     TestXmlElement operator()(const bslstl::StringRef& name,
-                            const bslstl::StringRef& attributeKey0,
-                            const bslstl::StringRef& attributeValue0,
-                            const bslstl::StringRef& attributeKey1,
-                            const bslstl::StringRef& attributeValue1) const
+                              const bslstl::StringRef& attributeKey0,
+                              const bslstl::StringRef& attributeValue0,
+                              const bslstl::StringRef& attributeKey1,
+                              const bslstl::StringRef& attributeValue1) const
     {
         return Util::generateElement(name,
                                      attributeKey0,
@@ -23472,28 +23474,28 @@ class GenerateXmlElement {
     }
 
     TestXmlElement operator()(const bslstl::StringRef& name,
-                            const bslstl::StringRef& content) const
+                              const bslstl::StringRef& content) const
     {
         return Util::generateElement(name, content);
     }
 
     TestXmlElement operator()(const bslstl::StringRef& name,
-                            const TestXmlElement&      child) const
+                              const TestXmlElement&    child) const
     {
         return Util::generateElement(name, child);
     }
 
     TestXmlElement operator()(const bslstl::StringRef& name,
-                            const TestXmlElement&      child0,
-                            const TestXmlElement&      child1) const
+                              const TestXmlElement&    child0,
+                              const TestXmlElement&    child1) const
     {
         return Util::generateElement(name, child0, child1);
     }
 
     TestXmlElement operator()(const bslstl::StringRef& name,
-                            const bslstl::StringRef& attributeKey,
-                            const bslstl::StringRef& attributeValue,
-                            const TestXmlElement&      child) const
+                              const bslstl::StringRef& attributeKey,
+                              const bslstl::StringRef& attributeValue,
+                              const TestXmlElement&    child) const
     {
         return Util::generateElement(
             name, attributeKey, attributeValue, child);
