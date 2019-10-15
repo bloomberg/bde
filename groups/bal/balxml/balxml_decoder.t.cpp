@@ -24376,28 +24376,31 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         //   case tests the printing operations of 'TestXmlElement'.
         //
         // Concerns:
-        //: 1 Elements having no attributes nor any content print as self-closing
-        //:   tags with no attributes.
+        //: 1 Elements having no attributes nor any content print as
+        //:   self-closing elements with no attributes.
         //:
-        //: 2 Elements having content but no attributes print as an opening tag,
-        //:   the content, and a closing tag.
+        //: 2 Elements having content but no attributes print as an opening
+        //:   element, the content, and a closing element.
         //:
-        //: 3 Content may be text or zero or more child tags.
+        //: 3 Content may be text or zero or more child elements.
         //:
         //: 4 When printed, each attribute is separated from the previous token
         //:   by 1 space character.
         //:
-        //: 5 Printing supports arbitrary levels of nesting of child tags and
-        //:   content.
+        //: 5 Printing supports arbitrary levels of nesting of attributes,
+        //:   child elements, and content.
         //
         // Plan:
         //: 1 Given a set of attribute sequences and a set of content, create
-        //:   a simple XML tag object given each element of the cartesian
+        //:   a simple XML element object given each element of the cartesian
         //:   product of those sets.
         //:
-        //: 2. Print each of the resulting simple XML tag objects, and verify
-        //:    that the resulting text is valid XML and that it represents
-        //:    the same value as the object.
+        //: 2 Print each of the resulting simple XML element objects, and
+        //:   verify that the resulting text is valid XML and that it
+        //:   represents the same value as the object.
+        //:
+        //: 3 Our test points explore the space of 0 to 3 attributes, elements,
+        //:   and nesting.  Deeper tests would not be qualitatively different.
         //
         // Testing:
         //   TestXmlElement(*bA = 0);
