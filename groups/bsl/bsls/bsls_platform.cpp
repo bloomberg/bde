@@ -4,12 +4,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-                          // --------------------
-                          // class bsls::Platform
-                          // --------------------
+namespace BloombergLP {
+namespace bsls {
+                          // --------------
+                          // class Platform
+                          // --------------
 
 // This class has no implementation; it is merely a place-holder for this
 // component's logical name space.
+
+}  // close package namespace
+}  // close enterprise namespace
 
 // The compiler flags set up by the 'bsls_platform' header file will be sanity
 // checked against those those passed in by the build tool.
@@ -22,7 +27,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

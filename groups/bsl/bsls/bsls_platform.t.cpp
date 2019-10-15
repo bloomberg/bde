@@ -6,9 +6,32 @@
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strcmp', 'strlen'
 
-
 using namespace BloombergLP;
-using namespace std;
+
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                            * Overview *
+// Since this component implements C++ macros, which may or may not be defined,
+// there is not too much to test in this driver.  Since correctness will be
+// affected by compile-time switches during the build process, any compile-time
+// tests we come up with should probably reside directly in the header or
+// implementation file.
+// ----------------------------------------------------------------------------
+// [ 1] CONCERN: exactly one compiler vendor macro is defined.
+// [ 1] CONCERN: the compiler version macro is defined.
+// [ 1] CONCERN: exactly one OS type macro is defined.
+// [ 1] CONCERN: exactly one OS subtype macro is defined.
+// [ 1] CONCERN: exactly one of each CPU macro is defined.
+// [ 1] CONCERN: exactly one CPU instruction set macro is defined.
+// [ 1] CONCERN: exactly one CPU register width macro is defined.
+// [ 1] CONCERN: at most one CPU version macro is defined.
+// [ 1] CONCERN: exactly one ENDIAN macro is set.
+// [ 4] CONCERN: report definition of all platform macros.
+// [ 2] BSLS_PLATFORM_IS_LITTLE_ENDIAN
+// [ 2] BSLS_PLATFORM_IS_BIG_ENDIAN
+// [ 3] BSLS_PLATFORM_NO_64_BIT_LITERALS
+// ============================================================================
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -35,6 +58,10 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: -TP19
+//  This component is levelized below 'bsls_bsltestutil', so cannot directly
+//  alias the standard test macros.
+
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 #define STRINGIFY2(...) "" #__VA_ARGS__
@@ -51,7 +78,7 @@ bool isBigEndian()
     // either big endian or little endian.
 {
     union U {
-        int d_int;
+        int  d_int;
         char d_char[sizeof(int)];
     } u;
 
@@ -78,7 +105,7 @@ bool isLittleEndian()
     // be either big endian or little endian.
 {
     union U {
-        int d_int;
+        int  d_int;
         char d_char[sizeof(int)];
     } u;
 
@@ -97,28 +124,6 @@ bool isLittleEndian()
 }
 
 // ============================================================================
-//                             TEST PLAN
-// ----------------------------------------------------------------------------
-//                            * Overview *
-// Since this component implements CPP macro's, which may or may not be
-// defined, there is not too much to test in this driver.  Since correctness
-// will be affected by compile-time switches during the build process, any
-// compile-time tests we come up with should probably reside directly in the
-// header or implementation file.
-// ----------------------------------------------------------------------------
-// [ 1] Ensure that exactly one of each CMP type is set.
-// [ 1] Ensure that exactly one of each OS type is set.
-// [ 1] Ensure that exactly one of each CPU type is set.
-// [ 1] Ensure that at most one of each CPU subtype is set.
-// [ 1] For each category, ensure MINOR_NUMBER set -> MAJOR_NUMBER set.
-// [ 1] For the OS, type ensure MAJOR_NUMBER set -> SUBTYPE set.
-// [ 1] For the ENDIAN type, ensure one is set.
-// [ 2] BSLS_PLATFORM_IS_LITTLE_ENDIAN
-// [ 2] BSLS_PLATFORM_IS_BIG_ENDIAN
-// [ 3] BSLS_PLATFORM_NO_64_BIT_LITERALS
-// ============================================================================
-
-// ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
@@ -128,8 +133,8 @@ static void printFlags()
     // An "Enter" and "Leave" message is printed unconditionally so there is
     // some report even if all of the flags are undefined.
 {
-    const char * undefinedMacros[256] = {};
-    size_t undefinedCount = 0;
+    const char *undefinedMacros[256] = {};
+    size_t      undefinedCount       = 0;
 
     puts("printFlags: Enter");
 
@@ -425,12 +430,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_CPU_VER_MAJOR);
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_VER_MINOR)
-    P_MACRO(BSLS_PLATFORM_CPU_VER_MINOR);
-#else
-    D_MACRO(BSLS_PLATFORM_CPU_VER_MINOR);
-#endif
-
 #if defined(BSLS_PLATFORM_CPU_X86)
     P_MACRO(BSLS_PLATFORM_CPU_X86);
 #else
@@ -721,12 +720,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__CPU_VER_MAJOR);
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_VER_MINOR)
-    P_MACRO(BSLS_PLATFORM__CPU_VER_MINOR);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_VER_MINOR);
-#endif
-
 #if defined(BSLS_PLATFORM__CPU_X86)
     P_MACRO(BSLS_PLATFORM__CPU_X86);
 #else
@@ -845,12 +838,6 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM__OS_WINXP);
 #else
     D_MACRO(BSLS_PLATFORM__OS_WINXP);
-#endif
-
-#if defined(bdes_Platform)
-    P_MACRO(bdes_Platform);
-#else
-    D_MACRO(bdes_Platform);
 #endif
 
 
@@ -1536,18 +1523,32 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // DUMP OUT BSLS_PLATFORM_*
+        // TESTING CONCERN: REPORT DEFINITION OF ALL PLATFORM MACROS
         //
         // Concerns:
-        //: 1 It is hard to tell which old literals are enabled and which
-        //:   aren't.
+        //: 1 Audit the set of macros of concern to this component.
         //
         // Plan:
-        //: 1 Dump them out.
+        //: 1 In 'verbose' mode, iterate in alphanumerical order over all
+        //:   macros that are either defined by this component, or are platform
+        //:   supplied macros of interest when defining the macros of this
+        //:   component
+        //:
+        //:   1 If a macro is defined, write its name and value to the console.
+        //:
+        //:   2 If a macro is not defined, append its name to a global list of
+        //:     macro names that are not defined.
+        //:
+        //: 2 If in 'verbose' mode, write out the list of macro names that are
+        //:   not defined.
+        //
+        // Testing
+        //   CONCERN: report definition of all platform macros.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nDUMP OUT BSLS_PLATFORM_*"
-                            "\n========================\n");
+        if (verbose) printf(
+              "\nTESTING CONCERN: REPORT DEFINITION OF ALL PLATFORM MACROS"
+              "\n=========================================================\n");
 
         if (!verbose) break;
 
@@ -1679,6 +1680,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // MINIMAL DEFINITION TEST
         //
+        // Concerns:
+        //: 1 The platform is correctly detected.
+        //
         // Plan:
         //: 1 We want to make sure that exactly one each of OS, PROCESSOR,
         //:   COMPILER and ENDIAN type is set.  We also want to make sure that
@@ -1688,13 +1692,15 @@ int main(int argc, char *argv[])
         //:   sure that one endian-ness type is defined for the platform.
         //
         // Testing:
-        //   Ensure that exactly one of each CMP type is set.
-        //   Ensure that exactly one of each OS type is set.
-        //   Ensure that exactly one of each CPU type is set.
-        //   Ensure that at most one of each CPU subtype is set.
-        //   For each category, ensure MINOR_NUMBER set -> MAJOR_NUMBER set.
-        //   For the OS type, ensure MAJOR_NUMBER set -> SUBTYPE set.
-        //   For the ENDIAN type, ensure one is set.
+        //   CONCERN: exactly one compiler vendor macro is defined.
+        //   CONCERN: the compiler version macro is defined.
+        //   CONCERN: exactly one OS type macro is defined.
+        //   CONCERN: exactly one OS subtype macro is defined.
+        //   CONCERN: exactly one of each CPU macro is defined.
+        //   CONCERN: exactly one CPU instruction set macro is defined.
+        //   CONCERN: exactly one CPU register width macro is defined.
+        //   CONCERN: at most one CPU version macro is defined.
+        //   CONCERN: exactly one ENDIAN macro is set.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMINIMAL DEFINITION TEST"
@@ -1722,22 +1728,22 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\t%s = %d (0x%X)\n", #X, (X), (X));
 
         #if defined(BSLS_PLATFORM_CMP_IBM)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
-        #endif
-        #if defined(BSLS_PLATFORM_CMP_IBM)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
-        #endif
-        #if defined(BSLS_PLATFORM_CMP_BLP)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_BLP, 0);
+            MACRO_TESTGT(BSLS_PLATFORM_CMP_AIX, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_CLANG)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_CLANG, 0);
+        #endif
+        #if defined(BSLS_PLATFORM_CMP_EDG)
+            MACRO_TESTGT(BSLS_PLATFORM_CMP_EDG, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_GNU)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_GNU, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_HP)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_HP, 0);
+        #endif
+        #if defined(BSLS_PLATFORM_CMP_IBM)
+            MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_MSVC)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_MSVC, 0);
@@ -1748,9 +1754,6 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM_CMP_VER_MAJOR)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_VER_MAJOR, 0);
         #endif
-        #if defined(BSLS_PLATFORM_CMP_VER_MINOR)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_VER_MINOR, 0);
-        #endif
 
         if (veryVerbose) printf("Print OS-related Symbols:\n");
 
@@ -1759,9 +1762,6 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_OS_AIX)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_AIX, 1);
-        #endif
-        #if defined(BSLS_PLATFORM_OS_DGUX)
-            MACRO_TESTEQ(BSLS_PLATFORM_OS_DGUX, 1);
         #endif
         #if defined(BSLS_PLATFORM_OS_HPUX)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_HPUX, 1);
@@ -1843,9 +1843,6 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_CPU_VER_MAJOR)
             MACRO_TESTGT(BSLS_PLATFORM_CPU_VER_MAJOR, 0);
-        #endif
-        #if defined(BSLS_PLATFORM_CPU_VER_MINOR)
-            MACRO_TESTGT(BSLS_PLATFORM_CPU_VER_MINOR, 0);
         #endif
 
         if (veryVerbose) printf("\nPrint endian-ness symbols:\n");
