@@ -21,6 +21,16 @@
 // BDE_VERIFY pragma: -BW01  // bdewrap recommendation
 // BDE_VERIFY pragma: -FD01  // Function needs contract
 
+
+#if defined BSLS_PLATFORM_CMP_SUN
+# define BSLSTL_MANAGEDPTR_LIMIT_TESTING_COMPLEXITY 1
+// Some compilers struggle for resources when trying to compile all of the
+// template instantiations required for this test driver.  We will perform
+// slightly less thorough testing on those compilers, testing sufficient to
+// rely on the more thorough testing offered by platforms that are not as
+// constrained.
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -125,11 +135,12 @@ using namespace BloombergLP;
 // [ 8] ManagedPtr(TYPE *ptr, void *cookie, void(*deleter)(TYPE*, void*));
 // [ 8] ManagedPtr(OTHER *, bsl::nullptr_t, void(*)(BASE *, void *));
 //
-//
 //                       bslma::ManagedPtrUtil
 //                       ---------------------
 //-----------------------------------------------------------------------------
 // [14] void noOpDeleter(void *, void *);
+// [18] ManagedPtr allocateManaged(Allocator *alloc, ARGS&&... args);
+// [18] ManagedPtr makeManaged(ARGS&&... args);
 //-----------------------------------------------------------------------------
 //
 //                 bslma::ManagedPtrNilDeleter<TYPE>
@@ -159,8 +170,8 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [ 2] TEST MACHINERY
 // [ 7] (implicit) bool operator!() const;  // via operator BoolType()
-// [18] USAGE EXAMPLE
-// [19] CASTING EXAMPLES
+// [19] USAGE EXAMPLE
+// [20] CASTING EXAMPLES
 // [-1] VERIFYING FAILURES TO COMPILE
 
 // ============================================================================
@@ -216,9 +227,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 //=============================================================================
-//                      GLOBAL CONSTANTS FOR TESTING
+//                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 namespace {
+
+typedef bslma::ManagedPtrUtil Util;
 
 bool g_verbose;
 bool g_veryVerbose;
@@ -829,7 +842,7 @@ namespace USAGE_EXAMPLES {
         const int   STR_LENGTH = static_cast<int>(strlen(STR));
 //..
 // Next, dynamically create an object and obtain the managed pointer, referring
-// to it, using 'bslma::makeManaged' function:
+// to it, using 'bslma::ManagedPtrUtil::makeManaged' function:
 //..
         {
             bslma::ManagedPtr<String> stringManagedPtr =
@@ -871,9 +884,9 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 == oa.numBytesInUse());
     }
 //..
-// Note that if object's type uses 'bslma' allocators, then supplied allocator
-// is implicitly passed to the object's constructor as an extra argument in the
-// final position:
+// Note that if object's type uses 'bslma' allocators, then 'allocateManaged'
+// implicitly passes the supplied allocator to the object's constructor as an
+// extra argument in the final position:
 //..
     class StringAlloc : public String {
         // The heir to the 'String' class that explicitly claims to use 'bslma'
@@ -915,12 +928,11 @@ namespace USAGE_EXAMPLES {
 
         {
             bslma::ManagedPtr<StringAlloc> stringManagedPtr =
-                          bslma::ManagedPtrUtil::makeManaged<StringAlloc>(STR);
+                     bslma::ManagedPtrUtil::makeManaged<StringAlloc>(STR, &ta);
 
-            ASSERT(static_cast<int>(sizeof(String)) + STR_LENGTH + 1 <=
-                                                           da.numBytesInUse());
-            ASSERT(&da == stringManagedPtr->allocator());
-            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
+            ASSERT(&ta == stringManagedPtr->allocator());
+            ASSERT(STR_LENGTH + 1 == ta.numBytesInUse());
         }
 
         {
@@ -6767,6 +6779,2636 @@ static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
+struct MoveState {
+  public:
+    // TYPES
+    enum Enum {
+        // Enumeration of move state.
+
+        e_NOT_MOVED,  // The type was not involved in a move operation.
+
+        e_MOVED,      // The type was involved in a move operation.
+
+        e_UNKNOWN     // The type does not expose move-state information.
+    };
+};
+
+                         // ============================
+                         // class AllocArgumentType<int>
+                         // ============================
+
+template <int N>
+class AllocArgumentType {
+    // This class template declares a separate type for each template parameter
+    // value 'N', 'AllocArgumentType<N>', that wraps an integer value
+    // and provides implicit conversion to and from 'int'.  The wrapped integer
+    // will be dynamically allocated using the supplied allocator, or the
+    // default allocator if none is supplied.  Its main purpose is that having
+    // separate types for testing enables distinguishing them when calling
+    // through a function template interface, thereby avoiding ambiguities or
+    // accidental switching of arguments in the implementation of in-place
+    // constructors.  It further tests that allocators are propagated
+    // correctly, or not, as required.
+
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+
+    // DATA
+    bslma::Allocator *d_allocator_p;        // allocator used to supply memory
+                                            // (held, not owned)
+
+    int              *d_data_p;             // pointer to the data value
+
+    MoveState::Enum   d_movedFrom;          // moved-from state
+
+    MoveState::Enum   d_movedInto;          // moved-from state
+
+  public:
+    // CREATORS
+    explicit AllocArgumentType(bslma::Allocator *basicAllocator =  0);
+        // Create an 'AllocArgumentType' object having the (default) attribute
+        // value '-1'.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used. Note, that default constructor does not allocate
+        // memory.
+
+    explicit AllocArgumentType(int               value,
+                               bslma::Allocator *basicAllocator =  0);
+        // Create an 'AllocArgumentType' object having the specified 'value'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used. The behavior is undefined unless 'value >= 0'.
+
+    AllocArgumentType(const AllocArgumentType&  original,
+                      bslma::Allocator         *basicAllocator = 0);
+        // Create an 'AllocArgumentType' object having the same value as the
+        // specified 'original'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used. Note, that no memory is allocated if
+        // 'original' refers to a default-constructed object.
+
+    AllocArgumentType(bslmf::MovableRef<AllocArgumentType> original);
+        // Create an 'AllocArgumentType' object having the same value as the
+        // specified 'original'. Note, that no memory is allocated if
+        // 'original' refers to a default-constructed object.
+
+    AllocArgumentType(bslmf::MovableRef<AllocArgumentType>  original,
+                      bslma::Allocator                     *basicAllocator);
+        // Create an 'AllocArgumentType' object having the same value as the
+        // specified 'original' using the specified 'basicAllocator' to supply
+        // memory.  Note, that no memory is allocated if 'original' refers to a
+        // default-constructed object.
+
+    ~AllocArgumentType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    AllocArgumentType& operator=(const AllocArgumentType& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    AllocArgumentType&
+    operator=(BloombergLP::bslmf::MovableRef<AllocArgumentType> rhs);
+        // Assign to this object the value of the specified 'rhs' object.  Note
+        // that 'rhs' is left in a valid but unspecified state.
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+
+    operator int() const;
+        // Return the value of this test argument object.
+
+    MoveState::Enum movedInto() const;
+        // Return the move state of this object as target of a move operation.
+
+    MoveState::Enum movedFrom() const;
+        // Return the move state of this object as source of a move operation.
+};
+
+// FREE FUNCTIONS
+template <int N>
+MoveState::Enum getMovedFrom(const AllocArgumentType<N>& object);
+    // Return the move-from state of the specified 'object'.
+
+template <int N>
+MoveState::Enum getMovedInto(const AllocArgumentType<N>& object);
+    // Return the move-into state of the specified 'object'.
+
+                        // --------------------------
+                        // class AllocArgumentType<N>
+                        // --------------------------
+
+// CREATORS
+template <int N>
+inline
+AllocArgumentType<N>::AllocArgumentType(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_data_p(0)
+, d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_NOT_MOVED)
+{
+    // Note that the default constructor does not allocate.  This is done to
+    // correctly count allocations when not the whole set of arguments is
+    // passed to emplacable test types.
+}
+
+template <int N>
+inline
+AllocArgumentType<N>::AllocArgumentType(int               value,
+                                        bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_data_p(0)
+, d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_NOT_MOVED)
+{
+    BSLS_ASSERT_SAFE(value >= 0);
+
+    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = value;
+}
+
+
+template <int N>
+inline
+AllocArgumentType<N>::AllocArgumentType(
+                                      const AllocArgumentType&  original,
+                                      bslma::Allocator         *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_data_p(0)
+, d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_NOT_MOVED)
+{
+    if (original.d_data_p) {
+        d_data_p = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+        *d_data_p = int(original);
+    }
+}
+
+template <int N>
+inline
+AllocArgumentType<N>::AllocArgumentType(
+                                 bslmf::MovableRef<AllocArgumentType> original)
+: d_allocator_p(MoveUtil::access(original).d_allocator_p)
+, d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_MOVED)
+{
+    AllocArgumentType& lvalue = original;
+
+    d_data_p = lvalue.d_data_p;
+
+    lvalue.d_data_p = 0;
+    lvalue.d_movedInto = MoveState::e_NOT_MOVED;
+    lvalue.d_movedFrom = MoveState::e_MOVED;
+}
+
+template <int N>
+inline
+AllocArgumentType<N>::AllocArgumentType(
+                          bslmf::MovableRef<AllocArgumentType>  original,
+                          bslma::Allocator                     *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_MOVED)
+{
+    AllocArgumentType& lvalue = original;
+
+    if (d_allocator_p == lvalue.d_allocator_p) {
+        d_data_p = lvalue.d_data_p;
+        lvalue.d_data_p = 0;
+    } else {
+        if (lvalue.d_data_p) {
+            d_data_p  = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+            *d_data_p = int(lvalue);
+
+            lvalue.d_allocator_p->deallocate(lvalue.d_data_p);
+            lvalue.d_data_p = 0;
+        } else {
+            d_data_p = 0;
+        }
+    }
+
+    lvalue.d_movedInto = MoveState::e_NOT_MOVED;
+    lvalue.d_movedFrom = MoveState::e_MOVED;
+}
+
+template <int N>
+inline
+AllocArgumentType<N>::~AllocArgumentType()
+{
+    if (d_data_p) {
+        d_allocator_p->deallocate(d_data_p);
+    }
+}
+
+// MANIPULATORS
+template <int N>
+inline
+AllocArgumentType<N>&
+AllocArgumentType<N>::operator=(const AllocArgumentType& rhs)
+{
+    if (this != &rhs) {
+        int *newValue = 0;
+        if (rhs.d_data_p) {
+            newValue = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+            *newValue = int(rhs);
+        }
+        if (d_data_p) {
+            d_allocator_p->deallocate(d_data_p);
+        }
+        d_data_p = newValue;
+
+        d_movedInto = MoveState::e_NOT_MOVED;
+        d_movedFrom = MoveState::e_NOT_MOVED;
+    }
+    return *this;
+}
+
+template <int N>
+inline
+AllocArgumentType<N>& AllocArgumentType<N>::operator=(
+                         BloombergLP::bslmf::MovableRef<AllocArgumentType> rhs)
+{
+    AllocArgumentType& lvalue = rhs;
+
+    if (this != &lvalue) {
+        if (d_allocator_p == lvalue.d_allocator_p) {
+            if (d_data_p) {
+                d_allocator_p->deallocate(d_data_p);
+            }
+            d_data_p = lvalue.d_data_p;
+            lvalue.d_data_p = 0;
+        }
+        else {
+            int *newValue = 0;
+            if (lvalue.d_data_p) {
+                newValue = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+                *newValue = int(lvalue);
+                *lvalue.d_data_p = -1;
+            }
+            if (d_data_p) {
+                d_allocator_p->deallocate(d_data_p);
+            }
+            d_data_p = newValue;
+        }
+
+        d_movedInto = MoveState::e_MOVED;
+        d_movedFrom = MoveState::e_NOT_MOVED;
+
+        lvalue.d_movedInto = MoveState::e_NOT_MOVED;
+        lvalue.d_movedFrom = MoveState::e_MOVED;
+    }
+    return *this;
+}
+
+// ACCESSORS
+template <int N>
+inline
+AllocArgumentType<N>::operator int() const
+{
+    return d_data_p ? *d_data_p : -1;
+}
+
+template <int N>
+inline
+bslma::Allocator * AllocArgumentType<N>::allocator() const
+{
+    return d_allocator_p;
+}
+
+template <int N>
+inline
+MoveState::Enum AllocArgumentType<N>::movedFrom() const
+{
+    return d_movedFrom;
+}
+
+template <int N>
+inline
+MoveState::Enum AllocArgumentType<N>::movedInto() const
+{
+    return d_movedInto;
+}
+
+                                  // Aspects
+
+// FREE FUNCTIONS
+template <int N>
+inline
+MoveState::Enum getMovedFrom(const AllocArgumentType<N>& object)
+{
+    return object.movedFrom();
+}
+
+template <int N>
+inline
+MoveState::Enum getMovedInto(const AllocArgumentType<N>& object)
+{
+    return object.movedInto();
+}
+
+                         // =============================
+                         // class AllocEmplacableTestType
+                         // =============================
+
+template <bool USES_BSLMA_ALLOC>
+class AllocEmplacableTestType {
+    // This class provides a test object used to check that the arguments
+    // passed for creating an object with an in-place representation are of the
+    // correct types and values.
+  public:
+    // TYPEDEFS
+    typedef AllocArgumentType< 1> ArgType01;
+    typedef AllocArgumentType< 2> ArgType02;
+    typedef AllocArgumentType< 3> ArgType03;
+    typedef AllocArgumentType< 4> ArgType04;
+    typedef AllocArgumentType< 5> ArgType05;
+    typedef AllocArgumentType< 6> ArgType06;
+    typedef AllocArgumentType< 7> ArgType07;
+    typedef AllocArgumentType< 8> ArgType08;
+    typedef AllocArgumentType< 9> ArgType09;
+    typedef AllocArgumentType<10> ArgType10;
+    typedef AllocArgumentType<11> ArgType11;
+    typedef AllocArgumentType<12> ArgType12;
+    typedef AllocArgumentType<13> ArgType13;
+    typedef AllocArgumentType<14> ArgType14;
+
+    typedef bslmf::MovableRefUtil MoveUtil;
+
+  private:
+    // DATA
+    ArgType01         d_arg01;        // value  1
+    ArgType02         d_arg02;        // value  2
+    ArgType03         d_arg03;        // value  3
+    ArgType04         d_arg04;        // value  4
+    ArgType05         d_arg05;        // value  5
+    ArgType06         d_arg06;        // value  6
+    ArgType07         d_arg07;        // value  7
+    ArgType08         d_arg08;        // value  8
+    ArgType09         d_arg09;        // value  9
+    ArgType10         d_arg10;        // value 10
+    ArgType11         d_arg11;        // value 11
+    ArgType12         d_arg12;        // value 12
+    ArgType13         d_arg13;        // value 13
+    ArgType14         d_arg14;        // value 14
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
+
+  public:
+    // CREATORS
+    AllocEmplacableTestType(bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
+                            ArgType12         arg12,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
+                            ArgType12         arg12,
+                            ArgType13         arg13,
+                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
+                            ArgType12         arg12,
+                            ArgType13         arg13,
+                            ArgType14         arg14,
+                            bslma::Allocator *basicAllocator = 0);
+        // Create an 'AllocEmplacableTestType' by initializing corresponding
+        // attributes with the specified 'arg01'..'arg14', and initializing any
+        // remaining attributes with their default value (-1).  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    AllocEmplacableTestType(
+                           const AllocEmplacableTestType&  original,
+                           bslma::Allocator               *basicAllocator = 0);
+        // Create an allocating, in-place test object having the same value as
+        // the specified 'original'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+
+    ~AllocEmplacableTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! AllocEmplacableTestType& operator=(
+    //                           const AllocEmplacableTestType& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used to supply memory for this object.
+
+    const ArgType01& arg01() const;
+    const ArgType02& arg02() const;
+    const ArgType03& arg03() const;
+    const ArgType04& arg04() const;
+    const ArgType05& arg05() const;
+    const ArgType06& arg06() const;
+    const ArgType07& arg07() const;
+    const ArgType08& arg08() const;
+    const ArgType09& arg09() const;
+    const ArgType10& arg10() const;
+    const ArgType11& arg11() const;
+    const ArgType12& arg12() const;
+    const ArgType13& arg13() const;
+    const ArgType14& arg14() const;
+        // Return the value of the correspondingly numbered argument that was
+        // passed to the constructor of this object.
+
+    bool isEqual(const AllocEmplacableTestType& rhs) const;
+        // Return 'true' if the specified 'rhs' has the same value as this
+        // object, and 'false' otherwise.  Two 'AllocEmplacableTestType'
+        // objects have the same value if each of their corresponding
+        // attributes have the same value.
+};
+
+// FREE OPERATORS
+template <bool USES_BSLMA_ALLOC>
+bool operator==(const AllocEmplacableTestType<USES_BSLMA_ALLOC>& lhs,
+                const AllocEmplacableTestType<USES_BSLMA_ALLOC>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'AllocEmplacableTestType' objects
+    // have the same value if each of their corresponding attributes have the
+    // same value.
+
+template <bool USES_BSLMA_ALLOC>
+bool operator!=(const AllocEmplacableTestType<USES_BSLMA_ALLOC>& lhs,
+                const AllocEmplacableTestType<USES_BSLMA_ALLOC>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'AllocEmplacableTestType'
+    // objects do not have the same value if any of their corresponding
+    // attributes do not have the same value.
+
+                        // -----------------------------
+                        // class AllocEmplacableTestType
+                        // -----------------------------
+
+// CREATORS
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(bslma::Default::allocator(basicAllocator))
+, d_arg02(bslma::Default::allocator(basicAllocator))
+, d_arg03(bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(bslma::Default::allocator(basicAllocator))
+, d_arg03(bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              ArgType08         arg08,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              ArgType08         arg08,
+                                              ArgType09         arg09,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              ArgType08         arg08,
+                                              ArgType09         arg09,
+                                              ArgType10         arg10,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              ArgType08         arg08,
+                                              ArgType09         arg09,
+                                              ArgType10         arg10,
+                                              ArgType11         arg11,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              ArgType08         arg08,
+                                              ArgType09         arg09,
+                                              ArgType10         arg10,
+                                              ArgType11         arg11,
+                                              ArgType12         arg12,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(MoveUtil::move(arg12), bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              ArgType08         arg08,
+                                              ArgType09         arg09,
+                                              ArgType10         arg10,
+                                              ArgType11         arg11,
+                                              ArgType12         arg12,
+                                              ArgType13         arg13,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(MoveUtil::move(arg12), bslma::Default::allocator(basicAllocator))
+, d_arg13(MoveUtil::move(arg13), bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                              ArgType01         arg01,
+                                              ArgType02         arg02,
+                                              ArgType03         arg03,
+                                              ArgType04         arg04,
+                                              ArgType05         arg05,
+                                              ArgType06         arg06,
+                                              ArgType07         arg07,
+                                              ArgType08         arg08,
+                                              ArgType09         arg09,
+                                              ArgType10         arg10,
+                                              ArgType11         arg11,
+                                              ArgType12         arg12,
+                                              ArgType13         arg13,
+                                              ArgType14         arg14,
+                                              bslma::Allocator *basicAllocator)
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(MoveUtil::move(arg12), bslma::Default::allocator(basicAllocator))
+, d_arg13(MoveUtil::move(arg13), bslma::Default::allocator(basicAllocator))
+, d_arg14(MoveUtil::move(arg14), bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::AllocEmplacableTestType(
+                                const AllocEmplacableTestType&  original,
+                                bslma::Allocator               *basicAllocator)
+: d_arg01(original.d_arg01, bslma::Default::allocator(basicAllocator))
+, d_arg02(original.d_arg02, bslma::Default::allocator(basicAllocator))
+, d_arg03(original.d_arg03, bslma::Default::allocator(basicAllocator))
+, d_arg04(original.d_arg04, bslma::Default::allocator(basicAllocator))
+, d_arg05(original.d_arg05, bslma::Default::allocator(basicAllocator))
+, d_arg06(original.d_arg06, bslma::Default::allocator(basicAllocator))
+, d_arg07(original.d_arg07, bslma::Default::allocator(basicAllocator))
+, d_arg08(original.d_arg08, bslma::Default::allocator(basicAllocator))
+, d_arg09(original.d_arg09, bslma::Default::allocator(basicAllocator))
+, d_arg10(original.d_arg10, bslma::Default::allocator(basicAllocator))
+, d_arg11(original.d_arg11, bslma::Default::allocator(basicAllocator))
+, d_arg12(original.d_arg12, bslma::Default::allocator(basicAllocator))
+, d_arg13(original.d_arg13, bslma::Default::allocator(basicAllocator))
+, d_arg14(original.d_arg14, bslma::Default::allocator(basicAllocator))
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::~AllocEmplacableTestType()
+{
+    BSLS_ASSERT(d_arg01.allocator() == d_arg02.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg03.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg04.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg05.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg06.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg07.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg08.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg09.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg10.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg11.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg12.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg13.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg14.allocator());
+}
+
+// ACCESSORS
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType01&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg01() const
+{
+    return d_arg01;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType02&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg02() const
+{
+    return d_arg02;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType03&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg03() const
+{
+    return d_arg03;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType04&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg04() const
+{
+    return d_arg04;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType05&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg05() const
+{
+    return d_arg05;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType06&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg06() const
+{
+    return d_arg06;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType07&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg07() const
+{
+    return d_arg07;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType08&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg08() const
+{
+    return d_arg08;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType09&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg09() const
+{
+    return d_arg09;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType10&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg10() const
+{
+    return d_arg10;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType11&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg11() const
+{
+    return d_arg11;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType12&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg12() const
+{
+    return d_arg12;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType13&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg13() const
+{
+    return d_arg13;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+const typename AllocEmplacableTestType<USES_BSLMA_ALLOC>::ArgType14&
+AllocEmplacableTestType<USES_BSLMA_ALLOC>::arg14() const
+{
+    return d_arg14;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+bslma::Allocator *AllocEmplacableTestType<USES_BSLMA_ALLOC>::allocator() const
+{
+    return d_allocator_p;
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+bool AllocEmplacableTestType<USES_BSLMA_ALLOC>::isEqual(
+                    const AllocEmplacableTestType<USES_BSLMA_ALLOC>& rhs) const
+{
+    return d_arg01 == rhs.d_arg01
+        && d_arg02 == rhs.d_arg02
+        && d_arg03 == rhs.d_arg03
+        && d_arg04 == rhs.d_arg04
+        && d_arg05 == rhs.d_arg05
+        && d_arg06 == rhs.d_arg06
+        && d_arg07 == rhs.d_arg07
+        && d_arg08 == rhs.d_arg08
+        && d_arg09 == rhs.d_arg09
+        && d_arg10 == rhs.d_arg10
+        && d_arg11 == rhs.d_arg11
+        && d_arg12 == rhs.d_arg12
+        && d_arg13 == rhs.d_arg13
+        && d_arg14 == rhs.d_arg14;
+}
+
+// FREE OPERATORS
+template <bool USES_BSLMA_ALLOC>
+inline
+bool operator==(const AllocEmplacableTestType<USES_BSLMA_ALLOC>& lhs,
+                const AllocEmplacableTestType<USES_BSLMA_ALLOC>& rhs)
+{
+    return lhs.isEqual(rhs);
+}
+
+template <bool USES_BSLMA_ALLOC>
+inline
+bool operator!=(const AllocEmplacableTestType<USES_BSLMA_ALLOC>& lhs,
+                const AllocEmplacableTestType<USES_BSLMA_ALLOC>& rhs)
+{
+    return !lhs.isEqual(rhs);
+}
+
+} // close unnamed namespace
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+// We need to test 'makeManaged' and 'allocateManaged' functions for classes
+// that use bslma allocators and does not.  To avoid code duplication test
+// class is created as a template and different specializations have different
+// trait values.
+
+template <> struct UsesBslmaAllocator<AllocEmplacableTestType<true> > :
+                                                                 bsl::true_type
+{};
+
+template <> struct UsesBslmaAllocator<AllocEmplacableTestType<false> > :
+                                                                bsl::false_type
+{};
+}  // close namespace bslma
+}  // close enterprise namespace
+
+namespace {
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::bool_constant<EXPRESSION> NAME{}
+    // This leading branch is the preferred version for C++17, but the feature
+    // test macro is (currently) for documentation purposes only, and never
+    // defined.  This is the ideal (simplest) form for such declarations:
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
+    // This is the preferred C++11 form for the definition of integral constant
+    // variables.  It assumes the presence of 'constexpr' in the compiler as an
+    // indication that brace-initialization and traits are available, as it has
+    // historically been one of the last C++11 features to ship.
+#else
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
+                 bsl::integral_constant<bool, EXPRESSION>()
+    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
+    // the rules, so a C++03 compiler must explicitly initialize integral
+    // constant variables in a way that is unambiguously not a vexing parse
+    // that declares a function instead.
+#endif
+
+struct Harness {
+    // This 'struct' provides a namespace for utility functions that test
+    // 'makeManaged' and 'allocateManaged'.
+
+    // TYPES
+    typedef AllocArgumentType< 1> Arg01;
+    typedef AllocArgumentType< 2> Arg02;
+    typedef AllocArgumentType< 3> Arg03;
+    typedef AllocArgumentType< 4> Arg04;
+    typedef AllocArgumentType< 5> Arg05;
+    typedef AllocArgumentType< 6> Arg06;
+    typedef AllocArgumentType< 7> Arg07;
+    typedef AllocArgumentType< 8> Arg08;
+    typedef AllocArgumentType< 9> Arg09;
+    typedef AllocArgumentType<10> Arg10;
+    typedef AllocArgumentType<11> Arg11;
+    typedef AllocArgumentType<12> Arg12;
+    typedef AllocArgumentType<13> Arg13;
+    typedef AllocArgumentType<14> Arg14;
+
+    typedef bslmf::MovableRefUtil          MoveUtil;
+    typedef AllocEmplacableTestType<true>     UsingType;
+    typedef AllocEmplacableTestType<false> NotUsingType;
+
+    template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
+             int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
+             int N14, bool USES_BSLMA_ALLOC>
+    static void
+    prepareObject(AllocEmplacableTestType<USES_BSLMA_ALLOC> *target,
+                  Arg01&                                     A01,
+                  Arg02&                                     A02,
+                  Arg03&                                     A03,
+                  Arg04&                                     A04,
+                  Arg05&                                     A05,
+                  Arg06&                                     A06,
+                  Arg07&                                     A07,
+                  Arg08&                                     A08,
+                  Arg09&                                     A09,
+                  Arg10&                                     A10,
+                  Arg11&                                     A11,
+                  Arg12&                                     A12,
+                  Arg13&                                     A13,
+                  Arg14&                                     A14);
+
+    template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
+             int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
+             int N14>
+    static void testCase18_RunTest();
+        // Implement test case 18.  See the test case function for documented
+        // concerns and test plan.
+
+    template <class T>
+    static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
+        // Return the specified 't' moved.
+
+    template <class T>
+    static const T&             testArg(T& t, bsl::false_type);
+        // Return a reference providing non-modifiable access to the specified
+        // 't'.
+};
+
+static bslma::TestAllocator g_argAlloc("test arguments allocator",
+                                       g_veryVeryVeryVerbose);
+                                       
+static const Harness::Arg01 VA01(1,    &g_argAlloc);
+static const Harness::Arg02 VA02(20,   &g_argAlloc);
+static const Harness::Arg03 VA03(23,   &g_argAlloc);
+static const Harness::Arg04 VA04(44,   &g_argAlloc);
+static const Harness::Arg05 VA05(66,   &g_argAlloc);
+static const Harness::Arg06 VA06(176,  &g_argAlloc);
+static const Harness::Arg07 VA07(878,  &g_argAlloc);
+static const Harness::Arg08 VA08(8,    &g_argAlloc);
+static const Harness::Arg09 VA09(912,  &g_argAlloc);
+static const Harness::Arg10 VA10(102,  &g_argAlloc);
+static const Harness::Arg11 VA11(111,  &g_argAlloc);
+static const Harness::Arg12 VA12(333,  &g_argAlloc);
+static const Harness::Arg13 VA13(712,  &g_argAlloc);
+static const Harness::Arg14 VA14(1414, &g_argAlloc);
+
+// Inline methods are defined before the remaining class methods.
+
+template <class T>
+inline
+bslmf::MovableRef<T> Harness::testArg(T& t, bsl::true_type)
+{
+    return MoveUtil::move(t);
+}
+
+template <class T>
+inline
+const T& Harness::testArg(T& t, bsl::false_type)
+{
+    return  t;
+}
+
+// Remaining class methods for 'Harness'.
+
+template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
+         int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
+         int N14, bool USES_BSLMA_ALLOC>
+void Harness::prepareObject(AllocEmplacableTestType<USES_BSLMA_ALLOC> *target,
+                            Arg01&                                     A01,
+                            Arg02&                                     A02,
+                            Arg03&                                     A03,
+                            Arg04&                                     A04,
+                            Arg05&                                     A05,
+                            Arg06&                                     A06,
+                            Arg07&                                     A07,
+                            Arg08&                                     A08,
+                            Arg09&                                     A09,
+                            Arg10&                                     A10,
+                            Arg11&                                     A11,
+                            Arg12&                                     A12,
+                            Arg13&                                     A13,
+                            Arg14&                                     A14)
+{
+    typedef AllocEmplacableTestType<USES_BSLMA_ALLOC> TestType;
+
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
+
+    switch (N_ARGS) {
+      case 0: {
+        new(target) TestType();
+      }  break;
+      case 1: {
+        new(target) TestType(testArg(A01, MOVE_01));
+      }  break;
+      case 2: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02));
+      }  break;
+      case 3: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03));
+      }  break;
+      case 4: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04));
+      }  break;
+      case 5: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05));
+      }  break;
+      case 6: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06));
+      }  break;
+      case 7: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07));
+      }  break;
+      case 8: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07),
+                             testArg(A08, MOVE_08));
+      }  break;
+      case 9: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07),
+                             testArg(A08, MOVE_08),
+                             testArg(A09, MOVE_09));
+      }  break;
+      case 10: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07),
+                             testArg(A08, MOVE_08),
+                             testArg(A09, MOVE_09),
+                             testArg(A10, MOVE_10));
+      }  break;
+      case 11: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07),
+                             testArg(A08, MOVE_08),
+                             testArg(A09, MOVE_09),
+                             testArg(A10, MOVE_10),
+                             testArg(A11, MOVE_11));
+      }  break;
+      case 12: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07),
+                             testArg(A08, MOVE_08),
+                             testArg(A09, MOVE_09),
+                             testArg(A10, MOVE_10),
+                             testArg(A11, MOVE_11),
+                             testArg(A12, MOVE_12));
+      }  break;
+      case 13: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07),
+                             testArg(A08, MOVE_08),
+                             testArg(A09, MOVE_09),
+                             testArg(A10, MOVE_10),
+                             testArg(A11, MOVE_11),
+                             testArg(A12, MOVE_12),
+                             testArg(A13, MOVE_13));
+      }  break;
+      case 14: {
+        new(target) TestType(testArg(A01, MOVE_01),
+                             testArg(A02, MOVE_02),
+                             testArg(A03, MOVE_03),
+                             testArg(A04, MOVE_04),
+                             testArg(A05, MOVE_05),
+                             testArg(A06, MOVE_06),
+                             testArg(A07, MOVE_07),
+                             testArg(A08, MOVE_08),
+                             testArg(A09, MOVE_09),
+                             testArg(A10, MOVE_10),
+                             testArg(A11, MOVE_11),
+                             testArg(A12, MOVE_12),
+                             testArg(A13, MOVE_13),
+                             testArg(A14, MOVE_14));
+      }  break;
+    };
+
+    const TestType& EXP = *target;
+
+    ASSERTV(VA01, EXP.arg01(), VA01 == EXP.arg01() || 2 == N01);
+    ASSERTV(VA02, EXP.arg02(), VA02 == EXP.arg02() || 2 == N02);
+    ASSERTV(VA03, EXP.arg03(), VA03 == EXP.arg03() || 2 == N03);
+    ASSERTV(VA04, EXP.arg04(), VA04 == EXP.arg04() || 2 == N04);
+    ASSERTV(VA05, EXP.arg05(), VA05 == EXP.arg05() || 2 == N05);
+    ASSERTV(VA06, EXP.arg06(), VA06 == EXP.arg06() || 2 == N06);
+    ASSERTV(VA07, EXP.arg07(), VA07 == EXP.arg07() || 2 == N07);
+    ASSERTV(VA08, EXP.arg08(), VA08 == EXP.arg08() || 2 == N08);
+    ASSERTV(VA09, EXP.arg09(), VA09 == EXP.arg09() || 2 == N09);
+    ASSERTV(VA10, EXP.arg10(), VA10 == EXP.arg10() || 2 == N10);
+    ASSERTV(VA11, EXP.arg11(), VA11 == EXP.arg11() || 2 == N11);
+    ASSERTV(VA12, EXP.arg12(), VA12 == EXP.arg12() || 2 == N12);
+    ASSERTV(VA13, EXP.arg13(), VA13 == EXP.arg13() || 2 == N13);
+    ASSERTV(VA14, EXP.arg14(), VA14 == EXP.arg14() || 2 == N14);
+
+    ASSERTV(da, EXP.arg01().allocator(), da == EXP.arg01().allocator());
+    ASSERTV(da, EXP.arg02().allocator(), da == EXP.arg02().allocator());
+    ASSERTV(da, EXP.arg03().allocator(), da == EXP.arg03().allocator());
+    ASSERTV(da, EXP.arg04().allocator(), da == EXP.arg04().allocator());
+    ASSERTV(da, EXP.arg05().allocator(), da == EXP.arg05().allocator());
+    ASSERTV(da, EXP.arg06().allocator(), da == EXP.arg06().allocator());
+    ASSERTV(da, EXP.arg07().allocator(), da == EXP.arg07().allocator());
+    ASSERTV(da, EXP.arg08().allocator(), da == EXP.arg08().allocator());
+    ASSERTV(da, EXP.arg09().allocator(), da == EXP.arg09().allocator());
+    ASSERTV(da, EXP.arg10().allocator(), da == EXP.arg10().allocator());
+    ASSERTV(da, EXP.arg11().allocator(), da == EXP.arg11().allocator());
+    ASSERTV(da, EXP.arg12().allocator(), da == EXP.arg12().allocator());
+    ASSERTV(da, EXP.arg13().allocator(), da == EXP.arg13().allocator());
+    ASSERTV(da, EXP.arg14().allocator(), da == EXP.arg14().allocator());
+}
+
+template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
+         int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
+         int N14>
+void Harness::testCase18_RunTest()
+{
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
+
+    // First prepare a test object to compare against the managed object
+    // constructed by 'makeManaged'.  In particular, we want to pay attention
+    // to the moved-from state of each argument, and the final value of the
+    // whole test object.
+
+    // 14 arguments for expected object
+
+    Arg01 A01[2] = { VA01, VA01 };
+    Arg02 A02[2] = { VA02, VA02 };
+    Arg03 A03[2] = { VA03, VA03 };
+    Arg04 A04[2] = { VA04, VA04 };
+    Arg05 A05[2] = { VA05, VA05 };
+    Arg06 A06[2] = { VA06, VA06 };
+    Arg07 A07[2] = { VA07, VA07 };
+    Arg08 A08[2] = { VA08, VA08 };
+    Arg09 A09[2] = { VA09, VA09 };
+    Arg10 A10[2] = { VA10, VA10 };
+    Arg11 A11[2] = { VA11, VA11 };
+    Arg12 A12[2] = { VA12, VA12 };
+    Arg13 A13[2] = { VA13, VA13 };
+    Arg14 A14[2] = { VA14, VA14 };
+
+    bsls::ObjectBuffer<NotUsingType> bufferNU;
+    prepareObject<
+        N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14, false>(
+                       bufferNU.address(),
+                       A01[0], A02[0], A03[0], A04[0], A05[0], A06[0], A07[0],
+                       A08[0], A09[0], A10[0], A11[0], A12[0], A13[0], A14[0]);
+
+    bslma::DestructorProctor<NotUsingType> proctorNU(bufferNU.address());
+
+    const NotUsingType& EXP_NU = bufferNU.object();
+
+    bsls::ObjectBuffer<UsingType> bufferU;
+    prepareObject<
+         N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14, true>(
+                       bufferU.address(),
+                       A01[1], A02[1], A03[1], A04[1], A05[1], A06[1], A07[1],
+                       A08[1], A09[1], A10[1], A11[1], A12[1], A13[1], A14[1]);
+
+    bslma::DestructorProctor<UsingType> proctorU(bufferU.address());
+
+    const UsingType& EXP_U = bufferU.object();
+
+    // Here starts the actual test case.
+
+    // When we move an "arg" object, no new allocation occurs, but when we copy
+    // an "arg" object an additional allocation will occur.  We need to account
+    // the additional allocations within the scope below, but we also need to
+    // account for the de-allocations /outside/ that scope.  Also, remember the
+    // allocation of the managed object when accounting for total allocations
+    // and deallocations.
+
+    bsls::Types::Int64 nArgCopies = 0;
+
+    switch (N_ARGS) {
+      case 14: if (!N14) { ++nArgCopies; }  // fall-through
+      case 13: if (!N13) { ++nArgCopies; }  // fall-through
+      case 12: if (!N12) { ++nArgCopies; }  // fall-through
+      case 11: if (!N11) { ++nArgCopies; }  // fall-through
+      case 10: if (!N10) { ++nArgCopies; }  // fall-through
+      case  9: if (!N09) { ++nArgCopies; }  // fall-through
+      case  8: if (!N08) { ++nArgCopies; }  // fall-through
+      case  7: if (!N07) { ++nArgCopies; }  // fall-through
+      case  6: if (!N06) { ++nArgCopies; }  // fall-through
+      case  5: if (!N05) { ++nArgCopies; }  // fall-through
+      case  4: if (!N04) { ++nArgCopies; }  // fall-through
+      case  3: if (!N03) { ++nArgCopies; }  // fall-through
+      case  2: if (!N02) { ++nArgCopies; }  // fall-through
+      case  1: if (!N01) { ++nArgCopies; }  // fall-through
+      case  0: break;                       // silence warnings
+    };
+
+    bsls::Types::Int64 nArgMoves = 0;
+
+    switch (N_ARGS) {
+      case 14: if (1 == N14) { ++nArgMoves; }  // fall-through
+      case 13: if (1 == N13) { ++nArgMoves; }  // fall-through
+      case 12: if (1 == N12) { ++nArgMoves; }  // fall-through
+      case 11: if (1 == N11) { ++nArgMoves; }  // fall-through
+      case 10: if (1 == N10) { ++nArgMoves; }  // fall-through
+      case  9: if (1 == N09) { ++nArgMoves; }  // fall-through
+      case  8: if (1 == N08) { ++nArgMoves; }  // fall-through
+      case  7: if (1 == N07) { ++nArgMoves; }  // fall-through
+      case  6: if (1 == N06) { ++nArgMoves; }  // fall-through
+      case  5: if (1 == N05) { ++nArgMoves; }  // fall-through
+      case  4: if (1 == N04) { ++nArgMoves; }  // fall-through
+      case  3: if (1 == N03) { ++nArgMoves; }  // fall-through
+      case  2: if (1 == N02) { ++nArgMoves; }  // fall-through
+      case  1: if (1 == N01) { ++nArgMoves; }  // fall-through
+      case  0: break;                       // silence warnings
+    };
+
+    bslma::TestAllocatorMonitor dam(da);
+
+    {
+        // Arguments for functions.
+
+        Arg01 B01[4] = { VA01, VA01, VA01, VA01 };
+        Arg02 B02[4] = { VA02, VA02, VA02, VA02 };
+        Arg03 B03[4] = { VA03, VA03, VA03, VA03 };
+        Arg04 B04[4] = { VA04, VA04, VA04, VA04 };
+        Arg05 B05[4] = { VA05, VA05, VA05, VA05 };
+        Arg06 B06[4] = { VA06, VA06, VA06, VA06 };
+        Arg07 B07[4] = { VA07, VA07, VA07, VA07 };
+        Arg08 B08[4] = { VA08, VA08, VA08, VA08 };
+        Arg09 B09[4] = { VA09, VA09, VA09, VA09 };
+        Arg10 B10[4] = { VA10, VA10, VA10, VA10 };
+        Arg11 B11[4] = { VA11, VA11, VA11, VA11 };
+        Arg12 B12[4] = { VA12, VA12, VA12, VA12 };
+        Arg13 B13[4] = { VA13, VA13, VA13, VA13 };
+        Arg14 B14[4] = { VA14, VA14, VA14, VA14 };
+
+        bsls::Types::Int64 numAllocationsDA   = da->numAllocations();
+        bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
+
+        bsls::Types::Int64 EXPECTED_DA_ALLOCATIONS_NUM   = 0;
+        bsls::Types::Int64 EXPECTED_DA_DEALLOCATIONS_NUM = 0;
+        bsls::Types::Int64 EXPECTED_SA_ALLOCATIONS_NUM   = 0;
+        bsls::Types::Int64 EXPECTED_SA_DEALLOCATIONS_NUM = 0;
+
+        // Testing 'makemanaged' for type that does NOT USE bslma allocators.
+        {
+            bslma::ManagedPtr<const NotUsingType> mX;
+
+            switch (N_ARGS) {
+              case 0: {
+                mX = Util::makeManaged<const NotUsingType>();
+              } break;
+              case 1: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01));
+              } break;
+              case 2: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02));
+              } break;
+              case 3: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03));
+              } break;
+              case 4: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04));
+              } break;
+              case 5: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05));
+              } break;
+              case 6: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06));
+              } break;
+              case 7: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07));
+              } break;
+              case 8: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07),
+                                                     testArg(B08[0], MOVE_08));
+              } break;
+              case 9: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07),
+                                                     testArg(B08[0], MOVE_08),
+                                                     testArg(B09[0], MOVE_09));
+              } break;
+              case 10: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07),
+                                                     testArg(B08[0], MOVE_08),
+                                                     testArg(B09[0], MOVE_09),
+                                                     testArg(B10[0], MOVE_10));
+              } break;
+              case 11: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07),
+                                                     testArg(B08[0], MOVE_08),
+                                                     testArg(B09[0], MOVE_09),
+                                                     testArg(B10[0], MOVE_10),
+                                                     testArg(B11[0], MOVE_11));
+              } break;
+              case 12: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07),
+                                                     testArg(B08[0], MOVE_08),
+                                                     testArg(B09[0], MOVE_09),
+                                                     testArg(B10[0], MOVE_10),
+                                                     testArg(B11[0], MOVE_11),
+                                                     testArg(B12[0], MOVE_12));
+              } break;
+              case 13: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07),
+                                                     testArg(B08[0], MOVE_08),
+                                                     testArg(B09[0], MOVE_09),
+                                                     testArg(B10[0], MOVE_10),
+                                                     testArg(B11[0], MOVE_11),
+                                                     testArg(B12[0], MOVE_12),
+                                                     testArg(B13[0], MOVE_13));
+              } break;
+              case 14: {
+                mX = Util::makeManaged<const NotUsingType>(
+                                                     testArg(B01[0], MOVE_01),
+                                                     testArg(B02[0], MOVE_02),
+                                                     testArg(B03[0], MOVE_03),
+                                                     testArg(B04[0], MOVE_04),
+                                                     testArg(B05[0], MOVE_05),
+                                                     testArg(B06[0], MOVE_06),
+                                                     testArg(B07[0], MOVE_07),
+                                                     testArg(B08[0], MOVE_08),
+                                                     testArg(B09[0], MOVE_09),
+                                                     testArg(B10[0], MOVE_10),
+                                                     testArg(B11[0], MOVE_11),
+                                                     testArg(B12[0], MOVE_12),
+                                                     testArg(B13[0], MOVE_13),
+                                                     testArg(B14[0], MOVE_14));
+              } break;
+            };
+
+            // Verify memory allocation.
+
+            EXPECTED_DA_ALLOCATIONS_NUM =
+                         numAllocationsDA  // previous value
+                       + 1                 // block for object itself
+                       + nArgCopies;       // blocks for copied object's fields
+            ASSERTV(EXPECTED_DA_ALLOCATIONS_NUM,   da->numAllocations(),
+                    EXPECTED_DA_ALLOCATIONS_NUM == da->numAllocations());
+            ASSERTV(numDeallocationsDA,   da->numDeallocations(),
+                    numDeallocationsDA == da->numDeallocations());
+
+            // Verify the value of the resulting object.
+
+            ASSERTV(EXP_NU == *mX);
+
+            // Verify, that allocator wasn't passed as a last parameter to the
+            // managed object constructor.
+
+            ASSERTV(mX->allocator(), 0 == mX->allocator());
+
+            ASSERT(A01[0].movedFrom() == B01[0].movedFrom());
+            ASSERT(A02[0].movedFrom() == B02[0].movedFrom());
+            ASSERT(A03[0].movedFrom() == B03[0].movedFrom());
+            ASSERT(A04[0].movedFrom() == B04[0].movedFrom());
+            ASSERT(A05[0].movedFrom() == B05[0].movedFrom());
+            ASSERT(A06[0].movedFrom() == B06[0].movedFrom());
+            ASSERT(A07[0].movedFrom() == B07[0].movedFrom());
+            ASSERT(A08[0].movedFrom() == B08[0].movedFrom());
+            ASSERT(A09[0].movedFrom() == B09[0].movedFrom());
+            ASSERT(A10[0].movedFrom() == B10[0].movedFrom());
+            ASSERT(A11[0].movedFrom() == B11[0].movedFrom());
+            ASSERT(A12[0].movedFrom() == B12[0].movedFrom());
+            ASSERT(A13[0].movedFrom() == B13[0].movedFrom());
+            ASSERT(A14[0].movedFrom() == B14[0].movedFrom());
+
+            // Renew the current value.
+
+            numAllocationsDA = da->numAllocations();
+        }
+
+        // Verify memory deallocation.
+
+        EXPECTED_DA_DEALLOCATIONS_NUM =
+                       numDeallocationsDA  // previous value
+                     + 1                   // block for object itself
+                     + nArgCopies          // blocks for copied object's fields
+                     + nArgMoves;          // blocks for moved object's fields
+
+        ASSERTV(numAllocationsDA,   da->numAllocations(),
+                numAllocationsDA == da->numAllocations());
+        ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
+                EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
+
+        // Renew the current value.
+        numDeallocationsDA = da->numDeallocations();
+
+        // Testing 'makemanaged' for type that USES bslma allocators.
+        {
+            bslma::ManagedPtr<const UsingType> mX;
+
+            switch (N_ARGS) {
+              case 0: {
+                mX = Util::makeManaged<const UsingType>();
+              } break;
+              case 1: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01));
+              } break;
+              case 2: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02));
+              } break;
+              case 3: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03));
+              } break;
+              case 4: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04));
+              } break;
+              case 5: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05));
+              } break;
+              case 6: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06));
+              } break;
+              case 7: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07));
+              } break;
+              case 8: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07),
+                                                     testArg(B08[1], MOVE_08));
+              } break;
+              case 9: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07),
+                                                     testArg(B08[1], MOVE_08),
+                                                     testArg(B09[1], MOVE_09));
+              } break;
+              case 10: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07),
+                                                     testArg(B08[1], MOVE_08),
+                                                     testArg(B09[1], MOVE_09),
+                                                     testArg(B10[1], MOVE_10));
+              } break;
+              case 11: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07),
+                                                     testArg(B08[1], MOVE_08),
+                                                     testArg(B09[1], MOVE_09),
+                                                     testArg(B10[1], MOVE_10),
+                                                     testArg(B11[1], MOVE_11));
+              } break;
+              case 12: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07),
+                                                     testArg(B08[1], MOVE_08),
+                                                     testArg(B09[1], MOVE_09),
+                                                     testArg(B10[1], MOVE_10),
+                                                     testArg(B11[1], MOVE_11),
+                                                     testArg(B12[1], MOVE_12));
+              } break;
+              case 13: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07),
+                                                     testArg(B08[1], MOVE_08),
+                                                     testArg(B09[1], MOVE_09),
+                                                     testArg(B10[1], MOVE_10),
+                                                     testArg(B11[1], MOVE_11),
+                                                     testArg(B12[1], MOVE_12),
+                                                     testArg(B13[1], MOVE_13));
+              } break;
+              case 14: {
+                mX = Util::makeManaged<const UsingType>(
+                                                     testArg(B01[1], MOVE_01),
+                                                     testArg(B02[1], MOVE_02),
+                                                     testArg(B03[1], MOVE_03),
+                                                     testArg(B04[1], MOVE_04),
+                                                     testArg(B05[1], MOVE_05),
+                                                     testArg(B06[1], MOVE_06),
+                                                     testArg(B07[1], MOVE_07),
+                                                     testArg(B08[1], MOVE_08),
+                                                     testArg(B09[1], MOVE_09),
+                                                     testArg(B10[1], MOVE_10),
+                                                     testArg(B11[1], MOVE_11),
+                                                     testArg(B12[1], MOVE_12),
+                                                     testArg(B13[1], MOVE_13),
+                                                     testArg(B14[1], MOVE_14));
+              } break;
+            };
+
+            // Verify memory allocation.
+
+            EXPECTED_DA_ALLOCATIONS_NUM =
+                         numAllocationsDA  // previous value
+                       + 1                 // block for object itself
+                       + nArgCopies;       // blocks for copied object's fields
+
+            ASSERTV(EXPECTED_DA_ALLOCATIONS_NUM,   da->numAllocations(),
+                    EXPECTED_DA_ALLOCATIONS_NUM == da->numAllocations());
+            ASSERTV(numDeallocationsDA,   da->numDeallocations(),
+                    numDeallocationsDA == da->numDeallocations());
+
+            // Verify the value of the resulting object.
+
+            ASSERTV(EXP_U == *mX);
+
+            // Verify, that allocator wasn't passed as a last parameter to the
+            // managed object constructor.
+
+            ASSERTV(mX->allocator(), 0 == mX->allocator());
+
+            ASSERT(A01[1].movedFrom() == B01[1].movedFrom());
+            ASSERT(A02[1].movedFrom() == B02[1].movedFrom());
+            ASSERT(A03[1].movedFrom() == B03[1].movedFrom());
+            ASSERT(A04[1].movedFrom() == B04[1].movedFrom());
+            ASSERT(A05[1].movedFrom() == B05[1].movedFrom());
+            ASSERT(A06[1].movedFrom() == B06[1].movedFrom());
+            ASSERT(A07[1].movedFrom() == B07[1].movedFrom());
+            ASSERT(A08[1].movedFrom() == B08[1].movedFrom());
+            ASSERT(A09[1].movedFrom() == B09[1].movedFrom());
+            ASSERT(A10[1].movedFrom() == B10[1].movedFrom());
+            ASSERT(A11[1].movedFrom() == B11[1].movedFrom());
+            ASSERT(A12[1].movedFrom() == B12[1].movedFrom());
+            ASSERT(A13[1].movedFrom() == B13[1].movedFrom());
+            ASSERT(A14[1].movedFrom() == B14[1].movedFrom());
+
+            // Renew the current value.
+
+            numAllocationsDA = da->numAllocations();
+        }
+
+        // Verify memory deallocation.
+
+        EXPECTED_DA_DEALLOCATIONS_NUM =
+                       numDeallocationsDA  // previous value
+                     + 1                   // block for object itself
+                     + nArgCopies          // blocks for copied object's fields
+                     + nArgMoves;          // blocks for moved object's fields
+
+        ASSERTV(numAllocationsDA,   da->numAllocations(),
+                numAllocationsDA == da->numAllocations());
+        ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
+                EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
+
+        // Renew the current value.
+        
+        numDeallocationsDA = da->numDeallocations();
+        
+        // Testing 'allocateManaged' for type that does NOT USE bslma
+        // allocators.
+
+        bslma::TestAllocator sa;
+        ASSERTV(0 == sa.numAllocations());
+        ASSERTV(0 == sa.numDeallocations());
+
+        bsls::Types::Int64 numAllocationsSA   = sa.numAllocations();
+        bsls::Types::Int64 numDeallocationsSA = sa.numDeallocations();
+
+        {
+            bslma::ManagedPtr<const NotUsingType> mX;
+
+            switch (N_ARGS) {
+              case 0: {
+                mX = Util::allocateManaged<const NotUsingType>(&sa);
+              } break;
+              case 1: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01));
+              } break;
+              case 2: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02));
+              } break;
+              case 3: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03));
+              } break;
+              case 4: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04));
+              } break;
+              case 5: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05));
+              } break;
+              case 6: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06));
+              } break;
+              case 7: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07));
+              } break;
+              case 8: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07),
+                                                     testArg(B08[2], MOVE_08));
+              } break;
+              case 9: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07),
+                                                     testArg(B08[2], MOVE_08),
+                                                     testArg(B09[2], MOVE_09));
+              } break;
+              case 10: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07),
+                                                     testArg(B08[2], MOVE_08),
+                                                     testArg(B09[2], MOVE_09),
+                                                     testArg(B10[2], MOVE_10));
+              } break;
+              case 11: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07),
+                                                     testArg(B08[2], MOVE_08),
+                                                     testArg(B09[2], MOVE_09),
+                                                     testArg(B10[2], MOVE_10),
+                                                     testArg(B11[2], MOVE_11));
+              } break;
+              case 12: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07),
+                                                     testArg(B08[2], MOVE_08),
+                                                     testArg(B09[2], MOVE_09),
+                                                     testArg(B10[2], MOVE_10),
+                                                     testArg(B11[2], MOVE_11),
+                                                     testArg(B12[2], MOVE_12));
+              } break;
+              case 13: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07),
+                                                     testArg(B08[2], MOVE_08),
+                                                     testArg(B09[2], MOVE_09),
+                                                     testArg(B10[2], MOVE_10),
+                                                     testArg(B11[2], MOVE_11),
+                                                     testArg(B12[2], MOVE_12),
+                                                     testArg(B13[2], MOVE_13));
+              } break;
+              case 14: {
+                mX = Util::allocateManaged<const NotUsingType>(
+                                                     &sa,
+                                                     testArg(B01[2], MOVE_01),
+                                                     testArg(B02[2], MOVE_02),
+                                                     testArg(B03[2], MOVE_03),
+                                                     testArg(B04[2], MOVE_04),
+                                                     testArg(B05[2], MOVE_05),
+                                                     testArg(B06[2], MOVE_06),
+                                                     testArg(B07[2], MOVE_07),
+                                                     testArg(B08[2], MOVE_08),
+                                                     testArg(B09[2], MOVE_09),
+                                                     testArg(B10[2], MOVE_10),
+                                                     testArg(B11[2], MOVE_11),
+                                                     testArg(B12[2], MOVE_12),
+                                                     testArg(B13[2], MOVE_13),
+                                                     testArg(B14[2], MOVE_14));
+              } break;
+            };
+
+            // Verify memory allocation.
+
+            EXPECTED_DA_ALLOCATIONS_NUM =
+                         numAllocationsDA  // previous value
+                       + nArgCopies;       // blocks for copied object's fields
+
+            ASSERTV(EXPECTED_DA_ALLOCATIONS_NUM,   da->numAllocations(),
+                    EXPECTED_DA_ALLOCATIONS_NUM == da->numAllocations());
+            ASSERTV(numDeallocationsDA,   da->numDeallocations(),
+                    numDeallocationsDA == da->numDeallocations());
+
+            EXPECTED_SA_ALLOCATIONS_NUM = 1;  // block for object itself
+
+            ASSERTV(EXPECTED_SA_ALLOCATIONS_NUM,   sa.numAllocations(),
+                    EXPECTED_SA_ALLOCATIONS_NUM == sa.numAllocations());
+            ASSERTV(numDeallocationsSA,   sa.numDeallocations(),
+                    numDeallocationsSA == sa.numDeallocations());
+
+            // Verify the value of the resulting object.
+
+            ASSERTV(EXP_NU == *mX);
+
+            // Verify, that allocator wasn't passed as a last parameter to the
+            // managed object constructor.
+
+            ASSERTV(mX->allocator(), 0 == mX->allocator());
+
+            ASSERT(A01[0].movedFrom() == B01[2].movedFrom());
+            ASSERT(A02[0].movedFrom() == B02[2].movedFrom());
+            ASSERT(A03[0].movedFrom() == B03[2].movedFrom());
+            ASSERT(A04[0].movedFrom() == B04[2].movedFrom());
+            ASSERT(A05[0].movedFrom() == B05[2].movedFrom());
+            ASSERT(A06[0].movedFrom() == B06[2].movedFrom());
+            ASSERT(A07[0].movedFrom() == B07[2].movedFrom());
+            ASSERT(A08[0].movedFrom() == B08[2].movedFrom());
+            ASSERT(A09[0].movedFrom() == B09[2].movedFrom());
+            ASSERT(A10[0].movedFrom() == B10[2].movedFrom());
+            ASSERT(A11[0].movedFrom() == B11[2].movedFrom());
+            ASSERT(A12[0].movedFrom() == B12[2].movedFrom());
+            ASSERT(A13[0].movedFrom() == B13[2].movedFrom());
+            ASSERT(A14[0].movedFrom() == B14[2].movedFrom());
+
+            // Renew the current value.
+
+            numAllocationsDA = da->numAllocations();
+            numAllocationsSA = sa.numAllocations();
+        }
+
+        // Verify memory deallocation.
+
+        EXPECTED_DA_DEALLOCATIONS_NUM =
+                       numDeallocationsDA  // previous value
+                     + nArgCopies          // blocks for copied object's fields
+                     + nArgMoves;          // blocks for moved object's fields
+
+        ASSERTV(numAllocationsDA,   da->numAllocations(),
+                numAllocationsDA == da->numAllocations());
+        ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
+                EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
+
+        EXPECTED_SA_DEALLOCATIONS_NUM = 1;  // block for object itself
+
+        ASSERTV(numAllocationsSA,   sa.numAllocations(),
+                numAllocationsSA == sa.numAllocations());
+        ASSERTV(EXPECTED_SA_DEALLOCATIONS_NUM,   sa.numDeallocations(),
+                EXPECTED_SA_DEALLOCATIONS_NUM == sa.numDeallocations());
+
+        // Renew the current value.
+        numDeallocationsDA = da->numDeallocations();
+        numDeallocationsSA = sa.numDeallocations();
+
+        // Testing 'allocateManaged' for type that USES bslma allocators.
+        {
+            bslma::ManagedPtr<const UsingType> mX;
+
+            switch (N_ARGS) {
+              case 0: {
+                mX = Util::allocateManaged<const UsingType>(&sa);
+              } break;
+              case 1: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01));
+              } break;
+              case 2: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02));
+              } break;
+              case 3: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03));
+              } break;
+              case 4: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04));
+              } break;
+              case 5: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05));
+              } break;
+              case 6: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06));
+              } break;
+              case 7: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07));
+              } break;
+              case 8: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07),
+                                                     testArg(B08[3], MOVE_08));
+              } break;
+              case 9: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07),
+                                                     testArg(B08[3], MOVE_08),
+                                                     testArg(B09[3], MOVE_09));
+              } break;
+              case 10: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07),
+                                                     testArg(B08[3], MOVE_08),
+                                                     testArg(B09[3], MOVE_09),
+                                                     testArg(B10[3], MOVE_10));
+              } break;
+              case 11: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07),
+                                                     testArg(B08[3], MOVE_08),
+                                                     testArg(B09[3], MOVE_09),
+                                                     testArg(B10[3], MOVE_10),
+                                                     testArg(B11[3], MOVE_11));
+              } break;
+              case 12: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07),
+                                                     testArg(B08[3], MOVE_08),
+                                                     testArg(B09[3], MOVE_09),
+                                                     testArg(B10[3], MOVE_10),
+                                                     testArg(B11[3], MOVE_11),
+                                                     testArg(B12[3], MOVE_12));
+              } break;
+              case 13: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07),
+                                                     testArg(B08[3], MOVE_08),
+                                                     testArg(B09[3], MOVE_09),
+                                                     testArg(B10[3], MOVE_10),
+                                                     testArg(B11[3], MOVE_11),
+                                                     testArg(B12[3], MOVE_12),
+                                                     testArg(B13[3], MOVE_13));
+              } break;
+              case 14: {
+                mX = Util::allocateManaged<const UsingType>(
+                                                     &sa,
+                                                     testArg(B01[3], MOVE_01),
+                                                     testArg(B02[3], MOVE_02),
+                                                     testArg(B03[3], MOVE_03),
+                                                     testArg(B04[3], MOVE_04),
+                                                     testArg(B05[3], MOVE_05),
+                                                     testArg(B06[3], MOVE_06),
+                                                     testArg(B07[3], MOVE_07),
+                                                     testArg(B08[3], MOVE_08),
+                                                     testArg(B09[3], MOVE_09),
+                                                     testArg(B10[3], MOVE_10),
+                                                     testArg(B11[3], MOVE_11),
+                                                     testArg(B12[3], MOVE_12),
+                                                     testArg(B13[3], MOVE_13),
+                                                     testArg(B14[3], MOVE_14));
+              } break;
+            };
+
+            // Verify memory allocation.  As supplied allocator is propagated
+            // to the managed object, there should not be any allocations from
+            // the default allocator.  But the constructor of the managed
+            // object ('AllocEmplacableTestType') creates a temporary object
+            // using default allocator for each argument, that expected to be
+            // copied (actually, temporary objects are created for moved
+            // objects either, but these actions do not required memory
+            // operations). Also the move constructor of the arguments of the
+            // managed object ('AllocArgumentType') deallocates memory of the
+            // moved object if supplied and argument's allocators are not
+            // equal.  And these operations should be verified.
+
+            EXPECTED_DA_ALLOCATIONS_NUM =
+                              numAllocationsDA  // previous value
+                            + nArgCopies;       // blocks for temporary objects
+
+            EXPECTED_DA_DEALLOCATIONS_NUM =
+                       numDeallocationsDA  // previous value
+                     + nArgCopies          // blocks for temporary objects
+                     + nArgMoves;          // blocks for moved object's fields
+
+            ASSERTV(EXPECTED_DA_ALLOCATIONS_NUM,     da->numAllocations(),
+                    EXPECTED_DA_ALLOCATIONS_NUM   == da->numAllocations());
+            ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
+                    EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
+
+            EXPECTED_SA_ALLOCATIONS_NUM =
+                         numAllocationsSA  // previous value
+                       + 1                 // block for object itself
+                       + nArgCopies        // blocks for copied object's fields
+                       + nArgMoves;        // blocks for moved object's fields
+
+            ASSERTV(EXPECTED_SA_ALLOCATIONS_NUM,   sa.numAllocations(),
+                    EXPECTED_SA_ALLOCATIONS_NUM == sa.numAllocations());
+            ASSERTV(numDeallocationsSA,   sa.numDeallocations(),
+                    numDeallocationsSA == sa.numDeallocations());
+
+            // Verify the value of the resulting object.
+
+            ASSERTV(EXP_U == *mX);
+
+            // Verify, that allocator wasn't passed as a last parameter to the
+            // managed object constructor.
+
+            ASSERTV(&sa, mX->allocator(), &sa == mX->allocator());
+
+            ASSERT(A01[1].movedFrom() == B01[3].movedFrom());
+            ASSERT(A02[1].movedFrom() == B02[3].movedFrom());
+            ASSERT(A03[1].movedFrom() == B03[3].movedFrom());
+            ASSERT(A04[1].movedFrom() == B04[3].movedFrom());
+            ASSERT(A05[1].movedFrom() == B05[3].movedFrom());
+            ASSERT(A06[1].movedFrom() == B06[3].movedFrom());
+            ASSERT(A07[1].movedFrom() == B07[3].movedFrom());
+            ASSERT(A08[1].movedFrom() == B08[3].movedFrom());
+            ASSERT(A09[1].movedFrom() == B09[3].movedFrom());
+            ASSERT(A10[1].movedFrom() == B10[3].movedFrom());
+            ASSERT(A11[1].movedFrom() == B11[3].movedFrom());
+            ASSERT(A12[1].movedFrom() == B12[3].movedFrom());
+            ASSERT(A13[1].movedFrom() == B13[3].movedFrom());
+            ASSERT(A14[1].movedFrom() == B14[3].movedFrom());
+
+            // Renew the current value.
+
+            numAllocationsDA   = da->numAllocations();
+            numDeallocationsDA = da->numDeallocations();
+            numAllocationsSA   = sa.numAllocations();
+        }
+
+        // Verify memory deallocation.
+
+        ASSERTV(numAllocationsDA,   da->numAllocations(),
+                numAllocationsDA == da->numAllocations());
+        ASSERTV(numDeallocationsDA,   da->numDeallocations(),
+                numDeallocationsDA == da->numDeallocations());
+
+        EXPECTED_SA_DEALLOCATIONS_NUM =
+                       numDeallocationsSA  // previous value
+                     + 1                   // block for object itself
+                     + nArgCopies          // blocks for copied object's fields
+                     + nArgMoves;          // blocks for moved object's fields
+
+        ASSERTV(numAllocationsSA,   sa.numAllocations(),
+                numAllocationsSA == sa.numAllocations());
+        ASSERTV(EXPECTED_SA_DEALLOCATIONS_NUM,   sa.numDeallocations(),
+                EXPECTED_SA_DEALLOCATIONS_NUM == sa.numDeallocations());
+    }
+    ASSERT(dam.isInUseSame());
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -6812,7 +9454,7 @@ int main(int argc, char *argv[])
     ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING CASTING EXAMPLES
         //
@@ -6863,7 +9505,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(numdels, 20202 == numdels);
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6888,6 +9530,315 @@ int main(int argc, char *argv[])
         USAGE_EXAMPLES::testInplaceCreation();               // Example 5
         USAGE_EXAMPLES::testUsesAllocatorInplaceCreation();  // Example 5
 
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeManaged' and 'allocateManaged'
+        //
+        // Concerns:
+        //: 1 'makeManaged' and 'allocateManaged' return a 'ManagedPtr'
+        //:   pointing to a new object of the specified 'T' type, where 'T'
+        //:   must be a complete type.
+        //:
+        //: 2 There is only one allocation to create the managed object, unless
+        //:   the managed object performs additional allocations.
+        //:
+        //: 3 The appropriate constructor for 'T' is called, forwarding all
+        //:   of the supplied arguments to that constructor, in the supplied
+        //:   order.
+        //:
+        //: 4 'makeManaged' unconditionally passes only supplied arguments to
+        //:   the constructor of the specified 'T' type without propagating the
+        //:   default allocator regardless of whether the 'T' uses bslma
+        //:   allocators or not.
+        //:
+        //: 5 'allocateManaged' passes supplied allocator as an extra argument
+        //:    in the final position if the 'T' uses bslma allocators.
+        //
+        // Plan:
+        //: 1 Use 'makeManaged' and 'allocateManaged' to call 15 different
+        //:   constructors of the special test type 'AllocEmplacableTestType'
+        //:   and supply them with the appropriate arguments.
+        //:
+        //: 2 Verify that the obtained managed object is initialized using the
+        //:   arguments supplied, comparing it with the control object created
+        //:   via explicit constructor call.
+        //:
+        //: 3 Verify that the memory for managed object is allocated from the
+        //:   appropriate allocator (default for 'makeManaged' and supplied for
+        //:   'allocateManaged').
+        //:
+        //: 4 Verify the number of memory allocations.  (C-2..3)
+        //:
+        //: 5 Verify that default allocator is not propagated by 'makeManaged'
+        //:   to the constructor of the managed object under any circumstances.
+        //:   (C-4)
+        //:
+        //: 6 Verify that supplied allocator is propagated by 'allocateManaged'
+        //:   to the constructor of the managed object, if it's type uses bslma
+        //:   allocators and is not propagated otherwise.
+        //:   (C-5)
+        //:
+        //: 7 Let the managed pointer go out of scope and verify that all
+        //:   allocated memory is successfully released.  (C-1)
+        //
+        // Testing:
+        //   ManagedPtr makeManaged(ARGS&&... args);
+        //   ManagedPtr allocateManaged(Allocator *alloc, ARGS&&... args);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'makeManaged' and 'allocateManaged'"
+                            "\n===========================================\n");
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
+
+        Harness::testCase18_RunTest<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+
+        // 1 argument
+
+        Harness::testCase18_RunTest<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+
+        // 2 arguments
+
+        Harness::testCase18_RunTest<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+
+        // 3 arguments
+
+        Harness::testCase18_RunTest<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
+
+# if !defined(BSLSTL_MANAGEDPTR_LIMIT_TESTING_COMPLEXITY)
+
+        // 4 arguments
+
+        Harness::testCase18_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+
+        // 5 arguments
+
+        Harness::testCase18_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+
+        // 6 arguments
+
+        Harness::testCase18_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+
+        // 7 arguments
+
+        Harness::testCase18_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+
+        // 8 arguments
+
+        Harness::testCase18_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+
+        // 9 arguments
+
+        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+
+        // 10 arguments
+
+        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>();
+        Harness::testCase18_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+
+        // 11 arguments
+
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>();
+        Harness::testCase18_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+
+        // 12 arguments
+
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>();
+        Harness::testCase18_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+
+        // 13 arguments
+
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>();
+        Harness::testCase18_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+
+# else // BSLSTL_MANAGEDPTR_LIMIT_TESTING_COMPLEXITY)
+
+        // 4 arguments
+
+        Harness::testCase18_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+
+        // 5 arguments
+
+        Harness::testCase18_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+
+        // 6 arguments
+
+        Harness::testCase18_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+
+        // 7 arguments
+
+        Harness::testCase18_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+
+        // 8 arguments
+
+        Harness::testCase18_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+
+        // 9 arguments
+
+        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+
+        // 10 arguments
+
+        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+
+        // 11 arguments
+
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+
+        // 12 arguments
+
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+
+        // 13 arguments
+
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+
+# endif // BSLSTL_MANAGEDPTR_LIMIT_TESTING_COMPLEXITY)
+
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
+        Harness::testCase18_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
+
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
+
+        Harness::testCase18_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_RunTest< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
       } break;
       case 17: {
         // --------------------------------------------------------------------
