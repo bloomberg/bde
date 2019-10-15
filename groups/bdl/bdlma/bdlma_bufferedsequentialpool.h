@@ -337,23 +337,66 @@ class BufferedSequentialPool {
     // construction.  Note that in no case will the buffered sequential pool
     // attempt to deallocate the external buffer.
 
+    // PRIVATE TYPES
+    enum BufferManagerClientBitsMasks {
+        k_ALIGNMENT_STRATEGY_MASK        = 2 | 1,
+        k_SEQUENTIAL_POOL_IS_CREATED_BIT = 4,
+        k_GROWTH_STRATEGY_MASK           = 8,
+        k_GROWTH_STRATEGY_SHIFT          = 3
+    };
+
     // DATA
-    char                   *d_initialBuffer_p;  // external buffer supplied at
-                                                // construction
-
-    bsls::Types::size_type  d_initialSize;      // size of external buffer
-
     BufferManager           d_bufferManager;    // memory manager for current
                                                 // buffer
 
-    SequentialPool          d_pool;             // memory manager for
-                                                // allocations not from the
-                                                // buffer
+    bsls::Types::size_type  d_maxBufferSize;    // max buffer size parameter to
+                                                // be passed to the sequential
+                                                // allocator upon construction
+
+    union {
+        bslma::Allocator   *d_allocator_p;      // allocator we were
+                                                // constructed with if the
+                                                // sequential pool hasn't
+                                                // been created
+
+        SequentialPool     *d_pool_p;           // memory manager for
+    };                                          // allocations not from the
+                                                // buffer, if the sequential
+                                                // pool has been created
 
   private:
     // NOT IMPLEMENTED
     BufferedSequentialPool(const BufferedSequentialPool&);
     BufferedSequentialPool& operator=(const BufferedSequentialPool&);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void createSequentialPool(bsls::Types::size_type currentAllocationSize);
+        // Allocate and construct the sequential pool, using a block size of
+        // 'bufferManager.bufferSize()'.  Use the specified
+        // 'currentAllocationSize' to determine if the current allocation
+        // attempt will fit in the first block, and thus what boolean value to
+        // pass to the sequental pool's 'allocateInitialBuffer' argument.
+
+    void setStrategies(bsls::BlockGrowth::Strategy growthStrategy,
+                       bsls::Alignment::Strategy   alignmentStrategy);
+        // Create a bit pattern and store into the 'clientBits' field of
+        // 'd_ufferManager' to reflect the specified 'growthStrategy' and
+        // 'alignmentStrategy', with the 'k_SEQUENTIAL_POOL_IS_ALLOCATED_BIT'
+        // clear.  Note that this is called by c'tors.
+
+    // PRIVATE ACCESSORS
+    bsls::Alignment::Strategy alignmentStrategy() const;
+        // Return the alignment strategy to pass to the sequential pool if and
+        // when we create it.
+
+    bsls::BlockGrowth::Strategy growthStrategy() const;
+        // Return the growth strategy to pass to the sequential pool if and
+        // when we create it.
+
+    bool sequentialPoolIsCreated() const;
+        // Return 'true' if the sequential pool has been created and 'false'
+        // otherwise.
 
   public:
     // CREATORS
@@ -476,8 +519,7 @@ class BufferedSequentialPool {
         // a pointer obtained from this object prior to this call to 'rewind'
         // is undefined.
 
-                                  // Aspects
-
+    // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to allocate memory.  Note
         // that this allocator can not be used to deallocate memory
@@ -559,11 +601,38 @@ namespace bdlma {
                        // class BufferedSequentialPool
                        // ----------------------------
 
+// PRIVATE ACCESSORS
+inline
+bsls::Alignment::Strategy BufferedSequentialPool::alignmentStrategy() const
+{
+    return static_cast<bsls::Alignment::Strategy>(
+                     d_bufferManager.clientBits() & k_ALIGNMENT_STRATEGY_MASK);
+}
+
+inline
+bsls::BlockGrowth::Strategy BufferedSequentialPool::growthStrategy() const
+{
+    return static_cast<bsls::BlockGrowth::Strategy>(
+                     (d_bufferManager.clientBits() & k_GROWTH_STRATEGY_MASK) >>
+                                                      k_GROWTH_STRATEGY_SHIFT);
+}
+
+inline
+bool BufferedSequentialPool::sequentialPoolIsCreated() const
+{
+    return d_bufferManager.clientBits() & k_SEQUENTIAL_POOL_IS_CREATED_BIT;
+}
+
 // CREATORS
 inline
 BufferedSequentialPool::~BufferedSequentialPool()
 {
-    release();
+    // 'd_bufferManager' doesn't need to be released, it will destroy itself
+    // just fine.
+
+    if (sequentialPoolIsCreated()) {
+        d_pool_p->allocator()->deleteObjectRaw(d_pool_p);
+    }
 }
 
 // MANIPULATORS
@@ -580,7 +649,11 @@ void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
         return result;                                                // RETURN
     }
 
-    return d_pool.allocate(size);
+    if (false == sequentialPoolIsCreated()) {
+        this->createSequentialPool(size);
+    }
+
+    return d_pool_p->allocate(size);
 }
 
 template <class TYPE>
@@ -600,7 +673,7 @@ template <class TYPE>
 inline
 void BufferedSequentialPool::deleteObject(const TYPE *object)
 {
-    deleteObjectRaw(object);
+    this->deleteObjectRaw(object);
 }
 
 inline
@@ -609,7 +682,9 @@ void BufferedSequentialPool::release()
     d_bufferManager.release();  // Reset the internal cursor in the current
                                 // block.
 
-    d_pool.release();
+    if (sequentialPoolIsCreated()) {
+        d_pool_p->release();
+    }
 }
 
 inline
@@ -618,7 +693,9 @@ void BufferedSequentialPool::rewind()
     d_bufferManager.release();  // Reset the internal cursor in the current
                                 // block.
 
-    d_pool.rewind();
+    if (sequentialPoolIsCreated()) {
+        d_pool_p->rewind();
+    }
 }
 
 // Aspects
@@ -626,7 +703,8 @@ void BufferedSequentialPool::rewind()
 inline
 bslma::Allocator *BufferedSequentialPool::allocator() const
 {
-    return d_pool.allocator();
+    return sequentialPoolIsCreated() ? d_pool_p->allocator()
+                                     : d_allocator_p;
 }
 
 }  // close package namespace
