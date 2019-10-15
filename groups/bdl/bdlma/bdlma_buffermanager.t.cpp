@@ -70,14 +70,13 @@ using namespace bsl;
 // [ 4] char *replaceBuffer(char *newBuffer, int newBufferSize);
 // [ 5] void release();
 // [ 6] void reset();
-// [ 2] void setClientBits(unsigned short);
 // [10] int truncate(void *address, int originalSize, int newSize);
 //
 // // ACCESSORS
+// [ 2] bsls::Alignment::Strategy alignmentStrategy() const;
 // [ 2] char *buffer() const;
 // [ 2] int bufferSize() const;
 // [11] int calculateAlignmentOffsetFromSize(address, size) const;
-// [ 2] unsigned short clientBits() const;
 // [ 7] bool hasSufficientCapacity(int size) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -1740,8 +1739,7 @@ int main(int argc, char *argv[])
         //   ~bdlma::BufferManager();
         //   char *buffer() const;
         //   int bufferSize() const;
-        //   unsigned short clientBits() const;
-        //   void setClientBits(unsigned short);
+        //   bsls::Alignment::Strategy alignmentStrategy() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTORS / ACCESSORS TEST" << endl
@@ -1769,9 +1767,13 @@ int main(int argc, char *argv[])
                           << endl;
         {
             Obj mV;
-            Obj mW(bsls::Alignment::BSLS_NATURAL);
-            Obj mX(bsls::Alignment::BSLS_MAXIMUM);
-            Obj mY(bsls::Alignment::BSLS_BYTEALIGNED);
+            Obj mW(bsls::Alignment::BSLS_NATURAL);         const Obj& W = mW;
+            Obj mX(bsls::Alignment::BSLS_MAXIMUM);         const Obj& X = mX;
+            Obj mY(bsls::Alignment::BSLS_BYTEALIGNED);     const Obj& Y = mY;
+
+            ASSERT(bsls::Alignment::BSLS_NATURAL     == W.alignmentStrategy());
+            ASSERT(bsls::Alignment::BSLS_MAXIMUM     == X.alignmentStrategy());
+            ASSERT(bsls::Alignment::BSLS_BYTEALIGNED == Y.alignmentStrategy());
 
             mV.replaceBuffer(buffer, k_BUFFER_SIZE);
             mW.replaceBuffer(buffer, k_BUFFER_SIZE);
@@ -1835,7 +1837,6 @@ int main(int argc, char *argv[])
             Obj mW(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_NATURAL);
             Obj mX(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_MAXIMUM);
             Obj mY(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_BYTEALIGNED);
-            const Obj& Y = mY;
 
             const int NAT_OFFSET =
                 bsls::AlignmentUtil::calculateAlignmentOffset(
@@ -1885,13 +1886,6 @@ int main(int argc, char *argv[])
             addr = mY.allocate(k_ALLOC_SIZE2);
             LOOP2_ASSERT(&buffer[k_ALLOC_SIZE1], addr,
                          &buffer[k_ALLOC_SIZE1] == addr);
-
-            unsigned short v = 0;
-            for (int ii = 0; ii < 1000; ++ii) {
-                ASSERT(Y.clientBits() == v);
-                v = static_cast<unsigned short>(::rand() ^ (::rand() << 8));
-                mY.setClientBits(v);
-            }
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;

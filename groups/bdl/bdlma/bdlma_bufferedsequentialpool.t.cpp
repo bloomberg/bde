@@ -2061,7 +2061,7 @@ int main(int argc, char *argv[])
         // destruction.
         ASSERT(0 == objectAllocator.numBlocksInUse());
 
-        ASSERT(sizeof(Obj) == 6 * sizeof(void *));
+        ASSERT(sizeof(Obj) == 7 * sizeof(void *));
     } break;
     default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

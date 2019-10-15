@@ -46,13 +46,6 @@ BSLS_IDENT("$Id: $")
 // allocation, when the user knows in advance the maximum amount of memory
 // needed.
 //
-///Client Bits
-///-----------
-// There is an 'unsigned short' stored in every 'BufferManager' object that is
-// not used in any way by the 'BufferManager' and does not influence its
-// behavior, they are bits that may be stored and accessed for the clients use
-// via the 'setClientBits' manipular and 'clientBits' accessor.
-//
 ///Usage
 ///-----
 // Suppose that we need to detect whether there are at least 'n' duplicates
@@ -285,9 +278,6 @@ class BufferManager {
     bsls::Types::IntPtr     d_cursor;            // offset to next available
                                                  // byte in buffer
 
-    unsigned short          d_clientBits;        // Bits to be used by the
-                                                 // client.
-
     unsigned char           d_alignmentAndMask;  // a mask used during the
                                                  // alignment calculation
 
@@ -390,12 +380,6 @@ class BufferManager {
         // of this object with no effect on the outstanding allocated memory
         // blocks.
 
-    void setClientBits(unsigned short value);
-        // Set the client bits to the specified 'value'.  Note that the client
-        // bits have no influence on the 'BufferManagers's behavior and are
-        // just for the client's use to be retrived by the 'clientBits'
-        // accessor.
-
     bsls::Types::size_type truncate(void                   *address,
                                     bsls::Types::size_type  originalSize,
                                     bsls::Types::size_type  newSize);
@@ -412,6 +396,10 @@ class BufferManager {
         // memory at 'address'.
 
     // ACCESSORS
+    bsls::Alignment::Strategy alignmentStrategy() const;
+        // Return the alignment strategy passed to this object at
+        // construction.
+
     char *buffer() const;
         // Return an address providing modifiable access to the buffer
         // currently managed by this object, or 0 if this object currently
@@ -430,9 +418,6 @@ class BufferManager {
         // natural alignment was provided at construction, the result of this
         // method is identical to the result for '0 == size' and maximal
         // alignment.
-
-    unsigned short clientBits() const;
-        // Retrieve the client bits for the client's use.
 
     bool hasSufficientCapacity(bsls::Types::size_type size) const;
         // Return 'true' if there is sufficient memory space in the buffer to
@@ -456,7 +441,6 @@ BufferManager::BufferManager(bsls::Alignment::Strategy strategy)
 : d_buffer_p(0)
 , d_bufferSize(0)
 , d_cursor(0)
-, d_clientBits(0)
 , d_alignmentAndMask(  strategy != bsls::Alignment::BSLS_MAXIMUM
                      ? bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1
                      : 0)
@@ -473,7 +457,6 @@ BufferManager::BufferManager(char                      *buffer,
 : d_buffer_p(buffer)
 , d_bufferSize(bufferSize)
 , d_cursor(0)
-, d_clientBits(0)
 , d_alignmentAndMask(  strategy != bsls::Alignment::BSLS_MAXIMUM
                      ? bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1
                      : 0)
@@ -583,13 +566,16 @@ void BufferManager::reset()
     d_cursor     = 0;
 }
 
+// ACCESSORS
 inline
-void BufferManager::setClientBits(unsigned short value)
+bsls::Alignment::Strategy BufferManager::alignmentStrategy() const
 {
-    d_clientBits = value;
+    return 0 == d_alignmentAndMask ? bsls::Alignment::BSLS_MAXIMUM
+                                   : 1 == d_alignmentOrMask
+                                   ? bsls::Alignment::BSLS_BYTEALIGNED
+                                   : bsls::Alignment::BSLS_NATURAL;
 }
 
-// ACCESSORS
 inline
 char *BufferManager::buffer() const
 {
@@ -619,12 +605,6 @@ int BufferManager::calculateAlignmentOffsetFromSize(
     return static_cast<int>(
                 (alignment - reinterpret_cast<bsls::Types::size_type>(address))
               & (alignment - 1));
-}
-
-inline
-unsigned short BufferManager::clientBits() const
-{
-    return d_clientBits;
 }
 
 inline

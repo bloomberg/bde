@@ -42,17 +42,7 @@ void BufferedSequentialPool::createSequentialPool(
                                                          createInitialBlockNow,
                                                          d_allocator_p);
 
-    d_bufferManager.setClientBits(static_cast<unsigned short>(
-             d_bufferManager.clientBits() | k_SEQUENTIAL_POOL_IS_CREATED_BIT));
-}
-
-inline
-void BufferedSequentialPool::setStrategies(
-                                 bsls::BlockGrowth::Strategy growthStrategy,
-                                 bsls::Alignment::Strategy   alignmentStrategy)
-{
-    d_bufferManager.setClientBits(static_cast<unsigned short>(
-             (growthStrategy << k_GROWTH_STRATEGY_SHIFT) | alignmentStrategy));
+    d_sequentialPoolIsCreated = true;
 }
 
 // CREATORS
@@ -62,13 +52,12 @@ BufferedSequentialPool::BufferedSequentialPool(
                                         bslma::Allocator       *basicAllocator)
 : d_bufferManager(buffer, size)
 , d_maxBufferSize(bsl::numeric_limits<bsls::Types::size_type>::max())
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
-
-    setStrategies(
-             bsls::BlockGrowth::BSLS_GEOMETRIC, bsls::Alignment::BSLS_NATURAL);
 }
 
 BufferedSequentialPool::BufferedSequentialPool(
@@ -78,12 +67,12 @@ BufferedSequentialPool::BufferedSequentialPool(
                                    bslma::Allocator            *basicAllocator)
 : d_bufferManager(buffer, size)
 , d_maxBufferSize(bsl::numeric_limits<bsls::Types::size_type>::max())
+, d_growthStrategy(growthStrategy)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
-
-    setStrategies(growthStrategy, bsls::Alignment::BSLS_NATURAL);
 }
 
 BufferedSequentialPool::BufferedSequentialPool(
@@ -93,12 +82,12 @@ BufferedSequentialPool::BufferedSequentialPool(
                                   bslma::Allocator          *basicAllocator)
 : d_bufferManager(buffer, size, alignmentStrategy)
 , d_maxBufferSize(bsl::numeric_limits<bsls::Types::size_type>::max())
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
-
-    setStrategies(bsls::BlockGrowth::BSLS_GEOMETRIC, alignmentStrategy);
 }
 
 BufferedSequentialPool::BufferedSequentialPool(
@@ -109,12 +98,12 @@ BufferedSequentialPool::BufferedSequentialPool(
                                 bslma::Allocator            *basicAllocator)
 : d_bufferManager(buffer, size, alignmentStrategy)
 , d_maxBufferSize(bsl::numeric_limits<bsls::Types::size_type>::max())
+, d_growthStrategy(growthStrategy)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
-
-    setStrategies(growthStrategy, alignmentStrategy);
 }
 
 BufferedSequentialPool::BufferedSequentialPool(
@@ -124,14 +113,13 @@ BufferedSequentialPool::BufferedSequentialPool(
                                         bslma::Allocator       *basicAllocator)
 : d_bufferManager(buffer, size)
 , d_maxBufferSize(maxBufferSize)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
-
-    setStrategies(
-             bsls::BlockGrowth::BSLS_GEOMETRIC, bsls::Alignment::BSLS_NATURAL);
 }
 
 BufferedSequentialPool::BufferedSequentialPool(
@@ -142,13 +130,13 @@ BufferedSequentialPool::BufferedSequentialPool(
                                  bslma::Allocator            *basicAllocator)
 : d_bufferManager(buffer, size)
 , d_maxBufferSize(maxBufferSize)
+, d_growthStrategy(growthStrategy)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
-
-    setStrategies(growthStrategy, bsls::Alignment::BSLS_NATURAL);
 }
 
 BufferedSequentialPool::BufferedSequentialPool(
@@ -159,13 +147,13 @@ BufferedSequentialPool::BufferedSequentialPool(
                                   bslma::Allocator          *basicAllocator)
 : d_bufferManager(buffer, size, alignmentStrategy)
 , d_maxBufferSize(maxBufferSize)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
-
-    setStrategies(bsls::BlockGrowth::BSLS_GEOMETRIC, alignmentStrategy);
 }
 
 
@@ -178,13 +166,13 @@ BufferedSequentialPool::BufferedSequentialPool(
                                 bslma::Allocator            *basicAllocator)
 : d_bufferManager(buffer, size, alignmentStrategy)
 , d_maxBufferSize(maxBufferSize)
+, d_growthStrategy(growthStrategy)
+, d_sequentialPoolIsCreated(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
-
-    setStrategies(growthStrategy, alignmentStrategy);
 }
 
 }  // close package namespace
