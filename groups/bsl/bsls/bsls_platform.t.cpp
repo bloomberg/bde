@@ -133,8 +133,10 @@ static void printFlags()
     // An "Enter" and "Leave" message is printed unconditionally so there is
     // some report even if all of the flags are undefined.
 {
-    const char *undefinedMacros[256] = {};
-    size_t      undefinedCount       = 0;
+    enum { UNDEF_TABLE_SIZE = 256 };
+
+    const char *undefinedMacros[UNDEF_TABLE_SIZE] = {};
+    size_t      undefinedCount                    = 0;
 
     puts("printFlags: Enter");
 
@@ -150,6 +152,8 @@ static void printFlags()
     // Print the name of the specified object-like macro named by 'X', and the
     // source it expands to.
 
+    enum { FIRST_LINE = __LINE__ };
+
 #if defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
     P_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
 #else
@@ -160,12 +164,6 @@ static void printFlags()
     P_MACRO(BDE_DISABLE_COMPILER_VERSION_CHECK);
 #else
     D_MACRO(BDE_DISABLE_COMPILER_VERSION_CHECK);
-#endif
-
-#if defined(BDE_HIDE_COMMON_WINDOWS_WARNINGS)
-    P_MACRO(BDE_HIDE_COMMON_WINDOWS_WARNINGS);
-#else
-    D_MACRO(BDE_HIDE_COMMON_WINDOWS_WARNINGS);
 #endif
 
 #if defined(BSL_DOUBLE_UNDERSCORE_XLAT)
@@ -202,6 +200,30 @@ static void printFlags()
     P_MACRO(__cplusplus);
 #else
     D_MACRO(__cplusplus);
+#endif
+
+#if defined(__DATE__)
+    P_MACRO(__DATE__);
+#else
+    D_MACRO(__DATE__);
+#endif
+
+#if defined(__TIME__)
+    P_MACRO(__TIME__);
+#else
+    D_MACRO(__TIME__);
+#endif
+
+#if defined(__FILE__)
+    P_MACRO(__FILE__);
+#else
+    D_MACRO(__FILE__);
+#endif
+
+#if defined(__LINE__)
+    P_MACRO(__LINE__);
+#else
+    D_MACRO(__LINE__);
 #endif
 
 #if defined(__STDC__)
@@ -654,70 +676,10 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__CPU_64_BIT);
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_88000)
-    P_MACRO(BSLS_PLATFORM__CPU_88000);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_88000);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_ALPHA)
-    P_MACRO(BSLS_PLATFORM__CPU_ALPHA);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_ALPHA);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_HPPA)
-    P_MACRO(BSLS_PLATFORM__CPU_HPPA);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_HPPA);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_IA64)
-    P_MACRO(BSLS_PLATFORM__CPU_IA64);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_IA64);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_INTEL)
-    P_MACRO(BSLS_PLATFORM__CPU_INTEL);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_INTEL);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_MIPS)
-    P_MACRO(BSLS_PLATFORM__CPU_MIPS);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_MIPS);
-#endif
-
 #if defined(BSLS_PLATFORM__CPU_POWERPC)
     P_MACRO(BSLS_PLATFORM__CPU_POWERPC);
 #else
     D_MACRO(BSLS_PLATFORM__CPU_POWERPC);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_SPARC)
-    P_MACRO(BSLS_PLATFORM__CPU_SPARC);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_SPARC);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_SPARC_32)
-    P_MACRO(BSLS_PLATFORM__CPU_SPARC_32);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_SPARC_32);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_SPARC_V9)
-    P_MACRO(BSLS_PLATFORM__CPU_SPARC_V9);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_SPARC_V9);
-#endif
-
-#if defined(BSLS_PLATFORM__CPU_VER_MAJOR)
-    P_MACRO(BSLS_PLATFORM__CPU_VER_MAJOR);
-#else
-    D_MACRO(BSLS_PLATFORM__CPU_VER_MAJOR);
 #endif
 
 #if defined(BSLS_PLATFORM__CPU_X86)
@@ -762,12 +724,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__OS_DARWIN);
 #endif
 
-#if defined(BSLS_PLATFORM__OS_FREEBSD)
-    P_MACRO(BSLS_PLATFORM__OS_FREEBSD);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_FREEBSD);
-#endif
-
 #if defined(BSLS_PLATFORM__OS_HPUX)
     P_MACRO(BSLS_PLATFORM__OS_HPUX);
 #else
@@ -798,46 +754,148 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__OS_UNIX);
 #endif
 
-#if defined(BSLS_PLATFORM__OS_VER_MAJOR)
-    P_MACRO(BSLS_PLATFORM__OS_VER_MAJOR);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_VER_MAJOR);
-#endif
-
-#if defined(BSLS_PLATFORM__OS_VER_MINOR)
-    P_MACRO(BSLS_PLATFORM__OS_VER_MINOR);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_VER_MINOR);
-#endif
-
-#if defined(BSLS_PLATFORM__OS_WIN2K)
-    P_MACRO(BSLS_PLATFORM__OS_WIN2K);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_WIN2K);
-#endif
-
-#if defined(BSLS_PLATFORM__OS_WIN9X)
-    P_MACRO(BSLS_PLATFORM__OS_WIN9X);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_WIN9X);
-#endif
-
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
     P_MACRO(BSLS_PLATFORM__OS_WINDOWS);
 #else
     D_MACRO(BSLS_PLATFORM__OS_WINDOWS);
 #endif
 
-#if defined(BSLS_PLATFORM__OS_WINNT)
-    P_MACRO(BSLS_PLATFORM__OS_WINNT);
+#if defined(BDES_PLATFORM__CMP_AIX)
+    P_MACRO(BDES_PLATFORM__CMP_AIX);
 #else
-    D_MACRO(BSLS_PLATFORM__OS_WINNT);
+    D_MACRO(BDES_PLATFORM__CMP_AIX);
 #endif
 
-#if defined(BSLS_PLATFORM__OS_WINXP)
-    P_MACRO(BSLS_PLATFORM__OS_WINXP);
+#if defined(BDES_PLATFORM__CMP_GNU)
+    P_MACRO(BDES_PLATFORM__CMP_GNU);
 #else
-    D_MACRO(BSLS_PLATFORM__OS_WINXP);
+    D_MACRO(BDES_PLATFORM__CMP_GNU);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_HP)
+    P_MACRO(BDES_PLATFORM__CMP_HP);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_HP);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_MSVC)
+    P_MACRO(BDES_PLATFORM__CMP_MSVC);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_MSVC);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_SUN)
+    P_MACRO(BDES_PLATFORM__CMP_SUN);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_SUN);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_VER_MAJOR)
+    P_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
+#endif
+
+#if defined(BDES_PLATFORM__CPU_64_BIT)
+    P_MACRO(BDES_PLATFORM__CPU_64_BIT);
+#else
+    D_MACRO(BDES_PLATFORM__CPU_64_BIT);
+#endif
+
+#if defined(BDES_PLATFORM__OS_AIX)
+    P_MACRO(BDES_PLATFORM__OS_AIX);
+#else
+    D_MACRO(BDES_PLATFORM__OS_AIX);
+#endif
+
+#if defined(BDES_PLATFORM__OS_CYGWIN)
+    P_MACRO(BDES_PLATFORM__OS_CYGWIN);
+#else
+    D_MACRO(BDES_PLATFORM__OS_CYGWIN);
+#endif
+
+#if defined(BDES_PLATFORM__OS_DARWIN)
+    P_MACRO(BDES_PLATFORM__OS_DARWIN);
+#else
+    D_MACRO(BDES_PLATFORM__OS_DARWIN);
+#endif
+
+#if defined(BDES_PLATFORM__OS_FREEBSD)
+    P_MACRO(BDES_PLATFORM__OS_FREEBSD);
+#else
+    D_MACRO(BDES_PLATFORM__OS_FREEBSD);
+#endif
+
+#if defined(BDES_PLATFORM__OS_HPUX)
+    P_MACRO(BDES_PLATFORM__OS_HPUX);
+#else
+    D_MACRO(BDES_PLATFORM__OS_HPUX);
+#endif
+
+#if defined(BDES_PLATFORM__OS_LINUX)
+    P_MACRO(BDES_PLATFORM__OS_LINUX);
+#else
+    D_MACRO(BDES_PLATFORM__OS_LINUX);
+#endif
+
+#if defined(BDES_PLATFORM__OS_SOLARIS)
+    P_MACRO(BDES_PLATFORM__OS_SOLARIS);
+#else
+    D_MACRO(BDES_PLATFORM__OS_SOLARIS);
+#endif
+
+#if defined(BDES_PLATFORM__OS_SUNOS)
+    P_MACRO(BDES_PLATFORM__OS_SUNOS);
+#else
+    D_MACRO(BDES_PLATFORM__OS_SUNOS);
+#endif
+
+#if defined(BDES_PLATFORM__OS_UNIX)
+    P_MACRO(BDES_PLATFORM__OS_UNIX);
+#else
+    D_MACRO(BDES_PLATFORM__OS_UNIX);
+#endif
+
+#if defined(BDES_PLATFORM__OS_VER_MAJOR)
+    P_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
+#else
+    D_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
+#endif
+
+#if defined(BDES_PLATFORM__OS_VER_MINOR)
+    P_MACRO(BDES_PLATFORM__OS_VER_MINOR);
+#else
+    D_MACRO(BDES_PLATFORM__OS_VER_MINOR);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WIN2K)
+    P_MACRO(BDES_PLATFORM__OS_WIN2K);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WIN2K);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WIN9X)
+    P_MACRO(BDES_PLATFORM__OS_WIN9X);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WIN9X);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WINDOWS)
+    P_MACRO(BDES_PLATFORM__OS_WINDOWS);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WINDOWS);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WINNT)
+    P_MACRO(BDES_PLATFORM__OS_WINNT);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WINNT);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WINXP)
+    P_MACRO(BDES_PLATFORM__OS_WINXP);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WINXP);
 #endif
 
 
@@ -932,6 +990,12 @@ static void printFlags()
     P_MACRO(_MSC_VER);
 #else
     D_MACRO(_MSC_VER);
+#endif
+
+#if defined(_MSVC_LANG)
+    P_MACRO(_MSVC_LANG);
+#else
+    D_MACRO(_MSVC_LANG);
 #endif
 
 #if defined(_M_ALPHA)
@@ -1070,6 +1134,12 @@ static void printFlags()
     P_MACRO(__ARM_ARCH_7__);
 #else
     D_MACRO(__ARM_ARCH_7__);
+#endif
+
+#if defined(__APPLE_CC__)
+    P_MACRO(__APPLE_CC__);
+#else
+    D_MACRO(__APPLE_CC__);
 #endif
 
 #if defined(__CHAR_UNSIGNED__)
@@ -1486,6 +1556,18 @@ static void printFlags()
     D_MACRO(WINVER);
 #endif
 
+    enum { LAST_LINE = __LINE__ };
+
+
+    char STATIC_CHECK[UNDEF_TABLE_SIZE - ((LAST_LINE - FIRST_LINE) / 6)];
+    (void)STATIC_CHECK;
+        // Compile-time assertion that the table for undefined macros is likely
+        // to overflow.  Each macro is tested with a six line block, and the
+        // computation will slightly overestimate the maximum number of entries
+        // needed by ignoring several lines supporting text formatting etc.
+        // There should be a margin for error of around 4 macros when this
+        // check fires.
+
 
     puts("\n\n  printFlags: UNDEFINED MACROS:");
     puts(    "  -----------------------------");
@@ -1529,10 +1611,10 @@ int main(int argc, char *argv[])
         //: 1 Audit the set of macros of concern to this component.
         //
         // Plan:
-        //: 1 In 'verbose' mode, iterate in alphanumerical order over all
-        //:   macros that are either defined by this component, or are platform
-        //:   supplied macros of interest when defining the macros of this
-        //:   component
+        //: 1 In 'verbose' mode, iterate, in alphanumerical order within themed
+        //:   groupings, over all macros that are either defined by this
+        //:   component, or are platform supplied macros of interest when
+        //:   defining the macros of this component.
         //:
         //:   1 If a macro is defined, write its name and value to the console.
         //:
@@ -1727,7 +1809,7 @@ int main(int argc, char *argv[])
         ASSERT(Y <= X);                                                      \
         if (veryVerbose) printf("\t%s = %d (0x%X)\n", #X, (X), (X));
 
-        #if defined(BSLS_PLATFORM_CMP_IBM)
+        #if defined(BSLS_PLATFORM_CMP_AIX)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_AIX, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_CLANG)

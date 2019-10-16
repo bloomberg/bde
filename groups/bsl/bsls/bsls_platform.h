@@ -16,13 +16,17 @@ BSLS_IDENT("$Id: $")
 //  BSLS_PLATFORM_CMP_*: compiler vendor, and version
 //  BSLS_PLATFORM_AGGRESSIVE_INLINE: inline code for speed over text size
 //
+//@SEE_ALSO: bsls_compilerfeatures, bsls_libraryfeatures
+//
 //@DESCRIPTION: This component implements a suite of preprocessor macros and
 // traits that identify and define platform-specific compile-time attributes.
 // These attributes consist of the types and versions of (1) the operating
 // system, (2) the processor(s), and (3) the compiler that together make up the
 // platform.  Many of the macros defined in this component are configured
 // automatically at compile-time; compile-time switches are used to configure
-// the rest.
+// the rest.  Note that compiler capabilities are better determined through the
+// 'bsls_compilerfeatures' and 'bsls_libraryfeatures' components; this
+// component focuses on just identifying the tool chain.
 //
 // Note that, for brevity, the '@' character in the following (alphabetically
 // organized) tables is used to represent the characters 'BSLS_PLATFORM' --
@@ -1000,7 +1004,7 @@ typedef bsls::Platform bsls_Platform;
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
 
-// 'BDES' id's
+// 'BDES' aliases
 
 #ifdef BSLS_PLATFORM_CMP_AIX
 # define BDES_PLATFORM__CMP_AIX BSLS_PLATFORM_CMP_AIX
@@ -1020,17 +1024,8 @@ typedef bsls::Platform bsls_Platform;
 #ifdef BSLS_PLATFORM_CMP_VER_MAJOR
 # define BDES_PLATFORM__CMP_VER_MAJOR BSLS_PLATFORM_CMP_VER_MAJOR
 #endif
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-# define BDES_PLATFORM__CPU_32_BIT BSLS_PLATFORM_CPU_32_BIT
-#endif
 #ifdef BSLS_PLATFORM_CPU_64_BIT
 # define BDES_PLATFORM__CPU_64_BIT BSLS_PLATFORM_CPU_64_BIT
-#endif
-#ifdef BSLS_PLATFORM_CPU_INTEL
-# define BDES_PLATFORM__CPU_INTEL BSLS_PLATFORM_CPU_INTEL
-#endif
-#ifdef BSLS_PLATFORM_CPU_X86
-# define BDES_PLATFORM__CPU_X86 BSLS_PLATFORM_CPU_X86
 #endif
 #ifdef BSLS_PLATFORM_OS_AIX
 # define BDES_PLATFORM__OS_AIX BSLS_PLATFORM_OS_AIX
@@ -1081,7 +1076,7 @@ typedef bsls::Platform bsls_Platform;
 # define BDES_PLATFORM__OS_WINXP BSLS_PLATFORM_OS_WINXP
 #endif
 
-// 'BSLS' id's
+// 'BSLS' aliases
 
 #ifdef BSLS_PLATFORM_CMP_AIX
 # define BSLS_PLATFORM__CMP_AIX BSLS_PLATFORM_CMP_AIX
@@ -1119,38 +1114,8 @@ typedef bsls::Platform bsls_Platform;
 #ifdef BSLS_PLATFORM_CPU_64_BIT
 # define BSLS_PLATFORM__CPU_64_BIT BSLS_PLATFORM_CPU_64_BIT
 #endif
-#ifdef BSLS_PLATFORM_CPU_88000
-# define BSLS_PLATFORM__CPU_88000 BSLS_PLATFORM_CPU_88000
-#endif
-#ifdef BSLS_PLATFORM_CPU_ALPHA
-# define BSLS_PLATFORM__CPU_ALPHA BSLS_PLATFORM_CPU_ALPHA
-#endif
-#ifdef BSLS_PLATFORM_CPU_HPPA
-# define BSLS_PLATFORM__CPU_HPPA BSLS_PLATFORM_CPU_HPPA
-#endif
-#ifdef BSLS_PLATFORM_CPU_IA64
-# define BSLS_PLATFORM__CPU_IA64 BSLS_PLATFORM_CPU_IA64
-#endif
-#ifdef BSLS_PLATFORM_CPU_INTEL
-# define BSLS_PLATFORM__CPU_INTEL BSLS_PLATFORM_CPU_INTEL
-#endif
-#ifdef BSLS_PLATFORM_CPU_MIPS
-# define BSLS_PLATFORM__CPU_MIPS BSLS_PLATFORM_CPU_MIPS
-#endif
 #ifdef BSLS_PLATFORM_CPU_POWERPC
 # define BSLS_PLATFORM__CPU_POWERPC BSLS_PLATFORM_CPU_POWERPC
-#endif
-#ifdef BSLS_PLATFORM_CPU_SPARC
-# define BSLS_PLATFORM__CPU_SPARC BSLS_PLATFORM_CPU_SPARC
-#endif
-#ifdef BSLS_PLATFORM_CPU_SPARC_32
-# define BSLS_PLATFORM__CPU_SPARC_32 BSLS_PLATFORM_CPU_SPARC_32
-#endif
-#ifdef BSLS_PLATFORM_CPU_SPARC_V9
-# define BSLS_PLATFORM__CPU_SPARC_V9 BSLS_PLATFORM_CPU_SPARC_V9
-#endif
-#ifdef BSLS_PLATFORM_CPU_VER_MAJOR
-# define BSLS_PLATFORM__CPU_VER_MAJOR BSLS_PLATFORM_CPU_VER_MAJOR
 #endif
 #ifdef BSLS_PLATFORM_CPU_X86
 # define BSLS_PLATFORM__CPU_X86 BSLS_PLATFORM_CPU_X86
@@ -1173,9 +1138,6 @@ typedef bsls::Platform bsls_Platform;
 #ifdef BSLS_PLATFORM_OS_DARWIN
 # define BSLS_PLATFORM__OS_DARWIN BSLS_PLATFORM_OS_DARWIN
 #endif
-#ifdef BSLS_PLATFORM_OS_FREEBSD
-# define BSLS_PLATFORM__OS_FREEBSD BSLS_PLATFORM_OS_FREEBSD
-#endif
 #ifdef BSLS_PLATFORM_OS_HPUX
 # define BSLS_PLATFORM__OS_HPUX BSLS_PLATFORM_OS_HPUX
 #endif
@@ -1191,26 +1153,8 @@ typedef bsls::Platform bsls_Platform;
 #ifdef BSLS_PLATFORM_OS_UNIX
 # define BSLS_PLATFORM__OS_UNIX BSLS_PLATFORM_OS_UNIX
 #endif
-#ifdef BSLS_PLATFORM_OS_VER_MAJOR
-# define BSLS_PLATFORM__OS_VER_MAJOR BSLS_PLATFORM_OS_VER_MAJOR
-#endif
-#ifdef BSLS_PLATFORM_OS_VER_MINOR
-# define BSLS_PLATFORM__OS_VER_MINOR BSLS_PLATFORM_OS_VER_MINOR
-#endif
-#ifdef BSLS_PLATFORM_OS_WIN2K
-# define BSLS_PLATFORM__OS_WIN2K BSLS_PLATFORM_OS_WIN2K
-#endif
-#ifdef BSLS_PLATFORM_OS_WIN9X
-# define BSLS_PLATFORM__OS_WIN9X BSLS_PLATFORM_OS_WIN9X
-#endif
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 # define BSLS_PLATFORM__OS_WINDOWS BSLS_PLATFORM_OS_WINDOWS
-#endif
-#ifdef BSLS_PLATFORM_OS_WINNT
-# define BSLS_PLATFORM__OS_WINNT BSLS_PLATFORM_OS_WINNT
-#endif
-#ifdef BSLS_PLATFORM_OS_WINXP
-# define BSLS_PLATFORM__OS_WINXP BSLS_PLATFORM_OS_WINXP
 #endif
 
 #endif
