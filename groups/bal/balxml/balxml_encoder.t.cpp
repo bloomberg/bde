@@ -48,6 +48,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 using namespace BloombergLP;
@@ -11544,7 +11545,6 @@ class PlaceHolder {
   public:
     // CREATORS
     PlaceHolder()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 };
@@ -11757,7 +11757,6 @@ class GenerateTestArray {
 
     // CREATORS
     GenerateTestArray()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -11797,7 +11796,6 @@ class GenerateTestArrayPlaceHolder {
 
     // CREATORS
     GenerateTestArrayPlaceHolder()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -11825,7 +11823,6 @@ class GenerateTestChoice {
 
     // CREATORS
     GenerateTestChoice()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -11878,7 +11875,6 @@ class GenerateTestChoicePlaceHolder {
 
     // CREATORS
     GenerateTestChoicePlaceHolder()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -11924,7 +11920,6 @@ class GenerateTestCustomizedType {
 
     // CREATORS
     GenerateTestCustomizedType()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -11953,7 +11948,6 @@ class GenerateTestDynamicType {
 
     // CREATORS
     GenerateTestDynamicType()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -11980,7 +11974,6 @@ class GenerateTestDynamicPlaceHolder {
 
     // CREATORS
     GenerateTestDynamicPlaceHolder()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -12008,7 +12001,6 @@ class GenerateTestEnumeration {
 
     // CREATORS
     GenerateTestEnumeration()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -12045,7 +12037,6 @@ class GenerateTestEnumerationPlaceHolder {
 
     // CREATORS
     GenerateTestEnumerationPlaceHolder()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -12081,7 +12072,6 @@ class GenerateTestNullableValue {
 
     // CREATORS
     GenerateTestNullableValue()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -12114,7 +12104,6 @@ class GenerateTestNullablePlaceHolder {
 
     // CREATORS
     GenerateTestNullablePlaceHolder()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -12142,7 +12131,6 @@ class GenerateTestSequence {
 
     // CREATORS
     GenerateTestSequence()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -12182,7 +12170,6 @@ class GenerateTestSequencePlaceHolder {
 
     // CREATORS
     GenerateTestSequencePlaceHolder()
-        // Non-trivial constructor in order to work around a sun compiler bug.
     {
     }
 
@@ -13085,6 +13072,14 @@ int main(int argc, char *argv[])
         // row in this table-based test.
         typedef TestCase14Row R;
 
+
+        // A macro that is conditionally defined if compiling on platforms
+        // where compilation is known to run into resource limitations (e.g.
+        // running out of memory on IBM.)
+#ifdef BSLS_PLATFORM_CMP_IBM
+#define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#endif
+
         ///Implementation Note
         ///-------------------
         // The following test table shares its structure with the table in case
@@ -13111,6 +13106,7 @@ int main(int argc, char *argv[])
 R(L_,  a(i_)                    , f, t, NA                           ),
 R(L_,  a(i0)                    , f, _, NA                           ),
 // Single-selection choices.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
 R(L_,  c( s0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
 R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0         )   )       ), // * 2
@@ -13141,6 +13137,7 @@ R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
 R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ), // * 2
 R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
 R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+#endif
 R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
 R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
 R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ), // * 2
@@ -13176,6 +13173,7 @@ R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
 R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
 R(L_,  c(ns0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
 // Double-selection choices.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  c( s0, s1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
 R(L_,  c( s0, s1,  i_ ,n(f_))   , t, _, x(C            )             ),
 R(L_,  c( s0, s1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
@@ -13186,6 +13184,7 @@ R(L_,  c(ns0,ns1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
 R(L_,  c(ns0,ns1,  i_ ,n(f_))   , t, _, x(C            )             ),
 R(L_,  c(ns0,ns1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
 R(L_,  c(ns0,ns1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+#endif
 R(L_,  c(ns0,ns1,n(i_),  f_ )   , t, t, x(C            )             ), // * 1
 R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0      ))             ), // * 2
 R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0,Nil,T))             ), // * 3
@@ -13194,6 +13193,7 @@ R(L_,  c(ns0,ns1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
 R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
 R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
 // Dynamic types.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  d(a(i_)       )          , f, t, NA                           ),
 R(L_,  d(a(i0)       )          , f, _, NA                           ),
 R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
@@ -13201,16 +13201,21 @@ R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
 R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
 R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
 R(L_,  d(c(ns0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
+#endif
 R(L_,  d(c(ns0,n(i_)))          , t, t, x(D            )             ), // * 1
 R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
 R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  d(c(ns0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
 R(L_,  d(s( a0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+#endif
 R(L_,  d(s( a0,n(i_)))          , t, t, x(D            )             ), // * 1
 R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
 R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  d(s( a0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
 R(L_,  d(s(na0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+#endif
 R(L_,  d(s(na0,n(i_)))          , t, t, x(D            )             ), // * 1
 R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
 R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
@@ -13232,6 +13237,7 @@ R(L_,  s( a0,  i0)              , t, t, x(S,x(A0,V0))                ),
 R(L_,  s( a0,n(i_))             , t, t, x(S)                         ), // * 1
 R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0      ))             ), // * 2
 R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0,Nil,T))             ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  s( a0,n(i0))             , t, t, x(S,x(A0,V0   ))             ),
 R(L_,  s( a0,  a(i_   ) )       , t, t, x(S)                         ),
 R(L_,  s( a0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
@@ -13265,10 +13271,12 @@ R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
 R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
 R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
 R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+#endif
 R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
 R(L_,  s(na0,n(i_))             , t, t, x(S)                         ), // * 1
 R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ), // * 2
 R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  s(na0,n(i0))             , t, t, x(S,x(A0,V0))                ),
 R(L_,  s(na0,  a(i_   ) )       , t, t, x(S)                         ),
 R(L_,  s(na0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
@@ -13280,6 +13288,7 @@ R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
 R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+#endif
 R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ), // * 1
 R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ), // * 2
 R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ), // * 3
@@ -13287,6 +13296,7 @@ R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ), // * 1
 R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ), // * 2
 R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  s(na0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0,n( c( s0, n(i_)))) , t, _, x(S,x(A0         ))          ),
 R(L_,  s(na0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
@@ -13300,6 +13310,7 @@ R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
 R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
 R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+#endif
 R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ), // * 1
 R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ), // * 2
 R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ), // * 3
@@ -13311,6 +13322,7 @@ R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ), // * 2
 R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ), // * 3
 R(L_,  s(na0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
 // Double-attribute sequences.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  s( a0, a1,  i0,   i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
 R(L_,  s( a0, a1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
 R(L_,  s( a0, a1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
@@ -13342,11 +13354,14 @@ R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
 R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
 R(L_,  s(na0,na1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
 R(L_,  s(na0,na1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
+#endif
 R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
 R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
 R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 //^---------v
         };
+
+#undef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
