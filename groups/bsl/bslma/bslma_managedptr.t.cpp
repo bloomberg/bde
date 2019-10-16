@@ -31,6 +31,15 @@
 // constrained.
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
+# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
+// Some compilers produce ambiguities when trying to construct our test types
+// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// compiler bug triggering in lower level components, so we simply disable
+// those aspects of testing, and rely on the extensive test coverage on other
+// platforms.
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================

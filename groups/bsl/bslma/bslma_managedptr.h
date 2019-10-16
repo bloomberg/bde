@@ -905,6 +905,26 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslma {
 
+                  // =================================
+                  // private struct ManagedPtr_ImpUtil
+                  // =================================
+
+struct ManagedPtr_ImpUtil
+    // This 'struct' provides a namespace for utility functions used to obtain
+    // the necessary types of pointers.
+{
+
+    template <class TYPE>
+    static void *voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT;
+        // Return the specified 'address' cast as a pointer to 'void', even if
+        // (the template parameter) 'TYPE' is cv-qualified.
+
+    template <class TYPE>
+    static TYPE *unqualify(const volatile TYPE *address) BSLS_KEYWORD_NOEXCEPT;
+        // Return the specified 'address' of a potentially 'cv'-qualified
+        // object of the given (template parameter) 'TYPE', cast as a pointer
+        // to a modifiable non-volatile object of the given 'TYPE'.
+};
                     // ============================
                     // private class ManagedPtr_Ref
                     // ============================
@@ -1534,17 +1554,6 @@ struct ManagedPtrUtil {
     // CLASS METHODS
     static void noOpDeleter(void *, void *);
         // Deleter function that does nothing.
-
-    template <class TYPE>
-    static void *voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT;
-        // Return the specified 'address' cast as a pointer to 'void', even if
-        // (the template parameter) 'TYPE' is cv-qualified.
-
-    template <class TYPE>
-    static TYPE *unqualify(const volatile TYPE *address) BSLS_KEYWORD_NOEXCEPT;
-        // Return the specified 'address' of a potentially 'cv'-qualified
-        // object of the given (template parameter) 'TYPE', cast as a pointer
-        // to a modifiable non-volatile object of the given 'TYPE'.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
@@ -2216,6 +2225,26 @@ struct ManagedPtr_DefaultDeleter {
 //                          INLINE DEFINITIONS
 // ============================================================================
 
+                      // ---------------------------------
+                      // private struct ManagedPtr_ImpUtil
+                      // ---------------------------------
+
+template <class TYPE>
+inline
+void *ManagedPtr_ImpUtil::voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<void *>(
+            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
+}
+
+template <class TYPE>
+inline
+TYPE *ManagedPtr_ImpUtil::unqualify(const volatile TYPE *address)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return const_cast<TYPE *>(address);
+}
+
                       // ----------------------------
                       // private class ManagedPtr_Ref
                       // ----------------------------
@@ -2840,22 +2869,6 @@ void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
                       // class ManagedPtrUtil
                       // --------------------
 
-template <class TYPE>
-inline
-void *ManagedPtrUtil::voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT
-{
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
-}
-
-template <class TYPE>
-inline
-TYPE *ManagedPtrUtil::unqualify(const volatile TYPE *address)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return const_cast<TYPE *>(address);
-}
-
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
 template <class ELEMENT_TYPE, class... ARGS>
@@ -2868,10 +2881,10 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
 
     bslma::DeallocatorProctor<bslma::Allocator> proctor(
-                                               ManagedPtrUtil::voidify(objPtr),
-                                               basicAllocator);
+                                           ManagedPtr_ImpUtil::voidify(objPtr),
+                                           basicAllocator);
     bslma::ConstructionUtil::construct(
-                                 ManagedPtrUtil::unqualify(objPtr),
+                                 ManagedPtr_ImpUtil::unqualify(objPtr),
                                  basicAllocator,
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
@@ -2890,9 +2903,9 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(ARGS&&... args)
                              defaultAllocator->allocate(sizeof(ELEMENT_TYPE)));
 
     bslma::DeallocatorProctor<bslma::Allocator> proctor(
-                                               ManagedPtrUtil::voidify(objPtr),
-                                               defaultAllocator);
-    ::new (ManagedPtrUtil::voidify(objPtr)) ELEMENT_TYPE(
+                                           ManagedPtr_ImpUtil::voidify(objPtr),
+                                           defaultAllocator);
+    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
 
