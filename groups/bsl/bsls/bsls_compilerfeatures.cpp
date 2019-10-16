@@ -21,6 +21,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #error Relaxed 'constexpr' support should imply 'constexpr' support!
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS) &&                  \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#error Ref qualifiers support should imply rvalue reference support!
+#endif
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

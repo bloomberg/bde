@@ -12,9 +12,11 @@ BSLS_IDENT("$Id: $")
 //        bdlf::Bind_TestSlotsBase: base class for tracking arg & alloc objects
 //       bdlf::Bind_TestArgNoAlloc: argument type parameterized by index
 //      bdlf::Bind_TestTypeNoAlloc: invocable supporting up to 14 arguments
+//    bdlf::Bind_TestTypeNoAllocNE: noexcept invocable up to 14 arguments
 // bdlf::Bind_TestFunctionsNoAlloc: global versions of test type methods
 //         bdlf::Bind_TestArgAlloc: argument type parameterized by index
 //        bdlf::Bind_TestTypeAlloc: invocable supporting up to 14 arguments
+//      bdlf::Bind_TestTypeAllocNE: noexcept invocable up to 14 arguments
 //   bdlf::Bind_TestFunctionsAlloc: global versions of test type methods
 //
 //@SEE_ALSO: bdlf_bind bdlf_bind_test[0--14]
@@ -37,16 +39,18 @@ BSLS_IDENT("$Id: $")
 // the value of the argument with same index that was passed to the test type
 // invocation.
 //
-// The two test types provided, 'bdlf::Bind_TestTypeNoAlloc' and
-// 'bdlf::Bind_TestTypeAlloc' support this slot mechanism.  They are invocable
-// with up to 14 parameters, either as function objects (using 'operator()'),
-// via member functions (using the 'testFunc[0--14]' methods), or via global
-// functions that take a pointer to the object as first argument (provided as
-// static methods of the utility classes 'bdlf::Bind_TestFunctionsNoAlloc' and
-// 'bdlf::Bind_TestFunctionsAlloc'), thus supporting all protocols for binding
-// an invocable in the 'bdlf_bind' component.  Additional classes
-// 'bdlf::Bind_TestSlots', 'bdlf::Bind_TestArgNoAlloc', and
-// 'bdlf::Bind_TestArgAlloc' augment the test apparatus.
+// The four test types provided, 'bdlf::Bind_TestTypeNoAlloc',
+// 'bdlf::Bind_TestTypeNoAllocNE', 'bdlf::Bind_TestTypeAlloc', and
+// 'bdlf::Bind_TestTypeAllocNE' support this slot mechanism.  They are
+// invocable with up to 14 parameters, either as function objects (using
+// 'operator()'), via member functions (using the 'testFunc[0--14]' methods),
+// or via global functions that take a pointer to the object as first argument
+// (provided as static methods of the utility classes
+// 'bdlf::Bind_TestFunctionsNoAlloc' and 'bdlf::Bind_TestFunctionsAlloc'), thus
+// supporting all protocols for binding an invocable in the 'bdlf_bind'
+// component.  Additional classes 'bdlf::Bind_TestSlots',
+// 'bdlf::Bind_TestArgNoAlloc', and 'bdlf::Bind_TestArgAlloc' augment the test
+// apparatus.
 //
 ///Usage
 ///-----
@@ -296,6 +300,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_cstdio.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnoexcept-type"
+#endif
+
 // ============================================================================
 //                MACROS FOR MULTIPLE ARGUMENT EXPANSION
 // ============================================================================
@@ -358,9 +367,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlf {
-                      // ===================
-                      // class Bind_TestUtil
-                      // ===================
+                            // ===================
+                            // class Bind_TestUtil
+                            // ===================
 
 struct Bind_TestUtil {
     // Utility class for static functions useful in 'bdlf_bind' testing.
@@ -372,9 +381,9 @@ struct Bind_TestUtil {
 };
 
 
-                      // ====================
-                      // class Bind_TestSlots
-                      // ====================
+                            // ====================
+                            // class Bind_TestSlots
+                            // ====================
 
 template <class VALUE>
 struct Bind_TestSlotsBase {
@@ -411,18 +420,18 @@ struct Bind_TestSlotsBase {
         // do not compare equal.
 };
 
-                      // ==========================
-                      // type Bind_TestSlotsNoAlloc
-                      // ==========================
+                         // ==========================
+                         // type Bind_TestSlotsNoAlloc
+                         // ==========================
 
 typedef Bind_TestSlotsBase<int> Bind_TestSlotsNoAlloc;
     // When used within the methods of 'Bind_TestTypeNoAlloc', the 'VALUE' type
     // will be 'int' and will keep track of which arguments have been assigned
     // a value (in case 'bdlf_bind' accesses fields that it should not).
 
-                      // =========================
-                      // class Bind_TestArgNoAlloc
-                      // =========================
+                         // =========================
+                         // class Bind_TestArgNoAlloc
+                         // =========================
 
 template <int ID>
 class Bind_TestArgNoAlloc {
@@ -466,9 +475,9 @@ inline
 bool operator!=(Bind_TestArgNoAlloc<ID> const& lhs,
                 Bind_TestArgNoAlloc<ID> const& rhs);
 
-                      // ==========================
-                      // class Bind_TestTypeNoAlloc
-                      // ==========================
+                         // ==========================
+                         // class Bind_TestTypeNoAlloc
+                         // ==========================
 
 class Bind_TestTypeNoAlloc {
     // This 'struct' provides a test class capable of holding up to 14 bound
@@ -553,9 +562,96 @@ inline
 bool operator!=(const Bind_TestTypeNoAlloc& lhs,
                 const Bind_TestTypeNoAlloc& rhs);
 
-                        // ===============================
-                        // class Bind_TestFunctionsNoAlloc
-                        // ===============================
+                        // ============================
+                        // class Bind_TestTypeNoAllocNE
+                        // ============================
+
+class Bind_TestTypeNoAllocNE {
+    // This 'struct' provides a test class capable of holding up to 14 bound
+    // parameters of types 'TestArgNoAllocNE[1--14]', with full
+    // (non-streamable) value semantics defined by the 'operator=='.  By
+    // default, a 'Bind_TestTypeNoAllocNE' is constructed with nil ('N1')
+    // values, but instances can be constructed with actual values (e.g., for
+    // creating expected values).  A 'Bind_TestTypeNoAllocNE' can be invoked
+    // with up to 14 parameters, via member functions 'testFunc[1--14]'.  These
+    // functions are also called by the overloaded member 'operator()' of the
+    // same signatures, and similar global functions 'testFunc[1--14]'.  All
+    // invocations support the above 'Bind_TestSlotsNoAlloc' mechanism.
+    //
+    // This 'struct' intentionally does *not* take an allocator.
+
+    // PRIVATE TYPES
+#undef  F
+#define F(n) typedef Bind_TestArgNoAlloc<n> Arg##n;
+    L14(F)
+        // Argument types for shortcut.
+
+    // PRIVATE DATA
+#undef  F
+#define F(n) mutable Arg##n d_a##n;
+    L14(F)
+
+    // FRIEND
+    friend bool operator==(const Bind_TestTypeNoAllocNE& lhs,
+                           const Bind_TestTypeNoAllocNE& rhs);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_TestTypeNoAllocNE,
+                                   bslmf::IsBitwiseMoveable);
+
+    // TYPES
+    typedef int ResultType;
+        // Type returned by the function operator and test methods.
+
+    enum {
+        k_N1 = -1   // default value for all private data
+    };
+
+    // CREATORS
+#undef  F
+#define F(n) Arg##n a##n = k_N1
+    explicit Bind_TestTypeNoAllocNE(C14(F));
+        // Create a test object having the same value as the specified
+        // 'original'.
+
+    Bind_TestTypeNoAllocNE(const Bind_TestTypeNoAllocNE& original);
+        // Create a test object having the same value as the specified
+        // 'original'.
+
+    // MANIPULATORS
+    Bind_TestTypeNoAllocNE& operator=(const Bind_TestTypeNoAllocNE &rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    int operator()() const BSLS_KEYWORD_NOEXCEPT;
+        // Test operators invoking this test type with 0 up to 14 arguments.
+#undef  F
+#define F(n) int operator()(C##n(P)) const BSLS_KEYWORD_NOEXCEPT;
+    L14(F)
+
+    int testFunc0() const BSLS_KEYWORD_NOEXCEPT;
+        // Test methods invoking this test type with 0 up to 14 arguments.
+#undef  F
+#define F(n) int testFunc##n(C##n(P)) const BSLS_KEYWORD_NOEXCEPT;
+    L14(F)
+
+    // ACCESSORS
+    void print() const;
+        // Output the value of this instance to the standard output.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Bind_TestTypeNoAllocNE& lhs,
+                const Bind_TestTypeNoAllocNE& rhs);
+
+inline
+bool operator!=(const Bind_TestTypeNoAllocNE& lhs,
+                const Bind_TestTypeNoAllocNE& rhs);
+
+                      // ===============================
+                      // class Bind_TestFunctionsNoAlloc
+                      // ===============================
 
 struct Bind_TestFunctionsNoAlloc {
     // Global versions of 'Bind_TestTypeNoAlloc' member functions.
@@ -573,11 +669,19 @@ struct Bind_TestFunctionsNoAlloc {
 #undef  F
 #define F(n) static int func##n(Bind_TestTypeNoAlloc *object, C##n(P));
     L14(F)
+
+    static int funcNE0(Bind_TestTypeNoAllocNE *object) BSLS_KEYWORD_NOEXCEPT;
+        // Invoke the corresponding method 'testFunc[0-14]' on the specified
+        // 'object' with the specified arguments 'a[0-14]'.
+#undef  F
+#define F(n) static int funcNE##n(Bind_TestTypeNoAllocNE *object, C##n(P))    \
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    L14(F)
 };
 
-                      // =============================
-                      // class Bind_TestSlotsAllocBase
-                      // =============================
+                       // =============================
+                       // class Bind_TestSlotsAllocBase
+                       // =============================
 
 template <class AllocPtr>
 struct Bind_TestSlotsAllocBase
@@ -603,9 +707,9 @@ struct Bind_TestSlotsAllocBase
     static AllocPtr getZ2();
 };
 
-                      // =========================
-                      // class Bind_TestSlotsAlloc
-                      // =========================
+                         // =========================
+                         // class Bind_TestSlotsAlloc
+                         // =========================
 
 class Bind_TestSlotsAlloc
 : public Bind_TestSlotsBase<const bslma::Allocator*>
@@ -626,16 +730,16 @@ class Bind_TestSlotsAlloc
         // do not compare equal.
 };
 
-                      // =======================
-                      // class Bind_TestArgAlloc
-                      // =======================
+                          // =======================
+                          // class Bind_TestArgAlloc
+                          // =======================
 
 template <int ID>
 class Bind_TestArgAlloc {
     // This class is used to disambiguate types in passing parameters due to
     // the fact that 'Bind_TestArgAlloc<ID1>' is a different type than
-    // 'Bind_TestArgAlloc<ID2>' is ID1 != ID2.  This class is used for
-    // testing memory allocator issues.
+    // 'Bind_TestArgAlloc<ID2>' is ID1 != ID2.  This class is used for testing
+    // memory allocator issues.
 
     // PRIVATE DATA
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
@@ -656,7 +760,7 @@ class Bind_TestArgAlloc {
 
     Bind_TestArgAlloc(const Bind_TestArgAlloc&  original,
                       bslma::Allocator         *allocator = 0);
-        // Create a copy of the specified non-modifiable 'original'.    Use the
+        // Create a copy of the specified non-modifiable 'original'.  Use the
         // specified 'allocator' to supply memory.  If 'allocator' is 0, use
         // the currently installed default allocator.
 
@@ -686,9 +790,9 @@ inline
 bool operator!=(const Bind_TestArgAlloc<ID>& lhs,
                 const Bind_TestArgAlloc<ID>& rhs);
 
-                      // ========================
-                      // class Bind_TestTypeAlloc
-                      // ========================
+                          // ========================
+                          // class Bind_TestTypeAlloc
+                          // ========================
 
 class Bind_TestTypeAlloc {
     // This class provides a test class capable of holding up to 14 bound
@@ -782,9 +886,107 @@ bool operator==(Bind_TestTypeAlloc const& lhs, Bind_TestTypeAlloc const& rhs);
 inline
 bool operator!=(Bind_TestTypeAlloc const& lhs, Bind_TestTypeAlloc const& rhs);
 
-                        // =============================
-                        // class Bind_TestFunctionsAlloc
-                        // =============================
+                         // ==========================
+                         // class Bind_TestTypeAllocNE
+                         // ==========================
+
+class Bind_TestTypeAllocNE {
+    // This class provides a test class capable of holding up to 14 bound
+    // parameters of types 'Bind_TestArgAlloc[1--14]', with full
+    // (non-streamable) value semantics defined by the 'operator=='.  By
+    // default, a 'Bind_TestTypeAllocNE' is constructed with nil ('k_N1')
+    // values, but objects can be constructed with actual values (e.g., for
+    // creating expected values).  A 'Bind_TestTypeAllocNE' can be invoked with
+    // up to 14 parameters, via member functions 'testFunc[1--14]'.  These
+    // functions are also called by the overloaded member 'operator()' of the
+    // same signatures, and similar global functions 'testFunc1--14'.  All
+    // invocations support the above 'Bind_TestSlotsAlloc' mechanism.
+    //
+    // This class intentionally *does* take an allocator.
+
+    // PRIVATE TYPES
+#undef  F
+#define F(n) typedef Bind_TestArgAlloc<n> Arg##n;
+    L14(F)
+        // Argument types for shortcut.
+
+    enum {
+        k_N1 = -1   // default value for all private data
+    };
+
+    // PRIVATE DATA
+#undef  F
+#define F(n) mutable Arg##n d_a##n;
+    L14(F)
+
+    // FRIEND
+    friend bool operator==(const Bind_TestTypeAllocNE& lhs,
+                           const Bind_TestTypeAllocNE& rhs);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_TestTypeAllocNE,
+                                   bslma::UsesBslmaAllocator);
+
+    // PUBLIC TYPES
+    typedef int ResultType;
+        // Type returned by the function operator and test methods.
+
+    // CREATORS
+#undef  F
+#define F(n) Arg##n a##n = k_N1
+    explicit Bind_TestTypeAllocNE(bslma::Allocator *allocator = 0, C14(F));
+        // This constructor does *not* participate in the
+        // 'UsesBdemaAllocatorTraits' contract, it is here simply to allow to
+        // construct expected values with a specified 'allocator' as the first
+        // argument (otherwise there would need to be fourteen different
+        // constructors with 'allocator' as the last argument).
+
+#undef  F
+#define F(n) Arg##n a##n
+    Bind_TestTypeAllocNE(C14(F), bslma::Allocator *allocator = 0);
+
+    Bind_TestTypeAllocNE(const Bind_TestTypeAllocNE&  original,
+                         bslma::Allocator            *allocator = 0);
+
+    // MANIPULATORS
+    Bind_TestTypeAllocNE& operator=(const Bind_TestTypeAllocNE &rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    int operator()() const BSLS_KEYWORD_NOEXCEPT;
+        // Test operators invoking this test type with 0 up to 14 arguments.
+#undef  F
+#define F(n) int operator()(C##n(P)) const BSLS_KEYWORD_NOEXCEPT;
+    L14(F)
+
+    int testFunc0() const BSLS_KEYWORD_NOEXCEPT;
+        // Test methods invoking this test type with 0 up to 14 arguments.
+#undef  F
+#define F(n) int testFunc##n(C##n(P)) const BSLS_KEYWORD_NOEXCEPT;
+    L14(F)
+
+    void setSlots();
+        // Set slots with allocator values of internal data members (as opposed
+        // to with allocator value of invocation arguments as in the operators
+        // and 'testFunc*' functions above).
+
+    // ACCESSORS
+    void print() const;
+        // Output the value of this object to the standard output.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(Bind_TestTypeAllocNE const& lhs,
+                Bind_TestTypeAllocNE const& rhs);
+
+inline
+bool operator!=(Bind_TestTypeAllocNE const& lhs,
+                Bind_TestTypeAllocNE const& rhs);
+
+                       // =============================
+                       // class Bind_TestFunctionsAlloc
+                       // =============================
 
 struct Bind_TestFunctionsAlloc {
     // Global versions of 'Bind_TestTypeAlloc' member functions.
@@ -801,6 +1003,14 @@ struct Bind_TestFunctionsAlloc {
 #undef  F
 #define F(n) static int func##n(Bind_TestTypeAlloc *o, C##n(P));
     L14(F)
+
+    static int funcNE0(Bind_TestTypeAllocNE *o) BSLS_KEYWORD_NOEXCEPT;
+        // Invoke the corresponding method 'testFunc[0-14]' on the specified
+        // 'object' with the specified arguments 'a[0-14]'.
+#undef  F
+#define F(n) static int funcNE##n(Bind_TestTypeAllocNE *o, C##n(P))           \
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    L14(F)
 };
 }  // close package namespace
 
@@ -808,18 +1018,18 @@ struct Bind_TestFunctionsAlloc {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------
-                      // class bdlf::Bind_TestUtil
-                      // -------------------------
+                         // -------------------------
+                         // class bdlf::Bind_TestUtil
+                         // -------------------------
 
 template <class T>
 inline bool bdlf::Bind_TestUtil::isBitwiseMoveableType(const T&) {
     return bslmf::IsBitwiseMoveable<T>::VALUE;
 }
 
-                      // ------------------------------
-                      // class bdlf::Bind_TestSlotsBase
-                      // ------------------------------
+                       // ------------------------------
+                       // class bdlf::Bind_TestSlotsBase
+                       // ------------------------------
 
 // PRIVATE CLASS DATA
 template <class VALUE>
@@ -889,9 +1099,9 @@ bool Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
 #pragma warning( pop )
 #endif
 
-                      // -------------------------
-                      // class Bind_TestArgNoAlloc
-                      // -------------------------
+                         // -------------------------
+                         // class Bind_TestArgNoAlloc
+                         // -------------------------
 
 // CREATORS
 template <int ID>
@@ -936,9 +1146,9 @@ bool bdlf::operator!=(Bind_TestArgNoAlloc<ID> const& lhs,
 }
 
 namespace bdlf {
-                      // --------------------------
-                      // class Bind_TestTypeNoAlloc
-                      // --------------------------
+                         // --------------------------
+                         // class Bind_TestTypeNoAlloc
+                         // --------------------------
 
 // CREATORS
 #undef  F
@@ -1031,9 +1241,104 @@ bool bdlf::operator!=(const Bind_TestTypeNoAlloc& lhs,
 }
 
 namespace bdlf {
-                         // -------------------------------
-                         // class Bind_TestFunctionsNoAlloc
-                         // -------------------------------
+                        // ----------------------------
+                        // class Bind_TestTypeNoAllocNE
+                        // ----------------------------
+
+// CREATORS
+#undef  F
+#define F(n) d_a##n(a##n)
+inline
+Bind_TestTypeNoAllocNE::Bind_TestTypeNoAllocNE(C14(V))
+: C14(F)
+{
+}
+
+#undef  F
+#define F(n) d_a##n(original.d_a##n)
+inline
+Bind_TestTypeNoAllocNE::Bind_TestTypeNoAllocNE(
+                                        const Bind_TestTypeNoAllocNE& original)
+: C14(F)
+{
+}
+
+// MANIPULATORS
+inline
+Bind_TestTypeNoAllocNE&
+Bind_TestTypeNoAllocNE::operator=(const Bind_TestTypeNoAllocNE& rhs)
+{
+#undef  F
+#define F(n) d_a##n = rhs.d_a##n;
+    L14(F)
+    return *this;
+}
+
+// ACCESSORS
+inline
+int Bind_TestTypeNoAllocNE::operator()() const BSLS_KEYWORD_NOEXCEPT
+{
+    return testFunc0();
+}
+
+#undef  F
+#define F(n)                                                                  \
+inline                                                                        \
+int Bind_TestTypeNoAllocNE::operator()(C##n(P)) const BSLS_KEYWORD_NOEXCEPT   \
+{                                                                             \
+    return testFunc##n(C##n(A));                                              \
+}
+L14(F)
+
+inline
+int Bind_TestTypeNoAllocNE::testFunc0() const BSLS_KEYWORD_NOEXCEPT
+{
+    return 0;
+}
+
+#undef  G
+#define G(n) d_a##n = a##n; Bind_TestSlotsNoAlloc::setSlot(a##n.value(), n);
+#undef  F
+#define F(n)                                                                  \
+inline                                                                        \
+int Bind_TestTypeNoAllocNE::testFunc##n(C##n(P)) const BSLS_KEYWORD_NOEXCEPT  \
+{                                                                             \
+    S##n(G,)                                                                  \
+    return n;                                                                 \
+}
+L14(F)
+
+#undef  F
+#define F(n) d_a##n.value()
+inline
+void Bind_TestTypeNoAllocNE::print() const
+{
+    bsl::printf("{ %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d }\n",
+                C14(F));
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdlf::operator==(const Bind_TestTypeNoAllocNE& lhs,
+                      const Bind_TestTypeNoAllocNE& rhs)
+{
+#undef  F
+#define F(n) lhs.d_a##n.value() == rhs.d_a##n.value()
+    return S14(F,&&);
+}
+
+inline
+bool bdlf::operator!=(const Bind_TestTypeNoAllocNE& lhs,
+                      const Bind_TestTypeNoAllocNE& rhs)
+{
+    return !(lhs == rhs);
+}
+
+namespace bdlf {
+                      // -------------------------------
+                      // class Bind_TestFunctionsNoAlloc
+                      // -------------------------------
 
 // CLASS METHODS
 inline
@@ -1051,11 +1356,28 @@ int Bind_TestFunctionsNoAlloc::func##n(Bind_TestTypeNoAlloc *object, C##n(P)) \
 }
 L14(F)
 
+inline
+int Bind_TestFunctionsNoAlloc::funcNE0(Bind_TestTypeNoAllocNE *object)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return object->testFunc0();
+}
+
+#undef  F
+#define F(n)                                                                  \
+inline                                                                        \
+int Bind_TestFunctionsNoAlloc::funcNE##n(Bind_TestTypeNoAllocNE *object,      \
+                                         C##n(P)) BSLS_KEYWORD_NOEXCEPT       \
+{                                                                             \
+    return object->testFunc##n(C##n(A));                                      \
+}
+L14(F)
+
 }  // close package namespace
 
-                      // -----------------------------------
-                      // class bdlf::Bind_TestSlotsAllocBase
-                      // -----------------------------------
+                    // -----------------------------------
+                    // class bdlf::Bind_TestSlotsAllocBase
+                    // -----------------------------------
 
 // CLASS DATA
 template <class AllocPtr>
@@ -1113,9 +1435,9 @@ AllocPtr Bind_TestSlotsAllocBase<AllocPtr>::getZ2()
 }
 }  // close package namespace
 
-                      // -----------------------------
-                      // class bdlf::Bind_TestArgAlloc
-                      // -----------------------------
+                       // -----------------------------
+                       // class bdlf::Bind_TestArgAlloc
+                       // -----------------------------
 
 // CREATORS
 
@@ -1189,9 +1511,9 @@ bool bdlf::operator!=(const Bind_TestArgAlloc<ID>& lhs,
 }
 
 namespace bdlf {
-                      // ------------------------
-                      // class Bind_TestTypeAlloc
-                      // ------------------------
+                          // ------------------------
+                          // class Bind_TestTypeAlloc
+                          // ------------------------
 
 // CREATORS
 
@@ -1302,9 +1624,123 @@ bool bdlf::operator!=(const Bind_TestTypeAlloc& lhs,
 }
 
 namespace bdlf {
-                        // -----------------------------
-                        // class Bind_TestFunctionsAlloc
-                        // -----------------------------
+                         // --------------------------
+                         // class Bind_TestTypeAllocNE
+                         // --------------------------
+
+// CREATORS
+
+#undef  F
+#define F(n) d_a##n(a##n, allocator)
+inline
+Bind_TestTypeAllocNE::Bind_TestTypeAllocNE(bslma::Allocator *allocator, C14(V))
+: C14(F)
+{
+}
+
+#undef  F
+#define F(n) d_a##n(a##n, allocator)
+inline
+Bind_TestTypeAllocNE::Bind_TestTypeAllocNE(C14(V), bslma::Allocator *allocator)
+: C14(F)
+{
+}
+
+#undef  F
+#define F(n) d_a##n(original.d_a##n, allocator)
+inline
+Bind_TestTypeAllocNE::Bind_TestTypeAllocNE(
+                                        const Bind_TestTypeAllocNE&  original,
+                                        bslma::Allocator            *allocator)
+: C14(F)
+{
+}
+
+// MANIPULATORS
+
+#undef  F
+#define F(n) d_a##n = rhs.d_a##n;
+inline
+Bind_TestTypeAllocNE&
+Bind_TestTypeAllocNE::operator=(const Bind_TestTypeAllocNE& rhs)
+{
+    L14(F)
+    return *this;
+}
+
+// ACCESSORS
+inline
+int Bind_TestTypeAllocNE::operator()() const BSLS_KEYWORD_NOEXCEPT
+{
+    return testFunc0();
+}
+
+#undef  F
+#define F(n)                                                                  \
+inline                                                                        \
+int Bind_TestTypeAllocNE::operator()(C##n(P)) const BSLS_KEYWORD_NOEXCEPT     \
+{                                                                             \
+    return testFunc##n(C##n(A));                                              \
+}
+L14(F)
+
+inline
+int Bind_TestTypeAllocNE::testFunc0() const BSLS_KEYWORD_NOEXCEPT
+{
+    return 0;
+}
+
+#undef  G
+#define G(n) d_a##n = a##n; Bind_TestSlotsAlloc::setSlot(a##n.allocator(), n);
+#undef  F
+#define F(n)                                                                  \
+inline                                                                        \
+int Bind_TestTypeAllocNE::testFunc##n(C##n(P)) const BSLS_KEYWORD_NOEXCEPT    \
+{                                                                             \
+    S##n(G,)                                                                  \
+    return n;                                                                 \
+}
+L14(F)
+
+inline
+void Bind_TestTypeAllocNE::setSlots()
+{
+#undef  F
+#define F(n) Bind_TestSlotsAlloc::setSlot(d_a##n.allocator(), n);
+    L14(F)
+}
+
+inline
+void Bind_TestTypeAllocNE::print() const
+{
+#undef  F
+#define F(n) d_a##n.value()
+    bsl::printf("{ %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d }\n",
+                C14(F));
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdlf::operator==(const Bind_TestTypeAllocNE& lhs,
+                      const Bind_TestTypeAllocNE& rhs)
+{
+#undef  F
+#define F(n) lhs.d_a##n.value()  == rhs.d_a##n.value()
+    return S14(F,&&);
+}
+
+inline
+bool bdlf::operator!=(const Bind_TestTypeAllocNE& lhs,
+                      const Bind_TestTypeAllocNE& rhs)
+{
+    return !(lhs == rhs);
+}
+
+namespace bdlf {
+                       // -----------------------------
+                       // class Bind_TestFunctionsAlloc
+                       // -----------------------------
 
 inline
 int Bind_TestFunctionsAlloc::func0(Bind_TestTypeAlloc *o)
@@ -1316,6 +1752,23 @@ int Bind_TestFunctionsAlloc::func0(Bind_TestTypeAlloc *o)
 #define F(n)                                                                  \
 inline                                                                        \
 int Bind_TestFunctionsAlloc::func##n(Bind_TestTypeAlloc *o, C##n(P))          \
+{                                                                             \
+    return o->testFunc##n(C##n(A));                                           \
+}
+L14(F)
+
+inline
+int Bind_TestFunctionsAlloc::funcNE0(Bind_TestTypeAllocNE *o)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return o->testFunc0();
+}
+
+#undef  F
+#define F(n)                                                                  \
+inline                                                                        \
+int Bind_TestFunctionsAlloc::funcNE##n(Bind_TestTypeAllocNE *o, C##n(P))      \
+                                                        BSLS_KEYWORD_NOEXCEPT \
 {                                                                             \
     return o->testFunc##n(C##n(A));                                           \
 }
@@ -1374,6 +1827,10 @@ L14(F)
 #undef  G
 #undef  P
 #undef  V
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
 #endif
 

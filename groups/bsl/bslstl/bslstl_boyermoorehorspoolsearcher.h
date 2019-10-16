@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_defaultsearcher
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component defines two class templates,
 // 'bsl::boyer_moore_horspool_searcher' and
 // 'bslstl::BoyerMooreHorspoolSearcher'.  Both are compliant with section
@@ -36,7 +34,7 @@ BSLS_IDENT("$Id: $")
 //: 'RNDACC_ITR_NEEDLE':
 //:    The type used to specify (on construction) the range of values
 //:    being sought (the "needle").
-//
+//:
 //: 'HASH':
 //:    The functor type used to hash metadata for the unique values of
 //:    the needle.  See {Requirements for 'HASH' and 'EQUAL'}.
@@ -998,7 +996,7 @@ class BoyerMooreHorspoolSearcher {
         // Create a 'BoyerMooreHorspoolSearcher' object that can search for the
         // sequence of 'value_type' values found in the specified range
         // '[needleFirst, needleLast)'.  Generate meta-data and save for use by
-        // 'operator()'.  The complexity of of this process is O(M) where M is
+        // 'operator()'.  The complexity of this process is O(M) where M is
         // the length of the "needle".  Optionally specify a 'hash' functor
         // mapping mis-matched values to the size of the next step in the
         // search -- as large as, 'needleLast - needleFirst'.  Optionally
@@ -1144,7 +1142,7 @@ class boyer_moore_horspool_searcher {
         // Create a 'boyer_moore_horspool_searcher' object that can search for
         // the sequence of 'value_type' values found in the specified range
         // '[pat_first, pat_last)'.  Generate meta-data and save for use by
-        // 'operator()'.  The complexity of of this process is O(M) where M is
+        // 'operator()'.  The complexity of this process is O(M) where M is
         // 'pat_last - pat_first'.  Optionally specify 'hf', a hash functor,
         // that maps mis-matched values to the size of the next step in the
         // search -- as large as, 'pat_Last - pat_First'.  Optionally specify

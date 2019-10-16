@@ -1,12 +1,26 @@
-bsl-internal (3.39.0.0) unstable; urgency=low
+bsl-internal (3.40.0.0) unstable; urgency=low
 
+  * 7fe2360d2 Bump version to 3.40.0
+  * a1f4f8445 Merge pull request #2506 from jberne4/noexcept_types
+  * cd3ed276d Merge pull request #2500 from hrosen4/win-sp_drqs-148281696
+  * fb9740989 Merge pull request #2395 from ameredit/avoid_unnecessary_MetaInt_temp
+  * 9057c6c70 Merge pull request #2505 from mgiroux/add-raw-strings-compiler-feature-drqs149008849
+  * 494f5229a Merge pull request #2504 from mgiroux/add-raw-strings-compiler-feature-drqs149008849
+  * 49f78f04b Merge pull request #2503 from jmendelsohn4/bdlcc_singleconsumerimpl-doc-fix-20190924
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Oct 2019 12:54:06 -0400
+
+bsl-internal (3.39.0.0) git; urgency=low
+
+  * e860493ab Changelog for version 3.39.0.0
   * b1f246b57 Bump versions
   * c0621bda2 Merge pull request #2474 from mgiroux/import-dlcu_utf8util-drqs14279549
   * 04b1c5356 Merge pull request #2499 from jmendelsohn4/drqs-148368977/bsl-compile-warning-20190911
+  * 25da5f3ce Fix MSVC library versioning for auto_ptr
   * 36a2c03c5 Merge pull request #2497 from jmendelsohn4/drqs-148309729/bdl-compile-warning-20190910
   * cc883b6e2 Merge pull request #2496 from bchapman/bdlcc_multipriorityqueue-include-bsltf_streamutil-drqs-148250562
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 20 Sep 2019 12:28:06 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 20 Sep 2019 12:52:28 -0400
 
 bsl-internal (3.38.0.1) git; urgency=low
 

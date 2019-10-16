@@ -541,10 +541,9 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if member functions with trailing reference qualifiers
-// (e.g., 'void myfunc(int) &') are supported.  If both this macro and
-// 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' are both defined, then
-// trailing rvalue reference qualifiers (e.g., 'void myfunc(int) &') are also
-// supported.
+// (e.g., 'void myfunc(int) &') and rvalue reference qualifiers (e.g.,
+// 'void myFunc(int) &&') are supported.  Note that this macro implies that
+// 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also defined.
 //
 //: o Compiler support:
 //:   o gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3 is
@@ -726,7 +725,7 @@ BSLS_IDENT("$Id: $")
 #    define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 #    undef  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 #  endif
-#  if BSLS_PLATFORM_CMP_VERSION >= 72000
+#  if BSLS_PLATFORM_CMP_VERSION >= 70200
 // Note that early release of gcc 7.0 have a name-mangling bug with 'noexcept'
 // on "abominable" function types.
 #    define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
@@ -743,11 +742,12 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 // clang -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x Clang 2.9
-#if __has_feature(cxx_reference_qualified_functions)
-#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-#endif
 #if __has_feature(cxx_rvalue_references)
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif
+#if __has_feature(cxx_reference_qualified_functions) &&                       \
+    __has_feature(cxx_rvalue_references)
+#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 #endif
 #if __has_feature(cxx_default_function_template_args)
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
@@ -820,14 +820,15 @@ BSLS_IDENT("$Id: $")
 # undef  BSLS_COMPILERFEATURES_CPLUSPLUS
 # define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
 #endif
-#if (__cplusplus >= 201103L ||                                               \
-    (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))          \
+#if (__cplusplus >= 201103L ||                                                \
+    (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))           \
     && __has_include(<type_traits>)
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
 // work only with --std=c++1z
 #if __cplusplus >= 201703L  // C++17
 #define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 #endif
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
     // When compiling in >= C++11 mode on a non-Darwin platform, assume Clang
@@ -845,8 +846,8 @@ BSLS_IDENT("$Id: $")
 // MSVC enables C++11 features automatically in versions that provide the
 // feature.  Features can not be disabled.
 //
-//: * extern template is not supported. It is documented as being
-//:   "supported" but behaves in a non-conforming manner.
+//: * extern template is not supported.  It is documented as being "supported"
+//:   but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 
 // Not only does Microsoft not always report the language dialect properly in

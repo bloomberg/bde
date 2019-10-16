@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a preprocessor macro that suppresses
 // compiler warnings about flow of control fall-through from one 'case' or
 // 'default' of a 'switch' statement to another.  On compilers where the

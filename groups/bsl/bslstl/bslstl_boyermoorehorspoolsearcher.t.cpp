@@ -3526,7 +3526,7 @@ static bool expectAllocationCase7(Int64             dstNumBytes,
                                   bslma::Allocator *srcAllocator)
     // Return 'true' if the move assignment test in case 7 for the special
     // implementation (for 'char *') from the source object initially holding
-    // the specified 'dstNumBytes' from the the specified 'dstAllocator' to the
+    // the specified 'dstNumBytes' from the specified 'dstAllocator' to the
     // destination object initially holding the specified 'srcNumBytes' from
     // the 'srcAllocator' will allocate memory from 'dstAllocator', and 'false'
     // otherwise.

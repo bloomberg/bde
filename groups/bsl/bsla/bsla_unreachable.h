@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a preprocessor macro that hints to the
 // compile that a statement in the code is intended to be unreachable.  Note
 // that an instance of 'BSLA_UNREACHABLE' must be followed by a ';' and is a

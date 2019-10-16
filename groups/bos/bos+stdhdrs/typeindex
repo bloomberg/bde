@@ -52,7 +52,9 @@ BSLS_IDENT("$Id: $")
 #     include BSL_NATIVE_CPP_LIB_HEADER(typeindex)
 #   endif
 
-#   include <bsl_typeindex.h>
+#   ifndef BSL_INCLUDE_BSL_TYPEINDEX
+#   define BSL_INCLUDE_BSL_TYPEINDEX
+#   endif
 
 #   ifdef BOS_STDHDRS_EPILOGUE_RUN_BY_typeindex
 #   undef BOS_STDHDRS_EPILOGUE_RUN_BY_typeindex

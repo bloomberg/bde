@@ -316,7 +316,7 @@ class StripedUnorderedContainerImpl_Bucket {
         // Set the value attribute of the element in this bucket having the
         // specified 'key' to the specified 'value'.  If no such element
         // exists, insert '(key, value)'.  The behavior with respect to
-        // duplicate key values in the bucket depends on the the specified
+        // duplicate key values in the bucket depends on the specified
         // 'scope':
         //
         //: 'e_BUCKETSCOPE_ALL':
@@ -556,7 +556,7 @@ class StripedUnorderedContainerImpl {
                        Multiplicity             multiplicity);
         // Insert into this hash map an element having the specified 'key' and
         // 'value'.  The behavior with respect to duplicate key values in the
-        // hash map depends on the the specified 'multiplicity':
+        // hash map depends on the specified 'multiplicity':
         //
         //: 'e_INSERT_ALWAYS':
         //:   The insertion occurs irrespective of other elements in the hash
@@ -628,7 +628,7 @@ class StripedUnorderedContainerImpl {
         // Set the value attribute of the element in this hash map having the
         // specified 'key' to the specified 'value'.  If no such element
         // exists, insert '(key, value)'.  The behavior with respect to
-        // duplicate key values in the bucket depends on the the specified
+        // duplicate key values in the bucket depends on the specified
         // 'scope':
         //
         //: 'e_SCOPE_ALL':

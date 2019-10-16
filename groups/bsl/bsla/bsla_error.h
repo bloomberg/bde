@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a preprocessor macro that flags a
 // function such that the compile will fail with an error message when the
 // function is called.  On platforms where the appropriate attribute is not

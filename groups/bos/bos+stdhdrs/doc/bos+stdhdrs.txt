@@ -6,8 +6,6 @@
 
 @MNEMONIC: BSL_OVERRIDES_STD HeaDeRS (bos+stdhdrs)
 
-@AUTHOR: Arthur Chiu (achiu21)
-
 @DESCRIPTION: The 'bos+stdhdrs' package provides a compatibility layer for
  BDE-STL mode used by Bloomberg-managed code.  This document describes the
  contents of the 'bos+stdhdrs' package, and also the design decisions and basic

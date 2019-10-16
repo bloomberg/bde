@@ -11,8 +11,6 @@
 //@MACROS:
 // BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES: set if two-level namespace in 'bsl'
 //
-//@AUTHOR: Alexei Zakharov (azakharov7)
-//
 //@DESCRIPTION: This header potentially provides a single macro,
 // 'BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES'.  If
 // 'BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES' is defined then the types in the

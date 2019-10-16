@@ -779,6 +779,13 @@ static const bool
         native_std::istringstream("0x1P-1022") >> native_std::hexfloat >> f;
         native_std::istringstream("0.01") >> native_std::defaultfloat >> f;
     }
+
+    static void useTypeIndex() {
+        const native_std::type_info &info  = typeid(int);
+        const native_std::type_index index = info;
+
+        ASSERT(info.hash_code() == index.hash_code());
+    }
 #endif
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined =
@@ -1717,14 +1724,14 @@ int main(int argc, char *argv[])
         "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'\n"
         "=================================================================\n");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS)
-        useCpp11PreciseBitwidthAtomics();
-#endif
-
         if (verbose) {
             P(
              u_BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS_defined)
         }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS)
+        useCpp11PreciseBitwidthAtomics();
+#endif
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
@@ -2039,6 +2046,15 @@ int main(int argc, char *argv[])
         //:     o 'get_money'
         //:     o 'put_money'
         //:
+        //:   o Functions and types defined in '<ios>'
+        //:     o 'io_errc'
+        //:     o 'iostream_category'
+        //:     o 'is_error_code_enum'
+        //:     o 'make_error_code'
+        //:     o 'make_error_condition'
+        //:     o 'hexfloat'
+        //:     o 'defaultfloat'
+        //:
         //:   o Functions defined in '<iterator>'
         //:     o 'begin'
         //:     o 'end'
@@ -2057,17 +2073,11 @@ int main(int argc, char *argv[])
         //:   o Function defined in '<numeric>'
         //:     o 'iota'
         //:
+        //:   o Member function defined in '<typeinfo>'
+        //:     o 'type_info::hash_code'
+        //:
         //:   o Function defined in '<utility>'
         //:     o 'swap'
-        //:
-        //:   o Functions and types defined in '<ios>'
-        //:     o 'io_errc'
-        //:     o 'iostream_category'
-        //:     o 'is_error_code_enum'
-        //:     o 'make_error_code'
-        //:     o 'make_error_condition'
-        //:     o 'hexfloat'
-        //:     o 'defaultfloat'
         //
         // Plan:
         //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
@@ -2081,6 +2091,11 @@ int main(int argc, char *argv[])
         //:   '<atomic>', '<functional>', '<iomanip>', '<iterator>',
         //:   '<locale>', '<memory>', '<numeric>', '<utility>' and uses each of
         //:   the listed function templates at least once.
+        //:
+        //: 3 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
+        //:   conditionally compile code that includes '<typeindex>' and verify
+        //:   the 'hash_code' method is availble in both 'type_info' and
+        //:   'type_index'.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -2097,6 +2112,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
         testSimpleUniformRandomNumberGenerator();
         useCpp11Algorithms();
+        useTypeIndex();
 #endif
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);

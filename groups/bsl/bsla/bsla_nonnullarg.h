@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides preprocessor macros that define
 // compiler-specific compile-time annotations.  These macros instruct the
 // compiler to warn if null is passed to certain arguments to a function, or,

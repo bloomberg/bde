@@ -40,8 +40,6 @@ BSLS_IDENT("$Id: $")
 //  BSLA_USED_IS_ACTIVE: 0 if 'BSLA_USED' expands to nothing and 1 otherwise
 //  BSLA_WARNING_IS_ACTIVE: 0 if 'BSLA_WARNING' expands to nothing else 1
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component exists to provide a single component whose
 // header can be included to transitively include all of the annotation macros
 // defined in the 'bsla' package.  The macros that are transitively included by

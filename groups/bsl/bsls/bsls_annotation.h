@@ -29,8 +29,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ANNOTATION_NORETURN: error if function returns normally
 //  BSLS_ANNOTATION_FALLTHROUGH: do not warn if case fall through
 //
-//@AUTHOR: Andrew Paprocki (apaprock)
-//
 //@DEPRECATED: See package 'bsla'.
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that

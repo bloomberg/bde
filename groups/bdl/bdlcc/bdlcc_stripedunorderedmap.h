@@ -561,10 +561,10 @@ class StripedUnorderedMap {
         // within 'visitor', as it may lead to a deadlock.
 
     int visit(const VisitorFunction& visitor);
-        // Call the specified 'visitor' (in an unspecified order) on the
-        // elements in this hash table having the specified 'key' either until
-        // each such element has been visited or until 'visitor' returns
-        // 'false.  That is, for '(key, value)', invoke:
+        // Call the specified 'visitor' (in an unspecified order) on all
+        // elements in this hash table until each such element has been
+        // visited or until 'visitor' returns 'false'.
+        // That is, for '(key, value)', invoke:
         //..
         //  bool visitor(&value, key);
         //..

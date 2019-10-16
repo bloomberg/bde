@@ -15,19 +15,41 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
-#include <typeindex>
+#ifdef BSL_OVERRIDES_STD
+// BDE configuration requires 'bos+stdhdrs' be in the search path, so this
+// #include is guaranteed to succeed.
 
-namespace bsl {
-
-    using native_std::type_index;
-}  // close package namespace
-
+# include <unordered_set>
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
+// The unordered containers are a feature of the C++11 library, rather than
+// C++03, so might not be present in all native libraries on the platforms we
+// support.  Detect the native header using '__has_include' where available.
+#   if __has_include(<typeindex>)
+#     include <typeindex>
+#   endif
+# else
+#   include <typeindex>
+# endif
 #endif
 
+// Include Bloomberg's implementation, unless compilation is configured to
+// override native types in the 'std' namespace with Bloomberg's
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
+
+#ifndef BSL_OVERRIDES_STD
+# include <bslstl_typeindex.h>
+#endif  // BSL_OVERRIDES_STD
+
+#endif  // INCLUDED_BSL_TYPEINDEX
+
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

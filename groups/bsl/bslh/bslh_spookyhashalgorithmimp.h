@@ -281,7 +281,7 @@ class SpookyHashAlgorithmImp {
         // 'h11', and then mix the inputs together so that 'h0' and 'h1' are a
         // hash of all the inputs.  Note that non-BDE-standard passing by
         // non-const reference is used here to remain consistent with the
-        // cannonical implementation.  The behavior is undefined unles 'data'
+        // cannonical implementation.  The behavior is undefined unless 'data'
         // points at least 8 bytes of initialized memory.
 
     static void endPartial(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
@@ -291,8 +291,8 @@ class SpookyHashAlgorithmImp {
         // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
         // will be a hash of all the inputs.  Note that non-BDE-standard
         // passing by non-const reference is used here to remain consistent
-        // with the cannonical implementation.  The behavior is undefined unles
-        // 'data' points at least 8 bytes of initialized memory.
+        // with the cannonical implementation.  The behavior is undefined
+        // unless 'data' points at least 8 bytes of initialized memory.
 
     static void mix(const Uint64 *data,
                     Uint64 &s0, Uint64 &s1, Uint64 &s2,  Uint64 &s3,
@@ -305,7 +305,7 @@ class SpookyHashAlgorithmImp {
         // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.  Note that
         // non-BDE-standard passing by non-const reference is used here to
         // remain consistent with the cannonical implementation.  The behavior
-        // is undefined unles 'data' points at least 8 bytes of initialized
+        // is undefined unless 'data' points at least 8 bytes of initialized
         // memory.
 
     static Uint64 rot64(Uint64 x, int k);
@@ -390,7 +390,7 @@ class SpookyHashAlgorithmImp {
         // internal state of the algorithm.  Accumulating bytes through
         // 'Update' will produce the same result as hashing them all at once
         // through the 'HashXX' static methods.  The behavior is undefined
-        // unles 'message' points at least 'length' bytes of initialized
+        // unless 'message' points at least 'length' bytes of initialized
         // memory or 'length' is zero.
 
     void finalize(Uint64 *hash1, Uint64 *hash2);

@@ -184,7 +184,7 @@ BSLS_IDENT("$Id: $")
 //:   o Functions defined in '<cwctype>'
 //:     o 'iswblank'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -205,7 +205,7 @@ BSLS_IDENT("$Id: $")
 //:   o Function defined in '<cstdio>'
 //:     o 'snprintf'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -287,6 +287,15 @@ BSLS_IDENT("$Id: $")
 //:     o 'get_money'
 //:     o 'put_money'
 //:
+//:   o Functions and types defined in '<ios>'
+//:     o 'io_errc'
+//:     o 'iostream_category'
+//:     o 'is_error_code_enum'
+//:     o 'make_error_code'
+//:     o 'make_error_condition'
+//:     o 'hexfloat'
+//:     o 'defaultfloat'
+//
 //:   o Functions defined in '<iterator>'
 //:     o 'begin'
 //:     o 'end'
@@ -306,6 +315,9 @@ BSLS_IDENT("$Id: $")
 //:   o Function defined in '<numeric>'
 //:     o 'iota'
 //:
+//:   o Member function defined in '<typeinfo>'
+//:     o 'type_info::hash_code'
+//:
 //:   o Functions defined in '<utility>'
 //:     o 'declval'
 //:     o 'forward'
@@ -313,16 +325,26 @@ BSLS_IDENT("$Id: $")
 //:     o 'move_if_noexcept'
 //:     o 'swap'
 //:
-//:   o Functions and types defined in '<ios>'
-//:     o 'io_errc'
-//:     o 'iostream_category'
-//:     o 'is_error_code_enum'
-//:     o 'make_error_code'
-//:     o 'make_error_condition'
-//:     o 'hexfloat'
-//:     o 'defaultfloat'
+//: o The following headers can be included:
+//:
+//:     o <array>
+//:     o <atomic>
+//:     o <chrono>
+//:     o <codecvt>
+//:     o <condition_variable>
+//:     o <forward_list>
+//:     o <future>
+//:     o <mutex>
+//:     o <random>
+//:     o <regex>
+//:     o <scoped_allocator>
+//:     o <system_error>
+//:     o <thread>
+//:     o <typeindex>
+//:     o <unordered_map>
+//:     o <unordered_set>
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -346,6 +368,10 @@ BSLS_IDENT("$Id: $")
 //: o The following functions and types are provided by the native standard
 //:   library:
 //:
+//:   o UDLs support for <'chrono>'
+//:
+//:   o UDLs support for '<complex>'
+//:
 //:   o Type defined in '<functional>'
 //:     o bit_not
 //:
@@ -365,13 +391,9 @@ BSLS_IDENT("$Id: $")
 //:   o Function defined in '<utility>'
 //:     o 'exchange'
 //:
-//:   o UDLs support for <'chrono>'
-//:
-//:   o UDLs support for '<complex>'
-//:
 //: o The header <shared_mutex> is available providing the standard components.
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o gcc 4.9
 //:   o clang 3.4
@@ -394,7 +416,7 @@ BSLS_IDENT("$Id: $")
 // standard, 'bsl::integer_sequence' is supported by BDE when compiling in
 // C++11 mode.
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -418,7 +440,7 @@ BSLS_IDENT("$Id: $")
 //:   o 'disjunction'
 //:   o 'negation'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o gcc 7, gcc 8, gcc 9, clang 7, clang 8
 //
@@ -438,7 +460,7 @@ BSLS_IDENT("$Id: $")
 //:   o 'rethrow_if_nested'
 //:   o 'throw_with_nested'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -461,7 +483,7 @@ BSLS_IDENT("$Id: $")
 //:   o 'undeclare_no_pointers'
 //:   o 'undeclare_reachable'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 6.0
 //:   o Clang 3.0 (using at least GCC 6.0 STL)
@@ -500,7 +522,7 @@ BSLS_IDENT("$Id: $")
 //:     o 'bad_array_new_length'
 //:     o 'get_new_handler'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 5.0
 //:   o Clang 3.0 (using at least GCC 5.0 STL)
@@ -531,7 +553,7 @@ BSLS_IDENT("$Id: $")
 //:
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' macro is defined.
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -559,7 +581,7 @@ BSLS_IDENT("$Id: $")
 //:   o 'atomic_intptr_t'
 //:   o 'atomic_uintptr_t'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 7.0
 //:   o Clang 3.0 (using at least GCC 7.0 STL)
@@ -615,7 +637,7 @@ BSLS_IDENT("$Id: $")
 //: o 'quick_exit'
 //: o 'at_quick_exit'
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -636,7 +658,7 @@ BSLS_IDENT("$Id: $")
 //  template <class T, size_t N> T* end(T (&array)[N]);
 //..
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.6
 //:   o Clang 3.0
@@ -664,7 +686,7 @@ BSLS_IDENT("$Id: $")
 //  template <class C> auto crend(const C& c) -> decltype(std::rend(c));
 //..
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.9
 //:   o Clang 3.4
@@ -702,7 +724,7 @@ BSLS_IDENT("$Id: $")
 //: o The 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' macro is also
 //:   defined.
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -721,7 +743,7 @@ BSLS_IDENT("$Id: $")
 //: o The 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' macro is also
 //:   defined.
 //
-// Currently the following compilers will have this trait defined by default:
+// Currently the following compilers will have this macro defined by default:
 //
 //:   o GCC 4.8
 //:   o Clang 3.0 (using at least GCC 4.8 STL)
@@ -1154,8 +1176,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
 
     #if defined(__APPLE_CC__) &&                                             \
-        __APPLE_CC__ >= 6000  &&                                             \
-        BSLS_PLATFORM_CMP_VERSION >= 70300
+        __APPLE_CC__ >= 6000
 
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS        1
             // libc++ provides this C++11 feature as a C++98 extension.
@@ -1174,6 +1195,20 @@ BSLS_IDENT("$Id: $")
 
         #if __cplusplus > 201103L
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY   1
+        #endif
+
+        #if __cplusplus > 201402L
+            #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS    1
+        #endif
+        #if __cplusplus >= 201703L
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM   1
+
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
         #endif
 
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000

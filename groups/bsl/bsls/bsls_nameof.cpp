@@ -7,6 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 
+#include <stdio.h>
 #include <cstring>
 
 #include <ctype.h>
@@ -85,14 +86,14 @@ const char *NameOf_Base::initBuffer(char       *buffer,
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 # if defined(BSLS_PLATFORM_CPU_64_BIT)
     static
-    char uselessPreamble[] = { "__cdecl BloombergLP::bsls::NameOf<" };
+    const char uselessPreamble[] = {    "__cdecl BloombergLP::bsls::NameOf<" };
 # else
     static
-    char uselessPreamble[] = { "__thiscall BloombergLP::bsls::NameOf<" };
+    const char uselessPreamble[] = { "__thiscall BloombergLP::bsls::NameOf<" };
 # endif
 #else
     static
-    char uselessPreamble[] = {            "BloombergLP::bsls::NameOf<" };
+    const char uselessPreamble[] = {            "BloombergLP::bsls::NameOf<" };
 #endif
 
     static
@@ -262,7 +263,7 @@ const char *NameOf_Base::initBuffer(char       *buffer,
     // Linux clang, and Darwin clang
 
 # if BSLS_PLATFORM_OS_DARWIN
-    static char stringName[] = { "std::__1::basic_string<char>" };
+    char stringName[] = { "std::__1::basic_string<char>" };
 
     u::substitute(buffer,     stringName,   "std::string");
     u::substitute(stringName, "std::__1::",  "std::");

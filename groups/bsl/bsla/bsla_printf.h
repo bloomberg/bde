@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsla_annotations
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a preprocessor macro that allows the
 // designation of a given function argument as a 'printf'-style format string,
 // and arguments starting at a certain index in the argument list to be

@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Standard Library Annotations (bsla)
 
-@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
-
 @DESCRIPTION: The 'bsla' package provides a variety of macros that expand to
  annotations to provide hints to the compiler, to suppress or emit compiler
  warnings or errors.

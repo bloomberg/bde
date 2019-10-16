@@ -1294,11 +1294,12 @@ template <class KEY,
 class TestDriver {
     // This templatized struct provide a namespace for testing the
     // 'unordered_map' container.  The parameterized 'KEY', 'VALUE', 'HASH',
-    // 'COMP' and 'ALLOC' specifies the key type, the mapped type, the hash
+    // 'EQUAL' and 'ALLOC' specifies the key type, the mapped type, the hash
     // functor, the equality comparator type and allocator type respectively.
     // Each "testCase*" method test a specific aspect of
-    // 'unordered_map<KEY, VALUE, HASH, COMP, ALLOC>'.  Every test cases should
-    // be invoked with various parameterized type to fully test the container.
+    // 'unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>'.  Every test cases
+    // should be invoked with various parameterized type to fully test the
+    // container.
 
   private:
     // TYPES
@@ -1367,7 +1368,7 @@ class TestDriver {
     // The generating functions interpret the given 'spec' in order from left
     // to right to configure the object according to a custom language.
     // Uppercase letters [A..Z] correspond to arbitrary (but unique) char
-    // values to be appended to the 'unordered_map<KEY, VALUE, COMP, ALLOC>'
+    // values to be appended to the 'unordered_map<KEY, VALUE, EQUAL, ALLOC>'
     // object.
     //
     // LANGUAGE SPECIFICATION:
