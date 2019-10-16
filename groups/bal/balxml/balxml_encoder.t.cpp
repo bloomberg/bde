@@ -8661,7 +8661,7 @@ class TestNilValue {
 };
 
 // FREE FUNCTIONS
-bsl::ostream& operator<<(bsl::ostream& stream, const TestNilValue& value)
+bsl::ostream& operator<<(bsl::ostream& stream, const TestNilValue&)
 {
     return stream << "nil";
 }
@@ -8733,9 +8733,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<int>& object)
 // TRAITS
 namespace bdlat_ArrayFunctions {
 
-template <class TYPE>
-struct ElementType<bsl::vector<TYPE> > {
-    typedef TYPE Type;
+template <>
+struct ElementType<bsl::vector<int> > {
+    typedef int Type;
 };
 
 }  // close bdlat_ArrayFunctions namespace
@@ -9484,7 +9484,7 @@ struct IsCustomizedType<TestCustomizedType<VALUE_TYPE, BASE_TYPE> > {
 
 template <class VALUE_TYPE,
           bool IS_ARRAY = bdlat_TypeCategory::e_ARRAY_CATEGORY ==
-                          bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
+                          static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_ArrayImpUtil {
     // This utility 'struct' provides a namespace for a suite of functions used
     // by 'TestDynamicType' to implement the 'bdlat' 'Array' concept for
@@ -9570,7 +9570,7 @@ struct TestDynamicType_ArrayImpUtil<VALUE_TYPE, false> {
 
 template <class VALUE_TYPE,
           bool IS_CHOICE = bdlat_TypeCategory::e_CHOICE_CATEGORY ==
-                           bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
+                           static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_ChoiceImpUtil {
     // This utility 'struct' provides a namespace for a suite of functions used
     // by 'TestDynamicType' to implement the 'bdlat' 'Choice' concept for
@@ -9690,7 +9690,7 @@ struct TestDynamicType_ChoiceImpUtil<VALUE_TYPE, false> {
 template <class VALUE_TYPE,
           bool IS_SEQUENCE =
               bdlat_TypeCategory::e_SEQUENCE_CATEGORY ==
-              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION>
+              static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_SequenceImpUtil {
     // This utility 'struct' provides a namespace for a suite of functions used
     // by 'TestDynamicType' to implement the 'bdlat' 'Sequence' concept for
@@ -10484,7 +10484,7 @@ struct bdlat_TypeCategoryDeclareDynamic<TestDynamicType<VALUE_TYPE> > {
 
 template <class VALUE_TYPE,
           bool IS_ARRAY =
-              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+              static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
               bdlat_TypeCategory::e_ARRAY_CATEGORY>
 struct TestDynamicType_ElementTypeImpl {
     typedef typename bdlat_ArrayFunctions::ElementType<VALUE_TYPE>::Type Type;
@@ -11571,7 +11571,7 @@ struct AttributeTypeUtil {
 
     template <class SELECTION_0, class TYPE_0>
     static TestChoice<TypedTestSelection<TYPE_0, SELECTION_0> > generateChoice(
-                                                  const SELECTION_0& selection,
+                                                  const SELECTION_0&,
                                                   const TYPE_0&      value)
     {
         typedef TypedTestSelection<TYPE_0, SELECTION_0> Selection0;
@@ -11582,8 +11582,8 @@ struct AttributeTypeUtil {
     template <class SELECTION_0, class SELECTION_1, class TYPE_0, class TYPE_1>
     static TestChoice<TypedTestSelection<TYPE_0, SELECTION_0>,
                       TypedTestSelection<TYPE_1, SELECTION_1> >
-    generateChoice(const SELECTION_0& selection0,
-                   const SELECTION_1& selection1,
+    generateChoice(const SELECTION_0&,
+                   const SELECTION_1&,
                    const TYPE_0&      value,
                    const PlaceHolder<TYPE_1>&)
     {
@@ -11596,8 +11596,8 @@ struct AttributeTypeUtil {
     template <class SELECTION_0, class SELECTION_1, class TYPE_0, class TYPE_1>
     static TestChoice<TypedTestSelection<TYPE_0, SELECTION_0>,
                       TypedTestSelection<TYPE_1, SELECTION_1> >
-    generateChoice(const SELECTION_0& selection0,
-                   const SELECTION_1& selection1,
+    generateChoice(const SELECTION_0&,
+                   const SELECTION_1&,
                    const PlaceHolder<TYPE_0>&,
                    const TYPE_1& value)
     {
