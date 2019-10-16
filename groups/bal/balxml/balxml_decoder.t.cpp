@@ -19856,6 +19856,11 @@ class TestSelection {
 
         return result;
     }
+
+    // CREATORS
+    TestSelection()
+    {
+    }
 };
 
 // CLASS DATA
@@ -21611,6 +21616,11 @@ class TestEnumerator {
     // CLASS METHODS
     static int               intValue() { return k_INT_VALUE; }
     static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
+
+    // CREATORS
+    TestEnumerator()
+    {
+    }
 };
 
 // CLASS DATA
@@ -21934,6 +21944,11 @@ class TestAttribute {
                                       k_FORMATTING_MODE};
 
         return result;
+    }
+
+    // CREATORS
+    TestAttribute()
+    {
     }
 };
 
@@ -22582,6 +22597,13 @@ class PlaceHolder {
     // sense for a value of the type to be supplied to guide the deduction, and
     // where specifying a template argument may require more characters than a
     // function argument.
+
+  public:
+    // CREATORS
+    PlaceHolder()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
 };
 
                           // ========================
@@ -22790,6 +22812,12 @@ class GenerateTestArray {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestArray()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class VALUE_TYPE>
     bsl::vector<VALUE_TYPE> operator()(const PlaceHolder<VALUE_TYPE>&) const
@@ -22824,6 +22852,12 @@ class GenerateTestArrayPlaceHolder {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestArrayPlaceHolder()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class VALUE_TYPE>
     PlaceHolder<bsl::vector<VALUE_TYPE> > operator()(
@@ -22845,6 +22879,12 @@ class GenerateTestChoice {
   public:
     // TYPES
     typedef AttributeTypeUtil Util;
+
+    // CREATORS
+    GenerateTestChoice()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
 
     // ACCESSORS
     template <class SELECTION_0, class TYPE_0>
@@ -22893,6 +22933,12 @@ class GenerateTestChoicePlaceHolder {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestChoicePlaceHolder()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class SELECTION_0, class TYPE_0>
     PlaceHolder<TestChoice<TypedTestSelection<TYPE_0, SELECTION_0> > >
@@ -22933,6 +22979,12 @@ class GenerateTestCustomizedType {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestCustomizedType()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class VALUE_TYPE, class BASE_TYPE>
     TestCustomizedType<VALUE_TYPE, BASE_TYPE> operator()(
@@ -22956,6 +23008,12 @@ class GenerateTestDynamicType {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestDynamicType()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class VALUE_TYPE>
     TestDynamicType<VALUE_TYPE> operator()(const VALUE_TYPE& value) const
@@ -22976,6 +23034,12 @@ class GenerateTestDynamicPlaceHolder {
   public:
     // TYPES
     typedef AttributeTypeUtil Util;
+
+    // CREATORS
+    GenerateTestDynamicPlaceHolder()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
 
     // ACCESSORS
     template <class VALUE_TYPE>
@@ -22998,6 +23062,12 @@ class GenerateTestEnumeration {
   public:
     // TYPES
     typedef AttributeTypeUtil Util;
+
+    // CREATORS
+    GenerateTestEnumeration()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
 
     // ACCESSORS
     template <class ENUMERATOR_0>
@@ -23030,6 +23100,12 @@ class GenerateTestEnumerationPlaceHolder {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestEnumerationPlaceHolder()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class ENUMERATOR_0>
     PlaceHolder<TestEnumeration<ENUMERATOR_0> > operator()(
@@ -23060,6 +23136,12 @@ class GenerateTestNullableValue {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestNullableValue()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class VALUE_TYPE>
     bdlb::NullableValue<VALUE_TYPE> operator()(const PlaceHolder<VALUE_TYPE>&) const
@@ -23087,6 +23169,12 @@ class GenerateTestNullablePlaceHolder {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestNullablePlaceHolder()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSOR
     template <class VALUE_TYPE>
     PlaceHolder<bdlb::NullableValue<VALUE_TYPE> > operator()(
@@ -23108,6 +23196,12 @@ class GenerateTestSequence {
   public:
     // TYPES
     typedef AttributeTypeUtil Util;
+
+    // CREATORS
+    GenerateTestSequence()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
 
     // ACCESSORS
     template <class ATTRIBUTE_0, class TYPE_0>
@@ -23143,6 +23237,12 @@ class GenerateTestSequencePlaceHolder {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestSequencePlaceHolder()
+        // Non-trivial constructor in order to work around a sun compiler bug.
+    {
+    }
+
     // ACCESSORS
     template <class ATTRIBUTE_0, class TYPE_0>
     PlaceHolder<TestSequence<TypedTestAttribute<TYPE_0, ATTRIBUTE_0> > >
@@ -23170,7 +23270,6 @@ class GenerateTestSequencePlaceHolder {
 // ============================================================================
 //                          END BDLAT TEST APPARATUS
 // ----------------------------------------------------------------------------
-
 
 // ============================================================================
 //                       BEGIN XML GENERATION APPARATUS
@@ -23448,6 +23547,11 @@ class GenerateXmlElement {
     // TYPES
     typedef TestXmlUtil Util;
 
+    // CREATORS
+    GenerateXmlElement()
+    {
+    }
+
     // ACCESSORS
     TestXmlElement operator()(const bslstl::StringRef& name) const
     {
@@ -23540,7 +23644,7 @@ class TestCase19RowProtocolImp : public TestCase19RowProtocol {
     enum {
         e_DECODING_FAILS                  = 0,
         e_DECODING_SUCCEEDS               = 1,
-        e_DECODING_YIELDS_DIFFERENT_VALUE = 2,
+        e_DECODING_YIELDS_DIFFERENT_VALUE = 2
     };
 
   private:
