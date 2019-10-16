@@ -9489,8 +9489,10 @@ struct IsCustomizedType<TestCustomizedType<VALUE_TYPE, BASE_TYPE> > {
                      // ==================================
 
 template <class VALUE_TYPE,
-          bool IS_ARRAY = bdlat_TypeCategory::e_ARRAY_CATEGORY ==
-                          static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
+          bool IS_ARRAY =
+              bdlat_TypeCategory::e_ARRAY_CATEGORY ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_ArrayImpUtil {
     // This utility 'struct' provides a namespace for a suite of functions used
     // by 'TestDynamicType' to implement the 'bdlat' 'Array' concept for
@@ -9575,8 +9577,10 @@ struct TestDynamicType_ArrayImpUtil<VALUE_TYPE, false> {
                     // ===================================
 
 template <class VALUE_TYPE,
-          bool IS_CHOICE = bdlat_TypeCategory::e_CHOICE_CATEGORY ==
-                           static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
+          bool IS_CHOICE =
+              bdlat_TypeCategory::e_CHOICE_CATEGORY ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_ChoiceImpUtil {
     // This utility 'struct' provides a namespace for a suite of functions used
     // by 'TestDynamicType' to implement the 'bdlat' 'Choice' concept for
@@ -9696,7 +9700,8 @@ struct TestDynamicType_ChoiceImpUtil<VALUE_TYPE, false> {
 template <class VALUE_TYPE,
           bool IS_SEQUENCE =
               bdlat_TypeCategory::e_SEQUENCE_CATEGORY ==
-              static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_SequenceImpUtil {
     // This utility 'struct' provides a namespace for a suite of functions used
     // by 'TestDynamicType' to implement the 'bdlat' 'Sequence' concept for
