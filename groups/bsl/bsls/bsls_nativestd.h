@@ -41,16 +41,6 @@ BSLS_IDENT("$Id: $")
 //  native_std::string s2;  // guaranteed to be the compiler's native string
 //..
 
-#include <bsls_platform.h>
-
-// '<bsls_platform.h>' is included early in the header sequence, as it contains
-// several macros that control the configuration of the native STL on the
-// Windows platform, if no other.  The main reason is to disable Microsoft's
-// deprecation warnings, as they deprecated the entire standard library unless
-// certain configuration macros are defined.  We put those macros into our
-// common platform header, rather than require the user to supply lots of
-// options to every project they create in Visual Studio in order to use BDE.
-
 #ifndef BSL_DEFINED_NATIVE_STD
 
 # ifdef std
@@ -66,7 +56,7 @@ namespace native_std = ::std;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
