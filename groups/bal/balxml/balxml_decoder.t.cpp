@@ -22854,7 +22854,7 @@ class GenerateTestArrayPlaceHolder {
     // ACCESSORS
     template <class VALUE_TYPE>
     PlaceHolder<bsl::vector<VALUE_TYPE> > operator()(
-                                                const PlaceHolder<VALUE_TYPE>&) const
+                                          const PlaceHolder<VALUE_TYPE>&) const
     {
         return PlaceHolder<bsl::vector<VALUE_TYPE> >();
     }
@@ -23032,7 +23032,7 @@ class GenerateTestDynamicPlaceHolder {
     // ACCESSORS
     template <class VALUE_TYPE>
     PlaceHolder<TestDynamicType<VALUE_TYPE> > operator()(
-                                                const PlaceHolder<VALUE_TYPE>&) const
+                                          const PlaceHolder<VALUE_TYPE>&) const
     {
         return PlaceHolder<TestDynamicType<VALUE_TYPE> >();
     }
@@ -23129,7 +23129,8 @@ class GenerateTestNullableValue {
 
     // ACCESSORS
     template <class VALUE_TYPE>
-    bdlb::NullableValue<VALUE_TYPE> operator()(const PlaceHolder<VALUE_TYPE>&) const
+    bdlb::NullableValue<VALUE_TYPE> operator()(
+                                          const PlaceHolder<VALUE_TYPE>&) const
     {
         return Util::generateNullableValue(PlaceHolder<VALUE_TYPE>());
     }
@@ -23162,7 +23163,7 @@ class GenerateTestNullablePlaceHolder {
     // ACCESSOR
     template <class VALUE_TYPE>
     PlaceHolder<bdlb::NullableValue<VALUE_TYPE> > operator()(
-                                                const PlaceHolder<VALUE_TYPE>&) const
+                                          const PlaceHolder<VALUE_TYPE>&) const
     {
         return PlaceHolder<bdlb::NullableValue<VALUE_TYPE> >();
     }
@@ -23664,7 +23665,7 @@ class TestCase19RowProtocolImp : public TestCase19RowProtocol {
                        bslma::Allocator *allocator) const BSLS_KEYWORD_OVERRIDE
     {
         bslma::Allocator *const basicAllocator = bslma::Default::allocator(
-                                                                     allocator);
+                                                                    allocator);
 
         return bslma::ManagedPtr<TestCase19RowProtocol>(
             new (*basicAllocator) TestCase19RowProtocolImp(d_line,
