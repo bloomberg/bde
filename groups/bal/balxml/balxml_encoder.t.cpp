@@ -10485,7 +10485,8 @@ struct bdlat_TypeCategoryDeclareDynamic<TestDynamicType<VALUE_TYPE> > {
 
 template <class VALUE_TYPE,
           bool IS_ARRAY =
-              static_cast<bdlat_TypeCategory::Value>(bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
               bdlat_TypeCategory::e_ARRAY_CATEGORY>
 struct TestDynamicType_ElementTypeImpl {
     typedef typename bdlat_ArrayFunctions::ElementType<VALUE_TYPE>::Type Type;
