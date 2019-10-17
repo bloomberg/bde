@@ -244,7 +244,6 @@ BitPtrDiff BitPtrDiff::operator-() const
 }
 
 // FREE OPERATORS
-bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs) BSLA_UNUSED;
 inline
 bool operator>(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is greater than the specified
@@ -255,6 +254,7 @@ bool operator>(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
 }
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs) BSLA_UNUSED;
 inline
 bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is less than the specified 'rhs',
