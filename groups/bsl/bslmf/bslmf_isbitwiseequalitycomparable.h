@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a simple 'struct' that contains a 'char' and a 'short' as
 // its two data members, and supported comparison with 'operator=='.  Note that
-// there will be a btye of padding between the 'char' and the 'short' members
+// there will be a byte of padding between the 'char' and the 'short' members
 // to ensure proper alignment.  We insert telemetry to count the number of
 // times 'operator==' is called:
 //..
@@ -390,14 +390,14 @@ struct IsBitwiseEqualityComparable;
 template <class TYPE, class = void>
 struct IsBitwiseEqualityComparable_Imp2 : bsl::false_type {};
 template <class TYPE>
-struct IsBitwiseEqualityComparable_Imp2<TYPE, typename VoidType<TYPE[]>::type>
+struct IsBitwiseEqualityComparable_Imp2<TYPE, BSLMF_VOIDTYPE(TYPE[])>
     : bsl::true_type {
     // This implementation-detail trait determines whether 'TYPE' is a scalar
     // type (an arithmetic type, enumeration, pointer, or pointer-to-member).
     // This implementation takes advantage of a previous layer of filtering
     // handling all class-types, so any remaining types that are valid as array
-    // elements must be scalar types, i.e., the 'VoidType' test will filter
-    // function types and reference types.
+    // elements must be scalar types, i.e., the 'BSLMF_VOIDTYPE' test will
+    // filter function types and reference types.
 };
 
                      // ======================================
@@ -408,8 +408,7 @@ template <class TYPE, class = void>
 struct IsBitwiseEqualityComparable_Imp
     :  IsBitwiseEqualityComparable_Imp2<TYPE>::type {};
 template <class TYPE>
-struct IsBitwiseEqualityComparable_Imp<TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : DetectNestedTrait<TYPE, IsBitwiseEqualityComparable>::type {
     // This trait 'struct' derives from 'bsl::true_type' if (the template
     // paramter) 'TYPE' is a scalar type or a class with a nested trait
@@ -427,8 +426,7 @@ template <class TYPE, class = void>
 struct IsBitwiseEqualityComparable_Imp
     :  bsl::is_const<const TYPE>::type {};
 template <class TYPE>
-struct IsBitwiseEqualityComparable_Imp<TYPE,
-                                       typename VoidType<int TYPE::*>::type>
+struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : DetectNestedTrait<TYPE, IsBitwiseEqualityComparable>::type {
     // This trait 'struct' derives from 'bsl::true_type' if (the template
     // paramter) 'TYPE' is a scalar type or a class with a nested trait

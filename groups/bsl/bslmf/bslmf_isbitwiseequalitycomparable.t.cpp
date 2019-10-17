@@ -211,7 +211,7 @@ void aSsErT(bool condition, const char *message, int line)
 //
 // First, we create a simple 'struct' that contains a 'char' and a 'short' as
 // its two data members, and supported comparison with 'operator=='.  Note that
-// there will be a btye of padding between the 'char' and the 'short' members
+// there will be a byte of padding between the 'char' and the 'short' members
 // to ensure proper alignment.  We insert telemetry to count the number of
 // times 'operator==' is called:
 //..
@@ -527,8 +527,12 @@ enum EnumTestType {
 };
 
 struct Incomplete;
-    // This class supports testing the 'IsBitwiseEqualityComparable' trait for
-    // incomplete types.
+    // This type supports testing the 'IsBitwiseEqualityComparable' trait for
+    // incomplete class types; it is deliberately declared, but never defined.
+
+union Uncomplete;
+    // This type supports testing the 'IsBitwiseEqualityComparable' trait for
+    // incomplete union types; it is deliberately declared, but never defined.
 
 struct UserDefinedBwEqStruct {
     // This user-defined type, which is marked to be bitwise
@@ -589,6 +593,9 @@ union UserDefinedNonEqUnion {
     char d_dummy1;
     int  d_dummy2;
 };
+
+typedef int UserDefinedNonEqStruct::* MemberDataTestType;
+    // This pointer to non-static data member type is used for testing.
 
 typedef int (UserDefinedNonEqStruct::*MethodPtrTestType) ();
     // This pointer to non-static function member type is used for testing.
@@ -725,7 +732,8 @@ int main(int argc, char *argv[])
         //   can be customized are class types and union types.
         //
         // Concerns:
-        //: 1 The metafunction returns 'false' for plain user-defined types.
+        //: 1 The metafunction returns 'false' for plain user-defined types,
+        //:   which may be classes or unions.
         //:
         //: 2 The metafunction returns 'true' for a user-defined type, if a
         //:   specialization for 'bslmf::IsBitwiseEqualityComparable' on that
@@ -740,10 +748,14 @@ int main(int argc, char *argv[])
         //:
         //: 5 The metafunction returns the same result for an array type as for
         //:   the array's element type.
+        //:
+        //: 6 The metafunction gives a hard error when instantiated with an
+        //:   incomplete class type, rather than risk differing results when
+        //:   the type is completed.
         //
         // Plan:
         //:  1 Create a macro that will generate an 'ASSERT' test for
-        //:    all variants of a type:  (C1-6)
+        //:    all variants of a type:  (C-1..5)
         //:    o  reference and pointer types
         //:    o  all cv-qualified combinations
         //:    o  arrays, of fixed and runtime bounds, and multiple dimensions
@@ -754,6 +766,10 @@ int main(int argc, char *argv[])
         //: 3 For user defined types utilizing each customization point in
         //:   turn, use the test macro to confirm the metafunction returns
         //:   'true' in each case.
+        //:
+        //:  4 Guarded by a configuration macro, which defaults to unchecked,
+        //:    provide additional tests to ensure hard errors are diagnosed
+        //:    for incomplete object types. (C-6)
         //
         // Testing:
         //   EXTENDING 'bslmf::IsBitwiseEqualityComparable'
@@ -783,6 +799,26 @@ int main(int argc, char *argv[])
 
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(UserDefinedBwEqUnion2,
                                                  true);
+
+        // C-6 Verify there are no surprises for incomplete types.
+
+#if defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_TEST_INCOMPLETE_TYPES_FAIL)
+        // It is impossible to test for a nested trait in an incomplate type,
+        // so the trait should fail to instantiate.
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<Incomplete>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<const Incomplete>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<
+                                                  volatile Incomplete>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<
+                                            const volatile Incomplete>::value);
+
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<Uncomplete>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<const Uncomplete>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<
+                                                  volatile Uncomplete>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<
+                                            const volatile Uncomplete>::value);
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -810,21 +846,21 @@ int main(int argc, char *argv[])
         //:
         //:  9 The metafunction returns the same result for a cv-qualified type
         //:    as for the corresponding cv-unqualified type.
-        //:
-        //: 10 The metafunction gives a hard error when instantiated with an
-        //:    incomplete class type, rather than risk differing results when
-        //:    the type is completed.
         //
         // Plan:
         //:  1 Create a set of macros that will generate an 'ASSERT' test for
-        //:    all (legal) variants of a type:  (C6-9)
+        //:    all (legal) variants of a type:  (C-7..9; partial for 6)
         //:    o  reference and pointer types
         //:    o  all cv-qualified combinations
         //:    o  arrays, of fixed and unknown bounds, and multiple dimensions
         //:
         //:  2 For each category of type in concerns 1-5, use the appropriate
         //:    test macro for confirm the correct result for a representative
-        //:    sample of types.
+        //:    sample of types. (C-1..5)
+        //:
+        //:  3 To complete testing of pointers not covered by earlier tests,
+        //:    provide additional tests for pointers to function types, and for
+        //:    pointers to array types. (C-6)
         //
         // Testing:
         //   bslmf::IsBitwiseEqualityComparable::value
@@ -873,6 +909,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(EnumTestType, true);
 
         // C-4
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(MemberDataTestType, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(MethodPtrTestType, true);
 
         // C-5 : Function types are neither object types nor cv-qualifiable, so
@@ -882,7 +919,8 @@ int main(int argc, char *argv[])
         ASSERT_IS_BITWISE_COMPARABLE_TYPE(void(), false);
         ASSERT_IS_BITWISE_COMPARABLE_TYPE(bool(float, double...), false);
 #if !defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_NO_ABOMINABLE_FUNCTIONS)
-        ASSERT(!bslmf::IsBitwiseEqualityComparable<void() const>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<void() volatile>::value);
+        ASSERT(!bslmf::IsBitwiseEqualityComparable<void(...) const>::value);
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
@@ -914,19 +952,6 @@ int main(int argc, char *argv[])
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(ArrayU2 *, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(VoidFn *, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(MoreFn *, true);
-
-        // Verify there are no surprises for incomplete types.
-
-#if defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_TEST_INCOMPLETE_TYPES_FAIL)
-        // It is impossible to test for a nested trait in an incomplate type,
-        // so the trait should fail to instantiate.
-        ASSERT(!bslmf::IsBitwiseEqualityComparable<Incomplete>::value);
-        ASSERT(!bslmf::IsBitwiseEqualityComparable<const Incomplete>::value);
-        ASSERT(!bslmf::IsBitwiseEqualityComparable<
-                                                  volatile Incomplete>::value);
-        ASSERT(!bslmf::IsBitwiseEqualityComparable<
-                                            const volatile Incomplete>::value);
-#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
