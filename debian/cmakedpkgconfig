@@ -28,11 +28,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-headers", "pcre2-meta",
                                   "pcre2-release-symlink",
-                                  "pcre2-pkgconfig" ],
-            "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
-                                  "decnumber-headers", "decnumber-meta",
-                                  "decnumber-release-symlink",
-                                  "decnumber-pkgconfig" ]
+                                  "pcre2-pkgconfig" ]
         }
     },
     {
@@ -61,11 +57,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-release-symlink",
                                   "pcre2-pkgconfig",
-                                  "pcre2-pic-symlink-hack" ],
-            "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
-                                  "decnumber-release-symlink",
-                                  "decnumber-pkgconfig",
-                                  "decnumber-pic-symlink-hack" ]
+                                  "pcre2-pic-symlink-hack" ]
         }
     },
     {
@@ -147,11 +139,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-headers", "pcre2-meta",
                                   "pcre2-release-symlink",
-                                  "pcre2-pkgconfig" ],
-            "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
-                                  "decnumber-headers", "decnumber-meta",
-                                  "decnumber-release-symlink",
-                                  "decnumber-pkgconfig" ]
+                                  "pcre2-pkgconfig" ]
         }
     },
     {
@@ -180,11 +168,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-release-symlink",
                                   "pcre2-pkgconfig",
-                                  "pcre2-pic-symlink-hack" ],
-            "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
-                                  "decnumber-release-symlink",
-                                  "decnumber-pkgconfig",
-                                  "decnumber-pic-symlink-hack" ]
+                                  "pcre2-pic-symlink-hack" ]
         }
     },
     {
@@ -266,11 +250,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-headers", "pcre2-meta",
                                   "pcre2-release-symlink",
-                                  "pcre2-pkgconfig" ],
-            "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
-                                  "decnumber-headers", "decnumber-meta",
-                                  "decnumber-release-symlink",
-                                  "decnumber-pkgconfig" ]
+                                  "pcre2-pkgconfig" ]
         }
     },
     {
@@ -299,11 +279,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-release-symlink",
                                   "pcre2-pkgconfig",
-                                  "pcre2-pic-symlink-hack" ],
-            "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
-                                  "decnumber-release-symlink",
-                                  "decnumber-pkgconfig",
-                                  "decnumber-pic-symlink-hack" ]
+                                  "pcre2-pic-symlink-hack" ]
         }
     },
     {
