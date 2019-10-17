@@ -734,7 +734,6 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'deleteObject':" << endl;
         {
             bslma::TestAllocator a(veryVeryVerbose);
-            const bslma::TestAllocator& A = a;
 
             const int OBJECT_SIZE = sizeof(my_Class1);
             ASSERT(sizeof(my_Class2) == OBJECT_SIZE);

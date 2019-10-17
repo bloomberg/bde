@@ -156,7 +156,6 @@ BufferedSequentialPool::BufferedSequentialPool(
     BSLS_ASSERT(size <= maxBufferSize);
 }
 
-
 BufferedSequentialPool::BufferedSequentialPool(
                                 char                        *buffer,
                                 bsls::Types::size_type       size,

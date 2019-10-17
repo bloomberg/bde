@@ -154,8 +154,7 @@ enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
 enum { k_BUFFER_SIZE = 256 };
 static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
-static const bsl::size_t footprint = sizeof(bdlma::SequentialPool);
-static const bsls::Types::IntPtr iFootprint = footprint;
+static const bsls::Types::IntPtr footprint = sizeof(bdlma::SequentialPool);
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -920,7 +919,7 @@ int main(int argc, char *argv[])
             mX.allocate(16);
             mX.allocate(k_BUFFER_SIZE + 1);
 
-            ASSERT(0 < objectAllocator.numBlocksInUse());
+            ASSERT(1 < objectAllocator.numBlocksInUse());
 
             // Release all memory.
             mX.release();
@@ -1095,7 +1094,7 @@ int main(int argc, char *argv[])
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mY.allocate(numBytes);
                 newSize += footprint;
@@ -1104,7 +1103,7 @@ int main(int argc, char *argv[])
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mZ.allocate(numBytes);
                 newSize += footprint;
@@ -1131,7 +1130,7 @@ int main(int argc, char *argv[])
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mY.allocate(numBytes);
                 newSize += footprint;
@@ -1140,7 +1139,7 @@ int main(int argc, char *argv[])
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mZ.allocate(numBytes);
                 newSize += footprint;
@@ -1198,11 +1197,11 @@ int main(int argc, char *argv[])
                 // the allocator.
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mY.allocate(63);
                 ASSERT(cBuffer == buffer);
-                ASSERT(iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mY.allocate(1);
                 newSize += footprint;
@@ -1238,15 +1237,15 @@ int main(int argc, char *argv[])
                 // the allocator.
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mZ.allocate(63);
                 ASSERT(cBuffer == buffer);
-                ASSERT(2 * iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mZ.allocate(1);
                 ASSERT(cBuffer == buffer + 63);
-                ASSERT(2 * iFootprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mZ.allocate(1);
                 newSize += footprint;
@@ -1765,9 +1764,9 @@ int main(int argc, char *argv[])
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
                 mX.allocate(k_BUFFER_SIZE);
-                ASSERTV(blockSize(k_BUFFER_SIZE) + iFootprint,
+                ASSERTV(blockSize(k_BUFFER_SIZE) + footprint,
                                               defaultAllocator.numBytesInUse(),
-                        blockSize(k_BUFFER_SIZE) + iFootprint ==
+                        blockSize(k_BUFFER_SIZE) + footprint ==
                                              defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1796,7 +1795,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(k_BUFFER_SIZE * 2 + footprint,
                                               defaultAllocator.numBytesInUse(),
-                       k_BUFFER_SIZE * 2 + footprint ==
+                        k_BUFFER_SIZE * 2 + footprint ==
                                              defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
