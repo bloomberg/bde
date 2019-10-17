@@ -19787,16 +19787,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<int>& object)
     return stream << ")";
 }
 
-// TRAITS
-namespace bdlat_ArrayFunctions {
-
-template <>
-struct ElementType<bsl::vector<int> > {
-    typedef int Type;
-};
-
-}  // close bdlat_ArrayFunctions namespace
-
                         // ============================
                         // struct TestSelectionDefaults
                         // ============================
@@ -24234,9 +24224,9 @@ int main(int argc, char *argv[])
 //                                 /  DECODING RESULT
 //LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
 //---- ------------------------- -- -- -------------------------------
-// Arrays.
-R(L_,  a(i_)                    , f, t, NA                           ),
-R(L_,  a(i0)                    , f, _, NA                           ),
+// Arrays.  Top-level arrays are not currently supported.
+//R(L_,  a(i_)                    , f, t, NA                           ),
+//R(L_,  a(i0)                    , f, _, NA                           ),
 // Single-selection choices.
 #ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
@@ -24326,9 +24316,11 @@ R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
 R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
 // Dynamic types.
 #ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  d(a(i_)       )          , f, t, NA                           ),
-R(L_,  d(a(i0)       )          , f, _, NA                           ),
-R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
+// Top-level arrays, even when wrapped in a dynamic type, are not currently
+// supported.
+//R(L_,  d(a(i_)       )          , f, t, NA                           ),
+//R(L_,  d(a(i0)       )          , f, _, NA                           ),
+//R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
 R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
 R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
 R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
@@ -24358,7 +24350,8 @@ R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
 R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
 R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
 R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
-// Nullable values.  Compilation fails in the decoder.
+// Nullable values.  Compilation fails in the decoder, and the encoder does
+// not support top-level nullable values.
 //R(L_,  n(i_)                    , f, f, NA                           ),
 //R(L_,  n(i0)                    , f, f, NA                           ),
 //R(L_,  n(s_(a0,i_))             , f, f, NA                           ),
