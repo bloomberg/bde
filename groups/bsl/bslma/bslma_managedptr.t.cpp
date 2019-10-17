@@ -6,6 +6,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_movableref.h>
@@ -13,6 +14,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -777,17 +779,22 @@ namespace USAGE_EXAMPLES {
     }
 //..
 //
-///Example 5: Inplace object creation
+///Example 5: Inplace Object Creation
 /// - - - - - - - - - - - - - - - - -
-// Suppose we want to allocate memory for an object, construct it and obtain a
-// managed pointer referring to this object.  This can be done in one step
-// using the special free functions.
+// Suppose we want to allocate memory for an object, construct it in place, and
+// obtain a managed pointer referring to this object.  This can be done in one
+// step using using two free functions provided in 'bslma::ManagedPtrUtil'.
 //
 // First, we create a simple class clearly showing the features of these
-// functions:
+// functions.  Note that this class does not define the
+// 'bslma::UsesBslmaAllocator' trait.  It is done intentionally for
+// illustration purposes only, and definitely is *not* *recommended* in the
+// real code.  The class has an elided interface (i.e., copy constructor and
+// copy-assignment operator are not included for brevity):
 //..
     class String {
-        // Simple class, that stores the copy of the null-terminated c-string.
+//      // Simple class, that stores a copy of a null-terminated c-style
+//      // string.
 
       private:
         // DATA
@@ -803,6 +810,8 @@ namespace USAGE_EXAMPLES {
         : d_alloc_p(alloc)
         {
             ASSERT(str);
+            ASSERT(alloc);
+
             size_t length = strlen(str);
 
             d_str_p = static_cast<char *>(d_alloc_p->allocate(
@@ -810,9 +819,8 @@ namespace USAGE_EXAMPLES {
             strncpy(d_str_p, str, length + 1);
         }
 
-        virtual ~String()
-            // Destroy this object.  Use the stored allocator to release any
-            // memory that was previously allocated.
+        ~String()
+            // Destroy this object.
         {
             d_alloc_p->deallocate(d_str_p);
         }
@@ -874,7 +882,7 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 == ta.numBytesInUse());
 //..
 // If you want to use an allocator other than the default allocator, then the
-// 'bslma::AllocateManaged()' function should be used:
+// 'allocateManaged()' function should be used:
 //..
         bslma::TestAllocator oa;
         bsls::Types::Int64   objectBytesInUse = oa.numBytesInUse();
@@ -895,32 +903,62 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 == oa.numBytesInUse());
     }
 //..
-// Note that if object's type uses 'bslma' allocators, then 'allocateManaged'
-// implicitly passes the supplied allocator to the object's constructor as an
-// extra argument in the final position:
+// Next, let's look at a more common scenario, when object's type uses 'bslma'
+// allocators. In that case 'allocateManaged' implicitly passes the supplied
+// allocator to the object's constructor as an extra argument in the final
+// position.
+//
+// The second managed class almost completely repeats the first one, except
+// that it explicitly defines the 'bslma::UsesBslmaAllocator' trait:
 //..
-    class StringAlloc : public String {
-        // The heir to the 'String' class that explicitly claims to use 'bslma'
-        // allocators.
+    class StringAlloc {
+        // Simple class, that stores a copy of a null-terminated c-style
+        // string and explicitly claims to use 'bslma' allocators.
+
+      private:
+        // DATA
+        char             *d_str_p;    // stored value (owned)
+        bslma::Allocator *d_alloc_p;  // allocator to allocate any dynamic
+                                      // memory (held, not owned)
+
       public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(StringAlloc, bslma::UsesBslmaAllocator);
 
         // CREATORS
-        StringAlloc(const char *str, bslma::Allocator *alloc)
-            // Create an object having the same value as the specified 'str'
-            // using the specified 'alloc' to supply memory.
-        : String(str, alloc)
+        StringAlloc(const char *str, bslma::Allocator *basicAllocator = 0)
+            // Create an object having the same value as the specified 'str'.
+            // Optionally specify a 'basicAllocator' used to supply memory.  If
+            // 'basicAllocator' is 0, the currently supplied default allocator
+            // is used.
+        : d_alloc_p(bslma::Default::allocator(basicAllocator))
         {
+            ASSERT(str);
+
+            size_t length = strlen(str);
+
+            d_str_p = static_cast<char *>(d_alloc_p->allocate(
+                                                 (length + 1) * sizeof(char)));
+            strncpy(d_str_p, str, length + 1);
         }
 
-        virtual ~StringAlloc()
-            // Destroy this object.  Use the stored allocator to release any
-            // memory that was previously allocated.
+        ~StringAlloc()
+            // Destroy this object.
         {
+            d_alloc_p->deallocate(d_str_p);
+        }
+
+        // ACCESSORS
+        bslma::Allocator *allocator() const
+            // Return a pointer providing modifiable access to the allocator
+            // associated with this 'StringAlloc'.
+        {
+            return d_alloc_p;
         }
     };
-
+//..
+// Then, let's create two managed objects using both functions:
+//..
     void testUsesAllocatorInplaceCreation()
     {
         bslma::TestAllocator ta;
@@ -937,6 +975,10 @@ namespace USAGE_EXAMPLES {
         const char *STR        = "Test string";
         const int   STR_LENGTH = static_cast<int>(strlen(STR));
 
+//..
+// Note that, we need to explicitly supply the allocator's address to the
+// 'makeManaged' to be passed to the object's constructor:
+//..
         {
             bslma::ManagedPtr<StringAlloc> stringManagedPtr =
                      bslma::ManagedPtrUtil::makeManaged<StringAlloc>(STR, &ta);
@@ -946,6 +988,10 @@ namespace USAGE_EXAMPLES {
             ASSERT(STR_LENGTH + 1 == ta.numBytesInUse());
         }
 
+//..
+// But the supplied allocator is implicitly passed to the constructor by the
+// 'allocateManaged':
+//
         {
             bslma::ManagedPtr<StringAlloc> stringManagedPtr =
                  bslma::ManagedPtrUtil::allocateManaged<StringAlloc>(&ta, STR);
@@ -955,7 +1001,10 @@ namespace USAGE_EXAMPLES {
             ASSERT(&ta == stringManagedPtr->allocator());
             ASSERT(0 == da.numBytesInUse());
         }
-
+//..
+// Finally, make sure that all allocated memory is successfully released after
+// managed pointers (and managed object either) destruction:
+//..
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
     }
@@ -9565,6 +9614,8 @@ int main(int argc, char *argv[])
         //:
         //: 5 'allocateManaged' passes supplied allocator as an extra argument
         //:    in the final position if the 'T' uses bslma allocators.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use 'makeManaged' and 'allocateManaged' to call 15 different
@@ -9592,6 +9643,11 @@ int main(int argc, char *argv[])
         //:
         //: 7 Let the managed pointer go out of scope and verify that all
         //:   allocated memory is successfully released.  (C-1)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-6)
         //
         // Testing:
         //   ManagedPtr makeManaged(ARGS&&... args);
@@ -9850,6 +9906,19 @@ int main(int argc, char *argv[])
         Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
 
 #endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
+
+        if (verbose) printf("\tNegative testing\n");
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            bslma::Allocator *NULL_PTR = 0;
+            bslma::Allocator *da       = bslma::Default::defaultAllocator();
+
+            ASSERT_SAFE_FAIL(Util::allocateManaged<int>(NULL_PTR, 1));
+            ASSERT_SAFE_PASS(Util::allocateManaged<int>(da,       1));
+
+        }
+
       } break;
       case 17: {
         // --------------------------------------------------------------------
