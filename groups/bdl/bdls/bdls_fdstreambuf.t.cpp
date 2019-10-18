@@ -2264,11 +2264,19 @@ int main(int argc, char *argv[])
             ASSERT(!fh.isOpened());
             ASSERT(u::invalid == fh.fileDescriptor());
 
-            // open and get same fd, which verifies clear closed fd
+            // We expect that 'clear()' has closed the file.  To make sure we
+            // try to close it again.  If it has been closed already,
+            // 'k_BAD_FILE_DESCRIPTOR' should be returned.
 
-            ASSERT(fd == FileUtil::open(fnBuf,
-                                        FileUtil::e_OPEN,
-                                        FileUtil::e_READ_WRITE));
+            int rc = FileUtil::close(fd);
+
+            ASSERTV(rc, FileUtil::k_BAD_FILE_DESCRIPTOR == rc);
+
+            // Now open the file again.
+
+            fd = FileUtil::open(fnBuf,
+                                FileUtil::e_OPEN,
+                                FileUtil::e_READ_WRITE);
 
             ASSERT(!fh.reset(fd, true, false));
 
@@ -2322,11 +2330,17 @@ int main(int argc, char *argv[])
             // destroying fh should close fd2
         }
 
-        // open and get same fd, which verifies destruction of fh closed fd
+        // We expect that 'fh' destructor has closed the file.  To make sure we
+        // try to close it again.  If it has been closed already,
+        // 'k_BAD_FILE_DESCRIPTOR' should be returned.
 
-        ASSERT(fd2 == FileUtil::open(fnBuf2,
-                                     FileUtil::e_OPEN,
-                                     FileUtil::e_READ_WRITE));
+        int rc = FileUtil::close(fd2);
+
+        ASSERTV(rc, FileUtil::k_BAD_FILE_DESCRIPTOR == rc);
+
+        fd2 = FileUtil::open(fnBuf2,
+                             FileUtil::e_OPEN,
+                             FileUtil::e_READ_WRITE);
 
         {
             ObjFileHandler fh;
@@ -2487,10 +2501,7 @@ int main(int argc, char *argv[])
                              "============================\n";
 
         char fnBuf[100];
-        char fnBuf2[100];
         bsl::sprintf(fnBuf,  fileNameTemplate, "5a",
-                                            bdls::ProcessUtil::getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "5b",
                                             bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
@@ -2506,16 +2517,15 @@ int main(int argc, char *argv[])
         const int len3 = u::intStrLen(line3);
 
         FileUtil::remove(fnBuf);
-        FileUtil::remove(fnBuf2);
-
-        // Create file
-
-        FdType fd = FileUtil::open(fnBuf,
-                                   FileUtil::e_CREATE,
-                                   FileUtil::e_READ_WRITE);
-        ASSERT(u::invalid != fd);
 
         {
+            // Create file.
+
+            FdType fd = FileUtil::open(fnBuf,
+                                       FileUtil::e_CREATE,
+                                       FileUtil::e_READ_WRITE);
+            ASSERT(u::invalid != fd);
+
             Obj sb(fd, true, true, true);
 
             sb.sputn(line1, 20);
@@ -2562,9 +2572,11 @@ int main(int argc, char *argv[])
         }
 
         {
-            ASSERT(fd == FileUtil::open(fnBuf,
-                                        FileUtil::e_OPEN,
-                                        FileUtil::e_READ_ONLY));
+            // Open file.
+
+            FdType fd = FileUtil::open(fnBuf,
+                                       FileUtil::e_OPEN,
+                                       FileUtil::e_READ_ONLY);
             ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, true, true, &ta);
@@ -2585,20 +2597,21 @@ int main(int argc, char *argv[])
 
             ASSERT(!sb.clear());
 
-            // verify file was closed by getting same file descriptor when we
-            // open again
+            // We expect that 'clear()' has closed the file.  To make sure we
+            // try to close it again.  If it has been closed already,
+            // 'k_BAD_FILE_DESCRIPTOR' should be returned.
 
-            FdType fd2 = FileUtil::open(fnBuf2,
-                                        FileUtil::e_CREATE,
-                                        FileUtil::e_READ_WRITE);
-            ASSERT(fd2 == fd);
-            ASSERT(0 == FileUtil::close(fd2));
+            int rc = FileUtil::close(fd);
+
+            ASSERTV(rc, FileUtil::k_BAD_FILE_DESCRIPTOR == rc);
         }
 
         {
-            ASSERT(fd == FileUtil::open(fnBuf,
-                                        FileUtil::e_OPEN,
-                                        FileUtil::e_READ_ONLY));
+            // Open file.
+
+            FdType fd = FileUtil::open(fnBuf,
+                                       FileUtil::e_OPEN,
+                                       FileUtil::e_READ_ONLY);
             ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, true, true);
@@ -2619,19 +2632,16 @@ int main(int argc, char *argv[])
 
             sb.release();
 
-            // Verify file was not closed by not getting same file descriptor
-            // when we open again
+            // We expect that 'release()' does not close file.  To make sure we
+            // try to close it.  'k_BAD_FILE_DESCRIPTOR' should be returned if
+            // it has been closed already, and '0' otherwise.
 
-            FdType fd2 = FileUtil::open(fnBuf2,
-                                        FileUtil::e_OPEN,
-                                        FileUtil::e_READ_WRITE);
-            ASSERT(fd2 != fd);
-            ASSERT(0 == FileUtil::close(fd));
-            ASSERT(0 == FileUtil::close(fd2));
+            int rc = FileUtil::close(fd);
+
+            ASSERTV(rc, 0 == rc);
         }
 
         FileUtil::remove(fnBuf);
-        FileUtil::remove(fnBuf2);
       } break;
       case 4: {
         // --------------------------------------------------------------------
