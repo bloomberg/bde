@@ -345,20 +345,20 @@ class BufferedSequentialPool {
                                                 // be passed to the sequential
                                                 // allocator upon construction
 
-    unsigned char           d_growthStrategy;   // The growth strategy
-                                                // to be passed to the
-                                                // sequential pool.
+    unsigned char           d_growthStrategy;   // the growth strategy to be
+                                                // passed to the sequential
+                                                // pool
 
     bool                    d_sequentialPoolIsCreated;
-                                                // Indicates whether the
+                                                // indicates whether the
                                                 // sequential pool has been
-                                                // created yet.
+                                                // created yet
 
     union {
         bslma::Allocator   *d_allocator_p;      // allocator we were
                                                 // constructed with if the
-                                                // sequential pool hasn't
-                                                // been created
+                                                // sequential pool hasn't been
+                                                // created
 
         SequentialPool     *d_pool_p;           // memory manager for
     };                                          // allocations not from the
@@ -477,16 +477,16 @@ class BufferedSequentialPool {
         // memory obtained from the allocator supplied at construction.
 
     template <class TYPE>
-    void deleteObjectRaw(const TYPE *object);
-        // Destroy the specified 'object'.  Note that memory associated with
-        // 'object' is not deallocated because there is no 'deallocate' method
-        // in 'BufferedSequentialPool'.
-
-    template <class TYPE>
     void deleteObject(const TYPE *object);
         // Destroy the specified 'object'.  Note that this method has the same
         // effect as the 'deleteObjectRaw' method (since no deallocation is
         // involved), and exists for consistency across memory pools.
+
+    template <class TYPE>
+    void deleteObjectRaw(const TYPE *object);
+        // Destroy the specified 'object'.  Note that memory associated with
+        // 'object' is not deallocated because there is no 'deallocate' method
+        // in 'BufferedSequentialPool'.
 
     void release();
         // Release all memory allocated through this pool and return to the
@@ -512,8 +512,8 @@ class BufferedSequentialPool {
     // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to allocate memory.  Note
-        // that this allocator can not be used to deallocate memory
-        // allocated through this pool.
+        // that this allocator can not be used to deallocate memory allocated
+        // through this pool.
 };
 
 }  // close package namespace
@@ -639,6 +639,13 @@ void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
 
 template <class TYPE>
 inline
+void BufferedSequentialPool::deleteObject(const TYPE *object)
+{
+    this->deleteObjectRaw(object);
+}
+
+template <class TYPE>
+inline
 void BufferedSequentialPool::deleteObjectRaw(const TYPE *object)
 {
     if (0 != object) {
@@ -648,13 +655,6 @@ void BufferedSequentialPool::deleteObjectRaw(const TYPE *object)
         const_cast<TYPE *>(object)->~TYPE();
 #endif
     }
-}
-
-template <class TYPE>
-inline
-void BufferedSequentialPool::deleteObject(const TYPE *object)
-{
-    this->deleteObjectRaw(object);
 }
 
 inline
@@ -670,6 +670,7 @@ void BufferedSequentialPool::release()
 
 inline
 void BufferedSequentialPool::rewind()
+
 {
     d_bufferManager.release();  // Reset the internal cursor in the current
                                 // block.
