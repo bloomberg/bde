@@ -315,13 +315,15 @@ struct StackAddressUtil {
     // 'k_IGNORE_FRAMES' instructs the caller as to whether the first frame is
     // such an unwanted frame.
 
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||    \
+    defined(BSLS_PLATFORM_OS_WINDOWS)
+    // Note that on Windows prior to MSVC 2013, the optimal value for
+    // 'k_IGNORE_FRAMES' seemed to vary between subreleases, so to play it
+    // safe, we always left this value as 0 on Windows.  However, at and after
+    // MSVC 2013 it seems to be 1, so we're going with that from now on.
+
     enum { k_IGNORE_FRAMES = 1 };
 #else
-    // Note that on Windows, the optimal value for 'k_IGNORE_FRAMES' seems to
-    // vary between subreleases, so to play it safe, we always leave this value
-    // as 0 on Windows.
-
     enum { k_IGNORE_FRAMES = 0 };
 #endif
 
