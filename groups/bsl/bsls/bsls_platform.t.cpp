@@ -6,9 +6,32 @@
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strcmp', 'strlen'
 
-
 using namespace BloombergLP;
-using namespace std;
+
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                            * Overview *
+// Since this component implements C++ macros, which may or may not be defined,
+// there is not too much to test in this driver.  Since correctness will be
+// affected by compile-time switches during the build process, any compile-time
+// tests we come up with should probably reside directly in the header or
+// implementation file.
+// ----------------------------------------------------------------------------
+// [ 1] CONCERN: exactly one compiler vendor macro is defined.
+// [ 1] CONCERN: the compiler version macro is defined.
+// [ 1] CONCERN: exactly one OS type macro is defined.
+// [ 1] CONCERN: exactly one OS subtype macro is defined.
+// [ 1] CONCERN: exactly one of each CPU macro is defined.
+// [ 1] CONCERN: exactly one CPU instruction set macro is defined.
+// [ 1] CONCERN: exactly one CPU register width macro is defined.
+// [ 1] CONCERN: at most one CPU version macro is defined.
+// [ 1] CONCERN: exactly one ENDIAN macro is set.
+// [ 4] CONCERN: report definition of all platform macros.
+// [ 2] BSLS_PLATFORM_IS_LITTLE_ENDIAN
+// [ 2] BSLS_PLATFORM_IS_BIG_ENDIAN
+// [ 3] BSLS_PLATFORM_NO_64_BIT_LITERALS
+// ============================================================================
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -35,6 +58,10 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: -TP19
+//  This component is levelized below 'bsls_bsltestutil', so cannot directly
+//  alias the standard test macros.
+
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 #define STRINGIFY2(...) "" #__VA_ARGS__
@@ -51,7 +78,7 @@ bool isBigEndian()
     // either big endian or little endian.
 {
     union U {
-        int d_int;
+        int  d_int;
         char d_char[sizeof(int)];
     } u;
 
@@ -78,7 +105,7 @@ bool isLittleEndian()
     // be either big endian or little endian.
 {
     union U {
-        int d_int;
+        int  d_int;
         char d_char[sizeof(int)];
     } u;
 
@@ -97,28 +124,6 @@ bool isLittleEndian()
 }
 
 // ============================================================================
-//                             TEST PLAN
-// ----------------------------------------------------------------------------
-//                            * Overview *
-// Since this component implements CPP macro's, which may or may not be
-// defined, there is not too much to test in this driver.  Since correctness
-// will be affected by compile-time switches during the build process, any
-// compile-time tests we come up with should probably reside directly in the
-// header or implementation file.
-// ----------------------------------------------------------------------------
-// [ 1] Ensure that exactly one of each CMP type is set.
-// [ 1] Ensure that exactly one of each OS type is set.
-// [ 1] Ensure that exactly one of each CPU type is set.
-// [ 1] Ensure that at most one of each CPU subtype is set.
-// [ 1] For each category, ensure MINOR_NUMBER set -> MAJOR_NUMBER set.
-// [ 1] For the OS, type ensure MAJOR_NUMBER set -> SUBTYPE set.
-// [ 1] For the ENDIAN type, ensure one is set.
-// [ 2] BSLS_PLATFORM_IS_LITTLE_ENDIAN
-// [ 2] BSLS_PLATFORM_IS_BIG_ENDIAN
-// [ 3] BSLS_PLATFORM_NO_64_BIT_LITERALS
-// ============================================================================
-
-// ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
@@ -128,1798 +133,1454 @@ static void printFlags()
     // An "Enter" and "Leave" message is printed unconditionally so there is
     // some report even if all of the flags are undefined.
 {
-    printf("printFlags: Enter\n");
+    enum { UNDEF_TABLE_SIZE = 256 };
 
-    printf("\n  printFlags: bsls_platform Macros\n");
+    const char *undefinedMacros[UNDEF_TABLE_SIZE] = {};
+    size_t      undefinedCount                    = 0;
 
-    printf("\n  BSLS_PLATFORM_AGGRESSIVE_INLINE: ");
-#ifdef BSLS_PLATFORM_AGGRESSIVE_INLINE
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("printFlags: Enter");
 
-    printf("\n  BSLS_PLATFORM_CMP_AIX: ");
-#ifdef BSLS_PLATFORM_CMP_AIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_AIX) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n  printFlags: Configuration Macros");
+    puts(  "  --------------------------------");
 
-    printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
-#ifdef BSLS_PLATFORM_CMP_CLANG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  BSLS_PLATFORM_CMP_EDG: ");
-#ifdef BSLS_PLATFORM_CMP_EDG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_EDG) );
-#else
-    printf("UNDEFINED\n");
-#endif
+#define D_MACRO(X) undefinedMacros[undefinedCount++] = #X;
+    // Add the specified macro named by 'X' to the list of macros to report as
+    // not defined.
 
-    printf("\n  BSLS_PLATFORM_CMP_GNU: ");
-#ifdef BSLS_PLATFORM_CMP_GNU
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
-#else
-    printf("UNDEFINED\n");
-#endif
+#define P_MACRO(X) printf("\t  %s:\t%s\n", #X, STRINGIFY(X));
+    // Print the name of the specified object-like macro named by 'X', and the
+    // source it expands to.
 
-    printf("\n  BSLS_PLATFORM_CMP_HP: ");
-#ifdef BSLS_PLATFORM_CMP_HP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_HP) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    enum { FIRST_LINE = __LINE__ };
 
-    printf("\n  BSLS_PLATFORM_CMP_IBM: ");
-#ifdef BSLS_PLATFORM_CMP_IBM
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_IBM) );
+#if defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
+    P_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_MSVC: ");
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC) );
+#if defined(BDE_DISABLE_COMPILER_VERSION_CHECK)
+    P_MACRO(BDE_DISABLE_COMPILER_VERSION_CHECK);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDE_DISABLE_COMPILER_VERSION_CHECK);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_SUN: ");
-#ifdef BSLS_PLATFORM_CMP_SUN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_SUN) );
+#if defined(BSL_DOUBLE_UNDERSCORE_XLAT)
+    P_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_VERSION: ");
-#ifdef BSLS_PLATFORM_CMP_VERSION
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    if (4 == undefinedCount) {
+        puts("\n      None defined");
+    }
 
-    printf("\n  BSLS_PLATFORM_CMP_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM_CMP_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VER_MAJOR) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  BSLS_PLATFORM_COMPILER_ERROR: ");
-#ifdef BSLS_PLATFORM_COMPILER_ERROR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_COMPILER_ERROR) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n  printFlags: Consistency Check Macros");
+    puts(  "  ------------------------------------");
 
-    printf("\n  BSLS_PLATFORM_CPU_32_BIT: ");
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_32_BIT) );
+#if defined(BSLS_PLATFORM_COMPILER_ERROR)
+    P_MACRO(BSLS_PLATFORM_COMPILER_ERROR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_COMPILER_ERROR);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_64_BIT: ");
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_64_BIT) );
+#if defined(BSLS_PLATFORM_OS_SUBTYPE_COUNT)
+    P_MACRO(BSLS_PLATFORM_OS_SUBTYPE_COUNT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_SUBTYPE_COUNT);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ALPHA: ");
-#ifdef BSLS_PLATFORM_CPU_ALPHA
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ALPHA) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM: ");
-#ifdef BSLS_PLATFORM_CPU_ARM
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n  printFlags: standard macros");
+    puts(  "  ---------------------------");
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V5: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V5
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V5) );
+#if defined(__cplusplus)
+    P_MACRO(__cplusplus);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__cplusplus);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V6: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V6
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V6) );
+#if defined(__DATE__)
+    P_MACRO(__DATE__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__DATE__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V7: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V7
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V7) );
+#if defined(__TIME__)
+    P_MACRO(__TIME__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__TIME__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V8: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V8
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V8) );
+#if defined(__FILE__)
+    P_MACRO(__FILE__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__FILE__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V9: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V9
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V9) );
+#if defined(__LINE__)
+    P_MACRO(__LINE__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__LINE__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_HPPA: ");
-#ifdef BSLS_PLATFORM_CPU_HPPA
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_HPPA) );
+#if defined(__STDC__)
+    P_MACRO(__STDC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDC__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_IA64: ");
-#ifdef BSLS_PLATFORM_CPU_IA64
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_IA64) );
+#if defined(__STDC_HOSTED__)
+    P_MACRO(__STDC_HOSTED__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDC_HOSTED__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_MIPS: ");
-#ifdef BSLS_PLATFORM_CPU_MIPS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_MIPS) );
+#if defined(__STDC_MB_MIGHT_NEQ_WC__)
+    P_MACRO(__STDC_MB_MIGHT_NEQ_WC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDC_MB_MIGHT_NEQ_WC__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_POWERPC: ");
-#ifdef BSLS_PLATFORM_CPU_POWERPC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_POWERPC) );
+#if defined(__STDC_VERSION__)
+    P_MACRO(__STDC_VERSION__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDC_VERSION__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_SPARC: ");
-#ifdef BSLS_PLATFORM_CPU_SPARC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_SPARC) );
+#if defined(__STDC_ISO_10646__)
+    P_MACRO(__STDC_ISO_10646__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDC_ISO_10646__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_SPARC_32: ");
-#ifdef BSLS_PLATFORM_CPU_SPARC_32
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_SPARC_32) );
+#if defined(__STDCPP_DEFAULT_NEW_ALIGNMENT__)
+    P_MACRO(__STDCPP_DEFAULT_NEW_ALIGNMENT__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDCPP_DEFAULT_NEW_ALIGNMENT__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_SPARC_V9: ");
-#ifdef BSLS_PLATFORM_CPU_SPARC_V9
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_SPARC_V9) );
+#if defined(__STDCPP_STRICT_POINTER_SAFETY__)
+    P_MACRO(__STDCPP_STRICT_POINTER_SAFETY__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDCPP_STRICT_POINTER_SAFETY__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM_CPU_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_VER_MAJOR) );
+#if defined(__STDCPP_THREADS__)
+    P_MACRO(__STDCPP_THREADS__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__STDCPP_THREADS__);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_X86: ");
-#ifdef BSLS_PLATFORM_CPU_X86
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_X86) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  BSLS_PLATFORM_CPU_X86_64: ");
-#ifdef BSLS_PLATFORM_CPU_X86_64
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_X86_64) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n  printFlags: bsls_platform Macros");
+    puts(  "  --------------------------------");
 
-    printf("\n  BSLS_PLATFORM_HAS_MACRO_PUSH_POP: ");
-#ifdef BSLS_PLATFORM_HAS_MACRO_PUSH_POP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_HAS_MACRO_PUSH_POP) );
+#if defined(BSLS_PLATFORM_CMP_AIX)
+    P_MACRO(BSLS_PLATFORM_CMP_AIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_AIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC: ");
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC) );
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+    P_MACRO(BSLS_PLATFORM_CMP_CLANG);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_CLANG);
 #endif
 
-    printf("\n  BSLS_PLATFORM_IS_BIG_ENDIAN: ");
-#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_IS_BIG_ENDIAN) );
+#if defined(BSLS_PLATFORM_CMP_EDG)
+    P_MACRO(BSLS_PLATFORM_CMP_EDG);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_EDG);
 #endif
 
-    printf("\n  BSLS_PLATFORM_IS_LITTLE_ENDIAN: ");
-#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_IS_LITTLE_ENDIAN) );
+#if defined(BSLS_PLATFORM_CMP_GNU)
+    P_MACRO(BSLS_PLATFORM_CMP_GNU);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_GNU);
 #endif
 
-    printf("\n  BSLS_PLATFORM_NO_64_BIT_LITERALS: ");
-#ifdef BSLS_PLATFORM_NO_64_BIT_LITERALS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_NO_64_BIT_LITERALS) );
+#if defined(BSLS_PLATFORM_CMP_HP)
+    P_MACRO(BSLS_PLATFORM_CMP_HP);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_HP);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_AIX: ");
-#ifdef BSLS_PLATFORM_OS_AIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_AIX) );
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    P_MACRO(BSLS_PLATFORM_CMP_IBM);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_IBM);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_CYGWIN: ");
-#ifdef BSLS_PLATFORM_OS_CYGWIN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_CYGWIN) );
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    P_MACRO(BSLS_PLATFORM_CMP_MSVC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_MSVC);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_DARWIN: ");
-#ifdef BSLS_PLATFORM_OS_DARWIN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_DARWIN) );
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    P_MACRO(BSLS_PLATFORM_CMP_SUN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_SUN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_FREEBSD: ");
-#ifdef BSLS_PLATFORM_OS_FREEBSD
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_FREEBSD) );
+#if defined(BSLS_PLATFORM_CMP_VERSION)
+    P_MACRO(BSLS_PLATFORM_CMP_VERSION);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_VERSION);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_HPUX: ");
-#ifdef BSLS_PLATFORM_OS_HPUX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_HPUX) );
+#if defined(BSLS_PLATFORM_CMP_VER_MAJOR)
+    P_MACRO(BSLS_PLATFORM_CMP_VER_MAJOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CMP_VER_MAJOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_LINUX: ");
-#ifdef BSLS_PLATFORM_OS_LINUX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_LINUX) );
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+    P_MACRO(BSLS_PLATFORM_CPU_32_BIT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_32_BIT);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_SOLARIS: ");
-#ifdef BSLS_PLATFORM_OS_SOLARIS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_SOLARIS) );
+#if defined(BSLS_PLATFORM_CPU_64_BIT)
+    P_MACRO(BSLS_PLATFORM_CPU_64_BIT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_64_BIT);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_SUBTYPE_COUNT: ");
-#ifdef BSLS_PLATFORM_OS_SUBTYPE_COUNT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_SUBTYPE_COUNT) );
+#if defined(BSLS_PLATFORM_CPU_88000)
+    P_MACRO(BSLS_PLATFORM_CPU_88000);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_88000);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_SUNOS: ");
-#ifdef BSLS_PLATFORM_OS_SUNOS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_SUNOS) );
+#if defined(BSLS_PLATFORM_CPU_ALPHA)
+    P_MACRO(BSLS_PLATFORM_CPU_ALPHA);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_ALPHA);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_UNIX: ");
-#ifdef BSLS_PLATFORM_OS_UNIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_UNIX) );
+#if defined(BSLS_PLATFORM_CPU_ARM)
+    P_MACRO(BSLS_PLATFORM_CPU_ARM);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_ARM);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM_OS_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_VER_MAJOR) );
+#if defined(BSLS_PLATFORM_CPU_ARM_V5)
+    P_MACRO(BSLS_PLATFORM_CPU_ARM_V5);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_ARM_V5);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_VER_MINOR: ");
-#ifdef BSLS_PLATFORM_OS_VER_MINOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_VER_MINOR) );
+#if defined(BSLS_PLATFORM_CPU_ARM_V6)
+    P_MACRO(BSLS_PLATFORM_CPU_ARM_V6);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_ARM_V6);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WIN2K: ");
-#ifdef BSLS_PLATFORM_OS_WIN2K
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WIN2K) );
+#if defined(BSLS_PLATFORM_CPU_ARM_V7)
+    P_MACRO(BSLS_PLATFORM_CPU_ARM_V7);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_ARM_V7);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WIN9X: ");
-#ifdef BSLS_PLATFORM_OS_WIN9X
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WIN9X) );
+#if defined(BSLS_PLATFORM_CPU_ARM_V8)
+    P_MACRO(BSLS_PLATFORM_CPU_ARM_V8);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_ARM_V8);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WINDOWS: ");
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WINDOWS) );
+#if defined(BSLS_PLATFORM_CPU_ARM_V9)
+    P_MACRO(BSLS_PLATFORM_CPU_ARM_V9);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_ARM_V9);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WINNT: ");
-#ifdef BSLS_PLATFORM_OS_WINNT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WINNT) );
+#if defined(BSLS_PLATFORM_CPU_HPPA)
+    P_MACRO(BSLS_PLATFORM_CPU_HPPA);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_HPPA);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WINXP: ");
-#ifdef BSLS_PLATFORM_OS_WINXP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WINXP) );
+#if defined(BSLS_PLATFORM_CPU_IA64)
+    P_MACRO(BSLS_PLATFORM_CPU_IA64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_IA64);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_AIX: ");
-#ifdef BSLS_PLATFORM__CMP_AIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_AIX) );
+#if defined(BSLS_PLATFORM_CPU_INTEL)
+    P_MACRO(BSLS_PLATFORM_CPU_INTEL);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_INTEL);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_CLANG: ");
-#ifdef BSLS_PLATFORM__CMP_CLANG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_CLANG) );
+#if defined(BSLS_PLATFORM_CPU_MIPS)
+    P_MACRO(BSLS_PLATFORM_CPU_MIPS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_MIPS);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_EDG: ");
-#ifdef BSLS_PLATFORM__CMP_EDG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_EDG) );
+#if defined(BSLS_PLATFORM_CPU_POWERPC)
+    P_MACRO(BSLS_PLATFORM_CPU_POWERPC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_POWERPC);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_GNU: ");
-#ifdef BSLS_PLATFORM__CMP_GNU
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_GNU) );
+#if defined(BSLS_PLATFORM_CPU_SPARC)
+    P_MACRO(BSLS_PLATFORM_CPU_SPARC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_SPARC);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_HP: ");
-#ifdef BSLS_PLATFORM__CMP_HP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_HP) );
+#if defined(BSLS_PLATFORM_CPU_SPARC_32)
+    P_MACRO(BSLS_PLATFORM_CPU_SPARC_32);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_SPARC_32);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_IBM: ");
-#ifdef BSLS_PLATFORM__CMP_IBM
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_IBM) );
+#if defined(BSLS_PLATFORM_CPU_SPARC_V9)
+    P_MACRO(BSLS_PLATFORM_CPU_SPARC_V9);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_SPARC_V9);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_MSVC: ");
-#ifdef BSLS_PLATFORM__CMP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_MSVC) );
+#if defined(BSLS_PLATFORM_CPU_VER_MAJOR)
+    P_MACRO(BSLS_PLATFORM_CPU_VER_MAJOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_VER_MAJOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_SUN: ");
-#ifdef BSLS_PLATFORM__CMP_SUN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_SUN) );
+#if defined(BSLS_PLATFORM_CPU_X86)
+    P_MACRO(BSLS_PLATFORM_CPU_X86);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_X86);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_VERSION: ");
-#ifdef BSLS_PLATFORM__CMP_VERSION
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_VERSION) );
+#if defined(BSLS_PLATFORM_CPU_X86_64)
+    P_MACRO(BSLS_PLATFORM_CPU_X86_64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_CPU_X86_64);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CMP_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM__CMP_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CMP_VER_MAJOR) );
+#if defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
+    P_MACRO(BSLS_PLATFORM_IS_BIG_ENDIAN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_IS_BIG_ENDIAN);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_32_BIT: ");
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_32_BIT) );
+#if defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    P_MACRO(BSLS_PLATFORM_IS_LITTLE_ENDIAN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_IS_LITTLE_ENDIAN);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_64_BIT: ");
-#ifdef BSLS_PLATFORM__CPU_64_BIT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_64_BIT) );
+#if defined(BSLS_PLATFORM_OS_AIX)
+    P_MACRO(BSLS_PLATFORM_OS_AIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_AIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_88000: ");
-#ifdef BSLS_PLATFORM__CPU_88000
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_88000) );
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+    P_MACRO(BSLS_PLATFORM_OS_CYGWIN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_CYGWIN);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_ALPHA: ");
-#ifdef BSLS_PLATFORM__CPU_ALPHA
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_ALPHA) );
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    P_MACRO(BSLS_PLATFORM_OS_DARWIN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_DARWIN);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_HPPA: ");
-#ifdef BSLS_PLATFORM__CPU_HPPA
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_HPPA) );
+#if defined(BSLS_PLATFORM_OS_FREEBSD)
+    P_MACRO(BSLS_PLATFORM_OS_FREEBSD);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_FREEBSD);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_IA64: ");
-#ifdef BSLS_PLATFORM__CPU_IA64
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_IA64) );
+#if defined(BSLS_PLATFORM_OS_HPUX)
+    P_MACRO(BSLS_PLATFORM_OS_HPUX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_HPUX);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_INTEL: ");
-#ifdef BSLS_PLATFORM__CPU_INTEL
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_INTEL) );
+#if defined(BSLS_PLATFORM_OS_LINUX)
+    P_MACRO(BSLS_PLATFORM_OS_LINUX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_LINUX);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_MIPS: ");
-#ifdef BSLS_PLATFORM__CPU_MIPS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_MIPS) );
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+    P_MACRO(BSLS_PLATFORM_OS_SOLARIS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_SOLARIS);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_POWERPC: ");
-#ifdef BSLS_PLATFORM__CPU_POWERPC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_POWERPC) );
+#if defined(BSLS_PLATFORM_OS_SUNOS)
+    P_MACRO(BSLS_PLATFORM_OS_SUNOS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_SUNOS);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_SPARC: ");
-#ifdef BSLS_PLATFORM__CPU_SPARC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_SPARC) );
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    P_MACRO(BSLS_PLATFORM_OS_UNIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_UNIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_SPARC_32: ");
-#ifdef BSLS_PLATFORM__CPU_SPARC_32
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_SPARC_32) );
+#if defined(BSLS_PLATFORM_OS_VER_MAJOR)
+    P_MACRO(BSLS_PLATFORM_OS_VER_MAJOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_VER_MAJOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_SPARC_V9: ");
-#ifdef BSLS_PLATFORM__CPU_SPARC_V9
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_SPARC_V9) );
+#if defined(BSLS_PLATFORM_OS_VER_MINOR)
+    P_MACRO(BSLS_PLATFORM_OS_VER_MINOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_VER_MINOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM__CPU_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_VER_MAJOR) );
+#if defined(BSLS_PLATFORM_OS_WIN2K)
+    P_MACRO(BSLS_PLATFORM_OS_WIN2K);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_WIN2K);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_VER_MINOR: ");
-#ifdef BSLS_PLATFORM__CPU_VER_MINOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_VER_MINOR) );
+#if defined(BSLS_PLATFORM_OS_WIN9X)
+    P_MACRO(BSLS_PLATFORM_OS_WIN9X);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_WIN9X);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_X86: ");
-#ifdef BSLS_PLATFORM__CPU_X86
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_X86) );
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    P_MACRO(BSLS_PLATFORM_OS_WINDOWS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_WINDOWS);
 #endif
 
-    printf("\n  BSLS_PLATFORM__CPU_X86_64: ");
-#ifdef BSLS_PLATFORM__CPU_X86_64
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__CPU_X86_64) );
+#if defined(BSLS_PLATFORM_OS_WINNT)
+    P_MACRO(BSLS_PLATFORM_OS_WINNT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_WINNT);
 #endif
 
-    printf("\n  BSLS_PLATFORM__IS_BIG_ENDIAN: ");
-#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__IS_BIG_ENDIAN) );
+#if defined(BSLS_PLATFORM_OS_WINXP)
+    P_MACRO(BSLS_PLATFORM_OS_WINXP);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_OS_WINXP);
 #endif
 
-    printf("\n  BSLS_PLATFORM__IS_LITTLE_ENDIAN: ");
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__IS_LITTLE_ENDIAN) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  BSLS_PLATFORM__NO_64_BIT_LITERALS: ");
-#ifdef BSLS_PLATFORM__NO_64_BIT_LITERALS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__NO_64_BIT_LITERALS) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n  printFlags: Feature Detection Macros");
+    puts(  "  ------------------------------------");
 
-    printf("\n  BSLS_PLATFORM__OS_AIX: ");
-#ifdef BSLS_PLATFORM__OS_AIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_AIX) );
+#if defined(BSLS_PLATFORM_AGGRESSIVE_INLINE)
+    P_MACRO(BSLS_PLATFORM_AGGRESSIVE_INLINE);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_AGGRESSIVE_INLINE);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_CYGWIN: ");
-#ifdef BSLS_PLATFORM__OS_CYGWIN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_CYGWIN) );
+#if defined(BSLS_PLATFORM_HAS_MACRO_PUSH_POP)
+    P_MACRO(BSLS_PLATFORM_HAS_MACRO_PUSH_POP);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_HAS_MACRO_PUSH_POP);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_DARWIN: ");
-#ifdef BSLS_PLATFORM__OS_DARWIN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_DARWIN) );
+#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+    P_MACRO(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_FREEBSD: ");
-#ifdef BSLS_PLATFORM__OS_FREEBSD
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_FREEBSD) );
+#if defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
+    P_MACRO(BSLS_PLATFORM_NO_64_BIT_LITERALS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM_NO_64_BIT_LITERALS);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_HPUX: ");
-#ifdef BSLS_PLATFORM__OS_HPUX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_HPUX) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  BSLS_PLATFORM__OS_LINUX: ");
-#ifdef BSLS_PLATFORM__OS_LINUX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_LINUX) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n  printFlags: Deprecated macros for legacy support");
+    puts(  "  ------------------------------------------------");
 
-    printf("\n  BSLS_PLATFORM__OS_SOLARIS: ");
-#ifdef BSLS_PLATFORM__OS_SOLARIS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_SOLARIS) );
+#if defined(BSLS_PLATFORM__CMP_AIX)
+    P_MACRO(BSLS_PLATFORM__CMP_AIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_AIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_SUBTYPE_COUNT: ");
-#ifdef BSLS_PLATFORM__OS_SUBTYPE_COUNT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_SUBTYPE_COUNT) );
+#if defined(BSLS_PLATFORM__CMP_CLANG)
+    P_MACRO(BSLS_PLATFORM__CMP_CLANG);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_CLANG);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_SUNOS: ");
-#ifdef BSLS_PLATFORM__OS_SUNOS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_SUNOS) );
+#if defined(BSLS_PLATFORM__CMP_EDG)
+    P_MACRO(BSLS_PLATFORM__CMP_EDG);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_EDG);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_UNIX: ");
-#ifdef BSLS_PLATFORM__OS_UNIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_UNIX) );
+#if defined(BSLS_PLATFORM__CMP_GNU)
+    P_MACRO(BSLS_PLATFORM__CMP_GNU);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_GNU);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM__OS_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_VER_MAJOR) );
+#if defined(BSLS_PLATFORM__CMP_HP)
+    P_MACRO(BSLS_PLATFORM__CMP_HP);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_HP);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_VER_MINOR: ");
-#ifdef BSLS_PLATFORM__OS_VER_MINOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_VER_MINOR) );
+#if defined(BSLS_PLATFORM__CMP_IBM)
+    P_MACRO(BSLS_PLATFORM__CMP_IBM);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_IBM);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_WIN2K: ");
-#ifdef BSLS_PLATFORM__OS_WIN2K
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_WIN2K) );
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+    P_MACRO(BSLS_PLATFORM__CMP_MSVC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_MSVC);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_WIN9X: ");
-#ifdef BSLS_PLATFORM__OS_WIN9X
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_WIN9X) );
+#if defined(BSLS_PLATFORM__CMP_SUN)
+    P_MACRO(BSLS_PLATFORM__CMP_SUN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_SUN);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_WINDOWS: ");
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_WINDOWS) );
+#if defined(BSLS_PLATFORM__CMP_VERSION)
+    P_MACRO(BSLS_PLATFORM__CMP_VERSION);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_VERSION);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_WINNT: ");
-#ifdef BSLS_PLATFORM__OS_WINNT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_WINNT) );
+#if defined(BSLS_PLATFORM__CMP_VER_MAJOR)
+    P_MACRO(BSLS_PLATFORM__CMP_VER_MAJOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CMP_VER_MAJOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM__OS_WINXP: ");
-#ifdef BSLS_PLATFORM__OS_WINXP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM__OS_WINXP) );
+#if defined(BSLS_PLATFORM__CPU_32_BIT)
+    P_MACRO(BSLS_PLATFORM__CPU_32_BIT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CPU_32_BIT);
 #endif
-
-    printf("\n\n  printFlags: bsls_platform Referenced Macros\n");
 
-    printf("\n  BDE_BUILD_TARGET_AGGRESSIVE_INLINE: ");
-#ifdef BDE_BUILD_TARGET_AGGRESSIVE_INLINE
-    printf("%s\n", STRINGIFY(BDE_BUILD_TARGET_AGGRESSIVE_INLINE) );
+#if defined(BSLS_PLATFORM__CPU_64_BIT)
+    P_MACRO(BSLS_PLATFORM__CPU_64_BIT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CPU_64_BIT);
 #endif
 
-    printf("\n  BDE_DISABLE_COMPILER_VERSION_CHECK: ");
-#ifdef BDE_DISABLE_COMPILER_VERSION_CHECK
-    printf("%s\n", STRINGIFY(BDE_DISABLE_COMPILER_VERSION_CHECK) );
+#if defined(BSLS_PLATFORM__CPU_POWERPC)
+    P_MACRO(BSLS_PLATFORM__CPU_POWERPC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CPU_POWERPC);
 #endif
 
-    printf("\n  BDE_HIDE_COMMON_WINDOWS_WARNINGS: ");
-#ifdef BDE_HIDE_COMMON_WINDOWS_WARNINGS
-    printf("%s\n", STRINGIFY(BDE_HIDE_COMMON_WINDOWS_WARNINGS) );
+#if defined(BSLS_PLATFORM__CPU_X86)
+    P_MACRO(BSLS_PLATFORM__CPU_X86);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CPU_X86);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_AIX: ");
-#ifdef BSLS_PLATFORM_CMP_AIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_AIX) );
+#if defined(BSLS_PLATFORM__CPU_X86_64)
+    P_MACRO(BSLS_PLATFORM__CPU_X86_64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__CPU_X86_64);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
-#ifdef BSLS_PLATFORM_CMP_CLANG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
+#if defined(BSLS_PLATFORM__IS_BIG_ENDIAN)
+    P_MACRO(BSLS_PLATFORM__IS_BIG_ENDIAN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__IS_BIG_ENDIAN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_EDG: ");
-#ifdef BSLS_PLATFORM_CMP_EDG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_EDG) );
+#if defined(BSLS_PLATFORM__IS_LITTLE_ENDIAN)
+    P_MACRO(BSLS_PLATFORM__IS_LITTLE_ENDIAN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__IS_LITTLE_ENDIAN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_GNU: ");
-#ifdef BSLS_PLATFORM_CMP_GNU
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
+#if defined(BSLS_PLATFORM__OS_AIX)
+    P_MACRO(BSLS_PLATFORM__OS_AIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_AIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_HP: ");
-#ifdef BSLS_PLATFORM_CMP_HP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_HP) );
+#if defined(BSLS_PLATFORM__OS_CYGWIN)
+    P_MACRO(BSLS_PLATFORM__OS_CYGWIN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_CYGWIN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_IBM: ");
-#ifdef BSLS_PLATFORM_CMP_IBM
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_IBM) );
+#if defined(BSLS_PLATFORM__OS_DARWIN)
+    P_MACRO(BSLS_PLATFORM__OS_DARWIN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_DARWIN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_MSVC: ");
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC) );
+#if defined(BSLS_PLATFORM__OS_HPUX)
+    P_MACRO(BSLS_PLATFORM__OS_HPUX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_HPUX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_SUN: ");
-#ifdef BSLS_PLATFORM_CMP_SUN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_SUN) );
+#if defined(BSLS_PLATFORM__OS_LINUX)
+    P_MACRO(BSLS_PLATFORM__OS_LINUX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_LINUX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_VERSION: ");
-#ifdef BSLS_PLATFORM_CMP_VERSION
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
+#if defined(BSLS_PLATFORM__OS_SOLARIS)
+    P_MACRO(BSLS_PLATFORM__OS_SOLARIS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_SOLARIS);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM_CMP_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VER_MAJOR) );
+#if defined(BSLS_PLATFORM__OS_SUNOS)
+    P_MACRO(BSLS_PLATFORM__OS_SUNOS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_SUNOS);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_32_BIT: ");
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_32_BIT) );
+#if defined(BSLS_PLATFORM__OS_UNIX)
+    P_MACRO(BSLS_PLATFORM__OS_UNIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_UNIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_64_BIT: ");
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_64_BIT) );
+#if defined(BSLS_PLATFORM__OS_WINDOWS)
+    P_MACRO(BSLS_PLATFORM__OS_WINDOWS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_PLATFORM__OS_WINDOWS);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_88000: ");
-#ifdef BSLS_PLATFORM_CPU_88000
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_88000) );
+#if defined(BDES_PLATFORM__CMP_AIX)
+    P_MACRO(BDES_PLATFORM__CMP_AIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__CMP_AIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ALPHA: ");
-#ifdef BSLS_PLATFORM_CPU_ALPHA
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ALPHA) );
+#if defined(BDES_PLATFORM__CMP_GNU)
+    P_MACRO(BDES_PLATFORM__CMP_GNU);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__CMP_GNU);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V5: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V5
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V5) );
+#if defined(BDES_PLATFORM__CMP_HP)
+    P_MACRO(BDES_PLATFORM__CMP_HP);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__CMP_HP);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V6: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V6
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V6) );
+#if defined(BDES_PLATFORM__CMP_MSVC)
+    P_MACRO(BDES_PLATFORM__CMP_MSVC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__CMP_MSVC);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_ARM_V7: ");
-#ifdef BSLS_PLATFORM_CPU_ARM_V7
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_ARM_V7) );
+#if defined(BDES_PLATFORM__CMP_SUN)
+    P_MACRO(BDES_PLATFORM__CMP_SUN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__CMP_SUN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_HPPA: ");
-#ifdef BSLS_PLATFORM_CPU_HPPA
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_HPPA) );
+#if defined(BDES_PLATFORM__CMP_VER_MAJOR)
+    P_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_IA64: ");
-#ifdef BSLS_PLATFORM_CPU_IA64
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_IA64) );
+#if defined(BDES_PLATFORM__CPU_64_BIT)
+    P_MACRO(BDES_PLATFORM__CPU_64_BIT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__CPU_64_BIT);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_INTEL: ");
-#ifdef BSLS_PLATFORM_CPU_INTEL
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_INTEL) );
+#if defined(BDES_PLATFORM__OS_AIX)
+    P_MACRO(BDES_PLATFORM__OS_AIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_AIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_MIPS: ");
-#ifdef BSLS_PLATFORM_CPU_MIPS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_MIPS) );
+#if defined(BDES_PLATFORM__OS_CYGWIN)
+    P_MACRO(BDES_PLATFORM__OS_CYGWIN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_CYGWIN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_POWERPC: ");
-#ifdef BSLS_PLATFORM_CPU_POWERPC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_POWERPC) );
+#if defined(BDES_PLATFORM__OS_DARWIN)
+    P_MACRO(BDES_PLATFORM__OS_DARWIN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_DARWIN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_SPARC: ");
-#ifdef BSLS_PLATFORM_CPU_SPARC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_SPARC) );
+#if defined(BDES_PLATFORM__OS_FREEBSD)
+    P_MACRO(BDES_PLATFORM__OS_FREEBSD);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_FREEBSD);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_SPARC_32: ");
-#ifdef BSLS_PLATFORM_CPU_SPARC_32
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_SPARC_32) );
+#if defined(BDES_PLATFORM__OS_HPUX)
+    P_MACRO(BDES_PLATFORM__OS_HPUX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_HPUX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_SPARC_V9: ");
-#ifdef BSLS_PLATFORM_CPU_SPARC_V9
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_SPARC_V9) );
+#if defined(BDES_PLATFORM__OS_LINUX)
+    P_MACRO(BDES_PLATFORM__OS_LINUX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_LINUX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM_CPU_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_VER_MAJOR) );
+#if defined(BDES_PLATFORM__OS_SOLARIS)
+    P_MACRO(BDES_PLATFORM__OS_SOLARIS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_SOLARIS);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_VER_MINOR: ");
-#ifdef BSLS_PLATFORM_CPU_VER_MINOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_VER_MINOR) );
+#if defined(BDES_PLATFORM__OS_SUNOS)
+    P_MACRO(BDES_PLATFORM__OS_SUNOS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_SUNOS);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_X86: ");
-#ifdef BSLS_PLATFORM_CPU_X86
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_X86) );
+#if defined(BDES_PLATFORM__OS_UNIX)
+    P_MACRO(BDES_PLATFORM__OS_UNIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_UNIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_CPU_X86_64: ");
-#ifdef BSLS_PLATFORM_CPU_X86_64
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CPU_X86_64) );
+#if defined(BDES_PLATFORM__OS_VER_MAJOR)
+    P_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM_IS_BIG_ENDIAN: ");
-#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_IS_BIG_ENDIAN) );
+#if defined(BDES_PLATFORM__OS_VER_MINOR)
+    P_MACRO(BDES_PLATFORM__OS_VER_MINOR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_VER_MINOR);
 #endif
 
-    printf("\n  BSLS_PLATFORM_IS_LITTLE_ENDIAN: ");
-#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_IS_LITTLE_ENDIAN) );
+#if defined(BDES_PLATFORM__OS_WIN2K)
+    P_MACRO(BDES_PLATFORM__OS_WIN2K);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_WIN2K);
 #endif
 
-    printf("\n  BSLS_PLATFORM_NO_64_BIT_LITERALS: ");
-#ifdef BSLS_PLATFORM_NO_64_BIT_LITERALS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_NO_64_BIT_LITERALS) );
+#if defined(BDES_PLATFORM__OS_WIN9X)
+    P_MACRO(BDES_PLATFORM__OS_WIN9X);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_WIN9X);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_AIX: ");
-#ifdef BSLS_PLATFORM_OS_AIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_AIX) );
+#if defined(BDES_PLATFORM__OS_WINDOWS)
+    P_MACRO(BDES_PLATFORM__OS_WINDOWS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_WINDOWS);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_CYGWIN: ");
-#ifdef BSLS_PLATFORM_OS_CYGWIN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_CYGWIN) );
+#if defined(BDES_PLATFORM__OS_WINNT)
+    P_MACRO(BDES_PLATFORM__OS_WINNT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_WINNT);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_DARWIN: ");
-#ifdef BSLS_PLATFORM_OS_DARWIN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_DARWIN) );
+#if defined(BDES_PLATFORM__OS_WINXP)
+    P_MACRO(BDES_PLATFORM__OS_WINXP);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BDES_PLATFORM__OS_WINXP);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_FREEBSD: ");
-#ifdef BSLS_PLATFORM_OS_FREEBSD
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_FREEBSD) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  BSLS_PLATFORM_OS_HPUX: ");
-#ifdef BSLS_PLATFORM_OS_HPUX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_HPUX) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n  printFlags: platform macros of interest to our configuration");
+    puts(  "  ------------------------------------------------------------");
 
-    printf("\n  BSLS_PLATFORM_OS_LINUX: ");
-#ifdef BSLS_PLATFORM_OS_LINUX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_LINUX) );
+#if defined(_AIX)
+    P_MACRO(_AIX);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_AIX);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_SOLARIS: ");
-#ifdef BSLS_PLATFORM_OS_SOLARIS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_SOLARIS) );
+#if defined(_ARCH_601)
+    P_MACRO(_ARCH_601);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ARCH_601);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_SUBTYPE_COUNT: ");
-#ifdef BSLS_PLATFORM_OS_SUBTYPE_COUNT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_SUBTYPE_COUNT) );
+#if defined(_ARCH_COM)
+    P_MACRO(_ARCH_COM);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ARCH_COM);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_SUNOS: ");
-#ifdef BSLS_PLATFORM_OS_SUNOS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_SUNOS) );
+#if defined(_ARCH_POWER)
+    P_MACRO(_ARCH_POWER);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ARCH_POWER);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_UNIX: ");
-#ifdef BSLS_PLATFORM_OS_UNIX
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_UNIX) );
+#if defined(_ARCH_PPC)
+    P_MACRO(_ARCH_PPC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ARCH_PPC);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_VER_MAJOR: ");
-#ifdef BSLS_PLATFORM_OS_VER_MAJOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_VER_MAJOR) );
+#if defined(_ARCH_PPC64)
+    P_MACRO(_ARCH_PPC64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ARCH_PPC64);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_VER_MINOR: ");
-#ifdef BSLS_PLATFORM_OS_VER_MINOR
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_VER_MINOR) );
+#if defined(_ARCH_PWR)
+    P_MACRO(_ARCH_PWR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ARCH_PWR);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WIN2K: ");
-#ifdef BSLS_PLATFORM_OS_WIN2K
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WIN2K) );
+#if defined(_ARCH_PWR2)
+    P_MACRO(_ARCH_PWR2);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ARCH_PWR2);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WIN9X: ");
-#ifdef BSLS_PLATFORM_OS_WIN9X
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WIN9X) );
+#if defined(_BIG_ENDIAN)
+    P_MACRO(_BIG_ENDIAN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_BIG_ENDIAN);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WINDOWS: ");
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WINDOWS) );
+#if defined(_HPUX_SOURCE)
+    P_MACRO(_HPUX_SOURCE);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_HPUX_SOURCE);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WINNT: ");
-#ifdef BSLS_PLATFORM_OS_WINNT
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WINNT) );
+#if defined(_IA64)
+    P_MACRO(_IA64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_IA64);
 #endif
 
-    printf("\n  BSLS_PLATFORM_OS_WINXP: ");
-#ifdef BSLS_PLATFORM_OS_WINXP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_OS_WINXP) );
+#if defined(_ILP32)
+    P_MACRO(_ILP32);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_ILP32);
 #endif
 
-    printf("\n  BSL_DOUBLE_UNDERSCORE_XLAT: ");
-#ifdef BSL_DOUBLE_UNDERSCORE_XLAT
-    printf("%s\n", STRINGIFY(BSL_DOUBLE_UNDERSCORE_XLAT) );
+#if defined(_LITTLE_ENDIAN)
+    P_MACRO(_LITTLE_ENDIAN);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_LITTLE_ENDIAN);
 #endif
 
-    printf("\n  WINVER: ");
-#ifdef WINVER
-    printf("%s\n", STRINGIFY(WINVER) );
+#if defined(_LP64)
+    P_MACRO(_LP64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_LP64);
 #endif
 
-    printf("\n  _AIX: ");
-#ifdef _AIX
-    printf("%s\n", STRINGIFY(_AIX) );
+#if defined(_MSC_VER)
+    P_MACRO(_MSC_VER);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_MSC_VER);
 #endif
 
-    printf("\n  _ARCH_601: ");
-#ifdef _ARCH_601
-    printf("%s\n", STRINGIFY(_ARCH_601) );
+#if defined(_MSVC_LANG)
+    P_MACRO(_MSVC_LANG);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_MSVC_LANG);
 #endif
 
-    printf("\n  _ARCH_COM: ");
-#ifdef _ARCH_COM
-    printf("%s\n", STRINGIFY(_ARCH_COM) );
+#if defined(_M_ALPHA)
+    P_MACRO(_M_ALPHA);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_M_ALPHA);
 #endif
 
-    printf("\n  _ARCH_POWER: ");
-#ifdef _ARCH_POWER
-    printf("%s\n", STRINGIFY(_ARCH_POWER) );
+#if defined(_M_AMD64)
+    P_MACRO(_M_AMD64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_M_AMD64);
 #endif
 
-    printf("\n  _ARCH_PPC: ");
-#ifdef _ARCH_PPC
-    printf("%s\n", STRINGIFY(_ARCH_PPC) );
+#if defined(_M_IA64)
+    P_MACRO(_M_IA64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_M_IA64);
 #endif
 
-    printf("\n  _ARCH_PPC64: ");
-#ifdef _ARCH_PPC64
-    printf("%s\n", STRINGIFY(_ARCH_PPC64) );
+#if defined(_M_IX86)
+    P_MACRO(_M_IX86);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_M_IX86);
 #endif
 
-    printf("\n  _ARCH_PWR: ");
-#ifdef _ARCH_PWR
-    printf("%s\n", STRINGIFY(_ARCH_PWR) );
+#if defined(_M_MRX000)
+    P_MACRO(_M_MRX000);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_M_MRX000);
 #endif
 
-    printf("\n  _ARCH_PWR2: ");
-#ifdef _ARCH_PWR2
-    printf("%s\n", STRINGIFY(_ARCH_PWR2) );
+#if defined(_M_PPC)
+    P_MACRO(_M_PPC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_M_PPC);
 #endif
 
-    printf("\n  _BIG_ENDIAN: ");
-#ifdef _BIG_ENDIAN
-    printf("%s\n", STRINGIFY(_BIG_ENDIAN) );
+#if defined(_POWER)
+    P_MACRO(_POWER);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_POWER);
 #endif
 
-    printf("\n  _HPUX_SOURCE: ");
-#ifdef _HPUX_SOURCE
-    printf("%s\n", STRINGIFY(_HPUX_SOURCE) );
+#if defined(_WIN16)
+    P_MACRO(_WIN16);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_WIN16);
 #endif
 
-    printf("\n  _IA64: ");
-#ifdef _IA64
-    printf("%s\n", STRINGIFY(_IA64) );
+#if defined(_WIN32)
+    P_MACRO(_WIN32);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_WIN32);
 #endif
 
-    printf("\n  _ILP32: ");
-#ifdef _ILP32
-    printf("%s\n", STRINGIFY(_ILP32) );
+#if defined(_WIN32_WINDOWS)
+    P_MACRO(_WIN32_WINDOWS);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_WIN32_WINDOWS);
 #endif
 
-    printf("\n  _LITTLE_ENDIAN: ");
-#ifdef _LITTLE_ENDIAN
-    printf("%s\n", STRINGIFY(_LITTLE_ENDIAN) );
+#if defined(_WIN32_WINNT)
+    P_MACRO(_WIN32_WINNT);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_WIN32_WINNT);
 #endif
 
-    printf("\n  _LP64: ");
-#ifdef _LP64
-    printf("%s\n", STRINGIFY(_LP64) );
+#if defined(_WIN64)
+    P_MACRO(_WIN64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(_WIN64);
 #endif
 
-    printf("\n  _MSC_VER: ");
-#ifdef _MSC_VER
-    printf("%s\n", STRINGIFY(_MSC_VER) );
+#if defined(__64BIT__)
+    P_MACRO(__64BIT__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__64BIT__);
 #endif
 
-    printf("\n  _M_ALPHA: ");
-#ifdef _M_ALPHA
-    printf("%s\n", STRINGIFY(_M_ALPHA) );
+#if defined(__APPLE__)
+    P_MACRO(__APPLE__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__APPLE__);
 #endif
 
-    printf("\n  _M_AMD64: ");
-#ifdef _M_AMD64
-    printf("%s\n", STRINGIFY(_M_AMD64) );
+#if defined(__ARM_ARCH)
+    P_MACRO(__ARM_ARCH);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH);
 #endif
 
-    printf("\n  _M_IA64: ");
-#ifdef _M_IA64
-    printf("%s\n", STRINGIFY(_M_IA64) );
+#if defined(__ARM_ARCH_5TEJ__)
+    P_MACRO(__ARM_ARCH_5TEJ__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_5TEJ__);
 #endif
 
-    printf("\n  _M_IX86: ");
-#ifdef _M_IX86
-    printf("%s\n", STRINGIFY(_M_IX86) );
+#if defined(__ARM_ARCH_5TE__)
+    P_MACRO(__ARM_ARCH_5TE__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_5TE__);
 #endif
 
-    printf("\n  _M_MRX000: ");
-#ifdef _M_MRX000
-    printf("%s\n", STRINGIFY(_M_MRX000) );
+#if defined(__ARM_ARCH_5T__)
+    P_MACRO(__ARM_ARCH_5T__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_5T__);
 #endif
 
-    printf("\n  _M_PPC: ");
-#ifdef _M_PPC
-    printf("%s\n", STRINGIFY(_M_PPC) );
+#if defined(__ARM_ARCH_6__)
+    P_MACRO(__ARM_ARCH_6__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_6__);
 #endif
 
-    printf("\n  _POWER: ");
-#ifdef _POWER
-    printf("%s\n", STRINGIFY(_POWER) );
+#if defined(__ARM_ARCH_7A__)
+    P_MACRO(__ARM_ARCH_7A__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_7A__);
 #endif
 
-    printf("\n  _WIN16: ");
-#ifdef _WIN16
-    printf("%s\n", STRINGIFY(_WIN16) );
+#if defined(__ARM_ARCH_7M__)
+    P_MACRO(__ARM_ARCH_7M__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_7M__);
 #endif
 
-    printf("\n  _WIN32: ");
-#ifdef _WIN32
-    printf("%s\n", STRINGIFY(_WIN32) );
+#if defined(__ARM_ARCH_7R__)
+    P_MACRO(__ARM_ARCH_7R__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_7R__);
 #endif
 
-    printf("\n  _WIN32_WINDOWS: ");
-#ifdef _WIN32_WINDOWS
-    printf("%s\n", STRINGIFY(_WIN32_WINDOWS) );
+#if defined(__ARM_ARCH_7__)
+    P_MACRO(__ARM_ARCH_7__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ARM_ARCH_7__);
 #endif
 
-    printf("\n  _WIN32_WINNT: ");
-#ifdef _WIN32_WINNT
-    printf("%s\n", STRINGIFY(_WIN32_WINNT) );
+#if defined(__APPLE_CC__)
+    P_MACRO(__APPLE_CC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__APPLE_CC__);
 #endif
 
-    printf("\n  _WIN64: ");
-#ifdef _WIN64
-    printf("%s\n", STRINGIFY(_WIN64) );
+#if defined(__CHAR_UNSIGNED__)
+    P_MACRO(__CHAR_UNSIGNED__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__CHAR_UNSIGNED__);
 #endif
 
-    printf("\n  __64BIT__: ");
-#ifdef __64BIT__
-    printf("%s\n", STRINGIFY(__64BIT__) );
+#if defined(__CYGWIN__)
+    P_MACRO(__CYGWIN__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__CYGWIN__);
 #endif
 
-    printf("\n  __APPLE__: ");
-#ifdef __APPLE__
-    printf("%s\n", STRINGIFY(__APPLE__) );
+#if defined(__EDG__)
+    P_MACRO(__EDG__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__EDG__);
 #endif
 
-    printf("\n  __ARM_ARCH: ");
-#ifdef __ARM_ARCH
-    printf("%s\n", STRINGIFY(__ARM_ARCH) );
+#if defined(__FreeBSD__)
+    P_MACRO(__FreeBSD__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__FreeBSD__);
 #endif
 
-    printf("\n  __ARM_ARCH_5TEJ__: ");
-#ifdef __ARM_ARCH_5TEJ__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_5TEJ__) );
+#if defined(__GLIBC__)
+    P_MACRO(__GLIBC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__GLIBC__);
 #endif
 
-    printf("\n  __ARM_ARCH_5TE__: ");
-#ifdef __ARM_ARCH_5TE__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_5TE__) );
+#if defined(__GNUC_PATCHLEVEL__)
+    P_MACRO(__GNUC_PATCHLEVEL__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__GNUC_PATCHLEVEL__);
 #endif
 
-    printf("\n  __ARM_ARCH_5T__: ");
-#ifdef __ARM_ARCH_5T__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_5T__) );
+#if defined(__GNUC__)
+    P_MACRO(__GNUC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__GNUC__);
 #endif
 
-    printf("\n  __ARM_ARCH_6__: ");
-#ifdef __ARM_ARCH_6__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_6__) );
+#if defined(__GNUC_GNU_INLINE__)
+    P_MACRO(__GNUC_GNU_INLINE__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__GNUC_GNU_INLINE__);
 #endif
 
-    printf("\n  __ARM_ARCH_7A__: ");
-#ifdef __ARM_ARCH_7A__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_7A__) );
+#if defined(__GNUC_STDC_INLINE__)
+    P_MACRO(__GNUC_STDC_INLINE__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__GNUC_STDC_INLINE__);
 #endif
 
-    printf("\n  __ARM_ARCH_7M__: ");
-#ifdef __ARM_ARCH_7M__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_7M__) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    P_MACRO(__GXX_EXPERIMENTAL_CXX0X__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__GXX_EXPERIMENTAL_CXX0X__);
 #endif
 
-    printf("\n  __ARM_ARCH_7R__: ");
-#ifdef __ARM_ARCH_7R__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_7R__) );
+#if defined(__HP_cc)
+    P_MACRO(__HP_cc);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__HP_cc);
 #endif
 
-    printf("\n  __ARM_ARCH_7__: ");
-#ifdef __ARM_ARCH_7__
-    printf("%s\n", STRINGIFY(__ARM_ARCH_7__) );
+#if defined(__HP_aCC)
+    P_MACRO(__HP_aCC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__HP_aCC);
 #endif
 
-    printf("\n  __CYGWIN__: ");
-#ifdef __CYGWIN__
-    printf("%s\n", STRINGIFY(__CYGWIN__) );
+#if defined(__IA64__)
+    P_MACRO(__IA64__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__IA64__);
 #endif
 
-    printf("\n  __EDG__: ");
-#ifdef __EDG__
-    printf("%s\n", STRINGIFY(__EDG__) );
+#if defined(__IBMC__)
+    P_MACRO(__IBMC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__IBMC__);
 #endif
 
-    printf("\n  __FreeBSD__: ");
-#ifdef __FreeBSD__
-    printf("%s\n", STRINGIFY(__FreeBSD__) );
+#if defined(__IBMCPP__)
+    P_MACRO(__IBMCPP__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__IBMCPP__);
 #endif
 
-    printf("\n  __GLIBC__: ");
-#ifdef __GLIBC__
-    printf("%s\n", STRINGIFY(__GLIBC__) );
+#if defined(__LP64__)
+    P_MACRO(__LP64__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__LP64__);
 #endif
 
-    printf("\n  __GNUC_PATCHLEVEL__: ");
-#ifdef __GNUC_PATCHLEVEL__
-    printf("%s\n", STRINGIFY(__GNUC_PATCHLEVEL__) );
+#if defined(__PIC__)
+    P_MACRO(__PIC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__PIC__);
 #endif
 
-    printf("\n  __GNUC__: ");
-#ifdef __GNUC__
-    printf("%s\n", STRINGIFY(__GNUC__) );
+#if defined(__POWERPC__)
+    P_MACRO(__POWERPC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__POWERPC__);
 #endif
 
-    printf("\n  __GXX_EXPERIMENTAL_CXX0X__: ");
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-    printf("%s\n", STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__) );
+#if defined(__SUNPRO_C)
+    P_MACRO(__SUNPRO_C);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SUNPRO_C);
 #endif
 
-    printf("\n  __HP_aCC: ");
-#ifdef __HP_aCC
-    printf("%s\n", STRINGIFY(__HP_aCC) );
+#if defined(__SUNPRO_CC)
+    P_MACRO(__SUNPRO_CC);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SUNPRO_CC);
 #endif
 
-    printf("\n  __IA64__: ");
-#ifdef __IA64__
-    printf("%s\n", STRINGIFY(__IA64__) );
+#if defined(__SVR4)
+    P_MACRO(__SVR4);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SVR4);
 #endif
 
-    printf("\n  __IBMCPP__: ");
-#ifdef __IBMCPP__
-    printf("%s\n", STRINGIFY(__IBMCPP__) );
+#if defined(__SunOS_5_10)
+    P_MACRO(__SunOS_5_10);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SunOS_5_10);
 #endif
 
-    printf("\n  __IBMC__: ");
-#ifdef __IBMC__
-    printf("%s\n", STRINGIFY(__IBMC__) );
+#if defined(__SunOS_5_11)
+    P_MACRO(__SunOS_5_11);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SunOS_5_11);
 #endif
 
-    printf("\n  __LP64__: ");
-#ifdef __LP64__
-    printf("%s\n", STRINGIFY(__LP64__) );
+#if defined(__SunOS_5_7)
+    P_MACRO(__SunOS_5_7);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SunOS_5_7);
 #endif
 
-    printf("\n  __POWERPC__: ");
-#ifdef __POWERPC__
-    printf("%s\n", STRINGIFY(__POWERPC__) );
+#if defined(__SunOS_5_8)
+    P_MACRO(__SunOS_5_8);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SunOS_5_8);
 #endif
 
-    printf("\n  __SUNPRO_C: ");
-#ifdef __SUNPRO_C
-    printf("%s\n", STRINGIFY(__SUNPRO_C) );
+#if defined(__SunOS_5_9)
+    P_MACRO(__SunOS_5_9);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__SunOS_5_9);
 #endif
 
-    printf("\n  __SUNPRO_CC: ");
-#ifdef __SUNPRO_CC
-    printf("%s\n", STRINGIFY(__SUNPRO_CC) );
+#if defined(__WCHAR_UNSIGNED__)
+    P_MACRO(__WCHAR_UNSIGNED__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__WCHAR_UNSIGNED__);
 #endif
 
-    printf("\n  __SVR4: ");
-#ifdef __SVR4
-    printf("%s\n", STRINGIFY(__SVR4) );
+#if defined(__WIN32__)
+    P_MACRO(__WIN32__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__WIN32__);
 #endif
 
-    printf("\n  __SunOS_5_10: ");
-#ifdef __SunOS_5_10
-    printf("%s\n", STRINGIFY(__SunOS_5_10) );
+#if defined(__alpha__)
+    P_MACRO(__alpha__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__alpha__);
 #endif
 
-    printf("\n  __SunOS_5_11: ");
-#ifdef __SunOS_5_11
-    printf("%s\n", STRINGIFY(__SunOS_5_11) );
+#if defined(__arch64__)
+    P_MACRO(__arch64__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__arch64__);
 #endif
 
-    printf("\n  __SunOS_5_7: ");
-#ifdef __SunOS_5_7
-    printf("%s\n", STRINGIFY(__SunOS_5_7) );
+#if defined(__arm__)
+    P_MACRO(__arm__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__arm__);
 #endif
 
-    printf("\n  __SunOS_5_8: ");
-#ifdef __SunOS_5_8
-    printf("%s\n", STRINGIFY(__SunOS_5_8) );
+#if defined(__clang__)
+    P_MACRO(__clang__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__clang__);
 #endif
 
-    printf("\n  __SunOS_5_9: ");
-#ifdef __SunOS_5_9
-    printf("%s\n", STRINGIFY(__SunOS_5_9) );
+#if defined(__cygwin)
+    P_MACRO(__cygwin);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__cygwin);
 #endif
 
-    printf("\n  __WIN32__: ");
-#ifdef __WIN32__
-    printf("%s\n", STRINGIFY(__WIN32__) );
+#if defined(__hppa)
+    P_MACRO(__hppa);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__hppa);
 #endif
 
-    printf("\n  __alpha__: ");
-#ifdef __alpha__
-    printf("%s\n", STRINGIFY(__alpha__) );
+#if defined(__hppa__)
+    P_MACRO(__hppa__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__hppa__);
 #endif
 
-    printf("\n  __arch64__: ");
-#ifdef __arch64__
-    printf("%s\n", STRINGIFY(__arch64__) );
+#if defined(__hpux)
+    P_MACRO(__hpux);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__hpux);
 #endif
 
-    printf("\n  __arm__: ");
-#ifdef __arm__
-    printf("%s\n", STRINGIFY(__arm__) );
+#if defined(__i386)
+    P_MACRO(__i386);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__i386);
 #endif
 
-    printf("\n  __clang__: ");
-#ifdef __clang__
-    printf("%s\n", STRINGIFY(__clang__) );
+#if defined(__i386__)
+    P_MACRO(__i386__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__i386__);
 #endif
 
-    printf("\n  __cplusplus: ");
-#ifdef __cplusplus
-    printf("%s\n", STRINGIFY(__cplusplus) );
+#if defined(__ia64)
+    P_MACRO(__ia64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ia64);
 #endif
 
-    printf("\n  __cygwin: ");
-#ifdef __cygwin
-    printf("%s\n", STRINGIFY(__cygwin) );
+#if defined(__ia64__)
+    P_MACRO(__ia64__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ia64__);
 #endif
 
-    printf("\n  __hppa: ");
-#ifdef __hppa
-    printf("%s\n", STRINGIFY(__hppa) );
+#if defined(__ix86)
+    P_MACRO(__ix86);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ix86);
 #endif
 
-    printf("\n  __hppa__: ");
-#ifdef __hppa__
-    printf("%s\n", STRINGIFY(__hppa__) );
+#if defined(__ix86__)
+    P_MACRO(__ix86__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ix86__);
 #endif
 
-    printf("\n  __hpux: ");
-#ifdef __hpux
-    printf("%s\n", STRINGIFY(__hpux) );
+#if defined(__linux)
+    P_MACRO(__linux);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__linux);
 #endif
 
-    printf("\n  __i386: ");
-#ifdef __i386
-    printf("%s\n", STRINGIFY(__i386) );
+#if defined(__linux__)
+    P_MACRO(__linux__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__linux__);
 #endif
 
-    printf("\n  __i386__: ");
-#ifdef __i386__
-    printf("%s\n", STRINGIFY(__i386__) );
+#if defined(__mips__)
+    P_MACRO(__mips__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__mips__);
 #endif
 
-    printf("\n  __ia64: ");
-#ifdef __ia64
-    printf("%s\n", STRINGIFY(__ia64) );
+#if defined(__powerpc)
+    P_MACRO(__powerpc);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__powerpc);
 #endif
 
-    printf("\n  __ia64__: ");
-#ifdef __ia64__
-    printf("%s\n", STRINGIFY(__ia64__) );
+#if defined(__powerpc__)
+    P_MACRO(__powerpc__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__powerpc__);
 #endif
 
-    printf("\n  __ix86: ");
-#ifdef __ix86
-    printf("%s\n", STRINGIFY(__ix86) );
+#if defined(__ppc__)
+    P_MACRO(__ppc__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__ppc__);
 #endif
 
-    printf("\n  __ix86__: ");
-#ifdef __ix86__
-    printf("%s\n", STRINGIFY(__ix86__) );
+#if defined(__sparc)
+    P_MACRO(__sparc);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__sparc);
 #endif
 
-    printf("\n  __linux: ");
-#ifdef __linux
-    printf("%s\n", STRINGIFY(__linux) );
+#if defined(__sparc64)
+    P_MACRO(__sparc64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__sparc64);
 #endif
 
-    printf("\n  __linux__: ");
-#ifdef __linux__
-    printf("%s\n", STRINGIFY(__linux__) );
+#if defined(__sparc__)
+    P_MACRO(__sparc__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__sparc__);
 #endif
 
-    printf("\n  __mips__: ");
-#ifdef __mips__
-    printf("%s\n", STRINGIFY(__mips__) );
+#if defined(__sparc_v9__)
+    P_MACRO(__sparc_v9__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__sparc_v9__);
 #endif
 
-    printf("\n  __powerpc: ");
-#ifdef __powerpc
-    printf("%s\n", STRINGIFY(__powerpc) );
+#if defined(__sparcv9)
+    P_MACRO(__sparcv9);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__sparcv9);
 #endif
 
-    printf("\n  __powerpc__: ");
-#ifdef __powerpc__
-    printf("%s\n", STRINGIFY(__powerpc__) );
+#if defined(__sun)
+    P_MACRO(__sun);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__sun);
 #endif
 
-    printf("\n  __ppc__: ");
-#ifdef __ppc__
-    printf("%s\n", STRINGIFY(__ppc__) );
+#if defined(__svr4__)
+    P_MACRO(__svr4__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__svr4__);
 #endif
 
-    printf("\n  __sparc: ");
-#ifdef __sparc
-    printf("%s\n", STRINGIFY(__sparc) );
+#if defined(__unix)
+    P_MACRO(__unix);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__unix);
 #endif
 
-    printf("\n  __sparc64: ");
-#ifdef __sparc64
-    printf("%s\n", STRINGIFY(__sparc64) );
+#if defined(__unix__)
+    P_MACRO(__unix__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__unix__);
 #endif
 
-    printf("\n  __sparc__: ");
-#ifdef __sparc__
-    printf("%s\n", STRINGIFY(__sparc__) );
+#if defined(__x86_64)
+    P_MACRO(__x86_64);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__x86_64);
 #endif
 
-    printf("\n  __sparc_v9__: ");
-#ifdef __sparc_v9__
-    printf("%s\n", STRINGIFY(__sparc_v9__) );
+#if defined(__x86_64__)
+    P_MACRO(__x86_64__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__x86_64__);
 #endif
 
-    printf("\n  __sparcv9: ");
-#ifdef __sparcv9
-    printf("%s\n", STRINGIFY(__sparcv9) );
+#if defined(__xlC__)
+    P_MACRO(__xlC__);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(__xlC__);
 #endif
 
-    printf("\n  __sun: ");
-#ifdef __sun
-    printf("%s\n", STRINGIFY(__sun) );
+#if defined(cygwin)
+    P_MACRO(cygwin);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(cygwin);
 #endif
 
-    printf("\n  __svr4__: ");
-#ifdef __svr4__
-    printf("%s\n", STRINGIFY(__svr4__) );
+#if defined(hpux)
+    P_MACRO(hpux);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(hpux);
 #endif
 
-    printf("\n  __unix: ");
-#ifdef __unix
-    printf("%s\n", STRINGIFY(__unix) );
+#if defined(i386)
+    P_MACRO(i386);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(i386);
 #endif
 
-    printf("\n  __unix__: ");
-#ifdef __unix__
-    printf("%s\n", STRINGIFY(__unix__) );
+#if defined(linux)
+    P_MACRO(linux);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(linux);
 #endif
 
-    printf("\n  __x86_64: ");
-#ifdef __x86_64
-    printf("%s\n", STRINGIFY(__x86_64) );
+#if defined(macro)
+    P_MACRO(macro);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(macro);
 #endif
 
-    printf("\n  __x86_64__: ");
-#ifdef __x86_64__
-    printf("%s\n", STRINGIFY(__x86_64__) );
+#if defined(sparc)
+    P_MACRO(sparc);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(sparc);
 #endif
 
-    printf("\n  __xlC__: ");
-#ifdef __xlC__
-    printf("%s\n", STRINGIFY(__xlC__) );
+#if defined(sun)
+    P_MACRO(sun);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(sun);
 #endif
 
-    printf("\n  bdes_Platform: ");
-#ifdef bdes_Platform
-    printf("%s\n", STRINGIFY(bdes_Platform) );
+#if defined(unix)
+    P_MACRO(unix);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(unix);
 #endif
 
-    printf("\n  cygwin: ");
-#ifdef cygwin
-    printf("%s\n", STRINGIFY(cygwin) );
+#if defined(WINVER)
+    P_MACRO(WINVER);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(WINVER);
 #endif
 
-    printf("\n  hpux: ");
-#ifdef hpux
-    printf("%s\n", STRINGIFY(hpux) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    enum { LAST_LINE = __LINE__ };
 
-    printf("\n  i386: ");
-#ifdef i386
-    printf("%s\n", STRINGIFY(i386) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  linux: ");
-#ifdef linux
-    printf("%s\n", STRINGIFY(linux) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    char STATIC_CHECK[UNDEF_TABLE_SIZE - ((LAST_LINE - FIRST_LINE) / 6)];
+    (void)STATIC_CHECK;
+        // Compile-time assertion that the table for undefined macros is likely
+        // to overflow.  Each macro is tested with a six line block, and the
+        // computation will slightly overestimate the maximum number of entries
+        // needed by ignoring several lines supporting text formatting etc.
+        // There should be a margin for error of around 4 macros when this
+        // check fires.
 
-    printf("\n  macro: ");
-#ifdef macro
-    printf("%s\n", STRINGIFY(macro) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
-    printf("\n  sparc: ");
-#ifdef sparc
-    printf("%s\n", STRINGIFY(sparc) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n\n  printFlags: UNDEFINED MACROS:");
+    puts(    "  -----------------------------");
 
-    printf("\n  sun: ");
-#ifdef sun
-    printf("%s\n", STRINGIFY(sun) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    for (size_t i = 0; i != undefinedCount; ++i) {
+        printf("\t  %s\n", undefinedMacros[i]);
+    }
 
-    printf("\n  unix: ");
-#ifdef unix
-    printf("%s\n", STRINGIFY(unix) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    puts("\n\nprintFlags: Leave");
 
-    printf("\n\nprintFlags: Leave\n");
+        // Clean up locally scoped macros
+#undef D_MACRO
+#undef P_MACRO
 }
 
 // ============================================================================
@@ -1944,18 +1605,32 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // DUMP OUT BSLS_PLATFORM_*
+        // TESTING CONCERN: REPORT DEFINITION OF ALL PLATFORM MACROS
         //
         // Concerns:
-        //: 1 It is hard to tell which old literals are enabled and which
-        //:   aren't.
+        //: 1 Audit the set of macros of concern to this component.
         //
         // Plan:
-        //: 1 Dump them out.
+        //: 1 In 'verbose' mode, iterate, in alphanumerical order within themed
+        //:   groupings, over all macros that are either defined by this
+        //:   component, or are platform supplied macros of interest when
+        //:   defining the macros of this component.
+        //:
+        //:   1 If a macro is defined, write its name and value to the console.
+        //:
+        //:   2 If a macro is not defined, append its name to a global list of
+        //:     macro names that are not defined.
+        //:
+        //: 2 If in 'verbose' mode, write out the list of macro names that are
+        //:   not defined.
+        //
+        // Testing
+        //   CONCERN: report definition of all platform macros.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nDUMP OUT BSLS_PLATFORM_*"
-                            "\n========================\n");
+        if (verbose) printf(
+              "\nTESTING CONCERN: REPORT DEFINITION OF ALL PLATFORM MACROS"
+              "\n=========================================================\n");
 
         if (!verbose) break;
 
@@ -2087,6 +1762,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // MINIMAL DEFINITION TEST
         //
+        // Concerns:
+        //: 1 The platform is correctly detected.
+        //
         // Plan:
         //: 1 We want to make sure that exactly one each of OS, PROCESSOR,
         //:   COMPILER and ENDIAN type is set.  We also want to make sure that
@@ -2096,13 +1774,15 @@ int main(int argc, char *argv[])
         //:   sure that one endian-ness type is defined for the platform.
         //
         // Testing:
-        //   Ensure that exactly one of each CMP type is set.
-        //   Ensure that exactly one of each OS type is set.
-        //   Ensure that exactly one of each CPU type is set.
-        //   Ensure that at most one of each CPU subtype is set.
-        //   For each category, ensure MINOR_NUMBER set -> MAJOR_NUMBER set.
-        //   For the OS type, ensure MAJOR_NUMBER set -> SUBTYPE set.
-        //   For the ENDIAN type, ensure one is set.
+        //   CONCERN: exactly one compiler vendor macro is defined.
+        //   CONCERN: the compiler version macro is defined.
+        //   CONCERN: exactly one OS type macro is defined.
+        //   CONCERN: exactly one OS subtype macro is defined.
+        //   CONCERN: exactly one of each CPU macro is defined.
+        //   CONCERN: exactly one CPU instruction set macro is defined.
+        //   CONCERN: exactly one CPU register width macro is defined.
+        //   CONCERN: at most one CPU version macro is defined.
+        //   CONCERN: exactly one ENDIAN macro is set.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMINIMAL DEFINITION TEST"
@@ -2129,23 +1809,23 @@ int main(int argc, char *argv[])
         ASSERT(Y <= X);                                                      \
         if (veryVerbose) printf("\t%s = %d (0x%X)\n", #X, (X), (X));
 
-        #if defined(BSLS_PLATFORM_CMP_IBM)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
-        #endif
-        #if defined(BSLS_PLATFORM_CMP_IBM)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
-        #endif
-        #if defined(BSLS_PLATFORM_CMP_BLP)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_BLP, 0);
+        #if defined(BSLS_PLATFORM_CMP_AIX)
+            MACRO_TESTGT(BSLS_PLATFORM_CMP_AIX, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_CLANG)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_CLANG, 0);
+        #endif
+        #if defined(BSLS_PLATFORM_CMP_EDG)
+            MACRO_TESTGT(BSLS_PLATFORM_CMP_EDG, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_GNU)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_GNU, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_HP)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_HP, 0);
+        #endif
+        #if defined(BSLS_PLATFORM_CMP_IBM)
+            MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_MSVC)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_MSVC, 0);
@@ -2156,9 +1836,6 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM_CMP_VER_MAJOR)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_VER_MAJOR, 0);
         #endif
-        #if defined(BSLS_PLATFORM_CMP_VER_MINOR)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_VER_MINOR, 0);
-        #endif
 
         if (veryVerbose) printf("Print OS-related Symbols:\n");
 
@@ -2167,9 +1844,6 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_OS_AIX)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_AIX, 1);
-        #endif
-        #if defined(BSLS_PLATFORM_OS_DGUX)
-            MACRO_TESTEQ(BSLS_PLATFORM_OS_DGUX, 1);
         #endif
         #if defined(BSLS_PLATFORM_OS_HPUX)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_HPUX, 1);
@@ -2252,9 +1926,6 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM_CPU_VER_MAJOR)
             MACRO_TESTGT(BSLS_PLATFORM_CPU_VER_MAJOR, 0);
         #endif
-        #if defined(BSLS_PLATFORM_CPU_VER_MINOR)
-            MACRO_TESTGT(BSLS_PLATFORM_CPU_VER_MINOR, 0);
-        #endif
 
         if (veryVerbose) printf("\nPrint endian-ness symbols:\n");
 
@@ -2280,6 +1951,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE),
                                      "inline"));
         #endif
+
+        // Clean up locally scoped macros
+#undef MACRO_TESTEQ
+#undef MACRO_TESTGT
       } break;
       default: {
         fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
@@ -2294,7 +1969,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
