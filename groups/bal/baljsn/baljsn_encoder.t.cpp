@@ -30147,6 +30147,73 @@ const int& Employee::age() const
 
 }  // close enterprise namespace
 
+
+// ============================================================================
+//                              BDLAT TEST TYPES
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace test {
+
+                             // ==================
+                             // class Enumeration0
+                             // ==================
+
+class Enumeration0 {
+
+  public:
+    Enumeration0()
+    {
+    }
+};
+
+int bdlat_enumFromInt(Enumeration0 *, int number)
+{
+    if (0 == number) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+int bdlat_enumFromString(Enumeration0 *, const char *string,
+                         int stringLength)
+{
+    const bslstl::StringRef stringRef(string, stringLength);
+
+    if ("zero" == stringRef) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+void bdlat_enumToInt(int *result, const Enumeration0&)
+{
+    *result = 0;
+}
+
+void bdlat_enumToString(bsl::string *result, const Enumeration0&)
+{
+    *result = "zero";
+}
+
+}  // close test namespace
+
+// TRAITS
+template <>
+struct bdlat_IsBasicEnumeration<test::Enumeration0> : bsl::true_type {};
+
+namespace bdlat_EnumFunctions {
+
+template <>
+struct IsEnumeration<test::Enumeration0> {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_EnumFunctions namespace
+}  // close enterprise namespace
+
 namespace {
 
 // ============================================================================
@@ -30293,7 +30360,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -30402,6 +30469,235 @@ int main(int argc, char *argv[])
 
     ASSERT(EXP_OUTPUT == os.str());
 //..
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING the log buffer clears on each 'encode' call
+        //   This case tests that the log buffer is reset on each call to
+        //   'encode'.
+        //
+        // Concerns:
+        //: 1 The string returned from 'loggedMessages' resets each time
+        //:   'encode' is invoked, such that the contents of the logged
+        //:   messages refer to only the most recent invocation of 'encode'.
+        //
+        // Plan:
+        //: 1 Create 2 objects of different types that 'baljsn::Encoder'
+        //:   always successfully encodes.
+        //:
+        //: 2 Create 2 objects of different types that 'baljsn::Encoder'
+        //:   always fails to encode, and which cause a failure as early
+        //:   in the encoding process as possible.  (Generally this means
+        //:   that each object will implement a 'bdlat' category that
+        //:   the encoder does not support).
+        //:
+        //: 3 Verify that, after performing various sequences of encoding
+        //:   operations where some/all succeed/fail, the 'loggedMessages' are
+        //:   empty if the last operation succeeds, and contain an expected
+        //:   message if and only if the last operation fails.
+        //
+        // Testing:
+        //   int encode(bsl::streambuf *streambuf, cnost TYPE& v, options);
+        // --------------------------------------------------------------------
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING the log buffer clears on each 'encode' call"
+                      << bsl::endl
+                      << "==================================================="
+                      << bsl::endl;
+
+        test::Address mS1;
+            // 'mS1' is a modifiable object for which 'baljsn::Encoder::encode'
+            // will succeed.
+        mS1.street() = "1st";
+        mS1.city()   = "New York";
+        mS1.state()  = "New York";
+
+        const test::Address& S1 = mS1;
+            // 'S1' is a non-modifiable reference to 'mS1'.
+
+        test::Employee mS2;
+            // 'mS2' is a modifiable object for which 'baljsn::Encoder::encode'
+            // will succeed.
+        mS2.name() = "John Doe";
+        mS2.homeAddress() = S1;
+        mS2.age() = 50;
+
+        const test::Employee& S2 = mS2;
+            // 'S2' is a non-modifiable reference to 'mS2'.
+
+        test::Enumeration0 mF1;
+            // 'mF1' is a modifiable object for which 'baljsn::Encoder::encode'
+            // will fail very early in the encoding process.
+
+        const test::Enumeration0& F1 = mF1;
+            // 'F1' is a non-modifiable reference to 'mF1'.
+
+        bdlb::NullableValue<test::Address> mF2;
+            // 'mF2' is a modifiable object for which 'baljsn::Encoder::encode'
+            // will fail very early in the encoding process.
+
+        const bdlb::NullableValue<test::Address>& F2 = mF2;
+            // 'F2' is a non-modifiable reference to 'mF2'.
+
+        enum Instruction {
+            // This enumeration provides a set of integer constants that
+            // indicate individual operations that may be performed by the
+            // testing apparatus.
+
+            NOOP = 0, // indicates to do nothing (no operation)
+            ES1,      // indicates to encode 'S1'
+            ES2,      // indicates to encode 'S2'
+            EF1,      // indicates to encode 'F1'
+            EF2       // indicates to encode 'F2'
+        };
+
+        enum {
+            k_MAX_INSTRUCTIONS = 3 // maximum number of instructions that may
+                                   // be performed in one row of the table
+                                   // that drives the testing apparatus
+        };
+
+
+        enum {
+            // This enumeration provides aliases for whether all encoding
+            // operations in a test row shall succeed, or if at least one shall
+            // fail.
+
+            failure = false, // indicates that at least one encode op fails
+            success = true   // indicates that all encode ops succeed
+        };
+
+
+        const bslstl::StringRef SMsg1 = "";
+            // 'SMsg1' is a string that is equivalent to the 'loggedMessages'
+            // of a 'baljsn::Encoder' after a successful encoding operation.
+
+
+        const bslstl::StringRef FMsg1 =
+            "Encoded object must be a Sequence, Choice, or Array type.\n";
+            // 'FMsg1' is a string that is equivalent to the 'loggedMessages'
+            // of a 'baljsn::Encoder' after an encoding operation that fails
+            // due to the type of the target object having an unsupported
+            // 'bdlat' category.
+
+        const struct {
+            int               d_line;
+                // line number
+
+            Instruction       d_instructions[k_MAX_INSTRUCTIONS];
+                // instructions for test apparatus
+
+            bool              d_encodeSuccessStatus;
+                // whether all operations succeed
+
+            bslstl::StringRef d_loggedMessages;
+                // messages from final operation
+
+        } DATA[] = {
+            //LINE    INSTRUCTIONS     STATUS  LOGGED MESSAGES
+            //---- ------------------ -------- ---------------
+            {   L_, {               }, success,         SMsg1 },
+                // Verify that the 'loggedMessages' are empty if no encoding
+                // operations are performed.
+
+            {   L_, { ES1           }, success,         SMsg1 },
+            {   L_, { ES2           }, success,         SMsg1 },
+                // Verify that the 'loggedMessages' are empty if one
+                // encoding operation is performed, and that operation
+                // succeeds.
+
+            {   L_, { EF1           }, failure,         FMsg1 },
+            {   L_, { EF2           }, failure,         FMsg1 },
+                // Verify that the 'loggedMessages' have an expected message
+                // if one encoding operation is performed, and that operation
+                // fails.
+
+            {   L_, { ES1, ES1      }, success,         SMsg1 },
+            {   L_, { ES1, ES2      }, success,         SMsg1 },
+            {   L_, { ES1, EF1      }, failure,         FMsg1 },
+            {   L_, { ES1, EF2      }, failure,         FMsg1 },
+            {   L_, { ES2, ES1      }, success,         SMsg1 },
+            {   L_, { ES2, ES2      }, success,         SMsg1 },
+            {   L_, { ES2, EF1      }, failure,         FMsg1 },
+            {   L_, { ES2, EF2      }, failure,         FMsg1 },
+            {   L_, { EF1, ES1      }, failure,         SMsg1 },
+            {   L_, { EF1, ES2      }, failure,         SMsg1 },
+            {   L_, { EF1, EF1      }, failure,         FMsg1 },
+            {   L_, { EF1, EF2      }, failure,         FMsg1 },
+            {   L_, { EF2, ES1      }, failure,         SMsg1 },
+            {   L_, { EF2, ES2      }, failure,         SMsg1 },
+            {   L_, { EF2, EF1      }, failure,         FMsg1 },
+            {   L_, { EF2, EF2      }, failure,         FMsg1 },
+                // Verify that the 'loggedMessages' have an expected message
+                // when, after performing 2 encoding operations, the second
+                // operation fails, and otherwise are empty.
+
+            {   L_, { ES1, ES1, ES1 }, success,         SMsg1 },
+            {   L_, { ES1, ES1, EF1 }, failure,         FMsg1 },
+            {   L_, { ES1, EF1, ES1 }, failure,         SMsg1 },
+            {   L_, { EF1, ES1, ES1 }, failure,         SMsg1 }
+                // Verify that the 'loggedMessages' have an expected message
+                // when the last encoding operation in a sequence of encoding
+                // operations fails, and otherwise are empty.
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int          LINE          = DATA[i].d_line;
+            const Instruction *INSTRUCTIONS  = DATA[i].d_instructions;
+            const bool ENCODE_SUCCESS_STATUS = DATA[i].d_encodeSuccessStatus;
+            const bslstl::StringRef& LOGGED_MESSAGES =
+                DATA[i].d_loggedMessages;
+
+            typedef baljsn::Encoder Obj;
+            Obj                     mX;
+
+            int encodeStatus = 0;
+
+            for (const Instruction *instructionPtr = &INSTRUCTIONS[0];
+                 instructionPtr != &INSTRUCTIONS[0] + k_MAX_INSTRUCTIONS;
+                 ++instructionPtr) {
+                switch (*instructionPtr) {
+                  case NOOP: {
+                      // do nothing
+                  } break;
+                  case ES1: {
+                    bdlsb::MemOutStreamBuf streamBuf;
+                    encodeStatus |=
+                        mX.encode(&streamBuf, S1, baljsn::EncoderOptions());
+                  } break;
+                  case ES2: {
+                    bdlsb::MemOutStreamBuf streamBuf;
+                    encodeStatus |=
+                        mX.encode(&streamBuf, S2, baljsn::EncoderOptions());
+                  } break;
+                  case EF1: {
+                    bdlsb::MemOutStreamBuf streamBuf;
+                    encodeStatus |=
+                        mX.encode(&streamBuf, F1, baljsn::EncoderOptions());
+                  } break;
+                  case EF2: {
+                    bdlsb::MemOutStreamBuf streamBuf;
+                    encodeStatus |=
+                        mX.encode(&streamBuf, F2, baljsn::EncoderOptions());
+                  } break;
+                }
+            }
+
+            ASSERTV(LINE,
+                    encodeStatus,
+                    ENCODE_SUCCESS_STATUS ? encodeStatus == 0
+                                          : encodeStatus != 0);
+
+            ASSERTV(LINE,
+                    LOGGED_MESSAGES,
+                    mX.loggedMessages(),
+                    LOGGED_MESSAGES == mX.loggedMessages());
+        }
+
       } break;
       case 13: {
         // --------------------------------------------------------------------
