@@ -715,19 +715,10 @@ int main(int argc, char *argv[])
         //   CHEAPSTACK: test stacks
         // --------------------------------------------------------------------
 
-        verbose = true;
-
         if (verbose) printf( "\nCHEAPSTACK STACK TEST"
                              "\n=====================\n" );
 
         if (verbose) P(bsls::StackAddressUtil::k_IGNORE_FRAMES);
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-# define STRINGIFY2(...) "" #__VA_ARGS__
-# define STRINGIFY(a) STRINGIFY2(a)
-
-        if (verbose) P(STRINGIFY(_MSC_VER));
-#endif
 
         char res1[1024];
         char res2[1024];
