@@ -97,13 +97,14 @@ BSLS_IDENT("$Id: $")
 //                              // supply memory
 //
 //    private:
+//      // NOT IMPLEMENTED
+//      my_BufferedIntDoubleArray(const my_BufferedIntDoubleArray&);
+//
+//    private:
 //      // PRIVATE MANIPULATORS
 //      void increaseCapacity();
 //          // Increase the capacity of the internal arrays used to store
 //          // elements added to this array by at least one element.
-//
-//      // Not implemented:
-//      my_BufferedIntDoubleArray(const my_BufferedIntDoubleArray&);
 //
 //    public:
 //      // TYPES
@@ -194,21 +195,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  void my_BufferedIntDoubleArray::appendInt(int value)
-//  {
-//      if (d_length >= d_capacity) {
-//          increaseCapacity();
-//      }
-//
-//      int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
-//      *item = value;
-//
-//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
-//      d_valueArray_p[d_length] = item;
-//
-//      ++d_length;
-//  }
-//
 //  void my_BufferedIntDoubleArray::appendDouble(double value)
 //  {
 //      if (d_length >= d_capacity) {
@@ -219,6 +205,21 @@ BSLS_IDENT("$Id: $")
 //      *item = value;
 //
 //      d_typeArray_p[d_length]  = static_cast<char>(k_MY_DOUBLE);
+//      d_valueArray_p[d_length] = item;
+//
+//      ++d_length;
+//  }
+//
+//  void my_BufferedIntDoubleArray::appendInt(int value)
+//  {
+//      if (d_length >= d_capacity) {
+//          increaseCapacity();
+//      }
+//
+//      int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
+//      *item = value;
+//
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
@@ -338,22 +339,53 @@ class BufferedSequentialPool {
     // attempt to deallocate the external buffer.
 
     // DATA
-    char                   *d_initialBuffer_p;  // external buffer supplied at
-                                                // construction
-
-    bsls::Types::size_type  d_initialSize;      // size of external buffer
-
     BufferManager           d_bufferManager;    // memory manager for current
                                                 // buffer
 
-    SequentialPool          d_pool;             // memory manager for
-                                                // allocations not from the
-                                                // buffer
+    bsls::Types::size_type  d_maxBufferSize;    // max buffer size parameter to
+                                                // be passed to the sequential
+                                                // allocator upon construction
+
+    unsigned char           d_growthStrategy;   // the growth strategy to be
+                                                // passed to the sequential
+                                                // pool
+
+    bool                    d_sequentialPoolIsCreated;
+                                                // indicates whether the
+                                                // sequential pool has been
+                                                // created yet
+
+    union {
+        bslma::Allocator   *d_allocator_p;      // allocator we were
+                                                // constructed with if the
+                                                // sequential pool hasn't been
+                                                // created
+
+        SequentialPool     *d_pool_p;           // memory manager for
+    };                                          // allocations not from the
+                                                // buffer, if the sequential
+                                                // pool has been created
 
   private:
     // NOT IMPLEMENTED
     BufferedSequentialPool(const BufferedSequentialPool&);
     BufferedSequentialPool& operator=(const BufferedSequentialPool&);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void createSequentialPool(bsls::Types::size_type currentAllocationSize);
+        // Allocate and construct the sequential pool, using a block size of
+        // 'bufferManager.bufferSize()'.  Use the specified
+        // 'currentAllocationSize' to determine if the current allocation
+        // attempt will fit in the first block, and thus what boolean value to
+        // pass to the sequental pool's 'allocateInitialBuffer' argument.
+
+    // PRIVATE ACCESSORS
+    bsls::Alignment::Strategy alignmentStrategy() const;
+        // Return the alignment strategy to be used by the sequential pool.
+
+    bsls::BlockGrowth::Strategy growthStrategy() const;
+        // Return the growth strategy to be used by the sequential pool.
 
   public:
     // CREATORS
@@ -444,16 +476,16 @@ class BufferedSequentialPool {
         // memory obtained from the allocator supplied at construction.
 
     template <class TYPE>
-    void deleteObjectRaw(const TYPE *object);
-        // Destroy the specified 'object'.  Note that memory associated with
-        // 'object' is not deallocated because there is no 'deallocate' method
-        // in 'BufferedSequentialPool'.
-
-    template <class TYPE>
     void deleteObject(const TYPE *object);
         // Destroy the specified 'object'.  Note that this method has the same
         // effect as the 'deleteObjectRaw' method (since no deallocation is
         // involved), and exists for consistency across memory pools.
+
+    template <class TYPE>
+    void deleteObjectRaw(const TYPE *object);
+        // Destroy the specified 'object'.  Note that memory associated with
+        // 'object' is not deallocated because there is no 'deallocate' method
+        // in 'BufferedSequentialPool'.
 
     void release();
         // Release all memory allocated through this pool and return to the
@@ -476,12 +508,11 @@ class BufferedSequentialPool {
         // a pointer obtained from this object prior to this call to 'rewind'
         // is undefined.
 
-                                  // Aspects
-
+    // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to allocate memory.  Note
-        // that this allocator can not be used to deallocate memory
-        // allocated through this pool.
+        // that this allocator can not be used to deallocate memory allocated
+        // through this pool.
 };
 
 }  // close package namespace
@@ -559,11 +590,29 @@ namespace bdlma {
                        // class BufferedSequentialPool
                        // ----------------------------
 
+// PRIVATE ACCESSORS
+inline
+bsls::Alignment::Strategy BufferedSequentialPool::alignmentStrategy() const
+{
+    return d_bufferManager.alignmentStrategy();
+}
+
+inline
+bsls::BlockGrowth::Strategy BufferedSequentialPool::growthStrategy() const
+{
+    return static_cast<bsls::BlockGrowth::Strategy>(d_growthStrategy);
+}
+
 // CREATORS
 inline
 BufferedSequentialPool::~BufferedSequentialPool()
 {
-    release();
+    // 'd_bufferManager' doesn't need to be released, it will destroy itself
+    // just fine.
+
+    if (d_sequentialPoolIsCreated) {
+        d_pool_p->allocator()->deleteObjectRaw(d_pool_p);
+    }
 }
 
 // MANIPULATORS
@@ -580,7 +629,18 @@ void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
         return result;                                                // RETURN
     }
 
-    return d_pool.allocate(size);
+    if (false == d_sequentialPoolIsCreated) {
+        this->createSequentialPool(size);
+    }
+
+    return d_pool_p->allocate(size);
+}
+
+template <class TYPE>
+inline
+void BufferedSequentialPool::deleteObject(const TYPE *object)
+{
+    this->deleteObjectRaw(object);
 }
 
 template <class TYPE>
@@ -596,37 +656,35 @@ void BufferedSequentialPool::deleteObjectRaw(const TYPE *object)
     }
 }
 
-template <class TYPE>
-inline
-void BufferedSequentialPool::deleteObject(const TYPE *object)
-{
-    deleteObjectRaw(object);
-}
-
 inline
 void BufferedSequentialPool::release()
 {
     d_bufferManager.release();  // Reset the internal cursor in the current
                                 // block.
 
-    d_pool.release();
+    if (d_sequentialPoolIsCreated) {
+        d_pool_p->release();
+    }
 }
 
 inline
 void BufferedSequentialPool::rewind()
+
 {
     d_bufferManager.release();  // Reset the internal cursor in the current
                                 // block.
 
-    d_pool.rewind();
+    if (d_sequentialPoolIsCreated) {
+        d_pool_p->rewind();
+    }
 }
 
-// Aspects
-
+// ACCESSORS
 inline
 bslma::Allocator *BufferedSequentialPool::allocator() const
 {
-    return d_pool.allocator();
+    return d_sequentialPoolIsCreated ? d_pool_p->allocator()
+                                     : d_allocator_p;
 }
 
 }  // close package namespace

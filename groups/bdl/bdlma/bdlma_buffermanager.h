@@ -278,10 +278,10 @@ class BufferManager {
     bsls::Types::IntPtr     d_cursor;            // offset to next available
                                                  // byte in buffer
 
-    bsls::Types::size_type  d_alignmentAndMask;  // a mask used during the
+    unsigned char           d_alignmentAndMask;  // a mask used during the
                                                  // alignment calculation
 
-    bsls::Types::size_type  d_alignmentOrMask;   // a mask used during the
+    unsigned char           d_alignmentOrMask;   // a mask used during the
                                                  // alignment calculation
 
   private:
@@ -396,6 +396,10 @@ class BufferManager {
         // memory at 'address'.
 
     // ACCESSORS
+    bsls::Alignment::Strategy alignmentStrategy() const;
+        // Return the alignment strategy passed to this object at
+        // construction.
+
     char *buffer() const;
         // Return an address providing modifiable access to the buffer
         // currently managed by this object, or 0 if this object currently
@@ -427,9 +431,9 @@ class BufferManager {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                               // ------------
-                               // class Buffer
-                               // ------------
+                           // -------------------
+                           // class BufferManager
+                           // -------------------
 
 // CREATORS
 inline
@@ -468,8 +472,7 @@ inline
 BufferManager::~BufferManager()
 {
     BSLS_ASSERT(0 <= d_cursor);
-    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor)
-                                                              <= d_bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor) <= d_bufferSize);
     BSLS_ASSERT(   (0 != d_buffer_p && 0 <  d_bufferSize)
                      || (0 == d_buffer_p && 0 == d_bufferSize));
 }
@@ -491,7 +494,7 @@ void *BufferManager::allocate(bsls::Types::size_type size)
                    static_cast<bsls::Types::size_type>(cursor) <= d_bufferSize)
         && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < size)) {
         d_cursor = cursor;
-        return address + offset;
+        return address + offset;                                      // RETURN
     }
 
     return 0;
@@ -565,6 +568,15 @@ void BufferManager::reset()
 
 // ACCESSORS
 inline
+bsls::Alignment::Strategy BufferManager::alignmentStrategy() const
+{
+    return 0 == d_alignmentAndMask ? bsls::Alignment::BSLS_MAXIMUM
+                                   : 1 == d_alignmentOrMask
+                                   ? bsls::Alignment::BSLS_BYTEALIGNED
+                                   : bsls::Alignment::BSLS_NATURAL;
+}
+
+inline
 char *BufferManager::buffer() const
 {
     return d_buffer_p;
@@ -581,14 +593,14 @@ int BufferManager::calculateAlignmentOffsetFromSize(
                                             const void             *address,
                                             bsls::Types::size_type  size) const
 {
-    bsls::Types::size_type alignment = (size & d_alignmentAndMask)
-                                                           | d_alignmentOrMask;
+    bsls::Types::size_type alignment =
+            (size & static_cast<bsls::Types::size_type>(d_alignmentAndMask)) |
+                                                             d_alignmentOrMask;
 
     // Clear all but lowest order set bit (note the cast avoids a MSVC warning
     // related to negating an unsigned type).
 
     alignment &= -static_cast<bsls::Types::IntPtr>(alignment);
-
 
     return static_cast<int>(
                 (alignment - reinterpret_cast<bsls::Types::size_type>(address))

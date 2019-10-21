@@ -73,6 +73,7 @@ using namespace bsl;
 // [10] int truncate(void *address, int originalSize, int newSize);
 //
 // // ACCESSORS
+// [ 2] bsls::Alignment::Strategy alignmentStrategy() const;
 // [ 2] char *buffer() const;
 // [ 2] int bufferSize() const;
 // [11] int calculateAlignmentOffsetFromSize(address, size) const;
@@ -1738,6 +1739,7 @@ int main(int argc, char *argv[])
         //   ~bdlma::BufferManager();
         //   char *buffer() const;
         //   int bufferSize() const;
+        //   bsls::Alignment::Strategy alignmentStrategy() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTORS / ACCESSORS TEST" << endl
@@ -1764,10 +1766,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting default ctor and alignment strategy."
                           << endl;
         {
-            Obj mV;
-            Obj mW(bsls::Alignment::BSLS_NATURAL);
-            Obj mX(bsls::Alignment::BSLS_MAXIMUM);
-            Obj mY(bsls::Alignment::BSLS_BYTEALIGNED);
+            Obj mV;                                        const Obj& V = mV;
+            Obj mW(bsls::Alignment::BSLS_NATURAL);         const Obj& W = mW;
+            Obj mX(bsls::Alignment::BSLS_MAXIMUM);         const Obj& X = mX;
+            Obj mY(bsls::Alignment::BSLS_BYTEALIGNED);     const Obj& Y = mY;
+
+            ASSERT(bsls::Alignment::BSLS_NATURAL     == V.alignmentStrategy());
+            ASSERT(bsls::Alignment::BSLS_NATURAL     == W.alignmentStrategy());
+            ASSERT(bsls::Alignment::BSLS_MAXIMUM     == X.alignmentStrategy());
+            ASSERT(bsls::Alignment::BSLS_BYTEALIGNED == Y.alignmentStrategy());
 
             mV.replaceBuffer(buffer, k_BUFFER_SIZE);
             mW.replaceBuffer(buffer, k_BUFFER_SIZE);
@@ -1955,6 +1962,7 @@ int main(int argc, char *argv[])
 
         LOOP2_ASSERT((void *)&buffer[8], addr2, &buffer[8] == addr2);
 
+        ASSERT(sizeof(Obj) == 4 * sizeof(void *));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

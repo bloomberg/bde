@@ -388,19 +388,19 @@ int main(int argc, char *argv[])
             mX.allocate(1);
             mX.allocate(16);
 
-            ASSERT(0 != objectAllocator.numBlocksInUse());
+            ASSERT(1 < objectAllocator.numBlocksInUse());
 
             // Release all memory.
             mX.release();
 
-            ASSERT(0 == objectAllocator.numBlocksInUse());
+            ASSERT(1 == objectAllocator.numBlocksInUse());
 
             if (verbose) cout << "\nTesting subsequent allocations come"
                                  " first from the initial buffer." << endl;
             void *addr = mX.allocate(16);
             ASSERT(0 != addr);
 
-            ASSERT(0 == objectAllocator.numBlocksInUse());
+            ASSERT(1 == objectAllocator.numBlocksInUse());
         }
       } break;
       case 3: {
