@@ -150,8 +150,10 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 typedef bdlma::BufferedSequentialPool Obj;
-
 typedef bsls::Alignment::Strategy     Strat;
+
+namespace {
+namespace u {
 
 enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
@@ -161,7 +163,7 @@ enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
 enum { k_BUFFER_SIZE = 256 };
 static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
-static const bsls::Types::IntPtr footprint = sizeof(bdlma::SequentialPool);
+enum { k_FOOTPRINT = sizeof(bdlma::SequentialPool) };
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -209,6 +211,9 @@ static int blockSize(int numBytes)
 
     return numBytes;
 }
+
+}  // close namespace u
+}  // close unnamed namespace
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -709,14 +714,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "GLOBAL OPERATOR NEW TEST" << endl
                                   << "========================" << endl;
 
-        char *buffer = bufferStorage.buffer();
+        char *buffer = u::bufferStorage.buffer();
 
-        Obj mX(buffer, k_BUFFER_SIZE);
+        Obj mX(buffer, u::k_BUFFER_SIZE);
 
         double *d = new(mX) double(3.0);
 
         ASSERT(buffer    <= reinterpret_cast<char *>(d));
-        ASSERT(reinterpret_cast<char *>(d) <  buffer + k_BUFFER_SIZE);
+        ASSERT(reinterpret_cast<char *>(d) <  buffer + u::k_BUFFER_SIZE);
 
       } break;
       case 7: {
@@ -753,19 +758,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting managed buffer is not affected after "
                              "destruction." << endl;
         {
-            char bufferRef[k_BUFFER_SIZE];
+            char bufferRef[u::k_BUFFER_SIZE];
             bsls::Types::Int64 total = 0;
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
             char *buffer = static_cast<char *>(
-                                      objectAllocator.allocate(k_BUFFER_SIZE));
+                                   objectAllocator.allocate(u::k_BUFFER_SIZE));
             total = objectAllocator.numBlocksInUse();
 
             {
-                memset(buffer,    0xA, k_BUFFER_SIZE);
-                memset(bufferRef, 0xA, k_BUFFER_SIZE);
+                memset(buffer,    0xA, u::k_BUFFER_SIZE);
+                memset(bufferRef, 0xA, u::k_BUFFER_SIZE);
 
-                Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
+                Obj mX(buffer, u::k_BUFFER_SIZE, &objectAllocator);
 
                 ASSERT(total == objectAllocator.numBlocksInUse());
 
@@ -775,7 +780,7 @@ int main(int argc, char *argv[])
                 ASSERT(total == objectAllocator.numBlocksInUse());
             }
             ASSERT(total == objectAllocator.numBlocksInUse());
-            ASSERT(0 == memcmp(buffer, bufferRef, k_BUFFER_SIZE));
+            ASSERT(0 == memcmp(buffer, bufferRef, u::k_BUFFER_SIZE));
 
             objectAllocator.deallocate(buffer);
             ASSERT(0 == objectAllocator.numBlocksInUse());
@@ -784,17 +789,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting allocated memory is deallocated after"
                              " destruction." << endl;
         {
-            char buffer[k_BUFFER_SIZE];
+            char buffer[u::k_BUFFER_SIZE];
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
-            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, u::k_BUFFER_SIZE, &objectAllocator);
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             // Allocate some memory such that memory is allocated from the test
             // allocator.
-            mX.allocate(k_BUFFER_SIZE + 1);
+            mX.allocate(u::k_BUFFER_SIZE + 1);
             mX.allocate(1);
             mX.allocate(16);
             ASSERT(0 != objectAllocator.numBlocksInUse());
@@ -823,32 +828,32 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "DELETEOBJECT TEST" << endl
                                   << "=================" << endl;
 
-        char *buffer = bufferStorage.buffer();
+        char *buffer = u::bufferStorage.buffer();
 
         if (verbose) cout << "\nTesting 'deleteObject'." << endl;
         {
-            Obj mX(buffer, k_BUFFER_SIZE);
+            Obj mX(buffer, u::k_BUFFER_SIZE);
 
-            void *addr = mX.allocate(sizeof(my_Class));
-            my_Class *obj = new(addr) my_Class();
+            void *addr = mX.allocate(sizeof(u::my_Class));
+            u::my_Class *obj = new(addr) u::my_Class();
 
-            globalDestructorInvoked = false;
+            u::globalDestructorInvoked = false;
             mX.deleteObject(obj);
 
-            ASSERT(true == globalDestructorInvoked);
+            ASSERT(true == u::globalDestructorInvoked);
         }
 
         if (verbose) cout << "\nTesting 'deleteObjectRaw'." << endl;
         {
-            Obj mX(buffer, k_BUFFER_SIZE);
+            Obj mX(buffer, u::k_BUFFER_SIZE);
 
-            void *addr = mX.allocate(sizeof(my_Class));
-            my_Class *obj = new(addr) my_Class();
+            void *addr = mX.allocate(sizeof(u::my_Class));
+            u::my_Class *obj = new(addr) u::my_Class();
 
-            globalDestructorInvoked = false;
+            u::globalDestructorInvoked = false;
             mX.deleteObjectRaw(obj);
 
-            ASSERT(true == globalDestructorInvoked);
+            ASSERT(true == u::globalDestructorInvoked);
         }
       } break;
       case 5: {
@@ -894,15 +899,15 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             char *buffer = static_cast<char *>(
-                                      objectAllocator.allocate(k_BUFFER_SIZE));
-            char bufferRef[k_BUFFER_SIZE];
+                                   objectAllocator.allocate(u::k_BUFFER_SIZE));
+            char bufferRef[u::k_BUFFER_SIZE];
 
             bsls::Types::Int64 total = objectAllocator.numBlocksInUse();
 
-            memset(buffer,    0xA, k_BUFFER_SIZE);
-            memset(bufferRef, 0xA, k_BUFFER_SIZE);
+            memset(buffer,    0xA, u::k_BUFFER_SIZE);
+            memset(bufferRef, 0xA, u::k_BUFFER_SIZE);
 
-            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, u::k_BUFFER_SIZE, &objectAllocator);
 
             ASSERT(total == objectAllocator.numBlocksInUse());
 
@@ -915,7 +920,7 @@ int main(int argc, char *argv[])
             mX.release();
             ASSERT(total == objectAllocator.numBlocksInUse());
 
-            ASSERT(0 == memcmp(buffer, bufferRef, k_BUFFER_SIZE));
+            ASSERT(0 == memcmp(buffer, bufferRef, u::k_BUFFER_SIZE));
 
             objectAllocator.deallocate(buffer);
         }
@@ -924,20 +929,20 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting allocated memory is deallocated after"
                              " 'release'." << endl;
         {
-            char buffer[k_BUFFER_SIZE];
+            char buffer[u::k_BUFFER_SIZE];
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
-            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, u::k_BUFFER_SIZE, &objectAllocator);
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             // Allocate some memory such that memory is allocated from the test
             // allocator.
-            mX.allocate(k_BUFFER_SIZE + 1);
+            mX.allocate(u::k_BUFFER_SIZE + 1);
             mX.allocate(1);
             mX.allocate(16);
-            mX.allocate(k_BUFFER_SIZE + 1);
+            mX.allocate(u::k_BUFFER_SIZE + 1);
 
             ASSERT(1 < objectAllocator.numBlocksInUse());
 
@@ -951,7 +956,7 @@ int main(int argc, char *argv[])
             void *addr = mX.allocate(16);
 
             ASSERT(&buffer[0] <= addr);
-            ASSERT(&buffer[0] + k_BUFFER_SIZE > addr);
+            ASSERT(&buffer[0] + u::k_BUFFER_SIZE > addr);
             ASSERT(1 == objectAllocator.numBlocksInUse());
         }
       } break;
@@ -1103,7 +1108,7 @@ int main(int argc, char *argv[])
                 bsls::Types::size_type numBytes = 65;
                 bsls::Types::Int64     newSize =
                                        static_cast<bsls::Types::Int64>(
-                                           footprint +
+                                           u::k_FOOTPRINT +
                                            bdlb::BitUtil::roundUpToBinaryPower(
                                              static_cast<uint64_t>(numBytes)));
 
@@ -1113,19 +1118,19 @@ int main(int argc, char *argv[])
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(footprint == objectAllocator.numBytesInUse());
+                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(numBytes));
-                newSize += footprint;
+                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(numBytes));
-                newSize += footprint;
+                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mZ.release();
@@ -1140,7 +1145,7 @@ int main(int argc, char *argv[])
                 bsls::Types::size_type numBytes = 66;
                 bsls::Types::Int64     newSize =
                                        static_cast<bsls::Types::Int64>(
-                                           footprint +
+                                           u::k_FOOTPRINT +
                                            bdlb::BitUtil::roundUpToBinaryPower(
                                              static_cast<uint64_t>(numBytes)));
                 cBuffer = static_cast<char *>(mX.allocate(numBytes));
@@ -1149,19 +1154,19 @@ int main(int argc, char *argv[])
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(footprint == objectAllocator.numBytesInUse());
+                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(numBytes));
-                newSize += footprint;
+                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(numBytes));
-                newSize += footprint;
+                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mZ.release();
@@ -1192,7 +1197,7 @@ int main(int argc, char *argv[])
 
                 bsls::Types::Int64 newSize =
                                        static_cast<bsls::Types::Int64>(
-                                           footprint +
+                                           u::k_FOOTPRINT +
                                            bdlb::BitUtil::roundUpToBinaryPower(
                                            static_cast<uint64_t>(bufferSize)));
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
@@ -1216,14 +1221,14 @@ int main(int argc, char *argv[])
                 // the allocator.
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(footprint == objectAllocator.numBytesInUse());
+                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(63));
                 ASSERT(cBuffer == buffer);
-                ASSERT(footprint == objectAllocator.numBytesInUse());
+                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(1));
-                newSize += footprint;
+                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
@@ -1234,8 +1239,8 @@ int main(int argc, char *argv[])
                 ASSERT((cBuffer   <= buffer) || (cBuffer  >= buffer + 64));
                 ASSERT(cBuffer    == tBuffer + 1 +
                        bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                                 tBuffer + 1,
-                                                                 k_MAX_ALIGN));
+                                                              tBuffer + 1,
+                                                              u::k_MAX_ALIGN));
                 ASSERT(bytesUsed  == objectAllocator.numBytesInUse());
 
                 tBuffer = cBuffer;
@@ -1243,8 +1248,8 @@ int main(int argc, char *argv[])
                 ASSERT((cBuffer   <= buffer) || (cBuffer  >= buffer + 64));
                 ASSERT(cBuffer    == tBuffer + 1 +
                        bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                                 tBuffer + 1,
-                                                                 k_MAX_ALIGN));
+                                                              tBuffer + 1,
+                                                              u::k_MAX_ALIGN));
                 ASSERT(bytesUsed  == objectAllocator.numBytesInUse());
                 mY.release();
 
@@ -1256,18 +1261,18 @@ int main(int argc, char *argv[])
                 // the allocator.
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(63));
                 ASSERT(cBuffer == buffer);
-                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(1));
                 ASSERT(cBuffer == buffer + 63);
-                ASSERT(2 * footprint == objectAllocator.numBytesInUse());
+                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(1));
-                newSize += footprint;
+                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
@@ -1288,7 +1293,7 @@ int main(int argc, char *argv[])
         {
             // Testing maximal alignment.
             {
-                int blockSize = k_MAX_ALIGN;
+                int blockSize = u::k_MAX_ALIGN;
 
                 Obj mX(buffer, 8 * blockSize, MAX, &objectAllocator);
 
@@ -1322,7 +1327,7 @@ int main(int argc, char *argv[])
                 // unable to allocate another block of the desired size because
                 // of alignment considerations.
 
-                int blockSize = k_MAX_ALIGN;
+                int blockSize = u::k_MAX_ALIGN;
 
                 buffer += blockSize / 2;
                 Obj mX(buffer, 8 * blockSize, NAT, &objectAllocator);
@@ -1351,7 +1356,7 @@ int main(int argc, char *argv[])
 
                 bsls::Types::Int64 newSize =
                                        static_cast<bsls::Types::Int64>(
-                                           footprint +
+                                           u::k_FOOTPRINT +
                                            bdlb::BitUtil::roundUpToBinaryPower(
                                            static_cast<uint64_t>(bufferSize)));
 
@@ -1436,7 +1441,7 @@ int main(int argc, char *argv[])
                                        static_cast<uint64_t>(bufferSize * j)));
 
                     if (1 == j) {
-                        size += footprint;
+                        size += u::k_FOOTPRINT;
                     }
 
                     LOOP3_ASSERT(nA, oldNA, j, nA == oldNA + size);
@@ -1461,7 +1466,7 @@ int main(int argc, char *argv[])
                 nD = td.numBytesInUse();
 
                 bsls::Types::Int64 size =
-                                   blockSize(static_cast<int>(bufferSize * j));
+                                u::blockSize(static_cast<int>(bufferSize * j));
 
                 LOOP3_ASSERT(nA, oldNA, size, nA == oldNA + size);
             }
@@ -1480,7 +1485,7 @@ int main(int argc, char *argv[])
 
                 bsls::Types::Int64 size =
                                static_cast<bsls::Types::Int64>(
-                                   footprint +
+                                   u::k_FOOTPRINT +
                                    bdlb::BitUtil::roundUpToBinaryPower(
                                              static_cast<uint64_t>(numBytes)));
 
@@ -1497,7 +1502,7 @@ int main(int argc, char *argv[])
 
                 bsls::Types::Int64 size =
                                static_cast<bsls::Types::Int64>(
-                                   footprint +
+                                   u::k_FOOTPRINT +
                                    bdlb::BitUtil::roundUpToBinaryPower(
                                              static_cast<uint64_t>(numBytes)));
 
@@ -1515,7 +1520,7 @@ int main(int argc, char *argv[])
 
                 bsls::Types::Int64 size =
                                static_cast<bsls::Types::Int64>(
-                                   footprint +
+                                   u::k_FOOTPRINT +
                                    bdlb::BitUtil::roundUpToBinaryPower(
                                              static_cast<uint64_t>(numBytes)));
 
@@ -1590,7 +1595,7 @@ int main(int argc, char *argv[])
 
         enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8 };
 
-        char *buffer = bufferStorage.buffer();
+        char *buffer = u::bufferStorage.buffer();
 
         if (verbose) cout << "\nTesting external buffer and allocator "
                              "argument." << endl;
@@ -1599,7 +1604,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
-            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, u::k_BUFFER_SIZE, &objectAllocator);
 
             ASSERT(0 == objectAllocator.numBlocksTotal());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
@@ -1613,7 +1618,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
-            addr = mX.allocate(k_BUFFER_SIZE);
+            addr = mX.allocate(u::k_BUFFER_SIZE);
 
             // Memory allocation comes from the allocator supplied at
             // construction.
@@ -1630,7 +1635,7 @@ int main(int argc, char *argv[])
             ASSERT(0     == defaultAllocator.numBlocksTotal());
             ASSERT(0     == globalAllocator.numBlocksTotal());
 
-            Obj mX(buffer, k_BUFFER_SIZE);
+            Obj mX(buffer, u::k_BUFFER_SIZE);
 
             ASSERT(total == objectAllocator.numBlocksTotal());
             ASSERT(0     == defaultAllocator.numBlocksTotal());
@@ -1644,7 +1649,7 @@ int main(int argc, char *argv[])
             ASSERT(0     == defaultAllocator.numBlocksTotal());
             ASSERT(0     == globalAllocator.numBlocksTotal());
 
-            addr = mX.allocate(k_BUFFER_SIZE);
+            addr = mX.allocate(u::k_BUFFER_SIZE);
 
             // Memory allocation comes from the allocator supplied at
             // construction.
@@ -1658,7 +1663,9 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\tTesting natural alignment." << endl;
             {
-                Obj mX(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_NATURAL);
+                Obj mX(buffer,
+                       u::k_BUFFER_SIZE,
+                       bsls::Alignment::BSLS_NATURAL);
 
                 mX.allocate(k_ALLOC_SIZE1);
                 void *addr = mX.allocate(k_ALLOC_SIZE2);
@@ -1667,13 +1674,13 @@ int main(int argc, char *argv[])
                 bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
-                                                k_BUFFER_SIZE,
+                                                u::k_BUFFER_SIZE,
                                                 k_ALLOC_SIZE1,
                                                 bsls::Alignment::BSLS_NATURAL);
                 void *addr2 = bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
-                                                k_BUFFER_SIZE,
+                                                u::k_BUFFER_SIZE,
                                                 k_ALLOC_SIZE2,
                                                 bsls::Alignment::BSLS_NATURAL);
 
@@ -1682,7 +1689,9 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tTesting maximum alignment." << endl;
             {
-                Obj mX(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_MAXIMUM);
+                Obj mX(buffer,
+                       u::k_BUFFER_SIZE,
+                       bsls::Alignment::BSLS_MAXIMUM);
 
                 mX.allocate(k_ALLOC_SIZE1);
                 void *addr = mX.allocate(k_ALLOC_SIZE2);
@@ -1691,13 +1700,13 @@ int main(int argc, char *argv[])
                 bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
-                                                k_BUFFER_SIZE,
+                                                u::k_BUFFER_SIZE,
                                                 k_ALLOC_SIZE1,
                                                 bsls::Alignment::BSLS_MAXIMUM);
                 void *addr2 = bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
-                                                k_BUFFER_SIZE,
+                                                u::k_BUFFER_SIZE,
                                                 k_ALLOC_SIZE2,
                                                 bsls::Alignment::BSLS_MAXIMUM);
 
@@ -1707,7 +1716,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tTesting 1-byte alignment." << endl;
             {
                 Obj mX(buffer,
-                       k_BUFFER_SIZE,
+                       u::k_BUFFER_SIZE,
                        bsls::Alignment::BSLS_BYTEALIGNED);
 
                 mX.allocate(k_ALLOC_SIZE1);
@@ -1717,13 +1726,13 @@ int main(int argc, char *argv[])
                 bdlma::BufferImpUtil::allocateFromBuffer(
                                             &cursor,
                                             buffer,
-                                            k_BUFFER_SIZE,
+                                            u::k_BUFFER_SIZE,
                                             k_ALLOC_SIZE1,
                                             bsls::Alignment::BSLS_BYTEALIGNED);
                 void *addr2 = bdlma::BufferImpUtil::allocateFromBuffer(
                                             &cursor,
                                             buffer,
-                                            k_BUFFER_SIZE,
+                                            u::k_BUFFER_SIZE,
                                             k_ALLOC_SIZE2,
                                             bsls::Alignment::BSLS_BYTEALIGNED);
 
@@ -1733,7 +1742,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting default alignment strategy." << endl;
         {
-            Obj mX(buffer, k_BUFFER_SIZE);
+            Obj mX(buffer, u::k_BUFFER_SIZE);
 
             mX.allocate(k_ALLOC_SIZE1);
             void *addr = mX.allocate(k_ALLOC_SIZE2);
@@ -1742,13 +1751,13 @@ int main(int argc, char *argv[])
             bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
-                                                k_BUFFER_SIZE,
+                                                u::k_BUFFER_SIZE,
                                                 k_ALLOC_SIZE1,
                                                 bsls::Alignment::BSLS_NATURAL);
             void *addr2 = bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
-                                                k_BUFFER_SIZE,
+                                                u::k_BUFFER_SIZE,
                                                 k_ALLOC_SIZE2,
                                                 bsls::Alignment::BSLS_NATURAL);
 
@@ -1759,32 +1768,32 @@ int main(int argc, char *argv[])
         {
             {
                 Obj mX(buffer,
-                       k_BUFFER_SIZE,
+                       u::k_BUFFER_SIZE,
                        bsls::BlockGrowth::BSLS_GEOMETRIC);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
-                mX.allocate(k_BUFFER_SIZE + 1);
+                mX.allocate(u::k_BUFFER_SIZE + 1);
 
-                ASSERTV(k_BUFFER_SIZE * 2 + footprint,
+                ASSERTV(u::k_BUFFER_SIZE * 2 + u::k_FOOTPRINT,
                                               defaultAllocator.numBytesInUse(),
-                        k_BUFFER_SIZE * 2 + footprint ==
+                        u::k_BUFFER_SIZE * 2 + u::k_FOOTPRINT ==
                                              defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             {
                 Obj mX(buffer,
-                       k_BUFFER_SIZE,
+                       u::k_BUFFER_SIZE,
                        bsls::BlockGrowth::BSLS_CONSTANT);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
-                mX.allocate(k_BUFFER_SIZE);
+                mX.allocate(u::k_BUFFER_SIZE);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
-                mX.allocate(k_BUFFER_SIZE);
-                ASSERTV(blockSize(k_BUFFER_SIZE) + footprint,
+                mX.allocate(u::k_BUFFER_SIZE);
+                ASSERTV(u::blockSize(u::k_BUFFER_SIZE) + u::k_FOOTPRINT,
                                               defaultAllocator.numBytesInUse(),
-                        blockSize(k_BUFFER_SIZE) + footprint ==
+                        u::blockSize(u::k_BUFFER_SIZE) + u::k_FOOTPRINT ==
                                              defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1793,27 +1802,29 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting default growth strategy." << endl;
         {
             {
-                Obj mX(buffer, k_BUFFER_SIZE);
+                Obj mX(buffer, u::k_BUFFER_SIZE);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
-                mX.allocate(k_BUFFER_SIZE + 1);
+                mX.allocate(u::k_BUFFER_SIZE + 1);
 
-                ASSERTV(k_BUFFER_SIZE * 2 + footprint,
+                ASSERTV(u::k_BUFFER_SIZE * 2 + u::k_FOOTPRINT,
                                               defaultAllocator.numBytesInUse(),
-                        k_BUFFER_SIZE * 2 + footprint ==
+                        u::k_BUFFER_SIZE * 2 + u::k_FOOTPRINT ==
                                              defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             {
-                Obj mX(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_NATURAL);
+                Obj mX(buffer,
+                       u::k_BUFFER_SIZE,
+                       bsls::Alignment::BSLS_NATURAL);
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
-                mX.allocate(k_BUFFER_SIZE + 1);
+                mX.allocate(u::k_BUFFER_SIZE + 1);
 
-                ASSERTV(k_BUFFER_SIZE * 2 + footprint,
+                ASSERTV(u::k_BUFFER_SIZE * 2 + u::k_FOOTPRINT,
                                               defaultAllocator.numBytesInUse(),
-                        k_BUFFER_SIZE * 2 + footprint ==
+                        u::k_BUFFER_SIZE * 2 + u::k_FOOTPRINT ==
                                              defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1952,7 +1963,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
-            int blkSize = blockSize(SIZE);
+            int blkSize = u::blockSize(SIZE);
             bl.allocate(SIZE);
 
             // If the first 'SIZE' is 0, the allocator's 'allocate' is never
@@ -2017,10 +2028,10 @@ int main(int argc, char *argv[])
 
         enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8 };
 
-        char *buffer = bufferStorage.buffer();
+        char *buffer = u::bufferStorage.buffer();
 
         if (verbose) cout << "\nTesting constructor." << endl;
-        Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
+        Obj mX(buffer, u::k_BUFFER_SIZE, &objectAllocator);
 
         if (verbose) cout << "\nTesting allocate from buffer." << endl;
         void *addr1 = mX.allocate(k_ALLOC_SIZE1);
@@ -2029,15 +2040,15 @@ int main(int argc, char *argv[])
         ASSERT(&buffer[0] == addr1);
 
         // Allocation comes from within the buffer.
-        LOOP2_ASSERT((void *)&buffer[k_BUFFER_SIZE - 1],
+        LOOP2_ASSERT((void *)&buffer[u::k_BUFFER_SIZE - 1],
                      addr1,
-                     &buffer[k_BUFFER_SIZE - 1] >= addr1);
+                     &buffer[u::k_BUFFER_SIZE - 1] >= addr1);
 
         void *addr2 = mX.allocate(k_ALLOC_SIZE2);
 
         // Allocation comes from within the buffer.
         ASSERT(&buffer[0]               <  addr2);
-        ASSERT(&buffer[k_BUFFER_SIZE - 1] >= addr2);
+        ASSERT(&buffer[u::k_BUFFER_SIZE - 1] >= addr2);
 
         // Allocation respects the alignment strategy.
         LOOP2_ASSERT((void *)&buffer[8],
@@ -2057,9 +2068,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting allocate when buffer runs out."
                           << endl;
         {
-            Obj mY(buffer, k_BUFFER_SIZE, &objectAllocator);
-            addr1 = mY.allocate(k_BUFFER_SIZE + 1);
-            addr2 = mY.allocate(k_BUFFER_SIZE + 1);
+            Obj mY(buffer, u::k_BUFFER_SIZE, &objectAllocator);
+            addr1 = mY.allocate(u::k_BUFFER_SIZE + 1);
+            addr2 = mY.allocate(u::k_BUFFER_SIZE + 1);
 
             // Allocation request is satisfied even when larger than the
             // supplied buffer.

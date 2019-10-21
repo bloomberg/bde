@@ -97,13 +97,14 @@ BSLS_IDENT("$Id: $")
 //                              // supply memory
 //
 //    private:
+//      // NOT IMPLEMENTED
+//      my_BufferedIntDoubleArray(const my_BufferedIntDoubleArray&);
+//
+//    private:
 //      // PRIVATE MANIPULATORS
 //      void increaseCapacity();
 //          // Increase the capacity of the internal arrays used to store
 //          // elements added to this array by at least one element.
-//
-//      // Not implemented:
-//      my_BufferedIntDoubleArray(const my_BufferedIntDoubleArray&);
 //
 //    public:
 //      // TYPES
@@ -194,21 +195,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  void my_BufferedIntDoubleArray::appendInt(int value)
-//  {
-//      if (d_length >= d_capacity) {
-//          increaseCapacity();
-//      }
-//
-//      int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
-//      *item = value;
-//
-//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
-//      d_valueArray_p[d_length] = item;
-//
-//      ++d_length;
-//  }
-//
 //  void my_BufferedIntDoubleArray::appendDouble(double value)
 //  {
 //      if (d_length >= d_capacity) {
@@ -219,6 +205,21 @@ BSLS_IDENT("$Id: $")
 //      *item = value;
 //
 //      d_typeArray_p[d_length]  = static_cast<char>(k_MY_DOUBLE);
+//      d_valueArray_p[d_length] = item;
+//
+//      ++d_length;
+//  }
+//
+//  void my_BufferedIntDoubleArray::appendInt(int value)
+//  {
+//      if (d_length >= d_capacity) {
+//          increaseCapacity();
+//      }
+//
+//      int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
+//      *item = value;
+//
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
@@ -381,12 +382,10 @@ class BufferedSequentialPool {
 
     // PRIVATE ACCESSORS
     bsls::Alignment::Strategy alignmentStrategy() const;
-        // Return the alignment strategy to pass to the sequential pool if and
-        // when we create it.
+        // Return the alignment strategy to be used by the sequential pool.
 
     bsls::BlockGrowth::Strategy growthStrategy() const;
-        // Return the growth strategy to pass to the sequential pool if and
-        // when we create it.
+        // Return the growth strategy to be used by the sequential pool.
 
   public:
     // CREATORS

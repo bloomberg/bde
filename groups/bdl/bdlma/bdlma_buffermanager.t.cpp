@@ -1766,11 +1766,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting default ctor and alignment strategy."
                           << endl;
         {
-            Obj mV;
+            Obj mV;                                        const Obj& V = mV;
             Obj mW(bsls::Alignment::BSLS_NATURAL);         const Obj& W = mW;
             Obj mX(bsls::Alignment::BSLS_MAXIMUM);         const Obj& X = mX;
             Obj mY(bsls::Alignment::BSLS_BYTEALIGNED);     const Obj& Y = mY;
 
+            ASSERT(bsls::Alignment::BSLS_NATURAL     == V.alignmentStrategy());
             ASSERT(bsls::Alignment::BSLS_NATURAL     == W.alignmentStrategy());
             ASSERT(bsls::Alignment::BSLS_MAXIMUM     == X.alignmentStrategy());
             ASSERT(bsls::Alignment::BSLS_BYTEALIGNED == Y.alignmentStrategy());
