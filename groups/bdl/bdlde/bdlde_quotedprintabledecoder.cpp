@@ -12,8 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_quotedprintabledecoder_cpp,"$Id$ $CSID$")
 
-#include <bsla_unused.h>
-
 #include <bsls_assert.h>
 
 #include <bsl_cstring.h>
@@ -29,24 +27,22 @@ typedef BloombergLP::bdlde::QuotedPrintableDecoder QuotedPrintableDecoder;
                 // ======================
 
 // Strict-mode equivalence class symbols
-static const char RC_             = QuotedPrintableDecoder::e_RC_;
-static const char HX_             = QuotedPrintableDecoder::e_HX_;
-static const char EQ_             = QuotedPrintableDecoder::e_EQ_;
-static const char WS_             = QuotedPrintableDecoder::e_WS_;
-static const char CR_             = QuotedPrintableDecoder::e_CR_;
-static const char LC_             = QuotedPrintableDecoder::e_LC_;
-static const char LL_ BSLA_UNUSED = QuotedPrintableDecoder::e_LL_;
-static const char UC_             = QuotedPrintableDecoder::e_UC_;
+static const char RC_ = QuotedPrintableDecoder::e_RC_;
+static const char HX_ = QuotedPrintableDecoder::e_HX_;
+static const char EQ_ = QuotedPrintableDecoder::e_EQ_;
+static const char WS_ = QuotedPrintableDecoder::e_WS_;
+static const char CR_ = QuotedPrintableDecoder::e_CR_;
+static const char LC_ = QuotedPrintableDecoder::e_LC_;
+static const char UC_ = QuotedPrintableDecoder::e_UC_;
 
 // Relaxed-mode equivalence class symbols
-static const char RC             = QuotedPrintableDecoder::e_RC;
-static const char HX             = QuotedPrintableDecoder::e_HX;
-static const char EQ             = QuotedPrintableDecoder::e_EQ;
-static const char WS             = QuotedPrintableDecoder::e_WS;
-static const char CR             = QuotedPrintableDecoder::e_CR;
-static const char LC             = QuotedPrintableDecoder::e_LC;
-static const char LL BSLA_UNUSED = QuotedPrintableDecoder::e_LL;
-static const char UC             = QuotedPrintableDecoder::e_UC;
+static const char RC  = QuotedPrintableDecoder::e_RC;
+static const char HX  = QuotedPrintableDecoder::e_HX;
+static const char EQ  = QuotedPrintableDecoder::e_EQ;
+static const char WS  = QuotedPrintableDecoder::e_WS;
+static const char CR  = QuotedPrintableDecoder::e_CR;
+static const char LC  = QuotedPrintableDecoder::e_LC;
+static const char UC  = QuotedPrintableDecoder::e_UC;
 
 // The following table is a map of an 8-bit index value to the corresponding
 // equivalence class for operation in the strict error- reporting mode (i.e.,
