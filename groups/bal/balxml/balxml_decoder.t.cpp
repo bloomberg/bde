@@ -25863,74 +25863,106 @@ int main(int argc, char *argv[])
         //   int decode(bsl::streambuf *buffer, TYPE *object);
         // --------------------------------------------------------------------
 
-        // Abbreviations for the names of 'bdlat' concept test implementations,
-        // which will become the tag names of the XML they generate.
         const bslstl::StringRef D = "MyDynamicType";
         const bslstl::StringRef S = "MySequence";
         const bslstl::StringRef T = "MyTaggedValue";
+            // Abbreviations for the names of 'bdlat' concept test
+            // implementations, which will become the tag names of the XML they
+            // generate.
 
-        // Abbreviation for an attribute name.
         const bslstl::StringRef A0 = "attribute0";
+            // Abbreviation for an attribute name.
 
-        // Abbreviation for a test value.
         const bslstl::StringRef I1 = "1";
+            // Abbreviation for a test value.
 
-        // Abbreviation for a sequence attribute.
         typedef TestAttribute<0, attribute0Name> Attribute0;
-        const Attribute0 a0;
+        const Attribute0                         a0;
+            // Abbreviation for a sequence attribute.
 
-        // Abbreviations for function objects used to generate placeholders.
         const PlaceHolder<int>                   i_;
         const GenerateTestDynamicPlaceHolder     d_;
         const GenerateTestSequencePlaceHolder    s_;
         const GenerateTestTaggedValuePlaceHolder t_;
+            // Abbreviations for function objects used to generate
+            // placeholders.
 
-        // Abbreviations for tag type place holders used to control
-        // the overload resolution for 'bdlat' customization point functions
-        // for 'TestTaggedValue' specializations with the corresponding tag.
         const PlaceHolder<DefaultTag>                  td_;
         const PlaceHolder<FailToManipulateSequenceTag> tf_;
+            // Abbreviations for tag type place holders used to control the
+            // overload resolution for 'bdlat' customization point functions
+            // for 'TestTaggedValue' specializations with the corresponding
+            // tag.
 
-        // Abbreviation for a function object used to generate XML document
-        // structures for printing.
         const GenerateXmlElement x;
+            // Abbreviation for a function object used to generate XML document
+            // structures for printing.
 
-        // Abbreviation for the type used to implement each row of this
-        // table-based test.
         typedef TestCase20Row R;
+            // Abbreviation for the type used to implement each row of this
+            // table-based test.
 
-        // Abbreviations for boolean values.
         enum {
-            no = false,
+            // Abbreviations for boolean values.
+
+            no  = false,
             yes = true
         };
 
+        typedef TypedTestAttribute<int, Attribute0> IntAttribute0;
+            // 'IntAttribute0' is an alias for a type that specifies an
+            // attribute of a sequence having the type 'int', Id '0', and name
+            // 'attribute0'.
+
+        typedef TestSequence<IntAttribute0> ObjType;
+            // 'ObjType' is an alias for a type that specifies a sequence
+            // having one attribute, where that attribute is specified by
+            // 'IntAttribute0'.  This type is prefixed with 'Obj' because it is
+            // the "object" of the test, or more specifically, as an invariant
+            // in the structure of the output parameter of the decoding
+            // operation.
+
+        const PlaceHolder<ObjType> obj;
+            // 'obj' is a placeholder for an object of 'ObjType', used to
+            // specify the type of the object to be used as the output
+            // parameter of a decoding operation.
+
+        const TestXmlElement       OBJ = x(A0, I1);
+            // 'OBJ' is an abbreviation for an XML structure that always
+            // successfully decodes into an object of type 'ObjType'.  This
+            // object is labelled "OBJ" because it is the input-side dual to
+            // "Obj".  It also characterizes the "object" of the test, meaning
+            // that it is an invariant part of the structure of the input to
+            // the decoding operation performed in this test.
+
         const TestCase20Row DATA[] = {
-            //   LINE                DECODING SUCCESS STATUS
-            //  .----                -----------------------.
-            // /  VALUE TYPE PLACEHOLDER        XML         |
-            //-- ------------------------ ---------------- ----
-            // Verify that decoding into a 'Sequence' that returns zero for
-            // all 'bdlat' operations succeeds.
-            R(L_,            s_(a0, i_)  , x(S, x(A0, I1)), yes),
-            // Verify the same property for a 'Sequence' wrapped in a
-            // 'TestTaggedValue' that does not change the behavior of the
-            // underlying sequence.
-            R(L_, t_(td_,    s_(a0, i_) ), x(S, x(A0, I1)), yes),
-            // Verify that, for the same sequence value, wrapping it in a
-            // 'TestTaggedValue' that overrides the 'manipulateAttribute'
-            // operation to return non-zero causes the decode operation to
-            // fail.
-            R(L_, t_(tf_,    s_(a0, i_) ), x(S, x(A0, I1)), no ),
-            // Verify the above first two properties for 'DynamicType' objects
-            // having a dynamic type wrapping the above 'Sequence'.
-            R(L_,         d_(s_(a0, i_)) , x(D, x(A0, I1)), yes),
-            R(L_, t_(td_, d_(s_(a0, i_))), x(T, x(A0, I1)), yes),
-            // And note that this 'TestTaggedValue' overrides the
-            // 'typeCategoryManipulateSequence' operation of the 'DynamicType'
-            // to return non-zero, which should also cause the decode operation
-            // to fail.
-            R(L_, t_(tf_, d_(s_(a0, i_))), x(T, x(A0, I1)), no ),
+            //LINE VALUE PLACEHOLDER    XML     DECODING SUCCESS STATUS
+            //---- ----------------- ---------- -----------------------
+            R(L_  ,            obj  , x(S, OBJ), yes                   ),
+                // Verify that decoding into a 'Sequence' that returns zero for
+                // all 'bdlat' operations succeeds.
+
+            R(L_  , t_(td_,    obj ), x(S, OBJ), yes                   ),
+                // Verify the same property for a 'Sequence' wrapped in a
+                // 'TestTaggedValue' that does not change the behavior of the
+                // underlying sequence.
+
+            R(L_  , t_(tf_,    obj ), x(S, OBJ), no                    ),
+                // Verify that, for the same sequence value, wrapping it in a
+                // 'TestTaggedValue' that overrides the 'manipulateAttribute'
+                // operation to return non-zero causes the decode operation to
+                // fail.
+
+            R(L_  ,         d_(obj) , x(D, OBJ), yes                   ),
+            R(L_  , t_(td_, d_(obj)), x(T, OBJ), yes                   ),
+                // Verify the above first two properties for 'DynamicType'
+                // objects having a dynamic type wrapping the above 'Sequence'.
+
+            R(L_  , t_(tf_, d_(obj)), x(T, OBJ), no                    ),
+                // And note that this 'TestTaggedValue' overrides the
+                // 'typeCategoryManipulateSequence' operation of the
+                // 'DynamicType' to return non-zero, which should also cause
+                // the decode operation to fail.
         };
 
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
