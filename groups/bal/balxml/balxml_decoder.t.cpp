@@ -20748,7 +20748,7 @@ template <class VALUE_TYPE,
                   bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_CustomizedTypeImpUtil {
     // This utility 'struct' provides a namespace for a suite of utility
-    // fucntinos used by 'TestDynamicType' to implement the 'bdlat'
+    // functions used by 'TestDynamicType' to implement the 'bdlat'
     // 'CustomizedType' concept for 'VALUE_TYPE' template parameters that
     // themselves satisfy the 'bdlat' 'CustomizedType' concept.
 
