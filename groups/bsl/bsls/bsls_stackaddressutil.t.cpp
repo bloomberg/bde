@@ -718,6 +718,8 @@ int main(int argc, char *argv[])
         if (verbose) printf( "\nCHEAPSTACK STACK TEST"
                              "\n=====================\n" );
 
+        if (verbose) P(bsls::StackAddressUtil::k_IGNORE_FRAMES + 0);
+
         char res1[1024];
         char res2[1024];
 
