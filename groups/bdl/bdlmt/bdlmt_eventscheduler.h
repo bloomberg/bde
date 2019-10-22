@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // used in the "Raw" API of this class and must be used carefully.  Note that
 // the Handle objects have an implicit conversion to the corresponding 'Event'
 // or 'RecurringEvent' pointer types, effectively providing extra overloads for
-// methods which take a 'const Event*' to also take a 'const EventHandle&'.
+// methods that take a 'const Event*' to also take a 'const EventHandle&'.
 //
 ///Comparison to 'bdlmt::TimerEventScheduler'
 /// - - - - - - - - - - - - - - - - - - - - -
@@ -834,7 +834,7 @@ class EventSchedulerEventHandle
 {
     // Objects of this type refer to events in the 'EventScheduler' API.  They
     // are convertible to 'const Event*' references and may be used in any
-    // method which expects them.
+    // method that expects them.
 
     // PRIVATE TYPES
     typedef bdlcc::SkipList<bsls::Types::Int64,

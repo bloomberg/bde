@@ -120,7 +120,7 @@ using namespace bsl;  // automatically added by script
 // [24] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
-// [25] DRQS 150355963: 'advanceTime' with under a microsecond
+// [25] DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
@@ -329,7 +329,9 @@ void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
     }
 }
 
-void noop() {
+void noop()
+    // Do nothing.
+{
 }
 
                          // ==========================
@@ -945,7 +947,9 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 
 static int s_case25CallbackInvocationCount = 0;
 
-void case25CallbackFunction() {
+void case25CallbackFunction()
+    // Increment 's_case25CallbackInvocationCount'.
+{
     ++s_case25CallbackInvocationCount;
 }
 
@@ -2422,7 +2426,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // DRQS 150355963: 'advanceTime' with under a microsecond
+        // DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
         //
         // Concerns:
         //: 1 When called with less than a microsecond, 'advanceTime' does
@@ -2436,22 +2440,21 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "DRQS 150355963: 'advanceTime' with under a microsecond\n"
+            cout << "DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND\n"
                  << "======================================================\n";
         }
 
        // Construct the scheduler
        bdlmt::EventScheduler scheduler;
 
-       // Construct the time-source.
-       // Install the time-source in the scheduler.
+       // Construct the time-source.  Install the time-source in the scheduler.
        bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
 
        // Set the time-source to have no nanoseconds.
        timeSource.advanceTime(
              bsls::TimeInterval(0,
                                 1000 - timeSource.now().nanoseconds() % 1000));
-       
+
        // Schedule a 1ms recurring event.
        scheduler.scheduleRecurringEvent(
                                bsls::TimeInterval(0, 1000),
@@ -2476,7 +2479,7 @@ int main(int argc, char *argv[])
        // Shutdown watchdog.
        s_continue = 0;
        bslmt::ThreadUtil::join(watchdogHandle);
-       
+
        // Assert the callback was invoked exactly once.
        ASSERT(1 == s_case25CallbackInvocationCount);
 
