@@ -3105,6 +3105,412 @@ std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
 # endif
 #endif
 
+                         // ==============================
+                         // class AllocPropagationTestType
+                         // ==============================
+
+template <bool USES_BSLMA_ALLOC>
+class AllocPropagationTestType {
+    // This class provides a test object used to check that 'make_shared'
+    // passes only supplied parameters to the managed object constructor (and
+    // does not add pointer to the default allocator in the last position
+    // regardless of whether managed object's type defines
+    // 'bslma::UsesBslmaAllocator' trait or not.
+
+  private:
+    // DATA
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
+
+  public:
+    // CREATORS
+    AllocPropagationTestType(bslma::Allocator *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             MyAllocatableArg08,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             MyAllocatableArg08,
+                             MyAllocatableArg09,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             MyAllocatableArg08,
+                             MyAllocatableArg09,
+                             MyAllocatableArg10,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             MyAllocatableArg08,
+                             MyAllocatableArg09,
+                             MyAllocatableArg10,
+                             MyAllocatableArg11,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             MyAllocatableArg08,
+                             MyAllocatableArg09,
+                             MyAllocatableArg10,
+                             MyAllocatableArg11,
+                             MyAllocatableArg12,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             MyAllocatableArg08,
+                             MyAllocatableArg09,
+                             MyAllocatableArg10,
+                             MyAllocatableArg11,
+                             MyAllocatableArg12,
+                             MyAllocatableArg13,
+                             bslma::Allocator   *basicAllocator = 0);
+    AllocPropagationTestType(MyAllocatableArg01,
+                             MyAllocatableArg02,
+                             MyAllocatableArg03,
+                             MyAllocatableArg04,
+                             MyAllocatableArg05,
+                             MyAllocatableArg06,
+                             MyAllocatableArg07,
+                             MyAllocatableArg08,
+                             MyAllocatableArg09,
+                             MyAllocatableArg10,
+                             MyAllocatableArg11,
+                             MyAllocatableArg12,
+                             MyAllocatableArg13,
+                             MyAllocatableArg14,
+                             bslma::Allocator   *basicAllocator = 0);
+        // Create an 'AllocPropagationTestType'.  Optionally specify a
+        // 'basicAllocator' used to indicate whether pointer to an allocator is
+        // passed in the last position or not.  Note that all other parameters
+        // are not used and therefore anonymous.
+
+    //! AllocPropagationTestType(
+    //!                    const AllocPropagationTestType& original) = default;
+
+        // Create a test object having the same value as the specified
+        // 'original'.
+
+    //! ~AllocPropagationTestType() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! AllocPropagationTestType& operator=(
+    //!                         const AllocPropagationTestType& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used to supply memory for this object.
+};
+
+
+                        // ------------------------------
+                        // class AllocPropagationTestType
+                        // ------------------------------
+
+// CREATORS
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            MyAllocatableArg08,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            MyAllocatableArg08,
+                                            MyAllocatableArg09,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            MyAllocatableArg08,
+                                            MyAllocatableArg09,
+                                            MyAllocatableArg10,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            MyAllocatableArg08,
+                                            MyAllocatableArg09,
+                                            MyAllocatableArg10,
+                                            MyAllocatableArg11,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            MyAllocatableArg08,
+                                            MyAllocatableArg09,
+                                            MyAllocatableArg10,
+                                            MyAllocatableArg11,
+                                            MyAllocatableArg12,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            MyAllocatableArg08,
+                                            MyAllocatableArg09,
+                                            MyAllocatableArg10,
+                                            MyAllocatableArg11,
+                                            MyAllocatableArg12,
+                                            MyAllocatableArg13,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+template <bool USES_BSLMA_ALLOC>
+AllocPropagationTestType<USES_BSLMA_ALLOC>::AllocPropagationTestType(
+                                            MyAllocatableArg01,
+                                            MyAllocatableArg02,
+                                            MyAllocatableArg03,
+                                            MyAllocatableArg04,
+                                            MyAllocatableArg05,
+                                            MyAllocatableArg06,
+                                            MyAllocatableArg07,
+                                            MyAllocatableArg08,
+                                            MyAllocatableArg09,
+                                            MyAllocatableArg10,
+                                            MyAllocatableArg11,
+                                            MyAllocatableArg12,
+                                            MyAllocatableArg13,
+                                            MyAllocatableArg14,
+                                            bslma::Allocator   *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+// ACCESSORS
+template <bool USES_BSLMA_ALLOC>
+inline
+bslma::Allocator *AllocPropagationTestType<USES_BSLMA_ALLOC>::allocator() const
+{
+    return d_allocator_p;
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+// We need to test 'make_shared' function for classes that define
+// 'bslma::UsesBslamaAllocator' trait and for those that do not.  To avoid code
+// duplication test class is created as a template and different
+// specializations have different trait values.
+
+template <> struct UsesBslmaAllocator<AllocPropagationTestType<true> > :
+                                                                 bsl::true_type
+{};
+
+template <> struct UsesBslmaAllocator<AllocPropagationTestType<false> > :
+                                                                bsl::false_type
+{};
+}  // close namespace bslma
+}  // close enterprise namespace
+
 //=============================================================================
 //                      TEST CASE TEMPLATES
 //-----------------------------------------------------------------------------
@@ -3260,6 +3666,12 @@ struct Harness {
         // Implement test case 32 for the specified (template type parameter)
         // 'ALLOCATOR'.  See the test case function for documented concerns and
         // test plan.
+
+    template <int N_ARGS, bool USES_BSLMA_ALLOCATOR>
+    static void testCase32_AllocatorPropagation();
+        // Check that 'make_shared' passes only supplied parameters to the
+        // managed object constructor regardless of whether its type defines
+        // the 'UsesBslmaAllocator' trait or not.
 
     template <class ALLOCATOR>
     static void testCase33(ALLOCATOR basicAllocator);
@@ -4876,6 +5288,136 @@ void Harness::testCase32_LocalAllocator()
             numAllocations == da->numAllocations());
     ASSERTV(numDeallocations + N_ARGS + 1,   da->numDeallocations(),
             numDeallocations + N_ARGS + 1 == da->numDeallocations());
+
+    ASSERT(dam.isInUseSame());
+}
+
+template <int N_ARGS,
+          bool USES_BSLMA_ALLOCATOR>
+void Harness::testCase32_AllocatorPropagation()
+{
+    typedef AllocPropagationTestType<USES_BSLMA_ALLOCATOR>
+                                                          AllocPropagationType;
+
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    // 14 arguments for constructor
+    MyAllocatableArg01 A01(VA01);
+    MyAllocatableArg02 A02(VA02);
+    MyAllocatableArg03 A03(VA03);
+    MyAllocatableArg04 A04(VA04);
+    MyAllocatableArg05 A05(VA05);
+    MyAllocatableArg06 A06(VA06);
+    MyAllocatableArg07 A07(VA07);
+    MyAllocatableArg08 A08(VA08);
+    MyAllocatableArg09 A09(VA09);
+    MyAllocatableArg10 A10(VA10);
+    MyAllocatableArg11 A11(VA11);
+    MyAllocatableArg12 A12(VA12);
+    MyAllocatableArg13 A13(VA13);
+    MyAllocatableArg14 A14(VA14);
+
+    // Here starts the actual test case
+    bslma::TestAllocatorMonitor dam(da);
+
+    bsls::Types::Int64 numAllocations   = da->numAllocations();
+    bsls::Types::Int64 numDeallocations = da->numDeallocations();
+
+    {
+        bsl::shared_ptr<const AllocPropagationType>        mX;
+        const bsl::shared_ptr<const AllocPropagationType>& X = mX;
+
+        switch (N_ARGS) {
+          case 0: {
+            mX = bsl::make_shared<const AllocPropagationType>();
+          } break;
+          case 1: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01);
+          } break;
+          case 2: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02);
+          } break;
+          case 3: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03);
+          } break;
+          case 4: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04);
+          } break;
+          case 5: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05);
+          } break;
+          case 6: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06);
+          } break;
+          case 7: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07);
+          } break;
+          case 8: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07, A08);
+          } break;
+          case 9: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07, A08, A09);
+          } break;
+          case 10: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07, A08, A09,
+                                                              A10);
+          } break;
+          case 11: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07, A08, A09,
+                                                              A10, A11);
+          } break;
+          case 12: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07, A08, A09,
+                                                              A10, A11, A12);
+          } break;
+          case 13: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07, A08, A09,
+                                                              A10, A11, A12,
+                                                              A13);
+          } break;
+          case 14: {
+            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                              A04, A05, A06,
+                                                              A07, A08, A09,
+                                                              A10, A11, A12,
+                                                              A13, A14);
+          } break;
+        };
+
+        // Verify that default allocator is used for managed object creation
+        // (note that ctor of managed object creates N_ARGS temporary objects
+        // using the default allocator).
+
+        ASSERTV(N_ARGS, numAllocations + 1 + N_ARGS,   da->numAllocations(),
+                        numAllocations + 1 + N_ARGS == da->numAllocations());
+
+        // Verify that 'make_shared' doesn't pass an allocator in a final
+        // position (default value is used).
+
+        ASSERTV(0 == X->allocator());
+    }
+
+    ASSERTV(N_ARGS, numDeallocations + 1 + N_ARGS,   da->numDeallocations(),
+                    numDeallocations + 1 + N_ARGS == da->numDeallocations());
 
     ASSERT(dam.isInUseSame());
 }
@@ -13091,7 +13633,44 @@ int main(int argc, char *argv[])
         Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
 #endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
+        if (verbose) printf("\nTesting allocator propagation"
+                            "\n-----------------------------\n");
 
+        Harness::testCase32_AllocatorPropagation< 0, false>();
+#if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+        Harness::testCase32_AllocatorPropagation< 1, false>();
+        Harness::testCase32_AllocatorPropagation< 2, false>();
+        Harness::testCase32_AllocatorPropagation< 3, false>();
+        Harness::testCase32_AllocatorPropagation< 4, false>();
+        Harness::testCase32_AllocatorPropagation< 5, false>();
+        Harness::testCase32_AllocatorPropagation< 6, false>();
+        Harness::testCase32_AllocatorPropagation< 7, false>();
+        Harness::testCase32_AllocatorPropagation< 8, false>();
+        Harness::testCase32_AllocatorPropagation< 9, false>();
+        Harness::testCase32_AllocatorPropagation<10, false>();
+        Harness::testCase32_AllocatorPropagation<11, false>();
+        Harness::testCase32_AllocatorPropagation<12, false>();
+        Harness::testCase32_AllocatorPropagation<13, false>();
+#endif // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY
+        Harness::testCase32_AllocatorPropagation<14, false>();
+
+        Harness::testCase32_AllocatorPropagation< 0,  true>();
+#if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+        Harness::testCase32_AllocatorPropagation< 1,  true>();
+        Harness::testCase32_AllocatorPropagation< 2,  true>();
+        Harness::testCase32_AllocatorPropagation< 3,  true>();
+        Harness::testCase32_AllocatorPropagation< 4,  true>();
+        Harness::testCase32_AllocatorPropagation< 5,  true>();
+        Harness::testCase32_AllocatorPropagation< 6,  true>();
+        Harness::testCase32_AllocatorPropagation< 7,  true>();
+        Harness::testCase32_AllocatorPropagation< 8,  true>();
+        Harness::testCase32_AllocatorPropagation< 9,  true>();
+        Harness::testCase32_AllocatorPropagation<10,  true>();
+        Harness::testCase32_AllocatorPropagation<11,  true>();
+        Harness::testCase32_AllocatorPropagation<12,  true>();
+        Harness::testCase32_AllocatorPropagation<13,  true>();
+#endif // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY
+        Harness::testCase32_AllocatorPropagation<14,  true>();
 
         if (verbose) printf("\nTesting 'make_shared' with evil type"
                             "\n------------------------------------\n");
