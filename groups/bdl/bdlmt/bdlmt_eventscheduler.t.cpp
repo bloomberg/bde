@@ -329,6 +329,9 @@ void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
     }
 }
 
+void noop() {
+}
+
                          // ==========================
                          // function executeInParallel
                          // ==========================
@@ -5033,6 +5036,8 @@ int main(int argc, char *argv[])
         //   then callbacks scheduled after that callback are shifted as
         //   expected.
         //
+        //   Asserted precondition violations are detected when enabled.
+        //
         // Plan:
         //   Define T, T2, T3, T4 .. as time intervals such that T2 = T * 2,
         //   T3 = T * 3,  T4 = T * 4,  and so on.
@@ -5042,6 +5047,9 @@ int main(int argc, char *argv[])
         //
         //   Schedule a long running callback and several other callbacks.
         //   Verify that other callbacks are shifted as expected.
+        //
+        //   Verify that, in appropriate build modes, defensive checks are
+        //   triggered for invalid values.
         //
         // Note:
         //   Test sometimes fail due to too much thread contention in parallel
@@ -5227,6 +5235,89 @@ int main(int argc, char *argv[])
                 cout << "Failed test case 2 " << failed
                     << " out of " << passed+failed << " times.\n";
                 ASSERT( 0 );
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            {
+                Obj x;
+
+                ASSERT_PASS(x.scheduleRecurringEvent(bsls::TimeInterval(0,
+                                                                        1000),
+                                                     noop));
+            }
+            {
+                Obj x;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(bsls::TimeInterval(0, 0),
+                                                     noop));
+            }
+            {
+                Obj x;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(bsls::TimeInterval(0,
+                                                                        999),
+                                                     noop));
+            }
+
+            {
+                Obj                  x;
+                RecurringEventHandle handle;
+
+                ASSERT_PASS(x.scheduleRecurringEvent(&handle,
+                                                     bsls::TimeInterval(0,
+                                                                        1000),
+                                                     noop));
+            }
+            {
+                Obj                  x;
+                RecurringEventHandle handle;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(&handle,
+                                                     bsls::TimeInterval(0, 0),
+                                                     noop));
+            }
+            {
+                Obj                  x;
+                RecurringEventHandle handle;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(&handle,
+                                                     bsls::TimeInterval(0,
+                                                                        999),
+                                                     noop));
+            }
+
+            {
+                Obj             x;
+                RecurringEvent *event;
+
+                ASSERT_PASS(x.scheduleRecurringEventRaw(
+                                                   &event,
+                                                   bsls::TimeInterval(0, 1000),
+                                                   noop));
+
+                x.releaseEventRaw(event);
+            }
+            {
+                Obj             x;
+                RecurringEvent *event;
+
+                ASSERT_FAIL(x.scheduleRecurringEventRaw(
+                                                      &event,
+                                                      bsls::TimeInterval(0, 0),
+                                                      noop));
+            }
+            {
+                Obj             x;
+                RecurringEvent *event;
+
+                ASSERT_FAIL(x.scheduleRecurringEventRaw(
+                                                    &event,
+                                                    bsls::TimeInterval(0, 999),
+                                                    noop));
             }
         }
       } break;
