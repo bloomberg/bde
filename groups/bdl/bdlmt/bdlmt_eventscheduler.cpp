@@ -13,10 +13,14 @@
 BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bdlf_bind.h>
+
 #include <bdlt_timeunitratio.h>
+
 #include <bslmt_lockguard.h>
+
 #include <bsls_assert.h>
 #include <bsls_systemtime.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_vector.h>
@@ -46,6 +50,7 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
 }
 
 namespace bdlmt {
+
                             // --------------------
                             // class EventScheduler
                             // --------------------
@@ -357,6 +362,9 @@ EventScheduler::scheduleRecurringEvent(
                                   const bsl::function<void()>&  callback,
                                   const bsls::TimeInterval&     startEpochTime)
 {
+    // Note that when this review is converted to an assert, the following
+    // assert is redundant and can be removed.
+    BSLS_REVIEW(1 <= interval.totalMicroseconds());
     BSLS_ASSERT(0 != interval);
 
     bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
@@ -386,6 +394,9 @@ EventScheduler::scheduleRecurringEventRaw(
                                  const bsl::function<void()>&   callback,
                                  const bsls::TimeInterval&      startEpochTime)
 {
+    // Note that when this review is converted to an assert, the following
+    // assert is redundant and can be removed.
+    BSLS_REVIEW(1 <= interval.totalMicroseconds());
     BSLS_ASSERT(0 != interval);
 
     bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
@@ -623,7 +634,7 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
     // The event scheduler is constructed with a "now" that is 1000 days in the
     // future.  This point in time is arbitrary, but is chosen to ensure that
     // in any reasonable test driver, the system clock (which controls the
-    // the scheduler's condition variable) will always lag behind the test time
+    // scheduler's condition variable) will always lag behind the test time
     // source.
     //
     // If the system clock were ever to catch up with the test time source, the
@@ -705,7 +716,7 @@ bsls::TimeInterval EventSchedulerTestTimeSource::now()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

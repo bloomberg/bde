@@ -29,8 +29,10 @@
 #include <bslmt_timedsemaphore.h>
 #include <bslmt_semaphore.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
@@ -118,11 +120,12 @@ using namespace bsl;  // automatically added by script
 // [24] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
+// [25] DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
-// [25] USAGE EXAMPLE
+// [26] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -167,6 +170,24 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //                   THREAD-SAFE OUTPUT AND ASSERT MACROS
@@ -306,6 +327,11 @@ void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
         bslmt::ThreadUtil::microSleep(microSeconds);
         bslmt::ThreadUtil::yield();
     }
+}
+
+void noop()
+    // Do nothing.
+{
 }
 
                          // ==========================
@@ -692,6 +718,40 @@ static void cancelAllEventsCallback(Obj *scheduler, int wait)
 //                 HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ============================================================================
 
+static bsls::AtomicInt s_continue;
+
+static char s_watchdogText[128];
+
+void setWatchdogText(const char *value)
+    // Assign the specified 'value' to be displayed if the watchdog expires.
+{
+    memcpy(s_watchdogText, value, strlen(value) + 1);
+}
+
+extern "C" void *watchdog(void *)
+    // Watchdog function used to determine when a timeout should occur.  This
+    // function returns without expiration if '0 == s_continue' before one
+    // second elapses.  Upon expiration, 's_watchdogText' is displayed and the
+    // program is aborted.
+{
+    const int MAX = 100;  // one iteration is a deci-second
+
+    int count = 0;
+
+    while (s_continue) {
+        bslmt::ThreadUtil::microSleep(DECI_SEC_IN_MICRO_SEC);
+        ++count;
+
+        ASSERTV(s_watchdogText, count < MAX);
+
+        if (MAX == count && s_continue) {
+            abort();
+        }
+    }
+
+    return 0;
+}
+
 // ============================================================================
 //                      USAGE EXAMPLE RELATED ENTITIES
 // ----------------------------------------------------------------------------
@@ -880,6 +940,18 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 // production code.
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_USAGE
+
+// ============================================================================
+//                         CASE 25 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+static int s_case25CallbackInvocationCount = 0;
+
+void case25CallbackFunction()
+    // Increment 's_case25CallbackInvocationCount'.
+{
+    ++s_case25CallbackInvocationCount;
+}
 
 // ============================================================================
 //                         CASE 20 RELATED ENTITIES
@@ -2284,12 +2356,15 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     int nExec;
 
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
     bslma::TestAllocator ta;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2348,6 +2423,68 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
+        //
+        // Concerns:
+        //: 1 When called with less than a microsecond, 'advanceTime' does
+        //    not hang.
+        //
+        // Plan:
+        //: 1 Directly test the scenario.  (C-1)
+        //
+        // Testing:
+        //   DRQS 150355963: 'advanceTime' with under a microsecond
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND\n"
+                 << "======================================================\n";
+        }
+
+       // Construct the scheduler
+       bdlmt::EventScheduler scheduler;
+
+       // Construct the time-source.  Install the time-source in the scheduler.
+       bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
+
+       // Set the time-source to have no nanoseconds.
+       timeSource.advanceTime(
+             bsls::TimeInterval(0,
+                                1000 - timeSource.now().nanoseconds() % 1000));
+
+       // Schedule a 1ms recurring event.
+       scheduler.scheduleRecurringEvent(
+                               bsls::TimeInterval(0, 1000),
+                               bsl::function<void()>(&case25CallbackFunction));
+
+       // Start the dispatcher thread.
+       scheduler.start();
+
+       // Set the watchdog.
+       bslmt::ThreadUtil::Handle watchdogHandle;
+
+       s_continue = 1;
+       setWatchdogText("'advanceTime' with 100ns");
+       bslmt::ThreadUtil::create(&watchdogHandle, watchdog, 0);
+
+       // Advance the time by 100 nanoseconds 10 times (1ms total).
+       for (int i = 0; i < 10; ++i) {
+           ASSERT(0 == s_case25CallbackInvocationCount);
+           timeSource.advanceTime(bsls::TimeInterval(0, 100));
+       }
+
+       // Shutdown watchdog.
+       s_continue = 0;
+       bslmt::ThreadUtil::join(watchdogHandle);
+
+       // Assert the callback was invoked exactly once.
+       ASSERT(1 == s_case25CallbackInvocationCount);
+
+       // Stop the scheduler.
+       scheduler.stop();
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -4902,6 +5039,8 @@ int main(int argc, char *argv[])
         //   then callbacks scheduled after that callback are shifted as
         //   expected.
         //
+        //   Asserted precondition violations are detected when enabled.
+        //
         // Plan:
         //   Define T, T2, T3, T4 .. as time intervals such that T2 = T * 2,
         //   T3 = T * 3,  T4 = T * 4,  and so on.
@@ -4911,6 +5050,9 @@ int main(int argc, char *argv[])
         //
         //   Schedule a long running callback and several other callbacks.
         //   Verify that other callbacks are shifted as expected.
+        //
+        //   Verify that, in appropriate build modes, defensive checks are
+        //   triggered for invalid values.
         //
         // Note:
         //   Test sometimes fail due to too much thread contention in parallel
@@ -5096,6 +5238,89 @@ int main(int argc, char *argv[])
                 cout << "Failed test case 2 " << failed
                     << " out of " << passed+failed << " times.\n";
                 ASSERT( 0 );
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            {
+                Obj x;
+
+                ASSERT_PASS(x.scheduleRecurringEvent(bsls::TimeInterval(0,
+                                                                        1000),
+                                                     noop));
+            }
+            {
+                Obj x;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(bsls::TimeInterval(0, 0),
+                                                     noop));
+            }
+            {
+                Obj x;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(bsls::TimeInterval(0,
+                                                                        999),
+                                                     noop));
+            }
+
+            {
+                Obj                  x;
+                RecurringEventHandle handle;
+
+                ASSERT_PASS(x.scheduleRecurringEvent(&handle,
+                                                     bsls::TimeInterval(0,
+                                                                        1000),
+                                                     noop));
+            }
+            {
+                Obj                  x;
+                RecurringEventHandle handle;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(&handle,
+                                                     bsls::TimeInterval(0, 0),
+                                                     noop));
+            }
+            {
+                Obj                  x;
+                RecurringEventHandle handle;
+
+                ASSERT_FAIL(x.scheduleRecurringEvent(&handle,
+                                                     bsls::TimeInterval(0,
+                                                                        999),
+                                                     noop));
+            }
+
+            {
+                Obj             x;
+                RecurringEvent *event;
+
+                ASSERT_PASS(x.scheduleRecurringEventRaw(
+                                                   &event,
+                                                   bsls::TimeInterval(0, 1000),
+                                                   noop));
+
+                x.releaseEventRaw(event);
+            }
+            {
+                Obj             x;
+                RecurringEvent *event;
+
+                ASSERT_FAIL(x.scheduleRecurringEventRaw(
+                                                      &event,
+                                                      bsls::TimeInterval(0, 0),
+                                                      noop));
+            }
+            {
+                Obj             x;
+                RecurringEvent *event;
+
+                ASSERT_FAIL(x.scheduleRecurringEventRaw(
+                                                    &event,
+                                                    bsls::TimeInterval(0, 999),
+                                                    noop));
             }
         }
       } break;
