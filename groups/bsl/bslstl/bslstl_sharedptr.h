@@ -1486,7 +1486,7 @@ BSL_OVERRIDES_STD mode"
 
 #include <stddef.h>             // 'size_t', 'ptrdiff_t'
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
         // Here and throughout the file wherever 'auto_ptr' is used, suspend
         // GCC reporting of deprecated declarations since the use of 'auto_ptr'
         // in this standard interface is required.
@@ -9284,7 +9284,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 
 }  // close enterprise namespace
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 # pragma GCC diagnostic pop
 #endif
 

@@ -189,12 +189,16 @@ void test_dependent_constexpr_aggregate() {
 namespace {
 namespace u {
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 char testFuncForDecltype(int);
 
-#pragma GCC diagnostic pop
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+# pragma GCC diagnostic pop
+#endif
 
 template <class T, class U>
 auto my_max(const T& t, const U& u) -> decltype(t > u ? t : u)
@@ -1653,10 +1657,16 @@ will not improve the flavor.
         if (verbose) printf("Test disabled as exceptions are NOT enabled.\n");
 #else
         struct LocalClass {
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wdeprecated"
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated"
+# endif
+
             static void test() throw (std::bad_exception, double) {
-# pragma GCC diagnostic pop
+
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
                 throw 13;
             }
 

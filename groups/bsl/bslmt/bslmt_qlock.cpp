@@ -11,6 +11,8 @@
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_qlock_cpp,"$Id$ $CSID$")
+
+#include <bsla_unused.h>
 #include <bsls_assert.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
@@ -67,6 +69,7 @@ void releaseTlsKey(TlsKey *key)
     semaphoreAllocator().deleteObjectRaw(key);
 }
 
+bool notEqual(void *a, void *b) BSLA_UNUSED;
 inline
 bool notEqual(void *a, void *b)
     // Return 'true' is 'a != b' and 'false' otherwise.  This function is used
@@ -272,7 +275,13 @@ void bslmt::QLockGuard::unlockRaw()
 {
     enum { k_SPIN = 1000 };
 
-    BSLS_ASSERT(notEqual(this, 0));
+    // The assert below was controversially removed, then added again, then
+    // removed again, but the reasons for adding it both times have been
+    // forgotten.  If it is added again, please add a very detailed comment
+    // explaining EXACTLY why it is needed in order to break the infinite loop
+    // we are egaged in.
+
+    // BSLS_ASSERT(notEqual(this, 0));
 
     QLockGuard *tail = (QLockGuard *)bsls::AtomicOperations::testAndSwapPtr(
                                         &d_qlock_p->d_guardQueueTail, this, 0);

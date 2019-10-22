@@ -12,8 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_saturatedtimeconversionimputil_cpp,"$Id$ $CSID$")
 
-#include <bsla_unused.h>
-
 #include <bslmf_conditional.h>
 
 #include <bsls_assert.h>
@@ -44,7 +42,7 @@ TYPE minOf(const TYPE&)
     return bsl::numeric_limits<TYPE>::min();
 };
 
-#ifdef BSLS_PLATFORM_CMP_CLANG
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
@@ -60,8 +58,6 @@ void toTimeTImp(int *dst, bsls::Types::Int64 src)
                              : (src < minOf(*dst) ? minOf(*dst) : (int) src);
 }
 
-static
-void toTimeTImp(long long *dst, bsls::Types::Int64 src) BSLA_UNUSED;
 static inline
 void toTimeTImp(long long *dst, bsls::Types::Int64 src)
     // Assign to the specified 'dst' the value of the sepcified 'src', and if
@@ -72,8 +68,6 @@ void toTimeTImp(long long *dst, bsls::Types::Int64 src)
     *dst = src;
 }
 
-static
-void toTimeTImp(unsigned int *dst, bsls::Types::Int64 src) BSLA_UNUSED;
 static inline
 void toTimeTImp(unsigned int *dst, bsls::Types::Int64 src)
     // Assign to the specified 'dst' the value of the sepcified 'src', and if
@@ -85,8 +79,6 @@ void toTimeTImp(unsigned int *dst, bsls::Types::Int64 src)
                              : (src < 0 ? 0 : (unsigned int) src);
 }
 
-static
-void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src) BSLA_UNUSED;
 static inline
 void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src)
     // Assign to the specified 'dst' the value of the sepcified 'src', and if
@@ -97,8 +89,6 @@ void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src)
     *dst = src < 0 ? 0 : (unsigned long long) src;
 }
 
-static
-void toTimeTImp(long *dst, bsls::Types::Int64 src) BSLA_UNUSED;
 static inline
 void toTimeTImp(long *dst, bsls::Types::Int64 src)
     // Assign to the specified 'dst' the value of the sepcified 'src', and if
@@ -117,8 +107,6 @@ void toTimeTImp(long *dst, bsls::Types::Int64 src)
     *dst = result;
 }
 
-static
-void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src) BSLA_UNUSED;
 static inline
 void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
     // Assign to the specified 'dst' the value of the sepcified 'src', and if
@@ -137,7 +125,7 @@ void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
     *dst = result;
 }
 
-#ifdef BSLS_PLATFORM_CMP_CLANG
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 

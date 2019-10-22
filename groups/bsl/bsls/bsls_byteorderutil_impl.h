@@ -577,10 +577,16 @@ TYPE ByteOrderUtil_Impl<TYPE, 8>::swapBytes(TYPE x)
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( TYPE, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# endif
+
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(TYPE, &x);
-    #pragma GCC diagnostic pop
+
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(TYPE, x);
 #endif
