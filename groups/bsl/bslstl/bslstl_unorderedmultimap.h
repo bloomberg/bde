@@ -1026,7 +1026,7 @@ class unordered_multimap {
         // 'KEY' and 'VALUE' both be 'copy-insertable' into this unordered
         // multimap (see {Requirements on 'KEY' and 'VALUE'}).
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
     insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
@@ -1065,7 +1065,7 @@ class unordered_multimap {
         // iterator in the range '[begin() .. end()]' (both endpoints
         // included).
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
     insert(const_iterator                                    hint,

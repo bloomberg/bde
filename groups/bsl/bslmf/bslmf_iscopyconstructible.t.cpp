@@ -10,6 +10,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -384,32 +385,32 @@ int main(int argc, char *argv[])
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(MethodPtrTestType, true);
 
         // C-4 : 'void' is not an object type, but can be cv-qualified.
-        ASSERT_IS_COPY_CONSTRUCTIBLE(               void  , false);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(               void *, true);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(const          void  , false);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(const          void *, true);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(      volatile void  , false);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(      volatile void *, true);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(const volatile void  , false);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(const volatile void *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(               void, false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(const          void, false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(      volatile void, false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(const volatile void, false);
+
+        // Pointers to cv-'void' are regular object types though.
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(               void *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(const          void *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(      volatile void *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(const volatile void *, true);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
-        // Note that this particular test stresses compilers handling of
-        // function types, and function reference types, in the template type
-        // system.  We incrementally disable tests for compilers known to have
-        // bugs parsing function type parameters that we cannot easily work
-        // around.  Failing to test such cases is not a concern, as users
-        // cannot make such a request either.
-        ASSERT_IS_COPY_CONSTRUCTIBLE(void(*)(), true);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(int(*)(float, double...), true);
-#if !defined(BSLS_PLATFORM_CMP_SUN) // last tested for v12.3
-        ASSERT_IS_COPY_CONSTRUCTIBLE(void(), false);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(int(float, double...), false);
-#if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
-        ASSERT_IS_COPY_CONSTRUCTIBLE(void(&)(), true);
-        ASSERT_IS_COPY_CONSTRUCTIBLE(int(&)(float, double...), true);
-#endif
-#endif
+        typedef void SimpleFunction();
+        typedef int  ElipsisFunction(float, double...);
+
+        ASSERT_IS_COPY_CONSTRUCTIBLE(SimpleFunction, false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(ElipsisFunction, false);
+
+        // Reference types are copyable
+        ASSERT_IS_COPY_CONSTRUCTIBLE(SimpleFunction  &, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(ElipsisFunction &, true);
+
+        // Function pointers are object types, but the syntax messes up the
+        // generalized test macros for objects.
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(SimpleFunction  *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(ElipsisFunction *, true);
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

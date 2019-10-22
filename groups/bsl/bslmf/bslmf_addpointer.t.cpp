@@ -78,8 +78,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPILER DEFECT MACROS TO GUIDE TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#if (defined(BSLS_PLATFORM_CMP_SUN ) && BSLS_PLATFORM_CMP_VERSION <= 0x5130)  \
+ || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900  )
 # define BSLMF_ADDPOINTER_CREATES_ABOMINABLE_POINTERS 1
 // Some compilers erroneously support pointers to "abominable" function types.
 // This macro indicates that they are expected to produce the wrong result.

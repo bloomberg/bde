@@ -9,6 +9,8 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -472,16 +474,12 @@ int main(int argc, char *argv[])
         ASSERT( bsl::is_trivially_default_constructible<void(*)()>::value);
         ASSERT( bsl::is_trivially_default_constructible<
                                              int(*)(float, double...)>::value);
-#if !defined(BSLS_PLATFORM_CMP_SUN) // last tested for v12.3
         ASSERT(!bsl::is_trivially_default_constructible<void()>::value);
         ASSERT(!bsl::is_trivially_default_constructible<
                                                 int(float, double...)>::value);
-#if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
         ASSERT(!bsl::is_trivially_default_constructible<void(&)()>::value);
         ASSERT(!bsl::is_trivially_default_constructible<
                                              int(&)(float, double...)>::value);
-#endif
-#endif
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

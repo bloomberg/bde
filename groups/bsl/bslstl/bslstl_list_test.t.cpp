@@ -10130,6 +10130,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING MOVE ASSIGN\n"
                             "===================\n");
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION < 0x5130
         RUN_EACH_TYPE(TestDriver,
                       test31_moveAssign,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
@@ -10153,6 +10154,28 @@ int main(int argc, char *argv[])
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
         // TBD test 'bsltf::MoveOnlyAllocTestType' here
+#else   // Oracle CC 12.4 runs out of memory compiling the full test case
+        RUN_EACH_TYPE(TestDriver,
+                      test31_moveAssign,
+                      bsltf::MoveOnlyAllocTestType);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      test31_moveAssign,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      int);
+
+        // 'propagate_on_container_move_assignment' testing
+
+        RUN_EACH_TYPE(TestDriver,
+                      test31_propagate_on_container_move_assignment,
+                      int);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      test31_propagate_on_container_move_assignment,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      int);
+        // TBD test 'bsltf::MoveOnlyAllocTestType' here
+#endif
       } break;
       case 30: {
         // --------------------------------------------------------------------

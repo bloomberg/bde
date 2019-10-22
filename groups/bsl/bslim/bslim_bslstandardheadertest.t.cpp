@@ -709,7 +709,6 @@ int main(int argc, char *argv[])
         }
       } break;
       case 1: {
-#if !defined(BSLS_PLATFORM_CMP_SUN)
         if (verbose) { bsl::cout << "Testing references as 'mapped_type'.\n"; }
 
         if (verbose) { bsl::cout << "Testing 'map' container.\n"; }
@@ -762,12 +761,6 @@ int main(int argc, char *argv[])
                           testCase1,
                           MapType1, MapType2, MapType3);
         }
-#else
-        if (verbose) {
-            bsl::cout << "Not testing references as mapped_type "
-                      << "on this platform.\n";
-        }
-#endif
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";

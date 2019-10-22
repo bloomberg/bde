@@ -108,7 +108,7 @@ struct is_volatile : false_type {
                          // struct is_volatile<TYPE volatile>
                          // =================================
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 template <class TYPE>
 struct is_volatile<volatile TYPE>
     : integral_constant<bool, !is_same<TYPE, volatile TYPE>::value> {

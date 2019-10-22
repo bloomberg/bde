@@ -1492,7 +1492,7 @@ class unordered_map {
         // be 'copy-insertable' into this unordered map (see {Requirements on
         // 'value_type'}).
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     pair<iterator, bool>
     insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
@@ -1548,7 +1548,7 @@ class unordered_map {
         // included).  Note that 'hint' is ignored (other than possibly
         // asserting its validity in some build modes).
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
     insert(const_iterator                                    hint,

@@ -256,7 +256,7 @@ NameOf<TYPE>::NameOf()
                                                        k_USELESS_PREAMBLE_LEN];
         s_buffer_p = initBuffer(buffer, __PRETTY_FUNCTION__);
 #elif defined(BSLS_PLATFORM_CMP_SUN)
-# if  BSLS_PLATFORM_CMP_VERSION >= 20768
+# if  BSLS_PLATFORM_CMP_VERSION >= 0x5120
         // The Solaris CC compiler doesn't understand
         // 'sizeof(__PRETTY_FUNCTION__)'.
 

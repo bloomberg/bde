@@ -58,18 +58,6 @@
 
 // Local macros to detect and work around compiler defects.
 
-#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_RVALUE_REFERENCES) \
- &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
-#   define BSL_COMPILER_THINKS_MOVE_AMBIGUOUS_WITH_COPY 1
-#endif
-
-#if defined(BSL_COMPILER_THINKS_MOVE_AMBIGUOUS_WITH_COPY)
-# define BAD_MOVE_GUARD(IDENTIFIER) int
-#else
-# define BAD_MOVE_GUARD(IDENTIFIER) IDENTIFIER
-#endif
-
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 // We don't have a specific macro asserting that 'std::swap' implements array
 // support, so proxy off the baseline macro until we prove we need more.
@@ -7538,10 +7526,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase14,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
-                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- test case
+                   // bsltf::MoveOnlyAllocTestType -- test case
                    // needs copy c'tor.
       } break;
       case 13: {
@@ -8090,9 +8078,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_move,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType));
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::MoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_copy,
@@ -8100,10 +8088,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_copy,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
-                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)
+                   // bsltf::MoveOnlyAllocTestType
                    // test disabled as copy-assign is needed
       } break;
       case 11: {
@@ -8167,10 +8155,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase11,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
-        // Cannot do 'BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)'
+        // Cannot do 'bsltf::MoveOnlyAllocTestType'
         // -- would need a copy constructor.
       } break;
       case 10: {
@@ -8215,9 +8203,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE( MetaTestDriver
                      , testCase10
-                     , BAD_MOVE_GUARD(bsltf::MovableTestType)
-                     , BAD_MOVE_GUARD(bsltf::MovableAllocTestType)
-                     , BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)
+                     , bsltf::MovableTestType
+                     , bsltf::MovableAllocTestType
+                     , bsltf::MoveOnlyAllocTestType
                      );
       } break;
       case 9: {
@@ -8261,9 +8249,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase9,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType));
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::MoveOnlyAllocTestType);
       } break;
       case 8: {
         // --------------------------------------------------------------------

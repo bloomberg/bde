@@ -680,7 +680,7 @@ struct bsls_Platform_Assert;
 #    error This early compiler is not supported by BDE
 #  endif
 #elif defined(BSLS_PLATFORM_CMP_SUN)
-#  if BSLS_PLATFORM_CMP_VERSION < 0x580
+#  if BSLS_PLATFORM_CMP_VERSION < 0x5120
 #    error This early compiler is not supported by BDE
 #  endif
 #elif defined(BSLS_PLATFORM_CMP_GNU)

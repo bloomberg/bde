@@ -585,6 +585,8 @@ BSLS_IDENT("$Id$")
 
 #include <bsls_assert.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstring.h>
@@ -4469,7 +4471,7 @@ class DecimalNumGet : public bsl::locale::facet {
     // is dictated by the C++ standard and native standard library
     // implementations.  See ISO/IEC TR 24733 3.10.2 for details.
 
-#ifdef BSLS_PLATFORM_CMP_SUN
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
   private:
     // ACCESSORS
     bsl::locale::id& __get_id() const;
@@ -4755,7 +4757,7 @@ class DecimalNumPut : public bsl::locale::facet {
     // is dictated by the C++ standard and native standard library
     // implementations.  See ISO/IEC TR 24733 3.10.3 for details.
 
-#ifdef BSLS_PLATFORM_CMP_SUN
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
   private:
     // ACCESSORS
     bsl::locale::id& __get_id() const;
