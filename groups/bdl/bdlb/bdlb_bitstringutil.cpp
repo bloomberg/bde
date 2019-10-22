@@ -166,7 +166,7 @@ class BitPtrDiff {
     // FRIENDS
     friend bool operator> (const BitPtrDiff&, const BitPtrDiff&);
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    friend bool operator< (const BitPtrDiff&, const BitPtrDiff&);
+    friend bool operator< (const BitPtrDiff&, const BitPtrDiff&) BSLA_UNUSED;
     friend bool operator<=(const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator>=(const BitPtrDiff&, const BitPtrDiff&);
 #endif
@@ -254,7 +254,6 @@ bool operator>(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
 }
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs) BSLA_UNUSED;
 inline
 bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is less than the specified 'rhs',
