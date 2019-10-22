@@ -14,9 +14,12 @@ BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bdlf_bind.h>
 #include <bdlt_timeunitratio.h>
+
 #include <bslmt_lockguard.h>
+
 #include <bsls_assert.h>
 #include <bsls_systemtime.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_vector.h>
@@ -358,6 +361,9 @@ EventScheduler::scheduleRecurringEvent(
                                   const bsl::function<void()>&  callback,
                                   const bsls::TimeInterval&     startEpochTime)
 {
+    // Note that when this review is converted to an assert, the following
+    // assert is redundant and can be removed.
+    BSLS_REVIEW(1 <= interval.totalMicroseconds());
     BSLS_ASSERT(0 != interval);
 
     bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
@@ -387,6 +393,9 @@ EventScheduler::scheduleRecurringEventRaw(
                                  const bsl::function<void()>&   callback,
                                  const bsls::TimeInterval&      startEpochTime)
 {
+    // Note that when this review is converted to an assert, the following
+    // assert is redundant and can be removed.
+    BSLS_REVIEW(1 <= interval.totalMicroseconds());
     BSLS_ASSERT(0 != interval);
 
     bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
