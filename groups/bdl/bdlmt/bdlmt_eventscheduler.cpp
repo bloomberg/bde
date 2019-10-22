@@ -46,6 +46,7 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
 }
 
 namespace bdlmt {
+
                             // --------------------
                             // class EventScheduler
                             // --------------------
@@ -623,7 +624,7 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
     // The event scheduler is constructed with a "now" that is 1000 days in the
     // future.  This point in time is arbitrary, but is chosen to ensure that
     // in any reasonable test driver, the system clock (which controls the
-    // the scheduler's condition variable) will always lag behind the test time
+    // scheduler's condition variable) will always lag behind the test time
     // source.
     //
     // If the system clock were ever to catch up with the test time source, the
@@ -705,7 +706,7 @@ bsls::TimeInterval EventSchedulerTestTimeSource::now()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

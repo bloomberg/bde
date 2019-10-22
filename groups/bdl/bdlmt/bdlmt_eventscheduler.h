@@ -36,8 +36,8 @@ BSLS_IDENT("$Id: $")
 // pointers, which must be released using 'releaseEventRaw'.  Such pointers are
 // used in the "Raw" API of this class and must be used carefully.  Note that
 // the Handle objects have an implicit conversion to the corresponding 'Event'
-// or 'RecurringEvent' pointer types, effectively providing extra overloads
-// for methods which take a 'const Event*' to also take a 'const EventHandle&'.
+// or 'RecurringEvent' pointer types, effectively providing extra overloads for
+// methods which take a 'const Event*' to also take a 'const EventHandle&'.
 //
 ///Comparison to 'bdlmt::TimerEventScheduler'
 /// - - - - - - - - - - - - - - - - - - - - -
@@ -133,9 +133,9 @@ BSLS_IDENT("$Id: $")
 // For testing purposes, a class 'bdlmt::EventSchedulerTestTimeSource' is
 // provided to allow manual manipulation of the system-time observed by a
 // 'bdlmt::EventScheduler'.  A test driver that interacts with a
-// 'bdlmt::EventScheduler' can use a
-// 'bdlmt::EventSchedulerTestTimeSource' object to control when scheduled
-// events are triggered, allowing more reliable tests.
+// 'bdlmt::EventScheduler' can use a 'bdlmt::EventSchedulerTestTimeSource'
+// object to control when scheduled events are triggered, allowing more
+// reliable tests.
 //
 // A 'bdlmt::EventSchedulerTestTimeSource' can be constructed for any existing
 // 'bdlmt::EventScheduler' object that has not been started and has not had any
@@ -210,9 +210,9 @@ BSLS_IDENT("$Id: $")
 // connections.  It closes a connection if the data for it does not arrive
 // before a timeout (specified at the server creation time).
 //
-// Because the timeout is relative to the arrival of data, it is best to use
-// a "monotonic" clock that advances at a steady rate, rather than a "wall"
-// clock that may fluctuate to reflect real time adjustments.
+// Because the timeout is relative to the arrival of data, it is best to use a
+// "monotonic" clock that advances at a steady rate, rather than a "wall" clock
+// that may fluctuate to reflect real time adjustments.
 //..
 //    class my_Session{
 //        // This class encapsulates the data and state associated with a
@@ -325,11 +325,11 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - -
 // For testing purposes, the class 'bdlmt::EventSchedulerTestTimeSource' is
 // provided to allow a test to manipulate the system-time observed by a
-// 'bdlmt::EventScheduler' in order to control when events are triggered. After
-// a scheduler is constructed, a 'bdlmt::EventSchedulerTestTimeSource' object
-// can be created atop the scheduler.  A test can then use the test time-source
-// to advance the scheduler's observed system-time in order to dispatch events
-// in a manner coordinated by the test.  Note that a
+// 'bdlmt::EventScheduler' in order to control when events are triggered.
+// After a scheduler is constructed, a 'bdlmt::EventSchedulerTestTimeSource'
+// object can be created atop the scheduler.  A test can then use the test
+// time-source to advance the scheduler's observed system-time in order to
+// dispatch events in a manner coordinated by the test.  Note that a
 // 'bdlmt::EventSchedulerTestTimeSource' *must* be created on an
 // event-scheduler before any events are scheduled, or the event-scheduler is
 // started.
@@ -403,8 +403,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_utility.h>
 
 namespace BloombergLP {
-
-
 namespace bdlmt {
 
 class EventSchedulerEventHandle;
@@ -531,9 +529,9 @@ class EventScheduler {
         // valid.  Note that the argument and return value of this method are
         // expressed in terms of the number of microseconds elapsed since some
         // epoch, which is determined by the clock indicated at construction
-        // (see {Supported Clock-Types} in the component documentation).
-        // Also note that this method may update the value of 'now' with the
-        // current system time if necessary.
+        // (see {Supported Clock-Types} in the component documentation).  Also
+        // note that this method may update the value of 'now' with the current
+        // system time if necessary.
 
     void dispatchEvents();
         // While d_running is true, execute events in the event and recurring
@@ -668,21 +666,22 @@ class EventScheduler {
         // non-zero value if the 'handle' is invalid *or* if the event has
         // already been dispatched.  The 'newEpochTime' is an absolute time
         // represented as an interval from some epoch, which is determined by
-        // the clock indicated at construction (see {Supported Clock-Types}
-        // in the component documentation).
+        // the clock indicated at construction (see {Supported Clock-Types} in
+        // the component documentation).
 
     int rescheduleEventAndWait(const Event               *handle,
                                const bsls::TimeInterval&  newEpochTime);
         // Reschedule the event referred to by the specified 'handle' at the
-        // specified 'newEpochTime'.  Block until the event having 'handle' (if
-        // it is valid) is either successfully rescheduled or dispatched before
-        // the call returns.  Return 0 on successful reschedule, and a non-zero
-        // value if 'handle' is invalid *or* if the event has already been
-        // dispatched.  The 'newEpochTime' is an absolute time represented as
-        // an interval from some epoch, which is determined by the clock
-        // indicated at construction (see {Supported Clock-Types} in the
-        // component documentation).  The behavior is undefined if this method
-        // is invoked from the dispatcher thread.
+        // specified 'newEpochTime' truncated to microseconds.  Block until the
+        // event having 'handle' (if it is valid) is either successfully
+        // rescheduled or dispatched before the call returns.  Return 0 on
+        // successful reschedule, and a non-zero value if 'handle' is invalid
+        // *or* if the event has already been dispatched.  The 'newEpochTime'
+        // is an absolute time represented as an interval from some epoch,
+        // which is determined by the clock indicated at construction (see
+        // {Supported Clock-Types} in the component documentation).  The
+        // behavior is undefined if this method is invoked from the dispatcher
+        // thread.
 
     void scheduleEvent(const bsls::TimeInterval&     epochTime,
                        const bsl::function<void()>&  callback);
@@ -695,66 +694,64 @@ class EventScheduler {
         // The 'epochTime' is an absolute time represented as an interval from
         // some epoch, which is determined by the clock indicated at
         // construction (see {Supported Clock-Types} in the component
-        // documentation). Note that 'time' may be in the past, in which case
+        // documentation).  Note that 'time' may be in the past, in which case
         // the event will be executed as soon as possible.
 
     void scheduleEventRaw(Event                        **event,
                           const bsls::TimeInterval&      epochTime,
                           const bsl::function<void()>&   callback);
         // Schedule the specified 'callback' to be dispatched at the specified
-        // 'epochTime'.  Load into the specified 'event' pointer a handle that
-        // can be used to cancel the event (by invoking 'cancelEvent').  The
-        // 'epochTime' is an absolute time represented as an interval from some
-        // epoch, which is determined by the clock indicated at construction
-        // (see {Supported Clock-Types} in the component documentation).  The
-        // 'event' pointer must be released by invoking 'releaseEventRaw' when
-        // it is no longer needed.
+        // 'epochTime' truncated to microseconds.  Load into the specified
+        // 'event' pointer a handle that can be used to cancel the event (by
+        // invoking 'cancelEvent').  The 'epochTime' is an absolute time
+        // represented as an interval from some epoch, which is determined by
+        // the clock indicated at construction (see {Supported Clock-Types} in
+        // the component documentation).  The 'event' pointer must be released
+        // by invoking 'releaseEventRaw' when it is no longer needed.
 
     void scheduleRecurringEvent(
-               const bsls::TimeInterval&    interval,
-               const bsl::function<void()>& callback,
-               const bsls::TimeInterval&    startEpochTime
-                                                      = bsls::TimeInterval(0));
+          const bsls::TimeInterval&    interval,
+          const bsl::function<void()>& callback,
+          const bsls::TimeInterval&    startEpochTime = bsls::TimeInterval(0));
     void scheduleRecurringEvent(
-              RecurringEventHandle         *event,
-              const bsls::TimeInterval&     interval,
-              const bsl::function<void()>&  callback,
-              const bsls::TimeInterval&     startEpochTime
-                                                      = bsls::TimeInterval(0));
+         RecurringEventHandle         *event,
+         const bsls::TimeInterval&     interval,
+         const bsl::function<void()>&  callback,
+         const bsls::TimeInterval&     startEpochTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
-        // every specified 'interval', with the first event dispatched at the
-        // optionally specified 'startEpochTime'.  If 'startEpochTime' is not
-        // specified, the first event is dispatched at one 'interval' from now.
-        // Load into the optionally specified 'event' a handle that can be used
-        // to cancel the event (by invoking 'cancelEvent').  The
-        // 'startEpochTime' is an absolute time represented as an interval from
-        // some epoch, which is determined by the clock indicated at
-        // construction (see {Supported Clock-Types} in the component
-        // documentation).  The behavior is undefined if 'interval' is exactly
-        // 0 seconds.  Note that if 'startEpochTime' is in the past, the first
-        // event is dispatched immediately, and additional
-        // '(now - startEpochTime) / interval' events will be submitted
-        // serially.
+        // every specified 'interval' truncated to microseconds, with the first
+        // event dispatched at the optionally specified 'startEpochTime'
+        // truncated to microseconds.  If 'startEpochTime' is not specified,
+        // the first event is dispatched at one 'interval' from now.  Load into
+        // the optionally specified 'event' a handle that can be used to cancel
+        // the event (by invoking 'cancelEvent').  The 'startEpochTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  The behavior is
+        // undefined if 'interval' is less than one microsecond.  Note that if
+        // 'startEpochTime' is in the past, the first event is dispatched
+        // immediately, and additional '(now - startEpochTime) / interval'
+        // events will be submitted serially.
 
     void scheduleRecurringEventRaw(
-             RecurringEvent               **event,
-             const bsls::TimeInterval&      interval,
-             const bsl::function<void()>&   callback,
-             const bsls::TimeInterval&      startEpochTime
-                                                      = bsls::TimeInterval(0));
+        RecurringEvent               **event,
+        const bsls::TimeInterval&      interval,
+        const bsl::function<void()>&   callback,
+        const bsls::TimeInterval&      startEpochTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
-        // every specified 'interval', with the first event dispatched at the
-        // optionally specified 'startEpochTime'.  If 'startEpochTime' is not
-        // specified, the first event is dispatched at one 'interval' from now.
-        // Load into the specified 'event' pointer a handle that can be used to
-        // cancel the event (by invoking 'cancelEvent').  The 'startEpochTime'
-        // is an absolute time represented as an interval from some epoch,
-        // which is determined by the clock indicated at construction (see
-        // {Supported Clock-Types} in the component documentation).  The
-        // 'event' pointer must be released by invoking 'releaseEventRaw' when
-        // it is no longer needed.  The behavior is undefined if 'interval' is
-        // exactly 0 seconds.  Note that if 'startEpochTime' is in the past,
-        // the first event is dispatched immediately, and additional
+        // every specified 'interval' truncated to microseconds, with the first
+        // event dispatched at the optionally specified 'startEpochTime'
+        // truncated to microseconds.  If 'startEpochTime' is not specified,
+        // the first event is dispatched at one 'interval' from now.  Load into
+        // the specified 'event' pointer a handle that can be used to cancel
+        // the event (by invoking 'cancelEvent').  The 'startEpochTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  The 'event' pointer
+        // must be released by invoking 'releaseEventRaw' when it is no longer
+        // needed.  The behavior is undefined if 'interval' is less than one
+        // microsecond.  Note that if 'startEpochTime' is in the past, the
+        // first event is dispatched immediately, and additional
         // '(now - startEpochTime) / interval' events will be submitted
         // serially.
 
@@ -762,13 +759,13 @@ class EventScheduler {
         // Begin dispatching events on this scheduler using default attributes
         // for the dispatcher thread.  Return 0 on success, and a nonzero value
         // otherwise.  If another thread is currently executing 'stop', wait
-        // until the dispatcher thread stops before starting a new one.  If this
-        // scheduler has already started (and is not currently being stopped by
-        // another thread) then this invocation has no effect and 0 is returned.
-        // The behavior is undefined if this method is invoked in the
-        // dispatcher thread (i.e., in a job executed by this scheduler).  Note
-        // that any event whose time has already passed is pending and will be
-        // dispatched immediately.
+        // until the dispatcher thread stops before starting a new one.  If
+        // this scheduler has already started (and is not currently being
+        // stopped by another thread) then this invocation has no effect and 0
+        // is returned.  The behavior is undefined if this method is invoked in
+        // the dispatcher thread (i.e., in a job executed by this scheduler).
+        // Note that any event whose time has already passed is pending and
+        // will be dispatched immediately.
 
     int start(const bslmt::ThreadAttributes& threadAttributes);
         // Begin dispatching events on this scheduler using the specified
@@ -833,9 +830,9 @@ class EventScheduler {
 
 class EventSchedulerEventHandle
 {
-    // Objects of this type refer to events in the 'EventScheduler'
-    // API.  They are convertible to 'const Event*' references and may be used
-    // in any method which expects them.
+    // Objects of this type refer to events in the 'EventScheduler' API.  They
+    // are convertible to 'const Event*' references and may be used in any
+    // method which expects them.
 
     // PRIVATE TYPES
     typedef bdlcc::SkipList<bsls::Types::Int64,
@@ -939,16 +936,15 @@ class EventSchedulerRecurringEventHandle
 class EventSchedulerTestTimeSource {
     // This class provides a means to change the clock that is used by a given
     // event-scheduler to determine when events should be triggered.
-    // Constructing a 'EventSchedulerTestTimeSource' alters the behavior
-    // of the supplied event-scheduler.  After a test time-source is created,
-    // the underlying scheduler will run events according to a discrete
-    // timeline, whose successive values are determined by calls to
-    // 'advanceTime' on the test time-source, and can be retrieved by calling
-    // 'now' on that test time-source.  Note that the "system-time" held by a
-    // test time-source *does* *not* correspond to the current system time.
-    // Test writers must use caution when scheduling absolute-time events so
-    // that they are scheduled relative to the test time-source's value for
-    // 'now'.
+    // Constructing a 'EventSchedulerTestTimeSource' alters the behavior of the
+    // supplied event-scheduler.  After a test time-source is created, the
+    // underlying scheduler will run events according to a discrete timeline,
+    // whose successive values are determined by calls to 'advanceTime' on the
+    // test time-source, and can be retrieved by calling 'now' on that test
+    // time-source.  Note that the "system-time" held by a test time-source
+    // *does* *not* correspond to the current system time.  Test writers must
+    // use caution when scheduling absolute-time events so that they are
+    // scheduled relative to the test time-source's value for 'now'.
 
   private:
     // DATA
@@ -959,16 +955,16 @@ class EventSchedulerTestTimeSource {
                                                // access to the variable
                                                // 'd_currentTimeMutex'
 
-    EventScheduler       *d_scheduler_p;       // pointer to the scheduler
-                                               // that we are augmenting
+    EventScheduler       *d_scheduler_p;       // pointer to the scheduler that
+                                               // we are augmenting
 
   public:
     // CREATORS
     EventSchedulerTestTimeSource(EventScheduler *scheduler);
         // Construct a test time-source object that will control the
         // "system-time" observed by the specified 'scheduler'.  Initialize
-        // 'now' to be an arbitrary time value.  The behavior is undefined
-        // if any methods have previously been called on 'scheduler'.
+        // 'now' to be an arbitrary time value.  The behavior is undefined if
+        // any methods have previously been called on 'scheduler'.
 
     // MANIPULATORS
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
@@ -1041,6 +1037,7 @@ operator const bdlmt::EventSchedulerEventHandle::Event*() const
 }
 
 namespace bdlmt {
+
                   // ----------------------------------------
                   // class EventSchedulerRecurringEventHandle
                   // ----------------------------------------
@@ -1092,6 +1089,7 @@ bdlmt::EventSchedulerRecurringEventHandle::operator
 }
 
 namespace bdlmt {
+
                             // --------------------
                             // class EventScheduler
                             // --------------------
@@ -1207,7 +1205,7 @@ bslma::Allocator *EventScheduler::allocator() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
