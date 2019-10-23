@@ -423,7 +423,7 @@ bool quickDecimalFromDouble(DECIMAL_TYPE *result,
     // 'binary' is in an appropriate range and scaling and rounding it to an
     // integer results in a remainder whose ratio with the result is less than
     // the specified 'threshold'.  If the intermediate integer is larger than
-    // the specified 'limit', fail due to extra preceision {DRQS 150430751}.
+    // the specified 'limit', fail due to extra precision {DRQS 150430751}.
 {
     BSLS_ASSERT(result);
 
@@ -490,7 +490,7 @@ bool quickDecimalFromFloat(DECIMAL_TYPE *result,
     // 'binary' is in an appropriate range and scaling and rounding it to an
     // integer results in a remainder whose ratio with the result is less than
     // the specified 'threshold'.  If the intermediate integer is larger than
-    // the specified 'limit', fail due to extra preceision {DRQS 150430751}.
+    // the specified 'limit', fail due to extra precision {DRQS 150430751}.
 {
     // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the float by a
     // power of 10, round it to an integer, then use the faster scaled
