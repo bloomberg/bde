@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
             // Release all memory.
             mX.release();
 
-            ASSERT(1 == objectAllocator.numBlocksInUse());
+            ASSERT(0 == objectAllocator.numBlocksInUse());
 
             if (verbose) cout << "\nTesting subsequent allocations come"
                                  " first from the initial buffer." << endl;
@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
 
             ASSERT(&buffer[0] <= addr);
             ASSERT(&buffer[0] + k_BUFFER_SIZE > addr);
-            ASSERT(1 == objectAllocator.numBlocksInUse());
+            ASSERT(0 == objectAllocator.numBlocksInUse());
         }
       } break;
       case 3: {

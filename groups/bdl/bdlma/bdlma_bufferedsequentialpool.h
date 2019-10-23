@@ -663,7 +663,14 @@ void BufferedSequentialPool::release()
                                 // block.
 
     if (d_sequentialPoolIsCreated) {
-        d_pool_p->release();
+        // Note that 'd_pool_p' and 'd_allocator_p' fit in the same footprint
+        // in an anonymous union.
+
+        bslma::Allocator *alloc_p = d_pool_p->allocator();
+        alloc_p->deleteObjectRaw(d_pool_p);
+        d_allocator_p = alloc_p;
+
+        d_sequentialPoolIsCreated = false;
     }
 }
 

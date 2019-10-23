@@ -949,7 +949,7 @@ int main(int argc, char *argv[])
             // Release all memory.
             mX.release();
 
-            ASSERT(1 == objectAllocator.numBlocksInUse());
+            ASSERT(0 == objectAllocator.numBlocksInUse());
 
             if (verbose) cout << "\nTesting subsequent allocations come"
                                  " first from the initial buffer." << endl;
@@ -957,7 +957,7 @@ int main(int argc, char *argv[])
 
             ASSERT(&buffer[0] <= addr);
             ASSERT(&buffer[0] + u::k_BUFFER_SIZE > addr);
-            ASSERT(1 == objectAllocator.numBlocksInUse());
+            ASSERT(0 == objectAllocator.numBlocksInUse());
         }
       } break;
       case 4: {
@@ -1118,19 +1118,17 @@ int main(int argc, char *argv[])
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(numBytes));
-                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(numBytes));
-                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mZ.release();
@@ -1154,19 +1152,17 @@ int main(int argc, char *argv[])
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(numBytes));
-                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(numBytes));
-                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mZ.release();
@@ -1221,14 +1217,13 @@ int main(int argc, char *argv[])
                 // the allocator.
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
-                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(63));
                 ASSERT(cBuffer == buffer);
-                ASSERT(u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mY.allocate(1));
-                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
@@ -1261,18 +1256,17 @@ int main(int argc, char *argv[])
                 // the allocator.
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
-                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(63));
                 ASSERT(cBuffer == buffer);
-                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(1));
                 ASSERT(cBuffer == buffer + 63);
-                ASSERT(2 * u::k_FOOTPRINT == objectAllocator.numBytesInUse());
+                ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer = static_cast<char *>(mZ.allocate(1));
-                newSize += u::k_FOOTPRINT;
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
