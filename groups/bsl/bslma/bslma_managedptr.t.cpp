@@ -17,6 +17,9 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
+#include <cstring>      // 'strlen', 'strncpy'
+#include <stddef.h>     // 'size_t'
+
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 #include <string.h>
@@ -783,18 +786,17 @@ namespace USAGE_EXAMPLES {
 /// - - - - - - - - - - - - - - - - -
 // Suppose we want to allocate memory for an object, construct it in place, and
 // obtain a managed pointer referring to this object.  This can be done in one
-// step using using two free functions provided in 'bslma::ManagedPtrUtil'.
+// step using two free functions provided in 'bslma::ManagedPtrUtil'.
 //
 // First, we create a simple class clearly showing the features of these
 // functions.  Note that this class does not define the
 // 'bslma::UsesBslmaAllocator' trait.  It is done intentionally for
-// illustration purposes only, and definitely is *not* *recommended* in the
-// real code.  The class has an elided interface (i.e., copy constructor and
-// copy-assignment operator are not included for brevity):
+// illustration purposes only, and definitely is *not* *recommended* in
+// production code.  The class has an elided interface (i.e., copy constructor
+// and copy-assignment operator are not included for brevity):
 //..
     class String {
-//      // Simple class, that stores a copy of a null-terminated c-style
-//      // string.
+        // Simple class that stores a copy of a null-terminated C-style string.
 
       private:
         // DATA
@@ -812,11 +814,10 @@ namespace USAGE_EXAMPLES {
             ASSERT(str);
             ASSERT(alloc);
 
-            size_t length = strlen(str);
+            std::size_t length = std::strlen(str);
 
-            d_str_p = static_cast<char *>(d_alloc_p->allocate(
-                                                 (length + 1) * sizeof(char)));
-            strncpy(d_str_p, str, length + 1);
+            d_str_p = static_cast<char *>(d_alloc_p->allocate(length + 1));
+            std::strncpy(d_str_p, str, length + 1);
         }
 
         ~String()
@@ -832,17 +833,16 @@ namespace USAGE_EXAMPLES {
         {
             return d_alloc_p;
         }
-
     };
 //..
-// Next, create a fragment of code that will construct an object of 'String'
-// class using default allocator to supply memory:
+// Next, we create a code fragment that will construct a managed 'String'
+// object using the default allocator to supply memory:
 //..
     void testInplaceCreation()
     {
 //..
-// Suppose we want to have different allocator to supply memory allocated by
-// the object:
+// Suppose we want to have a different allocator supply memory allocated by the
+// object:
 //..
         bslma::TestAllocator ta;
         bsls::Types::Int64   testBytesInUse = ta.numBytesInUse();
@@ -858,17 +858,18 @@ namespace USAGE_EXAMPLES {
 // Then, create a string to copy:
 //..
         const char *STR        = "Test string";
-        const int   STR_LENGTH = static_cast<int>(strlen(STR));
+        const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
 //..
-// Next, dynamically create an object and obtain the managed pointer, referring
-// to it, using 'bslma::ManagedPtrUtil::makeManaged' function:
+// Next, dynamically create an object and obtain the managed pointer referring
+// to it using 'bslma::ManagedPtrUtil::makeManaged' function:
 //..
         {
             bslma::ManagedPtr<String> stringManagedPtr =
                           bslma::ManagedPtrUtil::makeManaged<String>(STR, &ta);
 //..
-// Note that memory for object itself is supplied by default allocator, while
-// memory for the copy of passed string is supplied by another allocator:
+// Note that memory for the object itself is supplied by the default allocator,
+// while memory for the copy of the passed string is supplied by another
+// allocator:
 //:
             ASSERT(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
             ASSERT(&ta == stringManagedPtr->allocator());
@@ -876,13 +877,13 @@ namespace USAGE_EXAMPLES {
         }
 //..
 // Then, make sure that all allocated memory is successfully released after
-// managed pointer destruction :
+// managed pointer destruction:
 //..
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
 //..
 // If you want to use an allocator other than the default allocator, then the
-// 'allocateManaged()' function should be used:
+// 'allocateManaged' function should be used instead:
 //..
         bslma::TestAllocator oa;
         bsls::Types::Int64   objectBytesInUse = oa.numBytesInUse();
@@ -903,17 +904,17 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 == oa.numBytesInUse());
     }
 //..
-// Next, let's look at a more common scenario, when object's type uses 'bslma'
-// allocators. In that case 'allocateManaged' implicitly passes the supplied
-// allocator to the object's constructor as an extra argument in the final
-// position.
+// Next, let's look at a more common scenario where the object's type uses
+// 'bslma' allocators.  In that case 'allocateManaged' implicitly passes the
+// supplied allocator to the object's constructor as an extra argument in the
+// final position.
 //
 // The second managed class almost completely repeats the first one, except
 // that it explicitly defines the 'bslma::UsesBslmaAllocator' trait:
 //..
     class StringAlloc {
-        // Simple class, that stores a copy of a null-terminated c-style
-        // string and explicitly claims to use 'bslma' allocators.
+        // Simple class that stores a copy of a null-terminated C-style string
+        // and explicitly claims to use 'bslma' allocators.
 
       private:
         // DATA
@@ -935,11 +936,10 @@ namespace USAGE_EXAMPLES {
         {
             ASSERT(str);
 
-            size_t length = strlen(str);
+            std::size_t length = std::strlen(str);
 
-            d_str_p = static_cast<char *>(d_alloc_p->allocate(
-                                                 (length + 1) * sizeof(char)));
-            strncpy(d_str_p, str, length + 1);
+            d_str_p = static_cast<char *>(d_alloc_p->allocate(length + 1));
+            std::strncpy(d_str_p, str, length + 1);
         }
 
         ~StringAlloc()
@@ -957,7 +957,8 @@ namespace USAGE_EXAMPLES {
         }
     };
 //..
-// Then, let's create two managed objects using both functions:
+// Then, let's create two managed objects using both 'makeManaged' and
+// 'allocateManaged':
 //..
     void testUsesAllocatorInplaceCreation()
     {
@@ -973,10 +974,10 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 == defaultBytesInUse);
 
         const char *STR        = "Test string";
-        const int   STR_LENGTH = static_cast<int>(strlen(STR));
+        const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
 
 //..
-// Note that, we need to explicitly supply the allocator's address to the
+// Note that we need to explicitly supply the allocator's address to
 // 'makeManaged' to be passed to the object's constructor:
 //..
         {
@@ -989,7 +990,7 @@ namespace USAGE_EXAMPLES {
         }
 
 //..
-// But the supplied allocator is implicitly passed to the constructor by the
+// But the supplied allocator is implicitly passed to the constructor by
 // 'allocateManaged':
 //
         {
@@ -1003,7 +1004,7 @@ namespace USAGE_EXAMPLES {
         }
 //..
 // Finally, make sure that all allocated memory is successfully released after
-// managed pointers (and managed object either) destruction:
+// the managed pointers (and the objects they manage) are destroyed:
 //..
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
@@ -8037,9 +8038,9 @@ namespace BloombergLP {
 namespace bslma {
 
 // We need to test 'makeManaged' and 'allocateManaged' functions for classes
-// that use bslma allocators and does not.  To avoid code duplication test
-// class is created as a template and different specializations have different
-// trait values.
+// that define 'bslma::UsesBslmaAllocator' trait and for those that do not.  To
+// avoid code duplication test class is created as a template and different
+// specializations have different trait values.
 
 template <> struct UsesBslmaAllocator<AllocEmplacableTestType<true> > :
                                                                  bsl::true_type

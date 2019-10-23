@@ -36,7 +36,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // used to allocate the footprint of the managed object and (2) used by the
 // managed object itself if it defines the 'bslma::UsesBslmaAllocator' trait.
 // 'makeManaged' does not take a 'bslma::Allocator *' argument and uses the
-// default allocator instead.
+// default allocator to allocate the footprint of the managed object instead.
 //
 ///Factories
 ///---------
@@ -703,18 +703,17 @@ BSLS_IDENT("$Id$ $CSID$")
 /// - - - - - - - - - - - - - - - - -
 // Suppose we want to allocate memory for an object, construct it in place, and
 // obtain a managed pointer referring to this object.  This can be done in one
-// step using using two free functions provided in 'bslma::ManagedPtrUtil'.
+// step using two free functions provided in 'bslma::ManagedPtrUtil'.
 //
 // First, we create a simple class clearly showing the features of these
 // functions.  Note that this class does not define the
 // 'bslma::UsesBslmaAllocator' trait.  It is done intentionally for
-// illustration purposes only, and definitely is *not* *recommended* in the
-// real code.  The class has an elided interface (i.e., copy constructor and
-// copy-assignment operator are not included for brevity):
+// illustration purposes only, and definitely is *not* *recommended* in
+// production code.  The class has an elided interface (i.e., copy constructor
+// and copy-assignment operator are not included for brevity):
 //..
 //  class String {
-//      // Simple class, that stores a copy of a null-terminated c-style
-//      // string.
+//      // Simple class that stores a copy of a null-terminated C-style string.
 //
 //    private:
 //      // DATA
@@ -732,11 +731,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //          assert(str);
 //          assert(alloc);
 //
-//          size_t length = strlen(str);
+//          std::size_t length = std::strlen(str);
 //
-//          d_str_p = static_cast<char *>(d_alloc_p->allocate(
-//                                               (length + 1) * sizeof(char)));
-//          strncpy(d_str_p, str, length + 1);
+//          d_str_p = static_cast<char *>(d_alloc_p->allocate(length + 1));
+//          std::strncpy(d_str_p, str, length + 1);
 //      }
 //
 //      ~String()
@@ -752,17 +750,16 @@ BSLS_IDENT("$Id$ $CSID$")
 //      {
 //          return d_alloc_p;
 //      }
-//
 //  };
 //..
-// Next, create a fragment of code that will construct an object of 'String'
-// class using default allocator to supply memory:
+// Next, we create a code fragment that will construct a managed 'String'
+// object using the default allocator to supply memory:
 //..
 //  void testInplaceCreation()
 //  {
 //..
-// Suppose we want to have different allocator to supply memory allocated by
-// the object:
+// Suppose we want to have a different allocator supply memory allocated by the
+// object:
 //..
 //      bslma::TestAllocator ta;
 //      bsls::Types::Int64   testBytesInUse = ta.numBytesInUse();
@@ -778,17 +775,18 @@ BSLS_IDENT("$Id$ $CSID$")
 // Then, create a string to copy:
 //..
 //      const char *STR        = "Test string";
-//      const int   STR_LENGTH = static_cast<int>(strlen(STR));
+//      const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
 //..
-// Next, dynamically create an object and obtain the managed pointer, referring
-// to it, using 'bslma::ManagedPtrUtil::makeManaged' function:
+// Next, dynamically create an object and obtain the managed pointer referring
+// to it using 'bslma::ManagedPtrUtil::makeManaged' function:
 //..
 //      {
 //          bslma::ManagedPtr<String> stringManagedPtr =
 //                        bslma::ManagedPtrUtil::makeManaged<String>(STR, &ta);
 //..
-// Note that memory for object itself is supplied by default allocator, while
-// memory for the copy of passed string is supplied by another allocator:
+// Note that memory for the object itself is supplied by the default allocator,
+// while memory for the copy of the passed string is supplied by another
+// allocator:
 //:
 //          assert(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
 //          assert(&ta == stringManagedPtr->allocator());
@@ -796,13 +794,13 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //..
 // Then, make sure that all allocated memory is successfully released after
-// managed pointer destruction :
+// managed pointer destruction:
 //..
 //      assert(0 == da.numBytesInUse());
 //      assert(0 == ta.numBytesInUse());
 //..
 // If you want to use an allocator other than the default allocator, then the
-// 'allocateManaged()' function should be used:
+// 'allocateManaged' function should be used instead:
 //..
 //      bslma::TestAllocator oa;
 //      bsls::Types::Int64   objectBytesInUse = oa.numBytesInUse();
@@ -823,17 +821,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //      assert(0 == oa.numBytesInUse());
 //  }
 //..
-// Next, let's look at a more common scenario, when object's type uses 'bslma'
-// allocators. In that case 'allocateManaged' implicitly passes the supplied
-// allocator to the object's constructor as an extra argument in the final
-// position.
+// Next, let's look at a more common scenario where the object's type uses
+// 'bslma' allocators.  In that case 'allocateManaged' implicitly passes the
+// supplied allocator to the object's constructor as an extra argument in the
+// final position.
 //
 // The second managed class almost completely repeats the first one, except
 // that it explicitly defines the 'bslma::UsesBslmaAllocator' trait:
 //..
 //  class StringAlloc {
-//      // Simple class, that stores a copy of a null-terminated c-style
-//      // string and explicitly claims to use 'bslma' allocators.
+//      // Simple class that stores a copy of a null-terminated C-style string
+//      // and explicitly claims to use 'bslma' allocators.
 //
 //    private:
 //      // DATA
@@ -855,11 +853,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //      {
 //          assert(str);
 //
-//          size_t length = strlen(str);
+//          std::size_t length = std::strlen(str);
 //
-//          d_str_p = static_cast<char *>(d_alloc_p->allocate(
-//                                               (length + 1) * sizeof(char)));
-//          strncpy(d_str_p, str, length + 1);
+//          d_str_p = static_cast<char *>(d_alloc_p->allocate(length + 1));
+//          std::strncpy(d_str_p, str, length + 1);
 //      }
 //
 //      ~StringAlloc()
@@ -877,7 +874,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //  };
 //..
-// Then, let's create two managed objects using both functions:
+// Then, let's create two managed objects using both 'makeManaged' and
+// 'allocateManaged':
 //..
 //  void testUsesAllocatorInplaceCreation()
 //  {
@@ -893,10 +891,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //      assert(0 == defaultBytesInUse);
 //
 //      const char *STR        = "Test string";
-//      const int   STR_LENGTH = static_cast<int>(strlen(STR));
+//      const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
 //
 //..
-// Note that, we need to explicitly supply the allocator's address to the
+// Note that we need to explicitly supply the allocator's address to
 // 'makeManaged' to be passed to the object's constructor:
 //..
 //      {
@@ -909,7 +907,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //
 //..
-// But the supplied allocator is implicitly passed to the constructor by the
+// But the supplied allocator is implicitly passed to the constructor by
 // 'allocateManaged':
 //
 //      {
@@ -923,7 +921,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //..
 // Finally, make sure that all allocated memory is successfully released after
-// managed pointers (and managed object either) destruction:
+// the managed pointers (and the objects they manage) are destroyed:
 //..
 //      assert(0 == da.numBytesInUse());
 //      assert(0 == ta.numBytesInUse());
@@ -1623,16 +1621,17 @@ struct ManagedPtrUtil {
         // the new object.  Use the specified 'basicAllocator' to supply memory
         // for the footprint of the new object and pass 'basicAllocator' as the
         // last argument of its constructor if
-        // 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true'.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '0 != basicAllocator'.
+        // 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true'.  The
+        // behavior is undefined unless '0 != basicAllocator'.
 
     template <class ELEMENT_TYPE, class... ARGS>
     static ManagedPtr<ELEMENT_TYPE> makeManaged(ARGS&&... args);
         // Create an object of the (template parameter) 'ELEMENT_TYPE' from the
         // specified 'args...' arguments, and return a 'ManagedPtr' to manage
         // the new object.  Use the currently installed default allocator to
-        // supply memory for the new object'.
+        // supply memory for the footprint of the new object.  In no case is an
+        // allocator explicitly passed to the 'ELEMENT_TYPE' constructor (e.g.,
+        // even if 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true').
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2931,7 +2930,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                                               bslma::Allocator *basicAllocator,
                                               ARGS&&...         args)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -2983,7 +2982,7 @@ inline
 ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                                               bslma::Allocator *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3007,7 +3006,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                                               bslma::Allocator *basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3034,7 +3033,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3064,7 +3063,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3097,7 +3096,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3133,7 +3132,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3172,7 +3171,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3214,7 +3213,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3259,7 +3258,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3307,7 +3306,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3358,7 +3357,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3412,7 +3411,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3469,7 +3468,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3529,7 +3528,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -3592,7 +3591,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
@@ -4222,7 +4221,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                                               bslma::Allocator *basicAllocator,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                                basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
