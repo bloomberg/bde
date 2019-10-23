@@ -7751,6 +7751,73 @@ int main(int argc, char* argv[])
 #undef D2B_ASSERT
         }
 
+        if (veryVerbose) bsl::cout << "Rounding"
+                                   << bsl::endl;
+
+        {
+            double d = 101.12345679;
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 0);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12345679);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 1);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(100.);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 2);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(100.);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 3);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 4);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.1);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 5);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 6);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.123);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 7);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.1235);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 8);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12346);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 9);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.123457);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 10);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.1234568);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 11);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12345679);
+                ASSERTV(result, expected, result == expected);
+            }
+        }
+
         if (veryVerbose) bsl::cout << "DPD, and Network format conversions"
                                    << bsl::endl;
 

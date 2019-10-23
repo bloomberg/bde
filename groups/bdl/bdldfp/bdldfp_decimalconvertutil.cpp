@@ -416,12 +416,14 @@ template <class DECIMAL_TYPE>
 inline
 bool quickDecimalFromDouble(DECIMAL_TYPE *result,
                             double        binary,
-                            double        threshold)
+                            double        threshold,
+                            long long     limit)
     // Return 'true' iff an attempt to set the specified 'result' to a "quick"
     // conversion from the specified 'binary' succeeds.  This occurs when
     // 'binary' is in an appropriate range and scaling and rounding it to an
     // integer results in a remainder whose ratio with the result is less than
-    // the specified 'threshold'.
+    // the specified 'threshold'.  If the intermediate integer is larger than
+    // the specified 'limit', fail due to extra preceision {DRQS 150430751}.
 {
     BSLS_ASSERT(result);
 
@@ -443,6 +445,10 @@ bool quickDecimalFromDouble(DECIMAL_TYPE *result,
         // Divide powers of 10 out of n to avoid unpleasant scaling artifacts.
         // E.g., we want .001 to appear to have 3 digits, not 9.
         reduce(&n, &scale);
+
+        if (limit <= n || n <= -limit) {
+            return false;                                             // RETURN
+        }
 
         *result = DecimalTraits<DECIMAL_TYPE>::make(n, scale);
 
@@ -475,12 +481,16 @@ bool quickDecimalFromDouble(DECIMAL_TYPE *result,
 
 template <class DECIMAL_TYPE>
 inline
-bool quickDecimalFromFloat(DECIMAL_TYPE *result, float binary, float threshold)
+bool quickDecimalFromFloat(DECIMAL_TYPE *result,
+                           float         binary,
+                           float         threshold,
+                           int           limit)
     // Return 'true' iff an attempt to set the specified 'result' to a "quick"
     // conversion from the specified 'binary' succeeds.  This occurs when
     // 'binary' is in an appropriate range and scaling and rounding it to an
     // integer results in a remainder whose ratio with the result is less than
-    // the specified 'threshold'.
+    // the specified 'threshold'.  If the intermediate integer is larger than
+    // the specified 'limit', fail due to extra preceision {DRQS 150430751}.
 {
     // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the float by a
     // power of 10, round it to an integer, then use the faster scaled
@@ -534,6 +544,9 @@ bool quickDecimalFromFloat(DECIMAL_TYPE *result, float binary, float threshold)
         float diff = d - float(n);
 
         reduce(&n, &scale);
+        if (limit <= n || n <= -limit) {
+            return false;                                             // RETURN
+        }
         *result = DecimalTraits<DECIMAL_TYPE>::make(n, scale);
 
         // We have generated a decimal with six significant digits, and are
@@ -685,8 +698,16 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary, int digits)
     if (digits < 0) {
         return shortestDecimalFromBinary<Decimal64>(binary);          // RETURN
     }
-    if ((0 == digits || 9 == digits) &&
-        quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
+    if (0 == digits && quickDecimalFromDouble(&rv,
+                                              binary,
+                                              k_9_DIGIT_OFR_THRESHOLD,
+                                              static_cast<long long>(1e15))) {
+        return rv;                                                    // RETURN
+    }
+    if (9 == digits && quickDecimalFromDouble(&rv,
+                                              binary,
+                                              k_9_DIGIT_OFR_THRESHOLD,
+                                              static_cast<long long>(1e9))) {
         return rv;                                                    // RETURN
     }
     // 15-digit decimals convert to unique doubles.
@@ -699,8 +720,16 @@ Decimal128 DecimalConvertUtil::decimal128FromDouble(double binary, int digits)
         return shortestDecimalFromBinary<Decimal128>(binary);         // RETURN
     }
     Decimal128 rv;
-    if ((0 == digits || 9 == digits) &&
-        quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
+    if (0 == digits && quickDecimalFromDouble(&rv,
+                                              binary,
+                                              k_9_DIGIT_OFR_THRESHOLD,
+                                              static_cast<long long>(1e15))) {
+        return rv;                                                    // RETURN
+    }
+    if (9 == digits && quickDecimalFromDouble(&rv,
+                                              binary,
+                                              k_9_DIGIT_OFR_THRESHOLD,
+                                              static_cast<long long>(1e9))) {
         return rv;                                                    // RETURN
     }
     // 15-digit decimals convert to unique doubles.
@@ -715,10 +744,19 @@ Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary, int digits)
         return shortestDecimalFromBinary<Decimal32>(binary);          // RETURN
     }
     Decimal32 rv;
-    if (((0 == digits || 7 == digits) &&
-         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
-        (6 == digits &&
-         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
+    if (0 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_7_DIGIT_OFR_THRESHOLD, static_cast<int>(1e7))) {
+        return rv;                                                    // RETURN
+    }
+    if (7 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_7_DIGIT_OFR_THRESHOLD, static_cast<int>(1e7))) {
+        return rv;                                                    // RETURN
+    }
+    if (6 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_6_DIGIT_OFR_THRESHOLD, static_cast<int>(1e6))) {
         return rv;                                                    // RETURN
     }
     if (digits <= 0) {
@@ -736,10 +774,19 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary, int digits)
         return shortestDecimalFromBinary<Decimal64>(binary);          // RETURN
     }
     Decimal64 rv;
-    if (((0 == digits || 7 == digits) &&
-         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
-        (6 == digits &&
-         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
+    if (0 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_7_DIGIT_OFR_THRESHOLD, static_cast<int>(1e7))) {
+        return rv;                                                    // RETURN
+    }
+    if (7 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_7_DIGIT_OFR_THRESHOLD, static_cast<int>(1e7))) {
+        return rv;                                                    // RETURN
+    }
+    if (6 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_6_DIGIT_OFR_THRESHOLD, static_cast<int>(1e6))) {
         return rv;                                                    // RETURN
     }
     if (0 == digits) {
@@ -757,17 +804,20 @@ Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary, int digits)
         return shortestDecimalFromBinary<Decimal128>(binary);         // RETURN
     }
     Decimal128 rv;
-    if (((0 == digits || 7 == digits) &&
-         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
-        (6 == digits &&
-         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
+    if (0 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_7_DIGIT_OFR_THRESHOLD, static_cast<int>(1e7))) {
         return rv;                                                    // RETURN
     }
-    if (0 == digits) {
-        float v = fabsf(binary);
-        if (v >= 9.999995e-4f && v <= 8.589972e+9f) {
-            digits = 7;
-        }
+    if (7 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_7_DIGIT_OFR_THRESHOLD, static_cast<int>(1e7))) {
+        return rv;                                                    // RETURN
+    }
+    if (6 == digits &&
+        quickDecimalFromFloat(
+            &rv, binary, k_6_DIGIT_OFR_THRESHOLD, static_cast<int>(1e6))) {
+        return rv;                                                    // RETURN
     }
     return restoreDecimalDigits<Decimal128, 6>(binary, digits);
 }
