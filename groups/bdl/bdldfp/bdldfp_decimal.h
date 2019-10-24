@@ -514,9 +514,11 @@ BSLS_IDENT("$Id$")
 //..
 //  bdldfp::Decimal32   d0  = "1.2"_d32;
 //  bdldfp::Decimal32   d1  =  1.2_d32;
+//  assert(d0 == d1);
 //
 //  bdldfp::Decimal64   d2  = "3.45678901234"_d64;
 //  bdldfp::Decimal64   d3  =  3.45678901234_d64;
+//  assert(d2 == d3);
 //
 //  bdldfp::Decimal128  inf = "inf"_d128;
 //  bdldfp::Decimal128  nan = "nan"_d128;
@@ -526,8 +528,8 @@ BSLS_IDENT("$Id$")
 // 'strtod64' and 'strtod128' functions in section 9.6 of the ISO/EIC TR 247128
 // C Decimal Floating-Point Technical Report.
 //
-// Also note that these operators can be used if the compiler supports C++11
-// standard.
+// Also note that these operators can be used only if the compiler supports
+// C++11 standard.
 //
 ///Usage
 ///-----
