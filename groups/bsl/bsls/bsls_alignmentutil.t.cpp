@@ -177,7 +177,7 @@ struct Test8BytesAlignedType {
 // assuming that we have some user-defined type, 'MyType', comprising several
 // data members:
 //..
-    class MyType {          // size 24; actual alignment 8; natural alignment 8
+    struct MyType {         // size 24; actual alignment 8; natural alignment 8
         int     d_int;
         double  d_double;   // Assume 8-byte alignment.
         char   *d_charPtr;  // Assume size <= 8 bytes.
@@ -297,8 +297,10 @@ int main(int argc, char *argv[])
 // when variables of these types are on the stack, the compiler does not
 // make any effort to align the stack frame to 8 bytes.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-        static
+static
 #endif
+
+//
         union {
             bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
             char                                d_buffer[BUFFER_SIZE];
@@ -495,6 +497,9 @@ int main(int argc, char *argv[])
         //   int bsls::AlignmentUtil::calculateAlignmentOffset(void *, int);
         // --------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_AIX)
+        if (verbose) cout << "Test disabled on AIX GNU\n";
+#else
         if (verbose) cout << endl << "Test calculateAlignmentOffset" << endl
                                   << "=============================" << endl;
 
@@ -506,14 +511,13 @@ int main(int argc, char *argv[])
         // necessary to force the alignment of a stack variable beyond what
         // the compiler requires.  Moreover, this trick does not even work for
         // gcc builds on AIX.
-#if !defined(BSLS_PLATFORM_CMP_GNU) || !defined(BSLS_PLATFORM_OS_AIX)
+
         const int BUF_SIZE = 3 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         static union {
             char                                d_buffer[BUF_SIZE];
             bsls::AlignmentUtil::MaxAlignedType d_align;
         } alignedBuf;
-#endif
 
         char *baseAddr = alignedBuf.d_buffer;
 
@@ -610,6 +614,7 @@ int main(int argc, char *argv[])
                 "\nDISABLED in this (non-exception) build mode." << endl;
 #endif
         }
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------

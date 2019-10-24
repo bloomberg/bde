@@ -31,11 +31,18 @@ namespace bsl {
     using native_std::terminate_handler;
     using native_std::uncaught_exception;
 
-#if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
     // These names are removed by C++17
+
     using native_std::set_unexpected;
     using native_std::unexpected;
     using native_std::unexpected_handler;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // Not defined until C++17
+
+    using native_std::uncaught_exceptions;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -52,7 +59,7 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-#if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
     using native_std::get_unexpected;
 # endif
     using native_std::get_terminate;

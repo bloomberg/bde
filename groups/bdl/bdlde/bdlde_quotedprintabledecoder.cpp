@@ -13,6 +13,7 @@
 BSLS_IDENT_RCSID(bdlde_quotedprintabledecoder_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
+
 #include <bsl_cstring.h>
 
 namespace {
@@ -35,13 +36,13 @@ static const char LC_ = QuotedPrintableDecoder::e_LC_;
 static const char UC_ = QuotedPrintableDecoder::e_UC_;
 
 // Relaxed-mode equivalence class symbols
-static const char RC = QuotedPrintableDecoder::e_RC;
-static const char HX = QuotedPrintableDecoder::e_HX;
-static const char EQ = QuotedPrintableDecoder::e_EQ;
-static const char WS = QuotedPrintableDecoder::e_WS;
-static const char CR = QuotedPrintableDecoder::e_CR;
-static const char LC = QuotedPrintableDecoder::e_LC;
-static const char UC = QuotedPrintableDecoder::e_UC;
+static const char RC  = QuotedPrintableDecoder::e_RC;
+static const char HX  = QuotedPrintableDecoder::e_HX;
+static const char EQ  = QuotedPrintableDecoder::e_EQ;
+static const char WS  = QuotedPrintableDecoder::e_WS;
+static const char CR  = QuotedPrintableDecoder::e_CR;
+static const char LC  = QuotedPrintableDecoder::e_LC;
+static const char UC  = QuotedPrintableDecoder::e_UC;
 
 // The following table is a map of an 8-bit index value to the corresponding
 // equivalence class for operation in the strict error- reporting mode (i.e.,

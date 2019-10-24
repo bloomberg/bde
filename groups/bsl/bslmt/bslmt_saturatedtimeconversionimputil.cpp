@@ -42,7 +42,7 @@ TYPE minOf(const TYPE&)
     return bsl::numeric_limits<TYPE>::min();
 };
 
-#ifdef BSLS_PLATFORM_CMP_CLANG
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
@@ -125,7 +125,7 @@ void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
     *dst = result;
 }
 
-#ifdef BSLS_PLATFORM_CMP_CLANG
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 

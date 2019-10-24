@@ -245,10 +245,16 @@ ByteOrderUtil::swapBytes(Types::Uint64  x)
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Uint64, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# endif
+
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
-    #pragma GCC diagnostic pop
+
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 #endif
@@ -263,10 +269,16 @@ ByteOrderUtil::swapBytes(Types::Int64   x)
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Int64, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# endif
+
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Int64, &x);
-    #pragma GCC diagnostic pop
+
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Int64, x);
 #endif
@@ -311,10 +323,16 @@ ByteOrderUtil::swapBytes64(bsls::Types::Uint64 x)
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Uint64, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+# endif
+
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
-    #pragma GCC diagnostic pop
+
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 #endif

@@ -295,7 +295,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
-#include <bsls_keyword.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdio.h>
@@ -449,8 +449,12 @@ class Bind_TestArgNoAlloc {
                                    bslmf::IsBitwiseMoveable);
 
     // CREATORS
-    Bind_TestArgNoAlloc(int value);                            // IMPLICIT
+    Bind_TestArgNoAlloc(int value);                                 // IMPLICIT
         // Create an object having the specified 'value'.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    Bind_TestArgNoAlloc(const Bind_TestArgNoAlloc&) = default;
+#endif
 
     // MANIPULATORS
     Bind_TestArgNoAlloc& operator=(const Bind_TestArgNoAlloc &rhs);

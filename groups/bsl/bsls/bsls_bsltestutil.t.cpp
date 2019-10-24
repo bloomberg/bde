@@ -7,8 +7,8 @@
 #include <limits.h>    // PATH_MAX on linux, CHAR_BIT
 #include <stddef.h>    // ptrdiff_t
 #include <stdio.h>
-#include <stdlib.h>    // abort
-#include <string.h>    // strnlen
+#include <stdlib.h>    // abort, mkstmp
+#include <string.h>    // strnlen, strlen
 #include <sys/types.h> // struct stat[64]: required on Sun and Windows only
 #include <sys/stat.h>  // struct stat[64]: required on Sun and Windows only
 
@@ -779,7 +779,7 @@ int printDatum(FILE        *outStream,
                    suffix);
 }
 
-bool tempFileName(char *result)
+bool tempFileName(char *result, int testCase)
 {
     ASSERT(result);
 
@@ -794,13 +794,25 @@ bool tempFileName(char *result)
         return false;
     }
 #else
-    char *fn = tempnam(0, "bsls");
-    if (fn) {
-        strncpy(result, fn, PATH_BUFFER_SIZE);
-        result[PATH_BUFFER_SIZE - 1] = '\0';
-        free(fn);
-    } else {
-        return false;                                                 // RETURN
+    ::snprintf(result, PATH_BUFFER_SIZE,
+                             "./tmp.bsls_bsltestutil.%d.txt.XXXXXX", testCase);
+    if (::strnlen(result, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+        printf("tempFileName: buffer overflow\n");
+        return false;
+    }
+    if (! ::strstr(result, "XXXXXX")) {
+        printf("tempFileName: pattern garbled\n");
+        return false;
+    }
+    int fd = ::mkstemp(result);
+    if (fd < 0) {
+        printf("tempFileName: ::mkstemp failed\n");
+        return false;
+    }
+    ::close(fd);
+    if (::strnlen(result, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+        printf("tempFileName: ::mkstemp buffer overflow\n");
+        return false;
     }
 #endif
 
@@ -910,7 +922,7 @@ class OutputRedirector {
         // which 'stdout' was redirected will be deleted.
 
     // MANIPULATORS
-    void redirect();
+    void redirect(int testCase);
         // Redirect 'stdout' to a temp file, and stderr to the original
         // 'stdout', putting this 'OutputRedirector' object into the
         // 'redirected' state.  The temp file to which 'stdout' is redirected
@@ -918,7 +930,8 @@ class OutputRedirector {
         // deleted when this object is destroyed.  Subsequent calls to
         // 'redirect' will have no effect on 'stdout' and 'stderr'.  If
         // 'redirect' fails to redirect either 'stdout' or 'stderr' it will end
-        // the program by calling 'std::abort'.
+        // the program by calling 'std::abort'.  Use the specified 'testCase'
+        // part of the file name.
 
     void reset();
         // Reset the scratch buffer to empty.  The behavior is undefined unless
@@ -1019,7 +1032,7 @@ void OutputRedirector::cleanup()
     }
 }
 
-void OutputRedirector::redirect()
+void OutputRedirector::redirect(int testCase)
 {
     if (d_isRedirectedFlag) {
 
@@ -1059,7 +1072,7 @@ void OutputRedirector::redirect()
         abort();
     }
 
-    if (! tempFileName(d_fileName)) {
+    if (! tempFileName(d_fileName, testCase)) {
 
         // Get temp file name
 
@@ -1982,7 +1995,7 @@ int main(int argc, char *argv[])
     // the usage example.
     OutputRedirector output;
     if (test != 10 && test != 0) {
-        output.redirect();
+        output.redirect(test);
     }
 
     switch (test) { case 0:

@@ -11,6 +11,7 @@
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_qlock_cpp,"$Id$ $CSID$")
+
 #include <bsls_assert.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>

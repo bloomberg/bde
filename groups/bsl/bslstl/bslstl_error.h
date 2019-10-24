@@ -33,6 +33,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 #include <bslstl_errc.h>
+#include <bslstl_hash.h>
 #include <bslstl_iserrorcodeenum.h>
 #include <bslstl_iserrorconditionenum.h>
 
@@ -61,6 +62,7 @@ BSLS_IDENT("$Id: $")
 #include <system_error>
 
 namespace bsl {
+
 using native_std::error_category;
 using native_std::error_code;
 using native_std::error_condition;
@@ -68,7 +70,26 @@ using native_std::generic_category;
 using native_std::system_category;
 using native_std::make_error_code;
 using native_std::make_error_condition;
+
 }  // close namespace bsl
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+namespace bsl {
+
+template <>
+struct hash<error_code> : native_std::hash<error_code>
+{
+};
+
+template <>
+struct hash<error_condition> : native_std::hash<error_condition>
+{
+};
+
+}  // close namespace bsl
+
+#endif
 
 #else
 
@@ -669,6 +690,17 @@ bool operator<(const error_condition& lhs, const error_condition& rhs)
     return lhs.category() < rhs.category() ||
            (lhs.category() == rhs.category() && lhs.value() < rhs.value());
 }
+
+template <>
+struct hash<bsl::error_code> : BloombergLP::bslh::Hash<>
+{
+};
+
+template <>
+struct hash<bsl::error_condition> : BloombergLP::bslh::Hash<>
+{
+};
+
 }  // close namespace bsl
 
 #ifdef std

@@ -78,6 +78,7 @@ BSLS_IDENT("$Id: $")
 //  const double t5w = s.accumulatedWallTime();    assert(0.0 == t5w);
 //..
 
+#include <bsls_keyword.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -136,7 +137,7 @@ class Stopwatch {
 
   private:
     // NOT IMPLEMENTED
-    Stopwatch& operator=(const Stopwatch&);
+    Stopwatch& operator=(const Stopwatch&) BSLS_KEYWORD_DELETED;
 
   private:
     // PRIVATE MANIPULATORS

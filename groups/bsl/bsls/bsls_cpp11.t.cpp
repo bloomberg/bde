@@ -254,6 +254,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING USAGE EXAMPLE"
                             "\n=====================\n");
 
+#undef    FAIL_USAGE_OVERRIDE
+//#define FAIL_USAGE_OVERRIDE 1
+
         Optional<int> value;
         ASSERT(bool(value) == false);
         if (value) { /*... */ }
@@ -344,9 +347,8 @@ int main(int argc, char *argv[])
         {
             int f()
                 // Returns a value associated with the type.
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) \
- || defined(FAIL_USAGE_OVERRIDE)
-                BSLS_CPP11_OVERRIDE
+#if !defined(FAIL_USAGE_OVERRIDE)
+                    const BSLS_CPP11_OVERRIDE
 #endif
             { return 2; }
         };
@@ -358,7 +360,11 @@ int main(int argc, char *argv[])
         ASSERT(static_cast<const OverrideBase&>(overrideSuccess).f() == 1);
         OverrideFailure overrideFailure;
         ASSERT(overrideFailure.f() == 2);
+#if defined(FAIL_USAGE_OVERRIDE)
         ASSERT(static_cast<const OverrideBase&>(overrideFailure).f() == 0);
+#endif
+
+#undef    FAIL_USAGE_OVERRIDE
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -439,6 +445,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING: BSLS_CPP11_OVERRIDE"
                             "\n============================\n");
 
+#undef    FAIL_OVERRIDE
+//#define FAIL_OVERRIDE 1
+
         struct Base
         {
             virtual int f() const
@@ -461,8 +470,8 @@ int main(int argc, char *argv[])
         {
             int f()
                 // Returns a value specific to this type.
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) || defined(FAIL_OVERRIDE)
-                BSLS_CPP11_OVERRIDE
+#if !defined(FAIL_OVERRIDE)
+                    const BSLS_CPP11_OVERRIDE
 #endif
             {
                 return 2;
@@ -474,8 +483,10 @@ int main(int argc, char *argv[])
         ASSERT(static_cast<const Base&>(ok).f() == 1);
         OverrideFail fail;
         ASSERT(fail.f() == 2);
+#if defined(FAIL_OVERRIDE)
         ASSERT(static_cast<const Base&>(fail).f() == 0);
-
+#endif
+#undef FAIL_OVERRIDE
       } break;
       case 5: {
         // --------------------------------------------------------------------

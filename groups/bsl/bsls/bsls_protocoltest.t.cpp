@@ -170,6 +170,11 @@ struct WithDataFields {
 
   private:
     int a;
+
+  public:
+    int *aPtr() {
+        return &a;
+    }
 };
 
 struct WithDataFieldsTest : bsls::ProtocolTestImp<WithDataFields> {
@@ -1042,6 +1047,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    (void) &WithDataFields::aPtr;    // silence unused warning
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

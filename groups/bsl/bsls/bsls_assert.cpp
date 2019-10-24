@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_pointercastutil.h>
@@ -322,7 +323,11 @@ void Assert::failByThrow(const bsls::AssertViolation& violation)
 {
 
 #ifdef BDE_BUILD_TARGET_EXC
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    if (0 == std::uncaught_exceptions()) {
+# else
     if (!std::uncaught_exception()) {
+# endif
         throw AssertTestException(violation.comment(),
                                   violation.fileName(),
                                   violation.lineNumber(),
@@ -363,7 +368,11 @@ void Assert::failThrow(const char *comment, const char *file, int line)
 {
 
 #ifdef BDE_BUILD_TARGET_EXC
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    if (0 == std::uncaught_exceptions()) {
+# else
     if (!std::uncaught_exception()) {
+# endif
         throw AssertTestException(comment,
                                   file,
                                   line,

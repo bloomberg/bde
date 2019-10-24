@@ -263,6 +263,7 @@ BSLS_IDENT("$: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_performancehint.h>
 
@@ -318,7 +319,7 @@ struct SpinLock {
 
   private:
     // NOT IMPLEMENTED
-    SpinLock& operator=(const SpinLock&);
+    SpinLock& operator=(const SpinLock&) BSLS_KEYWORD_DELETED;
 
     // We would like to prohibit copy construction, but then this class would
     // not be a POD and could not be initialized statically:

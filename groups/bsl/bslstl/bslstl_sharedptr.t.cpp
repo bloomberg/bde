@@ -87,7 +87,7 @@
 // platforms.
 #endif
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
         // Here and throughout the file wherever 'auto_ptr' is used, suspend
         // GCC reporting of deprecated declarations since the use of 'auto_ptr'
         // in this standard interface is required.
@@ -3081,7 +3081,7 @@ class SelfReference
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
-# ifdef BSLS_PLATFORM_CMP_GNU
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -3100,7 +3100,7 @@ std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
 
     return std::auto_ptr<TObj>(new TObj(counter));
 }
-# ifdef BSLS_PLATFORM_CMP_GNU
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #   pragma GCC diagnostic pop
 # endif
 #endif
@@ -10954,7 +10954,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -10984,7 +10984,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic pop
 # endif
 #endif
@@ -17502,7 +17502,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -17554,7 +17554,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.use_count());
         }
         ASSERT(1 == numDeletes);
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic pop
 # endif
 #endif
@@ -18725,7 +18725,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -18740,7 +18740,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Y.get());
             ASSERT(0 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic pop
 # endif
 #endif
@@ -18805,7 +18805,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -18870,7 +18870,7 @@ int main(int argc, char *argv[])
         // to, due to the language implying an extra user-defined conversion in
         // the chain compared to using the same technique that 'auto_ptr'
         // itself uses.
-# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
+# if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #   pragma GCC diagnostic pop
 # endif
 #endif

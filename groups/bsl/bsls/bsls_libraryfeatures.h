@@ -30,6 +30,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS: range functions extension
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY: C++17 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_EXCEPTION_HANDLING: except handling provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM: searcher object overloads
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: 'ptr_fun' et al. gone
@@ -40,6 +41,10 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_STDCPP_MSVC: implementation is MSVC
 //  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: implementation is Sun's (RogueWave)
 //  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: implementation is STLPort
+//  BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV: <charconv>
+//  BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM: <filesystem>
+//  BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS: <execution>
+//  BSLS_LIBRARYFEATURES_SUPPORT_PMR: <memory_resource>
 //
 //@SEE_ALSO: bsls_platform, bsls_compilerfeatures, bsls_nativestd
 //
@@ -437,7 +442,7 @@ BSLS_IDENT("$Id: $")
 //
 // Currently the following compilers will have this macro defined by default:
 //
-//:   o gcc 7.0
+//:   o gcc 7, gcc 8, gcc 9, clang 7, clang 8
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
@@ -1056,6 +1061,17 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
         #endif
     #endif
+    #if __cplusplus >= 201703L
+        #if BSLS_PLATFORM_CMP_VERSION >= 70000
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+        #endif
+        #if BSLS_PLATFORM_CMP_VERSION >= 90000
+            #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
+            #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
+            #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
+        #endif
+        //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
+    #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
         // that precise bitwidth atomics exist, but the libstdc++ shipping with
@@ -1160,8 +1176,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
 
     #if defined(__APPLE_CC__) &&                                             \
-        __APPLE_CC__ >= 6000  &&                                             \
-        BSLS_PLATFORM_CMP_VERSION >= 70300
+        __APPLE_CC__ >= 6000
 
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS        1
             // libc++ provides this C++11 feature as a C++98 extension.
@@ -1180,6 +1195,20 @@ BSLS_IDENT("$Id: $")
 
         #if __cplusplus > 201103L
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY   1
+        #endif
+
+        #if __cplusplus > 201402L
+            #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS    1
+        #endif
+        #if __cplusplus >= 201703L
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM   1
+
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
         #endif
 
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000
@@ -1223,11 +1252,13 @@ BSLS_IDENT("$Id: $")
             #endif
         #endif
         #if __cplusplus >= 201703L
-            // Check if the library we're using has a requisite header.
-            #if __has_include(<charconv>)
-                #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
-            #endif
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY       1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM       1
+
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
+            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
         #endif
     #endif
 
