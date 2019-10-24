@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_loggermanagerdefaults
 //
-//@DESCRIPTION:  This component provides a constrained-attribute class that
+//@DESCRIPTION: This component provides a constrained-attribute class that
 // contains a set of attributes (objects and parameters) of particular use to
 // logger managers.  The constraints are actively maintained by the class.  In
 // particular, the "set" methods for constrained values will fail if their

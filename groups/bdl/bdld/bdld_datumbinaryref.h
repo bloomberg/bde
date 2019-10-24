@@ -12,9 +12,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bdld_datum, bdld_datumerror, bdld_datumudt
 //
-//@DESCRIPTION:  This component implements a class, 'bdld::DatumBinaryRef',
-// that represents a pointer to a non-modifiable binary data (as a 'void *')
-// and an integral size value.  Note, that 'bdld::DatumBinaryRef' is nether a
+//@DESCRIPTION: This component implements a class, 'bdld::DatumBinaryRef', that
+// represents a pointer to a non-modifiable binary data (as a 'void *') and an
+// integral size value.  Note, that 'bdld::DatumBinaryRef' is nether a
 // value-semantic type, nor is it an in-core value-semantic type (see
 // 'bsldoc_glossary').  The 'bdld::DatumBinaryRef' notion of value is expressed
 // by its equality-operator - two 'bdld:DatumBinaryRef' compare equal if the
