@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_map, bslstl_set
 //
-//@DESCRIPTION:  This component provides a metafunction,
+//@DESCRIPTION: This component provides a metafunction,
 // 'bslmf::IsTransparentPredicate', that can be used to detect whether a
 // comparator is transparent (supports heterogeneous comparisons).  If the
 // comparator has a nested type named 'is_transparent', the template inherits

@@ -8,7 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a helper for implementing SFINAE-based metafunctions.
 //
 //@CLASSES:
-//  bslmf::VoidType: helper class template for SFINAE-based metafunctions
+//  bsl::void_t:     alias template to help create SFINAE contexts in C++11
+//  bslmf::VoidType: class template to emulate 'bsl::void_t' in C++03
 //
 //@MACROS:
 //  BSLMF_VOIDTYPE:  helper macro for SFINAE-based metafunctions
@@ -17,15 +18,21 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_resulttype
 //
-//@DESCRIPTION:  This component provides a trivial metafunction,
-// 'bslmf::VoidType', that takes up to 14 type parameters.  The template always
-// yields a member type, 'type', that is always 'void'.  The usefulness of this
-// do-nothing metafunction is that, when it is instantiated, all of its
-// template parameters must be valid.  By putting the template instantiation in
-// a SFINAE context, any use of template parameters that name invalid dependent
-// types are discarded by the compiler as non-viable.  Thus, 'VoidType' is most
-// commonly used to build metafunctions that test for the existence of a
-// specific nested data type (see {Usage}).
+//@DESCRIPTION: This component provides the alias template 'bsl::void_t', as
+// specified by the C++14 standard, and a metafunction, 'bslmf::VoidType', to
+// emulate the same functionality for older compilers that do not support alias
+// templates, which are first specified by the C++11 standard.  It further
+// provides 3 macros, 'BSLMF_VOIDTYPE/2/S', that provide a consistent way to
+// use the alias template where supported and the class template otherwise.
+//
+// All forms of the metafunction, however it is written, produce the result
+// type 'void'.  The usefulness of this do-nothing metafunction is that, when
+// it is instantiated, all of its template arguments must be valid.  By putting
+// the template instantiation in a SFINAE context, any use of template
+// parameters that name invalid dependent types are discarded by the compiler
+// as non-viable.  Thus, 'VoidType' is most commonly used to build
+// metafunctions that test for the existence of a specific nested data type
+// (see {Usage}).
 //
 // The 'bslmf::VoidType' class template is intended to provide functionality
 // identical to the C++14 metafunction 'std::void_t', but without using C++11
@@ -45,9 +52,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Macros for type-dependant SFINAE checks in any C++ dialect
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following macro is for use in a type-dependent context, to enable the
-// most appropriate idiom for SFINAE checks in the C++ language version being
-// compiled:
+// The following macros are for use only in a type-dependent context.  They all
+// expand to a type expression that uses either 'bsl::void_t<ARGS>' if alias
+// templates are supported by the current compiler, and to
+// 'typename Bloomberg:P::bslmf::VoidType<ARGS>::type' otherwise.  This allows
+// for code to correctly choose the most compile-time efficient implementation
+// supported by the current tool chain.  The three macros support one, two, or
+// many arguments, and are otherwise identical.  The reason for three macros is
+// that the overwhelmingly common cases use only one, rarely two, type
+// expressions, so for legacy compilers we can use simpler templates with fewer
+// type parameter:
 //
 //: 'BSLMF_VOIDTYPE( TYPE_EXPRESSION )':
 //:     This macro will expand into a type expression that aliases 'void' if
@@ -73,13 +87,13 @@ BSLS_IDENT("$Id: $")
 //:     in a non-dependent expression, where the 'typename' keyword is not
 //:     permitted.
 //
-///Note on old compilers
-///---------------------
+///Caution using old compilers
+///---------------------------
 // The templates and macros in this component aid in creating SFINAE conditions
 // in a conforming C++03 manner.  However, several of the compilers still in
 // production have significant issues in their handling of SFINAE.  The Solaris
-// CC compiler in particular is very forgiving and will accept most code
-// without creating a SFINAE failure.  Idiomatic use of this component for
+// CC compiler in particular is very forgiving and will accept most invalid
+// code without creating a SFINAE failure.  Idiomatic use of this component for
 // compile-time reflection to detect named members of a class is known to work.
 // Other uses should be carefully tested before deployment.
 //
@@ -118,25 +132,23 @@ BSLS_IDENT("$Id: $")
 //      typedef short *iterator;
 //  };
 //
-//  int usageExample1()
+//  void usageExample1()
 //  {
-//      ASSERT(true == HasIteratorType<WithIterator>::VALUE);
+//      assert(true == HasIteratorType<WithIterator>::VALUE);
 //..
 // As 'WithIterator::iterator' is a valid type,
-// 'BSLMF_VOIDTYPE(TYPE::iterator)' will be 'void' and the second
+// 'BSLMF_VOIDTYPE(typename TYPE::iterator)' will be 'void' and the second
 // 'HasIteratorType' template will be more specialized than the primary
 // template, thus yielding a 'VALUE' of 'true'.
 //
 // Finally, we try to instantiate 'HasIteratorType<int>'.  Any use of
 // 'BSLMF_VOIDTYPE(TYPE::iterator)' will result in a substitution failure.
-// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies,
-// so the code will compile, but the specialization is eliminated from
-// consideration, resulting in the primary template being instantiated and
-// yielding a 'VALUE' of 'false':
+// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies
+// and the partial specialization is eliminated from consideration, resulting
+// in the primary template being instantiated and yielding a 'VALUE' of
+// 'false':
 //..
 //      assert(false == HasIteratorType<int>::VALUE);
-//
-//      return 0;
 //  }
 //..
 //
@@ -163,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //      enum { VALUE = true };
 //  };
 //..
-// Now, we define a type that meets the requirement for being traversable:
+// Now, we define a type that meets the requirements for being traversable:
 //..
 //  struct MyTraversable {
 //      typedef int  value_type;

@@ -80,6 +80,8 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+   // The older Microsoft compilers cannot parse "abominable" function types
+   // that has trailing cv-qualifiers.
 # define BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES 1
 #endif
 
@@ -121,25 +123,23 @@ void aSsErT(bool condition, const char *message, int line)
         typedef short *iterator;
     };
 
-    int usageExample1()
+    void usageExample1()
     {
         ASSERT(true == HasIteratorType<WithIterator>::VALUE);
 //..
 // As 'WithIterator::iterator' is a valid type,
-// 'BSLMF_VOIDTYPE(TYPE::iterator)' will be 'void' and the second
+// 'BSLMF_VOIDTYPE(typename TYPE::iterator)' will be 'void' and the second
 // 'HasIteratorType' template will be more specialized than the primary
 // template, thus yielding a 'VALUE' of 'true'.
 //
 // Finally, we try to instantiate 'HasIteratorType<int>'.  Any use of
 // 'BSLMF_VOIDTYPE(TYPE::iterator)' will result in a substitution failure.
-// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies,
-// so the code will compile, but the partial specialization is eliminated from
-// consideration, resulting in the primary template being instantiated and
-// yielding a 'VALUE' of 'false':
+// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies
+// and the partial specialization is eliminated from consideration, resulting
+// in the primary template being instantiated and yielding a 'VALUE' of
+// 'false':
 //..
         ASSERT(false == HasIteratorType<int>::VALUE);
-
-        return 0;
     }
 //..
 //
@@ -166,7 +166,7 @@ void aSsErT(bool condition, const char *message, int line)
         enum { VALUE = true };
     };
 //..
-// Now, we define a type that meets the requirement for being traversable:
+// Now, we define a type that meets the requirements for being traversable:
 //..
     struct MyTraversable {
         typedef int  value_type;
@@ -177,13 +177,11 @@ void aSsErT(bool condition, const char *message, int line)
 // but not for either 'WithIterator', which lacks a 'value_type' member, nor
 // 'int', which lacks both 'iterator' and 'value_type' members:
 //..
-    int usageExample2()
+    void usageExample2()
     {
         ASSERT(true  == IsTraversable<MyTraversable>::VALUE);
         ASSERT(false == IsTraversable<WithIterator>::VALUE);
         ASSERT(false == IsTraversable<int>::VALUE);
-
-        return 0;
     }
 //..
 
@@ -195,10 +193,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 template <class TYPE, class = void>
 struct IsNonAbstractClass {
-    // This trait derives provides a nested enumerator 'value' that is 'true'
-    // if the (template parameter) 'TYPE' is a non-abstract class type, and is
-    // 'false' otherwise.  For testing purposes, this trait uses the
-    // 'BSLMF_VOIDTYPES' macro with more than one argument.
+    // This trait provides a nested enumerator 'value' that is 'true' if the
+    // (template parameter) 'TYPE' is a (publicly copyable) non-abstract class
+    // type, and is 'false' otherwise.  For testing purposes, this trait uses
+    // the 'BSLMF_VOIDTYPES' macro with more than one argument.
 
     enum { value = false };
 };
@@ -210,24 +208,24 @@ struct IsNonAbstractClass<TYPE, BSLMF_VOIDTYPES(int TYPE::*, TYPE(), TYPE[])> {
 
 template <class TYPE, class = void>
 struct IsClassType {
-    // This trait derives provides a nested enumerator 'value' that is 'true'
-    // if the (template parameter) 'TYPE' is a class type, including if it is a
-    // union type, and is 'false' otherwise.  For testing purposes, this trait
-    // uses the 'BSLMF_VOIDTYPE' macro with exactly one argument.
+    // This trait provides a nested enumerator 'value' that is 'true' if the
+    // (template parameter) 'TYPE' is a class type, including if it is a union
+    // type, and is 'false' otherwise.  For testing purposes, this trait uses
+    // the 'BSLMF_VOIDTYPE' macro with exactly one argument.
 
     enum { value = false };
 };
 
 template <class TYPE>
-struct IsClassType<TYPE, BSLMF_VOIDTYPES(int TYPE::*)> {
+struct IsClassType<TYPE, BSLMF_VOIDTYPE(int TYPE::*)> {
     enum { value = true };
 };
 
 
 template <class TYPE, class = void>
 struct IsReasonable {
-    // This trait derives provides a nested enumerator 'value' that is 'true'
-    // if the (template parameter) 'TYPE' is deemed reasonable, and is 'false'
+    // This trait provides a nested enumerator 'value' that is 'true' if the
+    // (template parameter) 'TYPE' is deemed reasonable, and is 'false'
     // otherwise.  For this trait, a type is reasonable if we can form both a
     // pointer and a reference to it.  For example, 'void' is not reasonable as
     // although we can form a 'void *', there are no references to 'void'.
@@ -241,7 +239,10 @@ struct IsReasonable {
 };
 
 template <class TYPE>
-struct IsReasonable<TYPE, BSLMF_VOIDTYPES(TYPE&, TYPE *)> {
+struct IsReasonable<TYPE, BSLMF_VOIDTYPE2(TYPE&, TYPE *)> {
+    // This partial specialization implements the test documented by the
+    // primary template.
+
     enum { value = true };
 };
 
@@ -353,9 +354,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a metafunction, 'IsNonAbstractClass', using the macro
-        //:   'BSLMF_VOIDTYPES' to filter types on some property.
+        //:   'BSLMF_VOIDTYPES' to filter types on some set of properties.
         //:
-        //: 2 Instantiate that metafunction for a wide variety of types  that
+        //: 2 Instantiate that metafunction for a wide variety of types that
         //:   cover the potential syntax space.
         //
         // Testing:
@@ -369,28 +370,47 @@ int main(int argc, char *argv[])
 
         ASSERT(!IsNonAbstractClass<      void    >::value);
         ASSERT(!IsNonAbstractClass<const void    >::value);
+        ASSERT(!IsNonAbstractClass<const void *  >::value);
         ASSERT(!IsNonAbstractClass<      int     >::value);
         ASSERT(!IsNonAbstractClass<const int     >::value);
+        ASSERT(!IsNonAbstractClass<const int *   >::value);
         ASSERT(!IsNonAbstractClass<const int&    >::value);
-#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION >= 0x5130
-        ASSERT(!IsNonAbstractClass<Abstract      >::value);
-#else   // Expect the wrong answer on Sun CC compilers prior to CC 12.4
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
         ASSERT( IsNonAbstractClass<Abstract      >::value);
+#else   // Expect the wrong answer on Sun CC compilers prior to CC 12.4
+        ASSERT(!IsNonAbstractClass<Abstract      >::value);
 #endif
         ASSERT( IsNonAbstractClass<Incomplete    >::value);
         ASSERT(!IsNonAbstractClass<      MyEnum  >::value);
         ASSERT( IsNonAbstractClass<      MyStruct>::value);
         ASSERT( IsNonAbstractClass<const MyStruct>::value);
         ASSERT( IsNonAbstractClass<      MyUnion >::value);
+
+        ASSERT(!IsNonAbstractClass<int T::*      >::value);
+        ASSERT(!IsNonAbstractClass<int(T::*)()const>::value);
+
+        ASSERT(!IsNonAbstractClass<int    [ ]    >::value);
+        ASSERT(!IsNonAbstractClass<int (*)[ ]    >::value);
+        ASSERT(!IsNonAbstractClass<int (&)[ ]    >::value);
+        ASSERT(!IsNonAbstractClass<int    [2]    >::value);
+        ASSERT(!IsNonAbstractClass<int (*)[3]    >::value);
+        ASSERT(!IsNonAbstractClass<int (&)[4]    >::value);
+
         ASSERT(!IsNonAbstractClass<void   ()     >::value);
         ASSERT(!IsNonAbstractClass<void(*)()     >::value);
         ASSERT(!IsNonAbstractClass<void(&)()     >::value);
 #if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
         ASSERT(!IsNonAbstractClass<void   ()const>::value);
 #endif
-        ASSERT(!IsNonAbstractClass<int T::*      >::value);
-        ASSERT(!IsNonAbstractClass<int(T::*)()const>::value);
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT(!IsNonAbstractClass<void   ()        noexcept>::value);
+        ASSERT(!IsNonAbstractClass<void(*)()        noexcept>::value);
+        ASSERT(!IsNonAbstractClass<void(&)()        noexcept>::value);
+        ASSERT(!IsNonAbstractClass<void   ()  const noexcept>::value);
+        ASSERT(!IsNonAbstractClass<int(T::*)()const noexcept>::value);
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -421,7 +441,7 @@ int main(int argc, char *argv[])
         //: 1 Create a metafunction, 'IsReasonable', using the macro
         //:   'BSLMF_VOIDTYPE2' to filter types on some property.
         //:
-        //: 2 Instantiate that metafunction for a wide variety of types  that
+        //: 2 Instantiate that metafunction for a wide variety of types that
         //:   cover the potential syntax space.
         //
         // Testing:
@@ -431,33 +451,55 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'BSLMF_VOIDTYPE2'"
                             "\n=========================\n");
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION >= 0x5130
-        // Prior to CC 12.4, the Oracle compiler accepts all types as
+#if defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION < 0x5130
+        // Prior to CC 12.4, the Solaris compiler accepts all types as
         // reasonable due to a template parser that accepts almost anything in
         // any context.  'BSLMF_VOIDTYPE2' still has test coverage on this
         // compiler in the usage example.
 
+        if (verbose) printf("This test is skipped on old Solaris compilers\n");
+#else
         typedef Incomplete T;   // abbreviation for table below
 
         ASSERT(!IsReasonable<      void    >::value);
         ASSERT(!IsReasonable<const void    >::value);
+        ASSERT( IsReasonable<const void *  >::value);
         ASSERT( IsReasonable<      int     >::value);
         ASSERT( IsReasonable<const int     >::value);
+        ASSERT( IsReasonable<const int *   >::value);
         ASSERT(!IsReasonable<const int&    >::value);
+
         ASSERT( IsReasonable<Abstract      >::value);
         ASSERT( IsReasonable<Incomplete    >::value);
         ASSERT( IsReasonable<      MyEnum  >::value);
         ASSERT( IsReasonable<      MyStruct>::value);
         ASSERT( IsReasonable<const MyStruct>::value);
         ASSERT( IsReasonable<      MyUnion >::value);
+
+        ASSERT( IsReasonable<int T::*      >::value);
+        ASSERT( IsReasonable<int(T::*)()const>::value);
+
+        ASSERT( IsReasonable<int    [ ]    >::value);
+        ASSERT( IsReasonable<int (*)[ ]    >::value);
+        ASSERT(!IsReasonable<int (&)[ ]    >::value);
+        ASSERT( IsReasonable<int    [2]    >::value);
+        ASSERT( IsReasonable<int (*)[3]    >::value);
+        ASSERT(!IsReasonable<int (&)[4]    >::value);
+
         ASSERT( IsReasonable<void   ()     >::value);
         ASSERT( IsReasonable<void(*)()     >::value);
         ASSERT(!IsReasonable<void(&)()     >::value);
 # if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
         ASSERT(!IsReasonable<void   ()const>::value);
 # endif
-        ASSERT( IsReasonable<int T::*      >::value);
-        ASSERT( IsReasonable<int(T::*)()const>::value);
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT( IsReasonable<void   ()        noexcept>::value);
+        ASSERT( IsReasonable<void(*)()        noexcept>::value);
+        ASSERT(!IsReasonable<void(&)()        noexcept>::value);
+        ASSERT( IsReasonable<void   ()  const noexcept>::value);
+        ASSERT( IsReasonable<int(T::*)()const noexcept>::value);
+# endif
 #endif  // Solaris workaround
       } break;
       case 4: {
@@ -487,7 +529,7 @@ int main(int argc, char *argv[])
         //: 1 Create a metafunction, 'IsClassType', using the macro
         //:   'BSLMF_VOIDTYPE' to filter types on some property.
         //:
-        //: 2 Instantiate that metafunction for a wide variety of types  that
+        //: 2 Instantiate that metafunction for a wide variety of types that
         //:   cover the potential syntax space.
         //
         // Testing:
@@ -501,28 +543,49 @@ int main(int argc, char *argv[])
 
         ASSERT(!IsClassType<      void    >::value);
         ASSERT(!IsClassType<const void    >::value);
+        ASSERT(!IsClassType<const void *  >::value);
         ASSERT(!IsClassType<      int     >::value);
         ASSERT(!IsClassType<const int     >::value);
+        ASSERT(!IsClassType<const int *   >::value);
         ASSERT(!IsClassType<const int&    >::value);
+
         ASSERT( IsClassType<Abstract      >::value);
         ASSERT( IsClassType<Incomplete    >::value);
         ASSERT(!IsClassType<      MyEnum  >::value);
         ASSERT( IsClassType<      MyStruct>::value);
         ASSERT( IsClassType<const MyStruct>::value);
         ASSERT( IsClassType<      MyUnion >::value);
+
+        ASSERT(!IsClassType<int T::*      >::value);
+        ASSERT(!IsClassType<int(T::*)()const>::value);
+
+        ASSERT(!IsClassType<int    [ ]    >::value);
+        ASSERT(!IsClassType<int (*)[ ]    >::value);
+        ASSERT(!IsClassType<int (&)[ ]    >::value);
+        ASSERT(!IsClassType<int    [2]    >::value);
+        ASSERT(!IsClassType<int (*)[3]    >::value);
+        ASSERT(!IsClassType<int (&)[4]    >::value);
+
         ASSERT(!IsClassType<void   ()     >::value);
         ASSERT(!IsClassType<void(*)()     >::value);
         ASSERT(!IsClassType<void(&)()     >::value);
 #if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
         ASSERT(!IsClassType<void   ()const>::value);
 #endif
-        ASSERT(!IsClassType<int T::*      >::value);
-        ASSERT(!IsClassType<int(T::*)()const>::value);
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT(!IsClassType<void   ()        noexcept>::value);
+        ASSERT(!IsClassType<void(*)()        noexcept>::value);
+        ASSERT(!IsClassType<void(&)()        noexcept>::value);
+        ASSERT(!IsClassType<void   ()  const noexcept>::value);
+        ASSERT(!IsClassType<int(T::*)()const noexcept>::value);
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'bsl::void_t<T>'
+        //   As 'bsl::void_t' requires specific C++11 features, there are no
+        //   concerns to test when building with C++03.
         //
         // Concerns:
         //: 1 'bsl::void_t<T1, T2... TN>' is an alias for 'void' (for any N).
@@ -564,9 +627,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'bsl::void_t<T>'"
                             "\n========================\n");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&   \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)     \
+ || !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+        if (verbose) printf("Alias templates unsupported on this platform\n");
+#else
 # define TEST(...) \
         ASSERT(isVoidPointer((bsl::void_t<__VA_ARGS__> *)0))
 
@@ -625,10 +689,7 @@ int main(int argc, char *argv[])
              );
 
 # undef TEST
-#else
-        if (verbose) printf("Alias templates unsupported on this platform\n");
 #endif
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -755,7 +816,6 @@ int main(int argc, char *argv[])
 # endif
 
 #undef TEST
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
