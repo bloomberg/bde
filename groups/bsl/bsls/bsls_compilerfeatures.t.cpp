@@ -1533,12 +1533,12 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 29: {
-          // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES' is defined whenever 
-        //:    'noexcept' is part of the type system.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES' is defined
+        //:   whenever 'noexcept' is part of the type system.
         //
         // Plan:
         //: 1 Verify that the types of functions with a 'noexcept' qualifier
@@ -1553,7 +1553,7 @@ int main(int argc, char *argv[])
            "\n======================================================\n");
 
         using namespace test_case_29;
-        
+
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
         if (verbose) printf("noexcept not supported in this configuration\n");
 #else  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -1564,7 +1564,7 @@ int main(int argc, char *argv[])
 #endif
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-        
+
       } break;
       case 28: {
         // --------------------------------------------------------------------

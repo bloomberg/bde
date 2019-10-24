@@ -6369,7 +6369,7 @@ int main(int argc, char *argv[])
                        initFunc,
                        bslmt::ThroughputBenchmark::ShutdownSampleFunction(),
                        cleanFunc);
-            
+
             int countErr = hb.countErr();
 
             // Calculate percentiles.

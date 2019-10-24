@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_timeinterval.h>   // see DRQS 131017375
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-    
+
 #include <stddef.h>
 
 // This set of includes must come last, due to usage of 'bsls_nativestd'
