@@ -247,7 +247,7 @@ class ReaderWriterMutex {
     bool isLocked() const;
         // Return 'true' if this reader-write mutex is currently read locked or
         // write locked, and 'false' otherwise.
-  
+
     bool isLockedRead() const;
         // Return 'true' if this reader-write mutex is currently read locked,
         // and 'false' otherwise.
@@ -322,7 +322,7 @@ bool bslmt::ReaderWriterMutex::isLocked() const
 {
     return d_impl.isLocked();
 }
-  
+
 inline
 bool bslmt::ReaderWriterMutex::isLockedRead() const
 {

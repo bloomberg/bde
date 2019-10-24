@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //: o 'isLocked',
 //: o 'isLockedRead', and
 //: o 'isLockedWrite'
-// 
+//
 // Two compatible classes are:
 //: o 'bslmt::ReaderWriterLock' and
 //: o 'bslmt::ReaderWriterMutex'

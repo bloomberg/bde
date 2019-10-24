@@ -143,7 +143,7 @@ class ReaderWriterMutexImpl {
     bool isLocked() const;
         // Return 'true' if this reader-write mutex is currently read locked or
         // write locked, and 'false' otherwise.
-  
+
     bool isLockedRead() const;
         // Return 'true' if this reader-write mutex is currently read locked,
         // and 'false' otherwise.

@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
         ASSERT(false == X.isLocked());
         ASSERT(false == X.isLockedRead());
         ASSERT(false == X.isLockedWrite());
-        
+
         int rcR = mX.tryLockRead();
         ASSERT(0 == rcR);
         ASSERT(true  == X.isLocked());

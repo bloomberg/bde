@@ -2870,7 +2870,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) cout << "\n5. Relative Path" << endl;
-            
+
             ASSERT(0 == Obj::setWorkingDirectory(".."));
 
             string relFileName = tmpWorkingDir + PS + fileName;

@@ -413,7 +413,7 @@ int         expectedLine;
 char        cfg;
 const char *expectedLevel;
 
-void myViolationHandler(const bsls::AssertViolation& violation) 
+void myViolationHandler(const bsls::AssertViolation& violation)
     // Confirm that the specified 'violation' has attributes consistent with
     // those set in the global variables 'mode', 'expectedLine', 'cfg', and
     // 'level'.
@@ -504,7 +504,7 @@ void test()
         if (veryVeryVerbose) cout << "testing '*_SAFE' macros" << endl;
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
         TestCase2::mode          = TestCase2::e_SAFE_MODE;
-        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_SAFE; 
+        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_SAFE;
 
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -553,7 +553,7 @@ void test()
         if (veryVeryVerbose) cout << "testing 'normal' macros" << endl;
 #ifdef BSLS_ASSERT_IS_ACTIVE
         TestCase2::mode          = TestCase2::e_NORMAL_MODE;
-        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_ASSERT; 
+        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_ASSERT;
 
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
             TestCase2::cfg = cfg;
@@ -596,7 +596,7 @@ void test()
         if (veryVeryVerbose) cout << "testing '*_OPT' macros" << endl;
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
         TestCase2::mode          = TestCase2::e_OPT_MODE;
-        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_OPT; 
+        TestCase2::expectedLevel = bsls::Assert::k_LEVEL_OPT;
 
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
             TestCase2::cfg = cfg;

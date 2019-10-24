@@ -3,7 +3,7 @@
            xmlns:bdem='http://bloomberg.com/schemas/bdem'
            bdem:package='balxml'
            elementFormDefault='qualified'>
- 
+
   <!--
   This file outlines the schema for encoding and decoding options used to
   generate and parse XML documents.  This component can be used to validate
