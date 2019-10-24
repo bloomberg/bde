@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bdld_datum, bdld_datumerror, bdld_binaryref
 //
-//@DESCRIPTION:  This component provides a single, simply-constrained (in-core
+//@DESCRIPTION: This component provides a single, simply-constrained (in-core
 // value-semantic) attribute class, 'bdld::DatumUdt', that is used to extend
 // the set of possible types that can be held by 'Datum' objects.
 //
