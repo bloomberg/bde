@@ -502,6 +502,33 @@ BSLS_IDENT("$Id$")
 // how many digits of the decimal number are to be printed, otherwise all
 // significant digits of the decimal number are output using native notation.
 //
+///User-defined literals
+///---------------------
+// The user-defined literal 'operator "" _d32', 'operator "" _d64', and
+// 'operator "" _d128' are declared for the 'bdldfp::Decimal32',
+// 'bdldfp::Decimal64', and 'bdldfp::Decimal128' types respectively .  These
+// user-defined literal suffixes can be applied to both numeric and string
+// literals, (i.e., 1.2_d128, "1.2"_d128 or "inf"_d128) to produce a decimal
+// floating-point value of the indicated type by parsing the argument string
+// or numeric value:
+//..
+//  bdldfp::Decimal32   d0  = "1.2"_d32;
+//  bdldfp::Decimal32   d1  =  1.2_d32;
+//
+//  bdldfp::Decimal64   d2  = "3.45678901234"_d64;
+//  bdldfp::Decimal64   d3  =  3.45678901234_d64;
+//
+//  bdldfp::Decimal128  inf = "inf"_d128;
+//  bdldfp::Decimal128  nan = "nan"_d128;
+//..
+//
+// Note that the parsing follows the rules as specified for the 'strtod32',
+// 'strtod64' and 'strtod128' functions in section 9.6 of the ISO/EIC TR 247128
+// C Decimal Floating-Point Technical Report.
+//
+// Also note that these operators can be used if the compiler supports C++11
+// standard.
+//
 ///Usage
 ///-----
 // In this section, we show the intended usage of this component.
@@ -1760,16 +1787,79 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
+#if __cplusplus >= 201103L
+namespace DecimalLiterals {
+bdldfp::Decimal32  operator "" _d32 (const char *str);
+bdldfp::Decimal32  operator "" _d32 (const char *str, bsl::size_t len);
+    // Produce an object of the indicated return type by parsing the specified
+    // 'str' having the specified 'len' excluding the terminating null
+    // character that represents a floating-point number written in both fixed
+    // and scientific notations.  These user-defined literal suffixes can be
+    // applied to both numeric and string literals, (i.e., 1.2_d32, "1.2"_d32
+    // or "inf"_d32). The resulting decimal object is initialized as follows:
+    //
+    //: o If 'str' does not represent a floating-point value, then return a
+    //:   decimal object of the indicated return type initialized to a NaN.
+    //:
+    //: o Otherwise if 'str' represents infinity (positive or negative), then
+    //:   return a decimal object of the indicated return type initialized to
+    //:   infinity value with the same sign.
+    //:
+    //: o Otherwise if 'str' represents zero (positive or negative), then
+    //:   return a decimal object of the indicated return type initialized to
+    //:   zero with the same sign.
+    //:
+    //: o Otherwise if 'str' represents a value that has an absolute value that
+    //:   is larger than the maximum value supported by the indicated return
+    //:   type, then store the value of the macro 'ERANGE' into 'errno' and
+    //:   return a decimal object of the return type initialized to infinity
+    //:   with the same sign.
+    //:
+    //: o Otherwise if 'str' represents a value that has an absolute value that
+    //:   is smaller than min value of the indicated return type, then store
+    //:   the value of the macro 'ERANGE' into 'errno' and return a decimal
+    //:   object of the return type initialized to zero with the same sign.
+    //:
+    //: o Otherwise if 'str' has a value that is not exactly representable
+    //:   using the maximum digit number supported by the indicated return
+    //:   type, then return a decimal object of the return type initialized to
+    //:   the value represented by 'str' rounded according to the rounding
+    //:   direction.
+    //:
+    //: o Otherwise return a decimal object of the indicated return type
+    //:   initialized to the decimal value representation of 'str'.
+    //
+    // Note that the parsing follows the rules as specified for the 'strtod32'
+    // function in section 9.6 of the ISO/EIC TR 247128 C Decimal
+    // Floating-Point Technical Report.
+    //
+    // Also note that the numeric literal version omits the optional leading
+    // sign in 'str'.  For example, if the string is -1.2_d32 then the string
+    // "1.2" is passed to the one-argument form, not "-1.2", because leading
+    // signs are operators, not parts of literals.  On the other hand, the
+    // string literal version does not omit leading sign and if the string is
+    // "-1.2"_d32 then the string "-1.2" is passed to the two-argument form.
+    //
+    // Also note that the quantum of the resultant value is affected by the
+    // number of decimal places in 'str' string in both numeric and string
+    // literal formats starting with the most significand digit and cannot
+    // exceed the maximum number of digits necessary to differentiate all
+    // values of the indicated return type, for example:
+    //
+    // '0.015_d32;     "0.015"_d32     =>      15e-3'
+    // '1.5_d32;       "1.5"_d32       =>      15e-1'
+    // '1.500_d32;     "1.500"d_32     =>    1500e-3'
+    // '1.2345678_d32; "1.2345678_d32" => 1234568e-6'
+
+}  // close DecimalLiterals namespace
+#endif
+
 // FREE FUNCTIONS
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Decimal32& object);
-template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const Decimal64& object);
-template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const Decimal128& object);
     // Pass the specified 'object' to the specified 'hashAlg'.  This function
     // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'DecimalXX'.  Note that two
+    // provides a 'bsl::hash' specialization for 'Decimal32'.  Note that two
     // objects which have the same value but different representations will
     // hash to the same value.
 
@@ -3013,6 +3103,83 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal64 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
+#if __cplusplus >= 201103L
+namespace DecimalLiterals {
+bdldfp::Decimal64  operator "" _d64 (const char *str);
+bdldfp::Decimal64  operator "" _d64 (const char *str, bsl::size_t len);
+    // Produce an object of the indicated return type by parsing the specified
+    // 'str' having the specified 'len' excluding the terminating null
+    // character that represents a floating-point number written in both fixed
+    // and scientific notations.  These user-defined literal suffixes can be
+    // applied to both numeric and string literals, (i.e., 1.2_d128, "1.2"_d64
+    // or "inf"_d64). The resulting decimal object is initialized as follows:
+    //
+    //: o If 'str' does not represent a floating-point value, then return a
+    //:   decimal object of the indicated return type initialized to a NaN.
+    //:
+    //: o Otherwise if 'str' represents infinity (positive or negative), then
+    //:   return a decimal object of the indicated return type initialized to
+    //:   infinity value with the same sign.
+    //:
+    //: o Otherwise if 'str' represents zero (positive or negative), then
+    //:   return a decimal object of the indicated return type initialized to
+    //:   zero with the same sign.
+    //:
+    //: o Otherwise if 'str' represents a value that has an absolute value that
+    //:   is larger than the maximum value supported by the indicated return
+    //:   type, then store the value of the macro 'ERANGE' into 'errno' and
+    //:   return a decimal object of the return type initialized to infinity
+    //:   with the same sign.
+    //:
+    //: o Otherwise if 'str' represents a value that has an absolute value that
+    //:   is smaller than min value of the indicated return type, then store
+    //:   the value of the macro 'ERANGE' into 'errno' and return a decimal
+    //:   object of the return type initialized to zero with the same sign.
+    //:
+    //: o Otherwise if 'str' has a value that is not exactly representable
+    //:   using the maximum digit number supported by the indicated return
+    //:   type, then return a decimal object of the return type initialized to
+    //:   the value represented by 'str' rounded according to the rounding
+    //:   direction.
+    //:
+    //: o Otherwise return a decimal object of the indicated return type
+    //:   initialized to the decimal value representation of 'str'.
+    //
+    // Note that the parsing follows the rules as specified for the 'strtod64'
+    // function in section 9.6 of the ISO/EIC TR 247128 C Decimal
+    // Floating-Point Technical Report.
+    //
+    // Also note that the numeric literal version omits the optional leading
+    // sign in 'str'.  For example, if the string is -1.2_d64 then the string
+    // "1.2" is passed to the one-argument form, not "-1.2", because leading
+    // signs are operators, not parts of literals.  On the other hand, the
+    // string literal version does not omit leading sign and if the string is
+    // "-1.2"_d64 then the string "-1.2" is passed to the two-argument form.
+    //
+    // Also note that the quantum of the resultant value is affected by the
+    // number of decimal places in 'str' string in both numeric and string
+    // literal formats starting with the most significand digit and cannot
+    // exceed the maximum number of digits necessary to differentiate all
+    // values of the indicated return type, for example:
+    //
+    // '0.015_d64;               =>              15e-3'
+    // '1.5_d64;                 =>              15e-1'
+    // '1.500_d64;               =>            1500e-3'
+    // '1.2345678901234567_d64;  => 1234567890123458-15'
+
+}  // close DecimalLiterals namespace
+#endif
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Decimal64& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Decimal64'.  Note that two
+    // objects which have the same value but different representations will
+    // hash to the same value.
+
+
                            // =====================
                            // class Decimal_Type128
                            // =====================
@@ -4211,10 +4378,6 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal128 object);
 
 #if __cplusplus >= 201103L
 namespace DecimalLiterals {
-bdldfp::Decimal32  operator "" _d32 (const char *str);
-bdldfp::Decimal32  operator "" _d32 (const char *str, bsl::size_t len);
-bdldfp::Decimal64  operator "" _d64 (const char *str);
-bdldfp::Decimal64  operator "" _d64 (const char *str, bsl::size_t len);
 bdldfp::Decimal128 operator "" _d128(const char *str);
 bdldfp::Decimal128 operator "" _d128(const char *str, bsl::size_t len);
     // Produce an object of the indicated return type by parsing the specified
@@ -4255,9 +4418,9 @@ bdldfp::Decimal128 operator "" _d128(const char *str, bsl::size_t len);
     //: o Otherwise return a decimal object of the indicated return type
     //:   initialized to the decimal value representation of 'str'.
     //
-    // Note that the parsing follows the rules as specified for the
-    // 'strtod32', 'strtod64' and 'strtod128' functions in section 9.6 of the
-    // ISO/EIC TR 247128 C Decimal Floating-Point Technical Report.
+    // Note that the parsing follows the rules as specified for the 'strtod128'
+    // function in section 9.6 of the ISO/EIC TR 247128 C Decimal
+    // Floating-Point Technical Report.
     //
     // Also note that the numeric literal version omits the optional leading
     // sign in 'str'.  For example, if the string is -1.2_d128 then the string
@@ -4272,16 +4435,23 @@ bdldfp::Decimal128 operator "" _d128(const char *str, bsl::size_t len);
     // exceed the maximum number of digits necessary to differentiate all
     // values of the indicated return type, for example:
     //
-    // '0.015_d32;     "0.015"_d32     =>      15e-3'
-    // '1.5_d32;       "1.5"_d32       =>      15e-1'
-    // '1.500_d32;     "1.500"d_32     =>    1500e-3'
-    // '1.2345678_d32; "1.2345678_d32" => 1234568e-6'
-    //
-    // 'Decimal128 inf  = "inf"_d128;'
-    // 'Decimal128 nan  = "nan"_d128;'
+    // '0.015_d128;                  =>                                 15e-3'
+    // '1.5_d128;                    =>                                 15e-1'
+    // '1.500_d128;                  =>                               1500e-3'
+    // '1.2345678901234567890123456789012349_d128;
+    //                               => 1234567890123456789012345678901235e-33'
 
 }  // close DecimalLiterals namespace
 #endif
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Decimal128& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Decimal128'.  Note that two
+    // objects which have the same value but different representations will
+    // hash to the same value.
 
                         // MISCELLANEOUS RELATED TYPES
 
