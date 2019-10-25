@@ -1197,7 +1197,7 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY   1
         #endif
 
-        #if __cplusplus > 201402L
+        #if __cplusplus >= 201402L
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS    1
         #endif
         #if __cplusplus >= 201703L
