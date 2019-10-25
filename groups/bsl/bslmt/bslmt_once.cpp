@@ -40,7 +40,7 @@ bool bslmt::Once::enter(Once::OnceLock *onceLock)
         return true;  // Leave mutex locked                           // RETURN
 
       case e_IN_PROGRESS:
-        BSLS_ASSERT(! "Can't get here!");
+        BSLS_ASSERT_INVOKE_NORETURN("Once can not be entered e_IN_PROGRESS");
         break;
 
       case e_DONE:
