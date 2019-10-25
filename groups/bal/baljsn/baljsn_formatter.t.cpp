@@ -2871,6 +2871,76 @@ int main(int argc, char *argv[])
         exp += ',';
         ASSERTV(exp, os.str(), exp == os.str());
       } break;
+      case -1: {
+        // SimpleFormatter <-> Formatter comparison code.
+        // Formatter version
+
+        struct {
+            bsl::string d_description;
+            bool        d_pretty;
+            int         d_spacesPerLevel;
+        } DATA[] = {
+            { "Not Pretty", false, 0 },
+            { "Pretty",     true,  2 }
+        };
+
+        int NUM_DATA=sizeof(DATA)/sizeof(*DATA);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const bsl::string DESC   = DATA[i].d_description;
+            const bool        PRETTY = DATA[i].d_pretty;
+            const int         SPACES = DATA[i].d_spacesPerLevel;
+
+            bsl::ostringstream     os;
+
+            baljsn::Formatter f(os, PRETTY, 0, SPACES);
+
+            f.openObject();
+
+             f.openMember("Object");
+              f.openObject();
+               f.openMember("Field 1");
+                f.putValue(1);
+               f.closeMember();
+               f.openMember("Field 2");
+                f.putNullValue();
+               // Must remember NOT to call
+               // closeMember here!
+              f.closeObject();
+             f.closeMember();
+
+             f.openMember("Array");
+              f.openArray();
+               f.putValue(1);
+               f.addArrayElementSeparator();
+               f.putValue("string");
+               f.addArrayElementSeparator();
+               f.openArray(true);
+               f.closeArray(true);
+               f.addArrayElementSeparator();
+               f.openArray();
+               f.openArray();
+               f.openObject();
+               f.closeObject();
+               f.closeArray();
+               f.closeArray();
+
+               // Must remember NOT to call
+               // addArrayElementSeparator
+               // here!
+              f.closeArray();
+             f.closeMember();
+
+             f.openMember("True");
+              f.putValue(true);
+             // Must remember NOT to call
+             // closeMember here!
+
+            f.closeObject();
+
+            cout << "\n\n" << DESC << ":\n" << os.str() << endl;
+        }
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

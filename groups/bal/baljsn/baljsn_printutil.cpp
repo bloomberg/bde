@@ -16,18 +16,18 @@ namespace {
 
 inline
 void writeEscapedChar(bsl::ostream&   stream,
-                      const char    **currBegin,
+                      const char    **currentStart,
                       const char     *iter,
                       const char      value)
-    // Write the sequence of characters in the range [*currBegin, iter) to the
-    // specified 'ostream' followed by the escape character ('\\') and the
-    // specified 'value' character.  After that update '*currBegin' to point to
-    // the address following 'iter'.
+    // Write the sequence of characters in the range specified by
+    // '[*currentStart, iter)' to the specified 'stream' followed by the escape
+    // character ('\\') and the specified 'value' character.  After that update
+    // '*currentStart' to point to the address following 'iter'.
 {
-    stream.write(*currBegin, iter - *currBegin);
+    stream.write(*currentStart, iter - *currentStart);
     stream.put('\\');
     stream.put(value);
-    *currBegin = iter + 1;
+    *currentStart = iter + 1;
 }
 
 }  // close unnamed namespace
@@ -48,7 +48,7 @@ int PrintUtil::printString(bsl::ostream&            stream,
 
     stream.put('"');
 
-    const char *currBegin = value.data();
+    const char *currentStart = value.data();
     const char *iter      = value.data();
     const char *end       = value.data() + value.length();
 
@@ -57,22 +57,22 @@ int PrintUtil::printString(bsl::ostream&            stream,
           case '"':  BSLS_ANNOTATION_FALLTHROUGH;
           case '\\': BSLS_ANNOTATION_FALLTHROUGH;
           case '/': {
-            writeEscapedChar(stream, &currBegin, iter, *iter);
+            writeEscapedChar(stream, &currentStart, iter, *iter);
           } break;
           case '\b': {
-            writeEscapedChar(stream, &currBegin, iter, 'b');
+            writeEscapedChar(stream, &currentStart, iter, 'b');
           } break;
           case '\f': {
-            writeEscapedChar(stream, &currBegin, iter, 'f');
+            writeEscapedChar(stream, &currentStart, iter, 'f');
           } break;
           case '\n': {
-            writeEscapedChar(stream, &currBegin, iter, 'n');
+            writeEscapedChar(stream, &currentStart, iter, 'n');
           } break;
           case '\r': {
-            writeEscapedChar(stream, &currBegin, iter, 'r');
+            writeEscapedChar(stream, &currentStart, iter, 'r');
           } break;
           case '\t': {
-            writeEscapedChar(stream, &currBegin, iter, 't');
+            writeEscapedChar(stream, &currentStart, iter, 't');
           } break;
 
           // control characters
@@ -114,29 +114,73 @@ int PrintUtil::printString(bsl::ostream&            stream,
           case '\x1D': BSLS_ANNOTATION_FALLTHROUGH;
           case '\x1E': BSLS_ANNOTATION_FALLTHROUGH;
           case '\x1F': {
-            writeEscapedChar(stream, &currBegin, iter, 'u');
+            writeEscapedChar(stream, &currentStart, iter, 'u');
 
-            const char *HEX_BYTES = "0123456789abcdef";
+            const char *k_HEX_BYTES = "0123456789abcdef";
 
-            const int BUF_SIZE = 4;
-            char      buffer[BUF_SIZE] ;
+            const int k_BUF_SIZE = 4;
+            char      buffer[k_BUF_SIZE] ;
 
             buffer[0] = '0';
             buffer[1] = '0';
-            buffer[2] = HEX_BYTES[(*iter & 0xF0) >> 4];
-            buffer[3] = HEX_BYTES[ *iter & 0x0F];
+            buffer[2] = k_HEX_BYTES[(*iter & 0xF0) >> 4];
+            buffer[3] = k_HEX_BYTES[ *iter & 0x0F];
 
-            stream.write(buffer, BUF_SIZE);
-            currBegin = iter + 1;
+            stream.write(buffer, k_BUF_SIZE);
+            currentStart = iter + 1;
           }
         }
         ++iter;
 
     }
 
-    stream.write(currBegin, end - currBegin);
+    stream.write(currentStart, end - currentStart);
     stream.put('"');
 
+    return 0;
+}
+
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          bdldfp::Decimal64     value,
+                          const EncoderOptions *options)
+{
+    switch (bdldfp::DecimalUtil::classify(value)) {
+      case FP_INFINITE: {
+        if (options && options->encodeInfAndNaNAsStrings()) {
+            stream <<
+                  (value == bsl::numeric_limits<bdldfp::Decimal64>::infinity()
+                  ? "\"+inf\""
+                  : "\"-inf\"");
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+      } break;
+      case FP_NAN: {
+        if (options && options->encodeInfAndNaNAsStrings()) {
+            stream << (bdlb::Float::signBit(
+                            bdldfp::DecimalConvertUtil::decimalToDouble(value))
+                      ? "\"-nan\""
+                      : "\"nan\"");
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+      } break;
+      default: {
+        if (options && options->encodeQuotedDecimal64()) {
+            stream.put('"');
+            stream << value;
+            stream.put('"');
+        }
+        else {
+            stream << value;
+        }
+        if (stream.bad()) {
+            return -1;                                                // RETURN
+        }
+      }
+    }
     return 0;
 }
 

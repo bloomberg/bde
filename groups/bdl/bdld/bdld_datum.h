@@ -1795,10 +1795,10 @@ bool operator==(const Datum& lhs, const Datum& rhs);
     // position are also same.  Two datums holding user-defined objects are
     // equal if the user-defined objects have the same pointer and type values.
     // Two 'nil' datums are always equal.  Two 'Datum' objects holding 'NaN'
-    // values are never equal.  Two datums that hold array of datums have the
+    // values are never equal.  Two datums that hold arrays of datums have the
     // same value if the underlying arrays have the same length and invoking
     // '==' operator on each corresponding element returns 'true'.  Two datums
-    // that hold map of datums have the same value if the underlying maps have
+    // that hold maps of datums have the same value if the underlying maps have
     // the same size and each corresponding pair of elements in the maps have
     // the same keys and invoking '==' operator on the values returns 'true'.
 
@@ -1812,10 +1812,10 @@ bool operator!=(const Datum& lhs, const Datum& rhs);
     // are not the same.  Two 'DatumUdt' objects are not equal if they have
     // different pointer or type values.  Two 'bdemf_Nil' values are always
     // equal.  Two datums with 'NaN' values are never equal.  Two datums that
-    // hold array of datums have different values if the underlying arrays have
-    // different lengths or invoking '==' operator on at least one of the
+    // hold arrays of datums have different values if the underlying arrays
+    // have different lengths or invoking '==' operator on at least one of the
     // corresponding pair of contained elements returns 'false'.  Two datums
-    // that hold map of datums have different values if the underlying maps
+    // that hold maps of datums have different values if the underlying maps
     // have different sizes or at least one of the corresponding pair of
     // elements in the maps have different keys or invoking '==' operator on
     // the values returns 'false'.

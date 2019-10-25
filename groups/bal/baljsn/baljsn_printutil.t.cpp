@@ -62,9 +62,10 @@ using bsl::endl;
 // [ 5] static int printValue(bsl::ostream& s, const bdlt::DateTz&       v);
 // [ 5] static int printValue(bsl::ostream& s, const bdlt::DatetimeTz&   v);
 // [ 5] static int printValue(bsl::ostream& s, const bdldfp::Decimal64&  v);
+// [ 6] static int printValue(bsl::ostream& s, const bdlt::DatetimeInterval v);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -250,7 +251,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -328,7 +329,7 @@ int main(int argc, char *argv[])
 //  }
 //..
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // ENCODING 'INF' AND 'NaN' FLOATING POINT VALUES
         //
@@ -372,6 +373,88 @@ int main(int argc, char *argv[])
         testInfAndNaNAsStrings<double>();
         testInfAndNaNAsStrings<bdldfp::Decimal64>();
 
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // ENCODING DATETIMEINTERVAL TYPE
+        //  Ensure that DatetimeInterval values are correctly encoded.
+        //
+        // Concerns:
+        //: 1 DatetimeInterval is encoded in the 'bdlt::DatetimeInterval' print
+        //:   format.
+        //:
+        // Plan:
+        //: 1 Use the table-driven technique:
+        //:
+        //:   1 Specify a set of valid values.
+        //:
+        //:   2 Encode each value and verify the output is as expected.
+        //:
+        //
+        // Testing:
+        //   static int printValue(bsl::ostream& s,
+        //                         const bdlt::DatetimeInterval& v);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING DATETIMEINTERVAL TYPE" << endl
+                          << "==============================" << endl;
+
+        static const struct {
+            int         d_line;           // source line number
+            int         d_day;
+            int         d_hour;
+            int         d_minute;
+            int         d_second;
+            int         d_millisecond;
+            int         d_microsecond;
+            const char *d_expected_p;
+        } DATA[] = {
+    //LINE D   H   M   S   MS   US   EXPECTED
+    //---- --  --  --  --  ---  ---  --------
+    { L_,   0,  0,  0,  0,   0,   0, "+0_00:00:00.000000"},
+    { L_,   1, 23, 59, 58, 765, 432, "+1_23:59:58.765432"},
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        if (verbose) cout << "\nTesting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const int         DAY    = DATA[ti].d_day;
+                const int         HOUR   = DATA[ti].d_hour;
+                const int         MINUTE = DATA[ti].d_minute;
+                const int         SECOND = DATA[ti].d_second;
+                const int         MSEC   = DATA[ti].d_millisecond;
+                const int         USEC   = DATA[ti].d_microsecond;
+                const char *const EXP    = DATA[ti].d_expected_p;
+
+                if (veryVerbose) {
+                    T_ P_(DAY) P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P(USEC);
+                }
+
+                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+
+                bdlt::DatetimeInterval x(DAY,
+                                         HOUR,
+                                         MINUTE,
+                                         SECOND,
+                                         MSEC,
+                                         USEC);
+                const bdlt::DatetimeInterval& X = x;
+
+                bsl::ostringstream oss;
+
+                oss << X;
+
+                bsl::string result = oss.str();
+
+                if (veryVeryVerbose) { P(result) }
+
+                LOOP3_ASSERT(LINE, EXP, result, EXP == result);
+            }
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
