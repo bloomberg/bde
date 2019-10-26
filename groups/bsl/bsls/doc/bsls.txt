@@ -59,6 +59,7 @@
       bsls_log
 
    9. bsls_atomicoperations
+      bsls_protocoltest
 
    8. bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
@@ -66,6 +67,7 @@
 
    7. bsls_alignmentfromtype
       bsls_assertimputil
+      bsls_asserttestexception
       bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
       bsls_cpp11                                         !DEPRECATED!
       bsls_libraryfeatures
@@ -102,18 +104,16 @@
    3. bsls_alignmentimp
       bsls_bsltestutil
       bsls_linkcoercion
-      bsls_nativestd
       bsls_types
 
    2. bsls_assert_macroreset                                          !PRIVATE!
       bsls_asserttest_macroreset                                      !PRIVATE!
-      bsls_asserttestexception
       bsls_blockgrowth
       bsls_bsldeprecationinformation
       bsls_macroincrement
       bsls_macrorepeat
+      bsls_nativestd
       bsls_platform
-      bsls_protocoltest
       bsls_review_macroreset                                          !PRIVATE!
 
    1. bsls_deprecate

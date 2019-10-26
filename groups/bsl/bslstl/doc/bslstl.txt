@@ -17,12 +17,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 78 components having 8 levels of physical
+ The 'bslstl' package currently has 79 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   8. bslstl_ownerless
+     bslstl_typeindex
 
   7. bslstl_map_test                                                  !PRIVATE!
      bslstl_multimap_test                                             !PRIVATE!
@@ -308,6 +309,9 @@
 :
 : 'bslstl_treenodepool':
 :      Provide efficient creation of nodes used in tree-based container.
+:
+: 'bslstl_typeindex':
+:      Provide an value-semantic type to represent 'type_info' objects.
 :
 : 'bslstl_unorderedmap':
 :      Provide an STL-compliant 'unordered_map' container.
