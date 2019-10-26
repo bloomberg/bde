@@ -1,5 +1,42 @@
-bsl-internal (3.40.0.0) unstable; urgency=low
+bsl-internal (3.41.0.0) unstable; urgency=low
 
+  * 85464be01 Bumped version to 3.41.0.0
+  * 7995863f0 Merge pull request #2545 from ameredit/darwin_fix_for_library_features
+  * bae67e3fd Merge pull request #2462 from mgiroux/dlcjsn-to-baljsn-drqs142795491
+  * 2fbadaafe Merge pull request #2492 from bchapman/bde-repo-cpp17-no-errors
+  * 5f7ad197a Merge pull request #2542 from glaptev1/update_bdldfp_decimal_doc
+  * d56560ace Merge pull request #2544 from mgiroux/remove-trailing-spaces
+  * 9daf0a937 Merge pull request #2543 from ameredit/whitespace_fixes_for_description
+  * a1e1f4dae Merge pull request #2539 from bchapman/bdlma_bufferedsequentialpool-fix-release-drqs-150407633
+  * 82ebc8e30 bdlma_bufferedsequentialpool: make 'release' realease ALL dynamic memory
+  * 70ef09e91 Merge pull request #2538 from jmendelsohn4/drqs-150355963/bdlmt_eventscheduler-correct-doc-for-microseconds
+  * ba34c2319 Merge pull request #2534 from bchapman/bsls_stackaddressutil-TC-7-nightly-drqs-150089867
+  * 170a1fb53 Merge pull request #2526 from bchapman/bdlma_bufferedsequentialpool-fast-construct-drqs-149309388
+  * 33aded217 Merge pull request #2529 from afeher/remove-platform-from-nativestd
+  * 7b46daf71 Merge pull request #2527 from ameredit/improve_bsls_platform_macro_report
+  * 96ea80b1f Merge pull request #2531 from osubbotin/review/add-missing-meta
+  * 028e3d8df Merge pull request #2511 from nburgers/190821-balxml-encoder-drqs-139782067-2-RB
+  * 4282a0eba Merge pull request #2525 from ameredit/gcc_cpp11_fix_for_solaris
+  * 4f3155e1f Merge pull request #2524 from ameredit/msvc_workaround_for_typeindex_testdriver
+  * 677256857 Merge pull request #2521 from ameredit/native_hash_for_bsl_type_index
+  * c1a83a40c Merge pull request #2523 from zsong51/master
+  * 154ad9af6 Merge pull request #2508 from bchapman/bslmt_threadutil-Solaris-thread-names-drqs-149277318
+  * 2604127eb bsls_libraryfeatures.h: eliminate Linux clang dependency on compiler version
+  * 388524a2f Merge pull request #2518 from ameredit/implement_type_index
+  * c53c03d0f Merge pull request #2452 from acasey23/patch-2
+  * 4dfdc4c09 Merge pull request #2519 from jmendelsohn4/drqs-149811724/bdlmt_eventschedule-uninitialized-waitcount
+  * ebdb9b63c bsls_libraryfeatures.h: eliminate Linux clang dependency on compiler version
+  * 62ab4c262 Merge pull request #2515 from mgiroux/cleanup-behavior-undefined-clauses
+  * 10303b99e Merge pull request #2510 from dsokolov7/review/bde-identical-branches-drqs-148040807
+  * 8a91ece4f Merge pull request #2516 from oimanuel/docfix_comp_EQUAL_unordered-drqs-149706995
+  * e7b75b45b Merge pull request #2448 from dsokolov7/review/bde-usage-example-balxml-drqs-146259073
+  * 326fc341d Merge pull request #2509 from osubbotin/review/dpkg-split
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Oct 2019 22:04:35 -0400
+
+bsl-internal (3.40.0.0) git; urgency=low
+
+  * 7273c4da5 Changelog for version 3.40.0.0
   * 7fe2360d2 Bump version to 3.40.0
   * a1f4f8445 Merge pull request #2506 from jberne4/noexcept_types
   * cd3ed276d Merge pull request #2500 from hrosen4/win-sp_drqs-148281696
@@ -8,7 +45,7 @@ bsl-internal (3.40.0.0) unstable; urgency=low
   * 494f5229a Merge pull request #2504 from mgiroux/add-raw-strings-compiler-feature-drqs149008849
   * 49f78f04b Merge pull request #2503 from jmendelsohn4/bdlcc_singleconsumerimpl-doc-fix-20190924
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Oct 2019 12:54:06 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Oct 2019 13:02:20 -0400
 
 bsl-internal (3.39.0.0) git; urgency=low
 
