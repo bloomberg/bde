@@ -23086,7 +23086,7 @@ class TestTaggedValue_ArrayBase {
 
     // CLASS DATA
     enum {
-        k_IS_ARRAY = bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE,
+        k_IS_ARRAY = bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE
     };
 
   private:
