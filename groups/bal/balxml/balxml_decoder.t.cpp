@@ -24765,6 +24765,9 @@ class GenerateTestTaggedValue {
     // TYPES
     typedef AttributeTypeUtil Util;
 
+    // CREATORS
+    GenerateTestTaggedValue() {}
+
     // ACCESSORS
     template <class TAG_TYPE, class VALUE_TYPE>
     TestTaggedValue<TAG_TYPE, VALUE_TYPE> operator()(
@@ -24783,6 +24786,9 @@ class GenerateTestTaggedValuePlaceHolder {
   public:
     // TYPES
     typedef AttributeTypeUtil Util;
+
+    // CREATORS
+    GenerateTestTaggedValuePlaceHolder() {}
 
     // ACCESSORS
     template <class TAG_TYPE, class VALUE_TYPE>
@@ -25415,23 +25421,28 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
 
   private:
     // DATA
-    int            d_line;       // line number
-    TestXmlElement d_xml;        // specification for xml to decode from
-    bool d_decodeSuccessStatus;  // whether or not decoding should succeed
+    int            d_line;         // line number
+    TestXmlElement d_xml;          // specification for xml to decode from
+    bool d_decodeSuccessStatus;    // whether or not decoding should succeed
+    bsl::string d_loggedMessages;  // expected 'loggedMessages' after decode
 
     // NOT IMPLEMENTED
-    TestCase20RowProtocolImp(const TestCase20RowProtocolImp&) BSLS_KEYWORD_DELETED;
-    TestCase20RowProtocolImp& operator=(const TestCase20RowProtocolImp) BSLS_KEYWORD_DELETED;
+    TestCase20RowProtocolImp(const TestCase20RowProtocolImp&)
+                                                          BSLS_KEYWORD_DELETED;
+    TestCase20RowProtocolImp& operator=(const TestCase20RowProtocolImp)
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
-    TestCase20RowProtocolImp(int                    line,
-                             const TestXmlElement&  xml,
-                             bool                   decodeSuccessStatus,
-                             bslma::Allocator      *basicAllocator = 0)
+    TestCase20RowProtocolImp(int                       line,
+                             const TestXmlElement&     xml,
+                             bool                      decodeSuccessStatus,
+                             const bslstl::StringRef&  loggedMessages,
+                             bslma::Allocator         *basicAllocator = 0)
     : d_line(line)
     , d_xml(xml, basicAllocator)
     , d_decodeSuccessStatus(decodeSuccessStatus)
+    , d_loggedMessages(loggedMessages, basicAllocator)
     {
     }
 
@@ -25456,6 +25467,7 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
                 TestCase20RowProtocolImp(d_line,
                                          d_xml,
                                          d_decodeSuccessStatus,
+                                         d_loggedMessages,
                                          allocator),
             allocator);
     }
@@ -25471,6 +25483,7 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
         const int             LINE                  = d_line;
         const TestXmlElement& XML                   = d_xml;
         const bool            DECODE_SUCCESS_STATUS = d_decodeSuccessStatus;
+        const bsl::string&    LOGGED_MESSAGES       = d_loggedMessages;
 
         bdlsb::MemOutStreamBuf xmlOutStreamBuf;
         bsl::ostream xmlOutStream(&xmlOutStreamBuf);
@@ -25512,8 +25525,12 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
         else {
             ASSERTV(L_, LINE, rc, 0 != rc);
         }
-    }
 
+        ASSERTV(L_,
+                LINE,
+                mX.loggedMessages(),
+                mX.loggedMessages() == LOGGED_MESSAGES);
+    }
 };
 
                             // ===================
@@ -25538,11 +25555,13 @@ class TestCase20Row {
                   const PlaceHolder<VALUE_TYPE>&  value,
                   const TestXmlElement&           xml,
                   bool                            decodingSucceeds,
+                  const bslstl::StringRef&        loggedMessages,
                   bslma::Allocator               *basicAllocator = 0)
     : d_imp(new (*bslma::Default::allocator(basicAllocator))
                 TestCase20RowProtocolImp<VALUE_TYPE>(line,
                                                      xml,
                                                      decodingSucceeds,
+                                                     loggedMessages,
                                                      basicAllocator),
             bslma::Default::allocator(basicAllocator))
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -25935,30 +25954,52 @@ int main(int argc, char *argv[])
             // that it is an invariant part of the structure of the input to
             // the decoding operation performed in this test.
 
+        const bslstl::StringRef SuccessMsg = "";
+            // 'SuccessMsg' is an abbreviation for the value of the
+            // 'loggedMessages' attribute of a 'balxml::Decoder' after a
+            // successful decoding operation.
+
+        const bslstl::StringRef TagFailMsg =
+                "STREAM.xml:1.28: Error: Unable to decode sub-element "
+                "'attribute0'.\n";
+            // 'TagFailMsg' is an abbreviation for the value of the
+            // 'loggedMessages' attribute of a 'balxml::Decoder' after failing
+            // to decode an 'attribute0' element.
+
+        const bslstl::StringRef DynTagFailMsg =
+                "STREAM.xml:1.16: Error: The object being decoded is a "
+                "'DynamicType', and attempting to manipulate the object by "
+                "its dynamic category returned a non-zero status.\n";
+            // 'DynTagFailMsg' is an abbreviation for the value of the
+            // 'loggedMessages' attribute of a 'balxml::Decoder' after failing
+            // to decode an object with the 'Dynamic' 'bdlat' type category
+            // due to a failure in the 'bdlat_typeCategoryManipulateSequence'
+            // function.
+
         const TestCase20Row DATA[] = {
             //LINE VALUE PLACEHOLDER    XML     DECODING SUCCESS STATUS
             //---- ----------------- ---------- -----------------------
-            R(L_  ,            obj  , x(S, OBJ), yes                   ),
+            R(L_  ,            obj  , x(S, OBJ), yes, SuccessMsg   ),
                 // Verify that decoding into a 'Sequence' that returns zero for
                 // all 'bdlat' operations succeeds.
 
-            R(L_  , t_(td_,    obj ), x(S, OBJ), yes                   ),
+            R(L_  , t_(td_,    obj ), x(T, OBJ), yes, SuccessMsg   ),
                 // Verify the same property for a 'Sequence' wrapped in a
                 // 'TestTaggedValue' that does not change the behavior of the
                 // underlying sequence.
 
-            R(L_  , t_(tf_,    obj ), x(S, OBJ), no                    ),
+            R(L_  , t_(tf_,    obj ), x(T, OBJ), no , TagFailMsg   ),
                 // Verify that, for the same sequence value, wrapping it in a
                 // 'TestTaggedValue' that overrides the 'manipulateAttribute'
                 // operation to return non-zero causes the decode operation to
                 // fail.
 
-            R(L_  ,         d_(obj) , x(D, OBJ), yes                   ),
-            R(L_  , t_(td_, d_(obj)), x(T, OBJ), yes                   ),
+            R(L_  ,         d_(obj) , x(D, OBJ), yes, SuccessMsg   ),
+            R(L_  , t_(td_, d_(obj)), x(T, OBJ), yes, SuccessMsg   ),
                 // Verify the above first two properties for 'DynamicType'
                 // objects having a dynamic type wrapping the above 'Sequence'.
 
-            R(L_  , t_(tf_, d_(obj)), x(T, OBJ), no                    ),
+            R(L_  , t_(tf_, d_(obj)), x(T, OBJ), no , DynTagFailMsg),
                 // And note that this 'TestTaggedValue' overrides the
                 // 'typeCategoryManipulateSequence' operation of the
                 // 'DynamicType' to return non-zero, which should also cause
