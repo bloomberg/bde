@@ -37844,17 +37844,17 @@ int main(int argc, char *argv[])
 
         const bslstl::StringRef SOFStr =
                 "\"Address\" : {}";
-            // 'SOFStr' is a string that will fail to decode into an object
-            // of 'SOType'.
+            // 'SOFStr' is a string that will fail to decode into an object of
+            // 'SOType'.
 
         const bslstl::StringRef FOFStr =
                 "\"zero\"";
-            // 'FOFStr' is a string that will fail to decode into an object
-            // of 'FOType'.
+            // 'FOFStr' is a string that will fail to decode into an object of
+            // 'FOType'.
 
         const bslstl::StringRef SMsg = "";
-            // 'SMsg' is a string that is equivalent to the 'loggedMessages'
-            // of a 'baljsn::Decoder' after a successful decoding operation.
+            // 'SMsg' is a string that is equivalent to the 'loggedMessages' of
+            // a 'baljsn::Decoder' after a successful decoding operation.
 
         const bslstl::StringRef FMsg1 =
                 "The object being decoded must be a Sequence, Choice,"
@@ -37877,8 +37877,8 @@ int main(int argc, char *argv[])
             // as identifiers for different target objects for decoding.
 
             NONE = 0, // indicates to decode into no object (to not decode)
-            SOId,    // indicates to decode into an object of 'SOType'
-            FOId     // indicates to decode into an object of 'FOType'
+            SOId,     // indicates to decode into an object of 'SOType'
+            FOId      // indicates to decode into an object of 'FOType'
         };
 
         struct Instruction {
@@ -37894,9 +37894,9 @@ int main(int argc, char *argv[])
         };
 
         enum {
-            k_MAX_INSTRUCTIONS = 3 // maximum number of instructions that may
-                                   // be performed in one row of the table
-                                   // that driverhs the testing apparatus
+            k_MAX_INSTRUCTIONS = 3  // maximum number of instructions that may
+                                    // be performed in one row of the table
+                                    // that drives the testing apparatus
         };
 
         enum SuccessStatus {
@@ -37928,13 +37928,12 @@ int main(int argc, char *argv[])
             //LINE             INSTRUCTIONS                   |       |
             //---- --------------------------------------- -------- ------
             {   L_, {                                    }, success, SMsg  },
-                // Verify that the 'loggedMessages' are empty if no
-                // decoding operations are performed.
+                // Verify that the 'loggedMessages' are empty if no decoding
+                // operations are performed.
 
             {   L_, { {SOId, SOSStr}                     }, success, SMsg  },
-                // Verify that the 'loggedMessages' are empty if one
-                // encoding operation is performed, and that operation
-                // succeeds.
+                // Verify that the 'loggedMessages' are empty if one encoding
+                // operation is performed, and that operation succeeds.
 
             {   L_, { {SOId, SOFStr}                     }, failure, FMsg2 },
             {   L_, { {FOId, FOFStr}                     }, failure, FMsg1 },
@@ -37952,8 +37951,8 @@ int main(int argc, char *argv[])
             {   L_, { {FOId, FOFStr}, {SOId, SOFStr}     }, failure, FMsg2 },
             {   L_, { {FOId, FOFStr}, {FOId, FOFStr}     }, failure, FMsg1 },
                 // Verify that the 'loggedMessages' have an expected message
-                // when, after performing 2 decoding operations, the
-                // second operation fails, and otherwise are empty.
+                // when, after performing 2 decoding operations, the second
+                // operation fails, and otherwise are empty.
         };
 
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
