@@ -37797,18 +37797,18 @@ int main(int argc, char *argv[])
         //:   messages refer to only the most recent invocation of 'decode'.
         //
         // Plan:
-        //: 1 Define a type, 'SO1Type', that 'baljsn::Decoder' is able to
+        //: 1 Define a type, 'SOType', that 'baljsn::Decoder' is able to
         //:   successfully decode into given well-formed input.
         //:
-        //: 2 Define a type, 'FO1Type', that 'baljsn::Decoder' is unable to
+        //: 2 Define a type, 'FOType', that 'baljsn::Decoder' is unable to
         //:   successfully decode into given any input.
         //:
-        //: 3 Create a string that successfully decodes into a 'SO1Type'.
+        //: 3 Create a string that successfully decodes into a 'SOType'.
         //:
-        //: 4 Create a string that does not decode into a 'SO1Type'.
+        //: 4 Create a string that does not decode into a 'SOType'.
         //:
-        //: 5 Create a string that does not decode into a 'FO1Type'.  Note that
-        //:   this can be any string, because 'FO1Type' can never be
+        //: 5 Create a string that does not decode into a 'FOType'.  Note that
+        //:   this can be any string, because 'FOType' can never be
         //:   successfully decoded-into.
         //:
         //: 6 Verify that, after performing various sequences of decoding
@@ -37825,32 +37825,32 @@ int main(int argc, char *argv[])
             << "TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS" << endl
             << "===================================================" << endl;
 
-        typedef test::Address SO1Type;
-            // 'SO1Type' is the type of an object for which
+        typedef test::Address SOType;
+            // 'SOType' is the type of an object for which
             // 'baljsn::Decoder::decode' will succeed for some input.
 
-        typedef test::Enumeration0 FO1Type;
-            // 'FO1Type' is the type of an object or which
+        typedef test::Enumeration0 FOType;
+            // 'FOType' is the type of an object or which
             // 'baljsn::Decoder::deocde' will fail for all input.
 
-        const bslstl::StringRef SO1SStr =
+        const bslstl::StringRef SOSStr =
                 "{"
                 "    \"street\": \"1st\","
                 "    \"city\": \"New York\","
                 "    \"state\": \"New York\""
                 "}";
-            // 'SO1SStr' is a string that will successfully decode into an
-            // object of 'SO1Type'.
+            // 'SOSStr' is a string that will successfully decode into an
+            // object of 'SOType'.
 
-        const bslstl::StringRef SO1FStr =
+        const bslstl::StringRef SOFStr =
                 "\"Address\" : {}";
-            // 'SO1FStr' is a string that will fail to decode into an object
-            // of 'SO1Type'.
+            // 'SOFStr' is a string that will fail to decode into an object
+            // of 'SOType'.
 
-        const bslstl::StringRef FO1FStr =
+        const bslstl::StringRef FOFStr =
                 "\"zero\"";
-            // 'FO1FStr' is a string that will fail to decode into an object
-            // of 'FO1Type'.
+            // 'FOFStr' is a string that will fail to decode into an object
+            // of 'FOType'.
 
         const bslstl::StringRef SMsg = "";
             // 'SMsg' is a string that is equivalent to the 'loggedMessages'
@@ -37877,8 +37877,8 @@ int main(int argc, char *argv[])
             // as identifiers for different target objects for decoding.
 
             NONE = 0, // indicates to decode into no object (to not decode)
-            SO1Id,    // indicates to decode into an object of 'SO1Type'
-            FO1Id     // indicates to decode into an object of 'FO1Type'
+            SOId,    // indicates to decode into an object of 'SOType'
+            FOId     // indicates to decode into an object of 'FOType'
         };
 
         struct Instruction {
@@ -37921,30 +37921,36 @@ int main(int argc, char *argv[])
                 // messages from final operation
 
         } DATA[] = {
-            { L_, {                                    }, success, SMsg },
+            //                                         LOGGED MESSAGES
+            //                                         ---------------.
+            //                           DECODE SUCCESS STATUS        |
+            //                           ---------------------.       |
+            //LINE             INSTRUCTIONS                   |       |
+            //---- --------------------------------------- -------- ------
+            {   L_, {                                    }, success, SMsg  },
                 // Verify that the 'loggedMessages' are empty if no
                 // decoding operations are performed.
 
-            { L_, { {SO1Id, SO1SStr}                   }, success, SMsg  },
+            {   L_, { {SOId, SOSStr}                     }, success, SMsg  },
                 // Verify that the 'loggedMessages' are empty if one
                 // encoding operation is performed, and that operation
                 // succeeds.
 
-            { L_, { {SO1Id, SO1FStr}                   }, failure, FMsg2 },
-            { L_, { {FO1Id, FO1FStr}                   }, failure, FMsg1 },
+            {   L_, { {SOId, SOFStr}                     }, failure, FMsg2 },
+            {   L_, { {FOId, FOFStr}                     }, failure, FMsg1 },
                 // Verify that the 'loggedMessages' have an expected error
                 // message if one encoding operation is performed, and that
                 // operation fails.
 
-            { L_, { {SO1Id, SO1SStr}, {SO1Id, SO1SStr} }, success, SMsg  },
-            { L_, { {SO1Id, SO1SStr}, {SO1Id, SO1FStr} }, failure, FMsg2 },
-            { L_, { {SO1Id, SO1SStr}, {FO1Id, FO1FStr} }, failure, FMsg1 },
-            { L_, { {SO1Id, SO1FStr}, {SO1Id, SO1SStr} }, failure, SMsg  },
-            { L_, { {SO1Id, SO1FStr}, {SO1Id, SO1FStr} }, failure, FMsg2 },
-            { L_, { {SO1Id, SO1FStr}, {FO1Id, FO1FStr} }, failure, FMsg1 },
-            { L_, { {FO1Id, FO1FStr}, {SO1Id, SO1SStr} }, failure, SMsg  },
-            { L_, { {FO1Id, FO1FStr}, {SO1Id, SO1FStr} }, failure, FMsg2 },
-            { L_, { {FO1Id, FO1FStr}, {FO1Id, FO1FStr} }, failure, FMsg1 },
+            {   L_, { {SOId, SOSStr}, {SOId, SOSStr}     }, success, SMsg  },
+            {   L_, { {SOId, SOSStr}, {SOId, SOFStr}     }, failure, FMsg2 },
+            {   L_, { {SOId, SOSStr}, {FOId, FOFStr}     }, failure, FMsg1 },
+            {   L_, { {SOId, SOFStr}, {SOId, SOSStr}     }, failure, SMsg  },
+            {   L_, { {SOId, SOFStr}, {SOId, SOFStr}     }, failure, FMsg2 },
+            {   L_, { {SOId, SOFStr}, {FOId, FOFStr}     }, failure, FMsg1 },
+            {   L_, { {FOId, FOFStr}, {SOId, SOSStr}     }, failure, SMsg  },
+            {   L_, { {FOId, FOFStr}, {SOId, SOFStr}     }, failure, FMsg2 },
+            {   L_, { {FOId, FOFStr}, {FOId, FOFStr}     }, failure, FMsg1 },
                 // Verify that the 'loggedMessages' have an expected message
                 // when, after performing 2 decoding operations, the
                 // second operation fails, and otherwise are empty.
@@ -37971,21 +37977,21 @@ int main(int argc, char *argv[])
                   case NONE: {
                       // do nothing, in just the right way
                   } break;
-                  case SO1Id: {
+                  case SOId: {
                       bdlsb::FixedMemInStreamBuf streamBuf(
                                 instructionPtr->d_string.data(),
                                 instructionPtr->d_string.length());
 
-                      SO1Type output;
+                      SOType output;
                       decodeStatus |= mX.decode(&streamBuf, &output,
                                                 baljsn::DecoderOptions());
                   } break;
-                  case FO1Id: {
+                  case FOId: {
                       bdlsb::FixedMemInStreamBuf streamBuf(
                                 instructionPtr->d_string.data(),
                                 instructionPtr->d_string.length());
 
-                      FO1Type output;
+                      FOType output;
                       decodeStatus |= mX.decode(&streamBuf, &output,
                                                 baljsn::DecoderOptions());
                   } break;
