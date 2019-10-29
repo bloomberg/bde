@@ -22,7 +22,8 @@ BSLS_IDENT("$Id: $")
 ///-----------------------------
 // The mapping from Windows to Zoneinfo identifiers used by the 'baltzo'
 // package is defined in the table titled "Mapping for: windows" at
-// 'http://unicode.org/cldr/charts/32/supplemental/zone_tzid.html'.  The
+// 'http://unicode.org/cldr/charts/32/supplemental/zone_tzid.html' (with any
+// differences noted in the section (Differences from CLDR) below).  The
 // Zoneinfo values on the unicode webpage are given in the column labeled
 // "TZID".  Each Windows identifier is qualified by one or more "Region"
 // attributes so, in general, there may be more than one Zoneinfo identifier
