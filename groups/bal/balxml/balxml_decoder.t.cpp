@@ -20790,7 +20790,7 @@ struct TestDynamicType_CustomizedTypeImpUtil<VALUE_TYPE, false> {
         bsl::abort();
     }
 
-    static const BaseType& convertToBaseType(const Value& value)
+    static const BaseType& convertToBaseType(const Value&)
     {
         bsl::abort();
     }
@@ -21988,7 +21988,8 @@ struct IsChoice<TestDynamicType<VALUE_TYPE> > {
 
 template <class VALUE_TYPE,
           bool IS_CUSTOMIZED_TYPE =
-              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
               bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY>
 struct TestDynamicType_BaseTypeImpl {
     typedef typename bdlat_CustomizedTypeFunctions::BaseType<VALUE_TYPE>::Type
@@ -22036,7 +22037,8 @@ struct IsEnumeration<TestDynamicType<VALUE_TYPE> > {
 
 template <class VALUE_TYPE,
           bool IS_NULLABLE_VALUE =
-              bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
+              static_cast<bdlat_TypeCategory::Value>(
+                  bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
               bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY>
 struct TestDynamicType_ValueTypeImpl {
     typedef typename bdlat_NullableValueFunctions::ValueType<VALUE_TYPE>::Type
@@ -23070,10 +23072,12 @@ class TestTaggedValue;
 
 template <class TAG_TYPE,
           class VALUE_TYPE,
-          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_ARRAY_CATEGORY ||
-                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+          bool = static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_ARRAY_CATEGORY ||
+                 static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_ArrayBase {
     // This class provides a base class and member functions implementing the
     // 'bdlat' 'Array' concept for 'TestTaggedValue' specializations having a
@@ -23149,10 +23153,12 @@ class TestTaggedValue_ArrayBase<TAG_TYPE, VALUE_TYPE, false> {
 
 template <class TAG_TYPE,
           class VALUE_TYPE,
-          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_CHOICE_CATEGORY ||
-                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+          bool = static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                        bdlat_TypeCategory::e_CHOICE_CATEGORY ||
+                 static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_ChoiceBase {
     // This class provides a base class and member functions implementing the
     // 'bdlat' 'Choice' concept for 'TestTaggedValue' specializations having a
@@ -23241,10 +23247,12 @@ class TestTaggedValue_ChoiceBase<TAG_TYPE, VALUE_TYPE, false> {
 
 template <class TAG_TYPE,
           class VALUE_TYPE,
-          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY ||
-                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+          bool = static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY ||
+                 static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_CustomizedTypeBase {
     // This class provides a base class and member functions implementing the
     // 'bdlat' 'CustomizedType' concept for 'TestTaggedValue' specializations
@@ -23311,8 +23319,9 @@ class TestTaggedValue_CustomizedTypeBase<TAG_TYPE, VALUE_TYPE, false> {
 
 template <class TAG_TYPE,
           class VALUE_TYPE,
-          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                 bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+          bool = static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_DynamicTypeBase {
     // This class provides a base class and member functions implementing the
     // 'bdlat' 'DynamicType' concept for 'TestTaggedValue' specializations
@@ -23356,10 +23365,12 @@ class TestTaggedValue_DynamicTypeBase<TAG_TYPE, VALUE_TYPE, false> {
 
 template <class TAG_TYPE,
           class VALUE_TYPE,
-          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_ENUMERATION_CATEGORY ||
-                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+          bool = static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_ENUMERATION_CATEGORY ||
+                 static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_EnumerationBase {
     // This class provides a base class and member functions implementing the
     // 'bdlat' 'Enumeration' concept for 'TestTaggedValue' specializations
@@ -23430,10 +23441,12 @@ class TestTaggedValue_EnumerationBase<TAG_TYPE, VALUE_TYPE, false> {
 
 template <class TAG_TYPE,
           class VALUE_TYPE,
-          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY ||
-                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+          bool = static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY ||
+                 static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_NullableValueBase {
     // This class provides a base class and member functions implementing the
     // 'bdlat' 'NullableValue' concept for 'TestTaggedValue' specializations
@@ -23511,10 +23524,12 @@ class TestTaggedValue_NullableValueBase<TAG_TYPE, VALUE_TYPE, false> {
 
 template <class TAG_TYPE,
           class VALUE_TYPE,
-          bool = bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_SEQUENCE_CATEGORY ||
-                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION ==
-                     bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
+          bool = static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_SEQUENCE_CATEGORY ||
+                 static_cast<bdlat_TypeCategory::Value>(
+                     bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
+                         bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_SequenceBase {
     // This class provides a base class and member functions implementing the
     // 'bdlat' 'Sequence' concept for 'TestTaggedValue' specializations having
@@ -25552,7 +25567,7 @@ class TestCase20Row {
     // CREATORS
     template <class VALUE_TYPE>
     TestCase20Row(int                             line,
-                  const PlaceHolder<VALUE_TYPE>&  value,
+                  const PlaceHolder<VALUE_TYPE>&,
                   const TestXmlElement&           xml,
                   bool                            decodingSucceeds,
                   const bslstl::StringRef&        loggedMessages,
