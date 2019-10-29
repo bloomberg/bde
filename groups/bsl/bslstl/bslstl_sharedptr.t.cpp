@@ -3111,11 +3111,14 @@ std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
 
 template <bool USES_BSLMA_ALLOC>
 class AllocPropagationTestType {
-    // This class provides a test object used to check that 'make_shared'
-    // passes only supplied parameters to the managed object constructor (and
-    // does not add pointer to the default allocator in the last position
-    // regardless of whether managed object's type defines
-    // 'bslma::UsesBslmaAllocator' trait or not.
+    // This class provides a type to test allocator propagation from its
+    // constructor, and declares the 'UsesBsmlaAllocator' trait if the template
+    // parameter 'USES_BSLMA_ALLOC' is 'true', and does not declare the trait
+    // otherwise.  This class can be used to check that 'make_shared' passes
+    // only supplied parameters to the managed object constructor (and does not
+    // add pointer to the default allocator in the last position regardless of
+    // whether managed object's type defines 'bslma::UsesBslmaAllocator' trait
+    // or not.
 
   private:
     // DATA
@@ -3497,7 +3500,7 @@ namespace BloombergLP {
 namespace bslma {
 
 // We need to test 'make_shared' function for classes that define
-// 'bslma::UsesBslamaAllocator' trait and for those that do not.  To avoid code
+// 'bslma::UsesBslmaAllocator' trait and for those that do not.  To avoid code
 // duplication test class is created as a template and different
 // specializations have different trait values.
 
@@ -5303,6 +5306,8 @@ void Harness::testCase32_AllocatorPropagation()
              dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
     BSLS_ASSERT(da);
 
+    bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
     // 14 arguments for constructor
     MyAllocatableArg01 A01(VA01);
     MyAllocatableArg02 A02(VA02);
@@ -5322,84 +5327,135 @@ void Harness::testCase32_AllocatorPropagation()
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
 
-    bsls::Types::Int64 numAllocations   = da->numAllocations();
-    bsls::Types::Int64 numDeallocations = da->numDeallocations();
+    bsls::Types::Int64 numAllocationsDA   = da->numAllocations();
+    bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
 
+    const bsls::Types::Int64 EXPECTED_DA_ALLOCATIONS_NUM   =
+                                           numAllocationsDA + 2 * (1 + N_ARGS);
+    const bsls::Types::Int64 EXPECTED_DA_DEALLOCATIONS_NUM =
+                                         numDeallocationsDA + 2 * (1 + N_ARGS);
     {
         bsl::shared_ptr<const AllocPropagationType>        mX;
         const bsl::shared_ptr<const AllocPropagationType>& X = mX;
+        bsl::shared_ptr<const AllocPropagationType>        mXA;
+        const bsl::shared_ptr<const AllocPropagationType>& XA = mXA;
 
         switch (N_ARGS) {
           case 0: {
-            mX = bsl::make_shared<const AllocPropagationType>();
+            mX  = bsl::make_shared<const AllocPropagationType>();
+            mXA = bsl::make_shared<const AllocPropagationType>(&sa);
           } break;
           case 1: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, &sa);
           } break;
           case 2: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, &sa);
           } break;
           case 3: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               &sa);
           } break;
           case 4: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, &sa);
           } break;
           case 5: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, &sa);
           } break;
           case 6: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               &sa);
           } break;
           case 7: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, &sa);
           } break;
           case 8: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07, A08);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, &sa);
           } break;
           case 9: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07, A08, A09);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               &sa);
           } break;
           case 10: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07, A08, A09,
-                                                              A10);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, &sa);
           } break;
           case 11: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07, A08, A09,
-                                                              A10, A11);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11, &sa);
           } break;
           case 12: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07, A08, A09,
-                                                              A10, A11, A12);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11, A12);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11, A12,
+                                                               &sa);
           } break;
           case 13: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07, A08, A09,
-                                                              A10, A11, A12,
-                                                              A13);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11, A12,
+                                                               A13);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11, A12,
+                                                               A13, &sa);
           } break;
           case 14: {
-            mX = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
-                                                              A04, A05, A06,
-                                                              A07, A08, A09,
-                                                              A10, A11, A12,
-                                                              A13, A14);
+            mX  = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11, A12,
+                                                               A13, A14);
+            mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
+                                                               A04, A05, A06,
+                                                               A07, A08, A09,
+                                                               A10, A11, A12,
+                                                               A13, A14, &sa);
           } break;
         };
 
@@ -5407,17 +5463,23 @@ void Harness::testCase32_AllocatorPropagation()
         // (note that ctor of managed object creates N_ARGS temporary objects
         // using the default allocator).
 
-        ASSERTV(N_ARGS, numAllocations + 1 + N_ARGS,   da->numAllocations(),
-                        numAllocations + 1 + N_ARGS == da->numAllocations());
 
-        // Verify that 'make_shared' doesn't pass an allocator in a final
-        // position (default value is used).
+        ASSERTV(N_ARGS, EXPECTED_DA_ALLOCATIONS_NUM,   da->numAllocations(),
+                        EXPECTED_DA_ALLOCATIONS_NUM == da->numAllocations());
+        ASSERTV(N_ARGS, sa.numAllocations(), 0 == sa.numAllocations());
+
+        // Verify that 'make_shared' does not pass an extra default allocator.
 
         ASSERTV(0 == X->allocator());
+
+        // Verify that 'make_shared' does propagate a supplied allocator.
+
+        ASSERTV(&sa == XA->allocator());
     }
 
-    ASSERTV(N_ARGS, numDeallocations + 1 + N_ARGS,   da->numDeallocations(),
-                    numDeallocations + 1 + N_ARGS == da->numDeallocations());
+    ASSERTV(N_ARGS, EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
+                    EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
+    ASSERTV(N_ARGS, sa.numDeallocations(), 0 == sa.numDeallocations());
 
     ASSERT(dam.isInUseSame());
 }
@@ -13637,8 +13699,8 @@ int main(int argc, char *argv[])
                             "\n-----------------------------\n");
 
         Harness::testCase32_AllocatorPropagation< 0, false>();
-#if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
         Harness::testCase32_AllocatorPropagation< 1, false>();
+#if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
         Harness::testCase32_AllocatorPropagation< 2, false>();
         Harness::testCase32_AllocatorPropagation< 3, false>();
         Harness::testCase32_AllocatorPropagation< 4, false>();
