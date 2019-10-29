@@ -553,19 +553,19 @@ int Encoder::encode(bsl::streambuf        *streamBuf,
 {
     BSLS_ASSERT(streamBuf);
 
+    d_logStream.clear();
+    d_logStream.str("");
+
     bdlat_TypeCategory::Value category =
                                     bdlat_TypeCategoryFunctions::select(value);
     if (bdlat_TypeCategory::e_SEQUENCE_CATEGORY != category
      && bdlat_TypeCategory::e_CHOICE_CATEGORY != category
      && bdlat_TypeCategory::e_ARRAY_CATEGORY != category) {
         logStream()
-                  << "Encoded object must be a Sequence, Choice or Array type."
-                  << bsl::endl;
+                 << "Encoded object must be a Sequence, Choice, or Array type."
+                 << bsl::endl;
         return -1;                                                    // RETURN
     }
-
-    d_logStream.clear();
-    d_logStream.str("");
 
     Encoder_EncodeImpl encoderImpl(this, streamBuf, options);
 

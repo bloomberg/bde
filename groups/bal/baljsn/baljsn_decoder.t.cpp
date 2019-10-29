@@ -37599,6 +37599,73 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
 }  // close enterprise namespace
 
 // ============================================================================
+//                              BDLAT TEST TYPES
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace test {
+
+                             // ==================
+                             // class Enumeration0
+                             // ==================
+
+class Enumeration0 {
+
+  public:
+    Enumeration0()
+    {
+    }
+};
+
+int bdlat_enumFromInt(Enumeration0 *, int number)
+{
+    if (0 == number) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+int bdlat_enumFromString(Enumeration0 *, const char *string,
+                         int stringLength)
+{
+    const bslstl::StringRef stringRef(string, stringLength);
+
+    if ("zero" == stringRef) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+void bdlat_enumToInt(int *result, const Enumeration0&)
+{
+    *result = 0;
+}
+
+void bdlat_enumToString(bsl::string *result, const Enumeration0&)
+{
+    *result = "zero";
+}
+
+}  // close test namespace
+
+// TRAITS
+template <>
+struct bdlat_IsBasicEnumeration<test::Enumeration0> : bsl::true_type {};
+
+namespace bdlat_EnumFunctions {
+
+template <>
+struct IsEnumeration<test::Enumeration0> {
+    enum { VALUE = 1 };
+};
+
+}  // close bdlat_EnumFunctions namespace
+}  // close enterprise namespace
+
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -37611,7 +37678,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -37717,6 +37784,230 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 8: {
+        // ------------------------------------------------------------------
+        // TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS
+        //   This case tests that the log buffer is reset on each call to
+        //   'decode'.
+        //
+        // Concerns:
+        //: 1 The string returned from 'loggedMessages' resets each time
+        //:   'decode' is invoked, such that the contents of the logged
+        //:   messages refer to only the most recent invocation of 'decode'.
+        //
+        // Plan:
+        //: 1 Define a type, 'SOType', that 'baljsn::Decoder' is able to
+        //:   successfully decode into given well-formed input.
+        //:
+        //: 2 Define a type, 'FOType', that 'baljsn::Decoder' is unable to
+        //:   successfully decode into given any input.
+        //:
+        //: 3 Create a string that successfully decodes into a 'SOType'.
+        //:
+        //: 4 Create a string that does not decode into a 'SOType'.
+        //:
+        //: 5 Create a string that does not decode into a 'FOType'.  Note that
+        //:   this can be any string, because 'FOType' can never be
+        //:   successfully decoded-into.
+        //:
+        //: 6 Verify that, after performing various sequences of decoding
+        //:   operations using combinations of the above types and strings,
+        //:   where some/all succeed/fail, the 'loggedMessages' are empty if
+        //:   the last operation succeeds, and contain an expected message
+        //:   if and only if the last operation fails.
+        //
+        // Testing:
+        //   int decode(bsl::streambuf *streamBuf, TYPE *y, options);
+        // ------------------------------------------------------------------
+
+        if (verbose) cout << endl
+            << "TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS" << endl
+            << "===================================================" << endl;
+
+        typedef test::Address SOType;
+            // 'SOType' is the type of an object for which
+            // 'baljsn::Decoder::decode' will succeed for some input.
+
+        typedef test::Enumeration0 FOType;
+            // 'FOType' is the type of an object or which
+            // 'baljsn::Decoder::deocde' will fail for all input.
+
+        const bslstl::StringRef SOSStr =
+                "{"
+                "    \"street\": \"1st\","
+                "    \"city\": \"New York\","
+                "    \"state\": \"New York\""
+                "}";
+            // 'SOSStr' is a string that will successfully decode into an
+            // object of 'SOType'.
+
+        const bslstl::StringRef SOFStr =
+                "\"Address\" : {}";
+            // 'SOFStr' is a string that will fail to decode into an object of
+            // 'SOType'.
+
+        const bslstl::StringRef FOFStr =
+                "\"zero\"";
+            // 'FOFStr' is a string that will fail to decode into an object of
+            // 'FOType'.
+
+        const bslstl::StringRef SMsg = "";
+            // 'SMsg' is a string that is equivalent to the 'loggedMessages' of
+            // a 'baljsn::Decoder' after a successful decoding operation.
+
+        const bslstl::StringRef FMsg1 =
+                "The object being decoded must be a Sequence, Choice,"
+                " or Array type\n";
+            // 'FMsg1' is a string that is equivalent to the 'loggedMessages'
+            // of a 'baljsn::Decoder' after an decoding operation that fails
+            // due to the type of the target object having an unsupported
+            // 'bdlat' category.
+
+        const bslstl::StringRef FMsg2 =
+                "Error advancing to the first token. Expecting a '{' or '['"
+                " as the first character\n";
+            // 'FMsg2' is a string that is equivalent to the 'loggedMessages'
+            // of the 'baljsn::Decoder' after a decoding operation that fails
+            // due to the contents of the JSON string not being a valid
+            // representation of an object of the target type.
+
+        enum ObjId {
+            // This enumeration provides a set of integer constants that serve
+            // as identifiers for different target objects for decoding.
+
+            NONE = 0, // indicates to decode into no object (to not decode)
+            SOId,     // indicates to decode into an object of 'SOType'
+            FOId      // indicates to decode into an object of 'FOType'
+        };
+
+        struct Instruction {
+            // This 'struct' provides a pair that defines the input to a
+            // decoding operation: the object to decode into, and the string
+            // containing the encoded JSON.
+
+            ObjId d_objId;
+                // Id of an object to decode into
+
+            bslstl::StringRef d_string;
+                // the JSON to decode from
+        };
+
+        enum {
+            k_MAX_INSTRUCTIONS = 3  // maximum number of instructions that may
+                                    // be performed in one row of the table
+                                    // that drives the testing apparatus
+        };
+
+        enum SuccessStatus {
+            // This enumeration provides a set of enumerators used to identity
+            // whether or not a decoding operation completed successfully.
+
+            failure,
+            success
+        };
+
+        const struct {
+            int d_line;
+                // line number
+
+            Instruction d_instructions[k_MAX_INSTRUCTIONS];
+                // instructions for test apparatus
+
+            SuccessStatus d_decodeSuccessStatus;
+                // whether all operations succeed
+
+            bslstl::StringRef d_loggedMessages;
+                // messages from final operation
+
+        } DATA[] = {
+            //                                         LOGGED MESSAGES
+            //                                         ---------------.
+            //                           DECODE SUCCESS STATUS        |
+            //                           ---------------------.       |
+            //LINE             INSTRUCTIONS                   |       |
+            //---- --------------------------------------- -------- ------
+            {   L_, {                                    }, success, SMsg  },
+                // Verify that the 'loggedMessages' are empty if no decoding
+                // operations are performed.
+
+            {   L_, { {SOId, SOSStr}                     }, success, SMsg  },
+                // Verify that the 'loggedMessages' are empty if one encoding
+                // operation is performed, and that operation succeeds.
+
+            {   L_, { {SOId, SOFStr}                     }, failure, FMsg2 },
+            {   L_, { {FOId, FOFStr}                     }, failure, FMsg1 },
+                // Verify that the 'loggedMessages' have an expected error
+                // message if one encoding operation is performed, and that
+                // operation fails.
+
+            {   L_, { {SOId, SOSStr}, {SOId, SOSStr}     }, success, SMsg  },
+            {   L_, { {SOId, SOSStr}, {SOId, SOFStr}     }, failure, FMsg2 },
+            {   L_, { {SOId, SOSStr}, {FOId, FOFStr}     }, failure, FMsg1 },
+            {   L_, { {SOId, SOFStr}, {SOId, SOSStr}     }, failure, SMsg  },
+            {   L_, { {SOId, SOFStr}, {SOId, SOFStr}     }, failure, FMsg2 },
+            {   L_, { {SOId, SOFStr}, {FOId, FOFStr}     }, failure, FMsg1 },
+            {   L_, { {FOId, FOFStr}, {SOId, SOSStr}     }, failure, SMsg  },
+            {   L_, { {FOId, FOFStr}, {SOId, SOFStr}     }, failure, FMsg2 },
+            {   L_, { {FOId, FOFStr}, {FOId, FOFStr}     }, failure, FMsg1 },
+                // Verify that the 'loggedMessages' have an expected message
+                // when, after performing 2 decoding operations, the second
+                // operation fails, and otherwise are empty.
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int                LINE         = DATA[i].d_line;
+            const Instruction *const INSTRUCTIONS = DATA[i].d_instructions;
+            const SuccessStatus      DECODE_SUCCESS_STATUS =
+                DATA[i].d_decodeSuccessStatus;
+            const bslstl::StringRef LOGGED_MESSAGES = DATA[i].d_loggedMessages;
+
+            typedef baljsn::Decoder Obj;
+            Obj mX;
+
+            int decodeStatus = 0;
+
+            for (const Instruction *instructionPtr = INSTRUCTIONS;
+                 instructionPtr != INSTRUCTIONS + k_MAX_INSTRUCTIONS;
+                 ++instructionPtr) {
+                switch (instructionPtr->d_objId) {
+                  case NONE: {
+                      // do nothing, in just the right way
+                  } break;
+                  case SOId: {
+                      bdlsb::FixedMemInStreamBuf streamBuf(
+                                instructionPtr->d_string.data(),
+                                instructionPtr->d_string.length());
+
+                      SOType output;
+                      decodeStatus |= mX.decode(&streamBuf, &output,
+                                                baljsn::DecoderOptions());
+                  } break;
+                  case FOId: {
+                      bdlsb::FixedMemInStreamBuf streamBuf(
+                                instructionPtr->d_string.data(),
+                                instructionPtr->d_string.length());
+
+                      FOType output;
+                      decodeStatus |= mX.decode(&streamBuf, &output,
+                                                baljsn::DecoderOptions());
+                  } break;
+                }
+            }
+
+            ASSERTV(LINE,
+                    decodeStatus,
+                    DECODE_SUCCESS_STATUS ? decodeStatus == 0
+                                          : decodeStatus != 0);
+
+            ASSERTV(LINE,
+                    LOGGED_MESSAGES,
+                    mX.loggedMessages(),
+                    LOGGED_MESSAGES == mX.loggedMessages());
+        }
+
       } break;
       case 7: {
         // ------------------------------------------------------------------

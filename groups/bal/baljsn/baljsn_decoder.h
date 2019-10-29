@@ -883,6 +883,9 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
     BSLS_ASSERT(streamBuf);
     BSLS_ASSERT(value);
 
+    d_logStream.clear();
+    d_logStream.str("");
+
     bdlat_TypeCategory::Value category =
                                 bdlat_TypeCategoryFunctions::select(*value);
 
@@ -908,9 +911,6 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
     }
 
     bdlat_ValueTypeFunctions::reset(value);
-
-    d_logStream.clear();
-    d_logStream.str("");
 
     d_maxDepth            = options.maxDepth();
     d_skipUnknownElements = options.skipUnknownElements();
