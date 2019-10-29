@@ -987,6 +987,12 @@ class TestDriver {
                                      bslma::UsesBslmaAllocator<ELEMENT>::value;
 
     // PRIVATE CLASS METHODS
+    static ELEMENT *ampersand(ELEMENT& expression)
+        // Return a non-const ptr to the specified 'expression'.
+    {
+        return bsls::Util::addressOf(expression);
+    }
+
     static void setData(ELEMENT *target, int value)
         // The the value of the specified '*target' to the specified 'value'.
     {
@@ -1153,16 +1159,16 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
 
     const int H0 = mX.add(MUtil::move(vs[0]));
     ASSERT(0 != H0);
-    setData(&vs[0], '0');
+    setData(ampersand(vs[0]), '0');
     ASSERT(VS[0] == X.value(H0));
     ASSERT(7 == X.length());
 
     spec = "ABCDEF0";
     ASSERT(checkSpec(X, spec));
 
-    mX.remove(HC, &vs[1]);
+    mX.remove(HC, ampersand(vs[1]));
     ASSERT(getData(VS[1]) == 'C');
-    setData(&vs[1], '1');
+    setData(ampersand(vs[1]), '1');
 
     spec = "ABDEF0";
     ASSERT(checkSpec(X, spec));
@@ -1176,17 +1182,17 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     rc = mX.remove(HD);
     ASSERT(0 != rc);
 
-    rc = mX.remove(HF, &vs[3]);
+    rc = mX.remove(HF, ampersand(vs[3]));
     ASSERT(0 == rc);
     ASSERT('F' == getData(VS[3]));
-    setData(&vs[3], '3');
+    setData(ampersand(vs[3]), '3');
 
     spec = "ABE0";
     ASSERT(checkSpec(X, spec));
 
     rc = mX.replace(HE, MUtil::move(vs[1]));
     ASSERT(0 == rc);
-    setData(&vs[1], '1');
+    setData(ampersand(vs[1]), '1');
     ASSERT(X.isMember(VS[1]));
 
     rc = mX.replace(HD, MUtil::move(vs[2]));
@@ -1280,14 +1286,14 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
 
     spec = "ABCDEF0";
     ASSERT(checkSpec(X, spec));
-    ASSERT(0 == X.find(HD, &vs[1]));
+    ASSERT(0 == X.find(HD, ampersand(vs[1])));
     ASSERT(getData(VS[1]) == 'D');
     ASSERT(checkSpec(X, spec));
 
-    setData(&vs[1], '1');
-    mX.remove(HC, &vs[1]);
+    setData(ampersand(vs[1]), '1');
+    mX.remove(HC, ampersand(vs[1]));
     ASSERT(getData(VS[1]) == 'C');
-    setData(&vs[1], '1');
+    setData(ampersand(vs[1]), '1');
 
     spec = "ABDEF0";
     ASSERT(checkSpec(X, spec));
@@ -1301,10 +1307,10 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     rc = mX.remove(HD);
     ASSERT(0 != rc);
 
-    rc = mX.remove(HF, &vs[3]);
+    rc = mX.remove(HF, ampersand(vs[3]));
     ASSERT(0 == rc);
     ASSERT('F' == getData(VS[3]));
-    setData(&vs[3], '3');
+    setData(ampersand(vs[3]), '3');
 
     spec = "ABE0";
     ASSERT(checkSpec(X, spec));
@@ -1336,11 +1342,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
         ASSERT(spec[ii] == val);
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
         ASSERT(0 == X.find(handles[ii]));
-        ASSERT(0 == X.find(handles[ii], &vs[0]));
+        ASSERT(0 == X.find(handles[ii], ampersand(vs[0])));
         ASSERT(E == VS[0]);
         ASSERT(val == getData(VS[0]));
         ASSERT(X.isMember(VS[0]));
-        setData(&vs[0], '0');
+        setData(ampersand(vs[0]), '0');
     }
 
     int numItems = 0;
@@ -1351,11 +1357,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
         ASSERT('A' <= val && val <= 'F');
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
         ASSERT(0 == X.find(h));
-        ASSERT(0 == X.find(h, &vs[0]));
+        ASSERT(0 == X.find(h, ampersand(vs[0])));
         ASSERT(E == VS[0]);
         ASSERT(val == getData(VS[0]));
         ASSERT(X.isMember(VS[0]));
-        setData(&vs[0], '0');
+        setData(ampersand(vs[0]), '0');
 
         const bsl::pair<int, ELEMENT>& pr = it();
         ASSERT(usesAllocatorOrNoAllocator(pr.second, &td));
@@ -1400,7 +1406,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         const int startLength = X.length();
 
         int vHandle = mX.add(MUtil::move(v));
-        setData(&v, '5');
+        setData(ampersand(v), '5');
         ASSERT(0 != vHandle);
         ASSERT(startLength + 1 == X.length());
         ASSERT(v == X.value(vHandle));
@@ -1437,7 +1443,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         for (int jj = 0; jj < LENGTH; ++jj) {
             const char value = SPEC[jj];
             ASSERT(u::isMemberValue(X, value));
-            setData(&v, value);
+            setData(ampersand(v), value);
             ASSERT(X.isMember(v));
             const int handle = handles[jj];
             ASSERT(0 == X.find(handle));
@@ -1455,14 +1461,14 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         for (int jj = 0; jj < LENGTH; ++jj) {
             int value = SPEC[jj];
             ASSERT(!u::isMemberValue(X, value));
-            setData(&v, value);
+            setData(ampersand(v), value);
             ASSERT(!X.isMember(v));
             ASSERT(0 != X.find(handles[jj]));
         }
 
-        setData(&v, '5');
+        setData(ampersand(v), '5');
         vHandle = mX.add(MUtil::move(v));
-        setData(&v, '5');
+        setData(ampersand(v), '5');
         ASSERT(0 != vHandle);
         ASSERT(1 == X.length());
         ASSERT(X.isMember(V));
@@ -1496,7 +1502,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         for (int jj = 0; jj < LENGTH; ++jj) {
             int value = SPEC[jj];
             ASSERT(u::isMemberValue(X, value));
-            setData(&v, value);
+            setData(ampersand(v), value);
             ASSERT(X.isMember(v));
         }
 
@@ -1514,7 +1520,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
             ASSERT(*pc == value);
             ASSERT(pc < specCopy + LENGTH);
             ASSERT(pc - specCopy == ii);
-            setData(&v, value);
+            setData(ampersand(v), value);
 
             ASSERT(0 == X.find(it.handle()));
 
@@ -1527,7 +1533,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         ASSERT(static_cast<unsigned>(LENGTH) ==
                                bsl::count(specCopy + 0, specCopy + LENGTH, 0));
 
-        setData(&v, '5');
+        setData(ampersand(v), '5');
     }
 
     v.~ELEMENT();
@@ -1608,7 +1614,7 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyOrMovable()
     ASSERT(VF == X1.value(HF));
 
     ELEMENT vbuffer;
-    ASSERT(0 == x1.remove(HD, &vbuffer));
+    ASSERT(0 == x1.remove(HD, ampersand(vbuffer)));
     ASSERT(VD == vbuffer);
     ASSERT(5 == X1.length());
     ASSERT(0 != X1.find(HD));
@@ -1716,46 +1722,46 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyable()
     int HA = x1.add(VA);
     ASSERT(0 != HA);
     ASSERT(1 == X1.length());
-    ASSERT(0 == X1.find(HA, &vbuffer));
+    ASSERT(0 == X1.find(HA, ampersand(vbuffer)));
     ASSERT(VA == vbuffer);
 
     int HB = x1.add(VB);
     ASSERT(0 != HB);
     ASSERT(2 == X1.length());
-    ASSERT(0 == X1.find(HB, &vbuffer));
+    ASSERT(0 == X1.find(HB, ampersand(vbuffer)));
     ASSERT(VB == vbuffer);
 
     int HC = x1.add(VC);
     ASSERT(0 != HC);
     ASSERT(3 == X1.length());
-    ASSERT(0 == X1.find(HC, &vbuffer));
+    ASSERT(0 == X1.find(HC, ampersand(vbuffer)));
     ASSERT(VC == vbuffer);
 
     int HD = x1.add(VD);
     ASSERT(0 != HD);
     ASSERT(4 == X1.length());
-    ASSERT(0 == X1.find(HD, &vbuffer));
+    ASSERT(0 == X1.find(HD, ampersand(vbuffer)));
     ASSERT(VD == vbuffer);
 
     int HE = x1.add(VE);
     ASSERT(0 != HE);
     ASSERT(5 == X1.length());
-    ASSERT(0 == X1.find(HE, &vbuffer));
+    ASSERT(0 == X1.find(HE, ampersand(vbuffer)));
     ASSERT(VE == vbuffer);
 
     int HF = x1.add(VF);
     ASSERT(0 != HF);
     ASSERT(6 == X1.length());
-    ASSERT(0 == X1.find(HF, &vbuffer));
+    ASSERT(0 == X1.find(HF, ampersand(vbuffer)));
     ASSERT(VF == vbuffer);
 
-    ASSERT(0 == x1.remove(HD, &vbuffer));
+    ASSERT(0 == x1.remove(HD, ampersand(vbuffer)));
     ASSERT(VD == vbuffer);
     ASSERT(5 == X1.length());
     ASSERT(0 != X1.find(HD));
 
     ASSERT(0 == x1.replace(HE, VG));
-    ASSERT(0 == X1.find(HE, &vbuffer));
+    ASSERT(0 == X1.find(HE, ampersand(vbuffer)));
     ASSERTV(name, VG == vbuffer);
 
     if (verbose) cout << "testing removeAll(buffer)" << endl;
@@ -1837,7 +1843,7 @@ void queryCallBack(const QueryResult& result)
     // For testing only, we simulate a callback that takes a given time to
     // process a query.
 {
-    (void) result;
+    (void) &result;
 
     bslmt::ThreadUtil::microSleep(CALLBACK_PROCESSING_TIME);
 }
