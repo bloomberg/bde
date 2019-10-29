@@ -861,7 +861,7 @@ namespace USAGE_EXAMPLES {
         const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
 //..
 // Next, dynamically create an object and obtain the managed pointer referring
-// to it using 'bslma::ManagedPtrUtil::makeManaged' function:
+// to it using the 'bslma::ManagedPtrUtil::makeManaged' function:
 //..
         {
             bslma::ManagedPtr<String> stringManagedPtr =
@@ -909,7 +909,7 @@ namespace USAGE_EXAMPLES {
 // supplied allocator to the object's constructor as an extra argument in the
 // final position.
 //
-// The second managed class almost completely repeats the first one, except
+// The second example class almost completely repeats the first one, except
 // that it explicitly defines the 'bslma::UsesBslmaAllocator' trait:
 //..
     class StringAlloc {
@@ -930,7 +930,7 @@ namespace USAGE_EXAMPLES {
         StringAlloc(const char *str, bslma::Allocator *basicAllocator = 0)
             // Create an object having the same value as the specified 'str'.
             // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently supplied default allocator
+            // 'basicAllocator' is 0, the currently installed default allocator
             // is used.
         : d_alloc_p(bslma::Default::allocator(basicAllocator))
         {
@@ -7179,7 +7179,10 @@ template <bool USES_BSLMA_ALLOC>
 class AllocEmplacableTestType {
     // This class provides a test object used to check that the arguments
     // passed for creating an object with an in-place representation are of the
-    // correct types and values.
+    // correct types and values.  Note that this class declares the
+    // 'UsesBsmlaAllocator' trait if the template parameter 'USES_BSLMA_ALLOC'
+    // is 'true', and does not declare the trait otherwise.
+
   public:
     // TYPEDEFS
     typedef AllocArgumentType< 1> ArgType01;
@@ -8053,6 +8056,210 @@ template <> struct UsesBslmaAllocator<AllocEmplacableTestType<false> > :
 }  // close enterprise namespace
 
 namespace {
+                         // =====================
+                         // class NoAllocTestType
+                         // =====================
+
+class NoAllocTestType {
+    // This class provides a simple test object, that does not use allocators
+    // and used for testing 'makeManaged' and 'allocateManaged'.
+
+  private:
+    // DATA
+    char  d_char;   // char  value
+    int   d_int;    // int   value
+    float d_float;  // float value
+
+  public:
+    // CREATORS
+    NoAllocTestType();
+    NoAllocTestType(char c);
+    NoAllocTestType(char c, int i);
+    NoAllocTestType(char c, int i, float f);
+        // Create an 'NoAllocTestType' by initializing corresponding
+        // attributes with the specified 'c', 'i', 'f', and initializing any
+        // remaining attributes with their default value (0).
+
+    NoAllocTestType(const NoAllocTestType& original);
+        // Create an object having the same value as the specified 'original'.
+
+    ~NoAllocTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! NoAllocTestType& operator=(const NoAllocTestType& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    // ACCESSORS
+    char  getChar()  const;
+    int   getInt()   const;
+    float getFloat() const;
+        // Return the value of the respective argument that was passed to the
+        // constructor of this object.
+};
+
+
+                        // ---------------------
+                        // class NoAllocTestType
+                        // ---------------------
+
+// CREATORS
+NoAllocTestType::NoAllocTestType()
+: d_char(0)
+, d_int(0)
+, d_float(0)
+{
+}
+
+NoAllocTestType::NoAllocTestType(char c)
+: d_char(c)
+, d_int(0)
+, d_float(0)
+{
+}
+
+NoAllocTestType::NoAllocTestType(char c, int i)
+: d_char(c)
+, d_int(i)
+, d_float(0)
+{
+}
+
+NoAllocTestType::NoAllocTestType(char c, int i, float f)
+: d_char(c)
+, d_int(i)
+, d_float(f)
+{
+}
+
+NoAllocTestType::~NoAllocTestType()
+{
+}
+
+// ACCESSORS
+inline
+char NoAllocTestType::getChar() const
+{
+    return d_char;
+}
+
+inline
+int NoAllocTestType::getInt() const
+{
+    return d_int;
+}
+
+inline
+float NoAllocTestType::getFloat() const
+{
+    return d_float;
+}
+
+                         // =======================
+                         // class AllocOnlyTestType
+                         // =======================
+
+class AllocOnlyTestType {
+    // This class provides a simple test object, that accepts only allocator
+    // pointers in its constructor and used for testing 'makeManaged'.
+
+  private:
+    // DATA
+    bslma::Allocator *d_alloc1_p;  // first  value (held, not owned)
+    bslma::Allocator *d_alloc2_p;  // second value (held, not owned)
+    bslma::Allocator *d_alloc3_p;  // third  value (held, not owned)
+
+  public:
+    // CREATORS
+    AllocOnlyTestType();
+    AllocOnlyTestType(bslma::Allocator *alloc1);
+    AllocOnlyTestType(bslma::Allocator *alloc1, bslma::Allocator *alloc2);
+    AllocOnlyTestType(bslma::Allocator *alloc1,
+                      bslma::Allocator *alloc2,
+                      bslma::Allocator *alloc3);
+        // Create an 'AllocOnlyTestType' by initializing corresponding
+        // attributes with the specified 'alloc1', 'alloc2', 'alloc3', and
+        // initializing any remaining attributes with their default value (0).
+
+    AllocOnlyTestType(const AllocOnlyTestType& original);
+        // Create an object having the same value as the specified 'original'.
+
+    ~AllocOnlyTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! AllocOnlyTestType& operator=(const AllocOnlyTestType& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    // ACCESSORS
+    bslma::Allocator *alloc1() const;
+    bslma::Allocator *alloc2() const;
+    bslma::Allocator *alloc3() const;
+        // Return the value of the correspondingly numbered argument that was
+        // passed to the constructor of this object.
+};
+
+
+                        // ---------------------
+                        // class AllocOnlyTestType
+                        // ---------------------
+
+// CREATORS
+AllocOnlyTestType::AllocOnlyTestType()
+: d_alloc1_p(0)
+, d_alloc2_p(0)
+, d_alloc3_p(0)
+{
+}
+
+AllocOnlyTestType::AllocOnlyTestType(bslma::Allocator *alloc1)
+: d_alloc1_p(alloc1)
+, d_alloc2_p(0)
+, d_alloc3_p(0)
+{
+}
+
+AllocOnlyTestType::AllocOnlyTestType(bslma::Allocator *alloc1,
+                                     bslma::Allocator *alloc2)
+: d_alloc1_p(alloc1)
+, d_alloc2_p(alloc2)
+, d_alloc3_p(0)
+{
+}
+
+AllocOnlyTestType::AllocOnlyTestType(bslma::Allocator *alloc1,
+                                     bslma::Allocator *alloc2,
+                                     bslma::Allocator *alloc3)
+: d_alloc1_p(alloc1)
+, d_alloc2_p(alloc2)
+, d_alloc3_p(alloc3)
+{
+}
+
+AllocOnlyTestType::~AllocOnlyTestType()
+{
+}
+
+// ACCESSORS
+inline
+bslma::Allocator *AllocOnlyTestType::alloc1() const
+{
+    return d_alloc1_p;
+}
+
+inline
+bslma::Allocator *AllocOnlyTestType::alloc2() const
+{
+    return d_alloc2_p;
+}
+
+inline
+bslma::Allocator *AllocOnlyTestType::alloc3() const
+{
+    return d_alloc3_p;
+}
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
@@ -8101,32 +8308,57 @@ struct Harness {
     typedef AllocEmplacableTestType<true>     UsingType;
     typedef AllocEmplacableTestType<false> NotUsingType;
 
-    template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
-             int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
-             int N14, bool USES_BSLMA_ALLOC>
-    static void
-    prepareObject(AllocEmplacableTestType<USES_BSLMA_ALLOC> *target,
-                  Arg01&                                     A01,
-                  Arg02&                                     A02,
-                  Arg03&                                     A03,
-                  Arg04&                                     A04,
-                  Arg05&                                     A05,
-                  Arg06&                                     A06,
-                  Arg07&                                     A07,
-                  Arg08&                                     A08,
-                  Arg09&                                     A09,
-                  Arg10&                                     A10,
-                  Arg11&                                     A11,
-                  Arg12&                                     A12,
-                  Arg13&                                     A13,
-                  Arg14&                                     A14);
+    // CLASS METHODS
+    template <class TYPE, int N_ARGS,
+              int N01, int N02, int N03, int N04, int N05, int N06, int N07,
+              int N08, int N09, int N10, int N11, int N12, int N13, int N14>
+    static void prepareObject(TYPE   *target,
+                              Arg01&  A01,
+                              Arg02&  A02,
+                              Arg03&  A03,
+                              Arg04&  A04,
+                              Arg05&  A05,
+                              Arg06&  A06,
+                              Arg07&  A07,
+                              Arg08&  A08,
+                              Arg09&  A09,
+                              Arg10&  A10,
+                              Arg11&  A11,
+                              Arg12&  A12,
+                              Arg13&  A13,
+                              Arg14&  A14);
+        // Prepare control object to compare with the results of 'makeManaged'
+        // and 'allocateManaged'.
+
+    template <class TYPE, int N_ARGS,
+              int N01, int N02, int N03, int N04, int N05, int N06, int N07,
+              int N08, int N09, int N10, int N11, int N12, int N13, int N14>
+    static void testCase18_ConcreteTypeRun();
+        // Verify that 'makeManaged' and 'allocateManaged' pass arguments to
+        // the (template parameter) TYPE constructor correctly.
 
     template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
              int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
              int N14>
-    static void testCase18_RunTest();
-        // Implement test case 18.  See the test case function for documented
-        // concerns and test plan.
+    static void testCase18_ArgumentsTest();
+        // Verify that 'makeManaged' and 'allocateManaged' pass arguments
+        // to the constructor correctly.
+
+    static void testCase18_NoAllocTestSingleCheck(int   numParameters,
+                                                  char  c,
+                                                  int   i,
+                                                  float f);
+        // Verify the behavior of 'makeManaged' and 'allocateManaged' accepting
+        // the specified 'numParameters' (the specified 'c', 'i' and 'f'
+        // accordingly) for the type that does not accept an allocator.
+
+    static void testCase18_NoAllocTest();
+        // Verify the behavior of 'makeManaged' and 'allocateManaged' for the
+        // type that does not accept an allocator.
+
+    static void testCase18_AllocOnlyTest();
+        // Verify the behavior of 'makeManaged' for the type whose constructors
+        // accept only allocator pointers.
 
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
@@ -8140,7 +8372,7 @@ struct Harness {
 
 static bslma::TestAllocator g_argAlloc("test arguments allocator",
                                        g_veryVeryVeryVerbose);
-                                       
+
 static const Harness::Arg01 VA01(1,    &g_argAlloc);
 static const Harness::Arg02 VA02(20,   &g_argAlloc);
 static const Harness::Arg03 VA03(23,   &g_argAlloc);
@@ -8174,27 +8406,25 @@ const T& Harness::testArg(T& t, bsl::false_type)
 
 // Remaining class methods for 'Harness'.
 
-template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
-         int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
-         int N14, bool USES_BSLMA_ALLOC>
-void Harness::prepareObject(AllocEmplacableTestType<USES_BSLMA_ALLOC> *target,
-                            Arg01&                                     A01,
-                            Arg02&                                     A02,
-                            Arg03&                                     A03,
-                            Arg04&                                     A04,
-                            Arg05&                                     A05,
-                            Arg06&                                     A06,
-                            Arg07&                                     A07,
-                            Arg08&                                     A08,
-                            Arg09&                                     A09,
-                            Arg10&                                     A10,
-                            Arg11&                                     A11,
-                            Arg12&                                     A12,
-                            Arg13&                                     A13,
-                            Arg14&                                     A14)
+template<class TYPE, int N_ARGS,
+         int N01, int N02, int N03, int N04, int N05, int N06, int N07,
+         int N08, int N09, int N10, int N11, int N12, int N13, int N14>
+void Harness::prepareObject(TYPE   *target,
+                            Arg01&  A01,
+                            Arg02&  A02,
+                            Arg03&  A03,
+                            Arg04&  A04,
+                            Arg05&  A05,
+                            Arg06&  A06,
+                            Arg07&  A07,
+                            Arg08&  A08,
+                            Arg09&  A09,
+                            Arg10&  A10,
+                            Arg11&  A11,
+                            Arg12&  A12,
+                            Arg13&  A13,
+                            Arg14&  A14)
 {
-    typedef AllocEmplacableTestType<USES_BSLMA_ALLOC> TestType;
-
     bslma::TestAllocator *da =
              dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
     BSLS_ASSERT(da);
@@ -8216,144 +8446,143 @@ void Harness::prepareObject(AllocEmplacableTestType<USES_BSLMA_ALLOC> *target,
 
     switch (N_ARGS) {
       case 0: {
-        new(target) TestType();
-      }  break;
+        new (target) TYPE();
+      } break;
       case 1: {
-        new(target) TestType(testArg(A01, MOVE_01));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01));
+      } break;
       case 2: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01), testArg(A02, MOVE_02));
+      } break;
       case 3: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03));
+      } break;
       case 4: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04));
+      } break;
       case 5: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05));
+      } break;
       case 6: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06));
+      } break;
       case 7: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07));
+      } break;
       case 8: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07),
-                             testArg(A08, MOVE_08));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07),
+                          testArg(A08, MOVE_08));
+      } break;
       case 9: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07),
-                             testArg(A08, MOVE_08),
-                             testArg(A09, MOVE_09));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07),
+                          testArg(A08, MOVE_08),
+                          testArg(A09, MOVE_09));
+      } break;
       case 10: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07),
-                             testArg(A08, MOVE_08),
-                             testArg(A09, MOVE_09),
-                             testArg(A10, MOVE_10));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07),
+                          testArg(A08, MOVE_08),
+                          testArg(A09, MOVE_09),
+                          testArg(A10, MOVE_10));
+      } break;
       case 11: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07),
-                             testArg(A08, MOVE_08),
-                             testArg(A09, MOVE_09),
-                             testArg(A10, MOVE_10),
-                             testArg(A11, MOVE_11));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07),
+                          testArg(A08, MOVE_08),
+                          testArg(A09, MOVE_09),
+                          testArg(A10, MOVE_10),
+                          testArg(A11, MOVE_11));
+      } break;
       case 12: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07),
-                             testArg(A08, MOVE_08),
-                             testArg(A09, MOVE_09),
-                             testArg(A10, MOVE_10),
-                             testArg(A11, MOVE_11),
-                             testArg(A12, MOVE_12));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07),
+                          testArg(A08, MOVE_08),
+                          testArg(A09, MOVE_09),
+                          testArg(A10, MOVE_10),
+                          testArg(A11, MOVE_11),
+                          testArg(A12, MOVE_12));
+      } break;
       case 13: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07),
-                             testArg(A08, MOVE_08),
-                             testArg(A09, MOVE_09),
-                             testArg(A10, MOVE_10),
-                             testArg(A11, MOVE_11),
-                             testArg(A12, MOVE_12),
-                             testArg(A13, MOVE_13));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07),
+                          testArg(A08, MOVE_08),
+                          testArg(A09, MOVE_09),
+                          testArg(A10, MOVE_10),
+                          testArg(A11, MOVE_11),
+                          testArg(A12, MOVE_12),
+                          testArg(A13, MOVE_13));
+      } break;
       case 14: {
-        new(target) TestType(testArg(A01, MOVE_01),
-                             testArg(A02, MOVE_02),
-                             testArg(A03, MOVE_03),
-                             testArg(A04, MOVE_04),
-                             testArg(A05, MOVE_05),
-                             testArg(A06, MOVE_06),
-                             testArg(A07, MOVE_07),
-                             testArg(A08, MOVE_08),
-                             testArg(A09, MOVE_09),
-                             testArg(A10, MOVE_10),
-                             testArg(A11, MOVE_11),
-                             testArg(A12, MOVE_12),
-                             testArg(A13, MOVE_13),
-                             testArg(A14, MOVE_14));
-      }  break;
+        new (target) TYPE(testArg(A01, MOVE_01),
+                          testArg(A02, MOVE_02),
+                          testArg(A03, MOVE_03),
+                          testArg(A04, MOVE_04),
+                          testArg(A05, MOVE_05),
+                          testArg(A06, MOVE_06),
+                          testArg(A07, MOVE_07),
+                          testArg(A08, MOVE_08),
+                          testArg(A09, MOVE_09),
+                          testArg(A10, MOVE_10),
+                          testArg(A11, MOVE_11),
+                          testArg(A12, MOVE_12),
+                          testArg(A13, MOVE_13),
+                          testArg(A14, MOVE_14));
+      } break;
     };
 
-    const TestType& EXP = *target;
+    const TYPE& EXP = *target;
 
     ASSERTV(VA01, EXP.arg01(), VA01 == EXP.arg01() || 2 == N01);
     ASSERTV(VA02, EXP.arg02(), VA02 == EXP.arg02() || 2 == N02);
@@ -8386,10 +8615,10 @@ void Harness::prepareObject(AllocEmplacableTestType<USES_BSLMA_ALLOC> *target,
     ASSERTV(da, EXP.arg14().allocator(), da == EXP.arg14().allocator());
 }
 
-template<int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
-         int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
-         int N14>
-void Harness::testCase18_RunTest()
+template <class TYPE, int N_ARGS,
+          int N01, int N02, int N03, int N04, int N05, int N06, int N07,
+          int N08, int N09, int N10, int N11, int N12, int N13, int N14>
+void Harness::testCase18_ConcreteTypeRun()
 {
     bslma::TestAllocator *da =
              dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
@@ -8417,42 +8646,34 @@ void Harness::testCase18_RunTest()
 
     // 14 arguments for expected object
 
-    Arg01 A01[2] = { VA01, VA01 };
-    Arg02 A02[2] = { VA02, VA02 };
-    Arg03 A03[2] = { VA03, VA03 };
-    Arg04 A04[2] = { VA04, VA04 };
-    Arg05 A05[2] = { VA05, VA05 };
-    Arg06 A06[2] = { VA06, VA06 };
-    Arg07 A07[2] = { VA07, VA07 };
-    Arg08 A08[2] = { VA08, VA08 };
-    Arg09 A09[2] = { VA09, VA09 };
-    Arg10 A10[2] = { VA10, VA10 };
-    Arg11 A11[2] = { VA11, VA11 };
-    Arg12 A12[2] = { VA12, VA12 };
-    Arg13 A13[2] = { VA13, VA13 };
-    Arg14 A14[2] = { VA14, VA14 };
+    Arg01 A01 = VA01;
+    Arg02 A02 = VA02;
+    Arg03 A03 = VA03;
+    Arg04 A04 = VA04;
+    Arg05 A05 = VA05;
+    Arg06 A06 = VA06;
+    Arg07 A07 = VA07;
+    Arg08 A08 = VA08;
+    Arg09 A09 = VA09;
+    Arg10 A10 = VA10;
+    Arg11 A11 = VA11;
+    Arg12 A12 = VA12;
+    Arg13 A13 = VA13;
+    Arg14 A14 = VA14;
 
-    bsls::ObjectBuffer<NotUsingType> bufferNU;
-    prepareObject<
-        N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14, false>(
-                       bufferNU.address(),
-                       A01[0], A02[0], A03[0], A04[0], A05[0], A06[0], A07[0],
-                       A08[0], A09[0], A10[0], A11[0], A12[0], A13[0], A14[0]);
+    typedef typename bsl::remove_cv<TYPE>::type UNQUALIFIED_TYPE;
 
-    bslma::DestructorProctor<NotUsingType> proctorNU(bufferNU.address());
+    bsls::ObjectBuffer<UNQUALIFIED_TYPE> buffer;
+    prepareObject<UNQUALIFIED_TYPE, N_ARGS,
+                  N01, N02, N03, N04, N05, N06, N07,
+                  N08, N09, N10, N11, N12, N13, N14 >(
+                       buffer.address(),
+                       A01, A02, A03, A04, A05, A06, A07,
+                       A08, A09, A10, A11, A12, A13, A14);
 
-    const NotUsingType& EXP_NU = bufferNU.object();
+    bslma::DestructorProctor<UNQUALIFIED_TYPE> proctor(buffer.address());
 
-    bsls::ObjectBuffer<UsingType> bufferU;
-    prepareObject<
-         N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14, true>(
-                       bufferU.address(),
-                       A01[1], A02[1], A03[1], A04[1], A05[1], A06[1], A07[1],
-                       A08[1], A09[1], A10[1], A11[1], A12[1], A13[1], A14[1]);
-
-    bslma::DestructorProctor<UsingType> proctorU(bufferU.address());
-
-    const UsingType& EXP_U = bufferU.object();
+    const UNQUALIFIED_TYPE& EXP = buffer.object();
 
     // Here starts the actual test case.
 
@@ -8508,20 +8729,20 @@ void Harness::testCase18_RunTest()
     {
         // Arguments for functions.
 
-        Arg01 B01[4] = { VA01, VA01, VA01, VA01 };
-        Arg02 B02[4] = { VA02, VA02, VA02, VA02 };
-        Arg03 B03[4] = { VA03, VA03, VA03, VA03 };
-        Arg04 B04[4] = { VA04, VA04, VA04, VA04 };
-        Arg05 B05[4] = { VA05, VA05, VA05, VA05 };
-        Arg06 B06[4] = { VA06, VA06, VA06, VA06 };
-        Arg07 B07[4] = { VA07, VA07, VA07, VA07 };
-        Arg08 B08[4] = { VA08, VA08, VA08, VA08 };
-        Arg09 B09[4] = { VA09, VA09, VA09, VA09 };
-        Arg10 B10[4] = { VA10, VA10, VA10, VA10 };
-        Arg11 B11[4] = { VA11, VA11, VA11, VA11 };
-        Arg12 B12[4] = { VA12, VA12, VA12, VA12 };
-        Arg13 B13[4] = { VA13, VA13, VA13, VA13 };
-        Arg14 B14[4] = { VA14, VA14, VA14, VA14 };
+        Arg01 B01[2] = { VA01, VA01 };
+        Arg02 B02[2] = { VA02, VA02 };
+        Arg03 B03[2] = { VA03, VA03 };
+        Arg04 B04[2] = { VA04, VA04 };
+        Arg05 B05[2] = { VA05, VA05 };
+        Arg06 B06[2] = { VA06, VA06 };
+        Arg07 B07[2] = { VA07, VA07 };
+        Arg08 B08[2] = { VA08, VA08 };
+        Arg09 B09[2] = { VA09, VA09 };
+        Arg10 B10[2] = { VA10, VA10 };
+        Arg11 B11[2] = { VA11, VA11 };
+        Arg12 B12[2] = { VA12, VA12 };
+        Arg13 B13[2] = { VA13, VA13 };
+        Arg14 B14[2] = { VA14, VA14 };
 
         bsls::Types::Int64 numAllocationsDA   = da->numAllocations();
         bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
@@ -8531,160 +8752,146 @@ void Harness::testCase18_RunTest()
         bsls::Types::Int64 EXPECTED_SA_ALLOCATIONS_NUM   = 0;
         bsls::Types::Int64 EXPECTED_SA_DEALLOCATIONS_NUM = 0;
 
-        // Testing 'makemanaged' for type that does NOT USE bslma allocators.
+        // Testing 'makemanaged'.
         {
-            bslma::ManagedPtr<const NotUsingType> mX;
+            bslma::ManagedPtr<TYPE> mX;
 
             switch (N_ARGS) {
               case 0: {
-                mX = Util::makeManaged<const NotUsingType>();
+                mX = Util::makeManaged<TYPE>();
               } break;
               case 1: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01));
               } break;
               case 2: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02));
               } break;
               case 3: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03));
               } break;
               case 4: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04));
               } break;
               case 5: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05));
               } break;
               case 6: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06));
               } break;
               case 7: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07));
               } break;
               case 8: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07),
-                                                     testArg(B08[0], MOVE_08));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07),
+                                             testArg(B08[0], MOVE_08));
               } break;
               case 9: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07),
-                                                     testArg(B08[0], MOVE_08),
-                                                     testArg(B09[0], MOVE_09));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07),
+                                             testArg(B08[0], MOVE_08),
+                                             testArg(B09[0], MOVE_09));
               } break;
               case 10: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07),
-                                                     testArg(B08[0], MOVE_08),
-                                                     testArg(B09[0], MOVE_09),
-                                                     testArg(B10[0], MOVE_10));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07),
+                                             testArg(B08[0], MOVE_08),
+                                             testArg(B09[0], MOVE_09),
+                                             testArg(B10[0], MOVE_10));
               } break;
               case 11: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07),
-                                                     testArg(B08[0], MOVE_08),
-                                                     testArg(B09[0], MOVE_09),
-                                                     testArg(B10[0], MOVE_10),
-                                                     testArg(B11[0], MOVE_11));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07),
+                                             testArg(B08[0], MOVE_08),
+                                             testArg(B09[0], MOVE_09),
+                                             testArg(B10[0], MOVE_10),
+                                             testArg(B11[0], MOVE_11));
               } break;
               case 12: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07),
-                                                     testArg(B08[0], MOVE_08),
-                                                     testArg(B09[0], MOVE_09),
-                                                     testArg(B10[0], MOVE_10),
-                                                     testArg(B11[0], MOVE_11),
-                                                     testArg(B12[0], MOVE_12));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07),
+                                             testArg(B08[0], MOVE_08),
+                                             testArg(B09[0], MOVE_09),
+                                             testArg(B10[0], MOVE_10),
+                                             testArg(B11[0], MOVE_11),
+                                             testArg(B12[0], MOVE_12));
               } break;
               case 13: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07),
-                                                     testArg(B08[0], MOVE_08),
-                                                     testArg(B09[0], MOVE_09),
-                                                     testArg(B10[0], MOVE_10),
-                                                     testArg(B11[0], MOVE_11),
-                                                     testArg(B12[0], MOVE_12),
-                                                     testArg(B13[0], MOVE_13));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07),
+                                             testArg(B08[0], MOVE_08),
+                                             testArg(B09[0], MOVE_09),
+                                             testArg(B10[0], MOVE_10),
+                                             testArg(B11[0], MOVE_11),
+                                             testArg(B12[0], MOVE_12),
+                                             testArg(B13[0], MOVE_13));
               } break;
               case 14: {
-                mX = Util::makeManaged<const NotUsingType>(
-                                                     testArg(B01[0], MOVE_01),
-                                                     testArg(B02[0], MOVE_02),
-                                                     testArg(B03[0], MOVE_03),
-                                                     testArg(B04[0], MOVE_04),
-                                                     testArg(B05[0], MOVE_05),
-                                                     testArg(B06[0], MOVE_06),
-                                                     testArg(B07[0], MOVE_07),
-                                                     testArg(B08[0], MOVE_08),
-                                                     testArg(B09[0], MOVE_09),
-                                                     testArg(B10[0], MOVE_10),
-                                                     testArg(B11[0], MOVE_11),
-                                                     testArg(B12[0], MOVE_12),
-                                                     testArg(B13[0], MOVE_13),
-                                                     testArg(B14[0], MOVE_14));
+                mX = Util::makeManaged<TYPE>(testArg(B01[0], MOVE_01),
+                                             testArg(B02[0], MOVE_02),
+                                             testArg(B03[0], MOVE_03),
+                                             testArg(B04[0], MOVE_04),
+                                             testArg(B05[0], MOVE_05),
+                                             testArg(B06[0], MOVE_06),
+                                             testArg(B07[0], MOVE_07),
+                                             testArg(B08[0], MOVE_08),
+                                             testArg(B09[0], MOVE_09),
+                                             testArg(B10[0], MOVE_10),
+                                             testArg(B11[0], MOVE_11),
+                                             testArg(B12[0], MOVE_12),
+                                             testArg(B13[0], MOVE_13),
+                                             testArg(B14[0], MOVE_14));
               } break;
             };
 
@@ -8701,27 +8908,27 @@ void Harness::testCase18_RunTest()
 
             // Verify the value of the resulting object.
 
-            ASSERTV(EXP_NU == *mX);
+            ASSERTV(EXP == *mX);
 
             // Verify, that allocator wasn't passed as a last parameter to the
             // managed object constructor.
 
             ASSERTV(mX->allocator(), 0 == mX->allocator());
 
-            ASSERT(A01[0].movedFrom() == B01[0].movedFrom());
-            ASSERT(A02[0].movedFrom() == B02[0].movedFrom());
-            ASSERT(A03[0].movedFrom() == B03[0].movedFrom());
-            ASSERT(A04[0].movedFrom() == B04[0].movedFrom());
-            ASSERT(A05[0].movedFrom() == B05[0].movedFrom());
-            ASSERT(A06[0].movedFrom() == B06[0].movedFrom());
-            ASSERT(A07[0].movedFrom() == B07[0].movedFrom());
-            ASSERT(A08[0].movedFrom() == B08[0].movedFrom());
-            ASSERT(A09[0].movedFrom() == B09[0].movedFrom());
-            ASSERT(A10[0].movedFrom() == B10[0].movedFrom());
-            ASSERT(A11[0].movedFrom() == B11[0].movedFrom());
-            ASSERT(A12[0].movedFrom() == B12[0].movedFrom());
-            ASSERT(A13[0].movedFrom() == B13[0].movedFrom());
-            ASSERT(A14[0].movedFrom() == B14[0].movedFrom());
+            ASSERT(A01.movedFrom() == B01[0].movedFrom());
+            ASSERT(A02.movedFrom() == B02[0].movedFrom());
+            ASSERT(A03.movedFrom() == B03[0].movedFrom());
+            ASSERT(A04.movedFrom() == B04[0].movedFrom());
+            ASSERT(A05.movedFrom() == B05[0].movedFrom());
+            ASSERT(A06.movedFrom() == B06[0].movedFrom());
+            ASSERT(A07.movedFrom() == B07[0].movedFrom());
+            ASSERT(A08.movedFrom() == B08[0].movedFrom());
+            ASSERT(A09.movedFrom() == B09[0].movedFrom());
+            ASSERT(A10.movedFrom() == B10[0].movedFrom());
+            ASSERT(A11.movedFrom() == B11[0].movedFrom());
+            ASSERT(A12.movedFrom() == B12[0].movedFrom());
+            ASSERT(A13.movedFrom() == B13[0].movedFrom());
+            ASSERT(A14.movedFrom() == B14[0].movedFrom());
 
             // Renew the current value.
 
@@ -8744,223 +8951,7 @@ void Harness::testCase18_RunTest()
         // Renew the current value.
         numDeallocationsDA = da->numDeallocations();
 
-        // Testing 'makemanaged' for type that USES bslma allocators.
-        {
-            bslma::ManagedPtr<const UsingType> mX;
-
-            switch (N_ARGS) {
-              case 0: {
-                mX = Util::makeManaged<const UsingType>();
-              } break;
-              case 1: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01));
-              } break;
-              case 2: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02));
-              } break;
-              case 3: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03));
-              } break;
-              case 4: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04));
-              } break;
-              case 5: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05));
-              } break;
-              case 6: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06));
-              } break;
-              case 7: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07));
-              } break;
-              case 8: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07),
-                                                     testArg(B08[1], MOVE_08));
-              } break;
-              case 9: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07),
-                                                     testArg(B08[1], MOVE_08),
-                                                     testArg(B09[1], MOVE_09));
-              } break;
-              case 10: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07),
-                                                     testArg(B08[1], MOVE_08),
-                                                     testArg(B09[1], MOVE_09),
-                                                     testArg(B10[1], MOVE_10));
-              } break;
-              case 11: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07),
-                                                     testArg(B08[1], MOVE_08),
-                                                     testArg(B09[1], MOVE_09),
-                                                     testArg(B10[1], MOVE_10),
-                                                     testArg(B11[1], MOVE_11));
-              } break;
-              case 12: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07),
-                                                     testArg(B08[1], MOVE_08),
-                                                     testArg(B09[1], MOVE_09),
-                                                     testArg(B10[1], MOVE_10),
-                                                     testArg(B11[1], MOVE_11),
-                                                     testArg(B12[1], MOVE_12));
-              } break;
-              case 13: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07),
-                                                     testArg(B08[1], MOVE_08),
-                                                     testArg(B09[1], MOVE_09),
-                                                     testArg(B10[1], MOVE_10),
-                                                     testArg(B11[1], MOVE_11),
-                                                     testArg(B12[1], MOVE_12),
-                                                     testArg(B13[1], MOVE_13));
-              } break;
-              case 14: {
-                mX = Util::makeManaged<const UsingType>(
-                                                     testArg(B01[1], MOVE_01),
-                                                     testArg(B02[1], MOVE_02),
-                                                     testArg(B03[1], MOVE_03),
-                                                     testArg(B04[1], MOVE_04),
-                                                     testArg(B05[1], MOVE_05),
-                                                     testArg(B06[1], MOVE_06),
-                                                     testArg(B07[1], MOVE_07),
-                                                     testArg(B08[1], MOVE_08),
-                                                     testArg(B09[1], MOVE_09),
-                                                     testArg(B10[1], MOVE_10),
-                                                     testArg(B11[1], MOVE_11),
-                                                     testArg(B12[1], MOVE_12),
-                                                     testArg(B13[1], MOVE_13),
-                                                     testArg(B14[1], MOVE_14));
-              } break;
-            };
-
-            // Verify memory allocation.
-
-            EXPECTED_DA_ALLOCATIONS_NUM =
-                         numAllocationsDA  // previous value
-                       + 1                 // block for object itself
-                       + nArgCopies;       // blocks for copied object's fields
-
-            ASSERTV(EXPECTED_DA_ALLOCATIONS_NUM,   da->numAllocations(),
-                    EXPECTED_DA_ALLOCATIONS_NUM == da->numAllocations());
-            ASSERTV(numDeallocationsDA,   da->numDeallocations(),
-                    numDeallocationsDA == da->numDeallocations());
-
-            // Verify the value of the resulting object.
-
-            ASSERTV(EXP_U == *mX);
-
-            // Verify, that allocator wasn't passed as a last parameter to the
-            // managed object constructor.
-
-            ASSERTV(mX->allocator(), 0 == mX->allocator());
-
-            ASSERT(A01[1].movedFrom() == B01[1].movedFrom());
-            ASSERT(A02[1].movedFrom() == B02[1].movedFrom());
-            ASSERT(A03[1].movedFrom() == B03[1].movedFrom());
-            ASSERT(A04[1].movedFrom() == B04[1].movedFrom());
-            ASSERT(A05[1].movedFrom() == B05[1].movedFrom());
-            ASSERT(A06[1].movedFrom() == B06[1].movedFrom());
-            ASSERT(A07[1].movedFrom() == B07[1].movedFrom());
-            ASSERT(A08[1].movedFrom() == B08[1].movedFrom());
-            ASSERT(A09[1].movedFrom() == B09[1].movedFrom());
-            ASSERT(A10[1].movedFrom() == B10[1].movedFrom());
-            ASSERT(A11[1].movedFrom() == B11[1].movedFrom());
-            ASSERT(A12[1].movedFrom() == B12[1].movedFrom());
-            ASSERT(A13[1].movedFrom() == B13[1].movedFrom());
-            ASSERT(A14[1].movedFrom() == B14[1].movedFrom());
-
-            // Renew the current value.
-
-            numAllocationsDA = da->numAllocations();
-        }
-
-        // Verify memory deallocation.
-
-        EXPECTED_DA_DEALLOCATIONS_NUM =
-                       numDeallocationsDA  // previous value
-                     + 1                   // block for object itself
-                     + nArgCopies          // blocks for copied object's fields
-                     + nArgMoves;          // blocks for moved object's fields
-
-        ASSERTV(numAllocationsDA,   da->numAllocations(),
-                numAllocationsDA == da->numAllocations());
-        ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
-                EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
-
-        // Renew the current value.
-        
-        numDeallocationsDA = da->numDeallocations();
-        
-        // Testing 'allocateManaged' for type that does NOT USE bslma
-        // allocators.
+        // Testing 'allocateManaged'.
 
         bslma::TestAllocator sa;
         ASSERTV(0 == sa.numAllocations());
@@ -8970,477 +8961,240 @@ void Harness::testCase18_RunTest()
         bsls::Types::Int64 numDeallocationsSA = sa.numDeallocations();
 
         {
-            bslma::ManagedPtr<const NotUsingType> mX;
+            bslma::ManagedPtr<TYPE> mX;
 
             switch (N_ARGS) {
               case 0: {
-                mX = Util::allocateManaged<const NotUsingType>(&sa);
+                mX = Util::allocateManaged<TYPE>(&sa);
               } break;
               case 1: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01));
+                mX =
+                    Util::allocateManaged<TYPE>(&sa, testArg(B01[1], MOVE_01));
               } break;
               case 2: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02));
+                mX = Util::allocateManaged<TYPE>(
+                    &sa, testArg(B01[1], MOVE_01), testArg(B02[1], MOVE_02));
               } break;
               case 3: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03));
               } break;
               case 4: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04));
               } break;
               case 5: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05));
               } break;
               case 6: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06));
               } break;
               case 7: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07));
               } break;
               case 8: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07),
-                                                     testArg(B08[2], MOVE_08));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07),
+                                                 testArg(B08[1], MOVE_08));
               } break;
               case 9: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07),
-                                                     testArg(B08[2], MOVE_08),
-                                                     testArg(B09[2], MOVE_09));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07),
+                                                 testArg(B08[1], MOVE_08),
+                                                 testArg(B09[1], MOVE_09));
               } break;
               case 10: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07),
-                                                     testArg(B08[2], MOVE_08),
-                                                     testArg(B09[2], MOVE_09),
-                                                     testArg(B10[2], MOVE_10));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07),
+                                                 testArg(B08[1], MOVE_08),
+                                                 testArg(B09[1], MOVE_09),
+                                                 testArg(B10[1], MOVE_10));
               } break;
               case 11: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07),
-                                                     testArg(B08[2], MOVE_08),
-                                                     testArg(B09[2], MOVE_09),
-                                                     testArg(B10[2], MOVE_10),
-                                                     testArg(B11[2], MOVE_11));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07),
+                                                 testArg(B08[1], MOVE_08),
+                                                 testArg(B09[1], MOVE_09),
+                                                 testArg(B10[1], MOVE_10),
+                                                 testArg(B11[1], MOVE_11));
               } break;
               case 12: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07),
-                                                     testArg(B08[2], MOVE_08),
-                                                     testArg(B09[2], MOVE_09),
-                                                     testArg(B10[2], MOVE_10),
-                                                     testArg(B11[2], MOVE_11),
-                                                     testArg(B12[2], MOVE_12));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07),
+                                                 testArg(B08[1], MOVE_08),
+                                                 testArg(B09[1], MOVE_09),
+                                                 testArg(B10[1], MOVE_10),
+                                                 testArg(B11[1], MOVE_11),
+                                                 testArg(B12[1], MOVE_12));
               } break;
               case 13: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07),
-                                                     testArg(B08[2], MOVE_08),
-                                                     testArg(B09[2], MOVE_09),
-                                                     testArg(B10[2], MOVE_10),
-                                                     testArg(B11[2], MOVE_11),
-                                                     testArg(B12[2], MOVE_12),
-                                                     testArg(B13[2], MOVE_13));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07),
+                                                 testArg(B08[1], MOVE_08),
+                                                 testArg(B09[1], MOVE_09),
+                                                 testArg(B10[1], MOVE_10),
+                                                 testArg(B11[1], MOVE_11),
+                                                 testArg(B12[1], MOVE_12),
+                                                 testArg(B13[1], MOVE_13));
               } break;
               case 14: {
-                mX = Util::allocateManaged<const NotUsingType>(
-                                                     &sa,
-                                                     testArg(B01[2], MOVE_01),
-                                                     testArg(B02[2], MOVE_02),
-                                                     testArg(B03[2], MOVE_03),
-                                                     testArg(B04[2], MOVE_04),
-                                                     testArg(B05[2], MOVE_05),
-                                                     testArg(B06[2], MOVE_06),
-                                                     testArg(B07[2], MOVE_07),
-                                                     testArg(B08[2], MOVE_08),
-                                                     testArg(B09[2], MOVE_09),
-                                                     testArg(B10[2], MOVE_10),
-                                                     testArg(B11[2], MOVE_11),
-                                                     testArg(B12[2], MOVE_12),
-                                                     testArg(B13[2], MOVE_13),
-                                                     testArg(B14[2], MOVE_14));
+                mX = Util::allocateManaged<TYPE>(&sa,
+                                                 testArg(B01[1], MOVE_01),
+                                                 testArg(B02[1], MOVE_02),
+                                                 testArg(B03[1], MOVE_03),
+                                                 testArg(B04[1], MOVE_04),
+                                                 testArg(B05[1], MOVE_05),
+                                                 testArg(B06[1], MOVE_06),
+                                                 testArg(B07[1], MOVE_07),
+                                                 testArg(B08[1], MOVE_08),
+                                                 testArg(B09[1], MOVE_09),
+                                                 testArg(B10[1], MOVE_10),
+                                                 testArg(B11[1], MOVE_11),
+                                                 testArg(B12[1], MOVE_12),
+                                                 testArg(B13[1], MOVE_13),
+                                                 testArg(B14[1], MOVE_14));
               } break;
             };
 
             // Verify memory allocation.
 
-            EXPECTED_DA_ALLOCATIONS_NUM =
-                         numAllocationsDA  // previous value
-                       + nArgCopies;       // blocks for copied object's fields
+            if (bslma::UsesBslmaAllocator<TYPE>::value) {
+                // As supplied allocator is propagated to the managed object,
+                // there should not be any allocations from the default
+                // allocator.  But the constructor of the managed object
+                // ('AllocEmplacableTestType') creates a temporary object using
+                // default allocator for each argument, that expected to be
+                // copied (actually, temporary objects are created for moved
+                // objects either, but these actions do not required memory
+                // operations). Also the move constructor of the arguments of
+                // the managed object ('AllocArgumentType') deallocates memory
+                // of the moved object if supplied and argument's allocators
+                // are not equal.  And these operations should be verified.
 
-            ASSERTV(EXPECTED_DA_ALLOCATIONS_NUM,   da->numAllocations(),
-                    EXPECTED_DA_ALLOCATIONS_NUM == da->numAllocations());
-            ASSERTV(numDeallocationsDA,   da->numDeallocations(),
-                    numDeallocationsDA == da->numDeallocations());
-
-            EXPECTED_SA_ALLOCATIONS_NUM = 1;  // block for object itself
-
-            ASSERTV(EXPECTED_SA_ALLOCATIONS_NUM,   sa.numAllocations(),
-                    EXPECTED_SA_ALLOCATIONS_NUM == sa.numAllocations());
-            ASSERTV(numDeallocationsSA,   sa.numDeallocations(),
-                    numDeallocationsSA == sa.numDeallocations());
-
-            // Verify the value of the resulting object.
-
-            ASSERTV(EXP_NU == *mX);
-
-            // Verify, that allocator wasn't passed as a last parameter to the
-            // managed object constructor.
-
-            ASSERTV(mX->allocator(), 0 == mX->allocator());
-
-            ASSERT(A01[0].movedFrom() == B01[2].movedFrom());
-            ASSERT(A02[0].movedFrom() == B02[2].movedFrom());
-            ASSERT(A03[0].movedFrom() == B03[2].movedFrom());
-            ASSERT(A04[0].movedFrom() == B04[2].movedFrom());
-            ASSERT(A05[0].movedFrom() == B05[2].movedFrom());
-            ASSERT(A06[0].movedFrom() == B06[2].movedFrom());
-            ASSERT(A07[0].movedFrom() == B07[2].movedFrom());
-            ASSERT(A08[0].movedFrom() == B08[2].movedFrom());
-            ASSERT(A09[0].movedFrom() == B09[2].movedFrom());
-            ASSERT(A10[0].movedFrom() == B10[2].movedFrom());
-            ASSERT(A11[0].movedFrom() == B11[2].movedFrom());
-            ASSERT(A12[0].movedFrom() == B12[2].movedFrom());
-            ASSERT(A13[0].movedFrom() == B13[2].movedFrom());
-            ASSERT(A14[0].movedFrom() == B14[2].movedFrom());
-
-            // Renew the current value.
-
-            numAllocationsDA = da->numAllocations();
-            numAllocationsSA = sa.numAllocations();
-        }
-
-        // Verify memory deallocation.
-
-        EXPECTED_DA_DEALLOCATIONS_NUM =
-                       numDeallocationsDA  // previous value
-                     + nArgCopies          // blocks for copied object's fields
-                     + nArgMoves;          // blocks for moved object's fields
-
-        ASSERTV(numAllocationsDA,   da->numAllocations(),
-                numAllocationsDA == da->numAllocations());
-        ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
-                EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
-
-        EXPECTED_SA_DEALLOCATIONS_NUM = 1;  // block for object itself
-
-        ASSERTV(numAllocationsSA,   sa.numAllocations(),
-                numAllocationsSA == sa.numAllocations());
-        ASSERTV(EXPECTED_SA_DEALLOCATIONS_NUM,   sa.numDeallocations(),
-                EXPECTED_SA_DEALLOCATIONS_NUM == sa.numDeallocations());
-
-        // Renew the current value.
-        numDeallocationsDA = da->numDeallocations();
-        numDeallocationsSA = sa.numDeallocations();
-
-        // Testing 'allocateManaged' for type that USES bslma allocators.
-        {
-            bslma::ManagedPtr<const UsingType> mX;
-
-            switch (N_ARGS) {
-              case 0: {
-                mX = Util::allocateManaged<const UsingType>(&sa);
-              } break;
-              case 1: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01));
-              } break;
-              case 2: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02));
-              } break;
-              case 3: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03));
-              } break;
-              case 4: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04));
-              } break;
-              case 5: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05));
-              } break;
-              case 6: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06));
-              } break;
-              case 7: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07));
-              } break;
-              case 8: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07),
-                                                     testArg(B08[3], MOVE_08));
-              } break;
-              case 9: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07),
-                                                     testArg(B08[3], MOVE_08),
-                                                     testArg(B09[3], MOVE_09));
-              } break;
-              case 10: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07),
-                                                     testArg(B08[3], MOVE_08),
-                                                     testArg(B09[3], MOVE_09),
-                                                     testArg(B10[3], MOVE_10));
-              } break;
-              case 11: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07),
-                                                     testArg(B08[3], MOVE_08),
-                                                     testArg(B09[3], MOVE_09),
-                                                     testArg(B10[3], MOVE_10),
-                                                     testArg(B11[3], MOVE_11));
-              } break;
-              case 12: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07),
-                                                     testArg(B08[3], MOVE_08),
-                                                     testArg(B09[3], MOVE_09),
-                                                     testArg(B10[3], MOVE_10),
-                                                     testArg(B11[3], MOVE_11),
-                                                     testArg(B12[3], MOVE_12));
-              } break;
-              case 13: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07),
-                                                     testArg(B08[3], MOVE_08),
-                                                     testArg(B09[3], MOVE_09),
-                                                     testArg(B10[3], MOVE_10),
-                                                     testArg(B11[3], MOVE_11),
-                                                     testArg(B12[3], MOVE_12),
-                                                     testArg(B13[3], MOVE_13));
-              } break;
-              case 14: {
-                mX = Util::allocateManaged<const UsingType>(
-                                                     &sa,
-                                                     testArg(B01[3], MOVE_01),
-                                                     testArg(B02[3], MOVE_02),
-                                                     testArg(B03[3], MOVE_03),
-                                                     testArg(B04[3], MOVE_04),
-                                                     testArg(B05[3], MOVE_05),
-                                                     testArg(B06[3], MOVE_06),
-                                                     testArg(B07[3], MOVE_07),
-                                                     testArg(B08[3], MOVE_08),
-                                                     testArg(B09[3], MOVE_09),
-                                                     testArg(B10[3], MOVE_10),
-                                                     testArg(B11[3], MOVE_11),
-                                                     testArg(B12[3], MOVE_12),
-                                                     testArg(B13[3], MOVE_13),
-                                                     testArg(B14[3], MOVE_14));
-              } break;
-            };
-
-            // Verify memory allocation.  As supplied allocator is propagated
-            // to the managed object, there should not be any allocations from
-            // the default allocator.  But the constructor of the managed
-            // object ('AllocEmplacableTestType') creates a temporary object
-            // using default allocator for each argument, that expected to be
-            // copied (actually, temporary objects are created for moved
-            // objects either, but these actions do not required memory
-            // operations). Also the move constructor of the arguments of the
-            // managed object ('AllocArgumentType') deallocates memory of the
-            // moved object if supplied and argument's allocators are not
-            // equal.  And these operations should be verified.
-
-            EXPECTED_DA_ALLOCATIONS_NUM =
+                EXPECTED_DA_ALLOCATIONS_NUM =
                               numAllocationsDA  // previous value
                             + nArgCopies;       // blocks for temporary objects
 
-            EXPECTED_DA_DEALLOCATIONS_NUM =
+                EXPECTED_DA_DEALLOCATIONS_NUM =
                        numDeallocationsDA  // previous value
                      + nArgCopies          // blocks for temporary objects
                      + nArgMoves;          // blocks for moved object's fields
+
+                EXPECTED_SA_ALLOCATIONS_NUM =
+                         numAllocationsSA  // previous value
+                       + 1                 // block for object itself
+                       + nArgCopies        // blocks for copied object's fields
+                       + nArgMoves;        // blocks for moved object's fields
+            }
+            else {
+                EXPECTED_DA_ALLOCATIONS_NUM =
+                         numAllocationsDA  // previous value
+                       + nArgCopies;       // blocks for copied object's fields
+
+                EXPECTED_DA_DEALLOCATIONS_NUM =
+                                         numDeallocationsDA;  // previous value
+
+                EXPECTED_SA_ALLOCATIONS_NUM = 1;  // block for object itself
+            }
 
             ASSERTV(EXPECTED_DA_ALLOCATIONS_NUM,     da->numAllocations(),
                     EXPECTED_DA_ALLOCATIONS_NUM   == da->numAllocations());
             ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
                     EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
 
-            EXPECTED_SA_ALLOCATIONS_NUM =
-                         numAllocationsSA  // previous value
-                       + 1                 // block for object itself
-                       + nArgCopies        // blocks for copied object's fields
-                       + nArgMoves;        // blocks for moved object's fields
-
-            ASSERTV(EXPECTED_SA_ALLOCATIONS_NUM,   sa.numAllocations(),
-                    EXPECTED_SA_ALLOCATIONS_NUM == sa.numAllocations());
-            ASSERTV(numDeallocationsSA,   sa.numDeallocations(),
-                    numDeallocationsSA == sa.numDeallocations());
+            ASSERTV(EXPECTED_SA_ALLOCATIONS_NUM,     sa.numAllocations(),
+                    EXPECTED_SA_ALLOCATIONS_NUM   == sa.numAllocations());
+            ASSERTV(numDeallocationsSA,              sa.numDeallocations(),
+                    numDeallocationsSA            == sa.numDeallocations());
 
             // Verify the value of the resulting object.
 
-            ASSERTV(EXP_U == *mX);
+            ASSERTV(EXP == *mX);
 
             // Verify, that allocator wasn't passed as a last parameter to the
             // managed object constructor.
 
-            ASSERTV(&sa, mX->allocator(), &sa == mX->allocator());
+            bslma::Allocator *EXP_ALLOC_PTR = 0;
+            if (bslma::UsesBslmaAllocator<TYPE>::value) {
+                EXP_ALLOC_PTR = &sa;
+            }
 
-            ASSERT(A01[1].movedFrom() == B01[3].movedFrom());
-            ASSERT(A02[1].movedFrom() == B02[3].movedFrom());
-            ASSERT(A03[1].movedFrom() == B03[3].movedFrom());
-            ASSERT(A04[1].movedFrom() == B04[3].movedFrom());
-            ASSERT(A05[1].movedFrom() == B05[3].movedFrom());
-            ASSERT(A06[1].movedFrom() == B06[3].movedFrom());
-            ASSERT(A07[1].movedFrom() == B07[3].movedFrom());
-            ASSERT(A08[1].movedFrom() == B08[3].movedFrom());
-            ASSERT(A09[1].movedFrom() == B09[3].movedFrom());
-            ASSERT(A10[1].movedFrom() == B10[3].movedFrom());
-            ASSERT(A11[1].movedFrom() == B11[3].movedFrom());
-            ASSERT(A12[1].movedFrom() == B12[3].movedFrom());
-            ASSERT(A13[1].movedFrom() == B13[3].movedFrom());
-            ASSERT(A14[1].movedFrom() == B14[3].movedFrom());
+            ASSERTV(EXP_ALLOC_PTR,   mX->allocator(),
+                    EXP_ALLOC_PTR == mX->allocator());
+
+            ASSERT(A01.movedFrom() == B01[1].movedFrom());
+            ASSERT(A02.movedFrom() == B02[1].movedFrom());
+            ASSERT(A03.movedFrom() == B03[1].movedFrom());
+            ASSERT(A04.movedFrom() == B04[1].movedFrom());
+            ASSERT(A05.movedFrom() == B05[1].movedFrom());
+            ASSERT(A06.movedFrom() == B06[1].movedFrom());
+            ASSERT(A07.movedFrom() == B07[1].movedFrom());
+            ASSERT(A08.movedFrom() == B08[1].movedFrom());
+            ASSERT(A09.movedFrom() == B09[1].movedFrom());
+            ASSERT(A10.movedFrom() == B10[1].movedFrom());
+            ASSERT(A11.movedFrom() == B11[1].movedFrom());
+            ASSERT(A12.movedFrom() == B12[1].movedFrom());
+            ASSERT(A13.movedFrom() == B13[1].movedFrom());
+            ASSERT(A14.movedFrom() == B14[1].movedFrom());
 
             // Renew the current value.
 
@@ -9451,16 +9205,29 @@ void Harness::testCase18_RunTest()
 
         // Verify memory deallocation.
 
-        ASSERTV(numAllocationsDA,   da->numAllocations(),
-                numAllocationsDA == da->numAllocations());
-        ASSERTV(numDeallocationsDA,   da->numDeallocations(),
-                numDeallocationsDA == da->numDeallocations());
+        if (bslma::UsesBslmaAllocator<TYPE>::value) {
+            EXPECTED_DA_DEALLOCATIONS_NUM =
+                                         numDeallocationsDA;  // previous value
 
-        EXPECTED_SA_DEALLOCATIONS_NUM =
+            EXPECTED_SA_DEALLOCATIONS_NUM =
                        numDeallocationsSA  // previous value
                      + 1                   // block for object itself
                      + nArgCopies          // blocks for copied object's fields
                      + nArgMoves;          // blocks for moved object's fields
+        }
+        else {
+            EXPECTED_DA_DEALLOCATIONS_NUM =
+                       numDeallocationsDA  // previous value
+                     + nArgCopies          // blocks for copied object's fields
+                     + nArgMoves;          // blocks for moved object's fields
+
+            EXPECTED_SA_DEALLOCATIONS_NUM = 1;  // block for object itself
+        }
+
+        ASSERTV(numAllocationsDA,   da->numAllocations(),
+                numAllocationsDA == da->numAllocations());
+        ASSERTV(EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
+                EXPECTED_DA_DEALLOCATIONS_NUM == da->numDeallocations());
 
         ASSERTV(numAllocationsSA,   sa.numAllocations(),
                 numAllocationsSA == sa.numAllocations());
@@ -9468,6 +9235,205 @@ void Harness::testCase18_RunTest()
                 EXPECTED_SA_DEALLOCATIONS_NUM == sa.numDeallocations());
     }
     ASSERT(dam.isInUseSame());
+}
+
+template <int N_ARGS,
+          int N01, int N02, int N03, int N04, int N05, int N06, int N07,
+          int N08, int N09, int N10, int N11, int N12, int N13, int N14>
+void Harness::testCase18_ArgumentsTest()
+{
+    typedef       UsingType      UT;
+    typedef const UsingType     CUT;
+
+    typedef       NotUsingType  NUT;
+    typedef const NotUsingType CNUT;
+
+    testCase18_ConcreteTypeRun<  UT, N_ARGS,
+                                     N01, N02, N03, N04, N05, N06, N07,
+                                     N08, N09, N10, N11, N12, N13, N14>();
+    testCase18_ConcreteTypeRun< CUT, N_ARGS,
+                                     N01, N02, N03, N04, N05, N06, N07,
+                                     N08, N09, N10, N11, N12, N13, N14>();
+
+    testCase18_ConcreteTypeRun< NUT, N_ARGS,
+                                     N01, N02, N03, N04, N05, N06, N07,
+                                     N08, N09, N10, N11, N12, N13, N14>();
+    testCase18_ConcreteTypeRun<CNUT, N_ARGS,
+                                     N01, N02, N03, N04, N05, N06, N07,
+                                     N08, N09, N10, N11, N12, N13, N14>();
+}
+
+void Harness::testCase18_NoAllocTestSingleCheck(int   numParameters,
+                                                char  c,
+                                                int   i,
+                                                float f)
+{
+    bslma::TestAllocator *da =
+        dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    bslma::TestAllocator sa("supplied", g_veryVeryVeryVerbose);
+
+    bsls::Types::Int64 numAllocationsDA   = da->numAllocations();
+    bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
+    bsls::Types::Int64 numBytesInUseDA    = da->numBytesInUse();
+    bsls::Types::Int64 numAllocationsSA   = sa.numAllocations();
+    bsls::Types::Int64 numDeallocationsSA = sa.numDeallocations();
+    bsls::Types::Int64 numBytesInUseSA    = sa.numBytesInUse();
+
+    const bsls::Types::Int64 EXP_NUM_ALLOCATIONS_DA   = numAllocationsDA + 1;
+    const bsls::Types::Int64 EXP_NUM_DEALLOCATIONS_DA = numDeallocationsDA + 1;
+    const bsls::Types::Int64 EXP_NUM_BYTESINUSE_DA =
+                                     numBytesInUseDA + sizeof(NoAllocTestType);
+    const bsls::Types::Int64 EXP_NUM_ALLOCATIONS_SA   = numAllocationsSA + 1;
+    const bsls::Types::Int64 EXP_NUM_DEALLOCATIONS_SA = numDeallocationsSA + 1;
+    const bsls::Types::Int64 EXP_NUM_BYTESINUSE_SA =
+                                     numBytesInUseSA + sizeof(NoAllocTestType);
+
+    {
+        bslma::ManagedPtr<NoAllocTestType> mXM;
+        bslma::ManagedPtr<NoAllocTestType> mXA;
+
+        switch (numParameters) {
+           case 0:
+            mXM = Util::makeManaged<NoAllocTestType>();
+            mXA = Util::allocateManaged<NoAllocTestType>(&sa);
+            break;
+          case 1:
+            mXM = Util::makeManaged<NoAllocTestType>(c);
+            mXA = Util::allocateManaged<NoAllocTestType>(&sa, c);
+            break;
+          case 2:
+            mXM = Util::makeManaged<NoAllocTestType>(c, i);
+            mXA = Util::allocateManaged<NoAllocTestType>(&sa, c, i);
+            break;
+          case 3:
+            mXM = Util::makeManaged<NoAllocTestType>(c, i, f);
+            mXA = Util::allocateManaged<NoAllocTestType>(&sa, c, i, f);
+            break;
+          default:
+            ASSERTV("Unsupported number of parameters", numParameters, false);
+        }
+
+        ASSERTV(numParameters, c, i, f,
+                EXP_NUM_ALLOCATIONS_DA,     da->numAllocations(),
+                EXP_NUM_ALLOCATIONS_DA   == da->numAllocations());
+        ASSERTV(numParameters, c, i, f,
+                EXP_NUM_BYTESINUSE_DA,      da->numAllocations(),
+                EXP_NUM_BYTESINUSE_DA    == da->numBytesInUse());
+
+        ASSERTV(numParameters, c, i, f,
+                EXP_NUM_ALLOCATIONS_SA,     sa.numAllocations(),
+                EXP_NUM_ALLOCATIONS_SA   == sa.numAllocations());
+        ASSERTV(numParameters, c, i, f,
+                EXP_NUM_BYTESINUSE_SA,      sa.numAllocations(),
+                EXP_NUM_BYTESINUSE_SA    == sa.numBytesInUse());
+
+        ASSERTV(numParameters, c, i, f, c == mXM->getChar());
+        ASSERTV(numParameters, c, i, f, i == mXM->getInt());
+        ASSERTV(numParameters, c, i, f, f == mXM->getFloat());
+
+        ASSERTV(numParameters, c, i, f, c == mXA->getChar());
+        ASSERTV(numParameters, c, i, f, i == mXA->getInt());
+        ASSERTV(numParameters, c, i, f, f == mXA->getFloat());
+    }
+
+    ASSERTV(numParameters, c, i, f,
+            EXP_NUM_DEALLOCATIONS_DA,   da->numDeallocations(),
+            EXP_NUM_DEALLOCATIONS_DA == da->numAllocations());
+    ASSERTV(numParameters, c, i, f,
+            EXP_NUM_DEALLOCATIONS_SA,   sa.numDeallocations(),
+            EXP_NUM_DEALLOCATIONS_SA == sa.numAllocations());
+}
+
+void Harness::testCase18_NoAllocTest()
+{
+    const char   CHAR_CYCLE_LIMIT = 10;
+    const int     INT_CYCLE_LIMIT = 10;
+    const float FLOAT_CYCLE_LIMIT = 10;
+
+    for (char c = 0; c < CHAR_CYCLE_LIMIT; ++c) {
+        for (int i = 0; i < INT_CYCLE_LIMIT; ++i) {
+            for (float f = 0; f < FLOAT_CYCLE_LIMIT; ++f)
+            {
+                testCase18_NoAllocTestSingleCheck(3, c, i, f);
+            }
+
+            testCase18_NoAllocTestSingleCheck(2, c, i, 0);
+        }
+
+        testCase18_NoAllocTestSingleCheck(1, c, 0, 0);
+    }
+
+    testCase18_NoAllocTestSingleCheck(0, 0, 0, 0);
+}
+
+void Harness::testCase18_AllocOnlyTest()
+{
+    bslma::TestAllocator *da =
+        dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    bslma::TestAllocator sa1("supplied1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator sa2("supplied2", g_veryVeryVeryVerbose);
+    bslma::TestAllocator sa3("supplied3", g_veryVeryVeryVerbose);
+
+    for (int i = 0; i < 4; ++i) {
+        bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
+
+        {
+            bslma::ManagedPtr<AllocOnlyTestType> mX;
+
+            bslma::TestAllocator *EXP1             = 0;
+            bslma::TestAllocator *EXP2             = 0;
+            bslma::TestAllocator *EXP3             = 0;
+            bsls::Types::Int64    numAllocationsDA = da->numAllocations();
+
+            bsls::Types::Int64 numBytesInUseDA = da->numBytesInUse();
+
+            switch (i) {
+                break;
+              case 1:
+                mX   = Util::makeManaged<AllocOnlyTestType>(&sa1);
+                EXP1 = &sa1;
+
+                break;
+              case 2:
+                mX   = Util::makeManaged<AllocOnlyTestType>(&sa1, &sa2);
+                EXP1 = &sa1;
+                EXP2 = &sa2;
+                break;
+              case 3:
+                mX   = Util::makeManaged<AllocOnlyTestType>(&sa1, &sa2, &sa3);
+                EXP1 = &sa1;
+                EXP2 = &sa2;
+                EXP3 = &sa3;
+                break;
+              case 0:
+              default:
+                mX = Util::makeManaged<AllocOnlyTestType>();
+            }
+
+            const bsls::Types::Int64 EXP_NUM_ALLOCATIONS_DA   =
+                                                          numAllocationsDA + 1;
+            const bsls::Types::Int64 EXP_NUM_BYTESINUSE_DA =
+                                   numBytesInUseDA + sizeof(AllocOnlyTestType);
+
+            ASSERTV(EXP_NUM_ALLOCATIONS_DA,     da->numAllocations(),
+                    EXP_NUM_ALLOCATIONS_DA   == da->numAllocations());
+            ASSERTV(EXP_NUM_BYTESINUSE_DA,      da->numBytesInUse(),
+                    EXP_NUM_BYTESINUSE_DA    == da->numBytesInUse());
+
+            ASSERTV(EXP1, mX->alloc1(), EXP1 == mX->alloc1());
+            ASSERTV(EXP2, mX->alloc2(), EXP2 == mX->alloc2());
+            ASSERTV(EXP3, mX->alloc3(), EXP3 == mX->alloc3());
+        }
+
+        const bsls::Types::Int64 EXP_NUM_DEALLOCATIONS_DA =
+                                                        numDeallocationsDA + 1;
+        ASSERTV(EXP_NUM_DEALLOCATIONS_DA,   da->numDeallocations(),
+                EXP_NUM_DEALLOCATIONS_DA == da->numAllocations());
+    }
 }
 
 }  // close unnamed namespace
@@ -9657,256 +9623,267 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING 'makeManaged' and 'allocateManaged'"
                             "\n===========================================\n");
+
+        // Verifying arguments forwarding.
+
 #if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
 
-        Harness::testCase18_RunTest<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
         // 1 argument
 
-        Harness::testCase18_RunTest<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
         // 2 arguments
 
-        Harness::testCase18_RunTest<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
 
         // 3 arguments
 
-        Harness::testCase18_RunTest<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
 
 # if !defined(BSLSTL_MANAGEDPTR_LIMIT_TESTING_COMPLEXITY)
 
         // 4 arguments
 
-        Harness::testCase18_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
 
         // 5 arguments
 
-        Harness::testCase18_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
 
         // 6 arguments
 
-        Harness::testCase18_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
 
         // 7 arguments
 
-        Harness::testCase18_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
 
         // 8 arguments
 
-        Harness::testCase18_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
 
         // 9 arguments
 
-        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
 
         // 10 arguments
 
-        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>();
-        Harness::testCase18_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
 
         // 11 arguments
 
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>();
-        Harness::testCase18_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
 
         // 12 arguments
 
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>();
-        Harness::testCase18_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>();
+        Harness::testCase18_ArgumentsTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
 
         // 13 arguments
 
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>();
-        Harness::testCase18_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>();
+        Harness::testCase18_ArgumentsTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
 
 # else // BSLSTL_MANAGEDPTR_LIMIT_TESTING_COMPLEXITY)
 
         // 4 arguments
 
-        Harness::testCase18_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
 
         // 5 arguments
 
-        Harness::testCase18_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
 
         // 6 arguments
 
-        Harness::testCase18_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
 
         // 7 arguments
 
-        Harness::testCase18_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
 
         // 8 arguments
 
-        Harness::testCase18_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
 
         // 9 arguments
 
-        Harness::testCase18_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
 
         // 10 arguments
 
-        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
 
         // 11 arguments
 
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
 
         // 12 arguments
 
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
 
         // 13 arguments
 
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
 
 # endif // BSLSTL_MANAGEDPTR_LIMIT_TESTING_COMPLEXITY)
 
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
-        Harness::testCase18_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
+        Harness::testCase18_ArgumentsTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
 
 #else // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
-        Harness::testCase18_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
-        Harness::testCase18_RunTest< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
-        Harness::testCase18_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
-        Harness::testCase18_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
-        Harness::testCase18_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
-        Harness::testCase18_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
-        Harness::testCase18_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase18_ArgumentsTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase18_ArgumentsTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase18_ArgumentsTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase18_ArgumentsTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase18_ArgumentsTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
 
 #endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
+
+        // Check the behavior for the class that does not take an allocator.
+
+        Harness::testCase18_NoAllocTest();
+
+        // Check the behavior for the class that takes only allocators.
+
+        Harness::testCase18_AllocOnlyTest();
 
         if (verbose) printf("\tNegative testing\n");
         {
@@ -9915,11 +9892,9 @@ int main(int argc, char *argv[])
             bslma::Allocator *NULL_PTR = 0;
             bslma::Allocator *da       = bslma::Default::defaultAllocator();
 
-            ASSERT_SAFE_FAIL(Util::allocateManaged<int>(NULL_PTR, 1));
-            ASSERT_SAFE_PASS(Util::allocateManaged<int>(da,       1));
-
+            ASSERT_FAIL(Util::allocateManaged<int>(NULL_PTR, 1));
+            ASSERT_PASS(Util::allocateManaged<int>(da,       1));
         }
-
       } break;
       case 17: {
         // --------------------------------------------------------------------

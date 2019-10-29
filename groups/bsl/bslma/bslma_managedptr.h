@@ -778,7 +778,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
 //..
 // Next, dynamically create an object and obtain the managed pointer referring
-// to it using 'bslma::ManagedPtrUtil::makeManaged' function:
+// to it using the 'bslma::ManagedPtrUtil::makeManaged' function:
 //..
 //      {
 //          bslma::ManagedPtr<String> stringManagedPtr =
@@ -826,7 +826,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // supplied allocator to the object's constructor as an extra argument in the
 // final position.
 //
-// The second managed class almost completely repeats the first one, except
+// The second example class almost completely repeats the first one, except
 // that it explicitly defines the 'bslma::UsesBslmaAllocator' trait:
 //..
 //  class StringAlloc {
@@ -847,7 +847,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      StringAlloc(const char *str, bslma::Allocator *basicAllocator = 0)
 //          // Create an object having the same value as the specified 'str'.
 //          // Optionally specify a 'basicAllocator' used to supply memory.  If
-//          // 'basicAllocator' is 0, the currently supplied default allocator
+//          // 'basicAllocator' is 0, the currently installed default allocator
 //          // is used.
 //      : d_alloc_p(bslma::Default::allocator(basicAllocator))
 //      {
@@ -1619,8 +1619,8 @@ struct ManagedPtrUtil {
         // Create an object of the (template parameter) 'ELEMENT_TYPE' from the
         // specified 'args...' arguments, and return a 'ManagedPtr' to manage
         // the new object.  Use the specified 'basicAllocator' to supply memory
-        // for the footprint of the new object and pass 'basicAllocator' as the
-        // last argument of its constructor if
+        // for the footprint of the new object and implicitly pass
+        // 'basicAllocator' as the last argument of its constructor if
         // 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true'.  The
         // behavior is undefined unless '0 != basicAllocator'.
 
@@ -1629,9 +1629,12 @@ struct ManagedPtrUtil {
         // Create an object of the (template parameter) 'ELEMENT_TYPE' from the
         // specified 'args...' arguments, and return a 'ManagedPtr' to manage
         // the new object.  Use the currently installed default allocator to
-        // supply memory for the footprint of the new object.  In no case is an
-        // allocator explicitly passed to the 'ELEMENT_TYPE' constructor (e.g.,
-        // even if 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true').
+        // supply memory for the footprint of the new object but do *not*
+        // implicitly pass the default allocator as the last argument of its
+        // constructor even if 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value'
+        // is 'true'.  Note that an allocator may be included in 'args' but see
+        // 'allocateManaged' for an alternative function that is better suited
+        // to creating managed pointers to objects of allocator-aware type.
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
