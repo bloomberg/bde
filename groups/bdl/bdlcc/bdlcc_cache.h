@@ -522,7 +522,7 @@ class Cache {
         // 'lowWatermark <= highWatermark', '1 <= lowWatermark', and
         // '1 <= highWatermark'.
 
-    // ~Cache() = default;
+    //! ~Cache() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -645,7 +645,7 @@ class Cache_TestUtil {
         // Create a 'Cache_TestUtil' object to test locking in the specified
         // 'cache'.
 
-    // ~Cache_TestUtil() = default;
+    //! ~Cache_TestUtil() = default;
         // Destroy this object.
 
     // MANIPULATORS

@@ -252,7 +252,7 @@ class BidirectionalNodePool {
         // for allocated node objects.  'original' is left in a valid but
         // unspecified state.
 
-    // ~BidirectionalNodePool() = default;
+    //! ~BidirectionalNodePool() = default;
         // Destroy the memory pool maintained by this object, releasing all
         // memory used by the nodes of the type 'BidirectionalNode<VALUE>' in
         // the pool.  Any memory allocated for the nodes' 'value' attribute of

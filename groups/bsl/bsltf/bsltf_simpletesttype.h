@@ -103,15 +103,15 @@ class SimpleTestType {
         // Create a 'SimpleTestType' object having the specified 'data'
         // attribute value.
 
-    // SimpleTestType(const SimpleTestType& original) = default;
+    //! SimpleTestType(const SimpleTestType& original) = default;
         // Create a 'SimpleTestType' object having the same value as the
         // specified 'original' object.
 
-    // ~SimpleTestType() = default;
+    //! ~SimpleTestType() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    // SimpleTestType& operator=(const SimpleTestType& rhs) = default;
+    //! SimpleTestType& operator=(const SimpleTestType& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 

@@ -235,7 +235,7 @@ class SingleProducerQueue {
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    // ~SingleProducerQueue() = default;
+    //! ~SingleProducerQueue() = default;
         // Destroy this object.
 
     // MANIPULATORS

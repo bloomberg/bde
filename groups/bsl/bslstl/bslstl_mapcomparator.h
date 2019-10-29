@@ -169,11 +169,11 @@ class MapComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // Create a 'MapComparator' object holding a copy of the specified
         // 'keyComparator'.
 
-    // MapComparator(const MapComparator&) = default;
+    //! MapComparator(const MapComparator& original) = default;
         // Create a 'MapComparator' object with the 'COMPARATOR' object of the
         // specified 'original' object.
 
-    // ~MapComparator() = default;
+    //! ~MapComparator() = default;
         // Destroy this object.
 
     // MANIPULATORS

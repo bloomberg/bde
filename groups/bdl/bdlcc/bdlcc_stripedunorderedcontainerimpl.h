@@ -1015,7 +1015,7 @@ class StripedUnorderedContainerImpl_TestUtil {
         // Create a 'StripedUnorderedContainerImpl_TestUtil' object to test
         // locking in the specified 'hash'.
 
-    // ~StripedUnorderedContainerImpl_TestUtil() = default;
+    //! ~StripedUnorderedContainerImpl_TestUtil() = default;
         // Destroy this object.
 
         // MANIPULATORS

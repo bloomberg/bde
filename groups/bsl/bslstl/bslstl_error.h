@@ -178,7 +178,7 @@ class error_code {
     template <class ERROR_CODE_ENUM>
     error_code(ERROR_CODE_ENUM value,
                typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
-                                  BoolType>::type = 0);              // IMPLICT
+                                  BoolType>::type = 0);             // IMPLICIT
         // Construct an object of this type initialized with the specified
         // 'value' and its category (found from an overloaded call to
         // 'make_error_code').  Note that this constructor exists only for

@@ -2059,7 +2059,7 @@ class shared_ptr {
      shared_ptr(native_std::unique_ptr<COMPATIBLE_TYPE,
                                        UNIQUE_DELETER>&&  adoptee,
                 BloombergLP::bslma::Allocator            *basicAllocator = 0);
-                                                                     // IMPLICT
+                                                                    // IMPLICIT
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'adoptee' to
         // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to
@@ -2085,7 +2085,7 @@ class shared_ptr {
                       ELEMENT_TYPE *>::value,
                       BloombergLP::bslstl::SharedPtr_ImpUtil>::type =
                                       BloombergLP::bslstl::SharedPtr_ImpUtil())
-                                                                     // IMPLICT
+                                                                    // IMPLICIT
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'adoptee' to
         // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to

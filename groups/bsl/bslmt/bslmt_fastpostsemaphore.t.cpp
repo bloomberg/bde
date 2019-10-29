@@ -161,7 +161,7 @@ typedef bslmt::FastPostSemaphore Obj;
             // 'basicAllocator' is 0, the currently installed default allocator
             // is used.
 
-        // ~IntQueue() = default;
+        //! ~IntQueue() = default;
             // Destroy this object.
 
         // MANIPULATORS

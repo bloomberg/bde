@@ -406,7 +406,7 @@ class ThroughputBenchmark_WorkFunction {
         // Create a 'ThroughputBenchmark_WorkFunction' object with the
         // specified 'data' argument.
 
-    // ~ThroughputBenchmark_WorkFunction() = default;
+    //! ~ThroughputBenchmark_WorkFunction() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -431,7 +431,7 @@ class ThroughputBenchmark_TestUtil {
         // Create a 'ThroughputBenchmark_TestUtil' object to test contents of
         // the specified 'data'.
 
-    // ~ThroughputBenchmark_TestUtil() = default;
+    //! ~ThroughputBenchmark_TestUtil() = default;
         // Destroy this object.
 
     // MANIPULATORS

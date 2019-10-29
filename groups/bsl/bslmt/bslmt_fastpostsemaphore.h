@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //          // 'basicAllocator' is 0, the currently installed default allocator
 //          // is used.
 //
-//      // ~IntQueue() = default;
+//      //! ~IntQueue() = default;
 //          // Destroy this object.
 //
 //      // MANIPULATORS
@@ -319,7 +319,7 @@ class FastPostSemaphore {
         // passed to the 'timedWait' method are to be interpreted.  If
         // 'clockType' is not specified then the realtime system clock is used.
 
-    // ~FastPostSemaphore() = default;
+    //! ~FastPostSemaphore() = default;
         // Destroy this object.
 
     // MANIPULATORS

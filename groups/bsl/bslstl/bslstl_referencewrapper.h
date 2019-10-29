@@ -127,15 +127,15 @@ class reference_wrapper {
     reference_wrapper(T& object) BSLS_KEYWORD_NOEXCEPT;             // IMPLICIT
         // Create a reference wrapper representing the specified 'object'.
 
-    // reference_wrapper(const reference_wrapper& original) = default;
+    //! reference_wrapper(const reference_wrapper& original) = default;
         // Create a reference wrapper referring to the same object as the
         // specified 'original'.
 
-    // ~reference_wrapper() = default;
+    //! ~reference_wrapper() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    // reference_wrapper& operator=(const reference_wrapper& rhs) = default;
+    //! reference_wrapper& operator=(const reference_wrapper& rhs) = default;
         // Assign this object to refer to the same object as the specified
         // 'rhs', and return '*this'.
 

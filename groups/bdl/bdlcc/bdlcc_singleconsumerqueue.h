@@ -216,7 +216,7 @@ class SingleConsumerQueue {
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    // ~SingleConsumerQueue() = default;
+    //! ~SingleConsumerQueue() = default;
         // Destroy this object.
 
     // MANIPULATORS

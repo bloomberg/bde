@@ -430,7 +430,7 @@ class StripedUnorderedMap {
         // stripes will not change after construction, but the number of
         // buckets may (unless rehashing is disabled via 'disableRehash').
 
-    // ~StripedUnorderedMap() = default;
+    //! ~StripedUnorderedMap() = default;
         // Destroy this hash map.
 
     // MANIPULATORS
