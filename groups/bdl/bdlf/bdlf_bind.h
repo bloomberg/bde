@@ -4593,6 +4593,7 @@ struct Bind_OneResultTypeOrAnother {
         // This class declares a 'type' member to be the same as the one
         // 'bslmf::ResultType' produces.
 
+        // PUBLIC TYPES
         typedef typename bslmf::ResultType<T>::type type;
     };
 
@@ -4607,16 +4608,18 @@ struct Bind_OneResultTypeOrAnother {
         // The specialized form of the 'Return' class defines a 'type' member
         // as the return type of the member function parameter.
 
+        // PUBLIC TYPES
         typedef RETURN_T type;
     };
 
     template <class T>
-    struct Result<T, BSLMF_VOIDTYPE(decltype(&T::operator()))> {
+    struct Result<T, bsl::void_t(decltype(&T::operator())> {
         // This is a specialization of 'Result' above.  If the 'T' parameter
         // has a single unique 'operator()' member, then 'Result<T, void>'
         // prefers this specialization over the general template.  This class
         // declares a 'type' member as the return type of 'T::operator()'.
 
+        // PUBLIC TYPES
         typedef typename Return<T>::type type;
     };
 #endif
