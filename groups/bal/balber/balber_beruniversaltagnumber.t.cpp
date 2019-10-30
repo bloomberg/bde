@@ -2379,7 +2379,8 @@ int main(int argc, char *argv[])
     //..
 
 #define FAIL(...)                                                             \
-    ASSERT_FAIL(::BloombergLP::u::TestCase4_ImpUtil::verifySelect(__VA_ARGS__))
+    ASSERT_SAFE_FAIL(                                                         \
+                ::BloombergLP::u::TestCase4_ImpUtil::verifySelect(__VA_ARGS__))
     // Verify that a particular set of argument values are out-of-contract
     // for 'select'.  This macro supports one of two overloads, having the
     // following specifications:
