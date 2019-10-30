@@ -2057,7 +2057,17 @@ inline
 int Decoder::decodeImp(TYPE *object, bdlat_TypeCategory::DynamicType)
 {
     Decoder_decodeImpProxy proxy = { this };
-    return bdlat_TypeCategoryUtil::manipulateByCategory(object, proxy);
+    int ret = bdlat_TypeCategoryUtil::manipulateByCategory(object, proxy);
+    if (0 != ret) {
+        BALXML_DECODER_LOG_ERROR(this)
+                << "The object being decoded is a 'DynamicType', and "
+                   "attempting to manipulate the object by its dynamic "
+                   "category returned a non-zero status."
+                << BALXML_DECODER_LOG_END;
+        return ret;
+    }
+
+    return 0;
 }
 
 template <class TYPE, class ANY_CATEGORY>
