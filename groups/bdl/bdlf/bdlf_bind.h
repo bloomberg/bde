@@ -4588,11 +4588,12 @@ struct Bind_OneResultTypeOrAnother {
     // 'type' to be the return type of that operator.
 
   private:
-    template <class T, class U = void>
+    template <class T, class = void>
     struct Result {
         // This class declares a 'type' member to be the same as the one
         // 'bslmf::ResultType' produces.
 
+        // PUBLIC TYPES
         typedef typename bslmf::ResultType<T>::type type;
     };
 
@@ -4607,23 +4608,24 @@ struct Bind_OneResultTypeOrAnother {
         // The specialized form of the 'Return' class defines a 'type' member
         // as the return type of the member function parameter.
 
+        // PUBLIC TYPES
         typedef RETURN_T type;
     };
 
     template <class T>
-    struct Result<T,
-                  typename bslmf::VoidType<decltype(&T::operator())>::type> {
+    struct Result<T, bsl::void_t<decltype(&T::operator())>> {
         // This is a specialization of 'Result' above.  If the 'T' parameter
         // has a single unique 'operator()' member, then 'Result<T, void>'
         // prefers this specialization over the general template.  This class
         // declares a 'type' member as the return type of 'T::operator()'.
 
+        // PUBLIC TYPES
         typedef typename Return<T>::type type;
     };
 #endif
 
   public:
-    typedef typename Result<FUNC, void>::type type;
+    typedef typename Result<FUNC>::type type;
 };
 
 template <class FUNC>
@@ -6490,7 +6492,7 @@ struct Bind_Evaluator<BindWrapper<RET,FUNC,BINDLIST>, LIST> {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
