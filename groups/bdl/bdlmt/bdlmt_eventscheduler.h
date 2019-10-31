@@ -968,6 +968,10 @@ class EventSchedulerTestTimeSource {
         // 'now' to be an arbitrary time value.  The behavior is undefined if
         // any methods have previously been called on 'scheduler'.
 
+    ~EventSchedulerTestTimeSource();
+        // Release control of the "system-time" observed by the scheduler
+        // supplied at construction and destroy this object.
+
     // MANIPULATORS
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
         // Advance this object's current-time value by the specified 'amount'

@@ -38,6 +38,12 @@ void defaultDispatcherFunction(const bsl::function<void()>& callback)
 }
 
 static inline
+bsls::TimeInterval frozenTimeNow(bsls::TimeInterval now)
+{
+    return now;
+}
+
+static inline
 bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
                                         bsls::SystemClockType::Enum clockType)
 {
@@ -651,6 +657,14 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
     d_scheduler_p->d_currentTimeFunctor = bdlf::MemFnUtil::memFn(
                                             &EventSchedulerTestTimeSource::now,
                                             this);
+}
+
+EventSchedulerTestTimeSource::~EventSchedulerTestTimeSource()
+{
+    d_scheduler_p->d_currentTimeFunctor = bdlf::BindUtil::bind(
+                      static_cast<bsls::TimeInterval (*)(bsls::TimeInterval)>(
+                                                               &frozenTimeNow),
+                      d_currentTime);
 }
 
 // MANIPULATORS

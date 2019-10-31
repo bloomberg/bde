@@ -121,11 +121,12 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [25] DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
+// [26] DRQS 150475152: TEST TIME SOURCE DESTRUCTOR
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -2364,7 +2365,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2424,6 +2425,48 @@ int main(int argc, char *argv[])
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // DRQS 150475152: TEST TIME SOURCE DESTRUCTOR
+        //
+        // Concerns:
+        //: 1 When the test time source is destroyed, the current time functor
+        //:   in the associated scheduler is modified to return the test time
+        //:   source's current 'now()' value.
+        //
+        // Plan:
+        //: 1 Directly test the scenario.  (C-1)
+        //
+        // Testing:
+        //   DRQS 150475152: TEST TIME SOURCE DESTRUCTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 150475152: TEST TIME SOURCE DESTRUCTOR\n"
+                 << "===========================================\n";
+        }
+
+        bdlmt::EventScheduler    scheduler;
+        const bsls::TimeInterval t1 = scheduler.now();
+        bsls::TimeInterval       t2;
+        {
+            bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
+            t2 = scheduler.now();
+        }
+        ASSERT(bsls::TimeInterval(100) < t2 - t1);
+
+        // If the functor stored in the scheduler is not modified by the
+        // destruction of the time source, in safe mode builds the resultant
+        // access to 'd_currentTimeFunctor' after 'timeSource' is destroyed
+        // results in an assert due to 'd_currentTimeMutex' attempting to be
+        // locked after being destroyed.
+
+        scheduler.scheduleRecurringEvent(bsls::TimeInterval(1), noop);
+
+        bslmt::ThreadUtil::microSleep(100000);
+
+        ASSERT(scheduler.now() == t2);
+      } break;
       case 25: {
         // --------------------------------------------------------------------
         // DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
@@ -2444,47 +2487,48 @@ int main(int argc, char *argv[])
                  << "======================================================\n";
         }
 
-       // Construct the scheduler
-       bdlmt::EventScheduler scheduler;
+        // Construct the scheduler
+        bdlmt::EventScheduler scheduler;
 
-       // Construct the time-source.  Install the time-source in the scheduler.
-       bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
+        // Construct the time-source.  Install the time-source in the
+        // scheduler.
+        bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
 
-       // Set the time-source to have no nanoseconds.
-       timeSource.advanceTime(
+        // Set the time-source to have no nanoseconds.
+        timeSource.advanceTime(
              bsls::TimeInterval(0,
                                 1000 - timeSource.now().nanoseconds() % 1000));
 
-       // Schedule a 1ms recurring event.
-       scheduler.scheduleRecurringEvent(
+        // Schedule a 1ms recurring event.
+        scheduler.scheduleRecurringEvent(
                                bsls::TimeInterval(0, 1000),
                                bsl::function<void()>(&case25CallbackFunction));
 
-       // Start the dispatcher thread.
-       scheduler.start();
+        // Start the dispatcher thread.
+        scheduler.start();
 
-       // Set the watchdog.
-       bslmt::ThreadUtil::Handle watchdogHandle;
+        // Set the watchdog.
+        bslmt::ThreadUtil::Handle watchdogHandle;
 
-       s_continue = 1;
-       setWatchdogText("'advanceTime' with 100ns");
-       bslmt::ThreadUtil::create(&watchdogHandle, watchdog, 0);
+        s_continue = 1;
+        setWatchdogText("'advanceTime' with 100ns");
+        bslmt::ThreadUtil::create(&watchdogHandle, watchdog, 0);
 
-       // Advance the time by 100 nanoseconds 10 times (1ms total).
-       for (int i = 0; i < 10; ++i) {
-           ASSERT(0 == s_case25CallbackInvocationCount);
-           timeSource.advanceTime(bsls::TimeInterval(0, 100));
-       }
+        // Advance the time by 100 nanoseconds 10 times (1ms total).
+        for (int i = 0; i < 10; ++i) {
+            ASSERT(0 == s_case25CallbackInvocationCount);
+            timeSource.advanceTime(bsls::TimeInterval(0, 100));
+        }
 
-       // Shutdown watchdog.
-       s_continue = 0;
-       bslmt::ThreadUtil::join(watchdogHandle);
+        // Shutdown watchdog.
+        s_continue = 0;
+        bslmt::ThreadUtil::join(watchdogHandle);
 
-       // Assert the callback was invoked exactly once.
-       ASSERT(1 == s_case25CallbackInvocationCount);
+        // Assert the callback was invoked exactly once.
+        ASSERT(1 == s_case25CallbackInvocationCount);
 
-       // Stop the scheduler.
-       scheduler.stop();
+        // Stop the scheduler.
+        scheduler.stop();
       } break;
       case 24: {
         // --------------------------------------------------------------------
