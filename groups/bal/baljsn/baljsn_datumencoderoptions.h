@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'baljsn::DatumEncoderOptions', that is
 // used to specify options for encoding 'Datum' objects in the JSON format (see
-// {baljsn_datumutil}).
+// 'baljsn::DatumUtil').
 //
 ///Attributes
 ///----------
