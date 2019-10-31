@@ -190,6 +190,7 @@ struct Test8BytesAlignedType {
 //  {
 //      // The remainder of the usage example is in the USAGE test case.
 //  }
+//..
 
 //=============================================================================
 //                  CLASSES AND FUNCTIONS USED IN TESTS
@@ -300,7 +301,7 @@ int main(int argc, char *argv[])
 static
 #endif
 
-//
+//..
         union {
             bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
             char                                d_buffer[BUFFER_SIZE];
@@ -321,17 +322,17 @@ static
 // helper function:
 //..
         void *p         = static_cast<void *>(buffer.d_buffer);
-//
+
         (void)            naturallyAlign(&p, sizeof(char));
-//
+
         void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
-//
+//..
 // Note that the address held in 'shortPtr' is numerically divisible by the
 // alignment of a 'short' on the current platform:
 //..
         ASSERT(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
                                        bsls::AlignmentFromType<short>::VALUE));
-//
+
         ASSERT(bsls::AlignmentUtil::is2ByteAligned(shortPtr5));
 //..
 // Next we use 'naturallyAlign' to allocate a block of appropriate size and

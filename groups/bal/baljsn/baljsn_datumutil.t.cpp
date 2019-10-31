@@ -412,7 +412,6 @@ int main(int argc, char *argv[])
 // Notice that the 'type' of "age" is 'double', since "age" was encoded as a
 // number, and 'double' is the supported representation of a JSON number (see
 // {'Supported Types'}).
-//..
       } break;
       case 6: {
         //---------------------------------------------------------------------

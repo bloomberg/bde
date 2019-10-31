@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //      (void)            naturallyAlign(&p, sizeof(char));
 //
 //      void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
-//
+//..
 // Note that the address held in 'shortPtr' is numerically divisible by the
 // alignment of a 'short' on the current platform:
 //..
