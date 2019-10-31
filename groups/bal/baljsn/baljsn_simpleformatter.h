@@ -19,15 +19,16 @@ BSLS_IDENT("$Id: $")
 // This component provides an interface that is easier to use, and renders more
 // readable "pretty" JSON, than 'baljsn::Formatter'.  Clients are encouraged to
 // use 'baljsn::SimpleFormatter' instead of 'baljsn::Formatter' (see
-// {'Comparison to 'baljsn::Formatter'}).
+// {Comparison to 'baljsn::Formatter'}).
 //
 // The 'SimpleFormatter' 'class' also provides the ability to specify
 // formatting options at construction.  The options that can be provided
 // include the encoding style (compact or pretty), the initial indentation
 // level and spaces per level if encoding in the pretty format.
 //
-// Comparison to 'baljsn::Formatter'
-// ---------------------------------
+///Comparison to 'baljsn::Formatter'
+///---------------------------------
+//
 ///API Comparison
 /// - - - - - - -
 // Here is the side-by-side sequence of calls to create the following JSON
