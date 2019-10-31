@@ -248,15 +248,15 @@ class BerUniversalTagNumber_Sel {
     //
     ///Implementation Note
     ///-------------------
-    // The suffix of this class, "Sel", is a contraction of "Selector",
-    // which is meant to associate with the action of selecting a particular
-    // overload from an overload set.
+    // The suffix of this class, "Sel", is a contraction of "Selector", which
+    // is meant to associate with the action of selecting a particular overload
+    // from an overload set.
     //
     // This component uses specializations of this class to guide overload
     // resolution for functions that need to select between one of several
     // overloads based on the specified 'TYPE' and 'CATEGORY' information.
-    // Note that 'CATEGORY' is expected to be one of the "category" types
-    // that are members of 'bdlat_TypeCategory'.
+    // Note that 'CATEGORY' is expected to be one of the "category" types that
+    // are members of 'bdlat_TypeCategory'.
 
   public:
     // CREATORS
@@ -280,9 +280,9 @@ class BerUniversalTagNumber_Sel {
         // notional concept only.
 };
 
-                    // ====================================
-                    // struct BerUniversalTagNumber_ImpUtil
-                    // ====================================
+                      // ================================
+                      // struct BerUniversalTagNumber_Imp
+                      // ================================
 
 class BerUniversalTagNumber_Imp {
     // Component-private class.  Do not use.  This class contains
@@ -291,8 +291,8 @@ class BerUniversalTagNumber_Imp {
     // PRIVATE TYPES
     typedef bdlat_FormattingMode         FMode;
     typedef BerUniversalTagNumber::Value TagVal;
-        // These type definitinos are shorthand used throughout the members
-        // of this class.
+        // These type definitions are shorthand used throughout the members of
+        // this class.
 
     typedef bdlat_TypeCategory::Array          ArrayCat;
     typedef bdlat_TypeCategory::Choice         ChoiceCat;
@@ -318,14 +318,14 @@ class BerUniversalTagNumber_Imp {
     typedef bdlt::DatetimeTz    DatetimeTz;
     typedef bdlt::Time          Time;
     typedef bdlt::TimeTz        TimeTz;
-        // Similar to the aliases for the 'bdlat' category types above,
-        // these type definitions are shorthand aliases for object types
-        // in the 'Simple' 'bdlat' type category, used to improve the
-        // legibility of this class.
+        // Similar to the aliases for the 'bdlat' category types above, these
+        // type definitions are shorthand aliases for object types in the
+        // 'Simple' 'bdlat' type category, used to improve the legibility of
+        // this class.
 
     typedef bsl::vector<char>   CharVector;
-        // 'CharVector' is the one such alias in the 'Array' 'bdlat'
-        // category, not the 'Simple' category.
+        // 'CharVector' is the one such alias in the 'Array' 'bdlat' category,
+        // not the 'Simple' category.
 
     typedef BerUniversalTagNumber_Sel<bool          , SimpleCat> BoolSel;
     typedef BerUniversalTagNumber_Sel<char          , SimpleCat> CharSel;
@@ -351,9 +351,9 @@ class BerUniversalTagNumber_Imp {
     typedef BerUniversalTagNumber_Sel<TimeTz        , SimpleCat> TimeTzSel;
         // These type definitions are shorthand aliases for types having the
         // 'bdlat' 'Simple' category, whose objects can be created and used as
-        // arguments to 'select' in order to select a particular
-        // overload.  Note that these "tag" types denote both an underlying
-        // type and its 'bdlat' category.
+        // arguments to 'select' in order to select a particular overload.
+        // Note that these "tag" types denote both an underlying type and its
+        // 'bdlat' category.
 
     typedef BerUniversalTagNumber_Sel<CharVector    , ArrayCat > CharVectorSel;
         // 'CharVectorSel' is the one such alias that has a 'CATEGORY' that
@@ -371,8 +371,7 @@ class BerUniversalTagNumber_Imp {
         // numbers corresponding to those types.
 
   public:
-    BerUniversalTagNumber_Imp(int                      fm,
-                              const BerEncoderOptions *options = 0)
+    BerUniversalTagNumber_Imp(int fm, const BerEncoderOptions *options = 0)
     : d_formattingMode(fm)
     , d_options_p(options)
     , d_alternateTag(-1)
@@ -461,8 +460,8 @@ class BerUniversalTagNumber_Imp {
     inline
     TagVal operator()(const TYPE&, ANY_CATEGORY)
     {
-        typedef BerUniversalTagNumber_Sel<TYPE, ANY_CATEGORY> Sel;
-        return BerUniversalTagNumber_Imp::select(Sel());
+        typedef BerUniversalTagNumber_Sel<TYPE, ANY_CATEGORY> Selector;
+        return BerUniversalTagNumber_Imp::select(Selector());
     }
 
     int alternateTag() {
@@ -892,13 +891,13 @@ BerUniversalTagNumber_Imp::select(
         // 'BaseTypeCategory'.
 
     typedef BerUniversalTagNumber_Sel<BaseType,
-                                      BaseTypeCategory> BaseTypeSel;
+                                      BaseTypeCategory> BaseTypeSelector;
         // Next, construct a 'BerUniversalTagNumber_Sel' type specialized with
         // the computed 'BaseType' and 'BaseTypeCategory'.
 
-    return this->select(BaseTypeSel());
+    return this->select(BaseTypeSelector());
         // Finally, return the result of computing the universal tag number of
-        // the base type of 'TYPE' by using the 'BaseTypeSel' to pick an
+        // the base type of 'TYPE' by using the 'BaseTypeSelector' to pick an
         // overload of 'select' that performs said computation.
 }
 
@@ -964,8 +963,8 @@ BerUniversalTagNumber_Imp::select(
     ///-------------------
     // The BER universal tag number of a nullable type 'T' is defined to be the
     // BER universal tag number of the value type of 'T' unless 'T' has a
-    // "nillable" formatting mode flag set, in which case the tag number is
-    // the tag number for sequences.
+    // "nillable" formatting mode flag set, in which case the tag number is the
+    // tag number for sequences.
 {
     if (d_formattingMode & FMode::e_NILLABLE) {
         return BerUniversalTagNumber::e_BER_SEQUENCE;
@@ -985,13 +984,13 @@ BerUniversalTagNumber_Imp::select(
         // 'ValueTypeCategory'.
 
     typedef BerUniversalTagNumber_Sel<ValueType,
-                                      ValueTypeCategory> ValueTypeSel;
-        // Next, construct a 'BerUniversalTagNumber_Sel' type specialized
-        // with the computed 'ValueType' and 'ValueTypeCategory'.
+                                      ValueTypeCategory> ValueTypeSelector;
+        // Next, construct a 'BerUniversalTagNumber_Sel' type specialized with
+        // the computed 'ValueType' and 'ValueTypeCategory'.
 
-    return this->select(ValueTypeSel());
-        // Finally, return the result of computing the universal tag number
-        // of the value of 'TYPE' by using the 'ValueTypeSel' to pick an
+    return this->select(ValueTypeSelector());
+        // Finally, return the result of computing the universal tag number of
+        // the value of 'TYPE' by using the 'ValueTypeSelector' to pick an
         // overload of 'select' that performs said computation.
 }
 

@@ -2000,7 +2000,7 @@ struct TestCase4_ImpUtil {
 
     // CLASS DATA
     enum {
-        k_NONE_TAG_NUMBER = -2 // sentinal value used to indicate that the
+        k_NONE_TAG_NUMBER = -2 // sentinel value used to indicate that the
                                // 'alternateTagNumber' output parameter of
                                // 'select' should be unmodified upon return
     };
@@ -2013,13 +2013,11 @@ struct TestCase4_ImpUtil {
                int                                  formattingMode,
                balber::BerUniversalTagNumber::Value expectedTagNumber,
                int                                  expectedAlternateTagNumber)
-        // Increment the 'testStatus' and log an error message unless invoking
+        // Compare the results of invoking
         // 'balber::BerUniversalTagNumber::select' with the specified 'object'
-        // and 'formattingMode' returns a tag number equal to the specified
-        // 'expectedTagNumber' and an alternate tag number equal to the
-        // specified 'expectedAlternateTagNumber'.  Note that the 'testStatus'
-        // will be incremented and control flow will continue if the contract
-        // of 'select' is violated.
+        // and 'formattingMode' with the specified 'expectedTagNumber' and
+        // 'expectedAlternateTagNumber'.  If identical, do nothing; otherwise,
+        // log an error message and increment 'testStatus'.
     {
         int alternateTagNumber = k_NONE_TAG_NUMBER;
 
@@ -2042,12 +2040,12 @@ struct TestCase4_ImpUtil {
                        int                                   formattingMode,
                        const balber::BerEncoderOptions      *options,
                        balber::BerUniversalTagNumber::Value  expectedTagNumber)
-        // Increment the 'testStatus' and log an error message unless invoking
+        // Compare the results of invoking
         // 'balber::BerUniversalTagNumber::select' with the specified 'object',
-        // 'formattingMode', and 'encoderOptions' returns a tag number equal to
-        // the specified 'expectedTagNumber'.  Note that the 'testStatus' will
-        // be incremented and control flow will continue if the contract of
-        // 'select' is violated.
+        // 'formattingMode', and 'options' with the specified
+        // 'expectedTagNumber' and 'expectedAlternateTagNumber'.  If identical,
+        // do nothing; otherwise, log an error message and increment
+        // 'testStatus'.
     {
         const balber::BerUniversalTagNumber::Value tagNumber =
         balber::BerUniversalTagNumber::select(object, formattingMode, options);
@@ -2057,9 +2055,9 @@ struct TestCase4_ImpUtil {
 
     template <class TYPE>
     static void verifySelect(const TYPE& object, int formattingMode)
-        // Increment the 'testStatus' and log an error message unless invoking
-        // 'balber::BerUniversalTagNumber::select' with the specified 'object'
-        // and 'formattingMode' violates its contract.
+        // Invoke 'balber::BerUniversalTagNumber::select' with the specified
+        // 'object' and 'formattingMode'.  Note that this function is intended
+        // to be used for negative testing of 'select'.
     {
         int alternateTagNumber = k_NONE_TAG_NUMBER;
 
@@ -2071,9 +2069,9 @@ struct TestCase4_ImpUtil {
     static void verifySelect(const TYPE&                      object,
                              int                              formattingMode,
                              const balber::BerEncoderOptions *options)
-        // Increment the 'testStatus' and log an error message unless invoking
-        // 'balber::BerUniversalTagNumber::select' with the specified 'object',
-        // 'formattingMode', and 'options' violates its contract.
+        // Invoke 'balber::BerUniversalTagNumber::select' with the specified
+        // 'object', 'formattingMode', and 'options'.  Note that this function
+        // is intended to be used for negative testing of 'select'.
     {
         balber::BerUniversalTagNumber::select(object, formattingMode, options);
     }
@@ -2197,9 +2195,14 @@ int main(int argc, char *argv[])
         //   implementation.
         //
         // Concerns:
-        //: 1 The calculated universal tag number for all supported types
-        //:   is equal to the tag number from the table for the type in the
-        //:   component documentation.
+        //: 1 The calculated universal tag number for each supported type is
+        //:   equal to the tag number from the table for said type in the
+        //:   component documentation.  There are 3 exceptions to this rule.
+        //:   The 3 "real number" types: 'float', 'double', and
+        //:   'bdldfp::Decimal64' provide undocumented support for the
+        //:   'bdlat_FormattingMode::e_DEC' formatting mode.  The universal tag
+        //:   number for this formatting mode is the same as for their default
+        //:   formatting mode: 'balber::BerUniversalTagNumber::e_REAL'.
         //:
         //: 2 As a quality of implementation detail, 'select' asserts on all
         //:   arguments that violate its contract.
@@ -2334,7 +2337,10 @@ int main(int argc, char *argv[])
         const TagNumber VISIBLE_STRING = TagNumberUtil::e_BER_VISIBLE_STRING;
             // Aliases for the enumerators of
             // 'balber::BerUniversalTagNumber::Value', and 'NONE', which is a
-            // negative number not equal to the numerical values of any of the .
+            // negative number not equal to the numerical values of any of the
+            // valid enumerators.  This value is used to verify that the
+            // 'alternateTag' output argument of 'select' is unmodified when
+            // the given type does not have an alternate tag.
 
         const bsls::AssertTestHandlerGuard G;
             // 'G' installs a throwing assertion failure handler for the
@@ -2355,27 +2361,30 @@ int main(int argc, char *argv[])
     //        int                                  formattingMode,
     //        balber::BerUniversalTagNumber::Value expectedTagNumber,
     //        int                                  expectedAlternateTagNumber);
-    //      // Increment the 'testStatus' and log an error message unless
-    //      // invoking 'balber::BerUniversalTagNumber::select' with the
-    //      // specified 'object' and 'formattingMode' returns a tag number
-    //      // equal to the specified 'expectedTagNumber' and an alternate
-    //      // tag number equal to the specified 'expectedAlternateTagNumber'.
-    //      // Note that the 'testStatus' will be incremented and control flow
-    //      // will continue if the contract of 'select' is violated.
+    //      // Compare the results of invoking
+    //      // 'balber::BerUniversalTagNumber::select' with the specified
+    //      // 'object' and 'formattingMode' with the specified
+    //      // 'expectedTagNumber' and 'expectedAlternateTagNumber'.  If
+    //      // identical, do nothing; otherwise log an error message and
+    //      // increment 'testStatus'.  If the 'object' and 'formattingMode'
+    //      // violate the contract of 'select', increment 'testStatus' and
+    //      // log an error message.
     //..
-    // And,
+    // and,
     //..
     //  template <class ANY_TYPE>
     //  void PASS(const ANY_TYPE&                       object,
     //            int                                   formattingMode,
     //            const balber::BerEncoderOptions      *encoderOptions,
     //            balber::BerUniversalTagNumber::Value  expectedTagNumber);
-    //      // Increment the 'testStatus' and log an error message unless
-    //      // invoking 'balber::BerUniversalTagNumber::select' with the
-    //      // specified 'object', 'formattingMode', and 'encoderOptions'
-    //      // returns a tag number equal to the specified 'expectedTagNumber'.
-    //      // Note that the 'testStatus' will be incremented and control flow
-    //      // will continue if the contract of 'select' is violated.
+    //      // Compare the results of invoking
+    //      // 'balber::BerUniversalTagNumber::select' with the specified
+    //      // 'object', 'formattingMode', and 'options' with the specified
+    //      // 'expectedTagNumber' and 'expectedAlternateTagNumber'.  If
+    //      // identical, do nothing; otherwise, log an error message and
+    //      // increment 'testStatus'.  If the 'object' and 'formattingMode'
+    //      // violate the contract of 'select', increment 'testStatus' and
+    //      // log an error message.
     //..
 
 #define FAIL(...)                                                             \
@@ -2387,20 +2396,21 @@ int main(int argc, char *argv[])
     //..
     //  template <class ANY_TYPE>
     //  void FAIL(const ANY_TYPE& object, int formattingMode);
-    //      // Increment the 'testStatus' and log an error message unless
-    //      // invoking 'balber::BerUniversalTagNumber::select' with the
-    //      // specified 'object' and 'formattingMode' violates its contract.
+    //      // Invoke 'balber::BerUniversalTagNumber::select' with the
+    //      // specified 'object' and 'formattingMode'.  Do nothing if the
+    //      // invocation violates the contract of 'select'; otherwise,
+    //      // increment 'testStatus' and log an error message.
     //..
-    // And,
+    // and,
     //..
     //  template <class ANY_TYPE>
     //  void FAIL(const ANY_TYPE&                  object,
     //            int                              formattingMode,
     //            const balber::BerEncoderOptions *options);
-    //      // Increment the 'testStatus' and log an error message unless
-    //      // invoking 'balber::BerUniversalTagNumber::select' with the
-    //      // specified 'object', 'formattingMode', and 'options' violates
-    //      // its contract.
+    //      // Invoke 'balber::BerUniversalTagNumber::select' with the
+    //      // specified 'object', 'formattingMode', and 'options'.  Do nothing
+    //      // if the invocation violates the contract of 'select'; otherwise,
+    //      // increment 'testStatus' and log an error message.
     //..
 
         // The following test table verifies that 'select' behaves according
