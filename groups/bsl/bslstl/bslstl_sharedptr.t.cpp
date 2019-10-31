@@ -5451,11 +5451,17 @@ void Harness::testCase32_AllocatorPropagation()
                                                                A07, A08, A09,
                                                                A10, A11, A12,
                                                                A13, A14);
+
+            // Note that we are not able to pass 15 parameters here, because
+            // some compilers do not support variadic templates, while
+            // automatically generated 'make_shared' overloads accept up to 14
+            // arguments only.  In order not to violate the structure of the
+            // test, we simply pass 14 parameters here again.
             mXA = bsl::make_shared<const AllocPropagationType>(A01, A02, A03,
                                                                A04, A05, A06,
                                                                A07, A08, A09,
                                                                A10, A11, A12,
-                                                               A13, A14, &sa);
+                                                               A13, A14);
           } break;
         };
 
@@ -5474,7 +5480,13 @@ void Harness::testCase32_AllocatorPropagation()
 
         // Verify that 'make_shared' does propagate a supplied allocator.
 
-        ASSERTV(&sa == XA->allocator());
+        if (14 != N_ARGS) {
+            ASSERTV(&sa == XA->allocator());
+        }
+        else {
+            // We have not pass an allocator at the final position.
+            ASSERTV(0 == XA->allocator());
+        }
     }
 
     ASSERTV(N_ARGS, EXPECTED_DA_DEALLOCATIONS_NUM,   da->numDeallocations(),
@@ -6679,6 +6691,9 @@ void Harness::testCase38(int value)
 
         bsl::shared_ptr<Y> mZ; const bsl::shared_ptr<Y>& Z = mZ;
 
+        (void) R;  // suppress compiler warning
+        (void) Z;  // suppress compiler warning
+
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX = R));
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
@@ -6719,6 +6734,7 @@ void Harness::testCase38(int value)
 
     {
         bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        (void) X;  // suppress compiler warning
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.get()));
@@ -6784,6 +6800,8 @@ void Harness::testCase38(int value)
 
         bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
         bsl::shared_ptr<U> mB; const bsl::shared_ptr<U>& B = mB;
+        (void) A;  // suppress compiler warning
+        (void) B;  // suppress compiler warning
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(A == B));
@@ -6856,13 +6874,14 @@ void Harness::testCase38(int value)
         typedef Y U;
 
         bsl::shared_ptr<U> mR; const bsl::shared_ptr<U>& R = mR;
+        (void) R;  // suppress compiler warning
 
-       ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-           == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
-       ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-           == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
-       ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-           == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
     }
 
     // page 592
@@ -6874,6 +6893,7 @@ void Harness::testCase38(int value)
 
     {
         bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        (void) X;  // suppress compiler warning
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::get_deleter<T>(X)));
@@ -6903,18 +6923,21 @@ void Harness::testCase38(int value)
         }
         {
             bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+            (void) r;  // suppress compiler warning
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
         }
         {
             bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+            (void) r;  // suppress compiler warning
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
         }
         {
             bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+            (void) r;  // suppress compiler warning
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
@@ -6949,6 +6972,7 @@ void Harness::testCase38(int value)
         {
             bsl::weak_ptr<T> mX;
             bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+            (void) r;  // suppress compiler warning
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX = r));
@@ -6956,6 +6980,7 @@ void Harness::testCase38(int value)
         {
             bsl::weak_ptr<T> mX;
             bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+            (void) r;  // suppress compiler warning
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX = r));
@@ -6963,6 +6988,7 @@ void Harness::testCase38(int value)
         {
             bsl::weak_ptr<T>   mX;
             bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+            (void) r;  // suppress compiler warning
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX = r));
@@ -7010,6 +7036,7 @@ void Harness::testCase38(int value)
 
     {
         bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& R = mR;
+        (void) R;  // suppress compiler warning
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(R.use_count()));
