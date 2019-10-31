@@ -37,6 +37,7 @@
      bsla_error
      bsla_fallthrough
      bsla_format
+     bsla_maybeunused
      bsla_nodiscard
      bsla_nonnullarg
      bsla_noreturn
@@ -64,6 +65,9 @@
 :
 : 'bsla_format':
 :      Provide a macro to indicate that a return value is a format string.
+:
+: 'bsla_maybeused':
+:      Provide a macro to suppress "unused" warnings.
 :
 : 'bsla_nodiscard':
 :      Provide a macro for warning about ignored function results.
@@ -132,6 +136,11 @@
  argument of a function is a 'printf'-style format specification, and that the
  function will return a 'printf'-style format string with an equivalent
  specification.
+
+/'bsla_maybeunused'
+/- - - - - - - - -
+This component provides a preprocessor macro that will suppress "unused"
+warnings on a locally defined function, type, or variable that is not used.
 
 /'bsla_nodiscard'
 /- - - - - - - -
