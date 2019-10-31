@@ -508,7 +508,8 @@ int main(int argc, char *argv[])
                 }
 
                 int line = stackTrace[i].lineNumber();
-                ASSERTV(line, e_IS_DWARF ? 0 < line : -1 == line);
+                ASSERTV(line, 0 < line || -1 == line);
+                ASSERTV(line, !e_IS_DWARF || 0 < line);
 
                 if (e_IS_DWARF) {
                     if (3 == i) {
@@ -535,9 +536,6 @@ int main(int argc, char *argv[])
                            3 == i ? "balst_stacktraceresolverimpl_elf.cpp"
                          : 4 == i ? "balst_stacktraceresolverimpl_elf.h"
                          :          "balst_stacktraceresolverimpl_elf.t.cpp"));
-                }
-                else {
-                    ASSERTV(i, name, !stackTrace[i].isSourceFileNameKnown());
                 }
             }
 
