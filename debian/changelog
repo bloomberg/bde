@@ -1,5 +1,12 @@
-bsl-internal (3.41.0.0) unstable; urgency=low
+bsl-internal (3.41.0.1) unstable; urgency=low
 
+  * f42e68252 Merge pull request #2560 from mgiroux/pr/2559-rebased-releases/3.41.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Nov 2019 09:14:09 -0400
+
+bsl-internal (3.41.0.0) git; urgency=low
+
+  * 875fca984 Changelog for version 3.41.0.0
   * 85464be01 Bumped version to 3.41.0.0
   * 7995863f0 Merge pull request #2545 from ameredit/darwin_fix_for_library_features
   * bae67e3fd Merge pull request #2462 from mgiroux/dlcjsn-to-baljsn-drqs142795491
@@ -32,7 +39,7 @@ bsl-internal (3.41.0.0) unstable; urgency=low
   * e7b75b45b Merge pull request #2448 from dsokolov7/review/bde-usage-example-balxml-drqs-146259073
   * 326fc341d Merge pull request #2509 from osubbotin/review/dpkg-split
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Oct 2019 22:04:35 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Oct 2019 22:05:06 -0400
 
 bsl-internal (3.40.0.0) git; urgency=low
 
