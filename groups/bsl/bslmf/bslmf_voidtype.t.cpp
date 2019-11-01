@@ -497,7 +497,7 @@ int main(int argc, char *argv[])
         ASSERT( IsReasonable<void   ()        noexcept>::k_VALUE);
         ASSERT( IsReasonable<void(*)()        noexcept>::k_VALUE);
         ASSERT(!IsReasonable<void(&)()        noexcept>::k_VALUE);
-        ASSERT( IsReasonable<void   ()  const noexcept>::k_VALUE);
+        ASSERT(!IsReasonable<void   ()  const noexcept>::k_VALUE);
         ASSERT( IsReasonable<int(T::*)()const noexcept>::k_VALUE);
 # endif
 #endif  // Solaris workaround
