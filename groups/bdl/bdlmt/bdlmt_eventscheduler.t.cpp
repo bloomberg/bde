@@ -121,7 +121,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [25] DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
-// [26] DRQS 150475152: TEST TIME SOURCE DESTRUCTOR
+// [26] DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
@@ -2427,23 +2427,22 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // DRQS 150475152: TEST TIME SOURCE DESTRUCTOR
+        // DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
         //
         // Concerns:
         //: 1 When the test time source is destroyed, the current time functor
-        //:   in the associated scheduler is modified to return the test time
-        //:   source's current 'now()' value.
+        //:   in the associated scheduler remains valid.
         //
         // Plan:
         //: 1 Directly test the scenario.  (C-1)
         //
         // Testing:
-        //   DRQS 150475152: TEST TIME SOURCE DESTRUCTOR
+        //   DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "DRQS 150475152: TEST TIME SOURCE DESTRUCTOR\n"
-                 << "===========================================\n";
+            cout << "DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION\n"
+                 << "==================================================\n";
         }
 
         bdlmt::EventScheduler    scheduler;
@@ -2455,9 +2454,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(bsls::TimeInterval(100) < t2 - t1);
 
-        // If the functor stored in the scheduler is not modified by the
-        // destruction of the time source, in safe mode builds the resultant
-        // access to 'd_currentTimeFunctor' after 'timeSource' is destroyed
+        // If the functor stored in the scheduler is no longer valid,
+        // in safe mode builds the resultant access to 'd_currentTimeFunctor'
         // results in an assert due to 'd_currentTimeMutex' attempting to be
         // locked after being destroyed.
 

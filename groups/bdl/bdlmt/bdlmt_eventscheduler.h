@@ -400,13 +400,15 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <bsl_functional.h>
+#include <bsl_memory.h>
 #include <bsl_utility.h>
 
 namespace BloombergLP {
 namespace bdlmt {
 
-class EventSchedulerEventHandle;
-class EventSchedulerRecurringEventHandle;
+class  EventSchedulerEventHandle;
+class  EventSchedulerRecurringEventHandle;
+struct EventSchedulerTestTimeSource_Data;
 
                             // ====================
                             // class EventScheduler
@@ -950,15 +952,13 @@ class EventSchedulerTestTimeSource {
 
   private:
     // DATA
-    bsls::TimeInterval    d_currentTime;       // the current time to return
-                                               // from 'now'
+    bsl::shared_ptr<EventSchedulerTestTimeSource_Data>
+                          d_data_p;       // shared pointer to the state whose
+                                          // lifetime must be as long as
+                                          // '*this' and '*d_scheduler_p'
 
-    bslmt::Mutex          d_currentTimeMutex;  // mutex used to synchronize
-                                               // access to the variable
-                                               // 'd_currentTimeMutex'
-
-    EventScheduler       *d_scheduler_p;       // pointer to the scheduler that
-                                               // we are augmenting
+    EventScheduler       *d_scheduler_p;  // pointer to the scheduler that we
+                                          // are augmenting
 
   public:
     // CREATORS
@@ -967,10 +967,6 @@ class EventSchedulerTestTimeSource {
         // "system-time" observed by the specified 'scheduler'.  Initialize
         // 'now' to be an arbitrary time value.  The behavior is undefined if
         // any methods have previously been called on 'scheduler'.
-
-    ~EventSchedulerTestTimeSource();
-        // Release control of the "system-time" observed by the scheduler
-        // supplied at construction and destroy this object.
 
     // MANIPULATORS
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
