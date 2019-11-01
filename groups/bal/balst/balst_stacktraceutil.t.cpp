@@ -465,7 +465,7 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
         if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !reachedMain) {
             ASSERT(frame.lineNumber() > 0);
         }
-        else if (FORMAT_XCOFF) {
+        else if (FORMAT_XCOFF && DEBUG_ON) {
             ASSERT(frame.isSourceFileNameKnown());
 
             // There may be one stack frame that had inlined code in it.
@@ -612,8 +612,7 @@ void pushVec(bsl::vector<Data> *dst,
                                             0 && "weird member function ptrs");
         uPtr = 0;
     }
-    ptr = (void *) (uPtr + 4);      // add a few bytes to get us into the
-                                    // function.
+    ptr = (void *) (uPtr + 1);      // add a byte to get us into the function.
 
     if (veryVerbose) {
         P_(mangledSearch);  P_(sizeof(ptr));    P_(sizeof(funcPtr));    P(ptr);
