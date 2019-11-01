@@ -84,7 +84,7 @@ struct TimerEventSchedulerTestTimeSource_Data {
 
 static
 bsls::TimeInterval timerEventSchedulerTestTimeSourceNow(
-                  bsl::shared_ptr<TimerEventSchedulerTestTimeSource_Data> data)
+           const bsl::shared_ptr<TimerEventSchedulerTestTimeSource_Data>& data)
     // Return the current time stored within the specified 'data'.
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&data->d_currentTimeMutex);
@@ -851,8 +851,7 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource::advanceTime(
 // ACCESSORS
 bsls::TimeInterval TimerEventSchedulerTestTimeSource::now()
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_data_p->d_currentTimeMutex);
-    return d_data_p->d_currentTime;
+    return timerEventSchedulerTestTimeSourceNow(d_data_p);
 }
 
 }  // close package namespace
