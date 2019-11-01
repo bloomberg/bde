@@ -67,6 +67,34 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
 }  // close unnamed namespace
 
 namespace bdlmt {
+
+               // =============================================
+               // struct TimerEventSchedulerTestTimeSource_Data
+               // =============================================
+
+struct TimerEventSchedulerTestTimeSource_Data {
+    // This 'struct' provides storage for the current time and a mutex to
+    // protect access to the current time.
+
+    bsls::TimeInterval    d_currentTime;       // the current time
+
+    bslmt::Mutex          d_currentTimeMutex;  // mutex used to synchronize
+                                               // 'd_currentTime' access
+};
+
+static
+bsls::TimeInterval timerEventSchedulerTestTimeSourceNow(
+                  bsl::shared_ptr<TimerEventSchedulerTestTimeSource_Data> data)
+    // Return the current time stored within the specified 'data'.
+{
+    bslmt::LockGuard<bslmt::Mutex> lock(&data->d_currentTimeMutex);
+    return data->d_currentTime;
+}
+
+                   // ====================================
+                   // struct TimerEventSchedulerDispatcher
+                   // ====================================
+
 struct TimerEventSchedulerDispatcher {
     // This class just contains the method called to run the dispatcher
     // thread.  Once started, it infinite loops, either waiting for or
@@ -757,10 +785,12 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
 // CREATORS
 TimerEventSchedulerTestTimeSource::TimerEventSchedulerTestTimeSource(
                                                 TimerEventScheduler *scheduler)
-: d_currentTime(bsls::SystemTime::now(scheduler->d_clockType)
-                + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY)
-, d_scheduler_p(scheduler)
+: d_scheduler_p(scheduler)
 {
+    BSLS_ASSERT(0 != scheduler);
+
+    d_data_p = bsl::make_shared<TimerEventSchedulerTestTimeSource_Data>();
+
     // The event scheduler is constructed with a "now" that is 1000 days in the
     // future.  This point in time is arbitrary, but is chosen to ensure that
     // in any reasonable test driver, the system clock (which controls the
@@ -773,14 +803,15 @@ TimerEventSchedulerTestTimeSource::TimerEventSchedulerTestTimeSource(
     // 'TimerEventSchedulerTestTimeSource::advanceTime'.  See the call to
     // 'timedWait' in 'TimerEventScheduler::dispatchEvents'.
 
-    BSLS_ASSERT(0 != scheduler);
+    d_data_p->d_currentTime = bsls::SystemTime::now(scheduler->d_clockType)
+                               + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY;
 
     // Bind the member function 'now' to 'this', and let the scheduler call
     // this binder as its current time callback.
 
-    d_scheduler_p->d_currentTimeFunctor = bdlf::MemFnUtil::memFn(
-                                  &TimerEventSchedulerTestTimeSource::now,
-                                  this);
+    d_scheduler_p->d_currentTimeFunctor = bdlf::BindUtil::bind(
+                                         &timerEventSchedulerTestTimeSourceNow,
+                                         d_data_p);
 }
 
 // MANIPULATORS
@@ -793,13 +824,13 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource::advanceTime(
     {
         // This scope limits how long we lock 'd_currentTimeMutex'
 
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_data_p->d_currentTimeMutex);
 
-        d_currentTime += amount;
+        d_data_p->d_currentTime += amount;
 
         // Returning the new time allows an atomic 'advance' + 'now' operation.
         // This feature may not be necessary.
-        ret = d_currentTime;
+        ret = d_data_p->d_currentTime;
     }
 
 
@@ -820,8 +851,8 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource::advanceTime(
 // ACCESSORS
 bsls::TimeInterval TimerEventSchedulerTestTimeSource::now()
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
-    return d_currentTime;
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_data_p->d_currentTimeMutex);
+    return d_data_p->d_currentTime;
 }
 
 }  // close package namespace

@@ -341,6 +341,7 @@ namespace BloombergLP {
 namespace bdlmt {
 
 struct TimerEventSchedulerDispatcher;
+struct TimerEventSchedulerTestTimeSource_Data;
 
                          // =========================
                          // class TimerEventScheduler
@@ -791,15 +792,13 @@ class TimerEventSchedulerTestTimeSource {
 
   private:
     // DATA
-    bsls::TimeInterval    d_currentTime;       // the current time to return
-                                               // from 'now'
+    bsl::shared_ptr<TimerEventSchedulerTestTimeSource_Data>
+                          d_data_p;       // shared pointer to the state whose
+                                          // lifetime must be as long as
+                                          // '*this' and '*d_scheduler_p'
 
-    bslmt::Mutex          d_currentTimeMutex;  // mutex used to synchronize
-                                               // access to the variable
-                                               // 'd_currentTimeMutex'
-
-    TimerEventScheduler  *d_scheduler_p;       // pointer to the scheduler
-                                               // that we are augmenting
+    TimerEventScheduler  *d_scheduler_p;  // pointer to the scheduler that we
+                                          // are augmenting
 
   public:
     // CREATORS
