@@ -15,23 +15,27 @@ Description: bsl-internal bde metadata
 Package: libbal-extra-dev
 Depends: libbdl-extra-dev, libbsl-extra-dev
 Architecture: any
+Conflicts: libbal-dev (< 3.41.0.0)
 Description: BAL
  groups/bal extra libraries
 
 Package: libbbl-extra-dev
 Depends: libbdl-extra-dev, libbsl-extra-dev
 Architecture: any
+Conflicts: libbbl-dev (< 3.41.0.0)
 Description: BBL
  groups/bbl extra libraries
 
 Package: libbdl-extra-dev
 Depends: libbsl-extra-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
+Conflicts: libbdl-dev (< 3.41.0.0)
 Description: BDL
  groups/bdl extra libraries
 
 Package: libbsl-extra-dev
 Architecture: any
+Conflicts: libbsl-dev (< 3.41.0.0)
 Description: BSL 
  groups/bsl extra libraries
 
