@@ -138,11 +138,12 @@ using bsl::flush;
 // [27] bsls::TimeInterval now();
 // ----------------------------------------------------------------------------
 // [01] BREATHING TEST
+// [28] DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [26] CLOCK-REPLACEMENT BREATHING TEST
-// [28] USAGE EXAMPLE
+// [29] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -328,6 +329,11 @@ static inline double dnow()
     // current time as a double
 
     return bdlt::CurrentTime::now().totalSecondsAsDouble();
+}
+
+void noop()
+    // Do nothing.
+{
 }
 
                          // ==========================
@@ -922,7 +928,7 @@ struct Recurser {
     void deepRecurser() {
         char buffer[BUFSIZE];
 
-        int curDepth = abs(buffer - d_topPtr);
+        int curDepth = static_cast<int>(abs(buffer - d_topPtr));
 
         if (veryVerbose) {
             cout << "Depth: " << curDepth << endl;
@@ -2745,7 +2751,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:
         //
@@ -2769,6 +2775,46 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         my_Server server(bsls::TimeInterval(10), &ta);
 
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
+        //
+        // Concerns:
+        //: 1 When the test time source is destroyed, the current time functor
+        //:   in the associated scheduler remains valid.
+        //
+        // Plan:
+        //: 1 Directly test the scenario.  (C-1)
+        //
+        // Testing:
+        //   DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION\n"
+                 << "==================================================\n";
+        }
+
+        bdlmt::TimerEventScheduler scheduler;
+        const bsls::TimeInterval   t1 = scheduler.now();
+        bsls::TimeInterval         t2;
+        {
+            bdlmt::TimerEventSchedulerTestTimeSource timeSource(&scheduler);
+            t2 = scheduler.now();
+        }
+        ASSERT(bsls::TimeInterval(100) < t2 - t1);
+
+        // If the functor stored in the scheduler is no longer valid,
+        // in safe mode builds the resultant access to 'd_currentTimeFunctor'
+        // results in an assert due to 'd_currentTimeMutex' attempting to be
+        // locked after being destroyed.
+
+        scheduler.startClock(bsls::TimeInterval(1), noop);
+
+        bslmt::ThreadUtil::microSleep(100000);
+
+        ASSERT(scheduler.now() == t2);
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -3544,7 +3590,7 @@ int main(int argc, char *argv[])
                     // wait until events can run, verify that clock queue
                     // stayed small
 
-            int slowfunctorSize = sf.timeList().size();
+            int slowfunctorSize = static_cast<int>(sf.timeList().size());
 
             ASSERT(!(slowfunctorSize & 1)); // should not be odd element
             slowfunctorSize &= ~1;          // ignore odd element if there
@@ -3689,7 +3735,7 @@ int main(int argc, char *argv[])
                     // let running tasks finish, test that clock queue did not
                     // get large
 
-            int slowfunctorSize = sf.timeList().size();
+            int slowfunctorSize = static_cast<int>(sf.timeList().size());
 
             if (verbose) { P(slowfunctorSize); }
 
