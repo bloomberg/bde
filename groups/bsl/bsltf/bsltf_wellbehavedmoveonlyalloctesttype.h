@@ -157,8 +157,8 @@ class WellBehavedMoveOnlyAllocTestType {
         // the currently installed default allocator is used.  After
         // construction, this object will be in a 'movedInto' state, and
         // 'original' will be in a 'movedFrom' state.  No allocations shall
-        // occur (so no exception will be thrown) unless 'basicAllocator' is
-        // not the currently installed default allocator.
+        // occur (so no exception will be thrown) unless
+        // 'basicAllocator != original.allocator()).
 
     ~WellBehavedMoveOnlyAllocTestType();
         // Destroy this object.
