@@ -69,7 +69,7 @@
         }
     },
     {
-        "ufids": [ "dbg_exc_mt" ],
+        "ufids": [ "opt_dbg_exc_mt", "dbg_exc_mt" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -80,7 +80,7 @@
         }
     },
     {
-        "ufids": [ "dbg_exc_mt_64_pic" ],
+        "ufids": [ "opt_dbg_exc_mt_64_pic", "dbg_exc_mt_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks",
@@ -96,28 +96,26 @@
         }
     },
     {
-        "ufids": [ "opt_dbg_exc_mt", "opt_exc_mt_pic",
-                   "dbg_exc_mt_safe" ],
+        "ufids": [ "opt_exc_mt_pic", "dbg_exc_mt_safe" ],
         "targets": [ "all" ],
         "install": {
-            "libbal-extra-dev": [ "bal", "bal-symlinks" ],
-            "libbbl-extra-dev": [ "bbl", "bbl-symlinks" ],
-            "libbdl-extra-dev": [ "bdl", "bdl-symlinks" ],
-            "libbsl-extra-dev": [ "bsl", "bsl-symlinks" ]
+            "libbal-dev-extra": [ "bal", "bal-symlinks" ],
+            "libbbl-dev-extra": [ "bbl", "bbl-symlinks" ],
+            "libbdl-dev-extra": [ "bdl", "bdl-symlinks" ],
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ]
         }
     },
     {
-        "ufids": [ "opt_dbg_exc_mt_64_pic",
-                   "dbg_exc_mt_64_safe_pic" ],
+        "ufids": [ "dbg_exc_mt_64_safe_pic" ],
         "targets": [ "all" ],
         "install": {
-            "libbal-extra-dev": [ "bal", "bal-symlinks",
+            "libbal-dev-extra": [ "bal", "bal-symlinks",
                                   "bal-pic-symlink-hack" ],
-            "libbbl-extra-dev": [ "bbl", "bbl-symlinks",
+            "libbbl-dev-extra": [ "bbl", "bbl-symlinks",
                                   "bbl-pic-symlink-hack" ],
-            "libbdl-extra-dev": [ "bdl", "bdl-symlinks",
+            "libbdl-dev-extra": [ "bdl", "bdl-symlinks",
                                   "bdl-pic-symlink-hack" ],
-            "libbsl-extra-dev": [ "bsl", "bsl-symlinks",
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks",
                                   "bsl-pic-symlink-hack" ]
         }
     }
@@ -190,7 +188,7 @@
         }
     },
     {
-        "ufids": [ "dbg_exc_mt" ],
+        "ufids": [ "opt_dbg_exc_mt", "dbg_exc_mt" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -201,7 +199,7 @@
         }
     },
     {
-        "ufids": [ "dbg_exc_mt_64_pic" ],
+        "ufids": [ "opt_dbg_exc_mt_64_pic", "dbg_exc_mt_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks",
@@ -217,28 +215,26 @@
         }
     },
     {
-        "ufids": [ "opt_dbg_exc_mt", "opt_exc_mt_pic",
-                   "dbg_exc_mt_safe" ],
+        "ufids": [ "opt_exc_mt_pic", "dbg_exc_mt_safe" ],
         "targets": [ "all" ],
         "install": {
-            "libbal-extra-dev": [ "bal", "bal-symlinks" ],
-            "libbbl-extra-dev": [ "bbl", "bbl-symlinks" ],
-            "libbdl-extra-dev": [ "bdl", "bdl-symlinks" ],
-            "libbsl-extra-dev": [ "bsl", "bsl-symlinks" ]
+            "libbal-dev-extra": [ "bal", "bal-symlinks" ],
+            "libbbl-dev-extra": [ "bbl", "bbl-symlinks" ],
+            "libbdl-dev-extra": [ "bdl", "bdl-symlinks" ],
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ]
         }
     },
     {
-        "ufids": [ "opt_dbg_exc_mt_64_pic",
-                   "dbg_exc_mt_64_safe_pic" ],
+        "ufids": [ "dbg_exc_mt_64_safe_pic" ],
         "targets": [ "all" ],
         "install": {
-            "libbal-extra-dev": [ "bal", "bal-symlinks",
+            "libbal-dev-extra": [ "bal", "bal-symlinks",
                                   "bal-pic-symlink-hack" ],
-            "libbbl-extra-dev": [ "bbl", "bbl-symlinks",
+            "libbbl-dev-extra": [ "bbl", "bbl-symlinks",
                                   "bbl-pic-symlink-hack" ],
-            "libbdl-extra-dev": [ "bdl", "bdl-symlinks",
+            "libbdl-dev-extra": [ "bdl", "bdl-symlinks",
                                   "bdl-pic-symlink-hack" ],
-            "libbsl-extra-dev": [ "bsl", "bsl-symlinks",
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks",
                                   "bsl-pic-symlink-hack" ]
         }
     }
@@ -311,7 +307,7 @@
         }
     },
     {
-        "ufids": [ "dbg_exc_mt" ],
+        "ufids": [ "opt_dbg_exc_mt", "dbg_exc_mt" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -322,7 +318,7 @@
         }
     },
     {
-        "ufids": [ "dbg_exc_mt_64_pic" ],
+        "ufids": [ "opt_dbg_exc_mt_64_pic", "dbg_exc_mt_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks",
@@ -338,28 +334,26 @@
         }
     },
     {
-        "ufids": [ "opt_dbg_exc_mt", "opt_exc_mt_pic",
-                   "dbg_exc_mt_safe" ],
+        "ufids": [ "opt_exc_mt_pic", "dbg_exc_mt_safe" ],
         "targets": [ "all" ],
         "install": {
-            "libbal-extra-dev": [ "bal", "bal-symlinks" ],
-            "libbbl-extra-dev": [ "bbl", "bbl-symlinks" ],
-            "libbdl-extra-dev": [ "bdl", "bdl-symlinks" ],
-            "libbsl-extra-dev": [ "bsl", "bsl-symlinks" ]
+            "libbal-dev-extra": [ "bal", "bal-symlinks" ],
+            "libbbl-dev-extra": [ "bbl", "bbl-symlinks" ],
+            "libbdl-dev-extra": [ "bdl", "bdl-symlinks" ],
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ]
         }
     },
     {
-        "ufids": [ "opt_dbg_exc_mt_64_pic",
-                   "dbg_exc_mt_64_safe_pic" ],
+        "ufids": [ "dbg_exc_mt_64_safe_pic" ],
         "targets": [ "all" ],
         "install": {
-            "libbal-extra-dev": [ "bal", "bal-symlinks",
+            "libbal-dev-extra": [ "bal", "bal-symlinks",
                                   "bal-pic-symlink-hack" ],
-            "libbbl-extra-dev": [ "bbl", "bbl-symlinks",
+            "libbbl-dev-extra": [ "bbl", "bbl-symlinks",
                                   "bbl-pic-symlink-hack" ],
-            "libbdl-extra-dev": [ "bdl", "bdl-symlinks",
+            "libbdl-dev-extra": [ "bdl", "bdl-symlinks",
                                   "bdl-pic-symlink-hack" ],
-            "libbsl-extra-dev": [ "bsl", "bsl-symlinks",
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks",
                                   "bsl-pic-symlink-hack" ]
         }
     }
