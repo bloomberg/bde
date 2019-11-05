@@ -8,8 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a macro to suppress "unused" warnings.
 //
 //@MACROS:
-//  BSLA_MAYBEUNUSED: suppress compiler warnings on unused entities
-//  BSLA_MAYBEUNUSED_IS_ACTIVE: 1 if 'BSLA_MAYBEUNUSED' is active, 0 otherwise
+//  BSLA_MAYBE_UNUSED: suppress compiler warnings on unused entities
+//  BSLA_MAYBE_UNUSED_IS_ACTIVE: 1 if 'BSLA_MAYBE_UNUSED' is active, else 0
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -19,14 +19,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_MAYBEUNUSED'
+//: 'BSLA_MAYBE_UNUSED'
 //:    This annotation indicates that the so-annotated function, variable, or
 //:    type is possibly unused and the compiler should not generate a warning
 //:    for the unused identifier.
 //
-//: 'BSLA_MAYBEUNUSED_IS_ACTIVE'
-//:     The macro 'BSLA_MAYBEUNUSED_IS_ACTIVE' is defined to 0 if
-//:     'BSLA_MAYBEUNUSED' expands to nothing and 1 otherwise.
+//: 'BSLA_MAYBE_UNUSED_IS_ACTIVE'
+//:     The macro 'BSLA_MAYBE_UNUSED_IS_ACTIVE' is defined to 0 if
+//:     'BSLA_MAYBE_UNUSED' expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -99,30 +99,30 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that none of the compilers currently in use by the development team
 // issue a warning on the unused 'warn::ResultRec', but some in the future
-// might.  In the meantime, 'BSLA_MAYBEUNUSED' is tolerated on type
+// might.  In the meantime, 'BSLA_MAYBE_UNUSED' is tolerated on type
 // declarations without resulting in a syntax error.
 //
 // Next, we define a namespace, 'nowarn', within the unused namespace with
-// exactly the same unused entities, using the 'BSLA_MAYBEUNUSED' annotation to
-// silence the warnings:
+// exactly the same unused entities, using the 'BSLA_MAYBE_UNUSED' annotation
+// to silence the warnings:
 //..
 //  namespace {
 //  namespace nowarn {
 //
-//  struct BSLA_MAYBEUNUSED ResultRec {
+//  struct BSLA_MAYBE_UNUSED ResultRec {
 //      double d_x;
 //      double d_y;
 //  };
 //
-//  BSLA_MAYBEUNUSED double x;
+//  BSLA_MAYBE_UNUSED double x;
 //
-//  BSLA_MAYBEUNUSED int quadratic(double                  *zeroA,
-//                                 double                  *zeroB,
-//                                 BSLA_MAYBEUNUSED double *zeroC,
-//                                 BSLA_MAYBEUNUSED double  cubeFactor,
-//                                 double                   a,
-//                                 double                   b,
-//                                 double                   c);
+//  BSLA_MAYBE_UNUSED int quadratic(double                   *zeroA,
+//                                  double                   *zeroB,
+//                                  BSLA_MAYBE_UNUSED double *zeroC,
+//                                  BSLA_MAYBE_UNUSED double  cubeFactor,
+//                                  double                    a,
+//                                  double                    b,
+//                                  double                    c);
 //      // Solve the quadratic function for the specified 'a', 'b', and 'c',
 //      // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
 //      // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
@@ -130,13 +130,13 @@ BSLS_IDENT("$Id: $")
 //      // 'cubeFactor' and 'zeroC' are unused for now but will be used in
 //      // future expansion of the function to handle cubic polynomials.
 //
-//  int quadratic(double                  *zeroA,
-//                double                  *zeroB,
-//                BSLA_MAYBEUNUSED double *zeroC,
-//                BSLA_MAYBEUNUSED double  cubeFactor,
-//                double                   a,
-//                double                   b,
-//                double                   c)
+//  int quadratic(double                   *zeroA,
+//                double                   *zeroB,
+//                BSLA_MAYBE_UNUSED double *zeroC,
+//                BSLA_MAYBE_UNUSED double  cubeFactor,
+//                double                    a,
+//                double                    b,
+//                double                    c)
 //  {
 //      const double discriminant = b * b - 4 * a * c;
 //      if (discriminant < 0 || 0.0 == a) {
@@ -160,13 +160,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED)
-    #define BSLA_MAYBEUNUSED [[ maybe_unused ]]
+    #define BSLA_MAYBE_UNUSED [[ maybe_unused ]]
 
-    #define BSLA_MAYBEUNUSED_IS_ACTIVE 1
+    #define BSLA_MAYBE_UNUSED_IS_ACTIVE 1
 #else
-    #define BSLA_MAYBEUNUSED
+    #define BSLA_MAYBE_UNUSED
 
-    #define BSLA_MAYBEUNUSED_IS_ACTIVE 0
+    #define BSLA_MAYBE_UNUSED_IS_ACTIVE 0
 #endif
 
 #endif

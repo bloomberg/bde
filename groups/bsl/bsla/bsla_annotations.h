@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //  BSLA_ERROR(QUOTED_MESSAGE): emit error message and fail compilation
 //  BSLA_FALLTHROUGH: do not warn if 'switch' 'case' falls through
 //  BSLA_FORMAT(FMT_IDX): validate 'printf'-style format spec in 'n'th argument
-//  BSLA_MAYBEUNUSED: suppress compiler warnings on unused entities
+//  BSLA_MAYBE_UNUSED: suppress compiler warnings on unused entities
 //  BSLA_NODISCARD: warn if annotated function result is not used
 //  BSLA_NONNULLARG(...): warn if indexed arguments are NULL
 //  BSLA_NONNULLARGS: warn if any arguments are NULL
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //  BSLA_ERROR_IS_ACTIVE: 1 if 'BSLA_ERROR' is active and 0 otherwise
 //  BSLA_FALLTHROUGH_IS_ACTIVE: 1 if 'BSLA_FALLTHROUGH' is active, else 0
 //  BSLA_FORMAT_IS_ACTIVE: 1 if 'BSLA_FORMAT' is active and 0 otherwise
-//  BSLA_MAYBEUNUSED_IS_ACTIVE: 1 if 'BSLA_MAYBEUNUSED' is active, 0 otherwise
+//  BSLA_MAYBE_UNUSED_IS_ACTIVE: 1 if 'BSLA_MAYBE_UNUSED' is active, else 0
 //  BSLA_NODISCARD_IS_ACTIVE: 1 if 'BSLA_NODISCARD' is active and 0 otherwise
 //  BSLA_NONNULLARG_IS_ACTIVE:  1 if 'BSLA_NONNULLARG' is active, 0 otherwise
 //  BSLA_NONNULLARGS_IS_ACTIVE: 1 if 'BSLA_NONNULLARGS' is active, 0 otherwise
@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 //:     warnings about non-literal formats, or fail to generate warnings about
 //:     mismatched arguments.
 //
-//: 'BSLA_MAYBEUNUSED'
+//: 'BSLA_MAYBE_UNUSED'
 //:     This annotation indicates that the so-annotated function, variable, or
 //:     type is possibly unused and the compiler should not generate a warning
 //:     for the unused identifier.
@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //: 'BSLA_ERROR_IS_ACTIVE'
 //: 'BSLA_FALLTHROUGH_IS_ACTIVE'
 //: 'BSLA_FORMAT_IS_ACTIVE'
-//: 'BSLA_MAYBEUNUSED_IS_ACTIVE'
+//: 'BSLA_MAYBE_UNUSED_IS_ACTIVE'
 //: 'BSLA_NODISCARD_IS_ACTIVE'
 //: 'BSLA_NONNULLARG_IS_ACTIVE'
 //: 'BSLS_NONNULLARGS_IS_ACTIVE'

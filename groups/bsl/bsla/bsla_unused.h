@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // "unused" warnings on a locally defined function, type, or variable that is
 // not used.
 //
-// Note that the similar macro, 'BSLA_MAYBEUNUSED', aliasing the standard
+// Note that the similar macro, 'BSLA_MAYBE_UNUSED', aliasing the standard
 // '[[maybe_unused]]' attribute, may be considered for use instead of this
 // macro.
 //
@@ -163,9 +163,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
-// Note that it is highly recommended to use BSLA_MAYBEUNUSED
-// ('[[maybe_unused]]') when available, as it is supported by a large number of
-// platforms, but that has more specific constraints over where it can be
+// Note that it is highly recommended to use 'BSLA_MAYBE_UNUSED'
+// ('[[maybe_unused]]') where available, as it is supported by a large number
+// of platforms, but that has more specific constraints over where it can be
 // syntactically placed than the older vendor annotations.
 
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)

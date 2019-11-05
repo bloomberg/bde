@@ -50,7 +50,7 @@
 //..
 //  Annotation                            Result
 //  ------------------------------------  -------
-//  BSLA_MAYBEUNUSED                      Warning
+//  BSLA_MAYBE_UNUSED                     Warning
 //..
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -186,30 +186,30 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 // Note that none of the compilers currently in use by the development team
 // issue a warning on the unused 'warn::ResultRec', but some in the future
-// might.  In the meantime, 'BSLA_MAYBEUNUSED' is tolerated on type
+// might.  In the meantime, 'BSLA_MAYBE_UNUSED' is tolerated on type
 // declarations without resulting in a syntax error.
 //
 // Next, we define a namespace, 'nowarn', within the unused namespace with
-// exactly the same unused entities, using the 'BSLA_MAYBEUNUSED' annotation to
+// exactly the same unused entities, using the 'BSLA_MAYBE_UNUSED' annotation to
 // silence the warnings:
 //..
     namespace {
     namespace nowarn {
 
-    struct BSLA_MAYBEUNUSED ResultRec {
+    struct BSLA_MAYBE_UNUSED ResultRec {
         double d_x;
         double d_y;
     };
 
-    BSLA_MAYBEUNUSED double x;
+    BSLA_MAYBE_UNUSED double x;
 
-    BSLA_MAYBEUNUSED int quadratic(double                  *zeroA,
-                                   double                  *zeroB,
-                                   BSLA_MAYBEUNUSED double *zeroC,
-                                   BSLA_MAYBEUNUSED double  cubeFactor,
-                                   double                   a,
-                                   double                   b,
-                                   double                   c);
+    BSLA_MAYBE_UNUSED int quadratic(double                   *zeroA,
+                                    double                   *zeroB,
+                                    BSLA_MAYBE_UNUSED double *zeroC,
+                                    BSLA_MAYBE_UNUSED double  cubeFactor,
+                                    double                    a,
+                                    double                    b,
+                                    double                    c);
         // Solve the quadratic function for the specified 'a', 'b', and 'c',
         // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
         // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
@@ -217,13 +217,13 @@ void aSsErT(bool condition, const char *message, int line)
         // 'cubeFactor' and 'zeroC' are unused for now but will be used in
         // future expansion of the function to handle cubic polynomials.
 
-    int quadratic(double                  *zeroA,
-                  double                  *zeroB,
-                  BSLA_MAYBEUNUSED double *zeroC,
-                  BSLA_MAYBEUNUSED double  cubeFactor,
-                  double                   a,
-                  double                   b,
-                  double                   c)
+    int quadratic(double                   *zeroA,
+                  double                   *zeroB,
+                  BSLA_MAYBE_UNUSED double *zeroC,
+                  BSLA_MAYBE_UNUSED double  cubeFactor,
+                  double                    a,
+                  double                    b,
+                  double                    c)
     {
         const double discriminant = b * b - 4 * a * c;
         if (discriminant < 0 || 0.0 == a) {
@@ -248,14 +248,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-BSLA_MAYBEUNUSED static void test_MAYBEUNUSED_function_no_warning();
-                 static void test_MAYBEUNUSED_function_warning();
+BSLA_MAYBE_UNUSED static void test_MAYBE_UNUSED_function_no_warning();
+                  static void test_MAYBE_UNUSED_function_warning();
 
-void test_MAYBEUNUSED_function_no_warning()
+void test_MAYBE_UNUSED_function_no_warning()
 {
 }
 
-void test_MAYBEUNUSED_function_warning()
+void test_MAYBE_UNUSED_function_warning()
 {
 }
 
@@ -263,8 +263,8 @@ void test_MAYBEUNUSED_function_warning()
 //                  DEFINITION OF ANNOTATED VARIABLES
 // ----------------------------------------------------------------------------
 
-BSLA_MAYBEUNUSED static int test_MAYBEUNUSED_variable_no_warning;
-                 static int test_MAYBEUNUSED_variable_warning;
+BSLA_MAYBE_UNUSED static int test_MAYBE_UNUSED_variable_no_warning;
+                  static int test_MAYBE_UNUSED_variable_warning;
 
 // ============================================================================
 //                  DEFINITION OF ANNOTATED TYPES
@@ -272,11 +272,11 @@ BSLA_MAYBEUNUSED static int test_MAYBEUNUSED_variable_no_warning;
 
 namespace {
 
-struct BSLA_MAYBEUNUSED Test_MAYBEUNUSED_type_no_warning {
+struct BSLA_MAYBE_UNUSED Test_MAYBE_UNUSED_type_no_warning {
     int d_d;
 };
 
-struct                  Test_MAYBEUNUSED_type_warning {
+struct                  Test_MAYBE_UNUSED_type_warning {
     int d_d;
 };
 
@@ -290,19 +290,19 @@ struct                  Test_MAYBEUNUSED_type_warning {
 
 void stifle_unused_warnings()
 {
-    (void) Test_MAYBEUNUSED_type_warning();
+    (void) Test_MAYBE_UNUSED_type_warning();
 
-    (void) test_MAYBEUNUSED_variable_warning;
-    (void) test_MAYBEUNUSED_function_warning();
+    (void) test_MAYBE_UNUSED_variable_warning;
+    (void) test_MAYBE_UNUSED_function_warning();
 
-# if !BSLA_MAYBEUNUSED_IS_ACTIVE
+# if !BSLA_MAYBE_UNUSED_IS_ACTIVE
 
-    (void) Test_MAYBEUNUSED_type_no_warning();
+    (void) Test_MAYBE_UNUSED_type_no_warning();
 
-    (void) test_MAYBEUNUSED_variable_no_warning;
-    (void) test_MAYBEUNUSED_function_no_warning();
+    (void) test_MAYBE_UNUSED_variable_no_warning;
+    (void) test_MAYBE_UNUSED_function_no_warning();
 
-# endif  // BSLA_MAYBEUNUSED_IS_ACTIVE
+# endif  // BSLA_MAYBE_UNUSED_IS_ACTIVE
 }
 #endif  // U_TRIGGER_WARNINGS
 
@@ -332,9 +332,9 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_MAYBEUNUSED: ");
-#ifdef BSLA_MAYBEUNUSED
-    printf("%s\n", STRINGIFY(BSLA_MAYBEUNUSED) );
+    printf("\nBSLA_MAYBE_UNUSED: ");
+#ifdef BSLA_MAYBE_UNUSED
+    printf("%s\n", STRINGIFY(BSLA_MAYBE_UNUSED) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -342,7 +342,7 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_MAYBEUNUSED_IS_ACTIVE);
+    P(BSLA_MAYBE_UNUSED_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
@@ -421,7 +421,7 @@ int main(int argc, char **argv)
             rc = warn::quadratic(&rr.d_x, &rr.d_y, &zeroC, 0, 2, 8, 2);
             P_(rc);    P_(rr.d_x);    P(rr.d_y);
         }
-# if !BSLS_MAYBEUNUSED_IS_ACTIVE
+# if !BSLA_MAYBE_UNUSED_IS_ACTIVE
         {
             nowarn::ResultRec rr;
             double zeroC;

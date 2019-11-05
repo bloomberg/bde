@@ -24,7 +24,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsla' package currently has 15 components having 3 levels of physical
+ The 'bsla' package currently has 16 components having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -139,8 +139,8 @@
 
 /'bsla_maybeunused'
 /- - - - - - - - -
-This component provides a preprocessor macro that will suppress "unused"
-warnings on a locally defined function, type, or variable that is not used.
+ This component provides a preprocessor macro that will suppress "unused"
+ warnings on a locally defined function, type, or variable that is not used.
 
 /'bsla_nodiscard'
 /- - - - - - - -
