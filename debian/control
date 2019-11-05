@@ -12,30 +12,30 @@ Description: bsl-internal bde metadata
 
 
 
-Package: libbal-extra-dev
-Depends: libbdl-extra-dev, libbsl-extra-dev
+Package: libbal-dev-extra
+Depends: libbdl-dev-extra, libbsl-dev-extra
 Architecture: any
-Conflicts: libbal-dev (< 3.41.0.0)
+Conflicts: libbal-dev (< ${source:Version}), libbal-extra-dev
 Description: BAL
  groups/bal extra libraries
 
-Package: libbbl-extra-dev
-Depends: libbdl-extra-dev, libbsl-extra-dev
+Package: libbbl-dev-extra
+Depends: libbdl-dev-extra, libbsl-dev-extra
 Architecture: any
-Conflicts: libbbl-dev (< 3.41.0.0)
+Conflicts: libbbl-dev (< ${source:Version}), libbbl-extra-dev
 Description: BBL
  groups/bbl extra libraries
 
-Package: libbdl-extra-dev
-Depends: libbsl-extra-dev, libinteldfp-dev, libpcre2-dev
+Package: libbdl-dev-extra
+Depends: libbsl-dev-extra, libinteldfp-dev, libpcre2-dev
 Architecture: any
-Conflicts: libbdl-dev (< 3.41.0.0)
+Conflicts: libbdl-dev (< ${source:Version}), libbdl-extra-dev
 Description: BDL
  groups/bdl extra libraries
 
-Package: libbsl-extra-dev
+Package: libbsl-dev-extra
 Architecture: any
-Conflicts: libbsl-dev (< 3.41.0.0)
+Conflicts: libbds-dev (< ${source:Version}), libbsl-extra-dev
 Description: BSL 
  groups/bsl extra libraries
 
@@ -43,19 +43,19 @@ Description: BSL
 
 
 Package: libbal-dev
-Depends: libbal-extra-dev, libbdl-dev, libbsl-dev
+Depends: libbal-dev-extra, libbdl-dev, libbsl-dev
 Architecture: any
 Description: BAL
  groups/bal development files
 
 Package: libbbl-dev
-Depends: libbbl-extra-dev, libbdl-dev, libbsl-dev
+Depends: libbbl-dev-extra, libbdl-dev, libbsl-dev
 Architecture: any
 Description: BBL
  groups/bbl development files
 
 Package: libbdl-dev
-Depends: libbdl-extra-dev, libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
+Depends: libbdl-dev-extra, libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
 Description: BDL
  groups/bdl development files
@@ -68,7 +68,7 @@ Description: BOS
  groups/bos 'BSL_OVERRIDES_STD' development files.  This library is private, do not use it.
 
 Package: libbsl-dev
-Depends: libbsl-extra-dev
+Depends: libbsl-dev-extra
 Architecture: any
 Description: BSL 
  groups/bsl development files
