@@ -55,7 +55,7 @@ Description: BBL
  groups/bbl development files
 
 Package: libbdl-dev
-Depends: libbdl-dev-extra, libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
+Depends: libbdl-dev-extra, libbsl-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
 Description: BDL
  groups/bdl development files
