@@ -47,6 +47,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -63,7 +65,8 @@ class NonCopyConstructibleTestType {
 
   private:
     // NOT IMPLEMENTED
-    NonCopyConstructibleTestType(const NonCopyConstructibleTestType&);
+    NonCopyConstructibleTestType(const NonCopyConstructibleTestType&)
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
 

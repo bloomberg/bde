@@ -49,6 +49,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 
 namespace bsltf {
@@ -86,15 +88,12 @@ struct EvilBooleanType {
 
   private:
     // NOT IMPLEMENTED
-    void operator=(const EvilBooleanType&);  // = delete;
-        // not implemented
+    void operator=(const EvilBooleanType&) BSLS_KEYWORD_DELETED;
 
-    void operator&() const;  // = delete;
-        // not implemented
+    void operator&() const BSLS_KEYWORD_DELETED;
 
     template<class T>
-    void operator,(T&) const;  // = delete;
-        // not implemented
+    void operator,(T&) const BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS

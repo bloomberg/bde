@@ -3659,6 +3659,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+        Obj mX(V01);    const Obj& X = mX;
+        Obj mY;
+        ASSERT(mY != X);
+        Obj& mZ = (mY = mX);
+
+        ASSERT(&mZ == &mY);
+        ASSERT(mY == mX);
+        ASSERT(mZ == mX);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

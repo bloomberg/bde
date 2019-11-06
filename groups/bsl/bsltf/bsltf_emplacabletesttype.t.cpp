@@ -2091,6 +2091,17 @@ int main(int argc, char *argv[])
             ASSERTV(X.arg14(), Obj::ArgType14()  == X.arg14());
         }
         ASSERTV(Obj::getNumDeletes(), 2 == Obj::getNumDeletes());
+
+        {
+            Obj mX(V01);    const Obj& X = mX;
+            Obj mY(V01, V02);
+
+            ASSERT(mX != mY);
+            Obj& mZ = (mY = X);
+
+            ASSERT(&mZ == &mY);
+            ASSERT(mX == mY);
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

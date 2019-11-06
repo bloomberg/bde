@@ -1104,11 +1104,11 @@ class NotAssignable {
 
   private:
     // NOT IMPLEMENTED
-    NotAssignable& operator=(const NotAssignable&); // = delete;
+    NotAssignable& operator=(const NotAssignable&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
-    NotAssignable(int value)  // IMPLICIT
+    NotAssignable(int value)                                       // IMPLICIT
         : d_data(value) {}
 
     // NotAssignable(const NotAssignable& original); // = default;
@@ -1138,11 +1138,12 @@ class BitwiseNotAssignable {
 
   private:
     // NOT IMPLEMENTED
-    BitwiseNotAssignable& operator=(const BitwiseNotAssignable&); // = delete;
+    BitwiseNotAssignable& operator=(const BitwiseNotAssignable&)
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
-    BitwiseNotAssignable(int value)  // IMPLICIT
+    BitwiseNotAssignable(int value)                                // IMPLICIT
         : d_data(value) {}
 
     // BitwiseNotAssignable(const BitwiseNotAssignable& original) = default;
@@ -2909,13 +2910,12 @@ void TestDriver<TYPE, ALLOC>::testCase7()
     const TestValues VALUES;
     const size_t     NUM_VALUES = VALUES.size();
 
-    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value           ? 0
-                         : bsl::is_nothrow_move_constructible<TYPE>::value ? 0
-                         :                                                   1;
+    const bool TYPE_MOVE = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
+                             bsl::is_nothrow_move_constructible<TYPE>::value);
 
         // if moveable, moves do not count as allocs
-    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
-                           bsl::uses_allocator<TYPE, ALLOC>::value;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
+                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
     if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
                         NameOf<TYPE>().name(),
@@ -4300,14 +4300,16 @@ void TestDriver<TYPE, ALLOC>::testCase2a()
     const TestValues VALUES;
     const int        NUM_VALUES = 5;         // TBD: fix this
 
-    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value ? 0 : 1;
+    const int IS_NOT_MOVABLE = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
+                              bsl::is_nothrow_move_constructible<TYPE>::value);
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
-    if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
+    if (verbose) printf(
+                    "\nTesting '%s' (TYPE_ALLOC = %d, IS_NOT_MOVABLE = %d).\n",
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVE);
+                        IS_NOT_MOVABLE);
 
     if (verbose) printf("\tTesting default ctor (thoroughly).\n");
 
@@ -4438,7 +4440,7 @@ void TestDriver<TYPE, ALLOC>::testCase2a()
             }
             else if ((li & (li - 1)) == 0) {
                 const bsls::Types::Int64 TYPE_ALLOC_MOVES =
-                                            TYPE_ALLOC * (1 + li * TYPE_MOVE);
+                                        TYPE_ALLOC * (1 + li * IS_NOT_MOVABLE);
                 ASSERTV(li, BB + 1 + TYPE_ALLOC_MOVES == AA);
                 ASSERTV(li, B  + 0 + TYPE_ALLOC       == A);
             }

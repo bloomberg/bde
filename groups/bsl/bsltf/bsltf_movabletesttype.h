@@ -111,7 +111,6 @@ class MovableTestType {
     MoveState::Enum    d_movedFrom;    // moved-from state
     MoveState::Enum    d_movedInto;    // moved-into state
 
-
   public:
     // CREATORS
     MovableTestType();

@@ -459,12 +459,6 @@ const DefaultDataRow DEFAULT_DATA[] = {
 static const size_t DEFAULT_NUM_DATA =
                                     sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
-
-const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-const int LARGE_SIZE_VALUE = 10;
-    // Declare a large value for insertions into the vector.  Note this value
-    // will cause multiple resizes during insertion into the vector.
-
 const int NUM_ALLOCS[] = {
     // Number of allocations (blocks) to create a vector of the following size
     // by using 'push_back' repeatedly (without initial reserve):
@@ -487,6 +481,8 @@ const int NUM_ALLOCS[] = {
 };
 
 static const size_t NUM_NUM_ALLOCS = sizeof NUM_ALLOCS / sizeof *NUM_ALLOCS;
+static const size_t ZERO = 0;   // Add this to a signed expression to easily
+                                // make it unsigned.
 
 // Define values used to initialize positional arguments for
 // 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
@@ -1274,7 +1270,6 @@ class InputIterator {
     typedef InputProxy<TARGET>      reference;
     typedef std::input_iterator_tag iterator_category;
 
-
     explicit InputIterator(const TARGET *ptr)
     : d_ptr(ptr)
     {
@@ -1437,16 +1432,16 @@ class LimitAllocator : public ALLOC {
     }
 
     explicit
-    LimitAllocator(const ALLOC& alloc)
-    : AllocBase((const AllocBase&) alloc)
+    LimitAllocator(const ALLOC& original)
+    : AllocBase((const AllocBase&) original)
     , d_limit(-1)
     {
     }
 
     template <class REBOUND_ALLOC>
-    LimitAllocator(const LimitAllocator<REBOUND_ALLOC>& alloc)
-    : AllocBase((const AllocBase&) alloc)
-    , d_limit(alloc.max_size())
+    LimitAllocator(const LimitAllocator<REBOUND_ALLOC>& original)
+    : AllocBase((const AllocBase&) original)
+    , d_limit(original.max_size())
     {
     }
 
@@ -1536,11 +1531,11 @@ class NotAssignable {
 
   private:
     // NOT IMPLEMENTED
-    NotAssignable& operator=(const NotAssignable&); // = delete;
+    NotAssignable& operator=(const NotAssignable&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
-    NotAssignable(int value) // IMPLICIT
+    NotAssignable(int value)                                        // IMPLICIT
         : d_data(value) {}
 
     // NotAssignable(const NotAssignable& original); // = default;
@@ -1570,11 +1565,12 @@ class BitwiseNotAssignable {
 
   private:
     // NOT IMPLEMENTED
-    BitwiseNotAssignable& operator=(const BitwiseNotAssignable&); // = delete;
+    BitwiseNotAssignable& operator=(const BitwiseNotAssignable&)
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
-    BitwiseNotAssignable(int value) // IMPLICIT
+    BitwiseNotAssignable(int value)                                 // IMPLICIT
         : d_data(value) {}
 
     // BitwiseNotAssignable(const BitwiseNotAssignable& original) = default;
@@ -1639,7 +1635,7 @@ struct HI
     size_t  d;
 
     explicit HI(TYPE *p = 0, size_t d = SIZE) : p(p), d(d) { }
-    HI(const HI& o) : p(o.p), d(o.d) { }
+    HI(const HI& original) : p(original.p), d(original.d) { }
 
     size_t htoi() const
     {
@@ -1672,15 +1668,15 @@ struct HI
     HI  operator++(int) { HI t(p, d); ++d; return t; }
     HI  operator--(int) { HI t(p, d); --d; return t; }
 
-    HI& operator+=(ptrdiff_t n) { d += n; return *this; }
-    HI& operator-=(ptrdiff_t n) { d -= n; return *this; }
+    HI& operator+=(ptrdiff_t rhs) { d += rhs; return *this; }
+    HI& operator-=(ptrdiff_t rhs) { d -= rhs; return *this; }
 
-    HI  operator+ (ptrdiff_t n) const { return HI(p, d + n); }
-    HI  operator- (ptrdiff_t n) const { return HI(p, d - n); }
+    HI  operator+ (ptrdiff_t rhs) const { return HI(p, d + rhs); }
+    HI  operator- (ptrdiff_t rhs) const { return HI(p, d - rhs); }
 
-    ptrdiff_t operator-(const HI& o) const { return d - o.d; }
+    ptrdiff_t operator-(const HI& rhs) const { return d - rhs.d; }
 
-    TYPE &operator[](ptrdiff_t n) const { return *(*this + n); }
+    TYPE &operator[](ptrdiff_t rhs) const { return *(*this + rhs); }
 
     operator TYPE*()   const { return p + htoi(); }
         // Conversion operator to confuse badly written traits code.
@@ -1688,44 +1684,44 @@ struct HI
 
 template <class TYPE, size_t BITS>
 inline
-bool operator< (const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
+bool operator< (const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
 {
-    return (l.p < r.p) || (l.p == r.p && l.d < r.d);
+    return (lhs.p < rhs.p) || (lhs.p == rhs.p && lhs.d < rhs.d);
 }
 
 template <class TYPE, size_t BITS>
 inline
-bool operator>=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
+bool operator>=(const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
 {
-    return !(l <  r);
+    return !(lhs <  rhs);
 }
 
 template <class TYPE, size_t BITS>
 inline
-bool operator> (const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
+bool operator> (const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
 {
-    return !(l <= r);
+    return !(lhs <= rhs);
 }
 
 template <class TYPE, size_t BITS>
 inline
-bool operator<=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
+bool operator<=(const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
 {
-    return !(l >  r);
+    return !(lhs >  rhs);
 }
 
 template <class TYPE, size_t BITS>
 inline
-bool operator==(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
+bool operator==(const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
 {
-    return !(l < r) && !(r < l);
+    return !(lhs < rhs) && !(rhs < lhs);
 }
 
 template <class TYPE, size_t BITS>
 inline
-bool operator!=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
+bool operator!=(const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
 {
-    return !(l == r);
+    return !(lhs == rhs);
 }
 
 //=============================================================================
@@ -1881,7 +1877,8 @@ struct TestDriver {
         const Int64 ALLOCS_TO_PREPARE = ta.numAllocations();
         primaryManipulator(&mX, 'a');
 
-        return ta.numAllocations() - ALLOCS_TO_PREPARE;
+        return static_cast<std::size_t>(
+                                      ta.numAllocations() - ALLOCS_TO_PREPARE);
     }
 
     template <int N_ARGS,
@@ -1925,11 +1922,15 @@ struct TestDriver {
         // semantics based on integer template parameters 'N01' ... 'N10'.
 
     // TEST CASES
+
     static void testCase35();
         // Test 'noexcept' specifications
 
     static void testCase37();
         // Test member pointer compilation.
+
+    static void testCase38();
+        // Test ability to move movable types when growing vector.
 
     template <class CONTAINER>
     static void testCaseM1Range(const CONTAINER&);
@@ -2609,6 +2610,39 @@ TestDriver<TYPE, ALLOC>::testCase28a_RunTest(Obj            *target,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase38()
+{
+    // ------------------------------------------------------------------------
+    // TEST ABILITY TO MOVE MOVABLE TYPES WHEN GROWING VECTOR.
+    // ------------------------------------------------------------------------
+
+    enum { k_NUM_ELEMENTS = 513 };
+
+    const char *typeName = bsls::NameOf<ValueType>().name();
+    if (verbose) P(typeName);
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+    Obj mX(&ta);    const Obj& X = mX;
+
+    for (int ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+        bsls::ObjectBuffer<ValueType>  buffer;
+        ValueType                     *valptr = buffer.address();
+        TstFacility::emplace(valptr, ii / 8, &ta);
+
+        mX.push_back(MRU::move(*valptr));
+
+        valptr->~ValueType();
+    }
+
+    for (int ii = k_NUM_ELEMENTS; 0 < ii--; ) {
+        ASSERTV(ii / 8, X[ii].data(), ii / 8 == X[ii].data());
+        ASSERTV(typeName, ii, X[ii].movedInto(),
+                                      X[ii].movedInto() == MoveState::e_MOVED);
+    }
+}
 
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase37()
@@ -5448,7 +5482,8 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
     const int        NUM_VALUES = 5;  // TBD: fix this
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
-    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value |
+                              bsl::is_nothrow_move_constructible<TYPE>::value;
     const int TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
@@ -5601,7 +5636,7 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
 
                         if (TYPE_MOVEABLE && INPUT_ITERATOR_TAG) {
                             ASSERTV(NUM_ELEMENTS,  NUM_NUM_ALLOCS,
-                                    NUM_ELEMENTS < NUM_NUM_ALLOCS);
+                                    NUM_ELEMENTS + ZERO < NUM_NUM_ALLOCS);
                             ASSERTV(X.capacity(),  NUM_NUM_ALLOCS,
                                     X.capacity() < NUM_NUM_ALLOCS);
 
@@ -7632,7 +7667,8 @@ void TestDriver<TYPE, ALLOC>::testCase19()
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
     enum {
-        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value,
+        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
+                        bsl::is_nothrow_move_constructible<TYPE>::value,
         TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value ||
                         bsl::uses_allocator<TYPE, ALLOC>::value
     };
@@ -8094,7 +8130,8 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
     const int        NUM_VALUES = 5;         // TBD: fix this
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
     enum {
-        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value,
+        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
+                        bsl::is_nothrow_move_constructible<TYPE>::value,
         TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value ||
                         bsl::uses_allocator<TYPE, ALLOC>::value
     };
@@ -8654,7 +8691,8 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value ? 0 : 1;
+    const int TYPE_MOVE  = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
+                             bsl::is_nothrow_move_constructible<TYPE>::value);
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
@@ -8950,14 +8988,16 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value ? 0 : 1;
+    const int IS_NOT_MOVABLE = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
+                              bsl::is_nothrow_move_constructible<TYPE>::value);
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
-    if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
+    if (verbose) printf(
+                    "\nTesting '%s' (TYPE_ALLOC = %d, IS_NOT_MOVABLE = %d).\n",
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVE);
+                        IS_NOT_MOVABLE);
 
     static const struct {
         int         d_line;     // source line number
@@ -9054,13 +9094,13 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
 
                 if (expectToAllocate(SIZE)) {
                     const bsls::Types::Int64 TYPE_ALLOC_MOVES =
-                                           TYPE_ALLOC * (1 + SIZE * TYPE_MOVE);
+                                      TYPE_ALLOC * (1 + SIZE * IS_NOT_MOVABLE);
                     ASSERTV(LINE, CONFIG, BB, AA,
                             BB + 1 + TYPE_ALLOC_MOVES == AA);
                 }
                 else {
                     const bsls::Types::Int64 TYPE_ALLOC_MOVES =
-                                 TYPE_ALLOC * (1 + (SIZE - index) * TYPE_MOVE);
+                            TYPE_ALLOC * (1 + (SIZE - index) * IS_NOT_MOVABLE);
                     ASSERTV(LINE, CONFIG, BB, AA,
                             BB + 0 + TYPE_ALLOC_MOVES == AA);
                 }
@@ -9178,7 +9218,8 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
     const int        NUM_VALUES = 5;  // TBD: fix this
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
-    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
+                              bsl::is_nothrow_move_constructible<TYPE>::value;
     const int TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
@@ -9325,7 +9366,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
 
                         if (TYPE_MOVEABLE && INPUT_ITERATOR_TAG) {
                             ASSERTV(NUM_ELEMENTS,  NUM_NUM_ALLOCS,
-                                    NUM_ELEMENTS < NUM_NUM_ALLOCS);
+                                    NUM_ELEMENTS + ZERO < NUM_NUM_ALLOCS);
                             ASSERTV(X.capacity(),  NUM_NUM_ALLOCS,
                                     X.capacity() < NUM_NUM_ALLOCS);
 
@@ -10210,10 +10251,10 @@ void TestDriver<TYPE, ALLOC>::testCase14()
     const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                             bsl::uses_allocator<TYPE, ALLOC>::value;
 
-    const bool TYPE_MOVES = bsl::is_nothrow_move_constructible<TYPE>::value;
+    const char *name = NameOf<TYPE>().name();
 
     if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d).\n",
-                        NameOf<TYPE>().name(),
+                        name,
                         TYPE_ALLOC);
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -10291,7 +10332,7 @@ void TestDriver<TYPE, ALLOC>::testCase14()
 
               stretch(&mX, DELTA);
               ASSERTV(ti, CAP, DELTA, X.size(), CAP + DELTA == X.size());
-              if (TYPE_ALLOC && !TYPE_MOVES) {
+              if (TYPE_ALLOC) {
                   ASSERTV(ti,
                      NUM_ALLOC_AFTER,  int(AP * DELTA),   ta.numAllocations(),
                      NUM_ALLOC_AFTER + int(AP * DELTA) == ta.numAllocations());
@@ -10348,14 +10389,14 @@ void TestDriver<TYPE, ALLOC>::testCase14()
 
               stretch(&mX, NE);
               ASSERTV(ti, NE == X.size());
-              if (TYPE_ALLOC && !TYPE_MOVES) {
+              if (TYPE_ALLOC) {
                   ASSERTV(ti,
                         NUM_ALLOC_AFTER,           NE,    ta.numAllocations(),
                         NUM_ALLOC_AFTER + int(AP * NE) == ta.numAllocations());
               }
               else {
-                  ASSERTV(ti, NUM_ALLOC_AFTER,   ta.numAllocations(),
-                              NUM_ALLOC_AFTER == ta.numAllocations());
+                  ASSERTV(ti, name, NUM_ALLOC_AFTER,   ta.numAllocations(),
+                                    NUM_ALLOC_AFTER == ta.numAllocations());
               }
 
               ta.setAllocationLimit(AL2);
@@ -11298,7 +11339,7 @@ void TestDriver<TYPE, ALLOC>::testCase12NoDefault()
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
-                const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
+                const TYPE   VALUE(   VALUES[ti % NUM_VALUES]);
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
@@ -11326,7 +11367,7 @@ void TestDriver<TYPE, ALLOC>::testCase12NoDefault()
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
-                const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
+                const TYPE   VALUE(   VALUES[ti % NUM_VALUES]);
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
@@ -11372,7 +11413,7 @@ void TestDriver<TYPE, ALLOC>::testCase12NoDefault()
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
-                const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
+                const TYPE   VALUE(   VALUES[ti % NUM_VALUES]);
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
@@ -11435,7 +11476,7 @@ void TestDriver<TYPE, ALLOC>::testCase12NoDefault()
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
-                const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
+                const TYPE   VALUE(   VALUES[ti % NUM_VALUES]);
                 (void) LINE;
 
                 bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
@@ -11508,7 +11549,8 @@ void TestDriver<TYPE, ALLOC>::testCase12Range(const CONTAINER&)
     //     vector(InputIter first, InputIter last, const A& a = A());
     // ------------------------------------------------------------------------
 
-    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
+                               bsl::is_nothrow_move_constructible<TYPE>::value;
     const int TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
@@ -11855,6 +11897,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC);
 
+    const TYPE t0(0);
+    const TYPE t1(1);
+    const TYPE t127(127);
+
     {
         if (verbose) printf("\tWithout passing in an allocator.\n");
         {
@@ -11863,7 +11909,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                           "value to copy 0 times, indexed by 'signed char'\n");
             }
             {
-                Obj mX((signed char)0, (signed char)0);  const Obj& X = mX;
+                Obj mX((signed char)0, t0);  const Obj& X = mX;
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
@@ -11872,7 +11918,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(X.size(),     0 == X.size());
                 ASSERTV(X.capacity(), 0 == X.capacity());
 
-                Obj mY((signed char)0, (signed char)1);  const Obj& Y = mY;
+                Obj mY((signed char)0, t1);  const Obj& Y = mY;
 
                 if (veryVerbose) {
                     T_; T_; P_(Y); P(Y.capacity());
@@ -11881,7 +11927,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(Y.size(),     0 == Y.size());
                 ASSERTV(Y.capacity(), 0 == Y.capacity());
 
-                Obj mZ((signed char)0, (signed char)127);  const Obj& Z = mZ;
+                Obj mZ((signed char)0, t127);  const Obj& Z = mZ;
 
                 if (veryVerbose) {
                     T_; T_; P_(Z); P(Z.capacity());
@@ -11893,10 +11939,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
 
             if (verbose) {
                 printf("\t\tCreating empty vector of objects, supplying a "
-                          "value to copy 0 times, indexed by 'signed char'\n");
+                          "value to copy 0 times, indexed by raw constants\n");
             }
             {
-                Obj mX(0, 0);  const Obj& X = mX;
+                Obj mX(0, t0);  const Obj& X = mX;
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
@@ -11905,7 +11951,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(X.size(),     0 == X.size());
                 ASSERTV(X.capacity(), 0 == X.capacity());
 
-                Obj mY(0, 1);  const Obj& Y = mY;
+                Obj mY(0, t1);  const Obj& Y = mY;
 
                 if (veryVerbose) {
                     T_; T_; P_(Y); P(Y.capacity());
@@ -11914,7 +11960,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(Y.size(),     0 == Y.size());
                 ASSERTV(Y.capacity(), 0 == Y.capacity());
 
-                Obj mZ(0, 127);  const Obj& Z = mZ;
+                Obj mZ(0, t127);  const Obj& Z = mZ;
 
                 if (veryVerbose) {
                     T_; T_; P_(Z); P(Z.capacity());
@@ -11926,10 +11972,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
 
             if (verbose) {
                 printf("\t\tCreating empty vector of objects, supplying a "
-                          "value to copy 0 times, indexed by 'signed char'\n");
+                          "value to copy 0 times, indexed by 'TYPE'\n");
             }
             {
-                Obj mX((size_t)0, (size_t)0);  const Obj& X = mX;
+                Obj mX((size_t)0, t0);  const Obj& X = mX;
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
@@ -11938,7 +11984,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(X.size(),     0 == X.size());
                 ASSERTV(X.capacity(), 0 == X.capacity());
 
-                Obj mY((size_t)0, (size_t)1);  const Obj& Y = mY;
+                Obj mY((size_t)0, t1);  const Obj& Y = mY;
 
                 if (veryVerbose) {
                     T_; T_; P_(Y); P(Y.capacity());
@@ -11947,7 +11993,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(Y.size(),     0 == Y.size());
                 ASSERTV(Y.capacity(), 0 == Y.capacity());
 
-                Obj mZ((size_t)0, (size_t)127);  const Obj& Z = mZ;
+                Obj mZ((size_t)0, t127);  const Obj& Z = mZ;
 
                 if (veryVerbose) {
                     T_; T_; P_(Z); P(Z.capacity());
@@ -12019,7 +12065,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         printf("indexed by 'int'\n");
                     }
 
-                    Obj        mX((int)LENGTH, (int)VALUE);
+                    Obj        mX((int)LENGTH, DEFAULT);
                     const Obj&  X = mX;
 
                     if (veryVerbose) {
@@ -12051,7 +12097,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         printf("indexed by 'size_t'\n");
                     }
 
-                    Obj        mX((size_t)LENGTH, (size_t)VALUE);
+                    Obj        mX((size_t)LENGTH, DEFAULT);
                     const Obj&  X = mX;
 
 
@@ -12080,10 +12126,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
         {
             if (verbose) {
                 printf("\t\tCreating empty vector of objects, supplying a "
-                          "value to copy 0 times, indexed by 'signed char'\n");
+                          "value to copy 0 times, indexed by 'TYPE'\n");
             }
             {
-                Obj mX((signed char)0, (signed char)0, xta);
+                Obj mX((signed char)0, t0, xta);
                 const Obj& X = mX;
 
                 if (veryVerbose) {
@@ -12093,7 +12139,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(X.size(),     0 == X.size());
                 ASSERTV(X.capacity(), 0 == X.capacity());
 
-                Obj mY((signed char)0, (signed char)1, xta);
+                Obj mY((signed char)0, t1, xta);
                 const Obj& Y = mY;
 
                 if (veryVerbose) {
@@ -12103,7 +12149,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(Y.size(),     0 == Y.size());
                 ASSERTV(Y.capacity(), 0 == Y.capacity());
 
-                Obj mZ((signed char)0, (signed char)127, xta);
+                Obj mZ((signed char)0, t127, xta);
                 const Obj& Z = mZ;
 
                 if (veryVerbose) {
@@ -12152,7 +12198,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                           "value to copy 0 times, indexed by 'signed char'\n");
             }
             {
-                Obj mX((size_t)0, (size_t)0, xta);  const Obj& X = mX;
+                Obj mX((size_t)0, t0, xta);  const Obj& X = mX;
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
@@ -12161,7 +12207,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(X.size(),     0 == X.size());
                 ASSERTV(X.capacity(), 0 == X.capacity());
 
-                Obj mY((size_t)0, (size_t)1, xta);  const Obj& Y = mY;
+                Obj mY((size_t)0, t1, xta);  const Obj& Y = mY;
 
                 if (veryVerbose) {
                     T_; T_; P_(Y); P(Y.capacity());
@@ -12170,7 +12216,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                 ASSERTV(Y.size(),     0 == Y.size());
                 ASSERTV(Y.capacity(), 0 == Y.capacity());
 
-                Obj mZ((size_t)0, (size_t)127, xta);  const Obj& Z = mZ;
+                Obj mZ((size_t)0, t127, xta);  const Obj& Z = mZ;
 
                 if (veryVerbose) {
                     T_; T_; P_(Z); P(Z.capacity());
@@ -12299,7 +12345,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                     const bsls::Types::Int64 BB = ta.numBlocksTotal();
                     const bsls::Types::Int64 B  = ta.numBlocksInUse();
 
-                    Obj        mX((size_t)LENGTH, (size_t)VALUE, xta);
+                    Obj        mX((size_t)LENGTH, DEFAULT, xta);
                     const Obj&  X = mX;
 
                     const bsls::Types::Int64 AA = ta.numBlocksTotal();
@@ -12469,7 +12515,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                     const bsls::Types::Int64 BB = ta.numBlocksTotal();
                     const bsls::Types::Int64 B  = ta.numBlocksInUse();
 
-                    Obj        mX((size_t)LENGTH, (size_t)VALUE, xta);
+                    Obj        mX((size_t)LENGTH, DEFAULT, xta);
                     const Obj&  X = mX;
 
                     const bsls::Types::Int64 AA = ta.numBlocksTotal();
@@ -12723,6 +12769,17 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 38: {
+        // --------------------------------------------------------------------
+        // TESTING ABILITY TO MOVE BSLTF MOVABLE TYPES
+        // --------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase38,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::MoveOnlyAllocTestType);
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // TESTING ACCESS THROUGH MEMBER POINTERS
@@ -12733,7 +12790,6 @@ int main(int argc, char *argv[])
 
         TestDriver<int *>::testCase37();
         TestDriver<const char *>::testCase37();
-
       } break;
       case 36: {
         // --------------------------------------------------------------------

@@ -292,6 +292,12 @@ struct UsesBslmaAllocator<bsltf::MovableAllocTestType>
 
 }  // close enterprise namespace
 
+namespace bsl {
+template <>
+struct is_nothrow_move_constructible<BloombergLP::bsltf::MovableAllocTestType>
+        : bsl::true_type {};
+}  // close namespace bsl
+
 #endif
 
 // ----------------------------------------------------------------------------
