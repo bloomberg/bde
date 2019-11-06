@@ -190,8 +190,8 @@ void aSsErT(bool condition, const char *message, int line)
 // declarations without resulting in a syntax error.
 //
 // Next, we define a namespace, 'nowarn', within the unused namespace with
-// exactly the same unused entities, using the 'BSLA_MAYBE_UNUSED' annotation to
-// silence the warnings:
+// exactly the same unused entities, using the 'BSLA_MAYBE_UNUSED' annotation
+// to silence the warnings:
 //..
     namespace {
     namespace nowarn {
