@@ -485,7 +485,7 @@ bool quickDecimalFromFloat(DECIMAL_TYPE *result,
                            float         binary,
                            float         threshold,
                            int           limit)
-    // Return 'true' iff an attempt to set the specified 'result' to a "quick"
+    // Return 'true' if an attempt to set the specified 'result' to a "quick"
     // conversion from the specified 'binary' succeeds.  This occurs when
     // 'binary' is in an appropriate range and scaling and rounding it to an
     // integer results in a remainder whose ratio with the result is less than
@@ -818,6 +818,12 @@ Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary, int digits)
         quickDecimalFromFloat(
             &rv, binary, k_6_DIGIT_OFR_THRESHOLD, static_cast<int>(1e6))) {
         return rv;                                                    // RETURN
+    }
+    if (0 == digits) {
+        float v = fabsf(binary);
+        if (v >= 9.999995e-4f && v <= 8.589972e+9f) {
+            digits = 7;
+        }
     }
     return restoreDecimalDigits<Decimal128, 6>(binary, digits);
 }

@@ -456,7 +456,7 @@ struct DecimalConvertUtil {
         //:
         //: o Otherwise if 'decimal' has a significand that cannot be exactly
         //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, roundthat value according to the
+        //:   floating-point exception, round that value according to the
         //:   *binary* rounding direction setting of the environment, and
         //:   return the result of that.
         //:
