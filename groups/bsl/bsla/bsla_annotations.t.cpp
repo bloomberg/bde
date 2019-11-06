@@ -176,6 +176,18 @@ const char *test_FORMAT(const char *locale, const char *format)
     return "translateFormat: bad locale or format argument - no translation";
 }
 
+BSLA_MAYBE_UNUSED static
+void test_MAYBE_UNUSED_function_no_warning();
+void test_MAYBE_UNUSED_function_no_warning()
+{
+}
+
+static
+void test_MAYBE_UNUSED_function_warning();
+void test_MAYBE_UNUSED_function_warning()
+{
+}
+
 BSLA_NODISCARD
 int test_NODISCARD();
 int test_NODISCARD()
@@ -261,6 +273,12 @@ int test_WARNING()
 BSLA_DEPRECATED
 int test_DEPRECATED_variable;
 
+BSLA_MAYBE_UNUSED static
+int test_MAYBE_UNUSED_variable_no_warning;
+
+static
+int test_MAYBE_UNUSED_variable_warning;
+
 static
 int test_UNUSED_variable_no_warning     BSLA_UNUSED;
 
@@ -283,6 +301,14 @@ struct BSLA_DEPRECATED Test_DEPRECATED_type {
 };
 
 namespace {
+
+struct BSLA_MAYBE_UNUSED Test_MAYBE_UNUSED_type_no_warning {
+    int d_d;
+};
+
+struct Test_MAYBE_UNUSED_type_warning {
+    int d_d;
+};
 
 struct Test_UNUSED_type_no_warning {
     int d_d;
@@ -307,6 +333,27 @@ void use_without_diagnostic_message_FORMAT()
 {
     test_PRINTF(test_FORMAT("FR", "Name: %s"), "Michael Bloomberg");
 }
+
+#if !U_TRIGGER_WARNINGS
+
+void use_without_diagnostic_message_MAYBE_UNUSED()
+{
+    (void) Test_MAYBE_UNUSED_type_warning();
+
+    (void) test_MAYBE_UNUSED_variable_warning;
+    (void) test_MAYBE_UNUSED_function_warning();
+
+# if !BSLA_MAYBE_UNUSED_IS_ACTIVE
+
+    (void) Test_MAYBE_UNUSED_type_no_warning();
+
+    (void) test_MAYBE_UNUSED_variable_no_warning;
+    (void) test_MAYBE_UNUSED_function_no_warning();
+
+# endif
+}
+
+#endif
 
 int use_without_diagnostic_message_NODISCARD()
 {
@@ -460,6 +507,9 @@ void use_with_warning_message_NODISCARD()
 {
     test_NODISCARD();
 }
+
+static
+int test_MAYBE_UNUSED_variable_warning;
 
 void use_with_warning_message_NONNULLARG1()
 {

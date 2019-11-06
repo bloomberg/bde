@@ -1,6 +1,6 @@
-// bsla_unused.h                                                      -*-C++-*-
-#ifndef INCLUDED_BSLA_UNUSED
-#define INCLUDED_BSLA_UNUSED
+// bsla_maybeunused.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLA_MAYBEUNUSED
+#define INCLUDED_BSLA_MAYBEUNUSED
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -8,29 +8,25 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a macro to suppress "unused" warnings.
 //
 //@MACROS:
-//  BSLA_UNUSED: do not warn if annotated entity is unused
-//  BSLA_UNUSED_IS_ACTIVE: 0 if 'BSLA_UNUSED' expands to nothing, else 1
+//  BSLA_MAYBE_UNUSED: suppress compiler warnings on unused entities
+//  BSLA_MAYBE_UNUSED_IS_ACTIVE: 1 if 'BSLA_MAYBE_UNUSED' is active, else 0
 //
-//@SEE_ALSO: bsla_annotations, bsla_maybeunused
+//@SEE_ALSO: bsla_annotations
 //
 //@DESCRIPTION: This component provides a preprocessor macro that will suppress
 // "unused" warnings on a locally defined function, type, or variable that is
 // not used.
 //
-// Note that the similar macro, 'BSLA_MAYBE_UNUSED', aliasing the standard
-// '[[maybe_unused]]' attribute, may be considered for use instead of this
-// macro.
-//
 ///Macro Reference
 ///---------------
-//: 'BSLA_UNUSED':
+//: 'BSLA_MAYBE_UNUSED'
 //:    This annotation indicates that the so-annotated function, variable, or
 //:    type is possibly unused and the compiler should not generate a warning
 //:    for the unused identifier.
-//:
-//: 'BSLA_UNUSED_IS_ACTIVE':
-//:    The macro 'BSLA_UNUSED_IS_ACTIVE' is defined to 0 if 'BSLA_UNUSED'
-//:    expands to nothing and 1 otherwise.
+//
+//: 'BSLA_MAYBE_UNUSED_IS_ACTIVE'
+//:     The macro 'BSLA_MAYBE_UNUSED_IS_ACTIVE' is defined to 0 if
+//:     'BSLA_MAYBE_UNUSED' expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -83,50 +79,50 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we observe the warnings:
 //..
-//  .../bsla_unused.t.cpp:135:27: warning: unused parameter 'zeroC'
-//  [-Wunused-parameter]
-//                 double *zeroC,
-//                 ~~~~~~~~^~~~~
-//  .../bsla_unused.t.cpp:136:26: warning: unused parameter 'cubeFactor'
-//  [-Wunused-parameter]
-//                 double cubeFactor,
-//                 ~~~~~~~^~~~~~~~~~
-//  .../bsla_unused.t.cpp:133:9: warning: 'int {anonymous}::warn::
-//  quadratic(double*, double*, double*, double, double, double, double)'
-//  defined but not used [-Wunused-function]
-//   int quadratic(double *zeroA,
-//       ^~~~~~~~~
-//  .../bsla_unused.t.cpp:126:12: warning: '{anonymous}::warn::x' defined but
-//  not used [-Wunused-variable]
-//   double x;
-//          ^
+// .../bsla_maybeunused.t.cpp:134:27: warning: unused parameter 'zeroC'
+// [-Wunused-parameter]
+//                    double *zeroC,
+//                            ^~~~~
+// .../bsla_maybeunused.t.cpp:135:26: warning: unused parameter 'cubeFactor'
+// [-Wunused-parameter]
+//                    double cubeFactor,
+//                           ^~~~~~~~~~
+// .../bsla_maybeunused.t.cpp:132:9: warning: 'int {anonymous}::warn::
+// quadratic(double*, double*, double*, double, double, double, double)'
+// defined but not used [-Wunused-function]
+//      int quadratic(double *zeroA,
+//          ^~~~~~~~~
+// .../bsla_maybeunused.t.cpp:125:12: warning: '{anonymous}::warn::x' defined
+// but not used [-Wunused-variable]
+//      double x;
+//             ^
 //..
 // Note that none of the compilers currently in use by the development team
 // issue a warning on the unused 'warn::ResultRec', but some in the future
-// might.  In the meantime, 'BSLA_UNUSED' is tolerated on type declarations
-// without resulting in a syntax error.
+// might.  In the meantime, 'BSLA_MAYBE_UNUSED' is tolerated on type
+// declarations without resulting in a syntax error.
 //
 // Next, we define a namespace, 'nowarn', within the unused namespace with
-// exactly the same unused entities, using the 'BSLA_UNUSED' annotation to
-// silence the warnings:
+// exactly the same unused entities, using the 'BSLA_MAYBE_UNUSED' annotation
+// to silence the warnings:
 //..
 //  namespace {
 //  namespace nowarn {
 //
-//  struct ResultRec {
+//  struct BSLA_MAYBE_UNUSED ResultRec {
 //      double d_x;
 //      double d_y;
-//  } BSLA_UNUSED;
+//  };
 //
-//  double x BSLA_UNUSED;
+//  BSLA_MAYBE_UNUSED double x;
 //
-//  int quadratic(double             *zeroA,
-//                double             *zeroB,
-//                BSLA_UNUSED double *zeroC,
-//                BSLA_UNUSED double  cubeFactor,
-//                double              a,
-//                double              b,
-//                double              c) BSLA_UNUSED;
+//  BSLA_MAYBE_UNUSED int quadratic(double                   *zeroA,
+//                                  double                   *zeroB,
+//                                  BSLA_MAYBE_UNUSED double *zeroC,
+//                                  BSLA_MAYBE_UNUSED double  cubeFactor,
+//                                  double                    a,
+//                                  double                    b,
+//                                  double                    c);
 //      // Solve the quadratic function for the specified 'a', 'b', and 'c',
 //      // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
 //      // return a non-zero value, and set the specified 'zeroA' and 'zeroB'
@@ -134,13 +130,13 @@ BSLS_IDENT("$Id: $")
 //      // 'cubeFactor' and 'zeroC' are unused for now but will be used in
 //      // future expansion of the function to handle cubic polynomials.
 //
-//  int quadratic(double             *zeroA,
-//                double             *zeroB,
-//                BSLA_UNUSED double *zeroC,
-//                BSLA_UNUSED double  cubeFactor,
-//                double              a,
-//                double              b,
-//                double              c)
+//  int quadratic(double                   *zeroA,
+//                double                   *zeroB,
+//                BSLA_MAYBE_UNUSED double *zeroC,
+//                BSLA_MAYBE_UNUSED double  cubeFactor,
+//                double                    a,
+//                double                    b,
+//                double                    c)
 //  {
 //      const double discriminant = b * b - 4 * a * c;
 //      if (discriminant < 0 || 0.0 == a) {
@@ -161,21 +157,16 @@ BSLS_IDENT("$Id: $")
 // Finally, we observe that the warnings for the 'nowarn' namespace are
 // suppressed.
 
-#include <bsls_platform.h>
+#include <bsls_compilerfeatures.h>
 
-// Note that it is highly recommended to use 'BSLA_MAYBE_UNUSED'
-// ('[[maybe_unused]]') where available, as it is supported by a large number
-// of platforms, but that has more specific constraints over where it can be
-// syntactically placed than the older vendor annotations.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED)
+    #define BSLA_MAYBE_UNUSED [[ maybe_unused ]]
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_UNUSED     __attribute__((__unused__))
-
-    #define BSLA_UNUSED_IS_ACTIVE 1
+    #define BSLA_MAYBE_UNUSED_IS_ACTIVE 1
 #else
-    #define BSLA_UNUSED
+    #define BSLA_MAYBE_UNUSED
 
-    #define BSLA_UNUSED_IS_ACTIVE 0
+    #define BSLA_MAYBE_UNUSED_IS_ACTIVE 0
 #endif
 
 #endif
