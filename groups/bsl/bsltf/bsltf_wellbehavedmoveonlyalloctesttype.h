@@ -83,8 +83,8 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_movestate.h>
 
 #include <bslma_usesbslmaallocator.h>
-
 #include <bslmf_iscopyconstructible.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_movableref.h>
 
 namespace BloombergLP {
@@ -328,6 +328,10 @@ template <>
 struct is_copy_constructible<
                           BloombergLP::bsltf::WellBehavedMoveOnlyAllocTestType>
                                                           : bsl::false_type {};
+template <>
+struct is_nothrow_move_constructible<
+                          BloombergLP::bsltf::WellBehavedMoveOnlyAllocTestType>
+                                                           : bsl::true_type {};
 }  // close namespace bsl
 
 #endif

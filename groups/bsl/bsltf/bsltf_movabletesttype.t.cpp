@@ -8,6 +8,7 @@
 
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_iscopyconstructible.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
@@ -227,21 +228,23 @@ int main(int argc, char *argv[])
       case 12: {
         if (verbose) printf("\nVERIFYING CC 12.4 CONCERNS"
                             "\n==========================\n");
-        typedef bsltf::MovableTestType Obj;
 
-        ASSERT(( bsl::is_convertible<Obj, Obj>::value ));
-        ASSERT(( bsl::is_convertible<Obj&, Obj>::value ));
-        ASSERT(( bsl::is_convertible<const Obj, Obj>::value ));
-        ASSERT(( bsl::is_convertible<const Obj&, Obj>::value ));
-        ASSERT(( bsl::is_convertible<bslmf::MovableRef<Obj>, Obj>::value ));
-        ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>,
-                                                             Obj>::value ));
-        ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>&,
-                                                             Obj>::value ));
+         typedef bsltf::MovableTestType Obj;
 
-        // Not mentioned in CC 12.4, but something we want to test.
+         ASSERT((bsl::is_convertible<Obj, Obj>::value));
+         ASSERT((bsl::is_convertible<Obj&, Obj>::value));
+         ASSERT((bsl::is_convertible<const Obj, Obj>::value));
+         ASSERT((bsl::is_convertible<const Obj&, Obj>::value));
+         ASSERT((bsl::is_convertible<bslmf::MovableRef<Obj>, Obj>::value));
+         ASSERT((bsl::is_convertible<const bslmf::MovableRef<Obj>,
+                                     Obj>::value));
+         ASSERT((bsl::is_convertible<const bslmf::MovableRef<Obj>&,
+                                     Obj>::value));
 
-        BSLMF_ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
+        // In addition to the CC 12.4 concerns:
+
+         ASSERT( bsl::is_copy_constructible<Obj>::value);
+         ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
       } break;
       case 11: {
         if (verbose) printf("\nUSAGE EXAMPLE"

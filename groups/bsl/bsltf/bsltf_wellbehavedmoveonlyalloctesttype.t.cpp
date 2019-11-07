@@ -390,7 +390,12 @@ int main(int argc, char *argv[])
 
                 new (&a) Obj(5);
 
+#               pragma GCC diagnostic push
+#               pragma GCC diagnostic ignored "-Wclass-memaccess"
+
                 ::memcpy(&b, &a, sizeof(a));
+
+#               pragma GCC diagnostic pop
 
                 BSLS_ASSERT_OPT(5 == b.data());
                 ASSERT(         5 == b.data());
@@ -415,6 +420,8 @@ int main(int argc, char *argv[])
         //: 3 The object is not bitwise-moveable.
         //:
         //: 4 The object is not copy constructible.
+        //:
+        //: 5 The object is nothrow move constructible.
         //
         // Plan:
         //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
@@ -429,6 +436,7 @@ int main(int argc, char *argv[])
         BSLMF_ASSERT( bslma::UsesBslmaAllocator<Obj>::value);
         BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<Obj>::value);
         BSLMF_ASSERT(!bsl::is_copy_constructible<Obj>::value);
+        BSLMF_ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
       } break;
       case 10: {
         // --------------------------------------------------------------------
