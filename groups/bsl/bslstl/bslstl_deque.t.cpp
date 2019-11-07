@@ -48,6 +48,7 @@
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
+#include <bsltf_wellbehavedmoveonlyalloctesttype.h>
 
 #include <iterator>
 #include <new>         // placement 'new'
@@ -1850,8 +1851,12 @@ struct TestDriver {
                         : e_STATEFUL;
 
     static
-    const bool s_keyIsMoveEnabled = bsl::is_nothrow_move_constructible<TYPE>::
-                                                                         value;
+    const bool s_keyIsMoveEnabled =
+                     bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
+                     bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
+                     bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value ||
+                     bsl::is_same<TYPE,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
     // CLASS METHODS
     static
@@ -6430,7 +6435,8 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase2,

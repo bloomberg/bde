@@ -514,6 +514,8 @@ TYPE& copyAssignTo(TYPE *dst, const TYPE& src)
     // return a reference for modifiable access to '*dst'.
 {
     BSLMF_ASSERT((!bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value));
+    BSLMF_ASSERT((!bsl::is_same<TYPE,
+                             bsltf::WellBehavedMoveOnlyAllocTestType>::value));
 
     return *dst = src;
 }
@@ -522,6 +524,16 @@ template <>
 bsltf::MoveOnlyAllocTestType&
 copyAssignTo(bsltf::MoveOnlyAllocTestType        *dst,
              const bsltf::MoveOnlyAllocTestType&  src)
+{
+    dst->setData(src.data());
+
+    return *dst;
+}
+
+template <>
+bsltf::WellBehavedMoveOnlyAllocTestType&
+copyAssignTo(bsltf::WellBehavedMoveOnlyAllocTestType        *dst,
+             const bsltf::WellBehavedMoveOnlyAllocTestType&  src)
 {
     dst->setData(src.data());
 
@@ -6352,12 +6364,16 @@ class TestDriver {
            k_IS_KEY_MOVE_AWARE =
                    bsl::is_same<KEY, bsltf::MovableTestType>::value ||
                    bsl::is_same<KEY, bsltf::MovableAllocTestType>::value ||
-                   bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value,
+                   bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value ||
+                   bsl::is_same<KEY,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value,
 
            k_IS_VALUE_MOVE_AWARE =
                    bsl::is_same<VALUE, bsltf::MovableTestType>::value ||
                    bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value ||
-                   bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value,
+                   bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value ||
+                   bsl::is_same<VALUE,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value,
 
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_WINDOWS)
            // Aix has a compiler bug where method pointers do not default
@@ -10546,7 +10562,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase8,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase8();
@@ -10613,7 +10630,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase6();
@@ -10643,7 +10661,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase4();
@@ -10705,7 +10724,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase3();
@@ -10749,7 +10769,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase2();
