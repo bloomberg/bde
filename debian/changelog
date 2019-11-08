@@ -1,5 +1,25 @@
-bsl-internal (3.41.0.0) unstable; urgency=low
+bsl-internal (3.42.0.0) unstable; urgency=low
 
+  * 1aac87b0e Bumped version to 3.42.0.0
+  * 57eb08593 Merge pull request #2555 from dsokolov7/review/bde-maybe-unused-drqs-150411125
+  * 97ae9864d Merge pull request #2567 from bde/revert-2550-191021-balber-beruniversaltagnumber-DRQS-112643766-RV
+  * 278970470 Merge pull request #2565 from osubbotin/review/extra-renaming
+  * 078d5483a Merge pull request #2556 from bchapman/balst-nightly-failures-drqs-150797783
+  * 5984afb88 Merge pull request #2561 from ameredit/noexcept_function_type_test_case_bug
+  * 49efb701a Merge pull request #2550 from nburgers/191021-balber-beruniversaltagnumber-DRQS-112643766-RV
+  * fc79841b1 Merge pull request #2553 from jberne4/remove_libbos_dev_deps
+  * 7d0b586ca Merge pull request #2559 from mgiroux/add-Conflicts-to-debian-control
+  * fb6cc82c8 Merge pull request #2558 from mgiroux/baljsn-doxygen-fixes-3.41.0
+  * 84b408c1e Merge pull request #2537 from ameredit/optimizing_voidtype_for_compilation
+  * 638801e91 Merge pull request #2533 from nburgers/191009-balxml-decoder-DRQS-146705251-2-RB
+  * c4e636b9d Merge pull request #2536 from nburgers/191018-baljsn-DRQS-146678827-RB
+  * d4c7694b8 Merge pull request #2546 from nburgers/191024-bslmt-once-DRQS-149823688
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 8 Nov 2019 11:43:50 -0500
+
+bsl-internal (3.41.0.0) git; urgency=low
+
+  * 875fca984 Changelog for version 3.41.0.0
   * 85464be01 Bumped version to 3.41.0.0
   * 7995863f0 Merge pull request #2545 from ameredit/darwin_fix_for_library_features
   * bae67e3fd Merge pull request #2462 from mgiroux/dlcjsn-to-baljsn-drqs142795491
@@ -32,7 +52,7 @@ bsl-internal (3.41.0.0) unstable; urgency=low
   * e7b75b45b Merge pull request #2448 from dsokolov7/review/bde-usage-example-balxml-drqs-146259073
   * 326fc341d Merge pull request #2509 from osubbotin/review/dpkg-split
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Oct 2019 22:04:35 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Oct 2019 22:05:06 -0400
 
 bsl-internal (3.40.0.0) git; urgency=low
 
