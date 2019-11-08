@@ -2383,6 +2383,8 @@ int main(int argc, char *argv[])
                                                     NL   "    ]"
                                                     NL   "  ]"
                                                                         },
+        // Nesting arrays when format as empty array is true will result in
+        // nonsense, as expected.
         {   L_,     1,      1,    2,  true,    3,        "  [  [  [  []]]]"
                                                                         },
         };
@@ -2482,6 +2484,8 @@ int main(int argc, char *argv[])
                                                     "      ["       NL
                                                     "        ["     NL
                                                                         },
+        // Nesting arrays when format as empty array is true will result in
+        // nonsense, as expected.
         {   L_,     1,      1,    2,  true,     3,  "  [  [  [  ["      },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
