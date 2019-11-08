@@ -115,11 +115,9 @@
       bslmf_addreference
       bslmf_functionpointertraits
       bslmf_if                                           !DEPRECATED!
-      bslmf_istransparentpredicate
       bslmf_makeintegersequence
       bslmf_matchanytype
       bslmf_removecv
-      bslmf_resulttype
       bslmf_selecttrait
 
    3. bslmf_addlvaluereference
@@ -136,21 +134,23 @@
       bslmf_removeextent
       bslmf_removereference
       bslmf_removevolatile
+      bslmf_resulttype
       bslmf_switch
       bslmf_typelist
-      bslmf_voidtype
 
    2. bslmf_isarray
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
       bslmf_issame
+      bslmf_istransparentpredicate
       bslmf_nil
       bslmf_tag
 
    1. bslmf_allocatorargt
       bslmf_assert
       bslmf_integralconstant
+      bslmf_voidtype
 ..
 
 /Component Synopsis
