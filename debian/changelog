@@ -1,5 +1,12 @@
-bsl-internal (3.42.0.0) unstable; urgency=low
+bsl-internal (3.42.0.1) unstable; urgency=low
 
+  * ebaef9e85 Merge pull request #2574 from osubbotin/review/3.42-fix
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Nov 2019 10:24:33 -0500
+
+bsl-internal (3.42.0.0) git; urgency=low
+
+  * c9c00c657 Changelog for version 3.42.0.0
   * 1aac87b0e Bumped version to 3.42.0.0
   * 57eb08593 Merge pull request #2555 from dsokolov7/review/bde-maybe-unused-drqs-150411125
   * 97ae9864d Merge pull request #2567 from bde/revert-2550-191021-balber-beruniversaltagnumber-DRQS-112643766-RV
@@ -15,7 +22,7 @@ bsl-internal (3.42.0.0) unstable; urgency=low
   * c4e636b9d Merge pull request #2536 from nburgers/191018-baljsn-DRQS-146678827-RB
   * d4c7694b8 Merge pull request #2546 from nburgers/191024-bslmt-once-DRQS-149823688
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 8 Nov 2019 11:43:50 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 8 Nov 2019 12:00:21 -0500
 
 bsl-internal (3.41.0.0) git; urgency=low
 
