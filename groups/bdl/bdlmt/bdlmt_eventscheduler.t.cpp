@@ -2454,10 +2454,10 @@ int main(int argc, char *argv[])
         }
         ASSERT(bsls::TimeInterval(100) < t2 - t1);
 
-        // If the functor stored in the scheduler is no longer valid,
-        // in safe mode builds the resultant access to 'd_currentTimeFunctor'
-        // results in an assert due to 'd_currentTimeMutex' attempting to be
-        // locked after being destroyed.
+        // If the functor stored in the scheduler is no longer valid, in safe
+        // mode builds the resultant access to 'd_currentTimeFunctor' results
+        // in an assert due to 'd_currentTimeMutex' attempting to be locked
+        // after being destroyed.
 
         scheduler.scheduleRecurringEvent(bsls::TimeInterval(1), noop);
 

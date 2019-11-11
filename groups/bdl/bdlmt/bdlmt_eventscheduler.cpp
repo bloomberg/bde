@@ -60,6 +60,7 @@ struct EventSchedulerTestTimeSource_Data {
     // This 'struct' provides storage for the current time and a mutex to
     // protect access to the current time.
 
+    // DATA
     bsls::TimeInterval    d_currentTime;       // the current time
 
     bslmt::Mutex          d_currentTimeMutex;  // mutex used to synchronize
@@ -654,6 +655,10 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
 : d_scheduler_p(scheduler)
 {
     BSLS_ASSERT(0 != scheduler);
+
+    // The following uses the default allocator since the lifetime of the
+    // created object may be longer than this 'EventSchedulerTestTimeSource'
+    // and the associated 'EventScheduler'.
 
     d_data_p = bsl::make_shared<EventSchedulerTestTimeSource_Data>();
 
