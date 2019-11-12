@@ -31743,7 +31743,7 @@ int main(int argc, char *argv[])
              { L_,    "",  true,      C,      0,      0,    "[]"         },
              { L_,    "",  true,      P,      0,      0,    "[]"         },
              { L_,    "",  true,      C,      1,      2,    "[]"         },
-             { L_,    "",  true,      P,      1,      2,    "[]"         },
+             { L_,    "",  true,      P,      1,      2,    "  []"         },
 
              { L_,    "2", false,     C,      0,      0,    "[2]"        },
 
@@ -31753,7 +31753,7 @@ int main(int argc, char *argv[])
 
              { L_,    "2", false,     C,      1,      2,    "[2]"        },
 
-             { L_,    "2", false,     P,      1,      2,    "["      NL
+             { L_,    "2", false,     P,      1,      2,    "  ["    NL
                                                             "    2"  NL
                                                             "  ]"        },
 
@@ -31765,7 +31765,7 @@ int main(int argc, char *argv[])
 
              { L_,    "2", true,      C,      1,      2,    "[2]"        },
 
-             { L_,    "2", true,      P,      1,      2,    "["      NL
+             { L_,    "2", true,      P,      1,      2,    "  ["    NL
                                                             "    2"  NL
                                                             "  ]"        },
 
@@ -31779,7 +31779,7 @@ int main(int argc, char *argv[])
 
              { L_,  "012", false,     C,      1,      2,    "[0,1,2]"    },
 
-             { L_,  "012", false,     P,      1,      2,    "["      NL
+             { L_,  "012", false,     P,      1,      2,    "  ["    NL
                                                             "    0," NL
                                                             "    1," NL
                                                             "    2"  NL
@@ -31795,7 +31795,7 @@ int main(int argc, char *argv[])
 
              { L_,  "012", true,      C,      1,      2,    "[0,1,2]"    },
 
-             { L_,  "012", true,      P,      1,      2,    "["      NL
+             { L_,  "012", true,      P,      1,      2,    "  ["    NL
                                                             "    0," NL
                                                             "    1," NL
                                                             "    2"  NL
