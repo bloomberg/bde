@@ -22,8 +22,9 @@ BSLS_IDENT("$Id: $")
 ///-----------------------------
 // The mapping from Windows to Zoneinfo identifiers used by the 'baltzo'
 // package is defined in the table titled "Mapping for: windows" at
-// 'http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/zone_tzid.html'.
-// The Zoneinfo values on the unicode webpage are given in the column labeled
+// 'http://unicode.org/cldr/charts/32/supplemental/zone_tzid.html' (with any
+// differences noted in the section {Differences from CLDR} below).  The
+// Zoneinfo values on the unicode webpage are given in the column labeled
 // "TZID".  Each Windows identifier is qualified by one or more "Region"
 // attributes so, in general, there may be more than one Zoneinfo identifier
 // for a given Windows identifier.  The mapping in this component uses the
@@ -74,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //  |        Greenland Standard Time | America/Godthab     |
 //  |        Greenwich Standard Time | Atlantic/Reykjavik  |
 //  |         Hawaiian Standard Time | Pacific/Honolulu    |
-//  |            India Standard Time | Asia/Calcutta       |
+//  |            India Standard Time | Asia/Kolkata        |
 //  |             Iran Standard Time | Asia/Tehran         |
 //  |           Israel Standard Time | Asia/Jerusalem      |
 //  |           Jordan Standard Time | Asia/Amman          |
@@ -133,6 +134,14 @@ BSLS_IDENT("$Id: $")
 //  |          Yakutsk Standard Time | Asia/Yakutsk        |
 //  +--------------------------------+---------------------+
 //..
+//
+///Differences from CLDR
+///---------------------
+// Current differences from canonical CLDR data:
+//: o "Asia/Calcutta" -> "Asia/Kolkata".  The city was renamed, and the IANA
+//:   time zone identifier changed in 1993 but CLDR incorrectly uses the old
+//:   name for the city.  There is an open issue for this:
+//:   'https://unicode-org.atlassian.net/browse/CLDR-9892'.
 //
 ///Usage
 ///-----

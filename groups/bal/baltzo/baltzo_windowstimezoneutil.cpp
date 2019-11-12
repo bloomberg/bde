@@ -91,7 +91,7 @@ static const TimeZoneIdEntry windowsToZoneinfoIds[] = {
     { "Greenland Standard Time",         "America/Godthab"      },
     { "Greenwich Standard Time",         "Atlantic/Reykjavik"   },
     { "Hawaiian Standard Time",          "Pacific/Honolulu"     },
-    { "India Standard Time",             "Asia/Calcutta"        },
+    { "India Standard Time",             "Asia/Kolkata"         },
     { "Iran Standard Time",              "Asia/Tehran"          },
     { "Israel Standard Time",            "Asia/Jerusalem"       },
     { "Jordan Standard Time",            "Asia/Amman"           },
@@ -209,6 +209,7 @@ static const TimeZoneIdEntry zoneinfoToWindowsIds[] = {
     { "Asia/Kabul",           "Afghanistan Standard Time"       },
     { "Asia/Karachi",         "Pakistan Standard Time"          },
     { "Asia/Katmandu",        "Nepal Standard Time"             },
+    { "Asia/Kolkata",         "India Standard Time"             },
     { "Asia/Krasnoyarsk",     "North Asia Standard Time"        },
     { "Asia/Magadan",         "Magadan Standard Time"           },
     { "Asia/Nicosia",         "E. Europe Standard Time"         },
@@ -271,8 +272,10 @@ static const TimeZoneIdEntry * const zoneinfoToWindowsIdsEnd  =
                                                           zoneinfoToWindowsIds
                                                      + numZoneinfoToWindowsIds;
 
-BSLMF_ASSERT(                     99 == numWindowsToZoneinfoIds);
-BSLMF_ASSERT(numWindowsToZoneinfoIds == numZoneinfoToWindowsIds);
+BSLMF_ASSERT(                     99     == numWindowsToZoneinfoIds);
+BSLMF_ASSERT(numWindowsToZoneinfoIds + 1 == numZoneinfoToWindowsIds);
+    // 'zoneInfoToWindowsIds' contains an extra legacy entry for "Calcutta",
+    // which is redundant with the now official "Kolkata".
 
 }  // close unnamed namespace
 
