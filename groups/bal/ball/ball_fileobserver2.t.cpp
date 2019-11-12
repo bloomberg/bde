@@ -3195,14 +3195,14 @@ int main(int argc, char *argv[])
                 ASSERT(testOs.str() != os);
 
                 // Now let's verify the actual difference.
-                int defaultObsHour;
+                int defaultObsHour = 0;
                 if (dos.str().length() >= 11) {
                     bsl::istringstream is(dos.str().substr(11, 2));
                     ASSERT(is >> defaultObsHour);
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                int fileObsHour;
+                int fileObsHour = 0;
                 if (dos.str().length() >= 11) {
                     bsl::istringstream is(os.substr(11, 2));
                     ASSERT(is >> fileObsHour);
