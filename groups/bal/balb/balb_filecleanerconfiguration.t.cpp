@@ -749,8 +749,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                 *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                 *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -1463,8 +1463,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {

@@ -2026,8 +2026,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -2735,14 +2735,14 @@ int main(int argc, char *argv[])
                             bsl::string::npos != coutS.find(testOs.str()));
 
                 // Now let's verify the actual difference.
-                int defaultObsHour;
+                int defaultObsHour = 0;
                 if (dos.str().length() >= 11) {
                     bsl::istringstream is(dos.str().substr(11, 2));
                     ASSERT(is >> defaultObsHour);
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                int fileObsHour;
+                int fileObsHour = 0;
                 if (coutS.length() >= 11) {
                     bsl::istringstream is(coutS.substr(11, 2));
                     ASSERT(is >> fileObsHour);
