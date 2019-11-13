@@ -234,8 +234,14 @@ int main(int argc, char *argv[])
          ASSERT(( bsl::is_convertible<const Obj, Obj>::value ));
          ASSERT(( bsl::is_convertible<const Obj&, Obj>::value ));
          ASSERT(( bsl::is_convertible<bslmf::MovableRef<Obj>, Obj>::value ));
-         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>, Obj>::value ));
-         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>&, Obj>::value ));
+         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>,
+                                                              Obj>::value ));
+         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>&,
+                                                              Obj>::value ));
+
+        // Not mentioned in CC 12.4, but something we want to test.
+
+         ASSERT(bsl::is_nothrow_move_constructible<Obj>::value);
         } break;
       case 11: {
         if (verbose) printf("\nUSAGE EXAMPLE"

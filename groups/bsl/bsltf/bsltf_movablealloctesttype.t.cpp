@@ -1546,7 +1546,7 @@ int main(int argc, char *argv[])
 
             Obj mZ(bslmf::MovableRefUtil::move(mX)); const Obj& Z = mZ;
 
-            ASSERT(oam.isTotalUp());
+            ASSERT(oam.isTotalSame());
 
             ASSERT(0 == Z.data());
             ASSERT(0 == X.data());
@@ -1556,7 +1556,7 @@ int main(int argc, char *argv[])
 
             ASSERT(bsltf::MoveState::e_MOVED     == X.movedFrom());
             ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
-            ASSERT(bsltf::MoveState::e_NOT_MOVED == Z.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED     == Z.movedFrom());
             ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
         }
         {

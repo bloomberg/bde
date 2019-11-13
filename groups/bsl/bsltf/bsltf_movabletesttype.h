@@ -83,6 +83,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsltf_movestate.h>
 
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_keyword.h>
@@ -110,6 +111,11 @@ class MovableTestType {
                                        // object is not bit-wise moved
     MoveState::Enum    d_movedFrom;    // moved-from state
     MoveState::Enum    d_movedInto;    // moved-into state
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MovableTestType,
+                                   bsl::is_nothrow_move_constructible);
 
   public:
     // CREATORS

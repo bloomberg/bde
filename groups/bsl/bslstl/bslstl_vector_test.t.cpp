@@ -12777,8 +12777,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase38,
                       bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MovableAllocTestType);
       } break;
       case 37: {
         // --------------------------------------------------------------------
