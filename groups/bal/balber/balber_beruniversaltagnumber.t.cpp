@@ -17,6 +17,8 @@
 
 #include <bslma_allocator.h>
 
+#include <bslmf_if.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_types.h>
 
@@ -1990,6 +1992,442 @@ namespace BloombergLP {
 namespace {
 namespace u {
 
+                         // ===========================
+                         // class PartialCustomizedType
+                         // ===========================
+
+template <class BASE_TYPE>
+class PartialCustomizedType {
+    // This class template provides the minimum necessary functionality to test
+    // 'balber::BerUniversalTagNumber::select' with an 'object' that has the
+    // 'CustomizedType' 'bldat' type category.  The specified 'BASE_TYPE'
+    // defines the 'BaseType' trait of the 'CustomizedType' implementation
+    // provided by this class.
+
+  public:
+    // CREATORS
+    PartialCustomizedType()
+        // Construct a 'PartialCustomizedType' object.
+    {
+    }
+};
+
+// TRAITS
+
+}  // close u namespace
+}  // close unnamed namespace
+
+namespace bdlat_CustomizedTypeFunctions {
+
+template <class BASE_TYPE>
+struct BaseType<u::PartialCustomizedType<BASE_TYPE> > {
+    // This 'struct' provides a definition of the
+    // 'bdlat_CustomizedTypeFucntions::BaseType' meta-function for all
+    // specializations of 'PartialCustomizedType'.
+
+    typedef BASE_TYPE Type;
+};
+
+template <class BASE_TYPE>
+struct IsCustomizedType<u::PartialCustomizedType<BASE_TYPE> > {
+    // This 'struct' provides a definition of the
+    // 'bdlat_CustomizedTypeFunctions::IsCustomizedType' meta-function for all
+    // specializations of 'PartialCustomizedType'.
+
+    enum { VALUE = 1 };
+};
+
+} // close bdlat_CustomizedTypeFunctions
+
+namespace {
+namespace u {
+
+                          // ========================
+                          // class PartialDynamicType
+                          // ========================
+
+template <class VALUE_TYPE>
+class PartialDynamicType {
+    // This class template provides the minimum necessary functionality to
+    // test 'balber::BerUniversalTagNumber::select' with an 'object' that
+    // has the 'DynamicType' 'bdlat' type category.  The specified 'VALUE_TYPE'
+    // defines the type of the underlying value of this object as well as its
+    // dynamic type category, which is the type category of the 'VALUE_TYPE'.
+
+  public:
+    // TYPES
+    typedef VALUE_TYPE ValueType;
+        // 'ValueType' is an alias to the 'VALUE_TYPE' template argument.
+
+  private:
+    // DATA
+    bslalg::ConstructorProxy<ValueType> d_value;
+        // the value of the underlying type, 'ValueType', for which this object
+        // is a wrapper with the 'DynamicType' category
+
+    bdlat_TypeCategory::Value           d_category;
+        // One may think it strange that this object stores its type category
+        // in a 'd_category' data member, since the information can be
+        // recovered from the 'VALUE_TYPE' template argument.  However, storing
+        // this information in a data member, and in particular using that data
+        // member as the value to return in the 'typeCategory' method below, is
+        // *critical* to expose a bug in the prior implementation of this
+        // component that did not expect
+        // 'bdlat_TypeCategoryUtil::accessByCategory' to load information from
+        // its 'object' argument.  This operation does, in practice, load such
+        // information (as one can imagine the implementation for
+        // 'bcem_Aggregate' must).
+
+  public:
+    // CREATORS
+    explicit PartialDynamicType(bslma::Allocator *basicAllocator = 0)
+        // Construct a 'PartialDynamicType' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory if 'ValueType' is
+        // allocator-aware, and is otherwise unused.  If 'basicAllocator' is 0
+        // and 'ValueType' is allocator-aware, the currently installed default
+        // allocator is used.
+    : d_value(bslma::Default::allocator(basicAllocator))
+    , d_category(static_cast<bdlat_TypeCategory::Value>(
+          bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION))
+    {
+    }
+
+    explicit PartialDynamicType(const ValueType&  value,
+                                bslma::Allocator *basicAllocator = 0)
+        // Construct a 'PartialDynamicType' object having the specified 'value'
+        // underlying value.  Optionally specify a 'basicAllocator' used to
+        // supply memory if 'ValueType' is allocator-aware, and is otherwise
+        // unused.  If 'basicAllocator' is 0 and 'ValueType' is
+        // allocator-aware, the currently installed default allocator is used.
+    : d_value(value, bslma::Default::allocator(basicAllocator))
+    , d_category(static_cast<bdlat_TypeCategory::Value>(
+          bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION))
+    {
+    }
+
+    PartialDynamicType(const PartialDynamicType&  original,
+                       bslma::Allocator          *basicAllocator = 0)
+        // Construct a 'PartialDynamicType' object having an underlying value
+        // that is a copy of the underlying value of the specified 'original'
+        // object.  Optionally specify a 'basicAllocator' used to supply memory
+        // if 'ValueType' is allocator-aware, and is otherwise unused.  If
+        // 'basicAllocator' is 0 and 'ValueType' is allocator-aware, the
+        // currently installed default allocator is used.
+    : d_value(original.d_value.object(),
+              bslma::Default::allocator(basicAllocator))
+    , d_category(original.d_category)
+    {
+    }
+
+    // MANIPULATORS
+    PartialDynamicType& operator=(const PartialDynamicType& original)
+        // Assign to the underlying value of this object a copy of the
+        // underlying value of the specified 'original' object.  Return a
+        // reference providing modifiable access to this object.
+    {
+        d_value.object() = original.d_value.object();
+        d_category       = original.d_category;
+
+        return *this;
+    }
+
+    // ACCESSORS
+    bdlat_TypeCategory::Value typeCategory() const
+        // Return the *runtime* type category of this object, which is the
+        // *compile-time* type category of 'ValueType'.
+    {
+        return d_category;
+    }
+
+    const ValueType& value() const
+        // Return a non-'const' reference to the underlying value of this
+        // object.
+    {
+        return d_value.object();
+    }
+};
+
+// TRAITS
+template <class VALUE_TYPE>
+bdlat_TypeCategory::Value bdlat_typeCategorySelect(
+                                  const PartialDynamicType<VALUE_TYPE>& object)
+    // Return the *runtime* type category for the specified 'object'.
+{
+    return object.typeCategory();
+}
+
+}  // close u namespace
+}  // close unnamed namespace
+
+template <class VALUE_TYPE>
+struct bdlat_TypeCategoryDeclareDynamic<u::PartialDynamicType<VALUE_TYPE> > {
+    enum { VALUE = 1 };
+};
+
+namespace bdlat_ArrayFunctions {
+
+// No specialization of 'ElementType' need be provided for this test.
+
+template <class VALUE_TYPE>
+struct IsArray<u::PartialDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsArray<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_ArrayFunctions namespace
+
+namespace bdlat_ChoiceFunctions {
+
+template <class VALUE_TYPE>
+struct IsChoice<u::PartialDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsChoice<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_ChoiceFunctions namespace
+
+namespace {
+namespace u {
+
+template <
+    class VALUE_TYPE,
+    int = bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::VALUE>
+struct PartialDynamicType_BaseTypeImpl {
+    // This meta-function 'struct' provides the calculation of the
+    // 'BaseType' for the 'CustomizedType' category of a 'PartialDynamicType'
+    // if its specified 'VALUE_TYPE' is a 'CustomizedType'.
+
+    typedef typename bdlat_CustomizedTypeFunctions::BaseType<VALUE_TYPE>::Type
+        Type;
+};
+
+template <class VALUE_TYPE>
+struct PartialDynamicType_BaseTypeImpl<VALUE_TYPE, 0> {
+    // This meta-function 'struct' provides the calculation of the
+    // 'BaseType' for the 'CustomizedType' category of a 'PartialDynamicType'
+    // if its specified 'VALUE_TYPE' is not a 'CustomizedType'.
+
+    typedef bslmf::Nil Type;
+};
+
+}  // close u namespace
+}  // close unnamed namespace
+
+namespace bdlat_CustomizedTypeFunctions {
+
+template <class VALUE_TYPE>
+struct BaseType<u::PartialDynamicType<VALUE_TYPE> > {
+    typedef typename u::PartialDynamicType_BaseTypeImpl<VALUE_TYPE>::Type Type;
+};
+
+template <class VALUE_TYPE>
+struct IsCustomizedType<u::PartialDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsCustomizedType<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_CustomizedTypeFunctions namespace
+
+namespace bdlat_EnumFunctions {
+
+template <class VALUE_TYPE>
+struct IsEnumeration<u::PartialDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsEnumeration<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_EnumFunctions namespace
+
+namespace {
+namespace u {
+
+template <class VALUE_TYPE,
+          int =
+              bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::VALUE>
+struct PartialDynamicType_ValueTypeImpl {
+    // This meta-function 'struct' provides the calculation of the
+    // 'ValueType' for the 'NullableValue' category of a 'PartialDynamicType'
+    // if its specified 'VALUE_TYPE' has the 'NullableValue' category.
+
+    typedef typename bdlat_NullableValueFunctions::ValueType<VALUE_TYPE>::Type
+        Type;
+};
+
+template <class VALUE_TYPE>
+struct PartialDynamicType_ValueTypeImpl<VALUE_TYPE, 0> {
+    // This meta-function 'struct' provides the calculation of the 'ValueType'
+    // for the 'NullableValue' category of a 'PartialDynamicType' if its
+    // specified 'VALUE_TYPE' does not have the 'NullableValue' category.
+
+    typedef bslmf::Nil Type;
+};
+
+}  // close u namespace
+}  // close unnamed namespace
+
+namespace bdlat_NullableValueFunctions {
+
+template <class VALUE_TYPE>
+struct IsNullableValue<u::PartialDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsNullableValue<VALUE_TYPE>::VALUE };
+};
+
+template <class VALUE_TYPE>
+struct ValueType<u::PartialDynamicType<VALUE_TYPE> > {
+    typedef
+        typename u::PartialDynamicType_ValueTypeImpl<VALUE_TYPE>::Type Type;
+};
+
+}  // close bdlat_NullableValueFunctions namespace
+
+namespace bdlat_SequenceFunctions {
+
+template <class VALUE_TYPE>
+struct IsSequence<u::PartialDynamicType<VALUE_TYPE> > {
+    enum { VALUE = IsSequence<VALUE_TYPE>::VALUE };
+};
+
+}  // close bdlat_SequenceFunctions namespace
+
+namespace {
+namespace u {
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_typeCategoryAccessArray(
+                             const u::PartialDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                                accessor)
+    // Invoke the specified 'accessor', passing it an appropriate
+    // representation of the specified 'object' as the first argument, and
+    // either a 'bdlat_TypeCategory::Array' tag object as the second argument
+    // if the first argument can be used with 'bdlat_arrayfunctions', or a
+    // 'bslmf::Nil' tag object otherwise.  Return the result from the
+    // invocation of 'accessor'.
+{
+    typedef
+        typename bslmf::If<bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE,
+                           bdlat_TypeCategory::Array,
+                           bslmf::Nil>::Type Tag;
+
+    return accessor(object.value(), Tag());
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_typeCategoryAccessChoice(
+                             const u::PartialDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                                accessor)
+    // Invoke the specified 'accessor', passing it an appropriate
+    // representation of the specified 'object' as the first argument, and
+    // either a 'bdlat_TypeCategory::Choice' tag object as the second argument
+    // if the first argument can be used with 'bdlat_choicefunctions', or a
+    // 'bslmf::Nil' tag object otherwise.  Return the result from the
+    // invocation of 'accessor'.
+{
+    typedef
+        typename bslmf::If<bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::VALUE,
+                           bdlat_TypeCategory::Choice,
+                           bslmf::Nil>::Type Tag;
+
+    return accessor(object.value(), Tag());
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_typeCategoryAccessCustomizedType(
+                             const u::PartialDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                                accessor)
+    // Invoke the specified 'accessor', passing it an appropriate
+    // representation of the specified 'object' as the first argument, and
+    // either a 'bdlat_TypeCategory::CustomizedType' tag object as the second
+    // argument if the first argument can be used with
+    // 'bdlat_customizedtypefunctions', or a 'bslmf::Nil' tag object otherwise.
+    // Return the result from the invocation of 'accessor'.
+{
+    typedef typename bslmf::If<
+        bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::VALUE,
+        bdlat_TypeCategory::CustomizedType,
+        bslmf::Nil>::Type Tag;
+
+    return accessor(object.value(), Tag());
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_typeCategoryAccessEnumeration(
+                             const u::PartialDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                                accessor)
+    // Invoke the specified 'accessor', passing it an appropriate
+    // representation of the specified 'object' as the first argument, and
+    // either a 'bdlat_TypeCategory::Enumeration' tag object as the second
+    // argument if the first argument can be used with 'bdlat_enumfunctions',
+    // or a 'bslmf::Nil' tag object otherwise.  Return the result from the
+    // invocation of 'accessor'.
+{
+    typedef typename bslmf::If<
+        bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::VALUE,
+        bdlat_TypeCategory::Enumeration,
+        bslmf::Nil>::Type Tag;
+
+    return accessor(object.value(), Tag());
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_typeCategoryAccessNullableValue(
+                             const u::PartialDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                                accessor)
+    // Invoke the specified 'accessor', passing it an appropriate
+    // representation of the specified 'object' as the first argument, and
+    // either a 'bdlat_TypeCategory::NullableValue' tag object as the second
+    // argument if the first argument can be used with
+    // 'bdlat_nullablevaluefunctions', or a 'bslmf::Nil' tag object otherwise.
+    // Return the result from the invocation of 'accessor'.
+{
+    typedef typename bslmf::If<
+        bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::VALUE,
+        bdlat_TypeCategory::NullableValue,
+        bslmf::Nil>::Type Tag;
+
+    return accessor(object.value(), Tag());
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_typeCategoryAccessSequence(
+                             const u::PartialDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                                accessor)
+    // Invoke the specified 'accessor', passing it an appropriate
+    // representation of the specified 'object' as the first argument, and
+    // either a 'bdlat_TypeCategory::Sequence' tag object as the second
+    // argument if the first argument can be used with
+    // 'bdlat_sequencefunctions', or a 'bslmf::Nil' tag object otherwise.
+    // Return the result from the invocation of 'accessor'.
+{
+    typedef typename bslmf::If<
+        bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::VALUE,
+        bdlat_TypeCategory::Sequence,
+        bslmf::Nil>::Type Tag;
+
+    return accessor(object.value(), Tag());
+}
+
+template <class VALUE_TYPE, class ACCESSOR>
+int bdlat_typeCategoryAccessSimple(
+                             const u::PartialDynamicType<VALUE_TYPE>& object,
+                             ACCESSOR&                                accessor)
+    // Invoke the specified 'accessor', passing it an appropriate
+    // representation of the specified 'object' as the first argument, and
+    // either a 'bdlat_TypeCategory::Simple' tag object as the second argument
+    // if the first argument can be used as a simple type, or a 'bslmf::Nil'
+    // tag object otherwise.  Return the result from the invocation of
+    // 'accessor'.
+{
+    typedef typename bslmf::If<
+        bdlat_TypeCategory::e_SIMPLE_CATEGORY ==
+            static_cast<bdlat_TypeCategory::Value>(
+                bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION),
+        bdlat_TypeCategory::Simple,
+        bslmf::Nil>::Type Tag;
+    // If the type category of 'VALUE_TYPE' is 'Simple', then 'Tag' is
+    // 'bdlat_TypeCategory::Simple', and 'bslmf::Nil' otherwise.  This
+    // detection is done differently than for the complex type categories
+    // because 'Simple' types do not specialize a type trait to opt-in to being
+    // 'Simple'.
+
+    return accessor(object.value(), Tag());
+}
+
                          // =========================
                          // struct TestCase4_ImplUtil
                          // =========================
@@ -2282,32 +2720,105 @@ int main(int argc, char *argv[])
         };
 
         typedef bsl::vector<test::MySequence> Array;
-            // A convenient alias for a 'bdlat' 'Array' type that is not the
-            // specially-treated 'bsl::vector<int>' type.
+        typedef test::MyChoice                Choice;
+        typedef test::MyEnumeration::Value    Enumeration;
+        typedef test::MyEnumeration           EnumerationUtil;
+        typedef test::MySequence              Sequence;
+        typedef int                           SimpleInt;
+            // Convenient aliases for types satisfying one of the 'bdlat' type
+            // categories and that are not parameterized by an underlying type.
+            // These are the "level 0" complex 'bdlat' types used in this test
+            // (except for 'SimpleInt', which is not a complex type, but a
+            // simple type.) 'EnumerationUtil' is used below to get a value for
+            // an enumerator.
 
-        typedef test::MyEnumeration    EnumerationUtil;
-        typedef EnumerationUtil::Value Enumeration;
-            // Convenient aliases for a 'bdlat' 'Enumeration' type and its
-            // enumerators.
+        typedef u::PartialCustomizedType<Array>       CustomizedArray;
+        typedef u::PartialCustomizedType<Choice>      CustomizedChoice;
+        typedef u::PartialCustomizedType<Enumeration> CustomizedEnumeration;
+        typedef u::PartialCustomizedType<Sequence>    CustomizedSequence;
+        typedef u::PartialCustomizedType<SimpleInt>   CustomizedSimpleInt;
+            // Convenient aliases for 'CustomizedType' types having 'BaseType'
+            // types that provide different "level 0" 'bdlat' type categories.
+            // These are the "level 1" 'CustomizedType' types.
 
-        typedef bdlb::NullableValue<test::MySequence> NullableValue;
-            // A convenient alias for a 'bdlat' 'NullableValue' type.
+        typedef u::PartialDynamicType<Array>       DynamicArray;
+        typedef u::PartialDynamicType<Choice>      DynamicChoice;
+        typedef u::PartialDynamicType<Enumeration> DynamicEnumeration;
+        typedef u::PartialDynamicType<Sequence>    DynamicSequence;
+        typedef u::PartialDynamicType<SimpleInt>   DynamicSimpleInt;
+            // Convenient aliases for 'DynamicType' types having underlying
+            // types that provide different "level 0" 'bdlat' type categories.
+            // These are the "level 1" 'DynamicType' types.
 
-        const Array                  arrayVal;
-        const test::MyChoice         choiceVal;
-        const test::CustomizedString custStringVal;
-        const test::MyDynamicType    dynArrayVal(ARRAY_C);
-        const test::MyDynamicType    dynChoiceVal(CHOICE_C);
-        const test::MyDynamicType    dynEnumerationVal(ENUMERATION_C);
-        const test::MyDynamicType    dynSequenceVal(SEQUENCE_C);
-        const test::MyDynamicType    dynSimpleVal(SIMPLE_C);
-        const Enumeration            enumerationVal(EnumerationUtil::VALUE1);
-        const NullableValue          nullableValueVal;
-        const test::MySequence       sequenceVal;
-            // Convenient aliases for a suite of values for all supported
-            // "complex" 'bdlat' types, namely: 'Array', 'Choice',
-            // 'CustomizedType', 'DynamicType', 'Enumeration', 'NullableValue',
-            // and 'Sequence'.
+        typedef bdlb::NullableValue<Array>       NullableArray;
+        typedef bdlb::NullableValue<Choice>      NullableChoice;
+        typedef bdlb::NullableValue<Enumeration> NullableEnumeration;
+        typedef bdlb::NullableValue<Sequence>    NullableSequence;
+        typedef bdlb::NullableValue<SimpleInt>   NullableSimpleInt;
+            // Convenient aliases for 'NullableValue' types having 'ValueType'
+            // types that provide different "level 0" 'bdlat' type categories.
+            // These are the "level 1" 'NullableValue' types.
+
+        typedef u::PartialCustomizedType<DynamicSimpleInt>
+                                                   CustomizedDynamicSimpleInt;
+        typedef u::PartialCustomizedType<NullableSimpleInt>
+                                                   CustomizedNullableSimpleInt;
+            // Convenient aliases for 'CustomizedType' types having 'BaseType'
+            // types that provide different "level 1" 'bdlat' type categories.
+            // These are the "level 2" 'CustomizedType' types.
+
+        typedef u::PartialDynamicType<CustomizedSimpleInt>
+                                                    DynamicCustomizedSimpleInt;
+        typedef u::PartialDynamicType<NullableSimpleInt>
+                                                    DynamicNullableSimpleInt;
+            // Convenient aliases for 'DynamicType' types having underlying
+            // types that provide different "level 1" 'bdlat' type categories.
+            // these are the "level 2" 'DynamicType' types.
+
+        typedef bdlb::NullableValue<CustomizedSimpleInt>
+                                                   NullableCustomizedSimpleInt;
+        typedef bdlb::NullableValue<DynamicSimpleInt>
+                                                   NullableDynamicSimpleInt;
+            // Convenient aliases for 'NullableValue' types having 'ValueType'
+            // types that provide different "level 1" 'bdlat' type categories.
+            // These are the "level 2" 'NullableValue' types.
+
+        typedef u::PartialDynamicType<CustomizedDynamicSimpleInt>
+                                             DynamicCustomizedDynamicSimpleInt;
+        typedef u::PartialDynamicType<NullableDynamicSimpleInt>
+                                             DynamicNullableDynamicSimpleInt;
+            // Convenient aliases for 'DynamicType' types having underlying
+            // types that provide different "level 2" 'bdlat' type categories.
+            // These are the "level 3" 'DynamicType' types.
+
+        const Array                             arrayVal;
+        const Choice                            choiceVal;
+        const CustomizedArray                   custArrayVal;
+        const CustomizedChoice                  custChoiceVal;
+        const CustomizedDynamicSimpleInt        custDynIntVal;
+        const CustomizedEnumeration             custEnumVal;
+        const CustomizedNullableSimpleInt       custNullIntVal;
+        const CustomizedSequence                custSeqVal;
+        const CustomizedSimpleInt               custIntVal;
+        const DynamicArray                      dynArrayVal;
+        const DynamicChoice                     dynChoiceVal;
+        const DynamicCustomizedDynamicSimpleInt dynCustDynIntVal;
+        const DynamicCustomizedSimpleInt        dynCustIntVal;
+        const DynamicEnumeration                dynEnumVal;
+        const DynamicNullableDynamicSimpleInt   dynNullDynIntVal;
+        const DynamicNullableSimpleInt          dynNullIntVal;
+        const DynamicSequence                   dynSeqVal;
+        const DynamicSimpleInt                  dynIntVal;
+        const Enumeration                 enumVal(EnumerationUtil::VALUE1);
+        const NullableArray               nullArrayVal;
+        const NullableChoice              nullChoiceVal;
+        const NullableCustomizedSimpleInt nullCustIntVal;
+        const NullableDynamicSimpleInt    nullDynIntVal;
+        const NullableEnumeration         nullEnumVal;
+        const NullableSequence            nullSeqVal;
+        const NullableSimpleInt           nullIntVal;
+        const Sequence                    seqVal;
+            // These are Complex-typed values used in the below test table.
 
         const int BASE64  = bdlat_FormattingMode::e_BASE64;
         const int DEC     = bdlat_FormattingMode::e_DEC;
@@ -2389,6 +2900,9 @@ int main(int argc, char *argv[])
 
 #define FAIL(...)                                                             \
     ASSERT_SAFE_FAIL(                                                         \
+                ::BloombergLP::u::TestCase4_ImpUtil::verifySelect(__VA_ARGS__))
+#define FAIL_OPT(...)                                                         \
+    ASSERT_OPT_FAIL(                                                          \
                 ::BloombergLP::u::TestCase4_ImpUtil::verifySelect(__VA_ARGS__))
     // Verify that a particular set of argument values are out-of-contract
     // for 'select'.  This macro supports one of two overloads, having the
@@ -2586,11 +3100,53 @@ int main(int argc, char *argv[])
         FAIL(arrayVal          , HEX                                    );
         FAIL(arrayVal          , TEXT                                   );
 
-        PASS(custStringVal     , BASE64 , OCTET_STRING  , NONE          );
-        FAIL(custStringVal     , DEC                                    );
-        PASS(custStringVal     , DEFAULT, UTF8_STRING   , NONE          );
-        PASS(custStringVal     , HEX    , OCTET_STRING  , NONE          );
-        PASS(custStringVal     , TEXT   , UTF8_STRING   , NONE          );
+        FAIL(choiceVal         , BASE64                                 );
+        FAIL(choiceVal         , DEC                                    );
+        PASS(choiceVal         , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(choiceVal         , HEX                                    );
+        FAIL(choiceVal         , TEXT                                   );
+
+        FAIL(custArrayVal      , BASE64                                 );
+        FAIL(custArrayVal      , DEC                                    );
+        PASS(custArrayVal      , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(custArrayVal      , HEX                                    );
+        FAIL(custArrayVal      , TEXT                                   );
+
+        FAIL(custChoiceVal     , BASE64                                 );
+        FAIL(custChoiceVal     , DEC                                    );
+        PASS(custChoiceVal     , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(custChoiceVal     , HEX                                    );
+        FAIL(custChoiceVal     , TEXT                                   );
+
+        FAIL_OPT(custDynIntVal , BASE64                                 );
+        FAIL_OPT(custDynIntVal , DEC                                    );
+        FAIL_OPT(custDynIntVal , DEFAULT                                );
+        FAIL_OPT(custDynIntVal , HEX                                    );
+        FAIL_OPT(custDynIntVal , TEXT                                   );
+
+        FAIL(custEnumVal       , BASE64                                 );
+        PASS(custEnumVal       , DEC    , ENUMERATION   , NONE          );
+        PASS(custEnumVal       , DEFAULT, ENUMERATION   , NONE          );
+        FAIL(custEnumVal       , HEX                                    );
+        PASS(custEnumVal       , TEXT   , ENUMERATION   , NONE          );
+
+        FAIL(custNullIntVal    , BASE64                                 );
+        PASS(custNullIntVal    , DEC    , INT           , NONE          );
+        PASS(custNullIntVal    , DEFAULT, INT           , NONE          );
+        FAIL(custNullIntVal    , HEX                                    );
+        FAIL(custNullIntVal    , TEXT                                   );
+
+        FAIL(custSeqVal        , BASE64                                 );
+        FAIL(custSeqVal        , DEC                                    );
+        PASS(custSeqVal        , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(custSeqVal        , HEX                                    );
+        FAIL(custSeqVal        , TEXT                                   );
+
+        FAIL(custIntVal        , BASE64                                 );
+        PASS(custIntVal        , DEC    , INT           , NONE          );
+        PASS(custIntVal        , DEFAULT, INT           , NONE          );
+        FAIL(custIntVal        , HEX                                    );
+        FAIL(custIntVal        , TEXT                                   );
 
         FAIL(dynArrayVal       , BASE64                                 );
         FAIL(dynArrayVal       , DEC                                    );
@@ -2604,47 +3160,101 @@ int main(int argc, char *argv[])
         FAIL(dynChoiceVal      , HEX                                    );
         FAIL(dynChoiceVal      , TEXT                                   );
 
-        FAIL(dynEnumerationVal , BASE64                                 );
-        PASS(dynEnumerationVal , DEC    , ENUMERATION   , NONE          );
-        PASS(dynEnumerationVal , DEFAULT, ENUMERATION   , NONE          );
-        FAIL(dynEnumerationVal , HEX                                    );
-        PASS(dynEnumerationVal , TEXT   , ENUMERATION   , NONE          );
+        FAIL_OPT(dynCustDynIntVal, BASE64                               );
+        FAIL_OPT(dynCustDynIntVal, DEC                                  );
+        FAIL_OPT(dynCustDynIntVal, DEFAULT                              );
+        FAIL_OPT(dynCustDynIntVal, HEX                                  );
+        FAIL_OPT(dynCustDynIntVal, TEXT                                 );
 
-        FAIL(dynSequenceVal    , BASE64                                 );
-        FAIL(dynSequenceVal    , DEC                                    );
-        PASS(dynSequenceVal    , DEFAULT, SEQUENCE      , NONE          );
-        FAIL(dynSequenceVal    , HEX                                    );
-        FAIL(dynSequenceVal    , TEXT                                   );
+        FAIL(dynCustIntVal     , BASE64                                 );
+        PASS(dynCustIntVal     , DEC    , INT           , NONE          );
+        PASS(dynCustIntVal     , DEFAULT, INT           , NONE          );
+        FAIL(dynCustIntVal     , HEX                                    );
+        FAIL(dynCustIntVal     , TEXT                                   );
 
-        FAIL(dynSimpleVal      , BASE64                                 );
-        FAIL(dynSimpleVal      , DEC                                    );
-        FAIL(dynSimpleVal      , DEFAULT                                );
-        FAIL(dynSimpleVal      , HEX                                    );
-        FAIL(dynSimpleVal      , TEXT                                   );
+        FAIL(dynEnumVal        , BASE64                                 );
+        PASS(dynEnumVal        , DEC    , ENUMERATION   , NONE          );
+        PASS(dynEnumVal        , DEFAULT, ENUMERATION   , NONE          );
+        FAIL(dynEnumVal        , HEX                                    );
+        PASS(dynEnumVal        , TEXT   , ENUMERATION   , NONE          );
 
-        FAIL(dynSequenceVal    , BASE64                                 );
-        FAIL(dynSequenceVal    , DEC                                    );
-        PASS(dynSequenceVal    , DEFAULT, SEQUENCE      , NONE          );
-        FAIL(dynSequenceVal    , HEX                                    );
-        FAIL(dynSequenceVal    , TEXT                                   );
+        FAIL_OPT(dynNullDynIntVal, BASE64                               );
+        FAIL_OPT(dynNullDynIntVal, DEC                                  );
+        FAIL_OPT(dynNullDynIntVal, DEFAULT                              );
+        FAIL_OPT(dynNullDynIntVal, HEX                                  );
+        FAIL_OPT(dynNullDynIntVal, TEXT                                 );
 
-        FAIL(enumerationVal    , BASE64                                 );
-        PASS(enumerationVal    , DEC    , ENUMERATION   , NONE          );
-        PASS(enumerationVal    , DEFAULT, ENUMERATION   , NONE          );
-        FAIL(enumerationVal    , HEX                                    );
-        PASS(enumerationVal    , TEXT   , ENUMERATION   , NONE          );
+        FAIL(dynNullIntVal     , BASE64                                 );
+        PASS(dynNullIntVal     , DEC    , INT           , NONE          );
+        PASS(dynNullIntVal     , DEFAULT, INT           , NONE          );
+        FAIL(dynNullIntVal     , HEX                                    );
+        FAIL(dynNullIntVal     , TEXT                                   );
 
-        FAIL(nullableValueVal  , BASE64                                 );
-        FAIL(nullableValueVal  , DEC                                    );
-        PASS(nullableValueVal  , DEFAULT, SEQUENCE      , NONE          );
-        FAIL(nullableValueVal  , HEX                                    );
-        FAIL(nullableValueVal  , TEXT                                   );
+        FAIL(dynSeqVal         , BASE64                                 );
+        FAIL(dynSeqVal         , DEC                                    );
+        PASS(dynSeqVal         , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(dynSeqVal         , HEX                                    );
+        FAIL(dynSeqVal         , TEXT                                   );
 
-        FAIL(sequenceVal       , BASE64                                 );
-        FAIL(sequenceVal       , DEC                                    );
-        PASS(sequenceVal       , DEFAULT, SEQUENCE      , NONE          );
-        FAIL(sequenceVal       , HEX                                    );
-        FAIL(sequenceVal       , TEXT                                   );
+        FAIL(dynIntVal         , BASE64                                 );
+        PASS(dynIntVal         , DEC    , INT           , NONE          );
+        PASS(dynIntVal         , DEFAULT, INT           , NONE          );
+        FAIL(dynIntVal         , HEX                                    );
+        FAIL(dynIntVal         , TEXT                                   );
+
+        FAIL(enumVal           , BASE64                                 );
+        PASS(enumVal           , DEC    , ENUMERATION   , NONE          );
+        PASS(enumVal           , DEFAULT, ENUMERATION   , NONE          );
+        FAIL(enumVal           , HEX                                    );
+        PASS(enumVal           , TEXT   , ENUMERATION   , NONE          );
+
+        FAIL(nullArrayVal      , BASE64                                 );
+        FAIL(nullArrayVal      , DEC                                    );
+        PASS(nullArrayVal      , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(nullArrayVal      , HEX                                    );
+        FAIL(nullArrayVal      , TEXT                                   );
+
+        FAIL(nullChoiceVal     , BASE64                                 );
+        FAIL(nullChoiceVal     , DEC                                    );
+        PASS(nullChoiceVal     , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(nullChoiceVal     , HEX                                    );
+        FAIL(nullChoiceVal     , TEXT                                   );
+
+        FAIL(nullCustIntVal    , BASE64                                 );
+        PASS(nullCustIntVal    , DEC    , INT           , NONE          );
+        PASS(nullCustIntVal    , DEFAULT, INT           , NONE          );
+        FAIL(nullCustIntVal    , HEX                                    );
+        FAIL(nullCustIntVal    , TEXT                                   );
+
+        FAIL_OPT(nullDynIntVal , BASE64                                 );
+        FAIL_OPT(nullDynIntVal , DEC                                    );
+        FAIL_OPT(nullDynIntVal , DEFAULT                                );
+        FAIL_OPT(nullDynIntVal , HEX                                    );
+        FAIL_OPT(nullDynIntVal , TEXT                                   );
+
+        FAIL(nullEnumVal       , BASE64                                 );
+        PASS(nullEnumVal       , DEC    , ENUMERATION   , NONE          );
+        PASS(nullEnumVal       , DEFAULT, ENUMERATION   , NONE          );
+        FAIL(nullEnumVal       , HEX                                    );
+        PASS(nullEnumVal       , TEXT   , ENUMERATION   , NONE          );
+
+        FAIL(nullSeqVal        , BASE64                                 );
+        FAIL(nullSeqVal        , DEC                                    );
+        PASS(nullSeqVal        , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(nullSeqVal        , HEX                                    );
+        FAIL(nullSeqVal        , TEXT                                   );
+
+        FAIL(nullIntVal        , BASE64                                 );
+        PASS(nullIntVal        , DEC    , INT           , NONE          );
+        PASS(nullIntVal        , DEFAULT, INT           , NONE          );
+        FAIL(nullIntVal        , HEX                                    );
+        FAIL(nullIntVal        , TEXT                                   );
+
+        FAIL(seqVal            , BASE64                                 );
+        FAIL(seqVal            , DEC                                    );
+        PASS(seqVal            , DEFAULT, SEQUENCE      , NONE          );
+        FAIL(seqVal            , HEX                                    );
+        FAIL(seqVal            , TEXT                                   );
 
         // The following table tests the overload of
         // 'balber::BerUniversalTagNumber::select' taking a
