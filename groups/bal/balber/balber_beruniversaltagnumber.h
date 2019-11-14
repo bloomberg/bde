@@ -126,13 +126,22 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_variant.h>
 
+#include <bdlt_date.h>
+#include <bdlt_datetz.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
+#include <bdlt_time.h>
+#include <bdlt_timetz.h>
+
 #include <bslmf_assert.h>
+#include <bslmf_issame.h>
 
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 namespace BloombergLP {
 namespace balber {
@@ -478,31 +487,6 @@ class BerUniversalTagNumber_Imp {
                     // ------------------------------------
                     // struct balber::BerUniversalTagNumber
                     // ------------------------------------
-
-// FORWARD DECLARATIONS
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Date; }                                  // bdet -> bdlt
-namespace bdet { typedef ::BloombergLP::bdlt::Date Date; }      // bdet -> bdlt
-
-namespace bdlt { class DateTz; }                                // bdet -> bdlt
-namespace bdet { typedef ::BloombergLP::bdlt::DateTz DateTz; }  // bdet -> bdlt
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-namespace bdet { typedef ::BloombergLP::bdlt::Datetime Datetime; }
-                                                                // bdet -> bdlt
-
-namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
-namespace bdet { typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz; }
-                                                                // bdet -> bdlt
-
-namespace bdlt { class Time; }                                  // bdet -> bdlt
-namespace bdet { typedef ::BloombergLP::bdlt::Time Time; }      // bdet -> bdlt
-
-namespace bdlt { class TimeTz; }                                // bdet -> bdlt
-namespace bdet { typedef ::BloombergLP::bdlt::TimeTz TimeTz; }  // bdet -> bdlt
 
 namespace balber {
 
@@ -905,6 +889,26 @@ template <typename TYPE>
 inline
 BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(
+                        const BerUniversalTagNumber_Sel<TYPE, DynamicTypeCat>&)
+    ///Implementation Note
+    ///-------------------
+    // Universal tag numbers are used only in the encoding of top-level
+    // objects.  Objects having the 'DynamicType' 'bdlat' type category
+    // at any point other than their top level do not have a well defined
+    // universal tag number.  For the purpose of this component, an object
+    // is a top-level object if it is not a member of any other object.
+{
+    BSLS_ASSERT_OPT(0 && "Sub-objects having the 'DynamicType' category are "
+                         "unsupported.  Only top-level objects may have "
+                         "a dynamic category.");
+
+    return BerUniversalTagNumber::e_BER_INVALID;
+}
+
+template <typename TYPE>
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(
                         const BerUniversalTagNumber_Sel<TYPE, EnumerationCat>&)
 {
     BSLS_ASSERT_SAFE(
@@ -1001,7 +1005,7 @@ BerUniversalTagNumber_Imp::select(
                           const BerUniversalTagNumber_Sel<TYPE, ANY_CATEGORY>&)
 {
     BSLS_ASSERT(0 && "invalid type category");
-    return static_cast<TagVal>(-1);
+    return BerUniversalTagNumber::e_BER_INVALID;
 }
 
 }  // close package namespace
