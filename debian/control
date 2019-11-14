@@ -13,7 +13,7 @@ Description: bsl-internal bde metadata
 
 
 Package: libbal-dev-extra
-Depends: libbdl-dev-extra, libbsl-dev-extra
+Depends: libbal-dev, libbdl-dev-extra, libbsl-dev-extra
 Architecture: any
 Conflicts: libbal-dev (<< 3.41.0.0), libbal-extra-dev
 Replaces: libbal-extra-dev
@@ -21,7 +21,7 @@ Description: BAL
  groups/bal extra libraries
 
 Package: libbbl-dev-extra
-Depends: libbdl-dev-extra, libbsl-dev-extra
+Depends: libbbl-dev, libbdl-dev-extra, libbsl-dev-extra
 Architecture: any
 Conflicts: libbbl-dev (<< 3.41.0.0), libbbl-extra-dev
 Replaces: libbbl-extra-dev
@@ -29,7 +29,7 @@ Description: BBL
  groups/bbl extra libraries
 
 Package: libbdl-dev-extra
-Depends: libbsl-dev-extra, libinteldfp-dev, libpcre2-dev
+Depends: libbdl-dev, libbsl-dev-extra, libinteldfp-dev, libpcre2-dev
 Architecture: any
 Conflicts: libbdl-dev (<< 3.41.0.0), libbdl-extra-dev
 Replaces: libbdl-extra-dev
@@ -37,6 +37,7 @@ Description: BDL
  groups/bdl extra libraries
 
 Package: libbsl-dev-extra
+Depends: libbsl-dev
 Architecture: any
 Conflicts: libbsl-dev (<< 3.41.0.0), libbsl-extra-dev
 Replaces: libbsl-extra-dev
@@ -46,19 +47,19 @@ Description: BSL
 
 
 Package: libbal-dev
-Depends: libbal-dev-extra, libbdl-dev, libbsl-dev
+Depends: libbdl-dev, libbsl-dev
 Architecture: any
 Description: BAL
  groups/bal development files
 
 Package: libbbl-dev
-Depends: libbbl-dev-extra, libbdl-dev, libbsl-dev
+Depends: libbdl-dev, libbsl-dev
 Architecture: any
 Description: BBL
  groups/bbl development files
 
 Package: libbdl-dev
-Depends: libbdl-dev-extra, libbsl-dev, libinteldfp-dev, libpcre2-dev
+Depends: libbsl-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
 Description: BDL
  groups/bdl development files
@@ -71,7 +72,6 @@ Description: BOS
  groups/bos 'BSL_OVERRIDES_STD' development files.  This library is private, do not use it.
 
 Package: libbsl-dev
-Depends: libbsl-dev-extra
 Architecture: any
 Description: BSL 
  groups/bsl development files
