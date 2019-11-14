@@ -41,22 +41,24 @@ Description: BSL
 
 
 
-
 Package: libbal-dev
 Depends: libbal-dev-extra, libbdl-dev, libbsl-dev
 Architecture: any
+Conflicts: libbal-extra-dev
 Description: BAL
  groups/bal development files
 
 Package: libbbl-dev
 Depends: libbbl-dev-extra, libbdl-dev, libbsl-dev
 Architecture: any
+Conflicts: libbbl-extra-dev
 Description: BBL
  groups/bbl development files
 
 Package: libbdl-dev
 Depends: libbdl-dev-extra, libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
+Conflicts: libbdl-extra-dev
 Description: BDL
  groups/bdl development files
 
@@ -70,6 +72,7 @@ Description: BOS
 Package: libbsl-dev
 Depends: libbsl-dev-extra
 Architecture: any
+Conflicts: libbsl-extra-dev
 Description: BSL 
  groups/bsl development files
 
