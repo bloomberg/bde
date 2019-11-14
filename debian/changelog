@@ -1,8 +1,15 @@
-bsl-internal (3.42.0.1) unstable; urgency=low
+bsl-internal (3.42.0.2) unstable; urgency=low
 
+  * 9dea49321 Merge pull request #2581 from mgiroux/pr/2580-rebased-releases/3.42.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 14 Nov 2019 09:46:04 -0500
+
+bsl-internal (3.42.0.1) git; urgency=low
+
+  * 9f269536d Changelog for version 3.42.0.1
   * ebaef9e85 Merge pull request #2574 from osubbotin/review/3.42-fix
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Nov 2019 10:24:33 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Nov 2019 11:17:43 -0500
 
 bsl-internal (3.42.0.0) git; urgency=low
 
