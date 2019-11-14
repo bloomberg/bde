@@ -37833,7 +37833,7 @@ int main(int argc, char *argv[])
             // 'FOType' is the type of an object or which
             // 'baljsn::Decoder::deocde' will fail for all input.
 
-        const bslstl::StringRef SOSStr =
+        static const char SOSStr[] =
                 "{"
                 "    \"street\": \"1st\","
                 "    \"city\": \"New York\","
@@ -37842,21 +37842,21 @@ int main(int argc, char *argv[])
             // 'SOSStr' is a string that will successfully decode into an
             // object of 'SOType'.
 
-        const bslstl::StringRef SOFStr =
+        static const char SOFStr[] =
                 "\"Address\" : {}";
             // 'SOFStr' is a string that will fail to decode into an object of
             // 'SOType'.
 
-        const bslstl::StringRef FOFStr =
+        static const char FOFStr[] =
                 "\"zero\"";
             // 'FOFStr' is a string that will fail to decode into an object of
             // 'FOType'.
 
-        const bslstl::StringRef SMsg = "";
+        static const char SMsg[] = "";
             // 'SMsg' is a string that is equivalent to the 'loggedMessages' of
             // a 'baljsn::Decoder' after a successful decoding operation.
 
-        const bslstl::StringRef FMsg1 =
+        static const char FMsg1[] =
                 "The object being decoded must be a Sequence, Choice,"
                 " or Array type\n";
             // 'FMsg1' is a string that is equivalent to the 'loggedMessages'
@@ -37864,7 +37864,7 @@ int main(int argc, char *argv[])
             // due to the type of the target object having an unsupported
             // 'bdlat' category.
 
-        const bslstl::StringRef FMsg2 =
+        static const char FMsg2[] =
                 "Error advancing to the first token. Expecting a '{' or '['"
                 " as the first character\n";
             // 'FMsg2' is a string that is equivalent to the 'loggedMessages'
@@ -37886,10 +37886,10 @@ int main(int argc, char *argv[])
             // decoding operation: the object to decode into, and the string
             // containing the encoded JSON.
 
-            ObjId d_objId;
+            ObjId       d_objId;
                 // Id of an object to decode into
 
-            bslstl::StringRef d_string;
+            const char *d_string;
                 // the JSON to decode from
         };
 
@@ -37907,17 +37907,17 @@ int main(int argc, char *argv[])
             success
         };
 
-        const struct {
-            int d_line;
+        static const struct {
+            int           d_line;
                 // line number
 
-            Instruction d_instructions[k_MAX_INSTRUCTIONS];
+            Instruction   d_instructions[k_MAX_INSTRUCTIONS];
                 // instructions for test apparatus
 
             SuccessStatus d_decodeSuccessStatus;
                 // whether all operations succeed
 
-            bslstl::StringRef d_loggedMessages;
+            const char   *d_loggedMessages;
                 // messages from final operation
 
         } DATA[] = {
@@ -37977,18 +37977,18 @@ int main(int argc, char *argv[])
                       // do nothing, in just the right way
                   } break;
                   case SOId: {
-                      bdlsb::FixedMemInStreamBuf streamBuf(
-                                instructionPtr->d_string.data(),
-                                instructionPtr->d_string.length());
+                      const bslstl::StringRef string(instructionPtr->d_string);
+                      bdlsb::FixedMemInStreamBuf streamBuf(string.data(),
+                                                           string.length());
 
                       SOType output;
                       decodeStatus |= mX.decode(&streamBuf, &output,
                                                 baljsn::DecoderOptions());
                   } break;
                   case FOId: {
-                      bdlsb::FixedMemInStreamBuf streamBuf(
-                                instructionPtr->d_string.data(),
-                                instructionPtr->d_string.length());
+                      const bslstl::StringRef string(instructionPtr->d_string);
+                      bdlsb::FixedMemInStreamBuf streamBuf(string.data(),
+                                                           string.length());
 
                       FOType output;
                       decodeStatus |= mX.decode(&streamBuf, &output,

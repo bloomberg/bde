@@ -30571,29 +30571,29 @@ int main(int argc, char *argv[])
         };
 
 
-        const bslstl::StringRef SMsg1 = "";
+        static const char SMsg1[] = "";
             // 'SMsg1' is a string that is equivalent to the 'loggedMessages'
             // of a 'baljsn::Encoder' after a successful encoding operation.
 
 
-        const bslstl::StringRef FMsg1 =
+        static const char FMsg1[] =
             "Encoded object must be a Sequence, Choice, or Array type.\n";
             // 'FMsg1' is a string that is equivalent to the 'loggedMessages'
             // of a 'baljsn::Encoder' after an encoding operation that fails
             // due to the type of the target object having an unsupported
             // 'bdlat' category.
 
-        const struct {
-            int               d_line;
+        static const struct {
+            int         d_line;
                 // line number
 
-            Instruction       d_instructions[k_MAX_INSTRUCTIONS];
+            Instruction d_instructions[k_MAX_INSTRUCTIONS];
                 // instructions for test apparatus
 
-            bool              d_encodeSuccessStatus;
+            bool        d_encodeSuccessStatus;
                 // whether all operations succeed
 
-            bslstl::StringRef d_loggedMessages;
+            const char *d_loggedMessages;
                 // messages from final operation
 
         } DATA[] = {
