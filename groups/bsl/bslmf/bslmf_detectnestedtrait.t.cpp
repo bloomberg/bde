@@ -2,6 +2,12 @@
 
 #include <bslmf_detectnestedtrait.h>
 
+#include <bslmf_addconst.h>
+#include <bslmf_addcv.h>
+#include <bslmf_addlvaluereference.h>
+#include <bslmf_addpointer.h>
+#include <bslmf_addrvaluereference.h>
+#include <bslmf_addvolatile.h>
 #include <bslmf_assert.h>                   // usage example
 #include <bslmf_integralconstant.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -23,12 +29,13 @@ using namespace BloombergLP;
 //                              --------
 //
 // ----------------------------------------------------------------------------
-// [ *] DetectNestedTrait<>::type
-// [ *] DetectNestedTrait<>::value
+// [ 2] DetectNestedTrait::type
+// [ 2] DetectNestedTrait::value
 // ----------------------------------------------------------------------------
-// [ 3] USAGE EXAMPLE
-// [ 2] CONCERN: DETECTING TRAITS ON ARRAYS
 // [ 1] BREATHING TEST
+// [ 5] USAGE EXAMPLE
+// [ 3] QoI: diagnose incomplete types
+// [ 4] CONCERN: DETECTING TRAITS ON ARRAYS
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -82,60 +89,19 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 // ============================================================================
-//                      GLOBAL HELPER FUNCTIONS FOR TESTING
+//                      TEST DRIVER CONFIGURATION MACROS
 // ----------------------------------------------------------------------------
 
-// ============================================================================
-//                        CLASSES FOR BREATHING TEST
-// ----------------------------------------------------------------------------
+// Enable the macros below to configure specific builds of the test driver for
+// manual testing
 
-// Note curiously-recurring template pattern
-template <class TYPE>
-struct IsInflatable : bslmf::DetectNestedTrait<TYPE, IsInflatable>::type {
-};
+//#define BSLMF_DETECTNESTEDTRAIT_SHOW_ERROR_FOR_INCOMPLETE_CLASS  1
+    // Define this macro to test for compile-fail diagnostics instantiating
+    // 'DetectNestedTrait' with an incomplete class type.
 
-struct InflatableType {
-    BSLMF_NESTED_TRAIT_DECLARATION(InflatableType, IsInflatable);
-};
-
-union InflatableUnion {
-    BSLMF_NESTED_TRAIT_DECLARATION(InflatableUnion, IsInflatable);
-};
-
-enum NonInflatableEnum {
-    e_VALUE = 0
-};
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-enum class NonInflatableEnumClass {
-    e_VALUE = 0
-};
-#endif
-
-struct NonInflatableType {
-};
-
-union NonInflatableUnion {
-};
-
-template <class TYPE>
-struct Container {
-    // 'Container' is inflatable iff 'TYPE' is inflatable.
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, IsInflatable,
-                                      IsInflatable<TYPE>::value);
-};
-
-struct ConvertibleToAny {
-    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
-    // assign it any traits.  The concern is that since
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
-    // the "convert to anything" operator shouldn't interfere with the nested
-    // trait logic.
-
-    template <class TYPE>
-    operator TYPE() const { return TYPE(); }
-        // Return a default-constructed object of the deduced 'TYPE'.
-};
+//#define BSLMF_DETECTNESTEDTRAIT_SHOW_ERROR_FOR_INCOMPLETE_UNION  1
+    // Define this macro to test for compile-fail diagnostics instantiating
+    // 'DetectNestedTrait' with an incomplete union type.
 
 // ============================================================================
 //                               USAGE EXAMPLE
@@ -319,6 +285,209 @@ struct ConvertibleToAny {
 //..
 
 // ============================================================================
+//                      GLOBAL MACROS FOR TESTING
+// ----------------------------------------------------------------------------
+
+// Macro: ASSERT_DETECT_NESTED_TRAIT
+//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
+//  detecting the 'foo::IsExpandable' trait for the given 'TYPE'.
+#define ASSERT_DETECT_NESTED_TRAIT(TYPE, RESULT)                              \
+    {                                                                         \
+        typedef bslmf::DetectNestedTrait<TYPE, foo::IsInflatable> TestTrait;  \
+                                                                              \
+        ASSERT( RESULT == TestTrait::value );                                 \
+        ASSERT( RESULT == dispatchForConversion(TestTrait()));                \
+        ASSERT( RESULT == dispatchOnType((TestTrait*)0));                     \
+        ASSERT( RESULT == dispatchOnType((TestTrait::type *)0));              \
+    }
+    // Test that the result of 'bslmf::DetectNestedTrait::value' for a supplied
+    // 'TYPE', querying support for the 'foo::IsExpandable' trait, has the same
+    // 'value' as the expected 'RESULT'.  Then confirm that the resulting trait
+    // is implicitly convertible to 'bsl::true_type' or 'bsl::false_type'
+    // accordingly, and that the nested typedef 'type' is an alias for either
+    // 'bsl::true_type' or 'bsl::false_type' accordingly.
+
+
+// Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_RVAL_REF
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# define ASSERT_DETECT_NESTED_TRAIT_FOR_RVAL_REF(TYPE, RESULT)                \
+    ASSERT_DETECT_NESTED_TRAIT(bsl::add_rvalue_reference<TYPE>::type, false)
+#else
+# define ASSERT_DETECT_NESTED_TRAIT_FOR_RVAL_REF(TYPE, RESULT)
+#endif
+
+
+// Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE
+//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
+//  detecting the 'foo::IsExpandable' trait for the given 'TYPE', and that
+//  pointers/references to that type never have a nested trait.
+# define ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(TYPE, RESULT)                    \
+    ASSERT_DETECT_NESTED_TRAIT(TYPE, RESULT);                                 \
+    ASSERT_DETECT_NESTED_TRAIT(bsl::add_pointer<TYPE>::type, false);          \
+    ASSERT_DETECT_NESTED_TRAIT(bsl::add_lvalue_reference<TYPE>::type, false); \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_RVAL_REF(TYPE, RESULT)
+
+
+// Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE
+//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
+//  detecting the 'foo::IsExpandable' trait for the given 'TYPE', and all
+//  cv-qualified variations of that type, and pointers and references to each
+//  of those cv-qualified types.
+#define ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE, RESULT)                  \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(TYPE, RESULT);                        \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(bsl::add_cv<TYPE>::type, RESULT)      \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(bsl::add_const<TYPE>::type, RESULT);  \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(bsl::add_volatile<TYPE>::type, RESULT);
+
+
+// Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE
+//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
+//  detecting the 'foo::IsExpandable' trait for the given 'TYPE', and all
+//  cv-qualified variations of that type, and pointers and references to each
+//  of those cv-qualified types, and arrays of those cv-qualified types.  Note
+//  that this macro does not recursively test arrays of pointers to 'TYPE'.
+#define ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(TYPE, RESULT);             \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE, RESULT);                     \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE[128], false);                 \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE[12][8], false);               \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE[], false);                    \
+    ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE[][8], false)
+
+// ============================================================================
+//                        CLASSES FOR BREATHING TEST
+// ----------------------------------------------------------------------------
+
+bool dispatchForConversion(bsl::false_type) {
+    return false;
+}
+
+bool dispatchForConversion(bsl::true_type) {
+    return true;
+}
+
+bool dispatchOnType(bsl::false_type *) {
+    return false;
+}
+
+bool dispatchOnType(bsl::true_type *) {
+    return true;
+}
+
+void dispatchOnType(void *);
+
+// ============================================================================
+//                        CLASSES TO SUPPORT TESTING
+// ----------------------------------------------------------------------------
+
+namespace foo {
+// Note curiously-recurring template pattern
+template <class TYPE>
+struct IsInflatable : bslmf::DetectNestedTrait<TYPE, IsInflatable>::type {
+    // This trait derives from 'bsl::true_type' if (template parameter) 'TYPE'
+    // is defined using the nested trait declaration for this 'IsInflatable'
+    // trait, and from 'bsl::false_type' otherwise.
+};
+}  // close namespace foo
+
+namespace bar {
+// Note curiously-recurring template pattern
+template <class TYPE>
+struct IsInflatable : bslmf::DetectNestedTrait<TYPE, IsInflatable>::type {
+    // This trait derives from 'bsl::true_type' if (template parameter) 'TYPE'
+    // is defined using the nested trait declaration for this 'IsInflatable'
+    // trait, and from 'bsl::false_type' otherwise.
+};
+}  // close namespace bar
+
+struct InflatableClass {
+    // This 'struct' represents an inflatable type.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(InflatableClass, foo::IsInflatable);
+};
+
+struct InflatableDerived : InflatableClass {
+    // This 'struct' demonstrates that nested traits are not inherited.
+};
+
+union InflatableUnion {
+    // This union represents an inflatable type.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(InflatableUnion, foo::IsInflatable);
+};
+
+enum NonflatableEnum {
+    // This 'enum' demonstrates that enumerations cannot be associated with a
+    // nested trait.
+
+    e_VALUE = 0
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+enum class NonflatableEnumClass {
+    // This 'enum class' demonstrates that enumerations cannot be associated
+    // with a nested trait.
+
+    e_VALUE = 0
+};
+#endif
+
+struct NonflatableClass {
+    // This 'struct' represents a non-inflatable type.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(NonflatableClass, bar::IsInflatable);
+};
+
+union NonflatableUnion {
+    // This 'union' represents a non-inflatable type.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(NonflatableUnion, bar::IsInflatable);
+};
+
+template <class TYPE>
+struct Container {
+    // 'Container' is an inflatable type if, and only if, 'TYPE' is inflatable.
+
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, foo::IsInflatable,
+                                      foo::IsInflatable<TYPE>::value);
+};
+
+struct ConvertibleToAny {
+    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
+    // assign it any traits.  The concern is that since
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
+    // the "convert to anything" operator shouldn't interfere with the nested
+    // trait logic.
+
+    template <class TYPE>
+    operator TYPE() const { return TYPE(); }
+        // Return a default-constructed object of the deduced 'TYPE'.
+};
+
+
+struct ExpandedClass {
+    // This 'struct' represents an inflatable type in two dimensions of
+    // inflatability, in order to support testing for ambiguity concerns.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedClass, foo::IsInflatable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedClass, bar::IsInflatable);
+};
+
+union ExpandedUnion {
+    // This 'union' represents an inflatable type in two dimensions of
+    // inflatability, in order to support testing for ambiguity concerns.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, foo::IsInflatable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, bar::IsInflatable);
+};
+
+
+struct EmptyClass {};
+struct EmptyUnion {};
+
+class Incomplete;
+union Uncomplete;
+
+// ============================================================================
 //                      DETECTING TRAITS ON ARRAYS
 // ----------------------------------------------------------------------------
 
@@ -392,7 +561,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -417,7 +586,7 @@ int main(int argc, char *argv[])
         example2();
 
       } break;
-      case 2: {
+      case 4: {
         // --------------------------------------------------------------------
         // CONCERN: DETECTING TRAITS ON ARRAYS
         //   The XLC compiler sometimes treats array template parameters in
@@ -445,13 +614,113 @@ int main(int argc, char *argv[])
             printf("%d", DetectTraitsOnArrays::testFunction());
         }
       } break;
-      case 1: {
+      case 3: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
+        // TESTING COMPILER DIAGNOSTICS AND INCOMPLETE TYPES
+        //  It is not possible to determine whether an incomplete class type
+        //  has a nested trait as we may produce different results once the
+        //  type is complete, leading to difficult to diagnose ODR violations.
+        //
+        // Concerns:
+        //:  1 Instantiating 'bslmf::DetectNestedTrait' with an incomplete
+        //:    class (or union) type is clearly diagnosed with an error that
+        //:    cannot be circumvented by template tricks exploiting SFINAE.
+        //:
+        //:  2 Pointers and references to incomplete types are perfectly valid
+        //:    types for which the trait always returns 'false'.
+        //
+        // Plan:
+        //:  1 Under a pre-processor check requiring manual enablement, try to
+        //:    instantiate 'bslmf::DetectNestedTrait' for incomplete class
+        //:    types.
+        //:
+        //:  2 Verify that pointers and references to incomplete class types
+        //:    return 'false' for this trait.
+        //
+        // Testing:
+        //   QoI: diagnose incomplete types
+        // --------------------------------------------------------------------
+
+        if (verbose)
+               printf("\nTESTING COMPILER DIAGNOSTICS AND INCOMPLETE TYPES"
+                      "\n=================================================\n");
+
+        // C-1
+#if defined(BSLMF_DETECTNESTEDTRAIT_SHOW_ERROR_FOR_INCOMPLETE_CLASS)
+        // The following ASSERT should produce a (non-SFINAEable) compile-time
+        // error, and so cannot be enabled for regular automated test runs.
+        // Define the test configuration macro above to enable a manual test
+        // build to validate the error message.
+
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(Incomplete,   false);
+#endif
+
+#if defined(BSLMF_DETECTNESTEDTRAIT_SHOW_ERROR_FOR_INCOMPLETE_UNION)
+        // The following ASSERT should produce a (non-SFINAEable) compile-time
+        // error, and so cannot be enabled for regular automated test runs.
+        // Define the test configuration macro above to enable a manual test
+        // build to validate the error message.
+
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(Uncomplete,   false);
+#endif
+
+        // C-2
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(Incomplete *, false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(Uncomplete *, false);
+
+        ASSERT_DETECT_NESTED_TRAIT(Incomplete&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const Incomplete&, false);
+        ASSERT_DETECT_NESTED_TRAIT(volatile Incomplete&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const volatile Incomplete&, false);
+
+        ASSERT_DETECT_NESTED_TRAIT(Uncomplete&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const Uncomplete&, false);
+        ASSERT_DETECT_NESTED_TRAIT(volatile Uncomplete&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const volatile Uncomplete&, false);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT_DETECT_NESTED_TRAIT(Incomplete&&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const Incomplete&&, false);
+        ASSERT_DETECT_NESTED_TRAIT(volatile Incomplete&&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const volatile Incomplete&&,false);
+
+        ASSERT_DETECT_NESTED_TRAIT(Uncomplete&&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const Uncomplete&&, false);
+        ASSERT_DETECT_NESTED_TRAIT(volatile Uncomplete&&, false);
+        ASSERT_DETECT_NESTED_TRAIT(const volatile Uncomplete&&,false);
+#endif
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING TRAIT IS CORRECT METAFUNCTION
+        //   The class template 'bslmf::DetectNestedTrait' models a standard
+        //   predicate trait, which derives from 'bsl::true_type' if the
+        //   queried type is associated with the specified nested trait, and
+        //   from 'bsl::false_type' otherwise, for any valid type.
         //
         // Concerns:
         //: 1 'DetectNestedTrait<TYPE, TRAIT>' compiles and gives the expected
         //:   result for every category of type.
+        //:
+        //: 2 Class types (including structs and unions) are the only types
+        //:   that might yield a 'true_type' result; all other type categories
+        //:   always yield 'false_type'.
+        //:
+        //: 3 The trait yields 'true_type' only for types that use macros from
+        //:   the 'BSLMF_NESTED_TRAIT_DECLARATION' family to associate a trait
+        //:   with that class type; all other class types yield 'false_type'.
+        //:
+        //: 4 A type may be associated with multiple nested traits.
+        //:
+        //: 5 Two traits in distinct namespaces can unambiguously share a name.
+        //:
+        //: 6 The trait produces the same result, regardless of cv-qualifiers.
+        //:
+        //: 7 Nested traits are not inherited.
+        //:
+        //: 8 "Greedy" types with a conversion-to-anything template operator do
+        //:   not support nested traits.
         //
         // Plan:
         //: 1 Verify that the trait under test gives the correct result for
@@ -471,6 +740,108 @@ int main(int argc, char *argv[])
         //:   o regular function types
         //:   o abominable function types
         //
+        // Testing:
+        //   DetectNestedTrait::type
+        //   DetectNestedTrait::value
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TRAIT IS CORRECT METAFUNCTION"
+                            "\n=====================================\n");
+
+
+        typedef InflatableClass InflatableClass::* DataMemberPtrType;
+        typedef InflatableClass (InflatableClass::*MethodPtrType)(...) const;
+
+        // C-1, C-2
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(bool,                false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(int,                 false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(long double,         false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(bsl::nullptr_t,      false);
+
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(NonflatableEnum,     false);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(NonflatableEnumClass,false);
+#endif
+
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(DataMemberPtrType,   false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(MethodPtrType,       false);
+
+        // 'void' is not an object type, and although it can be cv-qualified,
+        // there are no references to 'void' so we must drop to the most
+        // primitive test macro:
+        ASSERT_DETECT_NESTED_TRAIT(void,                                false);
+        ASSERT_DETECT_NESTED_TRAIT(const void,                          false);
+        ASSERT_DETECT_NESTED_TRAIT(volatile void,                       false);
+        ASSERT_DETECT_NESTED_TRAIT(const volatile void,                 false);
+
+        // Pointers to 'void' are perfectly good object types:
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(void *,              false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(const void *,        false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(volatile void *,     false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(const volatile void *,
+                                                                        false);
+
+        // Function types are not object types, nor cv-qualifiable.
+        ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(void(...),                  false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(int (float,double),         false);
+#if !defined(BSLMF_DETECTNESTEDTRAIT_NO_ABOMINABLE_TYPES)
+        ASSERT_DETECT_NESTED_TRAIT(void(...) const,                     false);
+        ASSERT_DETECT_NESTED_TRAIT(int (float,double) const,            false);
+#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
+        ASSERT_DETECT_NESTED_TRAIT(void(...) &,                         false);
+        ASSERT_DETECT_NESTED_TRAIT(int (float,double) volatile &&,      false);
+#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(void(...) noexcept,         false);
+        ASSERT_DETECT_NESTED_TRAIT(int (float,double) & noexcept,       false);
+        ASSERT_DETECT_NESTED_TRAIT(void(...) const noexcept,            false);
+        ASSERT_DETECT_NESTED_TRAIT(int (float,double) const && noexcept,false);
+#endif
+
+        // C-2..6
+
+        // class types
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(EmptyClass,          false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(InflatableClass,     true );
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(NonflatableClass,    false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(
+                                            Container<InflatableClass>, true );
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(
+                                           Container<NonflatableClass>, false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(ExpandedClass,       true );
+
+        // union types
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(EmptyUnion,          false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(InflatableUnion,     true );
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(NonflatableUnion,    false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(
+                                            Container<InflatableUnion>, true );
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(
+                                           Container<NonflatableUnion>, false);
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(ExpandedUnion,       true );
+
+        // C-7
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(InflatableDerived,   false);
+
+        // C-8 No false-match for greedy types
+        ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(ConvertibleToAny,    false);
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //   We will use the test driver trait 'IsInflatable' as a proxy to
+        //   indicate the minimal necessary support is available, and also as a
+        //   basic test of our test machinery.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Verify the expected value of 'IsInflatable::value' for a variety
+        //:   of interesting test types.
         //
         // Testing:
         //   BREATHING TEST
@@ -479,229 +850,27 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        // basic test types
-        ASSERT(!(bslmf::DetectNestedTrait<void,  IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int,   IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<float, IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<bsl::nullptr_t,
-                                          IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<NonInflatableEnum,
-                                          IsInflatable>::value));
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT(!(bslmf::DetectNestedTrait<NonInflatableEnumClass,
-                                          IsInflatable>::value));
-#endif
-
-        // class types that customize a trait (or not)
-        ASSERT( (bslmf::DetectNestedTrait<InflatableType,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<NonInflatableType,
-                                          IsInflatable>::value));
-        ASSERT( (bslmf::DetectNestedTrait<Container<InflatableType>,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<Container<NonInflatableType>,
-                                          IsInflatable>::value));
-
-        // union types that customize a trait (or not)
-        ASSERT( (bslmf::DetectNestedTrait<InflatableUnion,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<NonInflatableUnion,
-                                          IsInflatable>::value));
-        ASSERT( (bslmf::DetectNestedTrait<Container<InflatableUnion>,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<Container<NonInflatableUnion>,
-                                          IsInflatable>::value));
-
-        // const-qualified test types
-        ASSERT(!(bslmf::DetectNestedTrait<const void,  IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<const int,   IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<const float, IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<const bsl::nullptr_t,
-                                          IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<const NonInflatableEnum,
-                                          IsInflatable>::value));
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT(!(bslmf::DetectNestedTrait<const NonInflatableEnumClass,
-                                          IsInflatable>::value));
-#endif
-
-        ASSERT( (bslmf::DetectNestedTrait<const InflatableType,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<const NonInflatableType,
-                                          IsInflatable>::value));
-        ASSERT( (bslmf::DetectNestedTrait<const Container<InflatableType>,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<const Container<NonInflatableType>,
-                                          IsInflatable>::value));
-
-        // volatile-qualified test types
-        ASSERT(!(bslmf::DetectNestedTrait<volatile void,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<volatile int,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<volatile float,
-                                          IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<volatile bsl::nullptr_t,
-                                          IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<volatile NonInflatableEnum,
-                                          IsInflatable>::value));
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT(!(bslmf::DetectNestedTrait<volatile NonInflatableEnumClass,
-                                          IsInflatable>::value));
-#endif
-
-        ASSERT( (bslmf::DetectNestedTrait<volatile InflatableType,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<volatile NonInflatableType,
-                                          IsInflatable>::value));
-        ASSERT( (bslmf::DetectNestedTrait<volatile Container<InflatableType>,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<
-                                         volatile Container<NonInflatableType>,
-                                         IsInflatable>::value));
-
-        // cv-qualified test types
-        ASSERT(!(bslmf::DetectNestedTrait<const volatile void,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<const volatile int,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<const volatile float,
-                                          IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<const volatile bsl::nullptr_t,
-                                          IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<const volatile NonInflatableEnum,
-                                          IsInflatable>::value));
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT(!(bslmf::DetectNestedTrait<
-                                         const volatile NonInflatableEnumClass,
-                                         IsInflatable>::value));
-#endif
-
-        ASSERT( (bslmf::DetectNestedTrait<const volatile InflatableType,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<const volatile NonInflatableType,
-                                          IsInflatable>::value));
-        ASSERT( (bslmf::DetectNestedTrait<
-                                      const volatile Container<InflatableType>,
-                                      IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<
-                                   const volatile Container<NonInflatableType>,
-                                   IsInflatable>::value));
-
-        // pointer types
-        ASSERT(!(bslmf::DetectNestedTrait<void *, IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int *,  IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType *,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<NonInflatableType *,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<Container<InflatableType> *,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<Container<NonInflatableType> *,
-                                          IsInflatable>::value));
-
-        // reference types
-        ASSERT(!(bslmf::DetectNestedTrait<int &, IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType &,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<NonInflatableType &,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<Container<InflatableType> &,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<Container<NonInflatableType> &,
-                                          IsInflatable>::value));
-
-        // pointer-to-member types
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType InflatableType::*,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType (InflatableType::*),
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<
-                                 InflatableType (InflatableType::*)(...) const,
-                                 IsInflatable>::value));
-
-        // array types
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType[2],
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType[2][4],
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType[],
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableType[][4],
-                                          IsInflatable>::value));
-
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableUnion[2],
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableUnion[2][4],
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableUnion[],
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<InflatableUnion[][4],
-                                          IsInflatable>::value));
-
-        // function types
-        ASSERT(!(bslmf::DetectNestedTrait<void(int),   IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(...),    IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(*)(int), IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(*)(...), IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(&)(int), IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(&)(...), IsInflatable>::value));
-
-#if !defined(BSLMF_DETECTNESTEDTRAIT_NO_ABOMINABLE_TYPES)
-        // abominable function types
-        ASSERT(!(bslmf::DetectNestedTrait<void(int) const,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(...) const,
-                                          IsInflatable>::value));
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-        ASSERT(!(bslmf::DetectNestedTrait<void(int) noexcept,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(...) & noexcept,
-                                          IsInflatable>::value));
-
-        // abominable function types
-        ASSERT(!(bslmf::DetectNestedTrait<void(int) const noexcept,
-                                          IsInflatable>::value));
-        ASSERT(!(bslmf::DetectNestedTrait<int(...) volatile && noexcept,
-                                          IsInflatable>::value));
-#endif
-
-        // No false-match for greedy types
-        ASSERT(!(bslmf::DetectNestedTrait<ConvertibleToAny,
-                                          IsInflatable>::value));
+        using foo::IsInflatable;
 
         // Direct query of the test trait
-        ASSERT( (IsInflatable<InflatableType>::value));
-        ASSERT(!(IsInflatable<NonInflatableType>::value));
-        ASSERT( (IsInflatable<Container<InflatableType> >::value));
-        ASSERT(!(IsInflatable<Container<NonInflatableType> >::value));
+        ASSERT( (IsInflatable<InflatableClass>::value));
+        ASSERT(!(IsInflatable<NonflatableClass>::value));
+        ASSERT( (IsInflatable<Container<InflatableClass> >::value));
+        ASSERT(!(IsInflatable<Container<NonflatableClass> >::value));
 
-        ASSERT( (IsInflatable<const InflatableType>::value));
-        ASSERT(!(IsInflatable<const NonInflatableType>::value));
-        ASSERT( (IsInflatable<const Container<InflatableType> >::value));
-        ASSERT(!(IsInflatable<const Container<NonInflatableType> >::value));
+        ASSERT( (IsInflatable<const InflatableClass>::value));
+        ASSERT(!(IsInflatable<const NonflatableClass>::value));
+        ASSERT( (IsInflatable<const Container<InflatableClass> >::value));
+        ASSERT(!(IsInflatable<const Container<NonflatableClass> >::value));
 
-        ASSERT( (IsInflatable<volatile InflatableType>::value));
-        ASSERT(!(IsInflatable<volatile NonInflatableType>::value));
-        ASSERT( (IsInflatable<volatile Container<InflatableType> >::value));
-        ASSERT(!(IsInflatable<volatile Container<NonInflatableType> >::value));
+        ASSERT( (IsInflatable<volatile InflatableClass>::value));
+        ASSERT(!(IsInflatable<volatile NonflatableClass>::value));
+        ASSERT( (IsInflatable<volatile Container<InflatableClass> >::value));
+        ASSERT(!(IsInflatable<volatile Container<NonflatableClass> >::value));
 
-        ASSERT(!(IsInflatable<InflatableType[1]>::value));
-        ASSERT(!(IsInflatable<InflatableType[]>::value));
-        ASSERT(!(IsInflatable<InflatableType()>::value));
+        ASSERT(!(IsInflatable<InflatableClass[1]>::value));
+        ASSERT(!(IsInflatable<InflatableClass[]>::value));
+        ASSERT(!(IsInflatable<InflatableClass()>::value));
 
         ASSERT(!(IsInflatable<void>::value));
         ASSERT(!(IsInflatable<int>::value));
@@ -723,7 +892,6 @@ int main(int argc, char *argv[])
 
         ASSERT(!(IsInflatable<ConvertibleToAny>::value));
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

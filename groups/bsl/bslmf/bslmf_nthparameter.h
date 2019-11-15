@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 
-#include <cstdlib>
+#include <cstddef>
 
 namespace BloombergLP {
 
@@ -921,7 +921,7 @@ struct NthParameter<0, NthParameter_Sentinel> {
 #endif // ! defined(INCLUDED_BSLMF_NTHPARAMETER)
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -22,7 +22,7 @@
 // the non-empty type categories
 //-----------------------------------------------------------------------------
 // [2] is_empty<TYPE>::value
-// [2] is_empty<TYPE>_v
+// [2] is_empty_v<TYPE>
 //-----------------------------------------------------------------------------
 // [3] USAGE EXAMPLE
 // [1] BREATHING TEST
@@ -100,11 +100,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct EmptyStruct
-{};
+struct EmptyStruct {};
 
-class EmptyClassWithMembers
-{
+class EmptyClassWithMembers {
     // Empty struct with constructor, destructor, member function and static
     // data member, but no non-static data members other than a zero-width bit
     // field.
@@ -121,45 +119,37 @@ class EmptyClassWithMembers
 
 int EmptyClassWithMembers::s_data = 0;
 
-class EmptyDerivedClass : public EmptyStruct
-{
+class EmptyDerivedClass : public EmptyStruct {
     // Empty class with (empty) base-class
 };
 
-struct NonEmptyStruct
-{
+struct NonEmptyStruct {
     char d_data;
 };
 
-struct StructWithVirtualDestructor
-{
+struct StructWithVirtualDestructor {
     // Struct that would be empty except for having a virtual function
     virtual ~StructWithVirtualDestructor();
 };
 
-StructWithVirtualDestructor::~StructWithVirtualDestructor()
-{
+StructWithVirtualDestructor::~StructWithVirtualDestructor() {
 }
 
-class ClassWithVirtualBase : virtual public EmptyStruct
-{
+class ClassWithVirtualBase : virtual public EmptyStruct {
     // Class that would be empty except for having a virtual base class.
 };
 
-class ClassWithNonEmptyBase : public NonEmptyStruct
-{
+class ClassWithNonEmptyBase : public NonEmptyStruct {
     // Derived class with non-empty base class but no other members
 };
 
-union UnionType
-{
+union UnionType {
     int    d_int;
     double d_double;
 };
 
-union TinyUnionType
-{
-    EmptyStruct data;
+union TinyUnionType {
+    EmptyStruct d_data;
 };
 
 enum EnumType { ENUMERATOR };
@@ -168,16 +158,16 @@ typedef void function_type();
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-struct EmptyFinalStruct final
+struct EmptyFinalStruct final {
     // This empty final struct is used to test compatibility of 'is_empty' with
     // final classes.
-{};
+};
 
-struct NonEmptyFinalStruct final
+struct NonEmptyFinalStruct final {
     // This non-empty final struct is used to test compatibility of 'is_empty'
     // with final classes.
-{
-    // DATA
+
+    // PUBLIC DATA
     char d_data;
 };
 

@@ -5,7 +5,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslmf_assert.h>            // for testing only
+#include <bslmf_addconst.h>            // for testing only
+#include <bslmf_addcv.h>               // for testing only
+#include <bslmf_addlvaluereference.h>  // for testing only
+#include <bslmf_addpointer.h>          // for testing only
+#include <bslmf_addrvaluereference.h>  // for testing only
+#include <bslmf_addvolatile.h>         // for testing only
+#include <bslmf_assert.h>              // for testing only
 
 namespace BloombergLP {
 namespace bslmf {

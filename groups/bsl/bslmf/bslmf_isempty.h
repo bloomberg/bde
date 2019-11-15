@@ -31,10 +31,10 @@ BSLS_IDENT("$Id: $")
 //
 // Note that the template variable 'is_empty_v' is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_empty_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_empty_v' is defined
-// as a non-inline 'constexpr bool' variable.  See
+// variable C++17 compiler feature, 'bsl::is_empty_v' is defined as an 'inline
+// constexpr bool' variable.  Otherwise, if the compiler supports the variable
+// templates C++14 compiler feature, 'bsl::is_empty_v' is defined as a
+// non-inline 'constexpr bool' variable.  See
 // 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
 // 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
 // bsls_compilerfeatures component for details.
@@ -105,6 +105,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_integralconstant.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -117,7 +118,7 @@ BSLS_IDENT("$Id: $")
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-# define BSLS_ISEMPTY_USE_NATIVE_TRAIT 1
+# define BSLMF_ISEMPTY_USE_NATIVE_TRAIT 1
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -151,7 +152,7 @@ struct is_empty;
 //                          CLASS TEMPLATE DEFINITIONS
 // ============================================================================
 namespace bsl {
-#if defined(BSLS_ISEMPTY_USE_NATIVE_TRAIT)
+#if defined(BSLMF_ISEMPTY_USE_NATIVE_TRAIT)
 
                     // =======================
                     // struct is_empty (C++11)
@@ -159,8 +160,7 @@ namespace bsl {
 
 template <class TYPE>
 struct is_empty
-    : bsl::integral_constant<bool, ::native_std::is_empty<TYPE>::value>
-{
+    : bsl::integral_constant<bool, ::native_std::is_empty<TYPE>::value> {
     // This specification defers to the native trait on supported C++11
     // compilers.
 };

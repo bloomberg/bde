@@ -359,9 +359,11 @@ struct DetectNestedTrait_Imp<TYPE, TRAIT, BSLMF_VOIDTYPE(int TYPE::*)> {
     // This template specialization detects whether the specified 'TRAIT'
     // parameter is associated with the specified 'TYPE' parameter, which is
     // constrained to be a class type, using the nested type trait mechanism.
-    // The nested 'type' is an alias for 'bsl::true_type' iff 'TYPE' is
-    // associated with 'TRAIT' using the 'BSLMF_NESTED_TRAIT_DECLARATION'
-    // macro, and for 'bsl::false_type' otherwise.
+    // The nested 'type' is an alias for 'bsl::true_type' if and only if 'TYPE'
+    // is associated with 'TRAIT' using the 'BSLMF_NESTED_TRAIT_DECLARATION'
+    // macro, and for 'bsl::false_type' otherwise.  Note that nested trait
+    // associations are not inherited by derived classes, which must be
+    // associated in their own right.
 
   private:
     // PRIVATE CLASS METHODS
@@ -375,6 +377,8 @@ struct DetectNestedTrait_Imp<TYPE, TRAIT, BSLMF_VOIDTYPE(int TYPE::*)> {
 
   private:
     // PRIVATE TYPES
+    enum { k_ENSURE_TYPE_IS_COMPLETE = sizeof(TYPE) };
+
     enum {
         k_CONVERTIBLE_TO_NESTED_TRAIT = sizeof(check(TypeRep<TYPE>::rep(), 0))
                                       == sizeof(char),
@@ -406,11 +410,11 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::type {
     // This 'struct' template metafunction detects whether the specified
     // 'TRAIT' parameter is associated with the specified 'TYPE' parameter
     // using the nested type trait mechanism.  This trait derives from
-    // 'bsl::true_type' iff 'TYPE' is a class type that associated with the
-    // specified trait using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro, and
-    // from 'bsl::false_type' otherwise.  Users should not specialize this
-    // trait directly for their types, but should always use the macro to make
-    // a nested trait association.
+    // 'bsl::true_type' if and only if 'TYPE' is a class type that associated
+    // with the specified trait using the 'BSLMF_NESTED_TRAIT_DECLARATION'
+    // macro, and from 'bsl::false_type' otherwise.  Users should not
+    // specialize this trait directly for their types, but should always use
+    // the macro to make a nested trait association.
 };
 
 template <class TYPE, template <class> class TRAIT>
