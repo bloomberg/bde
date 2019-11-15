@@ -861,8 +861,8 @@ BerUniversalTagNumber_Imp::select(
                      const BerUniversalTagNumber_Sel<TYPE, CustomizedTypeCat>&)
     ///Implementation Note
     ///-------------------
-    // The BER universal tag number of a customized type 'T' is defined to be
-    // the BER universal tag number of the base type of 'T'.
+    // The BER universal tag number of the specified customized type 'TYPE' is
+    // defined to be the BER universal tag number of the base type of 'TYPE'.
 {
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;

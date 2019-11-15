@@ -2062,21 +2062,19 @@ class PartialDynamicType {
   private:
     // DATA
     bslalg::ConstructorProxy<ValueType> d_value;
-        // the value of the underlying type, 'ValueType', for which this object
+        // The value of the underlying type, 'ValueType', for which this object
         // is a wrapper with the 'DynamicType' category
 
     bdlat_TypeCategory::Value           d_category;
-        // One may think it strange that this object stores its type category
-        // in a 'd_category' data member, since the information can be
-        // recovered from the 'VALUE_TYPE' template argument.  However, storing
-        // this information in a data member, and in particular using that data
-        // member as the value to return in the 'typeCategory' method below, is
-        // *critical* to expose a bug in the prior implementation of this
-        // component that did not expect
+        // Note that this object stores its type category in a 'd_category'
+        // data member. Storing this information in a data member, and in
+        // particular using that data member as the value to return in the
+        // 'typeCategory' method below, is *critical* to expose a bug in the
+        // prior implementation of this component that did not expect
         // 'bdlat_TypeCategoryUtil::accessByCategory' to load information from
         // its 'object' argument.  This operation does, in practice, load such
         // information (as one can imagine the implementation for
-        // 'bcem_Aggregate' must).
+        // 'bcem_Aggregate' must, and indeed, does).
 
   public:
     // CREATORS
