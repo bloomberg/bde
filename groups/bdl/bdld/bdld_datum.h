@@ -11,6 +11,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bdld::Datum: POD type representing general-purpose values
 //  bdld::DatumArrayRef: type for const ref to array of datums
+//  bdld::DatumIntMapEntry: type for entry inside int-map of datums
+//  bdld::DatumIntMapRef: type for const ref to int-map of datums
 //  bdld::DatumMapEntry: type for entry inside map of datums
 //  bdld::DatumMapRef: type for const ref to map of datums
 //  bdld::DatumMutableArrayRef: type for mutable ref to array of datums
@@ -2032,7 +2034,8 @@ class DatumMutableIntMapRef {
 
   private:
     // DATA
-    DatumIntMapEntry *d_data_p;  // pointer to an int-map of datums (not owned)
+    DatumIntMapEntry *d_data_p;    // pointer to an int-map of datums (not
+                                   // owned)
 
     SizeType         *d_size_p;    // pointer to the size of the map
 
@@ -2355,13 +2358,14 @@ class DatumIntMapRef {
 
   private:
     // DATA
-    const DatumIntMapEntry *d_data_p; // pointer to the array of
-                                      // 'DatumIntMapEntry' objects (not owned)
+    const DatumIntMapEntry *d_data_p;  // pointer to the array of
+                                       // 'DatumIntMapEntry' objects (not
+                                       // owned)
 
-    SizeType                d_size;     // length of the array
+    SizeType                d_size;    // length of the array
 
-    bool                    d_sorted;   // flag indicating whether the array is
-                                        // sorted or not
+    bool                    d_sorted;  // flag indicating whether the array is
+                                       // sorted or not
 
   public:
     // TRAITS
@@ -4060,10 +4064,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
       case e_INTERNAL_EXTENDED:
         switch (extendedInternalType()) {
           case e_EXTENDED_INTERNAL_INT_MAP:
-            // *** WARNING***
-            // Put this back when all visitors are implemented properly in
-            // client code.  See DRQS 107705012
-            // visitor(theIntMap());
+            visitor(theIntMap());
             break;
           case e_EXTENDED_INTERNAL_MAP:
             BSLS_ANNOTATION_FALLTHROUGH;
@@ -4189,10 +4190,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
         visitor(theDecimal64());
         break;
       case e_INTERNAL_INT_MAP:
-          // *** WARNING***
-          // Put this back when all visitors are implemented properly in
-          // client code.  See DRQS 107705012
-          // visitor(theIntMap());
+          visitor(theIntMap());
           break;
       case e_INTERNAL_UNINITIALIZED:
         BSLS_ASSERT(!"Uninitialized Datum!!");
