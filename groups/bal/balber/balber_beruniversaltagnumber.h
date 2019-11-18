@@ -965,10 +965,10 @@ BerUniversalTagNumber_Imp::select(
                       const BerUniversalTagNumber_Sel<TYPE, NullableValueCat>&)
     ///Implementation Note
     ///-------------------
-    // The BER universal tag number of a nullable type 'T' is defined to be the
-    // BER universal tag number of the value type of 'T' unless 'T' has a
-    // "nillable" formatting mode flag set, in which case the tag number is the
-    // tag number for sequences.
+    // The BER universal tag number of the specified nullable type 'TYPE' is
+    // defined to be the BER universal tag number of the value type of 'TYPE'
+    // unless 'TYPE' has a "nillable" formatting mode flag set, in which case
+    // the tag number is the tag number for sequences.
 {
     if (d_formattingMode & FMode::e_NILLABLE) {
         return BerUniversalTagNumber::e_BER_SEQUENCE;
