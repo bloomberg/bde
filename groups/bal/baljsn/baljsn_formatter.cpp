@@ -72,6 +72,11 @@ void Formatter::closeObject()
 
 void Formatter::openArray(bool formatAsEmptyArrayFlag)
 {
+    if (d_usePrettyStyle &&
+        (1 == d_callSequence.length() || isArrayElement())) {
+        indent();
+    }
+
     d_outputStream << '[';
 
     if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {

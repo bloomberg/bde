@@ -1489,6 +1489,9 @@ void testPutValue(int            line,
         }
         else {
             mX.openArray();
+            if (1 == style) {
+                bdlb::Print::indent(exp, indent, spl);
+            }
             exp << '[';
             if (1 == style) {
                 exp << '\n';
@@ -1502,9 +1505,9 @@ void testPutValue(int            line,
             ASSERTV(line, rc, 0 == rc);
 
             baljsn::PrintUtil::printValue(exp, value, options);
-            ASSERTV(line, exp.good());
+            ASSERTV(line, i, exp.good());
 
-            ASSERTV(line, os.str(), exp.str(), os.str() == exp.str());
+            ASSERTV(line, i, os.str(), exp.str(), os.str() == exp.str());
         }
         else {
             ASSERTV(line, rc, 0 != rc);
@@ -1852,7 +1855,7 @@ int main(int argc, char *argv[])
 
         {   L_,    -1,     -1,   -1,  "[]",            "[]"              },
         {   L_,     0,     -1,   -1,  "[]",            "[]"              },
-        {   L_,     1,      1,    2,  "[]",            "["           NL
+        {   L_,     1,      1,    2,  "[]",            "  ["         NL
                                                                      NL
                                                        "  ]"             },
 
@@ -2187,6 +2190,9 @@ int main(int argc, char *argv[])
                     }
                     else {
                         mX.openArray();
+                        if (1 == ES) {
+                            bdlb::Print::indent(exp, IIL, SPL);
+                        }
                         exp << '[';
                         if (1 == ES) {
                             exp << '\n';
@@ -2356,10 +2362,10 @@ int main(int argc, char *argv[])
         {   L_,     0,     -1,   -1,  false,    0,       "[]"            },
         {   L_,     0,     -1,   -1,  true,     0,       "[]"            },
 
-        {   L_,     1,      2,    2,  false,    0,       "["
+        {   L_,     1,      2,    2,  false,    0,       "    ["
                                                     NL
                                                     NL   "    ]"         },
-        {   L_,     1,      2,    2,  true,     0,       "[]"         },
+        {   L_,     1,      2,    2,  true,     0,       "    []"        },
 
         {   L_,    -1,     -1,   -1,  false,    3,       "[[[[]]]]"      },
         {   L_,    -1,     -1,   -1,  true,     3,       "[[[[]]]]"      },
@@ -2367,17 +2373,20 @@ int main(int argc, char *argv[])
         {   L_,     0,     -1,   -1,  false,    3,       "[[[[]]]]"      },
         {   L_,     0,     -1,   -1,  true,     3,       "[[[[]]]]"      },
 
-        {   L_,     1,      1,    2,  false,    3,       "["
-                                                    NL   "["
-                                                    NL   "["
-                                                    NL   "["
+        {   L_,     1,      1,    2,  false,    3,       "  ["
+                                                    NL   "    ["
+                                                    NL   "      ["
+                                                    NL   "        ["
                                                     NL
                                                     NL   "        ]"
                                                     NL   "      ]"
                                                     NL   "    ]"
                                                     NL   "  ]"
                                                                         },
-        {   L_,     1,      1,    2,  true,    3,        "[[[[]]]]"     },
+        // Nesting arrays when format as empty array is true will result in
+        // nonsense, as expected.
+        {   L_,     1,      1,    2,  true,    3,        "  [  [  [  []]]]"
+                                                                        },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2461,8 +2470,8 @@ int main(int argc, char *argv[])
         {   L_,     0,     -1,   -1,  false,    0,  "["                 },
         {   L_,     0,     -1,   -1,  true,     0,  "["                 },
 
-        {   L_,     1,      1,    2,  false,    0,  "["             NL  },
-        {   L_,     1,      1,    2,  true,     0,  "["                 },
+        {   L_,     1,      1,    2,  false,    0,  "  ["           NL  },
+        {   L_,     1,      1,    2,  true,     0,  "  ["               },
 
         {   L_,    -1,     -1,   -1,  false,    3,  "[[[["              },
         {   L_,    -1,     -1,   -1,  true,     3,  "[[[["              },
@@ -2470,12 +2479,14 @@ int main(int argc, char *argv[])
         {   L_,     0,     -1,   -1,  false,    3,  "[[[["              },
         {   L_,     0,     -1,   -1,  true,     3,  "[[[["              },
 
-        {   L_,     1,      1,    2,  false,    3,  "["             NL
-                                                    "["             NL
-                                                    "["             NL
-                                                    "["             NL
+        {   L_,     1,      1,    2,  false,    3,  "  ["           NL
+                                                    "    ["         NL
+                                                    "      ["       NL
+                                                    "        ["     NL
                                                                         },
-        {   L_,     1,      1,    2,  true,     3,  "[[[["              },
+        // Nesting arrays when format as empty array is true will result in
+        // nonsense, as expected.
+        {   L_,     1,      1,    2,  true,     3,  "  [  [  [  ["      },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
