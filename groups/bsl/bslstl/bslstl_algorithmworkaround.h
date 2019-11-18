@@ -76,8 +76,9 @@ using native_std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
-#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM) || \
-   (defined (BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1910)
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)              || \
+   (defined (BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1910) || \
+   (defined (BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION >= 7000)
     // Use definition from '<algorithm>'.
 #else
 template<class ForwardIt, class Searcher>
@@ -86,7 +87,7 @@ BSLS_KEYWORD_CONSTEXPR_RELAXED
 ForwardIt search( ForwardIt first, ForwardIt last,
                   const Searcher& searcher )
     // Return the position in the specified range '[first, last)' of the first
-    // occurence of the pattern sought by the specified 'searcher' if found,
+    // occurrence of the pattern sought by the specified 'searcher' if found,
     // and 'last' otherwise.  See [alg.search].
 {
     bsl::pair<ForwardIt, ForwardIt> result = searcher(first, last);
