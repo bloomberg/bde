@@ -32,7 +32,7 @@ BDE uses a build system based on [cmake](https://cmake.org).  The build system i
 BDE tools repository (see [Documentation Links](#documentation-links)).
 
 * [Build instructions for open source users](https://bloomberg.github.io/bde/library_information/build.html)
-* [Build instructions for BloombergLP users](https://bde.bloomberg.com/bde/library_information/build.html)
+* [Build instructions for Bloomberg LP users](https://bde.bloomberg.com/bde/library_information/build.html)
 
 Prerequisites
 -------------
@@ -43,7 +43,7 @@ The BDE CMake build system requires the following software to be preinstalled an
 * [Python](https://www.python.org/)
 
 Note that `python` is used by the build helpers `bde_build_env.py` and `cmake_build.py`, but is not strictly needed
-to build BDE.  See the the more complete build instructions linked below for more detail.
+to build BDE.  See the more complete build instructions linked below for more detail.
 
 Build Instructions (Open Source)
 --------------------------------
