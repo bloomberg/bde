@@ -12,9 +12,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a facility to force a link-time
 // dependency on a symbol of the name supplied to the macro into the
-// translation unit being compiled. This macro can be useful for coercing the
-// linker to incorporate version symbols for a library into resulting binary,
-// and generating link-time failures if a library version mismatch occurs.
+// translation unit being compiled. This macro can be useful for generating
+// link-time failures if a library version mismatch occurs.
 //
 ///Macro Summary
 ///-------------
