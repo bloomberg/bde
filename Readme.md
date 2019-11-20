@@ -5,14 +5,17 @@ This repository contains the BDE libraries, currently BSL (Basic Standard
 Library), BDL (Basic Development Library), BAL (Basic Application Library), and
 BBL (Basic Business Library).
 
-For more information about BDE libraries follow the links below:
+Documentation and Build Links
+=============================
+
+For more information about BDE libraries follow the links below.
 
 Open Source
 -----------
 
 * [Online Library Documentation](https://bloomberg.github.io/bde)
 * [BDE Build Tools](https://bloomberg.github.io/bde-tools/)
-* [BDE Build Howto](https://bloomberg.github.io/bde/library_information/build.html)
+* [BDE Build Instructions](https://bloomberg.github.io/bde/library_information/build.html)
 
 
 Bloomberg LP (internal)
@@ -20,14 +23,31 @@ Bloomberg LP (internal)
 
 * [Online Library Documentation](https://bde.bloomberg.com/bde)
 * [BDE Build Tools](https://bde.bloomberg.com/bde-tools/)
-* [BDE Build Howto](https://bde.bloomberg.com/bde/library_information/build.html)
+* [BDE Build Instructions](https://bde.bloomberg.com/bde/library_information/build.html)
 
 
-Basic Build Instructions (Open Source)
-======================================
+Build Instructions
+==================
+BDE uses a build system based on [cmake](https://cmake.org).  The build system is located in the
+BDE tools repository (see [Documentation Links](#documentation-links)).
 
-BDE uses a build system based on [cmake](https://cmake.org), which is located
-in the BDE Tools repository.
+* [Build instructions for open source users](https://bloomberg.github.io/bde/library_information/build.html)
+* [Build instructions for Bloomberg LP users](https://bde.bloomberg.com/bde/library_information/build.html)
+
+Prerequisites
+-------------
+The BDE CMake build system requires the following software to be preinstalled and configured on the system:
+
+* [CMake](https://cmake.org) version 3.12 or later
+* [Ninja](https://ninja-build.org/) (recommended) or GNU Make
+* [Python](https://www.python.org/)
+
+Note that `python` is used by the build helpers `bde_build_env.py` and `cmake_build.py`, but is not strictly needed
+to build BDE.  See the more complete build instructions linked below for more detail.
+
+Build Instructions (Open Source)
+--------------------------------
+Please see the more complete [build instructions for open source users](https://bloomberg.github.io/bde/library_information/build.html).
 
 The following commands can be used to configure and build the BDE repository:
 1. Clone the `bde-tools` and `bde` repositories and add `bde-tools` to your `PATH`:
@@ -63,11 +83,9 @@ The following commands can be used to configure and build the BDE repository:
    $ cmake_build.py build --test run
    ```
 
-Basic Build Instructions (internal)
-===================================
-
-BDE uses a build system based on [cmake](https://cmake.org), which is located
-in the BDE Tools repository.
+Build Instructions (Bloomberg LP)
+---------------------------------
+Please see the more complete [build instructions for Bloomberg LP users](https://bde.bloomberg.com/bde/library_information/build.html).
 
 The following commands can be used to configure and build the BDE repository:
 1. Clone the `bde-tools` and `bde` repositories and add `bde-tools` to your `PATH`:
@@ -103,11 +121,7 @@ The following commands can be used to configure and build the BDE repository:
    $ cmake_build.py build --test run
    ```
 
-For more details on building the BDE repository, please see the Build Examples
-on BDE Build Tools).
-
 License
 =======
-
 The BDE libraries are distributed under the Apache License (version 2.0); see
 the LICENSE file at the top of the source tree for more information.
