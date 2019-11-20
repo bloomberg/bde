@@ -553,7 +553,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -647,7 +647,7 @@ int main(int argc, char* argv[])
         }
         //..
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // IS VALID MULTI-WIDTH SIZE TEST
         //
@@ -707,6 +707,600 @@ int main(int argc, char* argv[])
             LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
         }
 
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // DECIMAL FROM BINARY CONVERSION ROUNDING TEST
+        //   This test exercises the binary value rounding to the specified
+        //   number of significant digits performed by the
+        //   'decimal{32,64,128}From{Float,Double}' functions.
+        //
+        // Concerns:
+        //: 1 That converted to decimal from binary value is rounded to the
+        //:   specified number of significant digits.
+        //:
+        //: 2 That if 'digits' is not specified, 0 is used.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of binary values.
+        //:
+        //:   2 For each binary value specify the number of significant digits
+        //:     to produce in the returned value, and the expected value.
+        //:
+        //:   3 For each line in the table use
+        //:     'Decimal{32,64,128}From{Float,Double})' to convert binary to
+        //:     decimal and verify that the expected result is produced.
+        //
+        // Testing:
+        //   Decimal32  decimal32FromFloat(float, int);
+        //   Decimal32  decimal32FromDouble(double, int);
+        //   Decimal64  decimal64FromFloat(float, int);
+        //   Decimal64  decimal64FromDouble(double, int);
+        //   Decimal128 decimal128FromFloat(float, int);
+        //   Decimal128 decimal128FromDouble(double, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "\nDECIMAL FROM BINARY CONVERSION ROUNDING TEST"
+                    "\n============================================\n";
+        }
+
+        {
+            if (veryVerbose) cout << "Decimal32FromFloat" << endl;
+
+            typedef Decimal32 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
+
+
+            static const struct {
+                int         d_line;           // line number
+                float       d_binary;         // binary floating point value
+                int         d_digits;         // shortest decimal significant
+                Obj         d_expected;       // power of ten multiplier
+            } DATA[] = {
+             //---------------------------------------------------------------
+             // LINE | BINARY | DIGITS | EXPECTED
+             //---------------------------------------------------------------
+
+             // 7 significant digits for 'float' in range '[1.e-3 .. 8.5e+9]'
+             // --------------------------------------------------------------
+             { L_, 1.2345670f,     -1, DEC(1.234567)     },
+             { L_, 1.2345678f,     -1, DEC(1.234568)     },
+             { L_, 1.2345671f,      0, DEC(1.234567)     },
+             { L_, 1.2345679f,      0, DEC(1.234568)     },
+             { L_, 1.1f,            1, DEC(1.)           },
+             { L_, 1.9f,            1, DEC(2.)           },
+             { L_, 1.21f,           2, DEC(1.2)          },
+             { L_, 1.29f,           2, DEC(1.3)          },
+             { L_, 1.231f,          3, DEC(1.23)         },
+             { L_, 1.239f,          3, DEC(1.24)         },
+             { L_, 1.2341f,         4, DEC(1.234)        },
+             { L_, 1.2349f,         4, DEC(1.235)        },
+             { L_, 1.23451f,        5, DEC(1.2345)       },
+             { L_, 1.23459f,        5, DEC(1.2346)       },
+             { L_, 1.234561f,       6, DEC(1.23456)      },
+             { L_, 1.234569f,       6, DEC(1.23457)      },
+             { L_, 1.2345670f,      7, DEC(1.234567)     },
+             { L_, 1.2345678f,      7, DEC(1.234568)     },
+
+             // 6 significant digits for 'float' greater than '8.5e+9'
+             // ------------------------------------------------------
+             { L_, 1.2345670e10f,  -1, DEC(1.234567e10)  },
+             { L_, 1.2345678e10f,  -1, DEC(1.234568e10)  },
+             { L_, 1.234561e10f,    0, DEC(1.23456e10)   },
+             { L_, 1.234569e10f,    0, DEC(1.23457e10)   },
+             { L_, 1.1e10f,         1, DEC(1.e10)        },
+             { L_, 1.9e10f,         1, DEC(2.e10)        },
+             { L_, 1.21e10f,        2, DEC(1.2e10)       },
+             { L_, 1.29e10f,        2, DEC(1.3e10)       },
+             { L_, 1.231e10f,       3, DEC(1.23e10)      },
+             { L_, 1.239e10f,       3, DEC(1.24e10)      },
+             { L_, 1.2341e10f,      4, DEC(1.234e10)     },
+             { L_, 1.2349e10f,      4, DEC(1.235e10)     },
+             { L_, 1.23451e10f,     5, DEC(1.2345e10)    },
+             { L_, 1.23459e10f,     5, DEC(1.2346e10)    },
+             { L_, 1.234561e10f,    6, DEC(1.23456e10)   },
+             { L_, 1.234569e10f,    6, DEC(1.23457e10)   },
+             { L_, 1.2345670e10f,   7, DEC(1.234567e10)  },
+             { L_, 1.2345678e10f,   7, DEC(1.234568e10)  },
+
+             // 6 significant digits for 'float' less than '1.e-3'
+             // --------------------------------------------------
+             { L_, 1.2345670e-10f, -1, DEC(1.234567e-10) },
+             { L_, 1.2345678e-10f, -1, DEC(1.234568e-10) },
+             { L_, 1.234561e-10f,   0, DEC(1.23456e-10)  },
+             { L_, 1.234569e-10f,   0, DEC(1.23457e-10)  },
+             { L_, 1.1e-10f,        1, DEC(1.e-10)       },
+             { L_, 1.9e-10f,        1, DEC(2.e-10)       },
+             { L_, 1.21e-10f,       2, DEC(1.2e-10)      },
+             { L_, 1.29e-10f,       2, DEC(1.3e-10)      },
+             { L_, 1.231e-10f,      3, DEC(1.23e-10)     },
+             { L_, 1.239e-10f,      3, DEC(1.24e-10)     },
+             { L_, 1.2341e-10f,     4, DEC(1.234e-10)    },
+             { L_, 1.2349e-10f,     4, DEC(1.235e-10)    },
+             { L_, 1.23451e-10f,    5, DEC(1.2345e-10)   },
+             { L_, 1.23459e-10f,    5, DEC(1.2346e-10)   },
+             { L_, 1.234561e-10f,   6, DEC(1.23456e-10)  },
+             { L_, 1.234569e-10f,   6, DEC(1.23457e-10)  },
+             { L_, 1.2345670e-10f,  7, DEC(1.234567e-10) },
+             { L_, 1.2345678e-10f,  7, DEC(1.234568e-10) },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int      LINE     = DATA[ti].d_line;
+                volatile float BINARY   = DATA[ti].d_binary;
+                const int      DIGITS   = DATA[ti].d_digits;
+                const Obj      EXPECTED = DATA[ti].d_expected;
+
+                Obj mX = Util::decimal32FromFloat(BINARY, DIGITS);
+
+                if (veryVerbose) { T_ P_(BINARY) P_(mX) P_(DIGITS) P(EXPECTED) }
+
+                LOOP3_ASSERT(LINE, mX, EXPECTED, mX == EXPECTED);
+
+                if (0 == DIGITS) {
+                    Obj mY = Util::decimal32FromFloat(BINARY);
+
+                    LOOP3_ASSERT(LINE, mX, mY, mX == mY);
+                }
+            }
+#undef DEC
+        }
+
+        {
+            if (veryVerbose) cout << "Decimal32FromDouble" << endl;
+
+            typedef Decimal32 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
+
+
+            static const struct {
+                int         d_line;           // line number
+                double      d_binary;         // binary floating point value
+                int         d_digits;         // shortest decimal significant
+                Obj         d_expected;       // power of ten multiplier
+            } DATA[] = {
+              //--------------------------------------------
+              // LINE | BINARY | DIGITS | EXPECTED
+              //--------------------------------------------
+                { L_, 1.2345671,     -1,     DEC(1.234567)    },
+                { L_, 1.2345679,     -1,     DEC(1.234568)    },
+                { L_, 1.2345671,      0,     DEC(1.234567)    },
+                { L_, 1.2345679,      0,     DEC(1.234568)    },
+                { L_, 1.1,            1,     DEC(1.)          },
+                { L_, 1.9,            1,     DEC(2.)          },
+                { L_, 1.21,           2,     DEC(1.2)         },
+                { L_, 1.29,           2,     DEC(1.3)         },
+                { L_, 1.231,          3,     DEC(1.23)        },
+                { L_, 1.239,          3,     DEC(1.24)        },
+                { L_, 1.2341,         4,     DEC(1.234)       },
+                { L_, 1.2349,         4,     DEC(1.235)       },
+                { L_, 1.23451,        5,     DEC(1.2345)      },
+                { L_, 1.23459,        5,     DEC(1.2346)      },
+                { L_, 1.234561,       6,     DEC(1.23456)     },
+                { L_, 1.234569,       6,     DEC(1.23457)     },
+                { L_, 1.2345671,      7,     DEC(1.234567)    },
+                { L_, 1.2345679,      7,     DEC(1.234568)    },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                volatile double BINARY   = DATA[ti].d_binary;
+                const int       DIGITS   = DATA[ti].d_digits;
+                const Obj       EXPECTED = DATA[ti].d_expected;
+
+                Obj mX = Util::decimal32FromDouble(BINARY, DIGITS);
+
+                if (veryVerbose) {
+                    T_ P_(BINARY) P_(mX) P_(DIGITS) P(EXPECTED)
+                }
+
+                LOOP3_ASSERT(LINE, mX, EXPECTED, mX == EXPECTED);
+
+                if (0 == DIGITS) {
+                    Obj mY = Util::decimal32FromFloat(BINARY);
+
+                    LOOP3_ASSERT(LINE, mX, mY, mX == mY);
+                }
+            }
+#undef DEC
+        }
+
+        {
+            if (veryVerbose) cout << "Decimal64FromFloat" << endl;
+
+            typedef Decimal64 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+
+            static const struct {
+                int         d_line;           // line number
+                float       d_binary;         // binary floating point value
+                int         d_digits;         // shortest decimal significant
+                Obj         d_expected;       // power of ten multiplier
+            } DATA[] = {
+             //---------------------------------------------------------------
+             // LINE | BINARY          | DIGITS | EXPECTED
+             //---------------------------------------------------------------
+
+               // 7 significant digits for 'float' in range '[1.e-3 .. 8.5e+9]'
+               // -------------------------------------------------------------
+                { L_, 1.23456791e-2f,          -1, DEC(1.2345679e-2)         },
+                { L_, 1.23456679e-2f,          -1, DEC(1.2345668e-2)         },
+                { L_, 1.2345679e-2f,            0, DEC(1.234568e-2)          },
+                { L_, 1.2345661e-2f,            0, DEC(1.234566e-2)          },
+                { L_, 1.1e-2f,                  1, DEC(1.e-2)                },
+                { L_, 1.9e-2f,                  1, DEC(2.e-2)                },
+                { L_, 1.21e-2f,                 2, DEC(1.2e-2)               },
+                { L_, 1.29e-2f,                 2, DEC(1.3e-2)               },
+                { L_, 1.231e-2f,                3, DEC(1.23e-2)              },
+                { L_, 1.239e-2f,                3, DEC(1.24e-2)              },
+                { L_, 1.2341e-2f,               4, DEC(1.234e-2)             },
+                { L_, 1.2349e-2f,               4, DEC(1.235e-2)             },
+                { L_, 1.23451e-2f,              5, DEC(1.2345e-2)            },
+                { L_, 1.23459e-2f,              5, DEC(1.2346e-2)            },
+                { L_, 1.234561e-2f,             6, DEC(1.23456e-2)           },
+                { L_, 1.234569e-2f,             6, DEC(1.23457e-2)           },
+                { L_, 1.2345670e-2f,            7, DEC(1.234567e-2)          },
+                { L_, 1.2345679e-2f,            7, DEC(1.234568e-2)          },
+                { L_, 1.234567e-2f,             7, DEC(1.234567e-2)          },
+                //------------------------------------------------------------
+                { L_, 1.23456893e-2f,           8, DEC(1.2345689e-2)         },
+                { L_, 1.234568934e-2f,          9, DEC(1.23456893e-2)        },
+
+                // 6 significant digits for 'float' greater than '8.5e+9'
+                // -----------------------------------------------------------
+                { L_, 1.23456788e10f,          -1, DEC(1.2345679e10)         },
+                { L_, 1.23456614e10f,          -1, DEC(1.2345661e10)         },
+                { L_, 1.2345677e10f,            0, DEC(1.23457e10)           },
+                { L_, 1.2345610e10f,            0, DEC(1.23456e10)           },
+                { L_, 1.1e10f,                  1, DEC(1.e10)                },
+                { L_, 1.9e10f,                  1, DEC(2.e10)                },
+                { L_, 1.21e10f,                 2, DEC(1.2e10)               },
+                { L_, 1.29e10f,                 2, DEC(1.3e10)               },
+                { L_, 1.231e10f,                3, DEC(1.23e10)              },
+                { L_, 1.239e10f,                3, DEC(1.24e10)              },
+                { L_, 1.2341e10f,               4, DEC(1.234e10)             },
+                { L_, 1.2349e10f,               4, DEC(1.235e10)             },
+                { L_, 1.23451e10f,              5, DEC(1.2345e10)            },
+                { L_, 1.23459e10f,              5, DEC(1.2346e10)            },
+                { L_, 1.234561e10f,             6, DEC(1.23456e10)           },
+                { L_, 1.234569e10f,             6, DEC(1.23457e10)           },
+                // -----------------------------------------------------------
+                { L_, 1.2345668e10f,            7, DEC(1.234567e10)          },
+                { L_, 1.23456686e10f,           8, DEC(1.2345669e10)         },
+                { L_, 1.234566860e10f,          9, DEC(1.23456686e10)        },
+
+                // 6 significant digits for 'float' less than '1.e-3'
+                // -------------------------------------------------------------
+                { L_, 1.23456791e-4f,          -1, DEC(1.2345679e-4)         },
+                { L_, 1.23456789e-4f,          -1, DEC(1.2345679e-4)         },
+                { L_, 1.2345678e-4f,            0, DEC(1.23457e-4)           },
+                { L_, 1.2345610e-4f,            0, DEC(1.23456e-4)           },
+                { L_, 1.1e-2f,                  1, DEC(1.e-2)                },
+                { L_, 1.9e-2f,                  1, DEC(2.e-2)                },
+                { L_, 1.21e-2f,                 2, DEC(1.2e-2)               },
+                { L_, 1.29e-2f,                 2, DEC(1.3e-2)               },
+                { L_, 1.231e-2f,                3, DEC(1.23e-2)              },
+                { L_, 1.239e-2f,                3, DEC(1.24e-2)              },
+                { L_, 1.2341e-2f,               4, DEC(1.234e-2)             },
+                { L_, 1.2349e-2f,               4, DEC(1.235e-2)             },
+                { L_, 1.23451e-2f,              5, DEC(1.2345e-2)            },
+                { L_, 1.23459e-2f,              5, DEC(1.2346e-2)            },
+                { L_, 1.234561e-2f,             6, DEC(1.23456e-2)           },
+                { L_, 1.234569e-2f,             6, DEC(1.23457e-2)           },
+                // -----------------------------------------------------------
+                { L_, 1.2345669e-2f,            7, DEC(1.234567e-2)          },
+                { L_, 1.23456697e-2f,           8, DEC(1.2345670e-2)         },
+                { L_, 1.234566979e-2f,          9, DEC(1.23456698e-2)        },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int      LINE     = DATA[ti].d_line;
+                volatile float BINARY   = DATA[ti].d_binary;
+                const int      DIGITS   = DATA[ti].d_digits;
+                const Obj      EXPECTED = DATA[ti].d_expected;
+
+                Obj mX = Util::decimal64FromFloat(BINARY, DIGITS);
+
+                if (veryVerbose) {
+                    T_ P_(BINARY) P_(mX) P_(DIGITS) P(EXPECTED)
+                }
+
+                LOOP3_ASSERT(LINE, mX, EXPECTED, mX == EXPECTED);
+
+                if (0 == DIGITS) {
+                    Obj mY = Util::decimal64FromFloat(BINARY);
+
+                    LOOP3_ASSERT(LINE, mX, mY, mX == mY);
+                }
+            }
+#undef DEC
+        }
+
+        {
+            if (veryVerbose) cout << "Decimal64FromDouble" << endl;
+
+            typedef Decimal64 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+
+            static const struct {
+                int         d_line;           // line number
+                double      d_binary;         // binary floating point value
+                int         d_digits;         // shortest decimal significant
+                Obj         d_expected;       // power of ten multiplier
+            } DATA[] = {
+           //---------------------------------------------------------
+           // LINE | BINARY          | DIGITS | EXPECTED
+           //---------------------------------------------------------
+                { L_, 9.8765432187654321,   -1, DEC(9.876543218765432) },
+                { L_, 9.8765432187654329,   -1, DEC(9.876543218765432) },
+                { L_, 9.8765432187654321,    0, DEC(9.87654321876543)  },
+                { L_, 9.8765432187654329,    0, DEC(9.87654321876543)  },
+                { L_, 9.1,                   1, DEC(9.)                },
+                { L_, 9.9,                   1, DEC(10.)               },
+                { L_, 9.81,                  2, DEC(9.8)               },
+                { L_, 9.89,                  2, DEC(9.9)               },
+                { L_, 9.871,                 3, DEC(9.87)              },
+                { L_, 9.879,                 3, DEC(9.88)              },
+                { L_, 9.8761,                4, DEC(9.876)             },
+                { L_, 9.8769,                4, DEC(9.877)             },
+                { L_, 9.87651,               5, DEC(9.8765)            },
+                { L_, 9.87659,               5, DEC(9.8766)            },
+                { L_, 9.876541,              6, DEC(9.87654)           },
+                { L_, 9.876549,              6, DEC(9.87655)           },
+                { L_, 9.8765431,             7, DEC(9.876543)          },
+                { L_, 9.8765439,             7, DEC(9.876544)          },
+                { L_, 9.87654321,            8, DEC(9.8765432)         },
+                { L_, 9.87654329,            8, DEC(9.8765433)         },
+                { L_, 9.876543211,           9, DEC(9.87654321)        },
+                { L_, 9.876543219,           9, DEC(9.87654322)        },
+                { L_, 9.8765432181,         10, DEC(9.876543218)       },
+                { L_, 9.8765432189,         10, DEC(9.876543219)       },
+                { L_, 9.87654321871,        11, DEC(9.8765432187)      },
+                { L_, 9.87654321879,        11, DEC(9.8765432188)      },
+                { L_, 9.876543218761,       12, DEC(9.87654321876)     },
+                { L_, 9.876543218769,       12, DEC(9.87654321877)     },
+                { L_, 9.8765432187651,      13, DEC(9.876543218765)    },
+                { L_, 9.8765432187659,      13, DEC(9.876543218766)    },
+                { L_, 9.87654321876541,     14, DEC(9.8765432187654)   },
+                { L_, 9.87654321876549,     14, DEC(9.8765432187655)   },
+                { L_, 9.876543218765431,    15, DEC(9.87654321876543)  },
+                { L_, 9.876543218765439,    15, DEC(9.87654321876544)  },
+                { L_, 9.8765432187654321,   16, DEC(9.876543218765432) },
+                { L_, 9.8765432187654329,   16, DEC(9.876543218765432) },
+                { L_, 9.87654321876543211,  17, DEC(9.876543218765432) },
+                { L_, 9.87654321876543219,  17, DEC(9.876543218765432) },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                volatile double BINARY   = DATA[ti].d_binary;
+                const int    DIGITS   = DATA[ti].d_digits;
+                const Obj    EXPECTED = DATA[ti].d_expected;
+
+                Obj mX = Util::decimal64FromDouble(BINARY, DIGITS);
+
+                if (veryVerbose) {
+                    T_ P_(BINARY) P_(mX) P_(DIGITS) P(EXPECTED)
+                }
+
+                LOOP3_ASSERT(LINE, mX, EXPECTED, mX == EXPECTED);
+
+                if (0 == DIGITS) {
+                    Obj mY = Util::decimal64FromDouble(BINARY);
+
+                    LOOP3_ASSERT(LINE, mX, mY, mX == mY);
+                }
+            }
+#undef DEC
+        }
+
+        {
+            if (veryVerbose) cout << "Decimal128FromFloat" << endl;
+
+            typedef Decimal128 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
+
+            static const struct {
+                int         d_line;           // line number
+                float       d_binary;         // binary floating point value
+                int         d_digits;         // shortest decimal significant
+                Obj         d_expected;       // power of ten multiplier
+            } DATA[] = {
+  //-------------------------------------------------------------------------
+  // LINE | BINARY                    | DIGITS | EXPECTED
+  //-------------------------------------------------------------------------
+
+    // 7 significant digits for 'float' in range '[1.e-3 .. 8.5e+9]'
+    // ----------------------------------------------------------------------
+    { L_, 1.23456791e-2f,                     -1, DEC(1.2345679e-2)          },
+    { L_, 1.23456679e-2f,                     -1, DEC(1.2345668e-2)          },
+    { L_, 1.2345679e-2f,                       0, DEC(1.234568e-2)           },
+    { L_, 1.2345661e-2f,                       0, DEC(1.234566e-2)           },
+    { L_, 1.1e-2f,                             1, DEC(1.e-2)                 },
+    { L_, 1.9e-2f,                             1, DEC(2.e-2)                 },
+    { L_, 1.21e-2f,                            2, DEC(1.2e-2)                },
+    { L_, 1.29e-2f,                            2, DEC(1.3e-2)                },
+    { L_, 1.231e-2f,                           3, DEC(1.23e-2)               },
+    { L_, 1.239e-2f,                           3, DEC(1.24e-2)               },
+    { L_, 1.2341e-2f,                          4, DEC(1.234e-2)              },
+    { L_, 1.2349e-2f,                          4, DEC(1.235e-2)              },
+    { L_, 1.23451e-2f,                         5, DEC(1.2345e-2)             },
+    { L_, 1.23459e-2f,                         5, DEC(1.2346e-2)             },
+    { L_, 1.234561e-2f,                        6, DEC(1.23456e-2)            },
+    { L_, 1.234569e-2f,                        6, DEC(1.23457e-2)            },
+    { L_, 1.2345670e-2f,                       7, DEC(1.234567e-2)           },
+    { L_, 1.2345679e-2f,                       7, DEC(1.234568e-2)           },
+    //-----------------------------------------------------------------------
+    { L_, 1.23456893e-2f,                      8, DEC(1.2345689e-2)          },
+    { L_, 1.234568934e-2f,                     9, DEC(1.23456893e-2)         },
+
+    // 6 significant digits for 'float' greater than '8.5e+9'
+    // -----------------------------------------------------------------------
+    { L_, 1.23456788e10f,                    -1, DEC(1.2345679e10)           },
+    { L_, 1.23456614e10f,                    -1, DEC(1.2345661e10)           },
+    { L_, 1.2345677e10f,                      0, DEC(1.23457e10)             },
+    { L_, 1.2345610e10f,                      0, DEC(1.23456e10)             },
+    { L_, 1.1e10f,                            1, DEC(1.e10)                  },
+    { L_, 1.9e10f,                            1, DEC(2.e10)                  },
+    { L_, 1.21e10f,                           2, DEC(1.2e10)                 },
+    { L_, 1.29e10f,                           2, DEC(1.3e10)                 },
+    { L_, 1.231e10f,                          3, DEC(1.23e10)                },
+    { L_, 1.239e10f,                          3, DEC(1.24e10)                },
+    { L_, 1.2341e10f,                         4, DEC(1.234e10)               },
+    { L_, 1.2349e10f,                         4, DEC(1.235e10)               },
+    { L_, 1.23451e10f,                        5, DEC(1.2345e10)              },
+    { L_, 1.23459e10f,                        5, DEC(1.2346e10)              },
+    { L_, 1.234561e10f,                       6, DEC(1.23456e10)             },
+    { L_, 1.234569e10f,                       6, DEC(1.23457e10)             },
+    // -----------------------------------------------------------------------
+    { L_, 1.2345668e10f,                      7, DEC(1.234567e10)            },
+    { L_, 1.23456686e10f,                     8, DEC(1.2345669e10)           },
+    { L_, 1.234566860e10f,                    9, DEC(1.23456686e10)          },
+
+    // 6 significant digits for 'float' less than '1.e-3'
+    // -----------------------------------------------------------------------
+    { L_, 1.23456791e-4f,                    -1, DEC(1.2345679e-4)           },
+    { L_, 1.23456789e-4f,                    -1, DEC(1.2345679e-4)           },
+    { L_, 1.2345678e-4f,                      0, DEC(1.23457e-4)             },
+    { L_, 1.2345610e-4f,                      0, DEC(1.23456e-4)             },
+    { L_, 1.1e-2f,                            1, DEC(1.e-2)                  },
+    { L_, 1.9e-2f,                            1, DEC(2.e-2)                  },
+    { L_, 1.21e-2f,                           2, DEC(1.2e-2)                 },
+    { L_, 1.29e-2f,                           2, DEC(1.3e-2)                 },
+    { L_, 1.231e-2f,                          3, DEC(1.23e-2)                },
+    { L_, 1.239e-2f,                          3, DEC(1.24e-2)                },
+    { L_, 1.2341e-2f,                         4, DEC(1.234e-2)               },
+    { L_, 1.2349e-2f,                         4, DEC(1.235e-2)               },
+    { L_, 1.23451e-2f,                        5, DEC(1.2345e-2)              },
+    { L_, 1.23459e-2f,                        5, DEC(1.2346e-2)              },
+    { L_, 1.234561e-2f,                       6, DEC(1.23456e-2)             },
+    { L_, 1.234569e-2f,                       6, DEC(1.23457e-2)             },
+    // -----------------------------------------------------------------------
+    { L_, 1.2345669e-2f,                      7, DEC(1.234567e-2)            },
+    { L_, 1.23456697e-2f,                     8, DEC(1.2345670e-2)           },
+    { L_, 1.234566979e-2f,                    9, DEC(1.23456698e-2)          },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int      LINE     = DATA[ti].d_line;
+                volatile float BINARY   = DATA[ti].d_binary;
+                const int      DIGITS   = DATA[ti].d_digits;
+                const Obj      EXPECTED = DATA[ti].d_expected;
+
+                Obj mX = Util::decimal128FromFloat(BINARY, DIGITS);
+
+                if (veryVerbose) {
+                    T_ P_(BINARY) P_(mX) P_(DIGITS) P(EXPECTED)
+                }
+
+                LOOP3_ASSERT(LINE, mX, EXPECTED, mX == EXPECTED);
+
+                if (0 == DIGITS) {
+                    Obj mY = Util::decimal128FromFloat(BINARY);
+
+                    LOOP3_ASSERT(LINE, mX, mY, mX == mY);
+                }
+            }
+#undef DEC
+        }
+
+        {
+            if (veryVerbose) cout << "Decimal128FromDouble" << endl;
+
+            typedef Decimal128 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
+
+            static const struct {
+                int         d_line;           // line number
+                double      d_binary;         // binary floating point value
+                int         d_digits;         // shortest decimal significant
+                Obj         d_expected;       // power of ten multiplier
+            } DATA[] = {
+              //------------------------------------------------------
+              // LINE | BINARY     | DIGITS | EXPECTED
+              //------------------------------------------------------
+                { L_, 9.8765432187654321,   -1, DEC(9.876543218765432)  },
+                { L_, 9.8765432187654329,   -1, DEC(9.876543218765432)  },
+                { L_, 9.8765432187654321,    0, DEC(9.87654321876543)   },
+                { L_, 9.8765432187654329,    0, DEC(9.87654321876543)   },
+                { L_, 9.1,                   1, DEC(9.)                 },
+                { L_, 9.9,                   1, DEC(10.)                },
+                { L_, 9.81,                  2, DEC(9.8)                },
+                { L_, 9.89,                  2, DEC(9.9)                },
+                { L_, 9.871,                 3, DEC(9.87)               },
+                { L_, 9.879,                 3, DEC(9.88)               },
+                { L_, 9.8761,                4, DEC(9.876)              },
+                { L_, 9.8769,                4, DEC(9.877)              },
+                { L_, 9.87651,               5, DEC(9.8765)             },
+                { L_, 9.87659,               5, DEC(9.8766)             },
+                { L_, 9.876541,              6, DEC(9.87654)            },
+                { L_, 9.876549,              6, DEC(9.87655)            },
+                { L_, 9.8765431,             7, DEC(9.876543)           },
+                { L_, 9.8765439,             7, DEC(9.876544)           },
+                { L_, 9.87654321,            8, DEC(9.8765432)          },
+                { L_, 9.87654329,            8, DEC(9.8765433)          },
+                { L_, 9.876543211,           9, DEC(9.87654321)         },
+                { L_, 9.876543219,           9, DEC(9.87654322)         },
+                { L_, 9.8765432181,         10, DEC(9.876543218)        },
+                { L_, 9.8765432189,         10, DEC(9.876543219)        },
+                { L_, 9.87654321871,        11, DEC(9.8765432187)       },
+                { L_, 9.87654321879,        11, DEC(9.8765432188)       },
+                { L_, 9.876543218761,       12, DEC(9.87654321876)      },
+                { L_, 9.876543218769,       12, DEC(9.87654321877)      },
+                { L_, 9.8765432187651,      13, DEC(9.876543218765)     },
+                { L_, 9.8765432187659,      13, DEC(9.876543218766)     },
+                { L_, 9.87654321876541,     14, DEC(9.8765432187654)    },
+                { L_, 9.87654321876549,     14, DEC(9.8765432187655)    },
+                { L_, 9.876543218765431,    15, DEC(9.87654321876543)   },
+                { L_, 9.876543218765439,    15, DEC(9.87654321876544)   },
+                { L_, 9.8765432187654321,   16, DEC(9.876543218765432)  },
+                { L_, 9.8765432187654329,   16, DEC(9.876543218765432)  },
+                { L_, 9.87654321876543228,  17, DEC(9.8765432187654323) },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const double BINARY   = DATA[ti].d_binary;
+                const int    DIGITS   = DATA[ti].d_digits;
+                const Obj    EXPECTED = DATA[ti].d_expected;
+
+                Obj mX = Util::decimal128FromDouble(BINARY, DIGITS);
+
+                if (veryVerbose) {
+                    T_ P_(BINARY) P_(mX) P_(DIGITS) P(EXPECTED)
+                }
+
+                LOOP3_ASSERT(LINE, mX, EXPECTED, mX == EXPECTED);
+
+                if (0 == DIGITS) {
+                    Obj mY = Util::decimal128FromDouble(BINARY);
+
+                    LOOP3_ASSERT(LINE, mX, mY, mX == mY);
+                }
+            }
+#undef DEC
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -7749,6 +8343,73 @@ int main(int argc, char* argv[])
                 D2B_ASSERT(128, Float, f);
             }
 #undef D2B_ASSERT
+        }
+
+        if (veryVerbose) bsl::cout << "Rounding"
+                                   << bsl::endl;
+
+        {
+            double d = 101.12345679;
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 0);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12345679);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 1);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(100.);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 2);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(100.);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 3);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 4);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.1);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 5);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 6);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.123);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 7);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.1235);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 8);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12346);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 9);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.123457);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 10);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.1234568);
+                ASSERTV(result, expected, result == expected);
+            }
+            {
+                Decimal64 result = Util::decimal64FromDouble(d, 11);
+                Decimal64 expected = BDLDFP_DECIMAL_DD(101.12345679);
+                ASSERTV(result, expected, result == expected);
+            }
         }
 
         if (veryVerbose) bsl::cout << "DPD, and Network format conversions"
