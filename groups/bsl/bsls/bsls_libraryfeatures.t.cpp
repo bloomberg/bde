@@ -1457,7 +1457,8 @@ int main(int argc, char *argv[])
                                                               needleLast);
         native_std::boyer_moore_horspool_searcher bmhSearcher(needleFirst,
                                                               needleLast);
-#elif !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION < 1910
+#elif (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION < 1910)  \
+   && (!defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) || _LIBCPP_VERSION > 7000)
 
         using namespace native_std;
         using namespace case13;
@@ -1469,7 +1470,8 @@ int main(int argc, char *argv[])
         (void) needleLast;
 #else
         if (veryVerbose)
-               printf("Skip Test: MSVC 2017 has 'search' but no searchers.\n");
+            printf("Skip Test: MSVC 2017 and Apple clang 11"
+                   " have 'search' but no searchers.\n");
 #endif
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
