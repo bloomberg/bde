@@ -1182,6 +1182,15 @@ class TestDriver {
 
     enum AllocCategory { e_BSLMA, e_ADAPTOR, e_STATEFUL };
 
+    enum { k_KEY_IS_WELL_BEHAVED =
+                      bsl::is_same<KEY,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value,
+           k_KEY_IS_MOVE_ENABLED =
+                      bsl::is_same<KEY, bsltf::MovableTestType>::value ||
+                      bsl::is_same<KEY, bsltf::MovableAllocTestType>::value ||
+                      bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value ||
+                      k_KEY_IS_WELL_BEHAVED };
+
   public:
     typedef bsltf::StdTestAllocator<KEY> StlAlloc;
 
@@ -1224,12 +1233,6 @@ class TestDriver {
                                                  bsl::allocator<KEY> > >::value
                         ? e_ADAPTOR
                         : e_STATEFUL;
-
-    static
-    const bool s_keyIsMoveEnabled =
-                       bsl::is_same<KEY, bsltf::MovableTestType>::value ||
-                       bsl::is_same<KEY, bsltf::MovableAllocTestType>::value ||
-                       bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value;
 
     static
     const char *allocCategoryAsStr()
@@ -2038,11 +2041,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
 
     // Types that have move c'tors.
 
-    const bool keyIsMovable =
-                       bsl::is_same<KEY, bsltf::MovableTestType>::value ||
-                       bsl::is_same<KEY, bsltf::MovableAllocTestType>::value ||
-                       bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value;
-
     enum { NUM_DATA                        = DEFAULT_NUM_DATA };
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
@@ -2198,7 +2196,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
                 }
                 else {
                     ASSERTV(NameOf<KEY>(), bothEmpty, doam.isTotalSame(),
-                            (!keyUsesDefaultAlloc || keyIsMovable || bothEmpty)
+                            (!keyUsesDefaultAlloc || k_KEY_IS_MOVE_ENABLED ||
+                                                                     bothEmpty)
                                                         == doam.isTotalSame());
 
                     ASSERTV(ISPEC, XX.empty() == zoam.isTotalSame());

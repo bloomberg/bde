@@ -397,8 +397,7 @@ int main(int argc, char *argv[])
 
 #               pragma GCC diagnostic pop
 
-                BSLS_ASSERT_OPT(5 == b.data());
-                ASSERT(         5 == b.data());
+                ASSERT(5 == b.data());
 
                 b.~Obj();     // This should 'exit' if asserts are enabled
 

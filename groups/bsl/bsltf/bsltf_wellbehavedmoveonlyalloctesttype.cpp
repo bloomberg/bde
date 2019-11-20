@@ -47,6 +47,7 @@ WellBehavedMoveOnlyAllocTestType::WellBehavedMoveOnlyAllocTestType(
 
 WellBehavedMoveOnlyAllocTestType::WellBehavedMoveOnlyAllocTestType(
                   bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType> original)
+                                                          BSLS_KEYWORD_NOEXCEPT
 : d_allocator_p(bslmf::MovableRefUtil::access(original).d_allocator_p)
 , d_self_p(this)
 , d_movedInto(bsltf::MoveState::e_MOVED)

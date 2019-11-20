@@ -1116,7 +1116,9 @@ struct CharToPairConverter {
         bslma::TestAllocator *pss = scratchSingleton();
         const bool useSingleton =
                      !bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value
-                  && !bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value;
+                  && !bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value
+                  && !bsl::is_same<VALUE,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
         // Note that 'allocator' and 'pss' are of different types, and
         // sometimes this function is called with 'ALLOC' being a type that has
@@ -1366,9 +1368,11 @@ class TestDriver {
 
     static
     const bool s_valueIsMoveEnabled =
-                     bsl::is_same<VALUE, bsltf::MovableTestType>::value ||
-                     bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value ||
-                     bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value;
+                    bsl::is_same<VALUE, bsltf::MovableTestType>::value ||
+                    bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value ||
+                    bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value ||
+                    bsl::is_same<VALUE,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
     // CLASS METHODS
     static
@@ -4708,9 +4712,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::
                             testCase9_propagate_on_container_copy_assignment();
@@ -4725,12 +4727,13 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase8,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         MetaTestDriver<int,
-                    bsltf::MoveOnlyAllocTestType>::testCase8();
+                    BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase8();
+        MetaTestDriver<int,
+                    BAD_MOVE_GUARD(
+                        bsltf::WellBehavedMoveOnlyAllocTestType)>::testCase8();
         MetaTestDriver<TestKeyType, TestValueType>::testCase8();
       } break;
       case 7: {
@@ -4744,9 +4747,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase7();
 
@@ -4758,9 +4759,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::
                              testCase7_select_on_container_copy_construction();
@@ -4777,9 +4776,8 @@ int main(int argc, char *argv[])
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 
         TestDriver<TestKeyType, TestValueType>::testCase6();
       } break;
@@ -4806,9 +4804,8 @@ int main(int argc, char *argv[])
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
         TestDriver<TestKeyType, TestValueType>::testCase4();
       } break;
       case 3: {
@@ -4823,9 +4820,8 @@ int main(int argc, char *argv[])
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 
         TestDriver<TestKeyType, TestValueType>::testCase3();
       } break;
@@ -4841,9 +4837,8 @@ int main(int argc, char *argv[])
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
 
         TestDriver<TestKeyType, TestValueType>::testCase2();
       } break;

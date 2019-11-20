@@ -204,6 +204,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 
 #include <bslmf_removecv.h>
+#include <bsls_compilerfeatures.h>
 
 #include <iterator>
 
@@ -269,11 +270,6 @@ class RandomAccessIterator
         // Construct a random access iterator having the specified
         // 'implementation' of the parameterized 'ITER_IMP' type.
 
-    //! RandomAccessIterator(const RandomAccessIterator& original);
-        // Create a 'RandomAccessIterator' having the same value as the
-        // specified 'original' iterator.  Note that this method's definition
-        // is compiler generated.
-
     RandomAccessIterator(
                   const RandomAccessIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
         // Construct a random access iterator from another (compatible)
@@ -287,10 +283,14 @@ class RandomAccessIterator
         // compiler generated.
 
     // MANIPULATORS
-    //! RandomAccessIterator& operator=(const RandomAccessIterator& rhs);
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+    RandomAccessIterator& operator=(const RandomAccessIterator& rhs) = default;
         // Copy the value of the specified 'rhs' to this iterator.  Return a
         // reference to this modifiable iterator.  Note that this method's
         // definition is compiler generated.
+#else
+    //! RandomAccessIterator& operator=(const RandomAccessIterator& rhs);
+#endif
 
     RandomAccessIterator& operator++();
         // Increment to the next element.  Return a reference to this

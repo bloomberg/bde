@@ -86,6 +86,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_iscopyconstructible.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_movableref.h>
+#include <bsls_keyword.h>
 
 namespace BloombergLP {
 
@@ -147,7 +148,8 @@ class WellBehavedMoveOnlyAllocTestType {
         // the currently installed default allocator is used.
 
     WellBehavedMoveOnlyAllocTestType(
-                 bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType> original);
+                  bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType> original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     WellBehavedMoveOnlyAllocTestType(
           bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType>  original,
           bslma::Allocator                                    *basicAllocator);

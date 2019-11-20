@@ -1404,6 +1404,15 @@ class TestDriver {
 
     enum { k_TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value };
 
+    enum { k_KEY_IS_WELL_BEHAVED =
+                      bsl::is_same<KEY,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value,
+           k_KEY_IS_MOVE_ENABLED =
+                      bsl::is_same<KEY, bsltf::MovableTestType>::value ||
+                      bsl::is_same<KEY, bsltf::MovableAllocTestType>::value ||
+                      bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value ||
+                      k_KEY_IS_WELL_BEHAVED };
+
   public:
     typedef bsltf::StdTestAllocator<KEY> StlAlloc;
 
@@ -3792,10 +3801,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                     const bsls::Types::Int64 AA = oa.numBlocksTotal();
                     const bsls::Types::Int64 A  = oa.numBlocksInUse();
 
-                    if (IS_UNIQ) {
-                        ASSERTV(mState, MoveState::e_UNKNOWN == mState
-                                        || MoveState::e_MOVED == mState);
+                    const MoveState::Enum expMove =
+                           k_KEY_IS_MOVE_ENABLED
+                           ? ((k_KEY_IS_WELL_BEHAVED && &sa != &oa) || !IS_UNIQ
+                              ? MoveState::e_NOT_MOVED
+                              : MoveState::e_MOVED)
+                           : MoveState::e_UNKNOWN;
+                    ASSERTV(expMove, mState, NameOf<KEY>(), expMove == mState);
 
+                    if (IS_UNIQ) {
                         ASSERTV(LINE, tj, AA, BB, BB + TYPE_ALLOC <= AA);
                         ASSERTV(LINE, tj,  A,  B,  B + TYPE_ALLOC <=  A);
                         ASSERTV(LINE, tj, SIZE, SIZE + 1 == X.size());
@@ -3805,9 +3819,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                                 0 == verifyContainer(X, exp, SIZE + 1));
                     }
                     else {
-                        ASSERTV(mState, MoveState::e_UNKNOWN == mState
-                                        || MoveState::e_NOT_MOVED == mState);
-
                         if (&sa == &oa) {
                             ASSERTV(LINE, CONFIG, tj, AA, BB,
                                     BB + TYPE_ALLOC == AA);
@@ -3905,11 +3916,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                     const bsls::Types::Int64 AA = oa.numBlocksTotal();
                     const bsls::Types::Int64 A  = oa.numBlocksInUse();
 
+                    const MoveState::Enum expMove =
+                           k_KEY_IS_MOVE_ENABLED
+                           ? ((k_KEY_IS_WELL_BEHAVED && &sa != &oa) || !IS_UNIQ
+                              ? MoveState::e_NOT_MOVED
+                              : MoveState::e_MOVED)
+                           : MoveState::e_UNKNOWN;
+                    ASSERTV(expMove, mState, NameOf<KEY>(), expMove == mState);
+
                     if (IS_UNIQ) {
-
-                        ASSERTV(mState, MoveState::e_UNKNOWN == mState
-                                        || MoveState::e_MOVED == mState);
-
                         ASSERTV(LINE, tj, AA, BB, BB + TYPE_ALLOC <= AA);
                         ASSERTV(LINE, tj,  A,  B,  B + TYPE_ALLOC <=  A);
                         ASSERTV(LINE, tj, SIZE, SIZE + 1 == X.size());
@@ -3919,9 +3934,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                                 0 == verifyContainer(X, exp, SIZE + 1));
                     }
                     else {
-                        ASSERTV(mState, MoveState::e_UNKNOWN == mState
-                                        || MoveState::e_NOT_MOVED == mState);
-
                         if (&sa == &oa) {
                             ASSERTV(LINE, CONFIG, tj, AA, BB,
                                     BB + TYPE_ALLOC == AA);
@@ -7702,7 +7714,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase30,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase30,
@@ -7720,7 +7733,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase29,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         // 'propagate_on_container_move_assignment' testing
 
@@ -7746,7 +7760,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase28,

@@ -6451,7 +6451,10 @@ int main(int argc, char *argv[])
                                  "--------------" "\n");
 
         typedef bsltf::MoveOnlyAllocTestType            MOATT;
-        TestDriver<MOATT,    MovableVector<MOATT> >::testCase19MoveOnlyType();
+        TestDriver<MOATT,   MovableVector<MOATT> >::testCase19MoveOnlyType();
+
+        typedef bsltf::WellBehavedMoveOnlyAllocTestType  WBMOATT;
+        TestDriver<WBMOATT, MovableVector<WBMOATT> >::testCase19MoveOnlyType();
 #endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
         // 'propagate_on_container_move_assignment' testing
@@ -6531,9 +6534,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "Move Only Type" "\n"
                                  "--------------" "\n");
 
-        typedef bsltf::MoveOnlyAllocTestType            MOATT;
+        typedef bsltf::MoveOnlyAllocTestType             MOATT;
 
-        TestDriver<MOATT,    MovableVector<MOATT> >::testCase18MoveOnlyType();
+        TestDriver<MOATT,   MovableVector<MOATT>   >::testCase18MoveOnlyType();
+
+        typedef bsltf::WellBehavedMoveOnlyAllocTestType  WBMOATT;
+
+        TestDriver<WBMOATT, MovableVector<WBMOATT> >::testCase18MoveOnlyType();
 #endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
       } break;

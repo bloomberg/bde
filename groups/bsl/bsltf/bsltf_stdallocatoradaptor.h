@@ -703,8 +703,12 @@ class StdAllocatorAdaptor : public ALLOCATOR {
     StdAllocatorAdaptor(const StdAllocatorAdaptor<ANY_TYPE>& other);
         // Create a copy of the specified 'other' allocator adaptor.
 
-    //! StdAllocatorAdaptor(const StdAllocatorAdaptor& original) = default;
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+    StdAllocatorAdaptor(const StdAllocatorAdaptor& original) = default;
         // Create a copy of the specified 'original' allocator adaptor.
+#else
+    //! StdAllocatorAdaptor(const StdAllocatorAdaptor& original) = default;
+#endif
 
     //! ~StdAllocatorAdaptor() = default;
         // Destroy this object.
