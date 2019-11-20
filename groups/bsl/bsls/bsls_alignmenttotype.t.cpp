@@ -30,8 +30,9 @@ using namespace std;
 // range of inputs.
 //-----------------------------------------------------------------------------
 // [ 1] bsls::AlignmentToType<N>::Type
+// [ 2] DRQS 151904020
 //-----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE -- Ensure the usage example compiles and works.
+// [ 3] USAGE EXAMPLE -- Ensure the usage example compiles and works.
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -84,6 +85,92 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL DEFINITIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace BSLS_ALIGNMENTTOTYPE_CASE_2 {
+
+class DestructionTestType {
+    // This empty 'class' ensures that the destructor is only called on
+    // instances that were properly created with one of its constructors.
+
+  private:
+    // CLASS DATA
+    enum { k_MAX_NUM_INSTANCES = 32 };
+
+    static DestructionTestType *s_instances[k_MAX_NUM_INSTANCES];
+        // set of known instances of this 'class'
+
+    static int s_numInstances;
+        // current number of instances in 's_instances'
+
+  public:
+    // CREATORS
+    DestructionTestType()
+        // Create an instance and add it to the list of known instances.
+    {
+        ASSERT(s_numInstances < sizeof s_instances / sizeof s_instances[0]);
+        s_instances[s_numInstances++] = this;
+    }
+    DestructionTestType(const DestructionTestType&)
+        // Create a copy instance and add it to the list of known instances.
+    {
+        ASSERT(s_numInstances < sizeof s_instances / sizeof s_instances[0]);
+        s_instances[s_numInstances++] = this;
+    }
+    ~DestructionTestType()
+        // Assert that this instance was previously created and destroy it.
+    {
+        ASSERT(0 < s_numInstances);
+
+        int thisInstanceIdx = 0;
+        for (; thisInstanceIdx < s_numInstances; ++thisInstanceIdx) {
+            if (this == s_instances[thisInstanceIdx]) {
+                break;
+            }
+        }
+
+        ASSERT(thisInstanceIdx < s_numInstances);
+
+        if (thisInstanceIdx < s_numInstances) {
+            for (int i = thisInstanceIdx + 1; i < s_numInstances; ++i) {
+                s_instances[i - 1] = s_instances[i];
+            }
+            --s_numInstances;
+        }
+    }
+};
+
+DestructionTestType *
+    DestructionTestType::s_instances[DestructionTestType::k_MAX_NUM_INSTANCES];
+int DestructionTestType::s_numInstances = 0;
+
+class Base1 {
+    // Empty base class for 'Derived' (required to reproduce the issue).
+};
+class Base2 {
+    // Empty base class for 'Derived' (required to reproduce the issue).
+};
+
+class Derived : public Base1, public Base2 {
+    // Empty derived class having two bases (required to reproduce the issue).
+};
+
+template<int ALIGNMENT>
+struct ProblematicStruct {
+    typedef void (Derived::*PointerToMember)();
+
+    PointerToMember                                 d_pointerToMember;
+    typename bsls::AlignmentToType<ALIGNMENT>::Type d_aligmentToType;
+    DestructionTestType                             d_testType;
+};
+
+template<int ALIGNMENT>
+void byValueFunction(ProblematicStruct<ALIGNMENT>)
+    // Empty function accepting 'ProblematicStruct ' *by* *value* (required to
+    // reproduce the issue).
+{
+}
+
+} // close namespace BSLS_ALIGNMENTTOTYPE_CASE_2
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -443,7 +530,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE TEST
         //   Make sure main usage examples compile and work as advertized.
@@ -479,6 +566,33 @@ int main(int argc, char *argv[])
         // Process response object
     }
 //..
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING RESOLUTION OF DRQS 151904020
+        //
+        // PLAN
+        //   1. Pass by-value a struct containing pointer to member function of
+        //      a class with at least two bases and a
+        //      'bsls::AlignmentToType<N>::Type' object.
+        //
+        //   2. Ensure that the destructors are called with correct 'this'
+        //      pointers.
+        //
+        // TESTING
+        //   bsls::AlignmentToType<N>::Type
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTest DRQS 151904020 resolution"
+                          << "\n==============================" << endl;
+
+
+        using namespace BSLS_ALIGNMENTTOTYPE_CASE_2;
+
+        byValueFunction(ProblematicStruct<1>());
+        byValueFunction(ProblematicStruct<2>());
+        byValueFunction(ProblematicStruct<4>());
+        byValueFunction(ProblematicStruct<8>());
       } break;
       case 1: {
         // --------------------------------------------------------------------
