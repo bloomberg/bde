@@ -27,6 +27,7 @@
 #include <bsl_cstring.h>        // 'strcpy'
 #include <bsl_functional.h>     // 'ref', 'cref'
 #include <bsl_string.h>
+#include <bsl_unordered_set.h>
 
 
 using namespace BloombergLP;
@@ -269,6 +270,66 @@ class ConvertibleFromToInt {
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 8
+// ----------------------------------------------------------------------------
+namespace BDLF_BIND_TEST_CASE_8 {
+
+class DestructionTestType {
+    // This empty 'class' ensures that the destructor is only called on
+    // instances that were properly created with one of its constructors.
+
+  private:
+    // CLASS DATA
+    static bsl::unordered_set<DestructionTestType *>
+        d_instances;  // set of known instances of this 'class'
+
+  public:
+    // CREATORS
+    DestructionTestType()
+        // Create an instance and add it to the list of known instances.
+    {
+        d_instances.insert(this);
+    }
+    DestructionTestType(const DestructionTestType&)
+        // Create a copy instance and add it to the list of known instances.
+    {
+        d_instances.insert(this);
+    }
+    ~DestructionTestType()
+        // Assert that this instance was previously created and destroy it.
+    {
+        ASSERT(1 == d_instances.erase(this));
+    }
+};
+
+bsl::unordered_set<DestructionTestType *> DestructionTestType::d_instances;
+
+class Base1 {
+    // Empty base class for 'Derived' (required to reproduce the issue).
+};
+class Base2 {
+    // Empty base class for 'Derived' (required to reproduce the issue).
+};
+
+class Derived : public Base1, public Base2 {
+    // Empty derived class with a single function accepting
+    // 'DestructionTestType' (required to reproduce the issue).
+
+  public:
+    void testFunction(const DestructionTestType& arg) {}
+        // Empty member function accepting 'DestructionTestType'.
+};
+
+template <class TYPE>
+void deducingFunction(TYPE)
+    // Empty function accepting a deduced instance of object of type 'TYPE'
+    // *by* *value* (required to reproduce the issue).
+{
+}
+
+} // close namespace BDLF_BIND_TEST_CASE_8
 
 // ----------------------------------------------------------------------------
 //                   TESTING FUNCTIONS/CLASSES FOR CASE 5
@@ -1718,6 +1779,26 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 // ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+
+DEFINE_TEST_CASE(8) {
+    // ------------------------------------------------------------------
+    // DRQS 151904020
+    //   Make sure that alignas issue that manifested in a very specific
+    //   case in MSVC 2015+ in 32-bit Debug mode is fixed.
+    //
+    // Plan:
+    //   Attempt to reproduce the problem using 'bind' and ensure that it
+    //   works as intended.
+    // ------------------------------------------------------------------
+
+    using namespace BDLF_BIND_TEST_CASE_8;
+
+    Derived derivedInstance;
+
+    deducingFunction(bdlf::BindUtil::bind(
+        &Derived::testFunction, &derivedInstance, DestructionTestType()));
+
+}
 
 DEFINE_TEST_CASE(7) {
         DECLARE_MAIN_VARIABLES
@@ -3487,6 +3568,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+        CASE(8);
         CASE(7);
         CASE(6);
         CASE(5);
