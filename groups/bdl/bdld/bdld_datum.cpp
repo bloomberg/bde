@@ -1467,9 +1467,7 @@ bsl::ostream& DatumMapEntry::print(bsl::ostream& stream,
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
 
-    printer.printAttribute(bsl::string(d_key_p.data(),
-                                       d_key_p.length()).c_str(),
-                           d_value);
+    printer.printAttribute(d_key_p, d_value);
     printer.end();
 
     return stream << bsl::flush;
