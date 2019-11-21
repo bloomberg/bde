@@ -502,9 +502,9 @@ const int NUM_ALLOCS[] = {
        7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  8,  8,  8,  8,  8,  8,  8
 };
 
-static const size_t NUM_NUM_ALLOCS = sizeof NUM_ALLOCS / sizeof *NUM_ALLOCS;
+enum NumNumAllocsEnum {    // If this type is not named, AIX compiler objects
+                     NUM_NUM_ALLOCS = sizeof NUM_ALLOCS / sizeof *NUM_ALLOCS };
 static const size_t ZERO = 0;   // Add this to a signed expression to easily
-                                // make it unsigned.
 
 // Define values used to initialize positional arguments for
 // 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
@@ -13317,7 +13317,6 @@ int main(int argc, char *argv[])
                                     , testCase26Range
                                     , bsltf::NonDefaultConstructibleTestType
                                     , bsltf::MoveOnlyAllocTestType
-                                    , bsltf::WellBehavedMoveOnlyAllocTestType
                                     , NotAssignable
                                     , BitwiseNotAssignable
                                     );
