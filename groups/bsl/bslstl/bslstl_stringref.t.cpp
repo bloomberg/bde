@@ -237,12 +237,6 @@ bool veryVeryVeryVerbose;
 
 typedef bslstl::StringRef Obj;
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
-enum { e_SUN = 1 };
-#else
-enum { e_SUN = 1 };
-#endif
-
 template <class CHAR>
 struct TestData
 {
