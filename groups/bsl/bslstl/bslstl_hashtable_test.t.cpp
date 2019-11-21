@@ -320,7 +320,7 @@ void aSsErT(bool condition, const char *message, int line)
 // were adopted shortly after C++03, and so are not a feature of many older
 // compilers, or perhaps compilers in strictly conforming modes.
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if __cplusplus <= 199711L
 #  define BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING
 #endif
 

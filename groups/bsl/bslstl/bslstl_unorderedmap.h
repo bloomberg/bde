@@ -960,6 +960,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_addlvaluereference.h>
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
@@ -1298,7 +1299,7 @@ class unordered_map {
         // parameter) type 'value_type' be 'copy-insertable' into this list.
 #endif
 
-    mapped_type& operator[](const key_type& key);
+    typename add_lvalue_reference<VALUE>::type operator[](const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key' in this unordered map; if this
         // unordered map does not already contain a 'value_type' object with
@@ -1308,7 +1309,8 @@ class unordered_map {
         // the (template parameter) 'VALUE' is "default-constructible" (see
         // {Requirements on 'value_type'}).
 
-    mapped_type& operator[](BloombergLP::bslmf::MovableRef<key_type> key);
+    typename add_lvalue_reference<VALUE>::type operator[](
+                                 BloombergLP::bslmf::MovableRef<key_type> key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key' in this unordered map; if this
         // unordered map does not already contain a 'value_type' object with
@@ -1318,7 +1320,7 @@ class unordered_map {
         // (see {Requirements on 'value_type'}).  Note that 'key' may be
         // modified; it is guaranteed to be left in a valid state.
 
-    mapped_type& at(const key_type& key);
+    typename add_lvalue_reference<VALUE>::type at(const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key', if such an entry exists;
         // otherwise throw 'std::out_of_range' exception.  Note that this
@@ -1671,7 +1673,8 @@ class unordered_map {
         // has the 'propagate_on_container_swap' trait.
 
     // ACCESSORS
-    const mapped_type& at(const key_type& key) const;
+    typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
+                                                                         const;
         // Return a reference providing non-modifiable access to the
         // mapped-value associated with the specified 'key', if such an entry
         // exists; otherwise throw a 'std::out_of_range' exception.  Note that
@@ -2090,7 +2093,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
+typename add_lvalue_reference<VALUE>::type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
                                                            const key_type& key)
 {
@@ -2100,7 +2103,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
+typename add_lvalue_reference<VALUE>::type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
                                   BloombergLP::bslmf::MovableRef<key_type> key)
 {
@@ -2140,7 +2143,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
+typename add_lvalue_reference<VALUE>::type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
 {
     HashTableLink *node = d_impl.find(key);
@@ -2577,8 +2580,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
 
 // ACCESSORS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-const typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
+typename add_lvalue_reference<const VALUE>::type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(
                                                      const key_type& key) const
 {

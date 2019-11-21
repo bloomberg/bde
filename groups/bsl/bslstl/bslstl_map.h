@@ -490,6 +490,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_addlvaluereference.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_istransparentpredicate.h>
@@ -925,7 +926,7 @@ class map {
         // 'VALUE'}).
 #endif
 
-    VALUE& operator[](const key_type& key);
+    typename add_lvalue_reference<VALUE>::type operator[](const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key'; if this 'map' does not already
         // contain a 'value_type' object having an equivalent key, first insert
@@ -936,7 +937,8 @@ class map {
         // parameter) type 'VALUE' be 'default-insertable' into this map (see
         // {Requirements on 'KEY' and 'VALUE'}).
 
-    VALUE& operator[](BloombergLP::bslmf::MovableRef<key_type> key);
+    typename add_lvalue_reference<VALUE>::type operator[](
+                                 BloombergLP::bslmf::MovableRef<key_type> key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key'; if this 'map' does not already
         // contain a 'value_type' object having an equivalent key, first insert
@@ -947,7 +949,7 @@ class map {
         // and the (template parameter) type 'VALUE' be 'default-insertable'
         // into this map (see {Requirements on 'KEY' and 'VALUE'}).
 
-    VALUE& at(const key_type& key);
+    typename add_lvalue_reference<VALUE>::type at(const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key', if such an entry exists;
         // otherwise, throw a 'std::out_of_range' exception.  Note that this
@@ -1729,7 +1731,8 @@ class map {
         // that the map can successfully grow to the returned size, or even
         // close to that size without running out of resources.
 
-    const VALUE& at(const key_type& key) const;
+    typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
+                                                                         const;
         // Return a reference providing non-modifiable access to the
         // mapped-value associated with a key that is equivalent to the
         // specified 'key', if such an entry exists; otherwise, throw a
@@ -2431,7 +2434,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
+typename add_lvalue_reference<VALUE>::type
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 {
     BloombergLP::bslalg::RbTreeNode *node =
         BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key);
@@ -2463,7 +2467,8 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
+typename add_lvalue_reference<VALUE>::type
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
                                   BloombergLP::bslmf::MovableRef<key_type> key)
 {
     key_type& lvalue = key;
@@ -2497,7 +2502,8 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::at(const key_type& key)
+typename add_lvalue_reference<VALUE>::type
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::at(const key_type& key)
 {
     BloombergLP::bslalg::RbTreeNode *node =
         BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key);
@@ -3965,7 +3971,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-const VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::at(
+typename add_lvalue_reference<const VALUE>::type
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::at(
                                                      const key_type& key) const
 {
     const BloombergLP::bslalg::RbTreeNode *node =

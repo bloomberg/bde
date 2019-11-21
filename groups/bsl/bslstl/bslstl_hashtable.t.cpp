@@ -330,7 +330,7 @@ void aSsErT(bool condition, const char *message, int line)
 // 'bslstl::HashTable'.
 
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if __cplusplus <= 199711L
 // We note that certain test cases rely on the reference collapsing rules that
 // were adopted shortly after C++03, and so are not a feature of older
 // compilers, or perhaps compilers in strictly conforming modes.
