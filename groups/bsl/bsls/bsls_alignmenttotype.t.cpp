@@ -30,8 +30,9 @@ using namespace std;
 // range of inputs.
 //-----------------------------------------------------------------------------
 // [ 1] bsls::AlignmentToType<N>::Type
+// [ 2] DRQS 151904020
 //-----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE -- Ensure the usage example compiles and works.
+// [ 3] USAGE EXAMPLE -- Ensure the usage example compiles and works.
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -84,6 +85,132 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL DEFINITIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace testCase2 {
+
+template<class TYPE, int CAPACITY>
+class StaticVector {
+    // This 'class' template provides a container type holding a contiguous
+    // sequence of elements of parameterized 'TYPE' with fixed maximum
+    // 'CAPACITY'.
+
+  private:
+    // DATA
+    TYPE d_data[CAPACITY];  // element storage
+    int  d_size;            // current size
+
+  public:
+    // CREATORS
+    StaticVector()
+        // Create a 'StaticVector' with size '0'.
+    : d_size(0)
+    {
+    }
+
+    TYPE *begin()
+        // Return the pointer to the beginning of the range of elements.
+    {
+        return d_data;
+    }
+
+    TYPE *end()
+        // Return the pointer to the end of the range of elements.
+    {
+        return d_data + d_size;
+    }
+
+    int size() const
+        // Return the number of elements.
+    {
+        return d_size;
+    }
+
+    void push_back(const TYPE& value)
+        // Add the specified 'value' to the end of range of elements.  The
+        // behavior is undefined unless 'size() < CAPACITY'.
+    {
+        ASSERT(d_size < CAPACITY);
+        d_data[d_size++] = value;
+    }
+
+    void resize(int size)
+        // Resize this vector to the specified 'size'.  The behavior is
+        // undefined unless '0 <= size < CAPACITY'.
+    {
+        ASSERT(0 <= size);
+        ASSERT(size < CAPACITY);
+        d_size = size;
+    }
+};
+
+class DestructionTestType {
+    // This empty 'class' ensures that the destructor is only called on
+    // instances that were properly created with one of its constructors.
+
+  private:
+    // CLASS DATA
+    enum { k_MAX_NUM_INSTANCES = 32 };
+
+    static StaticVector<DestructionTestType *, k_MAX_NUM_INSTANCES>
+                                s_instances;
+        // set of known instances of this 'class'
+
+  public:
+    // CREATORS
+    DestructionTestType()
+        // Create an instance and add it to the list of known instances.
+    {
+        s_instances.push_back(this);
+    }
+    DestructionTestType(const DestructionTestType&)
+        // Create a copy instance and add it to the list of known instances.
+    {
+        s_instances.push_back(this);
+    }
+    ~DestructionTestType()
+        // Assert that this instance was previously created and destroy it.
+    {
+        int numRemoved = static_cast<int>(
+            s_instances.end() -
+            std::remove(s_instances.begin(), s_instances.end(), this));
+
+        ASSERT(1 == numRemoved);
+        s_instances.resize(s_instances.size() - numRemoved);
+    }
+};
+
+StaticVector<DestructionTestType *, DestructionTestType::k_MAX_NUM_INSTANCES>
+    DestructionTestType::s_instances;
+
+class Base1 {
+    // Empty base class for 'Derived' (required to reproduce DRQS 151904020).
+};
+class Base2 {
+    // Empty base class for 'Derived' (required to reproduce DRQS 151904020).
+};
+
+class Derived : public Base1, public Base2 {
+    // Empty derived class having two bases (required to reproduce DRQS
+    // 151904020).
+};
+
+template<int ALIGNMENT>
+struct ProblematicStruct {
+    typedef void (Derived::*PointerToMember)();
+
+    PointerToMember                                 d_pointerToMember;
+    typename bsls::AlignmentToType<ALIGNMENT>::Type d_aligmentToType;
+    DestructionTestType                             d_testType;
+};
+
+template<int ALIGNMENT>
+void byValueFunction(ProblematicStruct<ALIGNMENT>)
+    // Empty function accepting 'ProblematicStruct ' *by* *value* (required to
+    // reproduce DRQS 151904020).
+{
+}
+
+} // close namespace testCase2
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -443,7 +570,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE TEST
         //   Make sure main usage examples compile and work as advertized.
@@ -479,6 +606,38 @@ int main(int argc, char *argv[])
         // Process response object
     }
 //..
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING RESOLUTION OF DRQS 151904020
+        //
+        // CONCERNS
+        //   'AlignmentToType' does not trigger a MSVC compiler bug manifesting
+        //   in the destructor being called with incorrect 'this' pointer.
+        //
+        // PLAN
+        //   1. Pass by-value a struct containing pointer to member function of
+        //      a class with at least two bases and a
+        //      'bsls::AlignmentToType<N>::Type' object.
+        //
+        //   2. Verify that the destructors are called with correct 'this'
+        //      pointers by means of 'DestructorTestType' member of
+        //      'ProblematicStruct'.
+        //
+        // TESTING
+        //   bsls::AlignmentToType<N>::Type
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTest DRQS 151904020 resolution"
+                          << "\n==============================" << endl;
+
+
+        using namespace testCase2;
+
+        byValueFunction(ProblematicStruct<1>());
+        byValueFunction(ProblematicStruct<2>());
+        byValueFunction(ProblematicStruct<4>());
+        byValueFunction(ProblematicStruct<8>());
       } break;
       case 1: {
         // --------------------------------------------------------------------
