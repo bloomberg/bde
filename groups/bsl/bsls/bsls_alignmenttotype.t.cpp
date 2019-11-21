@@ -86,7 +86,62 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL DEFINITIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace BSLS_ALIGNMENTTOTYPE_CASE_2 {
+namespace testCase2 {
+
+template<class TYPE, int CAPACITY>
+class StaticVector {
+    // This 'class' template provides a container type holding a contiguous
+    // sequence of elements of parameterized 'TYPE' with fixed maximum
+    // 'CAPACITY'.
+
+  private:
+    // DATA
+    TYPE d_data[CAPACITY];  // element storage
+    int  d_size;            // current size
+
+  public:
+    // CREATORS
+    StaticVector()
+        // Create a 'StaticVector' with size '0'.
+    : d_size(0)
+    {
+    }
+
+    TYPE *begin()
+        // Return the pointer to the beginning of the range of elements.
+    {
+        return d_data;
+    }
+
+    TYPE *end()
+        // Return the pointer to the end of the range of elements.
+    {
+        return d_data + d_size;
+    }
+
+    int size() const
+        // Return the number of elements.
+    {
+        return d_size;
+    }
+
+    void push_back(const TYPE& value)
+        // Add the specified 'value' to the end of range of elements.  The
+        // behavior is undefined unless 'size() < CAPACITY'.
+    {
+        ASSERT(d_size < CAPACITY);
+        d_data[d_size++] = value;
+    }
+
+    void resize(int size)
+        // Resize this vector to the specified 'size'.  The behavior is
+        // undefined unless '0 <= size < CAPACITY'.
+    {
+        ASSERT(0 <= size);
+        ASSERT(size < CAPACITY);
+        d_size = size;
+    }
+};
 
 class DestructionTestType {
     // This empty 'class' ensures that the destructor is only called on
@@ -96,62 +151,47 @@ class DestructionTestType {
     // CLASS DATA
     enum { k_MAX_NUM_INSTANCES = 32 };
 
-    static DestructionTestType *s_instances[k_MAX_NUM_INSTANCES];
+    static StaticVector<DestructionTestType *, k_MAX_NUM_INSTANCES>
+                                s_instances;
         // set of known instances of this 'class'
-
-    static int s_numInstances;
-        // current number of instances in 's_instances'
 
   public:
     // CREATORS
     DestructionTestType()
         // Create an instance and add it to the list of known instances.
     {
-        ASSERT(s_numInstances < sizeof s_instances / sizeof s_instances[0]);
-        s_instances[s_numInstances++] = this;
+        s_instances.push_back(this);
     }
     DestructionTestType(const DestructionTestType&)
         // Create a copy instance and add it to the list of known instances.
     {
-        ASSERT(s_numInstances < sizeof s_instances / sizeof s_instances[0]);
-        s_instances[s_numInstances++] = this;
+        s_instances.push_back(this);
     }
     ~DestructionTestType()
         // Assert that this instance was previously created and destroy it.
     {
-        ASSERT(0 < s_numInstances);
+        int numRemoved =
+            s_instances.end() -
+            std::remove(s_instances.begin(), s_instances.end(), this);
 
-        int thisInstanceIdx = 0;
-        for (; thisInstanceIdx < s_numInstances; ++thisInstanceIdx) {
-            if (this == s_instances[thisInstanceIdx]) {
-                break;
-            }
-        }
-
-        ASSERT(thisInstanceIdx < s_numInstances);
-
-        if (thisInstanceIdx < s_numInstances) {
-            for (int i = thisInstanceIdx + 1; i < s_numInstances; ++i) {
-                s_instances[i - 1] = s_instances[i];
-            }
-            --s_numInstances;
-        }
+        ASSERT(1 == numRemoved);
+        s_instances.resize(s_instances.size() - numRemoved);
     }
 };
 
-DestructionTestType *
-    DestructionTestType::s_instances[DestructionTestType::k_MAX_NUM_INSTANCES];
-int DestructionTestType::s_numInstances = 0;
+StaticVector<DestructionTestType *, DestructionTestType::k_MAX_NUM_INSTANCES>
+    DestructionTestType::s_instances;
 
 class Base1 {
-    // Empty base class for 'Derived' (required to reproduce the issue).
+    // Empty base class for 'Derived' (required to reproduce DRQS 151904020).
 };
 class Base2 {
-    // Empty base class for 'Derived' (required to reproduce the issue).
+    // Empty base class for 'Derived' (required to reproduce DRQS 151904020).
 };
 
 class Derived : public Base1, public Base2 {
-    // Empty derived class having two bases (required to reproduce the issue).
+    // Empty derived class having two bases (required to reproduce DRQS
+    // 151904020).
 };
 
 template<int ALIGNMENT>
@@ -166,11 +206,11 @@ struct ProblematicStruct {
 template<int ALIGNMENT>
 void byValueFunction(ProblematicStruct<ALIGNMENT>)
     // Empty function accepting 'ProblematicStruct ' *by* *value* (required to
-    // reproduce the issue).
+    // reproduce DRQS 151904020).
 {
 }
 
-} // close namespace BSLS_ALIGNMENTTOTYPE_CASE_2
+} // close namespace testCase2
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -571,13 +611,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING RESOLUTION OF DRQS 151904020
         //
+        // CONCERNS
+        //   'AlignmentToType' does not trigger a MSVC compiler bug manifesting
+        //   in the destructor being called with incorrect 'this' pointer.
+        //
         // PLAN
         //   1. Pass by-value a struct containing pointer to member function of
         //      a class with at least two bases and a
         //      'bsls::AlignmentToType<N>::Type' object.
         //
-        //   2. Ensure that the destructors are called with correct 'this'
-        //      pointers.
+        //   2. Verify that the destructors are called with correct 'this'
+        //      pointers by means of 'DestructorTestType' member of
+        //      'ProblematicStruct'.
         //
         // TESTING
         //   bsls::AlignmentToType<N>::Type
@@ -587,7 +632,7 @@ int main(int argc, char *argv[])
                           << "\n==============================" << endl;
 
 
-        using namespace BSLS_ALIGNMENTTOTYPE_CASE_2;
+        using namespace testCase2;
 
         byValueFunction(ProblematicStruct<1>());
         byValueFunction(ProblematicStruct<2>());
