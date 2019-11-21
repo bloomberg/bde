@@ -170,9 +170,9 @@ class DestructionTestType {
     ~DestructionTestType()
         // Assert that this instance was previously created and destroy it.
     {
-        int numRemoved =
+        int numRemoved = static_cast<int>(
             s_instances.end() -
-            std::remove(s_instances.begin(), s_instances.end(), this);
+            std::remove(s_instances.begin(), s_instances.end(), this));
 
         ASSERT(1 == numRemoved);
         s_instances.resize(s_instances.size() - numRemoved);
