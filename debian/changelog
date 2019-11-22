@@ -1,8 +1,34 @@
-bsl-internal (3.42.0.1) unstable; urgency=low
+bsl-internal (3.43.0.0) unstable; urgency=low
 
+  * ac2ad7200 Bumped version to 3.43.0.0
+  * bfd1de8b3 Merge pull request #2528 from dsokolov7/review/bde-update-make-shared-drqs-150062297
+  * 69c2c5ef8 Merge pull request #2514 from dsokolov7/review/bde-make-managed-drqs-148076542
+  * edd526a92 Merge pull request #2593 from rkhlebnikov/drqs-151904020-alignas-fix-msvc-2017-2019
+  * ee263c38c Merge pull request #2595 from ameredit/fix_gcc_cpp03_tests
+  * 567d25098 Merge pull request #2569 from glaptev1/bad-9_drqs-150430751
+  * 6ec8ab410 Merge pull request #2579 from hversche/add-readme-prereqs
+  * 895470e47 Merge pull request #2551 from izilinskas/izilinskas/avoid-allocation-datum-map-entry-print
+  * 352007f15 Merge pull request #2590 from afeher/fix-apple-clang-11-cpp17
+  * 5166210f6 Merge pull request #2592 from mgiroux/update-linkcoercion-docs-drqs151247410
+  * 46dae2e1f Merge pull request #2583 from ameredit/fixing_and_testing_BitwiseEqualityComparable
+  * f792792b2 Merge pull request #2578 from nburgers/191021-balber-beruniversaltagnumber-DRQS-112643766
+  * 8eb9aa1df Merge pull request #2573 from mgiroux/fix-baljsn-formatter-pretty-output-drqs151247410
+  * 4b483edf3 Merge pull request #2582 from nburgers/191113-baljsn-encoder-DRQS-151245190
+  * f496e00f3 Merge pull request #2585 from spackard/master
+  * 0aa267d46 Merge pull request #2586 from spackard/lintian-overrides
+  * 2b18e26d6 Merge pull request #2568 from osubbotin/review/orphan-decnumber
+  * 26231117b Merge pull request #2580 from osubbotin/review/bde-extra
+  * f6e55bb10 Merge pull request #2517 from bchapman/baltzo_windowstimezoneutil-drqs-149125960
+  * 5b88d634c Merge pull request #2576 from osubbotin/review/address-ball-warnings
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Nov 2019 15:36:49 -0500
+
+bsl-internal (3.42.0.1) git; urgency=low
+
+  * 9f269536d Changelog for version 3.42.0.1
   * ebaef9e85 Merge pull request #2574 from osubbotin/review/3.42-fix
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Nov 2019 10:24:33 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 11 Nov 2019 11:17:43 -0500
 
 bsl-internal (3.42.0.0) git; urgency=low
 
