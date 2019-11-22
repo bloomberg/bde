@@ -283,26 +283,18 @@ struct AlignmentToType {
 
     // Do not use 'alignas' with MSVC as it creates a "hard" alignment
     // requirement that may inhibit the resulting type from being used as a
-    // by-value function-parameter.  See compiler error C2719:
+    // *by-value* function argument.  See compiler error C2719:
     // https://msdn.microsoft.com/en-us/library/373ak2y1.aspx The documentation
     // talks about '__declspec(align(N))' but the same applies to 'alignas'.
     //
-    // In addition, the use of 'alignas' under very specific circumstances
-    // described below triggers a compiler bug leading to crashes due to
-    // destructor being invoked with an incorrect 'this' pointer on all
-    // versions of Microsoft compiler to date (up to MSVC 2019 v. 16.3.9).
-    // This bug has been observed only when building for x86 (32-bit) platform
-    // in Debug mode (specifically with /Od /Ob0 flags) when an object
-    // containing (1) a pointer to member function of a class with at least two
-    // bases and (2) a variable aligned with 'alignas' or '__declspec(align())'
-    // is passed to a function *by* *value*:
+    // In addition, even when C2719 is not issued when passing the type as a
+    // *by-value* function argument, a compiler bug leading to crashes due to
+    // destructor being invoked with an incorrect 'this' pointer has been
+    // observed on all versions of Microsoft compiler to date (up to MSVC 2019
+    // v. 16.3.9).  This bug has been observed only building for x86 (32-bit)
+    // platform in Debug mode (specifically with /Od /Ob0 flags), e.g.:
     //..
-    //  struct Base1 {};
-    //  struct Base2 {};
-    //  struct Derived : Base1, Base2 {};
-    //
     //  struct X {
-    //      void (Derived::*d_memberFunctionPtr)();
     //      alignas(8) int d_buffer;
     //  };
     //
@@ -313,9 +305,9 @@ struct AlignmentToType {
     //      func(X());  // The destructor of 'X' is called with broken 'this'.
     //  }
     //..
-    // An important specific example of such an object is the bind object
-    // created by {'bdlf_bind'}.  Such objects store arguments to the bound
-    // function (indirectly) using 'bsls::ObjectBuffer' which in turn uses
+    // An important specific example is the bind object created by
+    // {'bdlf_bind'}.  Such objects store arguments to the bound function
+    // (indirectly) using 'bsls::ObjectBuffer' which in turn uses
     // 'AlignmentToType'.  See DRQS 151904020 for more details.
     //
     // Due to the combination of these two reasons neither 'alignas' nor
