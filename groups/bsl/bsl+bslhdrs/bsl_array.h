@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 
 #ifdef BSL_OVERRIDES_STD
-// BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
+// BDE configuration requires 'bos+stdhdrs' be in the search path, so this
 // #include is guaranteed to succeed.
 # include <array>
 #elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)

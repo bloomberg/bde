@@ -20,7 +20,7 @@
  '-DBSL_OVERRIDES_STD' on the compile line will render 'std' as merely an alias
  to 'bsl' (i.e., 'std::vector' will be the same as 'bsl::vector').  This is
  also known as the 'BDE-STL' mode.  For more information, please see the
- package level documentation in 'bsl+stdhdrs'.
+ package level documentation in 'bos+stdhdrs' in the 'bos' package group.
 
  The 'bsl' package group is the foundation of the firm-wide BDE library and has
  no dependencies beyond the allowed OS and runtime environment dependencies.

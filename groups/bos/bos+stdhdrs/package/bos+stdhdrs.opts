@@ -1,6 +1,6 @@
-*                       _    OPTS_FILE          = bsl+stdhdrs.opts
+*                       _    OPTS_FILE          = bos+stdhdrs.opts
 
-!! unix                 _    F2FCP              = perl $(BSL_LOCN)/bsl+stdhdrs/cphdrs.pl
-!! windows              _    F2FCP              = perl $(BSL_LOCN)\bsl+stdhdrs\cphdrs.pl
-!! unix                 _    STL_INCLUDE        = -I$(BSL_LOCN)/bsl+stdhdrs
-!! windows              _    STL_INCLUDE        = /I$(BSL_LOCN)\bsl+stdhdrs
+!! unix                 _    F2FCP              = perl $(BOS_LOCN)/bos+stdhdrs/cphdrs.pl
+!! windows              _    F2FCP              = perl $(BOS_LOCN)\bos+stdhdrs\cphdrs.pl
+!! unix                 _    STL_INCLUDE        = -I$(BOS_LOCN)/bos+stdhdrs
+!! windows              _    STL_INCLUDE        = /I$(BOS_LOCN)\bos+stdhdrs
