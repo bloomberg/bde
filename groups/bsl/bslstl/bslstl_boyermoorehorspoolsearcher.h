@@ -1460,8 +1460,8 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                    EQUAL>::
 BoyerMooreHorspoolSearcher_CharImp(
                             const BoyerMooreHorspoolSearcher_CharImp& original)
-: d_needleLength(   original.d_needleLength)
-, d_allocator_p(    original.d_allocator_p)
+: d_needleLength(original.d_needleLength)
+, d_allocator_p( original.d_allocator_p)
 , d_table_p(0)
 {
     if (0 < d_needleLength) {
@@ -1480,9 +1480,9 @@ BoyerMooreHorspoolSearcher_CharImp(
              BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
                                                                       original)
                                                           BSLS_KEYWORD_NOEXCEPT
-: d_needleLength(   MoveUtil::access(original).d_needleLength)
-, d_allocator_p(    MoveUtil::access(original).d_allocator_p)
-, d_table_p(        MoveUtil::access(original).d_table_p)
+: d_needleLength(MoveUtil::access(original).d_needleLength)
+, d_allocator_p( MoveUtil::access(original).d_allocator_p)
+, d_table_p(     MoveUtil::access(original).d_table_p)
 {
     privateSetPostMoveState(&MoveUtil::access(original));
 }
@@ -1517,8 +1517,8 @@ BoyerMooreHorspoolSearcher_CharImp(
              BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher_CharImp>
                                                                 original,
              BloombergLP::bslma::Allocator                     *basicAllocator)
-: d_needleLength(   MoveUtil::access(original).d_needleLength)
-, d_allocator_p(    bslma::Default::allocator(basicAllocator))
+: d_needleLength(MoveUtil::access(original).d_needleLength)
+, d_allocator_p( bslma::Default::allocator(basicAllocator))
 , d_table_p(0)
 {
     if (d_allocator_p == MoveUtil::access(original).d_allocator_p) {
