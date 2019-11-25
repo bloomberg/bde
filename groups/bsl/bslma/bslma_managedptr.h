@@ -150,7 +150,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      bslma::ManagedPtr<B> b_mp1;
 //      bslma::ManagedPtr<A> a_mp1(b_mp1);   // direct-initialization is valid
 //      bslma::ManagedPtr<A> a_mp2 = b_mp1;  // copy-initialization should fail
-//}
+//  }
 //..
 // Note that 'std::auto_ptr' has the same restriction, and this failure will
 // occur only on compilers that strictly conform to the C++ standard, such as
@@ -909,7 +909,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // But the supplied allocator is implicitly passed to the constructor by
 // 'allocateManaged':
-//
+//..
 //      {
 //          bslma::ManagedPtr<StringAlloc> stringManagedPtr =
 //               bslma::ManagedPtrUtil::allocateManaged<StringAlloc>(&ta, STR);
