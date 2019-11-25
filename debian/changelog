@@ -1,5 +1,13 @@
-bsl-internal (3.43.0.0) unstable; urgency=low
+bsl-internal (3.43.1.0) unstable; urgency=low
 
+  * faa633fe5 Bumped version to 3.43.1.0
+  * fa25261e2 Merge pull request #2602 from osubbotin/pr/2601-rebased-releases/3.43.x
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 25 Nov 2019 10:11:03 -0500
+
+bsl-internal (3.43.0.0) git; urgency=low
+
+  * 27685abad Changelog for version 3.43.0.0
   * ac2ad7200 Bumped version to 3.43.0.0
   * bfd1de8b3 Merge pull request #2528 from dsokolov7/review/bde-update-make-shared-drqs-150062297
   * 69c2c5ef8 Merge pull request #2514 from dsokolov7/review/bde-make-managed-drqs-148076542
@@ -21,7 +29,7 @@ bsl-internal (3.43.0.0) unstable; urgency=low
   * f6e55bb10 Merge pull request #2517 from bchapman/baltzo_windowstimezoneutil-drqs-149125960
   * 5b88d634c Merge pull request #2576 from osubbotin/review/address-ball-warnings
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Nov 2019 15:36:49 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Nov 2019 15:41:42 -0500
 
 bsl-internal (3.42.0.1) git; urgency=low
 
