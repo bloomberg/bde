@@ -339,6 +339,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
     else if (wResult.length() <= length) {
         U_LOG_ERROR_ONCE("bdls::ProcessUtil: GetModuleFileName buffer"
                                                                  " overflow.");
+    }
     else {
         wResult.resize(length);
 
