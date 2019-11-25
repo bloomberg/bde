@@ -655,8 +655,8 @@ DefaultSearcher<FORWARD_ITR_NEEDLE, EQUAL>::operator()(
 
     return BloombergLP::bslstl::
            DefaultSearcher_ImpUtil::doSearch<FORWARD_ITR_NEEDLE,
-                                              EQUAL,
-                                              FORWARD_ITR_HAYSTACK>(
+                                             EQUAL,
+                                             FORWARD_ITR_HAYSTACK>(
                                                                  haystackFirst,
                                                                  haystackLast,
                                                                  d_needleFirst,
@@ -698,8 +698,8 @@ inline
 typename
 bsl::enable_if<
     ! DefaultSearcher_CanOptimize<FORWARD_ITR_NEEDLE,
-                                   EQUAL,
-                                   FORWARD_ITR_HAYSTACK>::value
+                                  EQUAL,
+                                  FORWARD_ITR_HAYSTACK>::value
     , bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK>
 >::type DefaultSearcher_ImpUtil::doSearch(
                                      const FORWARD_ITR_HAYSTACK& haystackFirst,
@@ -748,8 +748,8 @@ inline
 typename
 bsl::enable_if<
       DefaultSearcher_CanOptimize<FORWARD_ITR_NEEDLE,
-                                   EQUAL,
-                                   FORWARD_ITR_HAYSTACK>::value
+                                  EQUAL,
+                                  FORWARD_ITR_HAYSTACK>::value
     , bsl::pair<FORWARD_ITR_HAYSTACK, FORWARD_ITR_HAYSTACK>
 >::type DefaultSearcher_ImpUtil::doSearch(
                                      const FORWARD_ITR_HAYSTACK& haystackFirst,
