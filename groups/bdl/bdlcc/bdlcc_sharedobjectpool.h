@@ -361,11 +361,10 @@ class SharedObjectPool {
 
     explicit
     SharedObjectPool(const CREATOR&    objectCreator,
-                     int               growBy = -1,
                      bslma::Allocator *basicAllocator = 0);
 
-    explicit
     SharedObjectPool(const CREATOR&    objectCreator,
+                     int               growBy,
                      bslma::Allocator *basicAllocator = 0);
 
     SharedObjectPool(const CREATOR&    objectCreator,
