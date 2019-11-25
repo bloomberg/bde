@@ -289,7 +289,7 @@ struct AlignmentToType {
     //
     // In addition, even when C2719 is not issued when passing the type as a
     // *by-value* function argument, a compiler bug leading to crashes due to
-    // destructor being invoked with an incorrect 'this' pointer has been
+    // the destructor being invoked with an incorrect 'this' pointer has been
     // observed on all versions of Microsoft compiler to date (up to MSVC 2019
     // v. 16.3.9).  This bug has been observed only building for x86 (32-bit)
     // platform in Debug mode (specifically with /Od /Ob0 flags), e.g.:
