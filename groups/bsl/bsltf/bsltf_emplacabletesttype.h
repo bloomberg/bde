@@ -47,7 +47,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_compilerfeatures.h>
 #include <bsltf_argumenttype.h>
 
 namespace BloombergLP {
@@ -223,15 +222,11 @@ class EmplacableTestType {
         // object.
 
     // MANIPULATORS
-#if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
-    EmplacableTestType& operator=(const EmplacableTestType& rhs) = default;
+    EmplacableTestType& operator=(const EmplacableTestType& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  Note
-        // that this must be explicitly defaulted to silence compiler warnings
-        // on later versions of C++.
-#else
-    //! EmplacableTestType& operator=(const EmplacableTestType& rhs) = default;
-#endif
+        // that this must be explicitly defined to silence compiler warnings on
+        // later versions of C++.
 
     // ACCESSORS
     const ArgType01& arg01() const;

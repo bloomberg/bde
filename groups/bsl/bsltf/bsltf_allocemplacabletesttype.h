@@ -174,7 +174,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_usesbslmaallocator.h>
-#include <bsls_compilerfeatures.h>
 #include <bsltf_allocargumenttype.h>
 
 namespace BloombergLP {
@@ -376,17 +375,11 @@ class AllocEmplacableTestType {
         // object.
 
     // MANIPULATORS
-#if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
-    AllocEmplacableTestType& operator=(
-                                 const AllocEmplacableTestType& rhs) = default;
+    AllocEmplacableTestType& operator=(const AllocEmplacableTestType& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  Note
         // that this must be explicitly defaulted to silence compiler warnings
         // on later versions of C++.
-#else
-    //! AllocEmplacableTestType& operator=(
-    //                           const AllocEmplacableTestType& rhs) = default;
-#endif
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
