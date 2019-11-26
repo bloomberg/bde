@@ -52,28 +52,33 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
 
 namespace bdlmt {
 
-                 // ========================================
-                 // struct EventSchedulerTestTimeSource_Data
-                 // ========================================
+                 // ---------------------------------------
+                 // class EventSchedulerTestTimeSource_Data
+                 // ---------------------------------------
 
-struct EventSchedulerTestTimeSource_Data {
-    // This 'struct' provides storage for the current time and a mutex to
-    // protect access to the current time.
-
-    // DATA
-    bsls::TimeInterval    d_currentTime;       // the current time
-
-    bslmt::Mutex          d_currentTimeMutex;  // mutex used to synchronize
-                                               // 'd_currentTime' access
-};
-
-static
-bsls::TimeInterval eventSchedulerTestTimeSourceNow(
-                const bsl::shared_ptr<EventSchedulerTestTimeSource_Data>& data)
-    // Return the current time stored within the specified 'data'.
+// CREATORS
+EventSchedulerTestTimeSource_Data::EventSchedulerTestTimeSource_Data(
+                                                bsls::TimeInterval currentTime)
+: d_currentTime(currentTime)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&data->d_currentTimeMutex);
-    return data->d_currentTime;
+}
+
+// MANIPULATORS
+bsls::TimeInterval EventSchedulerTestTimeSource_Data::advanceTime(
+                                                     bsls::TimeInterval amount)
+{
+    BSLS_ASSERT(amount > 0);
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+    d_currentTime += amount;
+    return d_currentTime;
+}
+
+// ACCESSORS
+bsls::TimeInterval EventSchedulerTestTimeSource_Data::currentTime()
+{
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+    return d_currentTime;
 }
 
                            // --------------------
@@ -656,12 +661,6 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
 {
     BSLS_ASSERT(0 != scheduler);
 
-    // The following uses the default allocator since the lifetime of the
-    // created object may be longer than this 'EventSchedulerTestTimeSource'
-    // and the associated 'EventScheduler'.
-
-    d_data_p = bsl::make_shared<EventSchedulerTestTimeSource_Data>();
-
     // The event scheduler is constructed with a "now" that is 1000 days in the
     // future.  This point in time is arbitrary, but is chosen to ensure that
     // in any reasonable test driver, the system clock (which controls the
@@ -674,15 +673,20 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
     // 'EventSchedulerTestTimeSource::advanceTime'.  See the call to
     // 'timedWait' in 'EventScheduler::dispatchEvents'.
 
-    d_data_p->d_currentTime = bsls::SystemTime::now(scheduler->d_clockType)
-                               + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY;
+    // The following uses the default allocator since the lifetime of the
+    // created object may be longer than this 'EventSchedulerTestTimeSource'
+    // and the associated 'EventScheduler'.
+
+    d_data_p = bsl::make_shared<EventSchedulerTestTimeSource_Data>(
+                                bsls::SystemTime::now(scheduler->d_clockType)
+                              + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY);
 
     // Bind the member function 'now' to 'this', and let the scheduler call
     // this binder as its current time callback.
 
     d_scheduler_p->d_currentTimeFunctor = bdlf::BindUtil::bind(
-                                              &eventSchedulerTestTimeSourceNow,
-                                              d_data_p);
+                               &EventSchedulerTestTimeSource_Data::currentTime,
+                               d_data_p);
 }
 
 // MANIPULATORS
@@ -690,20 +694,11 @@ bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
                                                      bsls::TimeInterval amount)
 {
     BSLS_ASSERT(amount > 0);
-    bsls::TimeInterval ret;
 
-    {
-        // This scope limits how long we lock 'd_currentTimeMutex'
+    // Returning the new time allows an atomic 'advance' + 'now' operation.
+    // This feature may not be necessary.
 
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_data_p->d_currentTimeMutex);
-
-        d_data_p->d_currentTime += amount;
-
-        // Returning the new time allows an atomic 'advance' + 'now' operation.
-        // This feature may not be necessary.
-
-        ret = d_data_p->d_currentTime;
-    }
+    bsls::TimeInterval ret = d_data_p->advanceTime(amount);
 
     unsigned int waitCount;
     {
@@ -742,7 +737,7 @@ bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
 // ACCESSORS
 bsls::TimeInterval EventSchedulerTestTimeSource::now()
 {
-    return eventSchedulerTestTimeSourceNow(d_data_p);
+    return d_data_p->currentTime();
 }
 
 }  // close package namespace
