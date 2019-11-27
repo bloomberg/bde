@@ -49,21 +49,15 @@ BSLS_IDENT("$Id: $")
 ///Known issues
 ///------------
 // On all versions of Microsoft compiler to date (up to MSVC 2019 v. 16.3.9),
-// use of 'AlignedBuffer' under very specific circumstances described below
-// triggers a compiler bug leading to crashes due to destructor being invoked
-// with an incorrect 'this' pointer.  This bug has been observed only when
-// building for x86 (32-bit) platform in Debug mode (specifically with /Od /Ob0
-// flags) when an object containing (1) a pointer to member function of a class
-// with at least two bases and (2) a variable aligned with 'alignas' or
-// '__declspec(align())' -- such as 'AlignedBuffer' -- is passed to a function
-// *by* *value*:
+// passing 'AlignedBuffer' or an object containing 'AlignedBuffer' as a
+// *by-value* function argument could either lead to C2719 error (see
+// https://msdn.microsoft.com/en-us/library/373ak2y1.aspx), or can even trigger
+// a compiler bug leading to crashes due to the destructor being invoked with
+// an incorrect 'this' pointer.  This bug has been observed only building for
+// x86 (32-bit) platform in Debug mode (specifically with /Od /Ob0 flags),
+// e.g.:
 //..
-//  struct Base1 {};
-//  struct Base2 {};
-//  struct Derived : Base1, Base2 {};
-//
 //  struct X {
-//      void (Derived::*d_memberFunctionPtr)();
 //      bsls::AlignedBuffer<1, 8> d_buffer;
 //  };
 //

@@ -182,23 +182,8 @@ class DestructionTestType {
 StaticVector<DestructionTestType *, DestructionTestType::k_MAX_NUM_INSTANCES>
     DestructionTestType::s_instances;
 
-class Base1 {
-    // Empty base class for 'Derived' (required to reproduce DRQS 151904020).
-};
-class Base2 {
-    // Empty base class for 'Derived' (required to reproduce DRQS 151904020).
-};
-
-class Derived : public Base1, public Base2 {
-    // Empty derived class having two bases (required to reproduce DRQS
-    // 151904020).
-};
-
 template<int ALIGNMENT>
 struct ProblematicStruct {
-    typedef void (Derived::*PointerToMember)();
-
-    PointerToMember                                 d_pointerToMember;
     typename bsls::AlignmentToType<ALIGNMENT>::Type d_aligmentToType;
     DestructionTestType                             d_testType;
 };
