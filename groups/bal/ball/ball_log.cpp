@@ -231,7 +231,7 @@ Log_Stream::Log_Stream(const Category *category,
 {
 }
 
-Log_Stream::~Log_Stream()
+Log_Stream::~Log_Stream() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
     Log::logMessage(d_category_p, d_severity, d_record_p);
 }
