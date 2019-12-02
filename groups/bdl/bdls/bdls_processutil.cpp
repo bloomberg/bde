@@ -63,7 +63,7 @@ namespace u {
 // 'U_TEST_U_LOG_ERROR_ONCE' to 1 in both this file and the test driver.  In
 // production, 'U_TEST_U_LOG_ERROR_ONCE' should be set to 0 in both files.
 
-#define U_TEST_U_LOG_ERROR_ONCE 1
+#define U_TEST_U_LOG_ERROR_ONCE 0
 
 using namespace BloombergLP;
 

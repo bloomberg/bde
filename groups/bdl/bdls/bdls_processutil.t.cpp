@@ -164,7 +164,7 @@ bool isRelative(const bsl::string& path)
 // 'U_TEST_U_LOG_ERROR_ONCE' to 1 in both this file and the imp file.  In
 // production, 'U_TEST_U_LOG_ERROR_ONCE' should be set to 0 in both files.
 
-#define U_TEST_U_LOG_ERROR_ONCE 1
+#define U_TEST_U_LOG_ERROR_ONCE 0
 
 int numMessagesLogged = 0;
 int numExpectedMessagesLogged = 0;
