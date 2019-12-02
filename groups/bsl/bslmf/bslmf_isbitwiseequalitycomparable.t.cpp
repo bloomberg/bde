@@ -897,9 +897,13 @@ int main(int argc, char *argv[])
 
         // floating-point types are not bitwise EqualityComparable.
 
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(float, false);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(double, false);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long double, false);
+        // Revert of {DRQS 143286899}. Once clients are fixed, change to false.
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(float, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(double, true);
+        // This test relates to the above DRQS - long double is 10 bytes long
+        // and to not pass "no padding" test. Uncomment with other floating
+        // types.
+        //ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long double, true);
 
         // C-2 : 'void' is not an object type, but can be cv-qualified.
 
