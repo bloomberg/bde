@@ -19,6 +19,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 
@@ -1768,6 +1769,15 @@ struct TestDriver {
     typedef bsl::allocator_traits<ALLOC>         AllocatorTraits;
 
     enum AllocCategory { e_BSLMA, e_STDALLOC, e_ADAPTOR, e_STATEFUL };
+
+    enum MovableTrait {
+        k_IS_MOVABLE =
+                     bslmf::IsBitwiseMoveable<TYPE>::value ||
+                    !bsl::is_copy_constructible<TYPE>::value ||
+                     bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
+                     bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
+                     bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value
+    };
 
     // TEST APPARATUS
 
@@ -4313,12 +4323,8 @@ void TestDriver<TYPE, ALLOC>::testCase28()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value
-                        || bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value
-                       &&  bsl::is_copy_constructible<TYPE>::value
-                       && !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE
+                       &&  bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -4327,7 +4333,7 @@ void TestDriver<TYPE, ALLOC>::testCase28()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -4774,12 +4780,8 @@ void TestDriver<TYPE, ALLOC>::testCase27()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value
-                        || bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value
-                       &&  bsl::is_copy_constructible<TYPE>::value
-                       && !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE
+                       &&  bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -4788,7 +4790,7 @@ void TestDriver<TYPE, ALLOC>::testCase27()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -5161,12 +5163,8 @@ void TestDriver<TYPE, ALLOC>::testCase26()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value
-                        || bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value
-                       &&  bsl::is_copy_constructible<TYPE>::value
-                       && !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE
+                       &&  bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -5175,7 +5173,7 @@ void TestDriver<TYPE, ALLOC>::testCase26()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -5311,7 +5309,7 @@ void TestDriver<TYPE, ALLOC>::testCase26()
 
                 if (expectToAllocate(SIZE)) {
                     ASSERTV(SIZE, numMovedInto(X),
-                            !TYPE_MOVE || (SIZE + 1 == numMovedInto(X)));
+                            !k_IS_MOVABLE || (SIZE + 1 == numMovedInto(X)));
                     const bsls::Types::Int64 EXP = BB +  1      // realloc
                           +  TYPE_ALLOC                         // new element
                           +  TYPE_ALLOC * (SIZE * TYPE_COPY)    // SIZE copies
@@ -5322,7 +5320,7 @@ void TestDriver<TYPE, ALLOC>::testCase26()
                 else {
                     ASSERTV(SIZE,
                             numMovedInto(X, index + 1),
-                            !TYPE_MOVE
+                            !k_IS_MOVABLE
                          || (SIZE - index) == numMovedInto(X, index + 1));
                     const bsls::Types::Int64 EXP = BB
                           +  TYPE_ALLOC                          // new element
@@ -5482,8 +5480,6 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
     const int        NUM_VALUES = 5;  // TBD: fix this
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
-    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value |
-                              bsl::is_nothrow_move_constructible<TYPE>::value;
     const int TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
@@ -5634,7 +5630,7 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
                                     VALUES[m % NUM_VALUES] == X[k]);
                         }
 
-                        if (TYPE_MOVEABLE && INPUT_ITERATOR_TAG) {
+                        if (k_IS_MOVABLE && INPUT_ITERATOR_TAG) {
                             ASSERTV(NUM_ELEMENTS,  NUM_NUM_ALLOCS,
                                     NUM_ELEMENTS + ZERO < NUM_NUM_ALLOCS);
                             ASSERTV(X.capacity(),  NUM_NUM_ALLOCS,
@@ -5646,7 +5642,7 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
                                               : 0;
                             const bsls::Types::Int64 TYPE_ALLOCS =
                                               NUM_ELEMENTS &&
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
@@ -5665,7 +5661,7 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
                                                        X.capacity() > INIT_CAP;
                             const bsls::Types::Int64 TYPE_ALLOCS =
                                               NUM_ELEMENTS &&
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
@@ -5827,12 +5823,8 @@ void TestDriver<TYPE, ALLOC>::testCase25()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value ||
-                           bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value &&
-                           bsl::is_copy_constructible<TYPE>::value &&
-                          !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE &&
+                           bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -5841,7 +5833,7 @@ void TestDriver<TYPE, ALLOC>::testCase25()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -5960,7 +5952,7 @@ void TestDriver<TYPE, ALLOC>::testCase25()
 
                 if (expectToAllocate(SIZE))  {
                     ASSERTV(SIZE, numMovedInto(X),
-                            !TYPE_MOVE || (SIZE + 1 == numMovedInto(X)));
+                            !k_IS_MOVABLE || (SIZE + 1 == numMovedInto(X)));
                     const bsls::Types::Int64 EXP = BB
                           +  1                                  // realloc
                           +  TYPE_ALLOC                         // new element
@@ -7667,8 +7659,6 @@ void TestDriver<TYPE, ALLOC>::testCase19()
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
     enum {
-        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
-                        bsl::is_nothrow_move_constructible<TYPE>::value,
         TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value ||
                         bsl::uses_allocator<TYPE, ALLOC>::value
     };
@@ -7676,7 +7666,7 @@ void TestDriver<TYPE, ALLOC>::testCase19()
     if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVEABLE);
+                        k_IS_MOVABLE);
 
     static const struct {
         int d_lineNum;  // source line number
@@ -7767,10 +7757,12 @@ void TestDriver<TYPE, ALLOC>::testCase19()
                     }
 
                     const bsls::Types::Int64 TYPE_ALLOCS =
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                                    ? LENGTH - POS
                                                    : 0;
                     ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, POS,
+                            BB + TYPE_ALLOCS == AA);
+                    ASSERTV(bsls::NameOf<TYPE>(), BB, TYPE_ALLOCS, AA,
                             BB + TYPE_ALLOCS == AA);
                     ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, POS,
                             B - TYPE_ALLOC == A );
@@ -7903,7 +7895,7 @@ void TestDriver<TYPE, ALLOC>::testCase19()
                     }
 
                     const bsls::Types::Int64 TYPE_ALLOCS =
-                                          TYPE_ALLOC && !TYPE_MOVEABLE &&
+                                          TYPE_ALLOC && !k_IS_MOVABLE &&
                                                                    NUM_ELEMENTS
                                           ? INIT_LENGTH - END_POS
                                           : 0;
@@ -8130,8 +8122,6 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
     const int        NUM_VALUES = 5;         // TBD: fix this
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
     enum {
-        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
-                        bsl::is_nothrow_move_constructible<TYPE>::value,
         TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value ||
                         bsl::uses_allocator<TYPE, ALLOC>::value
     };
@@ -8144,7 +8134,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
             "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, AP = " ZU ").\n",
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVEABLE,
+                        k_IS_MOVABLE,
                         AP);
 
     static const struct {
@@ -8255,7 +8245,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
                     const int REALLOC = X.capacity() > INIT_CAP;
 
                     const bsls::Types::Int64 TYPE_ALLOCS =
-                                  TYPE_ALLOC && !TYPE_MOVEABLE
+                                  TYPE_ALLOC && !k_IS_MOVABLE
                                   ? (REALLOC ? INIT_LENGTH : INIT_LENGTH - POS)
                                   : 0;
                     const bsls::Types::Int64 EXP_ALLOCS =
@@ -8365,7 +8355,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
                         // from g++.
 
                         const bsls::Types::Int64 TYPE_ALLOCS =
-                                              !TYPE_ALLOC || TYPE_MOVEABLE
+                                              !TYPE_ALLOC || k_IS_MOVABLE
                                               ? 0
                                               : 0 == NUM_ELEMENTS
                                                 ? 0
@@ -8691,15 +8681,13 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE  = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
-                             bsl::is_nothrow_move_constructible<TYPE>::value);
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
     if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVE);
+                        k_IS_MOVABLE);
 
     static const struct {
         int         d_line;     // source line number
@@ -8783,7 +8771,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
                 // number of blocks in use is unchanged.
 
                 const bsls::Types::Int64 TYPE_ALLOC_MOVES =
-                                           TYPE_ALLOC * (1 + SIZE * TYPE_MOVE);
+                                       TYPE_ALLOC * (1 + SIZE * !k_IS_MOVABLE);
                 if (expectToAllocate(SIZE)) {
                     ASSERTV(LINE, CONFIG, BB, AA,
                             BB + 1 + TYPE_ALLOC_MOVES == AA);
@@ -8988,8 +8976,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
 
     const TestValues VALUES;
 
-    const int IS_NOT_MOVABLE = !(bslmf::IsBitwiseMoveable<TYPE>::value ||
-                              bsl::is_nothrow_move_constructible<TYPE>::value);
+    const int IS_NOT_MOVABLE = !k_IS_MOVABLE;
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
@@ -9218,8 +9205,6 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
     const int        NUM_VALUES = 5;  // TBD: fix this
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
-    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
-                              bsl::is_nothrow_move_constructible<TYPE>::value;
     const int TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
@@ -9364,7 +9349,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                                     VALUES[m % NUM_VALUES] == X[k]);
                         }
 
-                        if (TYPE_MOVEABLE && INPUT_ITERATOR_TAG) {
+                        if (k_IS_MOVABLE && INPUT_ITERATOR_TAG) {
                             ASSERTV(NUM_ELEMENTS,  NUM_NUM_ALLOCS,
                                     NUM_ELEMENTS + ZERO < NUM_NUM_ALLOCS);
                             ASSERTV(X.capacity(),  NUM_NUM_ALLOCS,
@@ -9376,7 +9361,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                                               : 0;
                             const bsls::Types::Int64 TYPE_ALLOCS =
                                               NUM_ELEMENTS &&
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
@@ -9395,7 +9380,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                                                        X.capacity() > INIT_CAP;
                             const bsls::Types::Int64 TYPE_ALLOCS =
                                               NUM_ELEMENTS &&
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
@@ -10051,12 +10036,8 @@ void TestDriver<TYPE, ALLOC>::testCase14a()
     const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                             bsl::uses_allocator<TYPE, ALLOC>::value;
 
-    const bool TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value
-                         || bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const bool TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value
-                        &&  bsl::is_copy_constructible<TYPE>::value
-                        && !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const bool TYPE_COPY = !k_IS_MOVABLE
+                        &&  bsl::is_copy_constructible<TYPE>::value;
 
     const TYPE DEFAULT_VALUE = TYPE();
 
@@ -10064,7 +10045,7 @@ void TestDriver<TYPE, ALLOC>::testCase14a()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -10148,10 +10129,10 @@ void TestDriver<TYPE, ALLOC>::testCase14a()
             ASSERT(ADDED > 0);
             if (OSIZE > 0) {
                 ASSERTV(OSIZE, numMovedInto(X, 0, OSIZE),
-                        !TYPE_MOVE || (OSIZE == numMovedInto(X, 0, OSIZE)));
+                        !k_IS_MOVABLE || (OSIZE == numMovedInto(X, 0, OSIZE)));
             }
             ASSERTV(ADDED, numNotMovedInto(X, OSIZE),
-                    !TYPE_MOVE || (ADDED == numNotMovedInto(X, OSIZE)));
+                    !k_IS_MOVABLE || (ADDED == numNotMovedInto(X, OSIZE)));
             const size_t EXP = BB
                           +  1                                  // realloc
                           +  TYPE_ALLOC * (NSIZE - OSIZE)       // new elements
@@ -11549,8 +11530,6 @@ void TestDriver<TYPE, ALLOC>::testCase12Range(const CONTAINER&)
     //     vector(InputIter first, InputIter last, const A& a = A());
     // ------------------------------------------------------------------------
 
-    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value ||
-                               bsl::is_nothrow_move_constructible<TYPE>::value;
     const int TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
@@ -11562,7 +11541,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Range(const CONTAINER&)
     if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
                         NameOf<CONTAINER>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVEABLE);
+                        k_IS_MOVABLE);
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -11657,7 +11636,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Range(const CONTAINER&)
                 BSLS_ASSERT_OPT(LENGTH < NUM_NUM_ALLOCS);
 
                 const bsls::Types::Int64 TYPE_ALLOCS = TYPE_ALLOC * LENGTH;
-                if (TYPE_MOVEABLE) {
+                if (k_IS_MOVABLE) {
                     // Elements are create once, and then moved (no
                     // allocation), so 'TYPE_ALLOCS' is exactly the number of
                     // allocations triggered by elements.

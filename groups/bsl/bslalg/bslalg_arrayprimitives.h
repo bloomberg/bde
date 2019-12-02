@@ -366,6 +366,7 @@ struct ArrayPrimitives {
     typedef std::size_t                 size_type;
     typedef std::ptrdiff_t              difference_type;
 
+  public:
     // CLASS METHODS
     template <class ALLOCATOR, class FWD_ITER>
     static void
@@ -1821,6 +1822,45 @@ struct ArrayPrimitives_Imp {
         // note that this method is intended to support range assignment when
         // the two ranges may be overlapped, and 'srcStart <= dest'.
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    template <class TYPE>
+    static
+    typename bsl::enable_if<!bsl::is_nothrow_move_constructible<TYPE>::value
+                          && bsl::is_copy_constructible<TYPE>::value,
+                            const TYPE& >::type
+    moveIfNoexcept(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
+        // The specified 'lvalue' is not nothrow movable, return a const
+        // reference to it.
+    {
+        // The implementation is placed here in the class definition to work
+        // around a Microsoft C++ compiler (version 16) bug where the
+        // definition cannot be matched to the declaration when an 'enable_if'
+        // is used.
+        return lvalue;
+    }
+    template <class TYPE>
+    static
+    typename bsl::enable_if<!bsl::is_copy_constructible<TYPE>::value
+                          || bsl::is_nothrow_move_constructible<TYPE>::value,
+                            bslmf::MovableRef<TYPE> >::type
+    moveIfNoexcept(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
+        // The specified 'lvalue' is nothrow movable, move it.
+    {
+        // The implementation is placed here in the class definition to work
+        // around a Microsoft C++ compiler (version 16) bug where the
+        // definition cannot be matched to the declaration when an 'enable_if'
+        // is used.
+        return static_cast<typename bsl::remove_reference<TYPE>::type&&>(
+                                                                       lvalue);
+    }
+#else
+    template <class TYPE>
+    static
+    bslmf::MovableRef<TYPE> moveIfNoexcept(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT;
+        // Move the specified 'lvalue' on the assumption that if a move
+        // constructor exists, it is 'noexcept.
+#endif
+
   public:
     // TYPES
     typedef ArrayPrimitives::size_type       size_type;
@@ -3022,7 +3062,6 @@ struct ArrayPrimitives_CanBitwiseCopy
                        // ----------------------
                        // struct ArrayPrimitives
                        // ----------------------
-
 template <class ALLOCATOR>
 inline
 void ArrayPrimitives::uninitializedFillN(
@@ -5760,6 +5799,15 @@ void ArrayPrimitives_Imp::reverseAssign(TARGET_TYPE *dest,
     }
 }
 
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+template <class TYPE>
+inline
+bslmf::MovableRef<TYPE> ArrayPrimitives_Imp::moveIfNoexcept(TYPE& lvalue)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return bslmf::MovableRefUtil::move(lvalue);
+}
+#endif
 
                    // *** 'uninitializedFillN' overloads: ***
 
@@ -6292,13 +6340,12 @@ void ArrayPrimitives_Imp::moveIfNoexcept(
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toBegin,
-            bslmf::MovableRefUtil::move_if_noexcept(*fromBegin));
+            moveIfNoexcept(*fromBegin));
         ++fromBegin;
         toBegin = guard.moveEnd(1);
     }
     guard.release();
 }
-
 
               // *** 'defaultConstruct' overloads: ***
 
@@ -6552,7 +6599,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -6565,14 +6612,14 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
         //..
         //  Transformation: AABCDEFG[G] => vABCDEF[G].
         //..
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -7810,7 +7857,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -7820,11 +7867,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -7863,7 +7910,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -7873,11 +7920,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -7919,7 +7966,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -7929,11 +7976,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -7979,7 +8026,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -7989,11 +8036,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8043,7 +8090,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8053,11 +8100,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8111,7 +8158,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8121,11 +8168,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8183,7 +8230,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8193,11 +8240,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8259,7 +8306,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8269,11 +8316,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8339,7 +8386,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8349,11 +8396,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8423,7 +8470,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8433,11 +8480,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8511,7 +8558,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8521,11 +8568,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8651,7 +8698,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + 1,
@@ -8661,11 +8708,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
 
-        *toBegin = bslmf::MovableRefUtil::move_if_noexcept(space.object());
+        *toBegin = moveIfNoexcept(space.object());
 
         guard.release();
     }
@@ -8735,7 +8782,7 @@ void ArrayPrimitives_Imp::erase(TARGET_TYPE                  *first,
     //..
 
     while (middle != last) {
-        *first++ = bslmf::MovableRefUtil::move_if_noexcept(*middle++);
+        *first++ = moveIfNoexcept(*middle++);
     }
 
     //..
@@ -8821,7 +8868,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                    *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
+            moveIfNoexcept(*(toEnd - 1)));
 
         bslalg::AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(
                                                   toEnd, toEnd + 1, allocator);
@@ -8833,7 +8880,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                    *toBegin,
         TARGET_TYPE *destEnd = toEnd;
         TARGET_TYPE *srcEnd  = toEnd - 1;
         while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
+            *--destEnd = moveIfNoexcept(*--srcEnd);
         }
 
         //..
@@ -9072,7 +9119,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
         TARGET_TYPE *src  = toEnd - numElements;
         TARGET_TYPE *dest = toEnd;
         while (toBegin != src) {
-            *--dest = bslmf::MovableRefUtil::move_if_noexcept(*--src);
+            *--dest = moveIfNoexcept(*--src);
         }
 
         //..
@@ -9383,7 +9430,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
         TARGET_TYPE *src  = toEnd - numElements;
         TARGET_TYPE *dest = toEnd;
         while (toBegin != src) {
-            *--dest = bslmf::MovableRefUtil::move_if_noexcept(*--src);
+            *--dest = moveIfNoexcept(*--src);
         }
 
         //..
