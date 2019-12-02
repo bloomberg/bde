@@ -885,7 +885,9 @@ BSLS_IDENT("$Id: $")
 #include <ball_severity.h>
 
 #include <bslma_managedptr.h>
+
 #include <bsls_annotation.h>
+#include <bsls_keyword.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -1585,7 +1587,7 @@ class Log_Stream {
         // 'fileName' and 'lineNumber', and (3) an 'bsl::ostream' to which the
         // log message is put.
 
-    ~Log_Stream();
+    ~Log_Stream() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
         // Log the record held by this logging stream to the held category (as
         // returned by 'category') at the held severity (as returned by
         // 'severity') and destroy this logging stream.
