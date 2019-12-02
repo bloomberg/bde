@@ -507,11 +507,12 @@ struct IsBitwiseEqualityComparable<void> : bsl::false_type {};
     // partial specialization for any cv-qualified type.
 
 template <>
-struct IsBitwiseEqualityComparable<float> : bsl::false_type {};
+struct IsBitwiseEqualityComparable<float> : bsl::true_type {};
 template <>
-struct IsBitwiseEqualityComparable<double> : bsl::false_type {};
+struct IsBitwiseEqualityComparable<double> : bsl::true_type {};
 template <>
-struct IsBitwiseEqualityComparable<long double> : bsl::false_type {};
+struct IsBitwiseEqualityComparable<long double> : bsl::true_type {};
+    // Revert of {DRQS 143286899}. Once clients are fixed, change to false.
     // Explicit specialization to confirm that floating point types are not
     // bitwise EqualityComparable, as they typically have specific problematic
     // values: NaNs do not compare equal with themselves, and there may be
@@ -520,7 +521,7 @@ struct IsBitwiseEqualityComparable<long double> : bsl::false_type {};
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif // ! defined(INCLUDED_BSLMF_ISBITWISECOPYABLE)
+#endif // ! defined(INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE)
 
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
