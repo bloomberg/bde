@@ -570,9 +570,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         ASSERT(3 < origCwd.length());    // not root
 
-        // Detect relative path on Unix or Windows
+        // Detect relative process name on Unix or Windows
 
-        const bool argv0IsRelative = u::isRelative(argv0);
+        bool processNameIsRelative;
         const bool isReallyTC4 = ::getenv("BDLS_PROCESSUTIL_REALLY_TC_4");
 
         // Repeat the test if we're called from TC 4 to test 'U_LOG_ERROR_ONCE'
@@ -584,6 +584,8 @@ int main(int argc, char *argv[])
             rc = FUtil::setWorkingDirectory(origCwd);
             ASSERT(0 == rc);
 
+            const bool argv0IsRelative = u::isRelative(argv0);
+
             ASSERTV(argv0, FUtil::exists(argv0));
             const bsls::Types::Int64 execSize = FUtil::getFileSize(argv0);
             ASSERTV(execSize, 8 * 1024 < execSize);
@@ -592,6 +594,8 @@ int main(int argc, char *argv[])
             int gpnbRc = Obj::getProcessName(&procNameBeforeCd);
             ASSERTV(gpnbRc, procNameBeforeCd, 0 == gpnbRc);
             ASSERT(!procNameBeforeCd.empty());
+
+            processNameIsRelative = u::isRelative(procNameBeforeCd);
 
             bsl::string execNameBeforeCd("meow", &ta);
             rc = Obj::getPathToExecutable(&execNameBeforeCd);
@@ -682,18 +686,17 @@ int main(int argc, char *argv[])
 
         if (isReallyTC4) {
             if (verbose) {
-                P_(argv0IsRelative);         P(numIterations);
+                P_(processNameIsRelative);   P(numIterations);
                 P_(u::numMessagesLogged);    P(u::numExpectedMessagesLogged);
-            
             }
 
             ASSERTV(U_TEST_U_LOG_ERROR_ONCE, u::numMessagesLogged,
-                                                               argv0IsRelative,
-                                  argv0IsRelative && U_TEST_U_LOG_ERROR_ONCE ==
+                                                         processNameIsRelative,
+                            processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE ==
                                                          u::numMessagesLogged);
             ASSERTV(U_TEST_U_LOG_ERROR_ONCE, u::numExpectedMessagesLogged,
-                                                               argv0IsRelative,
-                                  argv0IsRelative && U_TEST_U_LOG_ERROR_ONCE ==
+                                                         processNameIsRelative,
+                            processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE ==
                                                  u::numExpectedMessagesLogged);
         }
       } break;
