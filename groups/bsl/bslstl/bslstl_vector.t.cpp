@@ -5373,7 +5373,6 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      long double,
                       bsltf::MoveOnlyAllocTestType,
                       NotAssignable,
                       BitwiseNotAssignable);
