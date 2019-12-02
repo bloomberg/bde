@@ -692,11 +692,11 @@ int main(int argc, char *argv[])
 
             ASSERTV(U_TEST_U_LOG_ERROR_ONCE, u::numMessagesLogged,
                                                          processNameIsRelative,
-                            processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE ==
+                          (processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE) ==
                                                          u::numMessagesLogged);
             ASSERTV(U_TEST_U_LOG_ERROR_ONCE, u::numExpectedMessagesLogged,
                                                          processNameIsRelative,
-                            processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE ==
+                          (processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE) ==
                                                  u::numExpectedMessagesLogged);
         }
       } break;
