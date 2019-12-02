@@ -113,11 +113,6 @@ class MovableTestType {
     MoveState::Enum    d_movedInto;    // moved-into state
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MovableTestType,
-                                   bsl::is_nothrow_move_constructible);
-
-  public:
     // CREATORS
     MovableTestType();
         // Create a 'MovableTestType' object having the (default)
@@ -276,13 +271,6 @@ bool bsltf::operator!=(const MovableTestType& lhs,
 }
 
 }  // close enterprise namespace
-
-// TRAITS
-namespace bsl {
-template <>
-struct is_nothrow_move_constructible<BloombergLP::bsltf::MovableTestType>
-        : bsl::true_type {};
-}  // close namespace bsl
 
 #endif
 

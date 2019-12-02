@@ -114,11 +114,6 @@ class MovableAllocTestType {
     MoveState::Enum         d_movedInto;    // moved-from state
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MovableAllocTestType,
-                                   bsl::is_nothrow_move_constructible);
-
-  public:
     // CREATORS
     MovableAllocTestType();
     explicit MovableAllocTestType(bslma::Allocator *basicAllocator);
@@ -297,12 +292,6 @@ struct UsesBslmaAllocator<bsltf::MovableAllocTestType>
 }  // close namespace bslma
 
 }  // close enterprise namespace
-
-namespace bsl {
-template <>
-struct is_nothrow_move_constructible<BloombergLP::bsltf::MovableAllocTestType>
-        : bsl::true_type {};
-}  // close namespace bsl
 
 #endif
 
