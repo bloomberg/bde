@@ -418,10 +418,10 @@ class EventSchedulerTestTimeSource_Data {
     // protect access to the current time.
 
     // DATA
-    bsls::TimeInterval d_currentTime;       // the current time
+    bsls::TimeInterval   d_currentTime;       // the current time
 
-    bslmt::Mutex       d_currentTimeMutex;  // mutex used to synchronize
-                                            // 'd_currentTime' access
+    mutable bslmt::Mutex d_currentTimeMutex;  // mutex used to synchronize
+                                              // 'd_currentTime' access
 
     // NOT IMPLEMENTED
     EventSchedulerTestTimeSource_Data(
@@ -431,6 +431,7 @@ class EventSchedulerTestTimeSource_Data {
 
   public:
     // CREATORS
+    explicit
     EventSchedulerTestTimeSource_Data(bsls::TimeInterval currentTime);
         // Construct a test time-source data object that will store the
         // "system-time", initialized to the specified 'currentTime'.
@@ -448,7 +449,7 @@ class EventSchedulerTestTimeSource_Data {
         // the range that can be represented with a 'bsls::TimeInterval'.
 
     // ACCESSORS
-    bsls::TimeInterval currentTime();
+    bsls::TimeInterval currentTime() const;
         // Return this object's current-time value.
 };
 

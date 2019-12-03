@@ -75,7 +75,7 @@ bsls::TimeInterval EventSchedulerTestTimeSource_Data::advanceTime(
 }
 
 // ACCESSORS
-bsls::TimeInterval EventSchedulerTestTimeSource_Data::currentTime()
+bsls::TimeInterval EventSchedulerTestTimeSource_Data::currentTime() const
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
     return d_currentTime;

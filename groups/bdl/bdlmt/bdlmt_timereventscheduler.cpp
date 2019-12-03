@@ -13,7 +13,6 @@
 BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
@@ -91,7 +90,7 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::advanceTime(
 }
 
 // ACCESSORS
-bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::currentTime()
+bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::currentTime() const
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
     return d_currentTime;
