@@ -600,8 +600,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
-#include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
 
@@ -655,7 +655,7 @@ class List_Node {
                         // class bsl::List_Iterator
                         // ========================
 
-#ifdef BSLS_PLATFORM_OS_SOLARIS
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 // On Solaris studio12-v4, <algorithm> is compatible only with iterators
 // inheriting from 'std::iterator'.
 
@@ -4929,7 +4929,7 @@ struct IsBitwiseMoveable<bsl::list<VALUE, ALLOCATOR> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

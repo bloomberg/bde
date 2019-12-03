@@ -119,8 +119,8 @@ in BSL_OVERRIDES_STD mode"
 #include <bslmf_removecv.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
-#include <bsls_platform.h>
 #include <bsls_util.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -134,7 +134,7 @@ namespace bslstl {
                           // class HashTableBucketIterator
                           // =============================
 
-#ifdef BSLS_PLATFORM_OS_SOLARIS
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.
 
@@ -534,7 +534,7 @@ operator++(HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE> &iter, int)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

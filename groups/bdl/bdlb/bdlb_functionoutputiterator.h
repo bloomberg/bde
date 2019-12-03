@@ -165,12 +165,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_iterator.h>
 
 namespace BloombergLP {
 namespace bdlb {
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 // Sun Studio compilers have non-standard iterator behavior requiring iterators
 // to inherit from 'iterator' (rather than simply meeting the needs of
 // 'std::iterator_traits').  In addition, Sun Studio requires the 'value_type'
@@ -371,7 +373,7 @@ operator++(FunctionOutputIterator<FUNCTION>& iterator, int)
 
 #endif
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
