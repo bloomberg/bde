@@ -32,9 +32,9 @@ BSLS_IDENT("$Id: $")
 //
 // Also note that the template variable 'is_class_v' is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_class_v' is defined as an 'inline
-// constexpr bool' variable.  Otherwise, if the compiler supports the variable
-// templates C++14 compiler feature, 'bsl::is_class_v' is defined as a
+// variable C++17 compiler feature, 'bsl::is_class_v' is defined as an
+// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, 'bsl::is_class_v' is defined as a
 // non-inline 'constexpr bool' variable.  See
 // 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
 // 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in

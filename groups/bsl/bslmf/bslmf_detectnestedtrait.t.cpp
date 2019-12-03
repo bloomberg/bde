@@ -107,6 +107,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: push    // Usage examples relax rules for doc clarity
+// BDE_VERIFY pragma: -FD01   // Function contracts replaced by expository text
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -284,6 +287,8 @@ void aSsErT(bool condition, const char *message, int line)
     }
 //..
 
+// BDE_VERIFY pragma: pop  // end of usage example-example relaxed rules
+
 // ============================================================================
 //                      GLOBAL MACROS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -354,30 +359,45 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE[][8], false)
 
 // ============================================================================
-//                        CLASSES FOR BREATHING TEST
+//                      SUPPORT FUNCTIONS FOR BREATHING TEST
 // ----------------------------------------------------------------------------
 
-bool dispatchForConversion(bsl::false_type) {
-    return false;
-}
+// The following two overloaded functions are used by the global macros above
+// to validate base characteristics of a type trait: namely, that it is
+// publicly and unambiguously derived from to its base characteristic, and that
+// the public members of that base characteristic, such as the nested typename
+// 'type', remain unambiguous and publicly accessible (including conversion to
+// said base characteristic through its copy constructor).
 
-bool dispatchForConversion(bsl::true_type) {
-    return true;
-}
+bool dispatchForConversion(bsl::false_type) { return false; }
+bool dispatchForConversion(bsl::true_type)  { return true;  }
+    // Return 'true' if the supplied argument is convertible to
+    // 'bsl::true_type', and 'false' if the supplied argument is convertible to
+    // 'bsl::false_type'; otherwise calls to this function will fail to
+    // compile.
 
-bool dispatchOnType(bsl::false_type *) {
-    return false;
-}
 
-bool dispatchOnType(bsl::true_type *) {
-    return true;
-}
-
+bool dispatchOnType(bsl::false_type *) { return false; }
+bool dispatchOnType(bsl::true_type *)  { return true;  }
 void dispatchOnType(void *);
+    // Return 'true' if the supplied argument is a pointer to 'bsl::true_type',
+    // and 'false' if the supplied argument is a pointer to 'bsl::false_type';
+    // otherwise calls to this function with any other pointer type, such as a
+    // pointer to a class type publicly derived from 'bsl::true_type' or
+    // 'bsl::false_type', will match the third overload that is never defined
+    // and does not have a return value, and so should produce some compilation
+    // failure.
 
 // ============================================================================
-//                        CLASSES TO SUPPORT TESTING
+//                      TYPES TO SUPPORT TESTING
 // ----------------------------------------------------------------------------
+
+// In order to demonstrate that there are no ambiguities buried in the traits
+// customization facility, define two traits having the same unqualified name,
+// but in different namespaces when the fully qualified name is used.  This
+// will also allow us to demonstrate that looking for a trait with the same
+// name but from another namespace will not be found unless a class is
+// associated with both traits.
 
 namespace foo {
 // Note curiously-recurring template pattern
@@ -399,9 +419,20 @@ struct IsInflatable : bslmf::DetectNestedTrait<TYPE, IsInflatable>::type {
 };
 }  // close namespace bar
 
-struct InflatableClass {
-    // This 'struct' represents an inflatable type.
 
+// Next we define several classes and unions associated with various traits.
+// In order to demonstrate that the trait association metaprogram depends only
+// on type names, all of these types will have a private copy constructor and
+// not default constructor: it is essentially impossible to create values of
+// any of these types are runtime.
+
+class InflatableClass {
+    // This 'struct' represents an inflatable type.
+  private:
+    // NOT IMPLEMENTED
+    InflatableClass(const InflatableClass&);
+
+  public:
     BSLMF_NESTED_TRAIT_DECLARATION(InflatableClass, foo::IsInflatable);
 };
 
@@ -414,6 +445,74 @@ union InflatableUnion {
 
     BSLMF_NESTED_TRAIT_DECLARATION(InflatableUnion, foo::IsInflatable);
 };
+
+struct NonflatableClass {
+    // This 'struct' represents a non-inflatable type (for 'foo') that has an
+    // associated trait with the same name, but from another namespace.
+  private:
+    // NOT IMPLEMENTED
+    NonflatableClass(const NonflatableClass&);
+
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(NonflatableClass, bar::IsInflatable);
+};
+
+union NonflatableUnion {
+    // This 'union' represents a non-inflatable type (for 'foo') that has an
+    // associated trait with the same name, but from another namespace.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(NonflatableUnion, bar::IsInflatable);
+};
+
+// Then, we define a class and a union type associated with two traits having
+// the same (unqualified) name in each of their respective namespaces.
+
+struct ExpandedClass {
+    // This 'struct' represents an inflatable type in two dimensions of
+    // inflatability, in order to support testing for ambiguity concerns.
+  private:
+    // NOT IMPLEMENTED
+    ExpandedClass(const ExpandedClass&);
+
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedClass, foo::IsInflatable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedClass, bar::IsInflatable);
+};
+
+union ExpandedUnion {
+    // This 'union' represents an inflatable type in two dimensions of
+    // inflatability, in order to support testing for ambiguity concerns.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, foo::IsInflatable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, bar::IsInflatable);
+};
+
+// Next, we define empty and incomplete types that are not associated with any
+// traits.  Note that the incomplete types are used mostly to support
+// compile-fail tests.
+
+struct EmptyClass {};
+struct EmptyUnion {};
+
+class Incomplete;
+union Uncomplete;
+
+// Then, we define a class template that is conditionally associated with a
+// trait only if the template argument used to instantiate it is similarly
+// associated with that trait.
+
+template <class TYPE>
+struct Container {
+    // 'Container' is an inflatable type if, and only if, 'TYPE' is inflatable.
+
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, foo::IsInflatable,
+                                      foo::IsInflatable<TYPE>::value);
+};
+
+// Next, for completeness, we create an enum and enum-class type to demonstrate
+// that enumerations do not support nested traits.  We do not test the simple
+// case of associating a trait with these enumerations via explicit template
+// instantiation.
 
 enum NonflatableEnum {
     // This 'enum' demonstrates that enumerations cannot be associated with a
@@ -431,61 +530,23 @@ enum class NonflatableEnumClass {
 };
 #endif
 
-struct NonflatableClass {
-    // This 'struct' represents a non-inflatable type.
-
-    BSLMF_NESTED_TRAIT_DECLARATION(NonflatableClass, bar::IsInflatable);
-};
-
-union NonflatableUnion {
-    // This 'union' represents a non-inflatable type.
-
-    BSLMF_NESTED_TRAIT_DECLARATION(NonflatableUnion, bar::IsInflatable);
-};
-
-template <class TYPE>
-struct Container {
-    // 'Container' is an inflatable type if, and only if, 'TYPE' is inflatable.
-
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, foo::IsInflatable,
-                                      foo::IsInflatable<TYPE>::value);
-};
+// Finally, we define a class specifically intended to fool the trait detection
+// mechanism by being convertible to anything.
 
 struct ConvertibleToAny {
-    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
-    // assign it any traits.  The concern is that since
+    // Type that can be converted to any type.  'DetectNestedTrait' should not
+    // assign it any traits.  The concern to test is that since
     // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
-    // the "convert to anything" operator shouldn't interfere with the nested
-    // trait logic.
+    // the "convert to anything" operator should not interfere with the nested
+    // trait logic.  Note that this means it is impossible to associate /any/
+    // traits with this 'ConvertibleToAny' type.  However, traits can still be
+    // explicitly specialized for this and similar types.
 
     template <class TYPE>
     operator TYPE() const { return TYPE(); }
         // Return a default-constructed object of the deduced 'TYPE'.
 };
 
-
-struct ExpandedClass {
-    // This 'struct' represents an inflatable type in two dimensions of
-    // inflatability, in order to support testing for ambiguity concerns.
-
-    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedClass, foo::IsInflatable);
-    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedClass, bar::IsInflatable);
-};
-
-union ExpandedUnion {
-    // This 'union' represents an inflatable type in two dimensions of
-    // inflatability, in order to support testing for ambiguity concerns.
-
-    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, foo::IsInflatable);
-    BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, bar::IsInflatable);
-};
-
-
-struct EmptyClass {};
-struct EmptyUnion {};
-
-class Incomplete;
-union Uncomplete;
 
 // ============================================================================
 //                      DETECTING TRAITS ON ARRAYS
@@ -703,9 +764,11 @@ int main(int argc, char *argv[])
         //: 1 'DetectNestedTrait<TYPE, TRAIT>' compiles and gives the expected
         //:   result for every category of type.
         //:
-        //: 2 Class types (including structs and unions) are the only types
+        //: 2 Class types (including 'struct's and 'unions') are the only types
         //:   that might yield a 'true_type' result; all other type categories
-        //:   always yield 'false_type'.
+        //:   always yield 'false_type'.  Note that we deliberately ignore the
+        //:   case of users forging their own implementation of the expanded
+        //:   macro; there is no protection against the perfect forger.
         //:
         //: 3 The trait yields 'true_type' only for types that use macros from
         //:   the 'BSLMF_NESTED_TRAIT_DECLARATION' family to associate a trait
