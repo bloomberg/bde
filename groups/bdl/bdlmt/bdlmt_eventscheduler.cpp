@@ -52,9 +52,47 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
 
 namespace bdlmt {
 
-                 // ---------------------------------------
+                 // =======================================
                  // class EventSchedulerTestTimeSource_Data
-                 // ---------------------------------------
+                 // =======================================
+
+class EventSchedulerTestTimeSource_Data {
+    // This 'class' provides storage for the current time and a mutex to
+    // protect access to the current time.
+
+    // DATA
+    bsls::TimeInterval   d_currentTime;       // the current time
+
+    mutable bslmt::Mutex d_currentTimeMutex;  // mutex used to synchronize
+                                              // 'd_currentTime' access
+
+    // NOT IMPLEMENTED
+    EventSchedulerTestTimeSource_Data(
+                                     const EventSchedulerTestTimeSource_Data&);
+    EventSchedulerTestTimeSource_Data& operator=(
+                                     const EventSchedulerTestTimeSource_Data&);
+
+  public:
+    // CREATORS
+    explicit
+    EventSchedulerTestTimeSource_Data(bsls::TimeInterval currentTime);
+        // Construct a test time-source data object that will store the
+        // "system-time", initialized to the specified 'currentTime'.
+
+    //! ~EventSchedulerTestTimeSource_Data() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
+        // Advance this object's current-time value by the specified 'amount'
+        // of time.  Return the updated current-time value.  The behavior is
+        // undefined unless 'amount' is positive, and 'now + amount' is within
+        // the range that can be represented with a 'bsls::TimeInterval'.
+
+    // ACCESSORS
+    bsls::TimeInterval currentTime() const;
+        // Return this object's current-time value.
+};
 
 // CREATORS
 EventSchedulerTestTimeSource_Data::EventSchedulerTestTimeSource_Data(
@@ -673,9 +711,10 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
     // 'EventSchedulerTestTimeSource::advanceTime'.  See the call to
     // 'timedWait' in 'EventScheduler::dispatchEvents'.
 
-    // The following uses the default allocator since the lifetime of the
-    // created object may be longer than this 'EventSchedulerTestTimeSource'
-    // and the associated 'EventScheduler'.
+    // The following uses the default allocator since the created object's
+    // lifetime is shared between 'EventSchedulerTestTimeSource' and the
+    // associated 'EventScheduler', so the data may outlive either individual
+    // object.
 
     d_data_p = bsl::make_shared<EventSchedulerTestTimeSource_Data>(
                                 bsls::SystemTime::now(scheduler->d_clockType)

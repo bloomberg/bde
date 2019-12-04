@@ -408,50 +408,7 @@ namespace bdlmt {
 
 class EventSchedulerEventHandle;
 class EventSchedulerRecurringEventHandle;
-
-                 // =======================================
-                 // class EventSchedulerTestTimeSource_Data
-                 // =======================================
-
-class EventSchedulerTestTimeSource_Data {
-    // This 'class' provides storage for the current time and a mutex to
-    // protect access to the current time.
-
-    // DATA
-    bsls::TimeInterval   d_currentTime;       // the current time
-
-    mutable bslmt::Mutex d_currentTimeMutex;  // mutex used to synchronize
-                                              // 'd_currentTime' access
-
-    // NOT IMPLEMENTED
-    EventSchedulerTestTimeSource_Data(
-                                     const EventSchedulerTestTimeSource_Data&);
-    EventSchedulerTestTimeSource_Data& operator=(
-                                     const EventSchedulerTestTimeSource_Data&);
-
-  public:
-    // CREATORS
-    explicit
-    EventSchedulerTestTimeSource_Data(bsls::TimeInterval currentTime);
-        // Construct a test time-source data object that will store the
-        // "system-time", initialized to the specified 'currentTime'.
-
-    //! ~EventSchedulerTestTimeSource_Data() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
-        // Advance this object's current-time value by the specified 'amount'
-        // of time, notify the scheduler that the time has changed, and wait
-        // for the scheduler to process the events triggered by this change in
-        // time.  Return the updated current-time value.  The behavior is
-        // undefined unless 'amount' is positive, and 'now + amount' is within
-        // the range that can be represented with a 'bsls::TimeInterval'.
-
-    // ACCESSORS
-    bsls::TimeInterval currentTime() const;
-        // Return this object's current-time value.
-};
+class EventSchedulerTestTimeSource_Data;
 
                             // ====================
                             // class EventScheduler

@@ -67,35 +67,6 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
 
 namespace bdlmt {
 
-               // --------------------------------------------
-               // class TimerEventSchedulerTestTimeSource_Data
-               // --------------------------------------------
-
-// CREATORS
-TimerEventSchedulerTestTimeSource_Data::TimerEventSchedulerTestTimeSource_Data(
-                                                bsls::TimeInterval currentTime)
-: d_currentTime(currentTime)
-{
-}
-
-// MANIPULATORS
-bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::advanceTime(
-                                                     bsls::TimeInterval amount)
-{
-    BSLS_ASSERT(amount > 0);
-
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
-    d_currentTime += amount;
-    return d_currentTime;
-}
-
-// ACCESSORS
-bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::currentTime() const
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
-    return d_currentTime;
-}
-
                    // ====================================
                    // struct TimerEventSchedulerDispatcher
                    // ====================================
@@ -259,6 +230,74 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
         scheduler->d_pendingEventItems.clear();
     }
 }
+
+               // ============================================
+               // class TimerEventSchedulerTestTimeSource_Data
+               // ============================================
+
+class TimerEventSchedulerTestTimeSource_Data {
+    // This 'class' provides storage for the current time and a mutex to
+    // protect access to the current time.
+
+    // DATA
+    bsls::TimeInterval   d_currentTime;       // the current time
+
+    mutable bslmt::Mutex d_currentTimeMutex;  // mutex used to synchronize
+                                              // 'd_currentTime' access
+
+    // NOT IMPLEMENTED
+    TimerEventSchedulerTestTimeSource_Data(
+                                const TimerEventSchedulerTestTimeSource_Data&);
+    TimerEventSchedulerTestTimeSource_Data& operator=(
+                                const TimerEventSchedulerTestTimeSource_Data&);
+
+  public:
+    // CREATORS
+    explicit
+    TimerEventSchedulerTestTimeSource_Data(bsls::TimeInterval currentTime);
+        // Construct a test time-source data object that will store the
+        // "system-time", initialized to the specified 'currentTime'.
+
+    //! ~TimerEventSchedulerTestTimeSource_Data() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
+        // Advance this object's current-time value by the specified 'amount'
+        // of time.  Return the updated current-time value.  The behavior is
+        // undefined unless 'amount' is positive, and 'now + amount' is within
+        // the range that can be represented with a 'bsls::TimeInterval'.
+
+    // ACCESSORS
+    bsls::TimeInterval currentTime() const;
+        // Return this object's current-time value.
+};
+
+// CREATORS
+TimerEventSchedulerTestTimeSource_Data::TimerEventSchedulerTestTimeSource_Data(
+                                                bsls::TimeInterval currentTime)
+: d_currentTime(currentTime)
+{
+}
+
+// MANIPULATORS
+bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::advanceTime(
+                                                     bsls::TimeInterval amount)
+{
+    BSLS_ASSERT(amount > 0);
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+    d_currentTime += amount;
+    return d_currentTime;
+}
+
+// ACCESSORS
+bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::currentTime() const
+{
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+    return d_currentTime;
+}
+
 }  // close package namespace
 
 static
@@ -806,9 +845,10 @@ TimerEventSchedulerTestTimeSource::TimerEventSchedulerTestTimeSource(
     // 'TimerEventSchedulerTestTimeSource::advanceTime'.  See the call to
     // 'timedWait' in 'TimerEventScheduler::dispatchEvents'.
 
-    // The following uses the default allocator since the lifetime of the
-    // created object may be longer than this 'EventSchedulerTestTimeSource'
-    // and the associated 'EventScheduler'.
+    // The following uses the default allocator since the created object's
+    // lifetime is shared between 'TimerEventSchedulerTestTimeSource' and the
+    // associated 'TimerEventScheduler', so the data may outlive either
+    // individual object.
 
     d_data_p = bsl::make_shared<TimerEventSchedulerTestTimeSource_Data>(
                                 bsls::SystemTime::now(scheduler->d_clockType)
