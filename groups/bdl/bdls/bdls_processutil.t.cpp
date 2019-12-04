@@ -21,11 +21,10 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
-
-#include <stdlib.h>
 
 #if defined BSLS_PLATFORM_OS_UNIX
 # include <sys/types.h>
@@ -160,40 +159,6 @@ bool isRelative(const bsl::string& path)
     return isRelative(path.c_str());
 }
 
-// To test the macro 'U_LOG_ERROR_ONCE' in the imp file, set the local macro
-// 'U_TEST_U_LOG_ERROR_ONCE' to 1 in both this file and the imp file.  In
-// production, 'U_TEST_U_LOG_ERROR_ONCE' should be set to 0 in both files.
-
-#define U_TEST_U_LOG_ERROR_ONCE 0
-
-int numMessagesLogged = 0;
-int numExpectedMessagesLogged = 0;
-void logMessageHandler(bsls::LogSeverity::Enum  severity,
-                       const char              *file,
-                       int                      line,
-                       const char              *message)
-    // Keep count of the number of messages logged, and the number of messages
-    // of the type we expect to be emitted by TC 3 when called by TC 4 when
-    // 'U_TEST_U_LOG_ERROR_ONCE' is set.
-{
-    ++numMessagesLogged;
-
-    ASSERT(1 == U_TEST_U_LOG_ERROR_ONCE);
-
-    if (bsls::LogSeverity::e_ERROR == severity
-       && bsl::strstr(file, "/bdl/bdls/bdls_processutil.cpp")
-       && line < 1000
-       && bsl::strstr(message, "bdls::ProcessUtil::"
-                        "getPathToExecutable: process name is not executable.")
-       && U_TEST_U_LOG_ERROR_ONCE) {
-        ++numExpectedMessagesLogged;
-        ASSERTV(numExpectedMessagesLogged, 1 == numExpectedMessagesLogged);
-    }
-    else {
-        ASSERTV(file, line, message, 0 && "unexpected message logged:");
-    }
-}
-
 int resolvePath(bsl::string *result, const char *origPath)
 {
     result->assign(origPath);
@@ -236,7 +201,7 @@ int resolvePath(bsl::string *result, const bsl::string& origPath)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? ::atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
@@ -446,10 +411,6 @@ int main(int argc, char *argv[])
 
 #if defined BSLS_PLATFORM_OS_UNIX
 
-        static char putenvBuf[100];
-        bsl::strcpy(putenvBuf, "BDLS_PROCESSUTIL_REALLY_TC_4=1");
-        ::putenv(putenvBuf);
-
         bsl::string scriptName(dirName, &ta);
         scriptName += "/case4.script.sh";
         FILE *fp = bsl::fopen(scriptName.c_str(), "w");
@@ -474,10 +435,6 @@ int main(int argc, char *argv[])
 
 #else   // Windows
 
-        static char putenvBuf[100];
-        bsl::strcpy(putenvBuf, "BDLS_PROCESSUTIL_REALLY_TC_4=1");
-        ::_putenv(putenvBuf);
-
         bsl::string scriptName(dirName, &ta);
         scriptName += "\\case4.script.bat";
         FILE *fp = bsl::fopen(scriptName.c_str(), "w");
@@ -497,7 +454,7 @@ int main(int argc, char *argv[])
 
 #endif
 
-        rc = ::system(scriptName.c_str());
+        rc = bsl::system(scriptName.c_str());
         ASSERTV(rc, 0 == rc);
         if (0 < rc) {
             testStatus = bsl::min(101, testStatus + rc);
@@ -563,141 +520,103 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING 'getPathToExecutable'\n"
                              "===========================\n";
 
-        bsls::Log::setLogMessageHandler(&u::logMessageHandler);
+        ASSERTV(argv0, FUtil::exists(argv0));
+        const bsls::Types::Int64 execSize = FUtil::getFileSize(argv0);
+        ASSERTV(execSize, 8 * 1024 < execSize);
+
+        // Detect relative path on Unix or Windows
+
+        const bool argv0IsRelative = u::isRelative(argv0);
 
         bsl::string origCwd(&ta);
         int rc = FUtil::getWorkingDirectory(&origCwd);
         ASSERT(0 == rc);
         ASSERT(3 < origCwd.length());    // not root
 
-        // Detect relative process name on Unix or Windows
+        bsl::string procNameBeforeCd("meow", &ta);
+        int gpnbRc = Obj::getProcessName(&procNameBeforeCd);
+        ASSERTV(gpnbRc, procNameBeforeCd, 0 == gpnbRc);
+        ASSERT(!procNameBeforeCd.empty());
 
-        bool processNameIsRelative;
-        const bool isReallyTC4 = ::getenv("BDLS_PROCESSUTIL_REALLY_TC_4");
+        bsl::string execNameBeforeCd("meow", &ta);
+        rc = Obj::getPathToExecutable(&execNameBeforeCd);
+        ASSERT(0 == rc);
 
-        // Repeat the test if we're called from TC 4 to test 'U_LOG_ERROR_ONCE'
-        // so that 4 attempts to log will be made and we can observe that only
-        // one actually logs.
-
-        const int numIterations = 1 + 3 * isReallyTC4;
-        for (int ti = 0; ti < numIterations; ++ti) {
-            rc = FUtil::setWorkingDirectory(origCwd);
-            ASSERT(0 == rc);
-
-            const bool argv0IsRelative = u::isRelative(argv0);
-
-            ASSERTV(argv0, FUtil::exists(argv0));
-            const bsls::Types::Int64 execSize = FUtil::getFileSize(argv0);
-            ASSERTV(execSize, 8 * 1024 < execSize);
-
-            bsl::string procNameBeforeCd("meow", &ta);
-            int gpnbRc = Obj::getProcessName(&procNameBeforeCd);
-            ASSERTV(gpnbRc, procNameBeforeCd, 0 == gpnbRc);
-            ASSERT(!procNameBeforeCd.empty());
-
-            processNameIsRelative = u::isRelative(procNameBeforeCd);
-
-            bsl::string execNameBeforeCd("meow", &ta);
-            rc = Obj::getPathToExecutable(&execNameBeforeCd);
-            ASSERT(0 == rc);
-
-            ASSERTV(execNameBeforeCd, FUtil::exists(execNameBeforeCd));
-            ASSERTV(execNameBeforeCd, u::isExecutable(execNameBeforeCd));
-            ASSERTV(execSize, FUtil::getFileSize(execNameBeforeCd),
+        ASSERTV(execNameBeforeCd, FUtil::exists(execNameBeforeCd));
+        ASSERTV(execNameBeforeCd, u::isExecutable(execNameBeforeCd));
+        ASSERTV(execSize, FUtil::getFileSize(execNameBeforeCd),
                              execSize == FUtil::getFileSize(execNameBeforeCd));
 
-            rc = FUtil::setWorkingDirectory("..");
-            ASSERT(0 == rc);
+        rc = FUtil::setWorkingDirectory("..");
+        ASSERT(0 == rc);
 
-            bsl::string cwd(&ta);
-            rc = FUtil::getWorkingDirectory(&cwd);
-            ASSERT(0 == rc);
-            ASSERTV(origCwd, cwd, origCwd != cwd);
+        bsl::string cwd(&ta);
+        rc = FUtil::getWorkingDirectory(&cwd);
+        ASSERT(0 == rc);
+        ASSERTV(origCwd, cwd, origCwd != cwd);
 
-            ASSERTV(cwd, argv0, FUtil::exists(argv0), argv0IsRelative,
+        ASSERTV(cwd, argv0, FUtil::exists(argv0), argv0IsRelative,
                                    FUtil::exists(argv0) == !argv0IsRelative);
 
-            const bool procExists = FUtil::isDirectory("/proc", true);
+        const bool procExists = FUtil::isDirectory("/proc", true);
 
 #if defined BSLS_PLATFORM_OS_AIX || defined BSLS_PLATFORM_OS_LINUX
-            const bool expFindExec = procExists || !argv0IsRelative;
+        const bool expFindExec = procExists || !argv0IsRelative;
 #elif defined BSLS_PLATFORM_OS_CYGWIN || defined BSLS_PLATFORM_OS_HPUX
-            const bool expFindExec = !argv0IsRelative;
+        const bool expFindExec = !argv0IsRelative;
 #else
-            const bool expFindExec = true;
+        const bool expFindExec = true;
 #endif
 
-            bsl::string execName("woof", &ta);
-            int gpteRc = Obj::getPathToExecutable(&execName);
-            ASSERTV(gpteRc, execName, 0 == gpteRc);
-            ASSERT(!execName.empty());
-            ASSERT(bsl::strlen(execName.c_str()) == execName.length());
-            const bool execNameIsRelative = u::isRelative(execName);
-            const bool execNameExists = FUtil::exists(execName);
-            const bool execNameIsExec = u::isExecutable(execName);
-            const bool sizeMatches = execSize == FUtil::getFileSize(execName);
+        bsl::string execName("woof", &ta);
+        int gpteRc = Obj::getPathToExecutable(&execName);
+        ASSERTV(gpteRc, execName, 0 == gpteRc);
+        ASSERT(!execName.empty());
+        ASSERT(bsl::strlen(execName.c_str()) == execName.length());
+        const bool execNameIsRelative = u::isRelative(execName);
+        const bool execNameExists = FUtil::exists(execName);
+        const bool execNameIsExec = u::isExecutable(execName);
+        const bool sizeMatches = execSize == FUtil::getFileSize(execName);
 
-            bsl::string procNameAfterCd("meow", &ta);
-            int gpnRc = Obj::getProcessName(&procNameAfterCd);
-            ASSERTV(gpnRc, procNameAfterCd, 0 == gpnRc);
-            ASSERT(!procNameAfterCd.empty());
+        bsl::string procNameAfterCd("meow", &ta);
+        int gpnRc = Obj::getProcessName(&procNameAfterCd);
+        ASSERTV(gpnRc, procNameAfterCd, 0 == gpnRc);
+        ASSERT(!procNameAfterCd.empty());
 
-            const char * const target =
-                                      u::npos == procNameAfterCd.find("case4")
-                                      ? baseArgv0.c_str()
-                                      : u::e_UNIX
-                                      ? "link"
-                                      : "exec";
-            ASSERTV(procNameAfterCd, target, u::npos !=
+        const char * const target = u::npos == procNameAfterCd.find("case4")
+                                  ? baseArgv0.c_str()
+                                  : u::e_UNIX
+                                  ? "link"
+                                  : "exec";
+        ASSERTV(procNameAfterCd, target, u::npos !=
                                                  procNameAfterCd.find(target));
-            if (!u::e_UNIX) {
-                ASSERTV(execName, procNameAfterCd,
-                                                  execName == procNameAfterCd);
-            }
-
-            if (verbose) {
-                P_(origCwd);    P_(cwd);   P(procExists);
-                P_(procNameBeforeCd);      P(procNameAfterCd);
-                P_(execNameBeforeCd);      P(execName);
-                P_(execNameIsRelative);    P_(execNameExists);
-                P(execNameIsExec);
-                P_(sizeMatches);           P(procNameAfterCd);
-            }
-
-            if (expFindExec) {
-                ASSERTV(execName, expFindExec, gpteRc, 0 == gpteRc);
-                ASSERTV(execName, !execNameIsRelative);
-                ASSERTV(execName, expFindExec, execNameExists, execNameExists);
-                ASSERTV(execName, expFindExec, execNameIsExec, execNameIsExec);
-                ASSERTV(execSize, sizeMatches);
-            }
-            else {
-                // If we did better than expected, issue warning, but not
-                // error.
-
-                if (0 == gpteRc)         cout << "Unexpected success rc!\n";
-                if (!execNameIsRelative) cout <<
-                                                "Unexpectedly not relative!\n";
-                if (execNameExists)      cout << "Unexpectedly existed!\n";
-                if (execNameIsExec)      cout << "Unexpectedly executable!\n";
-                if (sizeMatches)         cout << "Unexpected matching size!\n";
-            }
+        if (!u::e_UNIX) {
+            ASSERTV(execName, procNameAfterCd, execName == procNameAfterCd);
         }
 
-        if (isReallyTC4) {
-            if (verbose) {
-                P_(processNameIsRelative);   P(numIterations);
-                P_(u::numMessagesLogged);    P(u::numExpectedMessagesLogged);
-            }
+        if (verbose) {
+            P_(origCwd);    P_(cwd);   P(procExists);
+            P_(procNameBeforeCd);      P(procNameAfterCd);
+            P_(execNameBeforeCd);      P(execName);
+            P_(execNameIsRelative);    P_(execNameExists);   P(execNameIsExec);
+            P_(sizeMatches);           P(procNameAfterCd);
+        }
 
-            ASSERTV(U_TEST_U_LOG_ERROR_ONCE, u::numMessagesLogged,
-                                                         processNameIsRelative,
-                          (processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE) ==
-                                                         u::numMessagesLogged);
-            ASSERTV(U_TEST_U_LOG_ERROR_ONCE, u::numExpectedMessagesLogged,
-                                                         processNameIsRelative,
-                          (processNameIsRelative && U_TEST_U_LOG_ERROR_ONCE) ==
-                                                 u::numExpectedMessagesLogged);
+        if (expFindExec) {
+            ASSERTV(execName, expFindExec, gpteRc, 0 == gpteRc);
+            ASSERTV(execName, !execNameIsRelative);
+            ASSERTV(execName, expFindExec, execNameExists, execNameExists);
+            ASSERTV(execName, expFindExec, execNameIsExec, execNameIsExec);
+            ASSERTV(execSize, sizeMatches);
+        }
+        else {
+            // If we did better than expected, issue warning, but not error.
+
+            if (0 == gpteRc)         cout << "Unexpected success rc!\n";
+            if (!execNameIsRelative) cout << "Unexpectedly not relative!\n";
+            if (execNameExists)      cout << "Unexpectedly existed!\n";
+            if (execNameIsExec)      cout << "Unexpectedly executable!\n";
+            if (sizeMatches)         cout << "Unexpected matching size!\n";
         }
       } break;
       case 2: {

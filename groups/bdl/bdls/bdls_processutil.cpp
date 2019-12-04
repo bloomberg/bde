@@ -59,12 +59,6 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 namespace {
 namespace u {
 
-// To test the macro 'U_LOG_ERROR_ONCE' in the imp file, set the local macro
-// 'U_TEST_U_LOG_ERROR_ONCE' to 1 in both this file and the test driver.  In
-// production, 'U_TEST_U_LOG_ERROR_ONCE' should be set to 0 in both files.
-
-#define U_TEST_U_LOG_ERROR_ONCE 0
-
 using namespace BloombergLP;
 
 // This macro is equivalent to calling 'BSLS_LOG_ERROR(...)', except that it
@@ -393,11 +387,6 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
 
         return 0;                                                     // RETURN
     }
-
-#if U_TEST_U_LOG_ERROR_ONCE
-    U_LOG_ERROR_ONCE("bdls::ProcessUtil::getPathToExecutable:"
-                   " process name is not executable.  %s", u::doesProcExist());
-#endif
 
     // Probably 'argv[0]' was a relative path and we've changed the current
     // directory since task startup.  Get the orignal directory from '$PWD' and
