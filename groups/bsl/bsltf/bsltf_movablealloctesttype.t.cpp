@@ -383,9 +383,7 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT( bslma::UsesBslmaAllocator<Obj>::value);
         BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<Obj>::value);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         BSLMF_ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
-#endif
       } break;
       case 10: {
         // --------------------------------------------------------------------

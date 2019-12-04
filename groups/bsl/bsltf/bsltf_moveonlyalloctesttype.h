@@ -113,6 +113,13 @@ class MoveOnlyAllocTestType {
 
     MoveState::Enum         d_movedInto;     // moved-from state
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MoveOnlyAllocTestType,
+                                   bsl::is_nothrow_move_constructible);
+#endif
+
   private:
     // NOT IMPLEMENTED
     MoveOnlyAllocTestType& operator=(const MoveOnlyAllocTestType&);

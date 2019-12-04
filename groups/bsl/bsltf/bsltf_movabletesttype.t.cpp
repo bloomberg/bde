@@ -241,9 +241,7 @@ int main(int argc, char *argv[])
 
         // Not mentioned in CC 12.4, but something we want to test.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         BSLMF_ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
-#endif
       } break;
       case 11: {
         if (verbose) printf("\nUSAGE EXAMPLE"

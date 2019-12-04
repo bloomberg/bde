@@ -113,6 +113,13 @@ class MovableAllocTestType {
     MoveState::Enum         d_movedFrom;    // moved-from state
     MoveState::Enum         d_movedInto;    // moved-from state
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MovableAllocTestType,
+                                   bsl::is_nothrow_move_constructible);
+#endif
+
   public:
     // CREATORS
     MovableAllocTestType();

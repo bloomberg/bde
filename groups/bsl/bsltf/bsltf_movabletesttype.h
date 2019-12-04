@@ -112,6 +112,13 @@ class MovableTestType {
     MoveState::Enum    d_movedFrom;    // moved-from state
     MoveState::Enum    d_movedInto;    // moved-into state
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MovableTestType,
+                                   bsl::is_nothrow_move_constructible);
+#endif
+
   public:
     // CREATORS
     MovableTestType();
