@@ -17,8 +17,9 @@
 #include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
 #include <bslma_testallocator.h>
-#include <bslmf_isfundamental.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_isfundamental.h>
+#include <bslmf_issame.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_condition.h>
@@ -78,39 +79,45 @@ using namespace bsl;  // automatically added by script
 // the catalog.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bdlcc::ObjectCatalog(bslma::Allocator *allocator=0);
-// [ 1] ~bdlcc::ObjectCatalog();
+// [ 3] bdlcc::ObjectCatalog(bslma::Allocator *allocator=0);
+// [ 3] ~bdlcc::ObjectCatalog();
 //
 // MANIPULATORS
 // [ 3] int add(TYPE const& object);
+// [15] int add(TYPE&&);
+// [15] void removeAll(bsl::vector<TYPE> *);
 // [ 3] int remove(int handle, TYPE* valueBuffer=0);
-// [ 5] int remove(int handle, TYPE* valueBuffer=0);
-// [ 6] int remove(int handle, TYPE* valueBuffer=0);
-// [ 7] void removeAll();
-// [ 4] int replace(int handle, TYPE const &newObject);
+// [ 5] int replace(int handle, TYPE const &newObject);
+// [15] int replace(int, TYPE&&);
+// [ 6] int remove(int handle);
+// [ 7] int remove(int handle, TYPE* valueBuffer=0);
+// [ 8] void removeAll();
 //
 // ACCESSORS
-// [ 9] int find(int handle, TYPE *valueBuffer=0) const;
-// [ 9] int length() const;
+// [10] int find(int, TYPE *) const;
+// [10] int length() const;
+// [15] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 8] bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog& catalog);
-// [ 8] ~bdlcc::ObjectCatalogIter();
+// [ 9] bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog<TYPE>&);
+// [ 9] ~bdlcc::ObjectCatalogIter();
 //
 // MANIPULATORS
-// [ 8] void operator++();
+// [ 9] void operator++();
 //
 // ACCESSORS
-// [ 8] operator const void *() const;
-// [ 8] pair<int, TYPE> operator()() const;
+// [ 9] operator const void *() const;
+// [ 9] pair<int, TYPE> operator()() const;
+// [15] int Iter::handle() const;
+// [15] const TYPE& Iter::value() const;
 //-----------------------------------------------------------------------------
 // [1 ] BREATHING TEST
 // [2 ] TESTING ALTERNATE IMPLEMENTATION
-// [10] TESTING OBJECT CONSTRUCTION/DESTRUCTION
-// [11] TESTING OBJECT CONSTRUCTION/DESTRUCTION WITH ALLOCATORS
-// [12] TESTING STALE HANDLE REJECTION
-// [13] CONCURRENCY TEST
-// [14] USAGE EXAMPLE
+// [11] TESTING OBJECT CONSTRUCTION/DESTRUCTION
+// [12] TESTING OBJECT CONSTRUCTION/DESTRUCTION WITH ALLOCATORS
+// [13] TESTING STALE HANDLE REJECTION
+// [14] CONCURRENCY TEST
+// [16] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -156,6 +163,7 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 typedef bsltf::TemplateTestFacility         TTF;
+typedef bsltf::MoveState                    MoveState;
 typedef bdlcc::ObjectCatalog<int>           Obj;
 
 namespace {
@@ -603,9 +611,9 @@ class WellBehavedMoveOnlyAllocTestType {
     // 'bslma::Allocator' to supply memory and defines the type trait
     // 'bslma::UsesBslmaAllocator'.  This class is primarily provided to
     // facilitate testing of templates by defining a simple type representative
-    // of user-defined types having an allocator.  See the Attributes section
-    // under @DESCRIPTION in the component-level documentation for information
-    // on the class attributes.
+    // of user-defined types having an allocator.  This class does not have the
+    // 'bsl::is_copy_constructible' trait, and it does have the
+    // 'bslma::UsesBslmaAllocator' trait.
 
     // DATA
     int                     *d_data_p;       // pointer to the data value
@@ -955,6 +963,43 @@ void swap(WellBehavedMoveOnlyAllocTestType& a,
     b = MRU::move(intermediate);
 }
 
+template <class ELEMENT, int moveAware>
+struct GetMoved;
+
+template <class ELEMENT>
+struct GetMoved<ELEMENT, 0> {
+
+    // ClASS METHODS
+    static
+    MoveState::Enum from(const ELEMENT&)
+    {
+        return MoveState::e_UNKNOWN;
+    }
+
+    static
+    MoveState::Enum into(const ELEMENT&)
+    {
+        return MoveState::e_UNKNOWN;
+    }
+};
+
+template <class ELEMENT>
+struct GetMoved<ELEMENT, 1> {
+
+    // ClASS METHODS
+    static
+    MoveState::Enum from(const ELEMENT& object)
+    {
+        return object.movedFrom();
+    }
+
+    static
+    MoveState::Enum into(const ELEMENT& object)
+    {
+        return object.movedInto();
+    }
+};
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -982,6 +1027,12 @@ class TestDriver {
     typedef bdlcc::ObjectCatalogIter<ELEMENT>   Iter;
     typedef u::PseudoObjectCatalog<ELEMENT>     PObj;
     typedef bslmf::MovableRefUtil               MUtil;
+
+    enum { k_IS_MOVE_AWARE =
+           bsl::is_same<ELEMENT, u::WellBehavedMoveOnlyAllocTestType>::value ||
+                  bsl::is_same<ELEMENT, bsltf::MoveOnlyAllocTestType>::value ||
+                   bsl::is_same<ELEMENT, bsltf::MovableAllocTestType>::value ||
+                        bsl::is_same<ELEMENT, bsltf::MovableTestType>::value };
 
     static const bool s_isAllocating =
                                      bslma::UsesBslmaAllocator<ELEMENT>::value;
@@ -1045,6 +1096,18 @@ class TestDriver {
         // specified 'spec', the values being equal to the ASCII values of
         // the characters in the string, and set 'handles' to contain the
         // handles for the correspending characters of "spec'.
+
+    static
+    MoveState::Enum getMovedInto(const ELEMENT& object)
+    {
+        return u::GetMoved<ELEMENT, k_IS_MOVE_AWARE>::into(object);
+    }
+
+    static
+    MoveState::Enum getMovedFrom(const ELEMENT& object)
+    {
+        return u::GetMoved<ELEMENT, k_IS_MOVE_AWARE>::from(object);
+    }
 
   public:
     static void testCaseManipulatorsCopyable();
@@ -1146,6 +1209,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
 
     for (int ii = 0; ii < X.length(); ++ii) {
         ASSERT(spec[ii] == getData(X.value(handles[ii])));
+        if (k_IS_MOVE_AWARE) {
+            MoveState::Enum m = getMovedInto(X.value(handles[ii]));
+            ASSERTV(bsls::NameOf<ELEMENT>(), m,
+                                               bsltf::MoveState::e_MOVED == m);
+        }
     }
 
     enum { k_NUM_V = 4 };
@@ -1159,6 +1227,12 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
 
     const int H0 = mX.add(MUtil::move(vs[0]));
     ASSERT(0 != H0);
+    if (k_IS_MOVE_AWARE) {
+        MoveState::Enum m = getMovedFrom(VS[0]);
+        ASSERTV(bsls::NameOf<ELEMENT>(), m, bsltf::MoveState::e_MOVED == m);
+        m = getMovedInto(X.value(H0));
+        ASSERTV(bsls::NameOf<ELEMENT>(), m, bsltf::MoveState::e_MOVED == m);
+    }
     setData(ampersand(vs[0]), '0');
     ASSERT(VS[0] == X.value(H0));
     ASSERT(7 == X.length());
@@ -1167,6 +1241,9 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     ASSERT(checkSpec(X, spec));
 
     mX.remove(HC, ampersand(vs[1]));
+    if (k_IS_MOVE_AWARE) {
+        ASSERT(bsltf::MoveState::e_MOVED == getMovedInto(VS[1]));
+    }
     ASSERT(getData(VS[1]) == 'C');
     setData(ampersand(vs[1]), '1');
 
@@ -1183,6 +1260,10 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     ASSERT(0 != rc);
 
     rc = mX.remove(HF, ampersand(vs[3]));
+    if (k_IS_MOVE_AWARE) {
+        MoveState::Enum m = getMovedInto(VS[3]);
+        ASSERTV(bsls::NameOf<ELEMENT>(), m, bsltf::MoveState::e_MOVED == m);
+    }
     ASSERT(0 == rc);
     ASSERT('F' == getData(VS[3]));
     setData(ampersand(vs[3]), '3');
@@ -1191,12 +1272,21 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     ASSERT(checkSpec(X, spec));
 
     rc = mX.replace(HE, MUtil::move(vs[1]));
+    if (k_IS_MOVE_AWARE) {
+        ASSERT(bsltf::MoveState::e_MOVED == getMovedFrom(VS[1]));
+        ASSERT(bsltf::MoveState::e_MOVED == getMovedInto(X.value(HE)));
+    }
     ASSERT(0 == rc);
     setData(ampersand(vs[1]), '1');
     ASSERT(X.isMember(VS[1]));
 
     rc = mX.replace(HD, MUtil::move(vs[2]));
     ASSERT(0 != rc);
+    if (k_IS_MOVE_AWARE) {
+        MoveState::Enum m = getMovedFrom(VS[2]);
+        ASSERTV(bsls::NameOf<ELEMENT>(), m,
+                                           bsltf::MoveState::e_NOT_MOVED == m);
+    }
     ASSERT('2' == getData(VS[2]));
     ASSERT(!X.isMember(VS[2]));
 
@@ -1215,6 +1305,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     for (int ii = 0; ii < X.length(); ++ii) {
         const ELEMENT& E = X.value(handles[ii]);
         const int val = getData(E);
+        if (k_IS_MOVE_AWARE) {
+            MoveState::Enum m = getMovedInto(E);
+            ASSERTV(bsls::NameOf<ELEMENT>(), m,
+                                               bsltf::MoveState::e_MOVED == m);
+        }
         ASSERT('A' <= val && val <= 'F');
         ASSERT(spec[ii] == val);
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
@@ -1226,6 +1321,11 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     for (Iter it(X); it; ++it, ++numItems) {
         const int h = it.handle();
         const ELEMENT& E = it.value();
+        if (k_IS_MOVE_AWARE) {
+            MoveState::Enum m = getMovedInto(E);
+            ASSERTV(bsls::NameOf<ELEMENT>(), m,
+                                               bsltf::MoveState::e_MOVED == m);
+        }
         const int val = getData(E);
         ASSERT('A' <= val && val <= 'F');
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
@@ -2455,6 +2555,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Test the manipulators and accessors with the catalog containing a
         //:   wide variety of types.
+        //:
+        //: 2 For move-aware types, verify that they were moved when expected.
         //
         // Plan:
         //: 1 Use a templated test case configured with a wide variety of test
@@ -2463,23 +2565,21 @@ int main(int argc, char *argv[])
         //: 2 Have two test case template functions, one which requires
         //:   'ELEMENT' to have a copy c'tor, and the other of which will work
         //:   where 'ELEMENT' is a move only type.
+        //:
+        //: 3 After operations, if the type is a move-aware type, use the
+        //:   'value' accessors to access the object and see if it was moved
+        //:   into.
         //
         // Testing:
+        //   int add(TYPE&&);
+        //   int replace(int, TYPE&&);
+        //   void removeAll(bsl::vector<TYPE> *);
         //   bslma::Allocator *allocator() const;
-        //   int add(const TYPE&);
-        //   void remove(int, TYPE *);
-        //   void remove(int);
-        //   int replace(int, const TYPE&);
         //   bool isMember(const TYPE&) const;
-        //   void removeAll();
         //   const TYPE& value(int) const;
         //   int find(int) const;
-        //   int find(int, TYPE *) const;
-        //   Iter(const Obj&);
-        //   Iter::operator const void *() const;
-        //   Iter::operator++();
         //   int Iter::handle() const;
-        //   const TYPE& Iter::value();
+        //   const TYPE& Iter::value() const;
         // --------------------------------------------------------------------
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
@@ -2519,7 +2619,9 @@ int main(int argc, char *argv[])
         //   Let all above (k_NUM_THREADS + 3) threads run concurrently.
         //
         // Testing:
+        //   CONCURRENCY TEST:
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "CONCURRENCY TEST" << endl
                           << "================" << endl;
@@ -2563,7 +2665,9 @@ int main(int argc, char *argv[])
         //   catalog rejects this handle correctly.
         //
         // Testing:
+        //   TESTING STALE HANDLE REJECTION
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "TESTING STALE HANDLE REJECTION" << endl
                           << "==============================" << endl;
@@ -2634,7 +2738,9 @@ int main(int argc, char *argv[])
         //   objects (of class 'AllocPattern') is correct.
         //
         // Testing:
+        //   TESTING OBJECT CONSTRUCTION/DESTRUCTION WITH ALLOCATION
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "TESTING OBJECT CONSTRUCTION/DESTRUCTION" << endl
                           << "=======================================" << endl;
@@ -2701,7 +2807,9 @@ int main(int argc, char *argv[])
         //   objects (of class 'Pattern') is correct.
         //
         // Testing:
+        //   TESTING OBJECT CONSTRUCTION/DESTRUCTION
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "TESTING OBJECT CONSTRUCTION/DESTRUCTION" << endl
                           << "=======================================" << endl;
@@ -2757,13 +2865,8 @@ int main(int argc, char *argv[])
         //   result.
         //
         // Testing:
-        //   int find(int handle, TYPE *valueBuffer=0) const;
+        //   int find(int, TYPE *) const;
         //   int length() const;
-        //   bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog<TYPE>&);
-        //   ~bdlcc::ObjectCatalogIter();
-        //   void bdlcc::ObjectCatalogIter::operator++();
-        //   operator bdlcc::ObjectCatalogIter::operator const void *() const;
-        //   pair<int, TYPE> bdlcc::ObjectCatalogIter::operator()() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING ACCESSORS" << endl
@@ -3144,7 +3247,7 @@ int main(int argc, char *argv[])
         //   argument) and then verify the result.
         //
         // Testing:
-        //   int remove(int handle, TYPE* valueBuffer=0);
+        //   int remove(int handle);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3374,6 +3477,8 @@ int main(int argc, char *argv[])
         //   int PseudoObjectCatalog::find(int h, TYPE *p=0) const
         //   int PseudoObjectCatalog::isMember(TYPE val) const
         //   int PseudoObjectCatalog::length() const
+        //   bdlcc::ObjectCatalog(bslma::Allocator *allocator=0);
+        //   ~bdlcc::ObjectCatalog();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING ALTERNATE IMPLEMENTATION" << endl

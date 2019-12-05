@@ -42,6 +42,8 @@ BSLS_IDENT("$Id: $")
 // life time of an iterator, the object catalog can't be modified (however
 // multiple threads can still concurrently read the object catalog).
 //
+// Note that an object catalog has a maximum capacity of 2^23 items.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -280,6 +282,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -319,8 +322,10 @@ class ObjectCatalog_AutoCleanup {
 
   private:
     // NOT IMPLEMENTED
-    ObjectCatalog_AutoCleanup(const ObjectCatalog_AutoCleanup&);
-    ObjectCatalog_AutoCleanup& operator=(const ObjectCatalog_AutoCleanup&);
+    ObjectCatalog_AutoCleanup(const ObjectCatalog_AutoCleanup&)
+                                                          BSLS_KEYWORD_DELETED;
+    ObjectCatalog_AutoCleanup& operator=(const ObjectCatalog_AutoCleanup&)
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
@@ -388,7 +393,7 @@ class ObjectCatalog {
     };
 
     // DATA
-    bsl::vector<Node*>      d_nodes;
+    bsl::vector<Node *>     d_nodes;
     bdlma::Pool             d_nodePool;
     Node                   *d_nextFreeNode_p;
     volatile int            d_length;
@@ -396,8 +401,8 @@ class ObjectCatalog {
 
   private:
     // NOT IMPLEMENTED
-    ObjectCatalog(const ObjectCatalog&);
-    ObjectCatalog& operator=(const ObjectCatalog&);
+    ObjectCatalog(const ObjectCatalog&) BSLS_KEYWORD_DELETED;
+    ObjectCatalog& operator=(const ObjectCatalog&) BSLS_KEYWORD_DELETED;
 
     // FRIENDS
     friend class ObjectCatalog_AutoCleanup<TYPE>;
@@ -440,12 +445,14 @@ class ObjectCatalog {
     int add(TYPE const& object);
         // Add the value of the specified 'object' to this catalog and return a
         // non-zero integer handle that may be used to refer to the object in
-        // future calls to this catalog.
+        // future calls to this catalog.  The behavior is undefined if the
+        // catalog was full.
 
     int add(bslmf::MovableRef<TYPE> object);
         // Add the value of the specified 'object' to this catalog and return a
         // non-zero integer handle that may be used to refer to the object in
-        // future calls to this catalog.
+        // future calls to this catalog, leaving 'object' in an unspecified but
+        // valid state.  The behavior is undefined if the catalog was full.
 
     int remove(int handle, TYPE *valueBuffer = 0);
         // Optionally load into the optionally specified 'valueBuffer' the
@@ -466,8 +473,9 @@ class ObjectCatalog {
 
     int replace(int handle, bslmf::MovableRef<TYPE> newObject);
         // Replace the object having the specified 'handle' with the specified
-        // 'newObject'.  Return 0 on success, and a non-zero value if the
-        // handle is not contained in this catalog.
+        // 'newObject', leaving 'newObject' in an unspecified but valid state.
+        // Return 0 on success, and a non-zero value if the handle is not
+        // contained in this catalog.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
@@ -492,7 +500,7 @@ class ObjectCatalog {
         // this catalog.
 
     const TYPE& value(int handle) const;
-        // Return a const reference to the object having the specified
+        // Return a 'const' reference to the object having the specified
         // 'handle'.  The behavior is undefined unless 'handle' is contained in
         // this catalog.
 
@@ -524,14 +532,17 @@ class ObjectCatalogIter {
 
   private:
     // NOT IMPLEMENTED
-    ObjectCatalogIter(const ObjectCatalogIter&);
-    ObjectCatalogIter& operator=(const ObjectCatalogIter&);
-    bool operator==(const ObjectCatalogIter&) const;
-    bool operator!=(const ObjectCatalogIter&) const;
+    ObjectCatalogIter(const ObjectCatalogIter&) BSLS_KEYWORD_DELETED;
+    ObjectCatalogIter& operator=(const ObjectCatalogIter&)
+                                                          BSLS_KEYWORD_DELETED;
+    bool operator==(const ObjectCatalogIter&) const BSLS_KEYWORD_DELETED;
+    bool operator!=(const ObjectCatalogIter&) const BSLS_KEYWORD_DELETED;
     template<class OTHER>
-    bool operator==(const ObjectCatalogIter<OTHER>&) const;
+    bool operator==(const ObjectCatalogIter<OTHER>&) const
+                                                          BSLS_KEYWORD_DELETED;
     template<class OTHER>
-    bool operator!=(const ObjectCatalogIter<OTHER>&) const;
+    bool operator!=(const ObjectCatalogIter<OTHER>&) const
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
@@ -567,7 +578,7 @@ class ObjectCatalogIter {
         // undefined unless the iterator is *valid*.
 
     const TYPE& value() const;
-        // Return a const reference to the value referred to by the iterator.
+        // Return a 'const' reference to the value referred to by the iterator.
         // The behavior is undefined unless the iterator is *valid*.
 };
 
@@ -648,7 +659,7 @@ template <class TYPE>
 inline
 void ObjectCatalog<TYPE>::freeNode(typename ObjectCatalog<TYPE>::Node *node)
 {
-    BSLS_ASSERT_SAFE(node->d_handle & k_BUSY_INDICATOR);
+    BSLS_ASSERT(node->d_handle & k_BUSY_INDICATOR);
 
     node->d_handle += k_GENERATION_INC;
     node->d_handle &= ~k_BUSY_INDICATOR;
@@ -822,7 +833,7 @@ int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
 template <class TYPE>
 void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    typedef typename bsl::vector<Node*>::iterator VIt;
+    typedef typename bsl::vector<Node *>::iterator VIt;
 
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
@@ -837,9 +848,9 @@ void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
         }
     }
 
-    // Even though we get rid of the container of 'Node*' without returning the
-    // nodes to the pool prior, the release of the pool immediately after will
-    // properly (and efficiently) dispose of those nodes without leaking
+    // Even though we get rid of the container of 'Node *' without returning
+    // the nodes to the pool prior, the release of the pool immediately after
+    // will properly (and efficiently) dispose of those nodes without leaking
     // memory.
 
     d_nodes.clear();
@@ -933,8 +944,7 @@ int ObjectCatalog<TYPE>::find(int handle, TYPE *valueBuffer) const
 template <class TYPE>
 bool ObjectCatalog<TYPE>::isMember(const TYPE& object) const
 {
-    Iter it(*this);
-    for (; it; ++it) {
+    for (Iter it(*this); it; ++it) {
         if (it.value() == object) {
             return true;                                              // RETURN
         }
