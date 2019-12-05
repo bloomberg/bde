@@ -78,8 +78,7 @@ BSLS_IDENT("$Id: $")
 #include <cstddef>       // 'std::size_t'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#include <cstdlib>  // Robo transitively needs this for 'bsl::atoi', etc.
+#include <cstdlib>
 #endif
 
 namespace bsl {

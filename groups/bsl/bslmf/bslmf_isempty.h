@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 // standard as an inline variable.  If the current compiler supports the inline
 // variable C++17 compiler feature, 'bsl::is_empty_v' is defined as an
 // 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_empty_v' is defined
-// as a non-inline 'constexpr bool' variable.  See
+// variable templates C++14 compiler feature, 'bsl::is_empty_v' is defined as a
+// non-inline 'constexpr bool' variable.  See
 // 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
 // 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
 // bsls_compilerfeatures component for details.
@@ -105,8 +105,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_isclass.h>
-#include <bslmf_removecv.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -119,7 +118,11 @@ BSLS_IDENT("$Id: $")
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-# define BSLS_ISEMPTY_USE_NATIVE_TRAIT 1
+# define BSLMF_ISEMPTY_USE_NATIVE_TRAIT 1
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_isclass.h>
 #endif
 
 namespace bsl {
@@ -149,7 +152,7 @@ struct is_empty;
 //                          CLASS TEMPLATE DEFINITIONS
 // ============================================================================
 namespace bsl {
-#if defined(BSLS_ISEMPTY_USE_NATIVE_TRAIT)
+#if defined(BSLMF_ISEMPTY_USE_NATIVE_TRAIT)
 
                     // =======================
                     // struct is_empty (C++11)
@@ -157,8 +160,7 @@ namespace bsl {
 
 template <class TYPE>
 struct is_empty
-    : bsl::integral_constant<bool, ::native_std::is_empty<TYPE>::value>
-{
+    : bsl::integral_constant<bool, ::native_std::is_empty<TYPE>::value> {
     // This specification defers to the native trait on supported C++11
     // compilers.
 };
@@ -193,8 +195,7 @@ struct Is_Empty_Size {
                      // struct Is_Empty_Class_Imp
                      // =========================
 
-template <class TYPE,
-          bool  IS_CLASS = sizeof(TYPE) == sizeof(Is_Empty_Size)>
+template <class TYPE, bool IS_CLASS = sizeof(TYPE) == sizeof(Is_Empty_Size)>
 struct Is_Empty_Class_Imp : false_type {
     // Private class: do not use outside of 'bslmf_isempty' component.  This
     // meta-function derives from 'false_type' unless (the template parameter)
@@ -234,7 +235,7 @@ struct Is_Empty_Class_Imp<TYPE, true> {
                         // struct Is_Empty_Imp
                         // ===================
 
-template <class TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
+template <class TYPE, class = void>
 struct Is_Empty_Imp : false_type {
     // Private class: do not use outside of 'bslmf_isempty' component.  This
     // meta-function provides an initial dispatch that always derives from
@@ -247,7 +248,8 @@ struct Is_Empty_Imp : false_type {
 };
 
 template <class TYPE>
-struct Is_Empty_Imp<TYPE, true> : Is_Empty_Class_Imp<TYPE>::type {
+struct Is_Empty_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
+    :  Is_Empty_Class_Imp<TYPE>::type {
     // Private class: do not use outside of 'bslmf_isempty' component.
     // Implementation of 'bsl::is_empty'.  This partial specialization derives
     // from the nested 'type' member of the 'Is_Empty_Class_Imp' meta-function,
@@ -260,8 +262,7 @@ struct Is_Empty_Imp<TYPE, true> : Is_Empty_Class_Imp<TYPE>::type {
                         // =======================
 
 template <class TYPE>
-struct is_empty : Is_Empty_Imp<typename remove_cv<TYPE>::type>::type
-{
+struct is_empty : Is_Empty_Imp<TYPE>::type {
     // This 'struct' is a meta-function to determine whether the (template
     // parameter) 'TYPE' is an empty class type.  'is_empty' inherits from
     // 'true_type' if 'TYPE' is a 'class' or 'struct' with no non-static data
@@ -272,6 +273,15 @@ struct is_empty : Is_Empty_Imp<typename remove_cv<TYPE>::type>::type
     // union that is the same size as an empty class in C++03.
 };
 
+template <class TYPE>
+struct is_empty<const TYPE> : Is_Empty_Imp<TYPE>::type {};
+template <class TYPE>
+struct is_empty<volatile TYPE> : Is_Empty_Imp<TYPE>::type {};
+template <class TYPE>
+struct is_empty<const volatile TYPE> : Is_Empty_Imp<TYPE>::type {};
+    // Partial specializations reduce the total number of template
+    // instantiations when cv-qualified types are involved.
+
 #endif  // defined(BSLS_ISEMPTY_USE_NATIVE_TRAIT)
 
 }  // close namespace bsl
@@ -279,7 +289,7 @@ struct is_empty : Is_Empty_Imp<typename remove_cv<TYPE>::type>::type
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
