@@ -58,6 +58,25 @@ BSLS_IDENT("$Id: $")
 // macros are not active, otherwise truly undefined behavior will result, with
 // potentially disastrous consequences.
 //
+///A Note On Exceptions
+/// - - - - - - - - - -
+// It is important to note that this facility relies on throwing and catching
+// an exception in order to identify that an assertion has been violated,
+// cleanup any objects created on the way to that assertion, and avoid
+// executing any of the code after that assertion with deliberately bad input.
+// This means that this component cannot be used to test assertions in
+// functions that are 'noexcept', particular destructors that are implicitly
+// 'noexcept' in C++11 and beyond.
+//
+// For most functions, if you have a narrow contract you should not be
+// 'noexcept', as this is guaranteeing part of your behavior when your contract
+// is violated (and actively preventing you from doing negative testing in this
+// manner).  For functions such as a destructor that are implicitly 'noexcept'
+// and greatly benefit from being so, it is advisable to move the checks into a
+// separate 'validate' method, and test destruction out of contract by just
+// testing that the validate method asserts instead.
+//
+//
 ///The Test Facility
 ///-----------------
 //
@@ -119,7 +138,8 @@ BSLS_IDENT("$Id: $")
 //: o '#include' this component header, 'bsls_asserttest.h'.
 //: o Supply an implementation of an 'ASSERT' macro in your test driver.
 //: o Register 'bsls::AssertTest::failTestDriver' as the active
-//:   assertion-failure handler.
+//:   assertion-failure handler (preferrably with an instance of
+//:   'AssertTestHandlerGuard').
 //
 ///Validating Disabled Macro Expressions
 ///- - - - - - - - - - - - - - - - - - -
@@ -352,15 +372,15 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG false
 #endif
 
-#define BSLS_ASSERTTEST_IS_ACTIVE(TYPE) (                                    \
-    (   '\0' == TYPE[1]                                                      \
-     || BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG                                    \
-    )                                                                        \
-    &&                                                                       \
-    (   ('S' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)          \
-     || ('A' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG)               \
-     || ('O' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)           \
-    )                                                                        \
+#define BSLS_ASSERTTEST_IS_ACTIVE(TYPE) (                                     \
+    (   '\0' == TYPE[1]                                                       \
+     || BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG                                     \
+    )                                                                         \
+    &&                                                                        \
+    (   ('S' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)           \
+     || ('A' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG)                \
+     || ('O' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)            \
+    )                                                                         \
 )
 
 #ifdef BSLS_ASSERTTEST_CHECK_LEVEL
@@ -369,19 +389,19 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ASSERTTEST_CHECK_LEVEL_ARG false
 #endif
 
-#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, LVL, EXPRESSION_UNDER_TEST) {\
-    try {                                                                    \
-        EXPRESSION_UNDER_TEST;                                               \
-                                                                             \
-        ASSERT(bsls::AssertTest::tryProbe(RESULT,LVL));                      \
-    }                                                                        \
-    catch (const bsls::AssertTestException& e) {                             \
-        ASSERT(bsls::AssertTest::catchProbe(RESULT,                          \
-                                            BSLS_ASSERTTEST_CHECK_LEVEL_ARG, \
-                                            LVL,                             \
-                                            e,                               \
-                                            __FILE__));                      \
-    }                                                                        \
+#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, LVL, EXPRESSION_UNDER_TEST) { \
+    try {                                                                     \
+        EXPRESSION_UNDER_TEST;                                                \
+                                                                              \
+        ASSERT(bsls::AssertTest::tryProbe(RESULT,LVL));                       \
+    }                                                                         \
+    catch (const bsls::AssertTestException& e) {                              \
+        ASSERT(bsls::AssertTest::catchProbe(RESULT,                           \
+                                            BSLS_ASSERTTEST_CHECK_LEVEL_ARG,  \
+                                            LVL,                              \
+                                            e,                                \
+                                            __FILE__));                       \
+    }                                                                         \
 }
 
 #define BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS
@@ -492,21 +512,21 @@ BSLS_IDENT("$Id: $")
                           BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
 #endif
 
-#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW(RESULT,                          \
-                                            LVL,                             \
-                                            EXPRESSION_UNDER_TEST) {         \
-    try {                                                                    \
-        EXPRESSION_UNDER_TEST;                                               \
-                                                                             \
-        ASSERT(bsls::AssertTest::tryProbeRaw(RESULT,LVL));                   \
-    }                                                                        \
-    catch (const bsls::AssertTestException& e) {                             \
-        ASSERT(bsls::AssertTest::catchProbeRaw(                              \
-                                            RESULT,                          \
-                                            BSLS_ASSERTTEST_CHECK_LEVEL_ARG, \
-                                            LVL,                             \
-                                            e));                             \
-    }                                                                        \
+#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW(RESULT,                           \
+                                            LVL,                              \
+                                            EXPRESSION_UNDER_TEST) {          \
+    try {                                                                     \
+        EXPRESSION_UNDER_TEST;                                                \
+                                                                              \
+        ASSERT(bsls::AssertTest::tryProbeRaw(RESULT,LVL));                    \
+    }                                                                         \
+    catch (const bsls::AssertTestException& e) {                              \
+        ASSERT(bsls::AssertTest::catchProbeRaw(                               \
+                                            RESULT,                           \
+                                            BSLS_ASSERTTEST_CHECK_LEVEL_ARG,  \
+                                            LVL,                              \
+                                            e));                              \
+    }                                                                         \
 }
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
@@ -572,9 +592,9 @@ namespace BloombergLP {
 
 namespace bsls {
 
-                            // ================
-                            // class AssertTest
-                            // ================
+                              // ================
+                              // class AssertTest
+                              // ================
 
 struct AssertTest {
     // This utility 'struct' provides a suite of methods designed for use in
@@ -692,9 +712,9 @@ struct AssertTest {
         // handler function in 'bsls_assert'.
 };
 
-                      // ============================
-                      // class AssertTestHandlerGuard
-                      // ============================
+                        // ============================
+                        // class AssertTestHandlerGuard
+                        // ============================
 
 class AssertTestHandlerGuard {
     // This class provides a guard that will install and uninstall the negative
