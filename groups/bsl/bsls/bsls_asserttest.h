@@ -76,7 +76,6 @@ BSLS_IDENT("$Id: $")
 // separate 'validate' method, and test destruction out of contract by just
 // testing that the validate method asserts instead.
 //
-//
 ///The Test Facility
 ///-----------------
 //
