@@ -131,7 +131,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
-#include <bsls_compilerfeatures.h>
 
 #include <cstddef>  // std::size_t
 
@@ -195,47 +194,6 @@ struct DequePrimitives {
     typedef DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>                   ImpUtil;
     typedef DequePrimitives_DequeMoveGuard<VALUE_TYPE, BLOCK_LENGTH> MoveGuard;
     typedef bslmf::MovableRefUtil                                    MoveUtil;
-
-  private:
-    // PRIVATE CLASS METHODS
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    template <class TYPE>
-    static
-    typename bsl::enable_if<!bsl::is_nothrow_move_constructible<TYPE>::value
-                                    && bsl::is_copy_constructible<TYPE>::value,
-                                                            const TYPE& >::type
-    moveIfNoexcept(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
-        // The specified 'lvalue' is not nothrow movable, return a const
-        // reference to it.
-    {
-        // The implementation is placed here in the class definition to work
-        // around a Microsoft C++ compiler (version 16) bug where the
-        // definition cannot be matched to the declaration when an 'enable_if'
-        // is used.
-        return lvalue;
-    }
-    template <class TYPE>
-    static
-    typename bsl::enable_if<!bsl::is_copy_constructible<TYPE>::value
-                            || bsl::is_nothrow_move_constructible<TYPE>::value,
-                                                bslmf::MovableRef<TYPE> >::type
-    moveIfNoexcept(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
-        // The specified 'lvalue' is nothrow movable, move it.
-    {
-        // The implementation is placed here in the class definition to work
-        // around a Microsoft C++ compiler (version 16) bug where the
-        // definition cannot be matched to the declaration when an 'enable_if'
-        // is used.
-        return static_cast<typename bsl::remove_reference<TYPE>::type&&>(
-                                                                       lvalue);
-    }
-#else
-    static
-    bslmf::MovableRef<VALUE_TYPE> moveIfNoexcept(VALUE_TYPE& lvalue)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-        // Move the specified 'lvalue' on the assumption that if a move
-        // constructor exists, it is 'noexcept.
-#endif
 
   public:
     // CLASS METHODS
@@ -2573,17 +2531,6 @@ class DequePrimitives_DequeEndpointProctor {
                         // class DequePrimitives
                         // ---------------------
 
-// PRIVATE CLASS METHODS
-#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
-bslmf::MovableRef<VALUE_TYPE> DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::
-                       moveIfNoexcept(VALUE_TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
-{
-    return bslmf::MovableRefUtil::move(lvalue);
-}
-#endif
-
 // CLASS METHODS
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
@@ -3120,9 +3067,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
     // 2. move-assign other existing elements being bumped back 1 slot
@@ -3130,7 +3078,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
     }
 
     // 3. move-assign new element
@@ -3506,9 +3454,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
 
     // 1. move-construct front-most element being bumped 1 slot
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -3516,7 +3465,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
     // 2. move-assign other existing elements being bumped forward 1 slot
 
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
     }
 
     // 3. move-assign the new element
@@ -3651,9 +3600,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
     // 2. move-assign other existing elements being bumped back 1 slot
@@ -3662,7 +3612,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);  // in case the emplacement (below) throws
@@ -3806,9 +3756,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     // 1. move-construct front-most element being bumped 1 slot
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -3817,7 +3768,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;  // additional elements to guard following 'for' loop
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);  // in case the emplacement (below) throws
@@ -5234,9 +5185,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5244,7 +5196,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5295,9 +5247,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5305,7 +5258,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5359,9 +5312,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5369,7 +5323,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5426,9 +5380,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5436,7 +5391,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5496,9 +5451,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5506,7 +5462,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5569,9 +5525,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5579,7 +5536,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5645,9 +5602,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5655,7 +5613,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5724,9 +5682,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5734,7 +5693,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5806,9 +5765,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5816,7 +5776,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5891,9 +5851,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5901,7 +5862,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -5979,9 +5940,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -5989,7 +5951,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -7385,9 +7347,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7395,7 +7358,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7444,9 +7407,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7454,7 +7418,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7506,9 +7470,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7516,7 +7481,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7571,9 +7536,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7581,7 +7547,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7639,9 +7605,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7649,7 +7616,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7710,9 +7677,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7720,7 +7688,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7784,9 +7752,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7794,7 +7763,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7861,9 +7830,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7871,7 +7841,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -7941,9 +7911,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -7951,7 +7922,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -8024,9 +7995,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -8034,7 +8006,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -8110,9 +8082,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -8120,7 +8093,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);
@@ -8271,9 +8244,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
     --dest;
     --end;
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*end));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                             allocator,
+                                             dest.valuePtr(),
+                                             MoveUtil::move_if_noexcept(*end));
     guard.moveBegin(-1);
 
 
@@ -8281,7 +8255,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
     for (backSize -= 1; 0 < backSize; --backSize) {
         --dest;
         --end;
-        *dest = moveIfNoexcept(*end);
+        *dest = MoveUtil::move_if_noexcept(*end);
         ++n;
     }
     guard.moveBegin(-n);
@@ -8416,9 +8390,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
     ElementGuard guard(dest, dest, allocator);
 
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator,
-                                                dest.valuePtr(),
-                                                moveIfNoexcept(*begin));
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           dest.valuePtr(),
+                                           MoveUtil::move_if_noexcept(*begin));
     guard.moveEnd(1);
     ++dest;
     ++begin;
@@ -8426,7 +8401,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
     size_type n = 0;
     for (frontSize -= 1; 0 < frontSize; --frontSize, ++dest, ++begin) {
-        *dest = moveIfNoexcept(*begin);
+        *dest = MoveUtil::move_if_noexcept(*begin);
         ++n;
     }
     guard.moveEnd(n);

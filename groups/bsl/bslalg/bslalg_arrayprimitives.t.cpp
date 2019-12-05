@@ -355,6 +355,8 @@ typedef bsls::Types::Uint64     Uint64;
 typedef bsls::Types::UintPtr    UintPtr;
 
 // STATIC DATA
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
 static int numCopyCtorCalls    = 0;
