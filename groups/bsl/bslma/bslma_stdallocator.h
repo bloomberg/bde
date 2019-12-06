@@ -462,7 +462,7 @@ class allocator {
         // definition is compiler generated.
 
     // MANIPULATORS
-#if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     allocator& operator=(const allocator& rhs) = default;
         // Assign to this object the value of the specified 'rhs'.
         // Postcondition: 'this->mechanism() == rhs->mechanism()'.  Note that
