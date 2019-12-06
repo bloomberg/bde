@@ -31,12 +31,6 @@
 
 #define BID32_NAN 0x7c000000ul
 
-#if (defined(_MSC_VER) && !defined(__INTEL_COMPILER))
-double log(double);
-#else
-double log2(double);
-#endif
-
 BID_TYPE0_FUNCTION_ARGTYPE1(BID_UINT32, bid32_log2, BID_UINT32, x)
 
 

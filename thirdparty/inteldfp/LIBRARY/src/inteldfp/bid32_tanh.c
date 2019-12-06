@@ -28,7 +28,6 @@
 ******************************************************************************/
 
 #include "bid_internal.h"
-double tanh(double);
 
 BID_TYPE0_FUNCTION_ARGTYPE1(BID_UINT32, bid32_tanh, BID_UINT32, x)
 

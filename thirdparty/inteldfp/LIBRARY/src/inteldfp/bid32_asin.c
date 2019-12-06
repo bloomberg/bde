@@ -28,10 +28,6 @@
 ******************************************************************************/
 
 #include "bid_internal.h"
-double acos(double);
-double asin(double);
-double fabs(double);
-double sqrt(double);
 
 #define BID32_1 0x32800001ul
 

@@ -29,8 +29,6 @@
 
 #include "bid_internal.h"
 
-double log(double);
-
 BID_TYPE0_FUNCTION_ARGTYPE1(BID_UINT32, bid32_log, BID_UINT32, x)
 
 
