@@ -49,9 +49,6 @@
 #include "bid_internal.h"
 #include "bid_sqrt_macros.h"
 
-BID_EXTERN_C double sqrt (double);
-
-
 BID_TYPE_FUNCTION_ARG1(BID_UINT32, bid32_sqrt, x)
   BID_UINT64 CA, CT;
   BID_UINT32 sign_x, coefficient_x;

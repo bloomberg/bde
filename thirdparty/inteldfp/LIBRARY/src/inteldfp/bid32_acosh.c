@@ -30,10 +30,6 @@
 
 #include "bid_internal.h"
 
-BID_EXTERN_C double asinh(double);
-BID_EXTERN_C double acosh(double);
-
-
 BID_TYPE0_FUNCTION_ARGTYPE1(BID_UINT32, bid32_acosh, BID_UINT32, x)
 
   BID_UINT32 sign_x, coefficient_x, near_one, one;

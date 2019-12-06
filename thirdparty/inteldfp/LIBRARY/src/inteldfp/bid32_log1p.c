@@ -29,10 +29,6 @@
 
 #include "bid_internal.h"
 
-BID_EXTERN_C double fabs(double);
-BID_EXTERN_C double log(double);
-BID_EXTERN_C double log1p(double);
-
 static BID_UINT32 BID32_MINUS_HALF = 0xb2000005ul;
 static BID_UINT32 BID32_1 = 0x32800001ul;
 #define BID32_NAN 0x7c000000ul

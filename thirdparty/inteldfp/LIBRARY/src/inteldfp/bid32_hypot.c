@@ -29,8 +29,6 @@
 
 
 #include "bid_internal.h"
-BID_EXTERN_C double hypot(double, double);
-
 
 BID_TYPE_FUNCTION_ARG2(BID_UINT32, bid32_hypot, x, y)
   BID_UINT32 sign_x, sign_y, coefficient_x, coefficient_y;

@@ -1447,17 +1447,12 @@ union {\
 #   define BID_MS_FLAGS
 #endif
 
-#if (defined(_MSC_VER) && !defined(__INTEL_COMPILER))
-#   include <math.h>    // needed for MS build of some BID32 transcendentals (hypot)
-#endif
-
-
+#include <fenv.h>
+#include <float.h>
+#include <math.h>
 
 #if defined (UNCHANGED_BINARY_STATUS_FLAGS) && defined (BID_FUNCTION_SETS_BINARY_FLAGS)
 #   if defined( BID_MS_FLAGS )
-
-#       include <float.h>
-
         extern unsigned int __bid_ms_restore_flags(unsigned int*);
 
 #       define BID_OPT_FLAG_DECLARE() \
@@ -1466,9 +1461,7 @@ union {\
              binaryflags = _statusfp();
 #        define BID_OPT_RESTORE_BINARY_FLAGS() \
               __bid_ms_restore_flags(&binaryflags);
-
 #   else
-#       include <fenv.h>
 #       define BID_FE_ALL_FLAGS FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW|FE_UNDERFLOW|FE_INEXACT
 #       define BID_OPT_FLAG_DECLARE() \
             fexcept_t binaryflags = 0;
