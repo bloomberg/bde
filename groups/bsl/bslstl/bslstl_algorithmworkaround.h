@@ -76,9 +76,7 @@ using native_std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
-#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)              || \
-   (defined (BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1910) || \
-   (defined (BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION >= 7000)
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD)
     // Use definition from '<algorithm>'.
 #else
 template<class ForwardIt, class Searcher>
@@ -93,7 +91,7 @@ ForwardIt search( ForwardIt first, ForwardIt last,
     bsl::pair<ForwardIt, ForwardIt> result = searcher(first, last);
     return result.first;
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 
 }  // close namespace bsl
 
