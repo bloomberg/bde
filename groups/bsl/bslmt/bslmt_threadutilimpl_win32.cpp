@@ -149,7 +149,7 @@ class ThreadNameAPI {
 
 ThreadNameAPI::ThreadNameAPI()
 {
-    HMODULE handle = ::GetModuleHandle("Kernel32.dll");
+    HMODULE handle = ::GetModuleHandleA("Kernel32.dll");
     if (handle) {
         d_gtdFuncPtr = reinterpret_cast<GetThreadDescriptionType>(
                              ::GetProcAddress(handle, "GetThreadDescription"));
@@ -798,7 +798,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::hardwareConcurrency()
 #endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
