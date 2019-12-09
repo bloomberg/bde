@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a macro to suppress "unused" warnings.
 //
+//@DEPRECATED: Use 'bsla_maybeunused' instead.
+//
 //@MACROS:
 //  BSLA_UNUSED: do not warn if annotated entity is unused
 //  BSLA_UNUSED_IS_ACTIVE: 0 if 'BSLA_UNUSED' expands to nothing, else 1

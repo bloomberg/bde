@@ -87,7 +87,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_annotation.h>
+#include <bsla_maybeunused.h>
+
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
@@ -188,10 +189,9 @@ struct AssertTest {
 #else
 
 #define BSLMF_ASSERT(expr) \
-typedef BloombergLP::bslmf::AssertTest< \
-        sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
-               BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__) BSLS_ANNOTATION_UNUSED
-
+BSLA_MAYBE_UNUSED typedef BloombergLP::bslmf::AssertTest<                     \
+         sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
+                                   BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__);
 #endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY

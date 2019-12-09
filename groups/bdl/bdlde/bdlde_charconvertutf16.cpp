@@ -14,7 +14,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdlde_charconvertstatus.h>
 
-#include <bsla_unused.h>
+#include <bsla_maybeunused.h>
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 #include <bsls_assert.h>
@@ -240,13 +240,13 @@ BSLMF_ASSERT(2 == sizeof(wchar_t) || 4 == sizeof(wchar_t));
 
 template <class    UTF16_WORD,
           unsigned UTF16_WORD_SIZE>
-UTF16_WORD swappedToHost(UTF16_WORD uc) BSLA_UNUSED;
+BSLA_MAYBE_UNUSED UTF16_WORD swappedToHost(UTF16_WORD uc);
     // Return the value of the specified 'uc' in host byte order, where 'uc' is
     // assumed to be in a swapped state.
 
 template <class    UTF16_WORD,
           unsigned UTF16_WORD_SIZE>
-UTF16_WORD hostToSwapped(UTF16_WORD uc) BSLA_UNUSED;
+BSLA_MAYBE_UNUSED UTF16_WORD hostToSwapped(UTF16_WORD uc);
     // Return the value of the specified 'uc' with its bytes swapped, where
     // 'uc' is assumed to be in host byte order.
 
