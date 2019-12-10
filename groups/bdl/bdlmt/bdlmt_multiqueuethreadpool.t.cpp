@@ -246,6 +246,19 @@ void incrementCounter(bsls::AtomicInt *counter)
     ++*counter;
 }
 
+static void timedWaitOnBarrier(bslmt::Barrier  *barrier,
+                               bsls::AtomicInt *timedOut)
+{
+    // Timed wait on the specified 'barrier' for 0.1 seconds and load into
+    // the specified 'timedOut' a non-zero value if the 'timedWait' timeouts.
+
+    ASSERT(barrier);
+    ASSERT(timedOut);
+
+    *timedOut = barrier->timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(100));
+}
+
 static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
                                   bsls::AtomicInt *counter,
                                   int              incrementBy)
@@ -1803,32 +1816,76 @@ int main(int argc, char *argv[]) {
         {
             // verify when 'pauseQueue' does not block
 
+            // Note that in this test, 'pauseQueue' is expected to not block
+            // most -- but not all -- of the iterations.
+
             bslmt::Barrier controlBarrier(2);
 
-            Func job = bdlf::BindUtil::bind(&waitOnBarrier,
+            bsls::AtomicInt timedOut;
+
+            Func job = bdlf::BindUtil::bind(&timedWaitOnBarrier,
                                             &controlBarrier,
-                                            1);
+                                            &timedOut);
 
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
-            int queueId = mX.createQueue();
+            int numPauseDoesNotBlock = 0;
+            int numPauseBlocks       = 0;
+            int numFailure           = 0;
 
-            ASSERT(0 == mX.enqueueJob(queueId, job));
+            for (int i = 0; i < 100; ++i) {
+                timedOut = 0;
 
-            ASSERT(0 == mX.pauseQueue(queueId));
+                mX.start();
+                int queueId = mX.createQueue();
 
-            int rv = mX.resumeQueue(queueId);
-            ASSERT(0 == rv);
+                ASSERT(0 == mX.enqueueJob(queueId, job));
 
-            if (rv) {
-                exit(0);
+                // The following invocation of 'pauseQueue' may execute before,
+                // or after, the enqueued job starts.  If before, the queue is
+                // paused, resumed, and the job completes.  If after, the pause
+                // blocks, the enqueued job timeouts and completes, and the
+                // pause completes.
+
+                ASSERT(0 == mX.pauseQueue(queueId));
+
+                // Note that '0 == timedOut' implies the enqueued job has not
+                // executed yet.
+
+                if (0 == timedOut) {
+                    int rv = mX.resumeQueue(queueId);
+                    ASSERT(0 == rv);
+
+                    if (rv) {
+                        exit(0);
+                    }
+
+                    // Note that there is a very unlikely race with the timeout
+                    // in 'timedWaitInBarrier' if the thread that invoked
+                    // 'resumeQueue' is descheduled for a long time so the
+                    // following must be a 'timedWait'.
+
+                    rv = controlBarrier.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                                        .addMilliseconds(100));
+
+                    if (rv) {
+                        ++numFailure;
+                    }
+                    else {
+                        ++numPauseDoesNotBlock;
+                    }
+                }
+                else {
+                    ++numPauseBlocks;
+                }
+
+                mX.drain();
+                mX.stop();
             }
 
-            controlBarrier.wait();
-
-            mX.drain();
-            mX.stop();
+            BSLS_ASSERT(3 >= numFailure);
+            BSLS_ASSERT(5 <= numPauseDoesNotBlock);
         }
         {
             // verify when 'pauseQueue' does block
