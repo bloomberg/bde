@@ -369,6 +369,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_bufferallocator.h>
 #include <bslma_infrequentdeleteblocklist.h>
 
+#include <bsls_platform.h>
+
 #include <cstddef>         // for 'std::size_t'
 
 namespace BloombergLP {
@@ -712,10 +714,10 @@ inline
 void SequentialPool::deleteObjectRaw(const TYPE *object)
 {
     if (0 != object) {
-#ifndef BSLS_PLATFORM_CMP_SUN
-        object->~TYPE();
-#else
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
         const_cast<TYPE *>(object)->~TYPE();
+#else
+        object->~TYPE();
 #endif
     }
 }

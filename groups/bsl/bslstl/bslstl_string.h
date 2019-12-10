@@ -645,6 +645,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
 #include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
@@ -694,7 +695,7 @@ class basic_string;
 typedef basic_string<char>    string;
 typedef basic_string<wchar_t> wstring;
 
-#if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_HP)
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 template <class ORIGINAL_TRAITS>
 class String_Traits {
     // This 'class' provides an implementation of the 'find' function for the
@@ -2920,7 +2921,8 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
         // value of a 'basic_string' constructed from 'input'.
 };
 
-#if defined(BSLS_PLATFORM_CMP_SUN)  // {DRQS 132030795}
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+// {DRQS 132030795}
 
 // Sun CC 12.3 has trouble with the partial specializations above in certain
 // circumstances (see {DRQS 132030795}).  Adding these explicit specializations
@@ -4731,7 +4733,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     return begin() + pos;
 }
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     // Sun CC compiler doesn't like that 'iterator' return type of 'insert'
     // method with an additional 'INPUT_ITER' template parameter depends on
     // template parameters of the primary template class 'basic_string'.
@@ -5868,8 +5870,8 @@ operator()(const CHAR_TYPE *input) const
     return static_cast<std::size_t>(hashAlg.computeHash());
 }
 
-#if defined(BSLS_PLATFORM_CMP_SUN)  // {DRQS 132030795}
-
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+// {DRQS 132030795}
 inline
 std::size_t hash<string>::operator()(const string& input) const
 {

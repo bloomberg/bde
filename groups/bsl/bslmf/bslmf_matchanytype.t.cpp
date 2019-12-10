@@ -3,6 +3,7 @@
 #include <bslmf_matchanytype.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -63,7 +64,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DEFECT MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION != 0x514
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION != 0x5140
 # define SUN_HAS_PROBLEM_WITH_LITERALS
     // The 5.14 compiler has an odd problem where literals, passed as rvalues
     // to functions, match 'const volatile' references during argument type

@@ -162,10 +162,10 @@ void DeleterHelper::deleteObject(const TYPE *object, ALLOCATOR  *allocator)
                             bsl::is_polymorphic<TYPE>::value>::caster(object);
         BSLS_ASSERT_OPT(address);
 
-#ifndef BSLS_PLATFORM_CMP_SUN
-        object->~TYPE();
-#else
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
         const_cast<TYPE *>(object)->~TYPE();
+#else
+        object->~TYPE();
 #endif
 
         allocator->deallocate(address);
@@ -181,10 +181,10 @@ void DeleterHelper::deleteObjectRaw(const TYPE *object, ALLOCATOR  *allocator)
     if (0 != object) {
         void *address = const_cast<TYPE *>(object);
 
-#ifndef BSLS_PLATFORM_CMP_SUN
-        object->~TYPE();
-#else
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
         const_cast<TYPE *>(object)->~TYPE();
+#else
+        object->~TYPE();
 #endif
 
         allocator->deallocate(address);

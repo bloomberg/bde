@@ -272,10 +272,41 @@ void aSsErT(bool condition, const char *message, int line)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
-//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+//             COMPILER CONFIGURATION AND WORKAROUNDS 
 // ----------------------------------------------------------------------------
 
-#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
+# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
+// Some compilers produce ambiguities when trying to construct our test types
+// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// compiler bug triggering in lower level components, so we simply disable
+// those aspects of testing, and rely on the extensive test coverage on other
+// platforms.
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
+// Some compilers struggle with the number of template instantiations in this
+// test driver.  We define this macro to simplify the test driver for them,
+// until such time as we can provide a more specific review of the type based
+// concerns, and narrow the range of tests needed for confirmed coverage.
+//
+// Currently we are enabling the minimal set of test types on:
+// Sun Studio 12.4            (CMP_SUN)
+// (note: despite over-eager version check, we have not tested later compilers)
+# define BSLSTL_VECTOR_TEST_LOW_MEMORY  1
+#endif
+
+#if defined(BSLSTL_VECTOR_TEST_LOW_MEMORY)
+// For platforms that cannot sustain the full set of test concerns, reduce the
+// number of elements in the most commonly use macro defining sets of test
+// tyoes.
+# undef  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+# define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR  \
+        signed char,                                    \
+        bsltf::TemplateTestFacility::MethodPtr,         \
+        bsltf::AllocBitwiseMoveableTestType,            \
+        bsltf::MovableAllocTestType
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
@@ -300,21 +331,11 @@ void aSsErT(bool condition, const char *message, int line)
     // that declares a function instead.
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
-# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
-// Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
-// compiler bug triggering in lower level components, so we simply disable
-// those aspects of testing, and rely on the extensive test coverage on other
-// platforms.
-#endif
+// ============================================================================
+//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_OS_LINUX)
-// The Linux compiler exceeds 64K compilation units and can't cope due to the
-// explosion of the number of templates in these tests, so turn them off on
-// that platform.  The Solaris CC compiler somehow complains that it's out of
-// memory.  The Solaris g++ compiler ran for 90 minutes before being killed.
-#endif
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
 #define ITER_CONTAINER_RUN_EACH_TYPE(C, M, T1, T2, T3, T4)                    \
         C<T1>::M(ListLike<T1>()); C<T1>::M(ArrayLike<T1>());                  \
@@ -325,7 +346,6 @@ void aSsErT(bool condition, const char *message, int line)
         C<T2>::M(InputSequence<T2>());                                        \
         C<T3>::M(InputSequence<T3>());                                        \
         C<T4>::M(InputSequence<T4>());
-
 
 // ============================================================================
 //                             SWAP TEST HELPERS

@@ -2,6 +2,7 @@
 #include <bslmf_isconvertible.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -83,10 +84,7 @@ void aSsErT(bool condition, const char *message, int line)
 //               ADDITIONAL MACROS FOR THIS TEST DRIVER
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)
-
+#if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_ISCONVERTIBLE_NO_ARRAY_REF_OF_UNKNOWN_BOUND
     // This macro signifies that this compiler rejects 'Type[]' as incomplete,
     // even in contexts where it should be valid, such as where it will pass by
@@ -96,10 +94,7 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_ISCONVERTIBLE_NO_ARRAY_OF_UNKNOWN_BOUND_AS_TEMPLATE_PARAMETER
     // The IBM compiler has a bigger problem, where it rejects arrays of
-    // unknown bound as template type-parameter arguments.  Older Microsoft
-    // compilers (prior to MSVC 2010) deduce references to such types when
-    // trying to instantiate the 'is_convertible' trait for arrays of unknown
-    // bound, so we drop tests on such platforms as well.
+    // unknown bound as template type-parameter arguments.
 #endif
 
 #ifdef BSLMF_ISCONVERTIBLE_USE_NATIVE_TRAITS

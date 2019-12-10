@@ -2247,7 +2247,7 @@ int absMmixRandNum()
         // Return the number of blank (' ') characters in the string referenced
         // by the specified 'stringRef'.
     {
-#if defined(BSLS_PLATFORM_CMP_SUN) && __cplusplus < 201103L
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
         // See <http://tinyurl.com/qz7blzp>.
         bslstl::StringRef::size_type n = 0;
         std::count(stringRef.begin(), stringRef.end(), ' ', n);

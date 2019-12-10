@@ -1013,7 +1013,7 @@ class multimap {
         // 'copy-insertable' into this multimap (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
 #else
@@ -1051,7 +1051,7 @@ class multimap {
         // iterator in the range '[begin() .. end()]' (both endpoints
         // included).
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
 #else
@@ -1096,7 +1096,7 @@ class multimap {
         // behavior is undefined unless 'first' and 'last' refer to a sequence
         // of valid values where 'first' is at a position at or before 'last'.
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     void insert(const_iterator first, const_iterator last);
         // This method is provided only on Sun to work around a bug in the Sun
         // Studio 12.3 compiler, which prevents us from disabling (at compile
@@ -2263,7 +2263,7 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     }
 }
 
-#if defined (BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(const_iterator first,

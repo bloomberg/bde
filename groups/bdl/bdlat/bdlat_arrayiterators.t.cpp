@@ -92,18 +92,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//              DEFECT MACROS FOR PLATFORM SPECIFIC WORKAROUNDS
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130
-# define BDLAT_ARRAYITERATORS_CANNOT_BEFRIEND_FREE_FUNCTION_TEMPLATES
-// The Solaris CC 5.12.4 compiler has a regression for name lookup when a class
-// template befriends a function template, causing a compile error claiming the
-// function cannot be found.  This can be resolved by making all the members of
-// the troublesome class template 'public'.
-#endif
-
-// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -152,8 +140,6 @@ class FixedArray
     // Fixed-sized array that conforms to the 'bdlat_arrayfunctions' interface
     // and can only be manipulated and accessed through that interface.
 
-#if !defined(BDLAT_ARRAYITERATORS_CANNOT_BEFRIEND_FREE_FUNCTION_TEMPLATES)
-
     // FRIEND MANIPULATORS (only way to change an object of this class)
     template <int SIZE2, class TYPE2, class MANIPULATOR>
     friend int
@@ -175,11 +161,6 @@ class FixedArray
     template <int SIZE2, class TYPE2>
     friend bsl::size_t bdlat_arraySize(const FixedArray<SIZE2, TYPE2>& array);
 
-#else
-    // Some platforms have problems with friend templates, so make everything
-    // public.
-  public:
-#endif
     // PRIVATE DATA MEMBERS
     TYPE d_values[SIZE];
     int  d_length;
@@ -225,8 +206,6 @@ class FixedArrayElement {
     // underlying array items.  This class meets the requirements of
     // 'bdlat_valuefunction'.
 
-#if !defined(BDLAT_ARRAYITERATORS_CANNOT_BEFRIEND_FREE_FUNCTION_TEMPLATES)
-
     template <int SIZE, class TYPE2>
     friend class FixedArray;
         // The 'FixedArray' class template is a friend of this class template.
@@ -242,11 +221,6 @@ class FixedArrayElement {
     friend int bdlat_valueTypeAssign(LHS_TYPE                        *lhs,
                                      const FixedArrayElement<TYPE2>&  rhs);
 
-#else
-    // Some platforms have problems with friend templates, so make everything
-    // public.
-  public:
-#endif
     TYPE* d_element;
 
   private:

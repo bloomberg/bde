@@ -102,9 +102,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
 
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)
+#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
+ ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130)     \
+ ||(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 40300)
 
 # define BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND 1
     // This macro signifies that this compiler rejects 'Type[]' as incomplete,
@@ -122,7 +122,7 @@ void aSsErT(bool condition, const char *message, int line)
     // in this example.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN )&& BSLS_PLATFORM_CMP_VERSION < 0x5130
 # define BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS 1
     // The Sun compiler has problems with any test involving arrays, triggering
     // internal compiler errors with no hint of the line(s) triggering the
@@ -135,9 +135,9 @@ void aSsErT(bool condition, const char *message, int line)
     // not impact the component header, this is deemed an acceptable workaround
     // to pass the test.
     //
-    // This code has not yet been tested against the Sun CC 12.4 compiler (or
-    // later) which has significantly improved standard conformance, including
-    // support for most of C++11.
+    // Note that it looks like the underlying cause has been resolved in the
+    // latest 12.3 compiler, but retaining this workaround from an abundance
+    // of caution.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
@@ -364,6 +364,7 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
 {
     return endToEndIntermediary<TP>(arg, target);
 }
+
 
 #if defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
 template <class TP, class INVOCABLE>

@@ -108,7 +108,7 @@ struct is_const : false_type {
                          // struct is_const<TYPE const>
                          // ===========================
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 template <class TYPE>
 struct is_const<const TYPE>
     : integral_constant<bool, !is_same<TYPE, const TYPE>::value> {
