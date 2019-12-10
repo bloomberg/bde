@@ -297,6 +297,34 @@ void aSsErT(bool condition, const char *message, int line)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 #define TD BSLS_BSLTESTUTIL_FORMAT_TD
 
+// ============================================================================
+//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
+// Some compilers struggle with the number of template instantiations in this
+// test driver.  We define this macro to simplify the test driver for them,
+// until such time as we can provide a more specific review of the type based
+// concerns, and narrow the range of tests needed for confirmed coverage.
+//
+// Currently we are enabling the minimal set of test types on:
+// Sun Studio 12.4            (CMP_SUN)
+// (note: despite over-eager version check, we have not tested later compilers)
+# define BSLSTL_LIST_TEST_LOW_MEMORY     1
+#endif
+
+#if defined(BSLSTL_LIST_TEST_LOW_MEMORY)
+// For platforms that cannot sustain the full set of test concerns, reduce the
+// number of elements in the most commonly use macro defining sets of test
+// tyoes.
+# undef  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+# define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR  \
+        signed char,                                    \
+        bsltf::TemplateTestFacility::MethodPtr,         \
+        bsltf::AllocBitwiseMoveableTestType,            \
+        bsltf::MovableAllocTestType
+#endif
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
