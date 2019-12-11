@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Documentation &mdash; BDE Documentation  documentation</title>
+  <title>Supported Platforms &mdash; BDE Documentation  documentation</title>
   
 
   
@@ -30,8 +30,8 @@
   <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Build Instructions" href="build.html" />
-    <link rel="prev" title="BDE News" href="../news/news.html" /> 
+    <link rel="next" title="Release Notes" href="../release_notes/release_notes.html" />
+    <link rel="prev" title="Source Code" href="source_code.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -102,7 +102,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Library Information</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a><ul>
 <li class="toctree-l2"><a class="reference external" href="http://bloomberg.github.com/bde-resources/doxygen/bde_api_prod">API Documentation</a></li>
 <li class="toctree-l2"><a class="reference external" href="https://bloomberg.github.io/bde-tools/">Build Tools</a></li>
 </ul>
@@ -133,16 +133,16 @@
 <li class="toctree-l2"><a class="reference external" href="https://github.com/bloomberg/bde-tools">Build Tools</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="supported_platforms.html">Supported Platforms</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="supported_platforms.html#current-minimum-compilers-supported">Current Minimum Compilers Supported</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="supported_platforms.html#tiers-of-support">Tiers of Support</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Platforms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#current-minimum-compilers-supported">Current Minimum Compilers Supported</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tiers-of-support">Tiers of Support</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="supported_platforms.html#tier-1-bloomberg-production-platforms">Tier 1: Bloomberg Production Platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="supported_platforms.html#tier-2-actively-supported-platforms">Tier 2: Actively Supported Platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="supported_platforms.html#tier-3-user-supported-platforms">Tier 3: User Supported Platforms</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="supported_platforms.html#supported-compiler-versions">Supported Compiler Versions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="supported_platforms.html#current-test-matrix">Current Test Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tier-1-bloomberg-production-platforms">Tier 1: Bloomberg Production Platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tier-2-actively-supported-platforms">Tier 2: Actively Supported Platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tier-3-user-supported-platforms">Tier 3: User Supported Platforms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supported-compiler-versions">Supported Compiler Versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#current-test-matrix">Current Test Matrix</a></li>
 </ul>
 </li>
 </ul>
@@ -586,7 +586,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Documentation</li>
+      <li>Supported Platforms</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -600,10 +600,10 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="build.html" class="btn btn-neutral float-right" title="Build Instructions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../release_notes/release_notes.html" class="btn btn-neutral float-right" title="Release Notes" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../news/news.html" class="btn btn-neutral" title="BDE News" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="source_code.html" class="btn btn-neutral" title="Source Code" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
   </div>
   
@@ -612,13 +612,90 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="documentation">
-<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference external" href="http://bloomberg.github.com/bde-resources/doxygen/bde_api_prod">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/">Build Tools</a></li>
+  <div class="section" id="supported-platforms">
+<span id="supported-platforms-top"></span><h1>Supported Platforms<a class="headerlink" href="#supported-platforms" title="Permalink to this headline">¶</a></h1>
+<p>BDE, as a fundamental low-level library, is expected to support a wide array of
+“platforms” (processor/OS/compiler combinations).  We categorize platforms into
+three different tiers of support, and set a minimum supported version for each
+compiler.</p>
+<div class="section" id="current-minimum-compilers-supported">
+<h2>Current Minimum Compilers Supported<a class="headerlink" href="#current-minimum-compilers-supported" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>gcc-5.4</li>
+<li>MSVC 2013</li>
+<li>clang-4.0 / XCode 9.0</li>
+<li>Sun-cc-5.12</li>
+<li>xlc-12.1</li>
 </ul>
+<div class="section" id="tiers-of-support">
+<h3>Tiers of Support<a class="headerlink" href="#tiers-of-support" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="tier-1-bloomberg-production-platforms">
+<h2>Tier 1: Bloomberg Production Platforms<a class="headerlink" href="#tier-1-bloomberg-production-platforms" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>x86/Linux/gcc-7.3</li>
+<li>x86/Windows/MSVC2017</li>
+<li>x86/Windows/MSVC2015</li>
+<li>Sparc/Solaris/Sun-cc-5.12</li>
+<li>PowerPC/AIX/xlc-12.1</li>
+</ul>
+<p>All using the default production standard library.</p>
+</div>
+<div class="section" id="tier-2-actively-supported-platforms">
+<h2>Tier 2: Actively Supported Platforms<a class="headerlink" href="#tier-2-actively-supported-platforms" title="Permalink to this headline">¶</a></h2>
+<p>These platforms are not Bloomberg production platforms, but either have a large
+base of Bloomberg active users (e.g., x86/OSX/clang), or tooling that depends
+on them (e.g., Sparc/Solaris/gcc), or are expected to be production platforms
+in the future (x86/linux/gcc-9).</p>
+<ul class="simple">
+<li>x86/OSX/clang</li>
+<li>x86/Linux/gcc-5.4</li>
+<li>x86/Linux/clang</li>
+<li>x86/Windows/MSVC2017</li>
+<li>Sparc/Solaris/gcc-5.4</li>
+<li>Sparc/Solaris/Sun-cc-5.12.4</li>
+</ul>
+</div>
+<div class="section" id="tier-3-user-supported-platforms">
+<h2>Tier 3: User Supported Platforms<a class="headerlink" href="#tier-3-user-supported-platforms" title="Permalink to this headline">¶</a></h2>
+<p>These are platforms for which code has been contributed, often by motivated BDE
+users, but the BDE team does not actively support.</p>
+<ul class="simple">
+<li>x86/Cygwin/gcc</li>
+<li>ARM/Linux/gcc</li>
+<li>x86/Solaris/gcc</li>
+</ul>
+<p>In addition, some compilers allow a choice of standard library.  Choices of
+standard library outside of the default options are also considered Tier 3.
+This includes:</p>
+<ul class="simple">
+<li>gcc with stdcxx</li>
+<li>clang with stdc++</li>
+</ul>
+<div class="section" id="supported-compiler-versions">
+<h3>Supported Compiler Versions<a class="headerlink" href="#supported-compiler-versions" title="Permalink to this headline">¶</a></h3>
+<p>The question of supported compiler versions is inherently tricky.  Older
+versions of a compiler may not contain language or library support for newer
+features of C++.  Newer versions of a compiler may contain errors, generate new
+warnings, or be less permissive of non-standard constructs.  As a general
+guideline, versions of a compiler used in production at Bloomberg are part of
+the Tier 1 platforms.  Otherwise, as a guideline, compiler versions released
+two years ago (measured from now) should be fully supported, as being neither
+too old nor too leading-edge.</p>
+</div>
+<div class="section" id="current-test-matrix">
+<h3>Current Test Matrix<a class="headerlink" href="#current-test-matrix" title="Permalink to this headline">¶</a></h3>
+<p>The compilers in the active test matrix for BDE:</p>
+<ul class="simple">
+<li>gcc-7.3, gcc-7.4, gcc-8.3</li>
+<li>MSVC 2013, 2015, 2017, 2019</li>
+<li>Apple clang-5.1.0 (MacOS)</li>
+<li>clang-8.0 (Linux)</li>
+<li>Sun-cc-5.12</li>
+<li>xlc-12.1</li>
+</ul>
+</div>
 </div>
 </div>
 

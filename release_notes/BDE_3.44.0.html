@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>BDE 3.17.0: Production Release &mdash; BDE Documentation  documentation</title>
+  <title>BDE 3.44.0: Production Release &mdash; BDE Documentation  documentation</title>
   
 
   
@@ -30,8 +30,8 @@
   <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BDE 3.16.0: Production Release" href="BDE_3.16.0.html" />
-    <link rel="prev" title="BDE 3.18.0: Production Release" href="BDE_3.18.0.html" /> 
+    <link rel="next" title="BDE 3.42.0: Production Release" href="BDE_3.42.0.html" />
+    <link rel="prev" title="Release Notes" href="release_notes.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -82,6 +82,8 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../news/news.html">BDE News</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-44-0-production-release">BDE 3.44.0: Production Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-42-0-production-release">BDE 3.42.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-41-0-production-release">BDE 3.41.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-40-0-production-release">BDE 3.40.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-39-0-production-release">BDE 3.39.0: Production Release</a></li>
@@ -95,12 +97,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-32-0-production-release">BDE 3.32.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-31-0-production-release">BDE 3.31.0: Production Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-30-0-production-release">BDE 3.30.0: Production Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-29-0-production-release">BDE 3.29.0: Production Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-28-0-production-release">BDE 3.28.0: Production Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-27-0-production-release">BDE 3.27.0: Production Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-26-0-production-release">BDE 3.26.0: Production Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-25-0-production-release">BDE 3.25.0: Production Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-3-20-0-production-release">BDE 3.20.0: Production Release</a></li>
 </ul>
 </li>
 </ul>
@@ -137,7 +133,36 @@
 <li class="toctree-l2"><a class="reference external" href="https://github.com/bloomberg/bde-tools">Build Tools</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#current-minimum-compilers-supported">Current Minimum Compilers Supported</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/supported_platforms.html#tiers-of-support">Tiers of Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#tier-1-bloomberg-production-platforms">Tier 1: Bloomberg Production Platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#tier-2-actively-supported-platforms">Tier 2: Actively Supported Platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#tier-3-user-supported-platforms">Tier 3: User Supported Platforms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/supported_platforms.html#supported-compiler-versions">Supported Compiler Versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/supported_platforms.html#current-test-matrix">Current Test Matrix</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.44.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-44-0-highlights">BDE 3.44.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#detecting-and-addressing-common-problems-with-smart-pointers">Detecting and Addressing Common Problems with Smart Pointers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-requests-3-44-0">Fixed requests: 3.44.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.42.0.html">BDE 3.42.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.42.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.42.0.html#bde-3-42-0-highlights">BDE 3.42.0 Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.42.0.html#fixed-requests-3-42-0">Fixed requests: 3.42.0</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.41.0.html">BDE 3.41.0: Production Release</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="BDE_3.41.0.html#schedule">Schedule</a></li>
 <li class="toctree-l3"><a class="reference internal" href="BDE_3.41.0.html#bde-3-41-0-highlights">BDE 3.41.0 Highlights</a><ul>
@@ -237,200 +262,125 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.29.0.html">BDE 3.29.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.29.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.29.0.html#bde-3-29-0-highlights">BDE 3.29.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.29.0.html#optimization-range-constructors-insert-methods-of-several-containers">Optimization: Range Constructors/Insert Methods of Several Containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.29.0.html">BDE 3.29.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.29.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.29.0.html#bde-3-29-0-highlights">BDE 3.29.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.28.0.html">BDE 3.28.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.28.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.28.0.html#bde-3-28-0-highlights">BDE 3.28.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.28.0.html">BDE 3.28.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.28.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.28.0.html#bde-3-28-0-highlights">BDE 3.28.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.28.0.html#new-components-concurrent-unordered-map-and-concurrent-unordered-multimap">New Components: Concurrent Unordered Map and Concurrent Unordered Multimap</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.28.0.html#recategorization-of-defensive-checks">Recategorization of Defensive Checks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.28.0.html#utility-for-gtest-now-handles-bslstl-stringref">Utility for <code class="docutils literal notranslate"><span class="pre">gtest</span></code> Now Handles <code class="docutils literal notranslate"><span class="pre">bslstl::StringRef</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.27.0.html">BDE 3.27.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.27.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.27.0.html#bde-3-27-0-highlights">BDE 3.27.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.26.0.html">BDE 3.26.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.26.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.26.0.html#bde-3-26-0-highlights">BDE 3.26.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.27.0.html">BDE 3.27.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.27.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.27.0.html#bde-3-27-0-highlights">BDE 3.27.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.27.0.html#new-bsl-system-error-h-support-in-bsl">New <code class="docutils literal notranslate"><span class="pre">&lt;bsl_system_error.h&gt;</span></code> Support in BSL</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.27.0.html#some-emplace-methods-updated-to-c-17-return-value">Some <code class="docutils literal notranslate"><span class="pre">emplace*</span></code> Methods Updated to C++17 Return Value</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.25.0.html">BDE 3.25.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.25.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.25.0.html#bde-3-25-0-highlights">BDE 3.25.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.24.0.html">BDE 3.24.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.24.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.24.0.html#bde-3-24-0-highlights">BDE 3.24.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.26.0.html">BDE 3.26.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.26.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.26.0.html#bde-3-26-0-highlights">BDE 3.26.0 Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.23.1.html">BDE 3.23.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.23.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.23.1.html#bde-3-23-1-highlights">BDE 3.23.1 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.25.0.html">BDE 3.25.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.25.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.25.0.html#bde-3-25-0-highlights">BDE 3.25.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.25.0.html#bde-3-25-changes-the-installation-layout-for-pic-builds">BDE 3.25 Changes the Installation Layout for PIC Builds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.21.0.html">BDE 3.21.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.21.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.21.0.html#bde-3-21-0-highlights">BDE 3.21.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.20.0.html">BDE 3.20.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.20.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.20.0.html#bde-3-20-0-highlights">BDE 3.20.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.24.0.html">BDE 3.24.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.24.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.24.0.html#bde-3-24-0-highlights">BDE 3.24.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.24.0.html#bsl-array-now-available"><code class="docutils literal notranslate"><span class="pre">bsl::array</span></code> Now Available</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.19.0.html">BDE 3.19.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.19.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.19.0.html#bde-3-19-0-highlights">BDE 3.19.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.18.0.html">BDE 3.18.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.18.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.18.0.html#bde-3-18-0-highlights">BDE 3.18.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.23.1.html">BDE 3.23.1: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.23.1.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.23.1.html#bde-3-23-1-highlights">BDE 3.23.1 Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.17.0.html">BDE 3.17.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.17.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.17.0.html#bde-3-17-0-highlights">BDE 3.17.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.21.0.html">BDE 3.21.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.21.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.21.0.html#bde-3-21-0-highlights">BDE 3.21.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.21.0.html#removal-of-the-bdxdfp-package">Removal of the <code class="docutils literal notranslate"><span class="pre">bdxdfp</span></code> Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.16.0.html">BDE 3.16.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.16.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.16.0.html#bde-3-16-0-highlights">BDE 3.16.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.15.0.html">BDE 3.15.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.15.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.15.0.html#bde-3-15-0-highlights">BDE 3.15.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.20.0.html">BDE 3.20.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.20.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.20.0.html#bde-3-20-0-highlights">BDE 3.20.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.20.0.html#new-macro-ball-log-set-namespace-category">New Macro: <code class="docutils literal notranslate"><span class="pre">BALL_LOG_SET_NAMESPACE_CATEGORY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.14.0.html">BDE 3.14.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.14.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.14.0.html#bde-3-14-0-highlights">BDE 3.14.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.13.0.html">BDE 3.13.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.13.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.13.0.html#bde-3-13-0-highlights">BDE 3.13.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.19.0.html">BDE 3.19.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.19.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.19.0.html#bde-3-19-0-highlights">BDE 3.19.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.19.0.html#new-macro-ball-log-set-category-hierarchically">New Macro: <code class="docutils literal notranslate"><span class="pre">BALL_LOG_SET_CATEGORY_HIERARCHICALLY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.12.0.html">BDE 3.12.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.12.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.12.0.html#bde-3-12-0-highlights">BDE 3.12.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.11.0.html">BDE 3.11.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.11.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.11.0.html#bde-3-11-0-highlights">BDE 3.11.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.18.0.html">BDE 3.18.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.18.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.18.0.html#bde-3-18-0-highlights">BDE 3.18.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.18.0.html#new-component-bdlcc-singleconsumerqueue">New Component: <code class="docutils literal notranslate"><span class="pre">bdlcc_singleconsumerqueue</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.18.0.html#bdlt-datetime-and-related-classes-now-have-fluent-add-methods"><code class="docutils literal notranslate"><span class="pre">bdlt::Datetime</span></code> and Related Classes Now Have “Fluent” <code class="docutils literal notranslate"><span class="pre">add*</span></code> Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.10.0.html">BDE 3.10.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.10.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.10.0.html#bde-3-10-0-highlights">BDE 3.10.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.9.0.html">BDE 3.9.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.9.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.9.0.html#bde-3-9-0-highlights">BDE 3.9.0 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.17.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bde-3-17-0-highlights">BDE 3.17.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#redundant-include-guards-removed">Redundant <code class="docutils literal notranslate"><span class="pre">#include</span></code> Guards Removed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.8.0.html">BDE 3.8.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.8.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.8.0.html#bde-3-8-0-highlights">BDE 3.8.0 Highlights</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.7.1.html">BDE 3.7.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.7.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.7.1.html#bde-3-7-1-highlights">BDE 3.7.1 Highlights</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.16.0.html">BDE 3.16.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.16.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.16.0.html#bde-3-16-0-highlights">BDE 3.16.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.16.0.html#recategorization-of-defensive-checks">Recategorization of Defensive Checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.7.0.html">BDE 3.7.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.7.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.7.0.html#bde-3-7-0-highlights">BDE 3.7.0 Highlights</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.15.0.html">BDE 3.15.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.15.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.15.0.html#bde-3-15-0-highlights">BDE 3.15.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.15.0.html#assertion-handlers-that-return-are-now-disallowed">Assertion Handlers that Return are Now Disallowed</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.15.0.html#assertion-handler-signature-changed">Assertion Handler Signature Changed</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.15.0.html#new-build-flag-bsls-assert-validate-disabled-macros">New Build Flag: <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT_VALIDATE_DISABLED_MACROS</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.15.0.html#new-build-flag-bsls-asserttest-check-level">New Build Flag: <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERTTEST_CHECK_LEVEL</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.14.0.html">BDE 3.14.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.14.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.14.0.html#bde-3-14-0-highlights">BDE 3.14.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.14.0.html#enhancements-for-c-14">Enhancements for C++14</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.14.0.html#new-component-bsls-review-and-enhancements-to-bsls-assert">New Component: <code class="docutils literal notranslate"><span class="pre">bsls_review</span></code> and Enhancements to <code class="docutils literal notranslate"><span class="pre">bsls_assert</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.14.0.html#correcting-issue-with-json-decoding">Correcting Issue with JSON Decoding</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.14.0.html#new-class-bdlcc-singleproducerqueue">New Class: <code class="docutils literal notranslate"><span class="pre">bdlcc::SingleProducerQueue</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.14.0.html#pcre2-library-updated"><code class="docutils literal notranslate"><span class="pre">pcre2</span></code> Library Updated</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.13.0.html">BDE 3.13.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.13.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.13.0.html#bde-3-13-0-highlights">BDE 3.13.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.13.0.html#new-class-bdlb-indexspan-and-utilities">New Class: <code class="docutils literal notranslate"><span class="pre">bdlb::IndexSpan</span></code> and Utilities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.13.0.html#bdlma-concurrentpoolallocator-added-methods"><code class="docutils literal notranslate"><span class="pre">bdlma::ConcurrentPoolAllocator</span></code>: Added Methods</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.12.0.html">BDE 3.12.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.12.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.12.0.html#bde-3-12-0-highlights">BDE 3.12.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.12.0.html#bdlde-crc32c-utilities-for-crc32-c-checksums"><code class="docutils literal notranslate"><span class="pre">bdlde::Crc32c</span></code> : Utilities for CRC32-C Checksums</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.11.0.html">BDE 3.11.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.11.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.11.0.html#bde-3-11-0-highlights">BDE 3.11.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.11.0.html#new-bde-build-system">New BDE Build System</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.10.0.html">BDE 3.10.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.10.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.10.0.html#bde-3-10-0-highlights">BDE 3.10.0 Highlights</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.9.0.html">BDE 3.9.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.9.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.9.0.html#bde-3-9-0-highlights">BDE 3.9.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.9.0.html#ball-the-open-source-logging-toolkit">BALL: The Open Source Logging Toolkit</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.8.0.html">BDE 3.8.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.8.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.8.0.html#bde-3-8-0-highlights">BDE 3.8.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.8.0.html#bdlb-transformiterator-is-now-available"><code class="docutils literal notranslate"><span class="pre">bdlb::TransformIterator</span></code> is now available</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.8.0.html#btlb-blob-is-now-bdlbb-blob"><code class="docutils literal notranslate"><span class="pre">btlb::Blob</span></code> is now <code class="docutils literal notranslate"><span class="pre">bdlbb::Blob</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.7.1.html">BDE 3.7.1: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.1.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.1.html#bde-3-7-1-highlights">BDE 3.7.1 Highlights</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.7.0.html">BDE 3.7.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.0.html#bde-3-7-0-highlights">BDE 3.7.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.7.0.html#bsl-containers-c-standard-conformance-enhancements">BSL Containers C++ Standard Conformance Enhancements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.7.0.html#btemt-channelpool-now-supports-round-robin-reads"><code class="docutils literal notranslate"><span class="pre">btemt_ChannelPool</span></code> Now Supports “Round-Robin” Reads</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.6.0.html">BDE 3.6.0: Production Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.6.0.html#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BDE_3.6.0.html#bde-3-6-0-highlights">BDE 3.6.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.6.0.html#bdldfp-decimal-floating-point-enhancements"><code class="docutils literal notranslate"><span class="pre">bdldfp</span></code> (Decimal Floating Point) Enhancements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.6.0.html#class-bdldfp-decimal-enhancements">Class <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> Enhancements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.6.0.html#new-class-bdldfp-decimalformatconfig">New Class <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalFormatConfig</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.6.0.html#class-bdldfp-decimalutil-enhancements">Class <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalUtil</span></code> Enhancements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BDE_3.6.0.html#refactoring">Refactoring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="archive/BDE_3.6.0.html">BDE 3.6.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.6.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archive/BDE_3.6.0.html#bde-3-6-0-highlights">BDE 3.6.0 Highlights</a></li>
 </ul>
 </li>
 </ul>
@@ -638,7 +588,7 @@
         
           <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
         
-      <li>BDE 3.17.0: Production Release</li>
+      <li>BDE 3.44.0: Production Release</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -652,10 +602,10 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="BDE_3.16.0.html" class="btn btn-neutral float-right" title="BDE 3.16.0: Production Release" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="BDE_3.42.0.html" class="btn btn-neutral float-right" title="BDE 3.42.0: Production Release" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="BDE_3.18.0.html" class="btn btn-neutral" title="BDE 3.18.0: Production Release" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="release_notes.html" class="btn btn-neutral" title="Release Notes" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
   </div>
   
@@ -664,29 +614,112 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="bde-3-17-0-production-release">
-<span id="bde3-17-0-top"></span><h1>BDE 3.17.0: Production Release<a class="headerlink" href="#bde-3-17-0-production-release" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="bde-3-44-0-production-release">
+<span id="bde3-44-0-top"></span><h1>BDE 3.44.0: Production Release<a class="headerlink" href="#bde-3-44-0-production-release" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="schedule">
-<span id="bde3-17-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<span id="bde3-44-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><ul class="simple">
-<li>The BDE team is pleased to announce that the BDE 3.17.0 production release
-was completed on <strong>Wednesday, November 14, 2018</strong></li>
+<li>BDE team is pleased to announce that the BDE 3.44.0 production release
+was completed on <strong>Wednesday, Dec 11, 2019</strong></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="bde-3-17-0-highlights">
-<span id="bde3-17-0-highlights"></span><h2>BDE 3.17.0 Highlights<a class="headerlink" href="#bde-3-17-0-highlights" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="redundant-include-guards-removed">
-<h3>Redundant <code class="docutils literal notranslate"><span class="pre">#include</span></code> Guards Removed<a class="headerlink" href="#redundant-include-guards-removed" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="bde-3-44-0-highlights">
+<span id="bde3-44-0-highlights"></span><h2>BDE 3.44.0 Highlights<a class="headerlink" href="#bde-3-44-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="detecting-and-addressing-common-problems-with-smart-pointers">
+<h3>Detecting and Addressing Common Problems with Smart Pointers<a class="headerlink" href="#detecting-and-addressing-common-problems-with-smart-pointers" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><p>A long-time feature of BDE source code, redundant <code class="docutils literal notranslate"><span class="pre">#include</span></code> guards, has
-been deemed obsolete and is being being phased out.  Note that Rules 4.3.2
-and 4.4.3 of the <a class="reference internal" href="../knowledge_base/coding_standards.html#section-4-3"><span class="std std-ref">BDE C++ Coding Standard 4.3</span></a>
-are labeled <em>Obsolete</em>.</p>
-<p>This release removes redundant <code class="docutils literal notranslate"><span class="pre">#include</span></code> guards from the BDE libraraies.</p>
+<div><p>The most common cause of bugs with the smart pointer types
+<code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> and <code class="docutils literal notranslate"><span class="pre">bslma::ManagedPtr</span></code> is incorrectly passing
+allocators on construction.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bde_verify</span></code> recently introduced checks (in version 1.3.1) that identify
+common mistakes when constructing <code class="docutils literal notranslate"><span class="pre">bslma::ManagedPtr</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> objects.  The new checks can be used to detect bugs in
+existing code.</p>
+<p>In parallel, BDE 3.44 has introduced a new pair of utility functions,
+<code class="docutils literal notranslate"><span class="pre">bslma::ManangedPtrUtil::makeManaged</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bslma::ManagedPtrUtil::allocateManaged</span></code> that reduce the possibility of
+error when creating a <code class="docutils literal notranslate"><span class="pre">bslma::ManagedPtr</span></code> (which parallel the standard
+<code class="docutils literal notranslate"><span class="pre">bsl::make_shared</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::allocate_shared</span></code>).</p>
+<p>We recommend these utilities when creating <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bslma::ManagedPtr</span></code> objects.</p>
+<p>The new function signatures are as follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELEMENT_TYPE</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">ARGS</span><span class="o">&gt;</span>
+<span class="k">static</span> <span class="n">ManagedPtr</span><span class="o">&lt;</span><span class="n">ELEMENT_TYPE</span><span class="o">&gt;</span> <span class="n">allocateManaged</span><span class="p">(</span>
+                                          <span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span> <span class="o">*</span><span class="n">basicAllocator</span><span class="p">,</span>
+                                          <span class="n">ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span>         <span class="n">args</span><span class="p">);</span>
+    <span class="c1">// This function uses the supplied &#39;basicAllocator&#39; to allocate the</span>
+    <span class="c1">// footprint of the new object, and as a constructor argument for</span>
+    <span class="c1">// &#39;ELEMENT_TYPE&#39; if &#39;ELEMENT_TYPE&#39; is &#39;bslma::allocator&#39; aware.</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELEMENT_TYPE</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">ARGS</span><span class="o">&gt;</span>
+<span class="k">static</span> <span class="n">ManagedPtr</span><span class="o">&lt;</span><span class="n">ELEMENT_TYPE</span><span class="o">&gt;</span> <span class="n">makeManaged</span><span class="p">(</span><span class="n">ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">);</span>
+    <span class="c1">// This function uses the default &#39;basicAllocator&#39; to allocate the</span>
+    <span class="c1">// footprint of the new object, and supplies &#39;args&#39; (without</span>
+    <span class="c1">// amendment) to the constructor of &#39;ELEMENT_TYPE&#39;.</span>
+</pre></div>
+</div>
 </div></blockquote>
-<span class="target" id="bde3-17-0-fixed"></span></div>
+</div>
+</div>
+<div class="section" id="fixed-requests-3-44-0">
+<h2>Fixed requests: 3.44.0<a class="headerlink" href="#fixed-requests-3-44-0" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="colwidths-given docutils align-left">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Summary</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(reverted) Possible (intentional) undefined behavior in ‘balber_beruniversal</td>
+</tr>
+<tr class="row-odd"><td>[bsl] bslmf_isbitwiseequalitycomparable has no documentation or test coverage</td>
+</tr>
+<tr class="row-even"><td>Cleanup: remove all references to bsl+stdhdrs</td>
+</tr>
+<tr class="row-odd"><td>Please provide bslma::makeManaged</td>
+</tr>
+<tr class="row-even"><td>bsitzo_tzdftimezoneutil.cpp incorrectly using Asia/Calcutta</td>
+</tr>
+<tr class="row-odd"><td>Fix ‘pretty’ output for baljsn_Formatter</td>
+</tr>
+<tr class="row-even"><td>Update ‘bsl::make_shared’ behavior</td>
+</tr>
+<tr class="row-odd"><td>[bsl] Optimize ‘bslmf_voidtype’ for C++11</td>
+</tr>
+<tr class="row-even"><td>questions for using decimal64FromDouble(double, int)</td>
+</tr>
+<tr class="row-odd"><td>Fix UB with TimerEventSchedulerTestTimeSource</td>
+</tr>
+<tr class="row-even"><td>Avoid allocation when printing bdld::DatumMapEntry</td>
+</tr>
+<tr class="row-odd"><td>[bsl] simplify nested trait detection and other traits using ‘BSLMF_VOIDTYPE</td>
+</tr>
+<tr class="row-even"><td>Fix failing baljsn_encoder test case on Sun</td>
+</tr>
+<tr class="row-odd"><td>(doc-only) bsls_linkcoercion documentation needs refinement</td>
+</tr>
+<tr class="row-even"><td>bdls_processutil: instrument get{ProcessName,PathToExecutable} to log error</td>
+</tr>
+<tr class="row-odd"><td>Add build prerequisites to bde/bde README</td>
+</tr>
+<tr class="row-even"><td>baetzo_windowstimezoneutil.t.cpp test driver CASE 1 failing</td>
+</tr>
+<tr class="row-odd"><td>Fix baejsn_encoder test failures resulting from baljsn changes</td>
+</tr>
+<tr class="row-even"><td>Correct nightly bsl test driver build error</td>
+</tr>
+<tr class="row-odd"><td>Use correct library detection macros for Solaris CC compiler</td>
+</tr>
+<tr class="row-even"><td>bdlcc::SharedObjectPool ctor interface is ambiguous</td>
+</tr>
+<tr class="row-odd"><td>bsls_asserttest makes no note on noexcept or destructors</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -734,7 +767,7 @@ are labeled <em>Obsolete</em>.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
 
   
 
