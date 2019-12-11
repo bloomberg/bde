@@ -44,7 +44,6 @@ function(bdeproj_project_process_uors proj listDir)
 
     bde_project_process_standalone_packages(
         ${proj}
-        ${listDir}/thirdparty/decnumber
         ${listDir}/thirdparty/inteldfp
         ${listDir}/thirdparty/pcre2
     )
