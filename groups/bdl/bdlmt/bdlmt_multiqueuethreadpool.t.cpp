@@ -246,6 +246,19 @@ void incrementCounter(bsls::AtomicInt *counter)
     ++*counter;
 }
 
+static void timedWaitOnBarrier(bslmt::Barrier  *barrier,
+                               bsls::AtomicInt *timedOut)
+{
+    // Timed wait on the specified 'barrier' for 0.1 seconds and load into the
+    // specified 'timedOut' a non-zero value if the 'timedWait' timeouts.
+
+    ASSERT(barrier);
+    ASSERT(timedOut);
+
+    *timedOut = barrier->timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(100));
+}
+
 static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
                                   bsls::AtomicInt *counter,
                                   int              incrementBy)
@@ -1803,32 +1816,78 @@ int main(int argc, char *argv[]) {
         {
             // verify when 'pauseQueue' does not block
 
+            // Note that in this test, 'pauseQueue' is expected -- but not
+            // guaranteed -- to not block.  As such, the test will be repeated
+            // until the desired code path is executed, or a large number of
+            // iterations is performed (indicating failure).
+
             bslmt::Barrier controlBarrier(2);
 
-            Func job = bdlf::BindUtil::bind(&waitOnBarrier,
+            bsls::AtomicInt timedOut;
+
+            Func job = bdlf::BindUtil::bind(&timedWaitOnBarrier,
                                             &controlBarrier,
-                                            1);
+                                            &timedOut);
 
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
-            int queueId = mX.createQueue();
+            bool haveDesiredCodePath = false;
 
-            ASSERT(0 == mX.enqueueJob(queueId, job));
+            for (int i = 0; i < 100 && !haveDesiredCodePath; ++i) {
+                timedOut = 0;
 
-            ASSERT(0 == mX.pauseQueue(queueId));
+                mX.start();
+                int queueId = mX.createQueue();
 
-            int rv = mX.resumeQueue(queueId);
-            ASSERT(0 == rv);
+                // The enqueued job will set 'timedOut' if the contained wait
+                // on 'controlBarrier' times out.  We are trying to pause the
+                // queue before the job executes, so if '0 != timedOut' occurs
+                // during the iteration, the iteration is not useful (the
+                // executed code path in 'pauseQueue' can not be determined).
 
-            if (rv) {
-                exit(0);
+                ASSERT(0 == mX.enqueueJob(queueId, job));
+
+                // The following invocation of 'pauseQueue' may execute before,
+                // or after, the enqueued job starts.
+
+                ASSERT(0 == mX.pauseQueue(queueId));
+
+                // Note that '0 != timedOut' indicates 'pauseQueue' executed
+                // after the enqueued job started (but does not guarantee that
+                // 'pauseQueue' blocks), and the iteration is not useful.
+
+                if (0 == timedOut) {
+                    int rv = mX.resumeQueue(queueId);
+                    ASSERT(0 == rv);
+
+                    // Note that there is a very unlikely race with the timeout
+                    // in 'timedWaitInBarrier' if the thread that invoked
+                    // 'resumeQueue' is descheduled for a long time so, to
+                    // prevent a possible "hang" if 'wait' were used, the
+                    // following must be a 'timedWait'.
+
+                    rv = controlBarrier.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                                        .addMilliseconds(100));
+
+                    // If this 'timeWait' times out, then the 'timedWait' in
+                    // 'timedWaitOnBarrier' must have timed out (due to
+                    // pathalogical scheduling), and the iteration should not
+                    // be counted (i.e., '0 != timedOut').
+
+                    if (0 == rv) {
+                        haveDesiredCodePath = true;
+                    }
+                    else {
+                        ASSERT(0 != timedOut);
+                    }
+                }
+
+                mX.drain();
+                mX.stop();
             }
 
-            controlBarrier.wait();
-
-            mX.drain();
-            mX.stop();
+            ASSERT(haveDesiredCodePath);
         }
         {
             // verify when 'pauseQueue' does block
