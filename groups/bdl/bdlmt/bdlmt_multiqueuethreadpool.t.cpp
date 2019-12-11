@@ -1840,7 +1840,8 @@ int main(int argc, char *argv[]) {
                 int queueId = mX.createQueue();
 
                 // The enqueued job will set 'timedOut' if the contained wait
-                // on 'controlBarrier' times out.  If '0 != timedOut' occurs
+                // on 'controlBarrier' times out.  We are trying to pause the
+                // queue before the job executes, so if '0 != timedOut' occurs
                 // during the iteration, the iteration is not useful (the
                 // executed code path in 'pauseQueue' can not be determined).
 
