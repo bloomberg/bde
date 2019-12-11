@@ -787,7 +787,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Note that memory for the object itself is supplied by the default allocator,
 // while memory for the copy of the passed string is supplied by another
 // allocator:
-//:
+//..
 //          assert(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
 //          assert(&ta == stringManagedPtr->allocator());
 //          assert(STR_LENGTH + 1 == ta.numBytesInUse());
