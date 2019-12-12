@@ -1109,7 +1109,7 @@ class BoyerMooreHorspoolSearcher {
 }  // close package namespace
 }  // close enterprise namespace
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 namespace bsl {
 
 
@@ -1201,7 +1201,7 @@ class boyer_moore_horspool_searcher {
 };
 
 }  // close namespace bsl
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 
 // ----------------------------------------------------------------------------
 //                          INLINE DEFINITIONS
@@ -2118,7 +2118,7 @@ BloombergLP::bslma::Allocator *BoyerMooreHorspoolSearcher<
 }  // close package namespace
 }  // close enterprise namespace
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 namespace bsl {
 
                         // -----------------------------------
@@ -2163,7 +2163,7 @@ pair<RandomAccessIterator2,
 }
 
 }  // close namespace bsl
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 
 // ============================================================================
 //                                TYPE TRAITS

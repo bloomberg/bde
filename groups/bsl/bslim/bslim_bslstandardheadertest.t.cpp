@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
         ASSERT(7 == bsl::search(haystackFirst, haystackLast, bmhSearcher)
                                                               - haystackFirst);
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS)
         typedef bsl::boyer_moore_searcher<ConstItr> BmSearcher;
 
         BmSearcher bmSearcher(needleFirst, needleLast);
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
         const Result bmResult = bmSearcher(haystackFirst, haystackLast);
 
         ASSERT(bmResult == bmhResult);
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 
       } break;
       case 7: {
@@ -775,7 +775,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -41,12 +41,12 @@
 using namespace BloombergLP;
 namespace BSL = native_std;  // for Usage examples
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
     #include <functional>
     namespace XYZ = native_std;
 #else
     namespace XYZ = bsl;
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 
 // ============================================================================
 //                             TEST PLAN
@@ -3864,7 +3864,7 @@ int main(int argc, char *argv[])
                        "\n" "TEST 'boyer_moore_horspool_seacher' FACADE"
                        "\n" "==========================================" "\n");
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
         typedef CharArray<char>::const_iterator    RndAccConstItr;
         typedef bsl::boyer_moore_horspool_searcher<RndAccConstItr>    MechChar;
         typedef bsl::boyer_moore_horspool_searcher<
@@ -4075,7 +4075,7 @@ int main(int argc, char *argv[])
         }
 #else
         if (verbose) printf("Test Skipped: native searcher class used\n");
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
       } break;
       case 7: {
         // --------------------------------------------------------------------

@@ -99,7 +99,7 @@ namespace bsl {
 
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
     using native_std::default_searcher;
     using native_std::boyer_moore_searcher;
     using native_std::boyer_moore_horspool_searcher;
@@ -117,10 +117,10 @@ namespace bsl {
 #ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #include <bslstp_exfunctional.h>
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 #include <bslstl_defaultsearcher.h>
 #include <bslstl_boyermoorehorspoolsearcher.h>
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 #include <bslstl_equalto.h>
 #include <bslstl_function.h>
 #include <bslstl_hash.h>

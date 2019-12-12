@@ -180,7 +180,8 @@
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
 // [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-// [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+// [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
+// [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -289,14 +290,20 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined =
                                                                          false;
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS)
                                                                           true;
 #else
                                                                          false;
 #endif
                     // case 13
-
 
 #include <algorithm> // for 'search'
 #include <utility>   // for 'pair'
@@ -1395,43 +1402,63 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM'
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_*' MACROS
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' flag is
+        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' macro is
         //:   defined when the native library provides a definition for an
         //:   overload of the 'search' function template that accepts a
         //:   searcher object, and not otherwise.
+        //:
+        //: 2 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' macro is
+        //:   defined when the native library provides the definition for all
+        //:   of the 'search' functor templates in <functional>, and not
+        //:   otherwise.
+        //:
+        //: 3 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' macro is
+        //:   only defined when the
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' macro is also
+        //:   defined.  This is a santy check as we know that no implementation
+        //:   exists that would defined the functors but not the algorithm.
         //
         // Plan:
         //: 1 In namespace 'case13', define 'SearcherNull', a class that is
         //:   compatible with the "searcher" concept and an independent
         //:   definition of the 'search' overload under test.
         //:
-        //: 2 When the flag is set, confirm that the overload exists, that it
-        //:   accepts the searcher objects, and returns the expected result.
+        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' is set,
+        //:   confirm that the overload exists, that it accepts the searcher
+        //:   object, and returns the expected result.
         //:
-        //: 3 When the flag is set, confirm that the three native types for
-        //:   searcher objects exist.
+        //: 3 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' is set,
+        //:   confirm that the three native types for searcher objects exist.
         //:
-        //: 4 When the flag is *not* set, specify 'using' directives to search
-        //:   for definitions in both the 'native_std' and the 'case13'
-        //:   namespaces.  Then define an experession using the
-        //:   namespace-unqualified name 'search'.  If there is a definition in
-        //:   the 'native_std' namespace in addition to the one we planted in
-        //:   namespace 'case13', the test driver fails to compile (ambiguity
-        //:   error).
+        //: 4 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' is *not* set,
+        //:   specify 'using' directives to search for definitions in both the
+        //:   'native_std' and the 'case13' namespaces.  Then define an
+        //:   an expression using the namespace-unqualified name 'search'.  If
+        //:   there is a definition in the 'native_std' namespace in addition
+        //:   to the one we planted in namespace 'case13', the test driver will
+        //:   fail to compile (ambiguity error).
+        //:
+        //: 5 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' is *not* set
+        //:   set, we do not test for the possible presence of the 'native_std'
+        //:   functors, because only one of them may be missing, which we
+        //:   cannot test for, or they may be faulty and not indicated for that
+        //:   reason.
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM'\n"
-                "=========================================================\n");
+                "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_*' MACROS\n"
+                "========================================================\n");
 
         if (verbose) {
-                P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM_defined)
+                P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD_defined)
+                P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS_defined)
         }
 
         case13::SearcherNull searcher;
@@ -1444,22 +1471,13 @@ int main(int argc, char *argv[])
         const char *haystackFirst = haystack;
         const char *haystackLast  = haystack + sizeof haystack - 1;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD)
 
         const char *result = native_std::search(haystackFirst,
                                                 haystackLast,
                                                 searcher);
         ASSERT(haystackLast == result);
-
-        native_std::default_searcher              dftSearcher(needleFirst,
-                                                              needleLast);
-        native_std::boyer_moore_searcher           bmSearcher(needleFirst,
-                                                              needleLast);
-        native_std::boyer_moore_horspool_searcher bmhSearcher(needleFirst,
-                                                              needleLast);
-#elif (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION < 1910)  \
-   && (!defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) || _LIBCPP_VERSION > 7000)
-
+#else
         using namespace native_std;
         using namespace case13;
 
@@ -1468,13 +1486,17 @@ int main(int argc, char *argv[])
 
         (void) needleFirst;
         (void) needleLast;
-#else
-        if (veryVerbose)
-            printf("Skip Test: MSVC 2017 and Apple clang 11"
-                   " have 'search' but no searchers.\n");
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS)
+        native_std::default_searcher              dftSearcher(needleFirst,
+                                                              needleLast);
+        native_std::boyer_moore_searcher           bmSearcher(needleFirst,
+                                                              needleLast);
+        native_std::boyer_moore_horspool_searcher bmhSearcher(needleFirst,
+                                                              needleLast);
 #endif
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
-
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -2212,7 +2234,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 201 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
