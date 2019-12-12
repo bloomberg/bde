@@ -47,9 +47,10 @@ using namespace BloombergLP;
 // [ 1] bsl::is_trivially_copyable_v
 //
 // ----------------------------------------------------------------------------
-// [ 4] USAGE EXAMPLE
-// [ 3] TESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'
+// [ 5] USAGE EXAMPLE
 // [ 2] EXTENDING bsl::is_trivially_copyable
+// [ 3] CONCERN: bsl::is_trivially_copyable<bsls::TimeInterval>::value
+// [ 4] CONCERN: bsl::is_trivially_copyable<bslmf::Nil>::value
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -138,16 +139,16 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Each of the macros below test the 'bsl::is_trivially_copyable'
-// trait with a set of variations on a type.  There are several layers of
-// macros, as object types support the full range of variation, but function
-// types cannot form an array, nor be cv-qualified.  Similarly, 'void' may be
-// cv-qualified, but still cannot form an array.  As macros are strictly
-// text-substitution we must use the appropriate 'add_decoration' traits to
-// transform types in a manner that is guaranteed to be syntactically valid.
-// Note that these are not type-dependent contexts, so there is no need to use
-// 'typename' when fetching the result from any of the queried traits.  Valid
-// entry points into this system of macros are:
+// Each of the macros below test the 'bsl::is_trivially_copyable' trait with a
+// set of variations on a type.  There are several layers of macros, as object
+// types support the full range of variation, but function types cannot form an
+// array, nor be cv-qualified.  Similarly, 'void' may be cv-qualified, but
+// still cannot form an array.  As macros are strictly text-substitution we
+// must use the appropriate 'add_decoration' traits to transform types in a
+// manner that is guaranteed to be syntactically valid.  Note that these are
+// not type-dependent contexts, so there is no need to use 'typename' when
+// fetching the result from any of the queried traits.  Valid entry points into
+// this system of macros are:
 //  ASSERT_IS_TRIVIALLY_COPYABLE             : single type
 //  ASSERT_IS_TRIVIALLY_COPYABLE_TYPE        : a type, plus pointer/references
 //  ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE : an object type, plus all
@@ -173,8 +174,8 @@ void aSsErT(bool condition, const char *message, int line)
              bsl       ::is_trivially_copyable<TYPE>::value,                  \
              native_std::is_trivially_copyable<TYPE>::value ==                \
              bsl       ::is_trivially_copyable<TYPE>::value)
-    // Confirm that the result of 'bsl::is_trivially_copyable<TYPE>'
-    // agrees with the oracle 'native_std::is_trivially_copyable<TYPE>'.
+    // Confirm that the result of 'bsl::is_trivially_copyable<TYPE>' agrees
+    // with the oracle 'native_std::is_trivially_copyable<TYPE>'.
 # endif
 #else
 # define ASSERT_IS_TRIVIALLY_COPYABLE_CONSULT_ORACLE(TYPE)
@@ -186,11 +187,13 @@ void aSsErT(bool condition, const char *message, int line)
 // Macro: ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT
 //   This macro validates that the 'bsl' variable template has the same value
 //   as the associated trait, if variable templates are supported by the
-//   compiler, and expands to nothing otherwise..
+//   compiler, and expands to nothing otherwise.
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
 # define ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT(TYPE)                         \
     ASSERT( bsl::is_trivially_copyable  <TYPE>::value ==                      \
             bsl::is_trivially_copyable_v<TYPE>)
+    // 'ASSERT' that 'is_trivially_copyable_v' has the same value as
+    // 'is_trivially_copyable::value'.
 #else
 # define ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT(TYPE)
 #endif
@@ -216,7 +219,7 @@ void aSsErT(bool condition, const char *message, int line)
 //   'RESULT' for an rvalue reference to the given 'TYPE' on platforms that
 //   implement language support, and performs no test otherwise.  Note that the
 //   native trait implementation shipping with Visual C++ compilers prior to
-//   VC 2017 erroneously reports that rvalue-references to arrays are NOT
+//   MSVC 2017 erroneously reports that rvalue-references to arrays are NOT
 //   trivially copyable.
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 # define ASSERT_IS_TRIVIALLY_COPYABLE_RVAL_REF(TYPE, RESULT)                  \
@@ -228,7 +231,7 @@ void aSsErT(bool condition, const char *message, int line)
 // Macro: ASSERT_IS_TRIVIALLY_COPYABLE_TYPE
 //   This macro tests that the 'is_trivially_copyable' trait has the expected
 //   'RESULT' for the given 'TYPE', and pointers/references to that type.
-//   Pointers are always trivialy copyable, and references are never trivially
+//   Pointers are always trivially copyable, and references are never trivially
 //   copyable.
 # define ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT)                      \
     ASSERT_IS_TRIVIALLY_COPYABLE(TYPE, RESULT);                               \
@@ -270,14 +273,21 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[][8], RESULT)
 #endif
 
-
-
-
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
+
+enum EnumTestType {
+    // This 'enum' type is used for testing.
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+enum class EnumClassType {
+    // This 'enum' type is used for testing.
+};
+#endif
 
 class MyTriviallyCopyableType {
 };
@@ -285,8 +295,16 @@ class MyTriviallyCopyableType {
 struct MyNonTriviallyCopyableType {
     MyNonTriviallyCopyableType() {}
     MyNonTriviallyCopyableType(const MyNonTriviallyCopyableType&) {}
-    //...
+        // Explicitly supply constructors that do nothing, to ensure that this
+        // class has no trivial traits detected with a conforming C++11 library
+        // implementation.
 };
+
+typedef int MyTriviallyCopyableType::*DataMemberPtrTestType;
+    // This pointer to instance data member type is used for testing.
+
+typedef int (MyTriviallyCopyableType::*MethodPtrTestType)();
+    // This pointer to non-static function member type is used for testing.
 
 }  // close unnamed namespace
 
@@ -339,19 +357,6 @@ struct UserDefinedNonTcTestType {
     UserDefinedNonTcTestType() {}
     UserDefinedNonTcTestType(const UserDefinedNonTcTestType&) {}
 };
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-enum EnumClassType {
-    // This 'enum' type is used for testing.
-};
-#endif
-
-enum EnumTestType {
-    // This 'enum' type is used for testing.
-};
-
-typedef int (UserDefinedNonTcTestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is used for testing.
 
 }  // close unnamed namespace
 
@@ -477,13 +482,12 @@ int main(int argc, char *argv[])
         //: 1 Verify 'bsl::is_trivially_copyable<bslmf::Nil>' is 'true'
         //
         // Testing:
-        //
+        //   CONCERN: bsl::is_trivially_copyable<bslmf::Nil>::value
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf(
-              "\nTESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'\n"
-              "\n=========================================================\n");
+        if (verbose) printf(
+                      "\nTESTING: 'bsl::is_trivially_copyable<bslmf::Nil>'"
+                      "\n=================================================\n");
 
         // C-1
         ASSERT(bsl::is_trivially_copyable<bslmf::Nil>::value);
@@ -505,12 +509,11 @@ int main(int argc, char *argv[])
         //: 1 Verify 'bsl::is_trivially_copyable<bsls::TimeInterval>' is 'true'
         //
         // Testing:
-        //
+        //   CONCERN: bsl::is_trivially_copyable<bsls::TimeInterval>::value
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf(
-              "\nTESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'\n"
+        if (verbose) printf(
+              "\nTESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'"
               "\n=========================================================\n");
 
         // C-1
@@ -553,7 +556,7 @@ int main(int argc, char *argv[])
         //:    sample of types.
         //
         // Testing:
-        //   EXTENDING 'bsl::is_trivially_copyable'
+        //   EXTENDING bsl::is_trivially_copyable
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -615,6 +618,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_trivially_copyable::value
+        //   bsl::is_trivially_copyable_v
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -625,25 +629,35 @@ int main(int argc, char *argv[])
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(bool, true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(char, true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(int,  true);
-        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(long double, true);
-
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(long double,    true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(bsl::nullptr_t, true);
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(char16_t, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(char16_t,       true);
 #endif
 
         // C-2 (partial 6, 7, 8, 9)
-        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(EnumTestType, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(EnumTestType,   true);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(EnumClassType, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(EnumClassType,  true);
 #endif
 
         // C-3 (complete 6, 7, 8, 9)
-        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(MethodPtrTestType, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(DataMemberPtrTestType, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(MethodPtrTestType,     true);
 
-        // C-4 : 'void' is not an object type, but can be cv-qualified.
-        ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(void, false);
+        // C-4 : 'void' is not an object type, and although it can be
+        // cv-qualified, there are no references to 'void' so we must drop to
+        // the most primitive test macro:
+        ASSERT_IS_TRIVIALLY_COPYABLE(void,                false);
+        ASSERT_IS_TRIVIALLY_COPYABLE(const void,          false);
+        ASSERT_IS_TRIVIALLY_COPYABLE(volatile void,       false);
+        ASSERT_IS_TRIVIALLY_COPYABLE(const volatile void, false);
+
+        // Pointers to void are perfectly good object types:
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(void*,                true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(const void*,          true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(volatile void*,       true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(const volatile void*, true);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
         ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(void(),                false);

@@ -231,7 +231,16 @@ struct IsTriviallyCopyable_Intrinsic<void> : bsl::false_type {
 template <class NON_CV_TYPE, class = void>
 struct IsTriviallyCopyable_Solaris
      : bsl::false_type {
-    // describe solaris workaround here...
+    // The Solaris CC compiler (prior to CC 12.4) will match certain types,
+    // such as abominable function types, as matching a 'cv'-qualified type in
+    // partial specialization, even when that type is not 'cv'-qualified.  The
+    // idiom of implementing a partial specialization for 'cv'-qualified traits
+    // in terms of the primary template then becomes infinitely recursive for
+    // those special cases, so we provide a shim implementation class to handle
+    // the delegation.  This primary template always derives from 'false_type',
+    // and will be matched for function types, reference types, and 'void',
+    // none of which are trivially copyable.  The partial specialization below
+    // handles recursion back to the primary trait for all other types.
 };
 
 template <class NON_CV_TYPE>
