@@ -191,7 +191,7 @@ struct AssertTest {
 #define BSLMF_ASSERT(expr) \
 BSLA_MAYBE_UNUSED typedef BloombergLP::bslmf::AssertTest<                     \
          sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
-                                   BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__);
+                                    BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)
 #endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
