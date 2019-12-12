@@ -75,6 +75,21 @@ using namespace bsl;
 // [  ] decimalFromDPD(Decimal32*, cuc*);
 // [  ] decimalFromDPD(Decimal64*, cuc*);
 // [  ] decimalFromDPD(Decimal128*, cuc*);
+// [ 9]  void decimal32ToBID (unsigned char *buf, Decimal32  dec);
+// [ 9]  void decimal64ToBID (unsigned char *buf, Decimal64  dec);
+// [ 9]  void decimal128ToBID(unsigned char *buf, Decimal128 dec);
+// [ 9]  void decimalToBID   (unsigned char *buf, Decimal32  dec);
+// [ 9]  void decimalToBID   (unsigned char *buf, Decimal64  dec);
+// [ 9]  void decimalToBID   (unsigned char *buf, Decimal128 dec);
+// [ 9]  Decimal32  decimal32FromBID (const unsigned char *buffer);
+// [ 9]  Decimal64  decimal64FromBID (const unsigned char *buffer);
+// [ 9]  Decimal128 decimal128FromBID(const unsigned char *buffer);
+// [ 9]  void decimal32FromBID (Decimal32  *dec, const unsigned char *buf);
+// [ 9]  void decimal64FromBID (Decimal64  *dec, const unsigned char *buf);
+// [ 9]  void decimal128FromBID(Decimal128 *dec, const unsigned char *buf);
+// [ 9]  void decimalFromBID   (Decimal32  *dec, const unsigned char *buf);
+// [ 9]  void decimalFromBID   (Decimal64  *dec, const unsigned char *buf);
+// [ 9]  void decimalFromBID   (Decimal128 *dec, const unsigned char *buf);
 // [  ] uc* decimal32ToNetwork(uc*, Decimal32);
 // [  ] uc* decimal64ToNetwork(uc*, Decimal64);
 // [  ] uc* decimal128ToNetwork(uc*, Decimal128);
@@ -97,7 +112,7 @@ using namespace bsl;
 // [ 7] bool isValidMultiWidthsize(uc);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 // [-1] CONVERSION TEST
 // [-2] ROUND TRIP CONVERSION TEST
 // ----------------------------------------------------------------------------
@@ -553,7 +568,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -646,6 +661,687 @@ int main(int argc, char* argv[])
             ASSERT(number == restored);
         }
         //..
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING CONVERSION TO/FROM BINARY INTEGRAL
+        //
+        // Concerns:
+        //:  1 Decimal values in the implementation format are represented
+        //:    faithfully and correctly in the BID format, when converted.
+        //:
+        //:  2 The decimal value, after conversion, has the same cohort as the
+        //:    original value.
+        //:
+        //:  3 Decimal values can be successfully conversed to the
+        //:    implementation format from the BID format.
+        //:
+        //:  4 32, 64, and 128 bit variations all work correctly.
+        //:
+        //:  5 Special cases, such as Infinity and NaN are represented
+        //:    correctly as BID.
+        //
+        // Plan:
+        //:  1 Iterate through a set of test mantissas and exponents and
+        //:    convert decimal values to BID, comparing the result to a
+        //:    canonically constructed value in BID.  (C-1..2)
+        //:
+        //:  2 Use BID representation from P-1 to create a decimal value and
+        //:    verify the result by comparing it with the original value.
+        //:    (C-3)
+        //:
+        //:  3 Test the special case values explicitly, by converting to BID,
+        //:    then using the conversion back.  (C-4..5)
+        //
+        // Testing
+        //   void decimal32ToBID (unsigned char *buf, Decimal32  dec);
+        //   void decimal64ToBID (unsigned char *buf, Decimal64  dec);
+        //   void decimal128ToBID(unsigned char *buf, Decimal128 dec);
+        //   void decimalToBID   (unsigned char *buf, Decimal32  dec);
+        //   void decimalToBID   (unsigned char *buf, Decimal64  dec);
+        //   void decimalToBID   (unsigned char *buf, Decimal128 dec);
+        //   Decimal32  decimal32FromBID (const unsigned char *buffer);
+        //   Decimal64  decimal64FromBID (const unsigned char *buffer);
+        //   Decimal128 decimal128FromBID(const unsigned char *buffer);
+        //   void decimal32FromBID (Decimal32  *dec, const unsigned char *buf);
+        //   void decimal64FromBID (Decimal64  *dec, const unsigned char *buf);
+        //   void decimal128FromBID(Decimal128 *dec, const unsigned char *buf);
+        //   void decimalFromBID   (Decimal32  *dec, const unsigned char *buf);
+        //   void decimalFromBID   (Decimal64  *dec, const unsigned char *buf);
+        //   void decimalFromBID   (Decimal128 *dec, const unsigned char *buf);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+                       << endl
+                       << "TESTING CONVERSION TO/FROM BINARY INTEGRAL" << endl
+                       << "==========================================" << endl;
+
+        // IMPLEMENTATION NOTE: This test case currently assumes that the
+        // underlying implementation of Decimal arithmetic is 'BID' not 'DPD'.
+        // This test driver will need to be updated to handle 'DPD'
+        // implementations.
+
+        typedef DecimalImpUtil::ValueType32  ValueType32;
+        typedef DecimalImpUtil::ValueType64  ValueType64;
+        typedef DecimalImpUtil::ValueType128 ValueType128;
+
+        const long long MANTISSAS[] = {
+              0LL,
+              2LL,
+              7LL,
+             35LL,
+             72LL,
+            135LL,
+            924LL,
+
+            // Exhaustive mantissa cases
+                            1LL,
+                            9LL,
+                           12LL,
+                           98LL,
+                          123LL,
+                          987LL,
+                         1234LL,
+                         9876LL,
+                        12345LL,
+                        98765LL,
+                       123456LL,
+                       987654LL,
+                      1234567LL,
+                      9876543LL,
+                     12345678LL,
+                     98765432LL,
+                    123456789LL,
+                    987654321LL,
+                   1234567890LL,
+                   9876543210LL,
+                  12345678901LL,
+                  98765432109LL,
+                 123456789012LL,
+                 987654321098LL,
+                1234567890123LL,
+                9876543210987LL,
+               12345678901234LL,
+               98765432109876LL,
+              123456789012345LL,
+              987654321098765LL,
+             1234567890123456LL,
+             9876543210987654LL,
+
+            -               1LL,
+            -               9LL,
+            -              12LL,
+            -              98LL,
+            -             123LL,
+            -             987LL,
+            -            1234LL,
+            -            9876LL,
+            -           12345LL,
+            -           98765LL,
+            -          123456LL,
+            -          987654LL,
+            -         1234567LL,
+            -         9876543LL,
+            -        12345678LL,
+            -        98765432LL,
+            -       123456789LL,
+            -       987654321LL,
+            -      1234567890LL,
+            -      9876543210LL,
+            -     12345678901LL,
+            -     98765432109LL,
+            -    123456789012LL,
+            -    987654321098LL,
+            -   1234567890123LL,
+            -   9876543210987LL,
+            -  12345678901234LL,
+            -  98765432109876LL,
+            - 123456789012345LL,
+            - 987654321098765LL,
+            -1234567890123456LL,
+            -9876543210987654LL
+        };
+        const int NUM_MANTISSAS = static_cast<int>(
+                                       sizeof(MANTISSAS) / sizeof(*MANTISSAS));
+
+        const int EXPONENTS[] = {
+               0,
+               1,
+               7,
+              13,
+              64,
+             123,
+             321,
+
+            -  1,
+            -  7,
+            - 13,
+            - 64,
+            -123,
+            -321
+        };
+        const int NUM_EXPONENTS = static_cast<int>(
+                                       sizeof(EXPONENTS) / sizeof(*EXPONENTS));
+
+        const char *SPECIAL_VALUES[] = {
+            "NaN",
+            "+Inf",
+            "-Inf"
+        };
+        const int NUM_SPECIAL_VALUES = static_cast<int>(
+                             sizeof(SPECIAL_VALUES) / sizeof(*SPECIAL_VALUES));
+
+        // Test that with any of a set of exponents, we can convert 32-bit
+        // values correctly to BID.
+
+        {
+            Decimal32                    param;
+            unsigned char                toBIDResult1[sizeof(param)];
+            unsigned char                toBIDResult2[sizeof(param)];
+            Decimal32                    model;
+            DecimalImpUtil::ValueType32 *modelData = model.data();
+            Decimal32                    fromBIDResult1;
+            Decimal32                    fromBIDResult2;
+            Decimal32                    fromBIDResult3;
+
+            for (int i = 0; i < NUM_MANTISSAS; ++i) {
+                if (veryVerbose)
+                    cout << "convertToBID, mantissa num: "
+                         << i << ", " << MANTISSAS[i] << endl;
+                for (int j = 0; j < NUM_EXPONENTS; ++j) {
+                    if (veryVerbose)
+                         cout << "convertToBID, exponent num: "
+                              << j << ", " << EXPONENTS[j] << endl;
+
+                    const long long int T_MANTISSA = MANTISSAS[i];
+                    const           int   EXPONENT = EXPONENTS[j];
+
+                    if ((T_MANTISSA <= 9999999 && T_MANTISSA >= -9999999)
+                     && (EXPONENT   <= 90      && EXPONENT   >= -101    )) {
+                        const int MANTISSA = static_cast<int>(T_MANTISSA);
+
+                        model = DecimalImpUtil::makeDecimalRaw32(MANTISSA,
+                                                                 EXPONENT);
+                        param = DecimalImpUtil::makeDecimalRaw32(MANTISSA,
+                                                                 EXPONENT);
+
+                        // 'toBID' conversion pre-action check.
+
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 toBIDResult1,
+                                                 sizeof(ValueType32)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 toBIDResult2,
+                                                 sizeof(ValueType32)));
+
+                        // 'toBID' conversion check.
+
+                        Util::decimalToBID(toBIDResult1, param);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  toBIDResult1,
+                                                  sizeof(ValueType32)));
+
+                        Util::decimal32ToBID(toBIDResult2, param);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  toBIDResult2,
+                                                  sizeof(ValueType32)));
+
+
+                        // 'fromBID' conversion pre-action check.
+
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult1.data(),
+                                                 sizeof(ValueType32)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult2.data(),
+                                                 sizeof(ValueType32)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult3.data(),
+                                                 sizeof(ValueType32)));
+
+
+                        // 'fromBID' conversion check.
+
+                        fromBIDResult1 = Util::decimal32FromBID( toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult1.data(),
+                                                  sizeof(ValueType32)));
+
+                        Util::decimalFromBID(&fromBIDResult2, toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult2.data(),
+                                                  sizeof(ValueType32)));
+
+                        Util::decimal32FromBID(&fromBIDResult3, toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult3.data(),
+                                                  sizeof(ValueType32)));
+                    }
+                }
+            }
+
+            // Testing special values
+
+            for (int i = 0; i < NUM_SPECIAL_VALUES; ++i) {
+                const char *VALUE = SPECIAL_VALUES[i];
+
+                param = DecimalImpUtil::parse32(VALUE);
+                model = DecimalImpUtil::parse32(VALUE);
+
+                // 'toBID' conversion pre-action check.
+
+                LOOP_ASSERT(VALUE,
+                            bsl::memcmp(modelData,
+                                        toBIDResult1,
+                                        sizeof(ValueType32)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         toBIDResult2,
+                                         sizeof(ValueType32)));
+
+                // 'toBID' conversion check.
+
+                Util::decimalToBID(toBIDResult1, param);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          toBIDResult1,
+                                          sizeof(ValueType32)));
+
+                Util::decimal32ToBID(toBIDResult2, param);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          toBIDResult2,
+                                          sizeof(ValueType32)));
+
+
+                // 'fromBID' conversion pre-action check.
+
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult1.data(),
+                                         sizeof(ValueType32)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult2.data(),
+                                         sizeof(ValueType32)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult3.data(),
+                                         sizeof(ValueType32)));
+
+
+                // 'fromBID' conversion check.
+
+                fromBIDResult1 = Util::decimal32FromBID( toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult1.data(),
+                                          sizeof(ValueType32)));
+
+                Util::decimalFromBID(&fromBIDResult2, toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult2.data(),
+                                          sizeof(ValueType32)));
+
+                Util::decimal32FromBID(&fromBIDResult3, toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult3.data(),
+                                          sizeof(ValueType32)));
+            }
+        }
+
+        // Test that with any of a set of exponents, we can convert 64-bit
+        // values correctly to BID.
+
+        {
+            Decimal64                    param;
+            unsigned char                toBIDResult1[sizeof(param)];
+            unsigned char                toBIDResult2[sizeof(param)];
+            Decimal64                    model;
+            DecimalImpUtil::ValueType64 *modelData = model.data();
+            Decimal64                    fromBIDResult1;
+            Decimal64                    fromBIDResult2;
+            Decimal64                    fromBIDResult3;
+
+            for (int i = 0; i < NUM_MANTISSAS; ++i) {
+                if (veryVerbose)
+                    cout << "convertToBID, mantissa num: "
+                         << i << ", " << MANTISSAS[i] << endl;
+                for (int j = 0; j < NUM_EXPONENTS; ++j) {
+                    if (veryVerbose)
+                         cout << "convertToBID, exponent num: "
+                              << j << ", " << EXPONENTS[j] << endl;
+
+                    const long long int MANTISSA = MANTISSAS[i];
+                    const           int EXPONENT = EXPONENTS[j];
+
+                    if (MANTISSA <=  9999999999999999ll
+                     && MANTISSA >= -9999999999999999ll
+                     && EXPONENT <=  369
+                     && EXPONENT >= -398) {
+
+                        model = DecimalImpUtil::makeDecimalRaw64(MANTISSA,
+                                                                 EXPONENT);
+                        param = DecimalImpUtil::makeDecimalRaw64(MANTISSA,
+                                                                 EXPONENT);
+
+                        // 'toBID' conversion pre-action check.
+
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 toBIDResult1,
+                                                 sizeof(ValueType64)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 toBIDResult2,
+                                                 sizeof(ValueType64)));
+
+                        // 'toBID' conversion check.
+
+                        Util::decimalToBID(toBIDResult1, param);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  toBIDResult1,
+                                                  sizeof(ValueType64)));
+
+                        Util::decimal64ToBID(toBIDResult2, param);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  toBIDResult2,
+                                                  sizeof(ValueType64)));
+
+
+                        // 'fromBID' conversion pre-action check.
+
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult1.data(),
+                                                 sizeof(ValueType64)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult2.data(),
+                                                 sizeof(ValueType64)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult3.data(),
+                                                 sizeof(ValueType64)));
+
+
+                        // 'fromBID' conversion check.
+
+                        fromBIDResult1 = Util::decimal64FromBID( toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult1.data(),
+                                                  sizeof(ValueType64)));
+
+                        Util::decimalFromBID(&fromBIDResult2, toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult2.data(),
+                                                  sizeof(ValueType64)));
+
+                        Util::decimal64FromBID(&fromBIDResult3, toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult3.data(),
+                                                  sizeof(ValueType64)));
+                    }
+                }
+            }
+
+            // Testing special values
+
+            for (int i = 0; i < NUM_SPECIAL_VALUES; ++i) {
+                const char *VALUE = SPECIAL_VALUES[i];
+
+                param = DecimalImpUtil::parse64(VALUE);
+                model = DecimalImpUtil::parse64(VALUE);
+
+                // 'toBID' conversion pre-action check.
+
+                LOOP_ASSERT(VALUE,
+                            bsl::memcmp(modelData,
+                                        toBIDResult1,
+                                        sizeof(ValueType64)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         toBIDResult2,
+                                         sizeof(ValueType64)));
+
+                // 'toBID' conversion check.
+
+                Util::decimalToBID(toBIDResult1, param);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          toBIDResult1,
+                                          sizeof(ValueType64)));
+
+                Util::decimal64ToBID(toBIDResult2, param);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          toBIDResult2,
+                                          sizeof(ValueType64)));
+
+
+                // 'fromBID' conversion pre-action check.
+
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult1.data(),
+                                         sizeof(ValueType64)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult2.data(),
+                                         sizeof(ValueType64)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult3.data(),
+                                         sizeof(ValueType64)));
+
+
+                // 'fromBID' conversion check.
+
+                fromBIDResult1 = Util::decimal64FromBID( toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult1.data(),
+                                          sizeof(ValueType64)));
+
+                Util::decimalFromBID(&fromBIDResult2, toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult2.data(),
+                                          sizeof(ValueType64)));
+
+                Util::decimal64FromBID(&fromBIDResult3, toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult3.data(),
+                                          sizeof(ValueType64)));
+            }
+        }
+
+        // Test that with any of a set of exponents, we can convert 128-bit
+        // values correctly to BID.
+
+        {
+            Decimal128                    param;
+            unsigned char                 toBIDResult1[sizeof(param)];
+            unsigned char                 toBIDResult2[sizeof(param)];
+            Decimal128                    model;
+            DecimalImpUtil::ValueType128 *modelData = model.data();
+            Decimal128                    fromBIDResult1;
+            Decimal128                    fromBIDResult2;
+            Decimal128                    fromBIDResult3;
+
+            for (int i = 0; i < NUM_MANTISSAS; ++i) {
+                if (veryVerbose)
+                    cout << "convertToBID, mantissa num: "
+                         << i << ", " << MANTISSAS[i] << endl;
+                for (int j = 0; j < NUM_EXPONENTS; ++j) {
+                    if (veryVerbose)
+                         cout << "convertToBID, exponent num: "
+                              << j << ", " << EXPONENTS[j] << endl;
+
+                    const long long int MANTISSA = MANTISSAS[i];
+                    const           int EXPONENT = EXPONENTS[j];
+
+                    if (EXPONENT <= 6111 && EXPONENT >= -6176) {
+
+                        model = DecimalImpUtil::makeDecimalRaw128(MANTISSA,
+                                                                 EXPONENT);
+                        param = DecimalImpUtil::makeDecimalRaw128(MANTISSA,
+                                                                 EXPONENT);
+
+                        // 'toBID' conversion pre-action check.
+
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 toBIDResult1,
+                                                 sizeof(ValueType128)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 toBIDResult2,
+                                                 sizeof(ValueType128)));
+
+                        // 'toBID' conversion check.
+
+                        Util::decimalToBID(toBIDResult1, param);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  toBIDResult1,
+                                                  sizeof(ValueType128)));
+
+                        Util::decimal128ToBID(toBIDResult2, param);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  toBIDResult2,
+                                                  sizeof(ValueType128)));
+
+
+                        // 'fromBID' conversion pre-action check.
+
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult1.data(),
+                                                 sizeof(ValueType128)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult2.data(),
+                                                 sizeof(ValueType128)));
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     bsl::memcmp(modelData,
+                                                 fromBIDResult3.data(),
+                                                 sizeof(ValueType128)));
+
+
+                        // 'fromBID' conversion check.
+
+                        fromBIDResult1 = Util::decimal128FromBID( toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult1.data(),
+                                                  sizeof(ValueType128)));
+
+                        Util::decimalFromBID(&fromBIDResult2, toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult2.data(),
+                                                  sizeof(ValueType128)));
+
+                        Util::decimal128FromBID(&fromBIDResult3, toBIDResult1);
+                        LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
+                                     !bsl::memcmp(modelData,
+                                                  fromBIDResult3.data(),
+                                                  sizeof(ValueType128)));
+                    }
+                }
+            }
+
+            // Testing special values
+
+            for (int i = 0; i < NUM_SPECIAL_VALUES; ++i) {
+                const char *VALUE = SPECIAL_VALUES[i];
+
+                param = DecimalImpUtil::parse128(VALUE);
+                model = DecimalImpUtil::parse128(VALUE);
+
+                // 'toBID' conversion pre-action check.
+
+                LOOP_ASSERT(VALUE,
+                            bsl::memcmp(modelData,
+                                        toBIDResult1,
+                                        sizeof(ValueType128)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         toBIDResult2,
+                                         sizeof(ValueType128)));
+
+                // 'toBID' conversion check.
+
+                Util::decimalToBID(toBIDResult1, param);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          toBIDResult1,
+                                          sizeof(ValueType128)));
+
+                Util::decimal128ToBID(toBIDResult2, param);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          toBIDResult2,
+                                          sizeof(ValueType128)));
+
+
+                // 'fromBID' conversion pre-action check.
+
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult1.data(),
+                                         sizeof(ValueType128)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult2.data(),
+                                         sizeof(ValueType128)));
+                LOOP_ASSERT(VALUE,
+                             bsl::memcmp(modelData,
+                                         fromBIDResult3.data(),
+                                         sizeof(ValueType128)));
+
+
+                // 'fromBID' conversion check.
+
+                fromBIDResult1 = Util::decimal128FromBID( toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult1.data(),
+                                          sizeof(ValueType128)));
+
+                Util::decimalFromBID(&fromBIDResult2, toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult2.data(),
+                                          sizeof(ValueType128)));
+
+                Util::decimal128FromBID(&fromBIDResult3, toBIDResult1);
+                LOOP_ASSERT(VALUE,
+                             !bsl::memcmp(modelData,
+                                          fromBIDResult3.data(),
+                                          sizeof(ValueType128)));
+            }
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------

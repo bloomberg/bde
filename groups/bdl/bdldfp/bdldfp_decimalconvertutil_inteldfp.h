@@ -149,17 +149,17 @@ struct DecimalConvertUtil_IntelDfp {
                         // decimalToDPD functions
 
     static void decimal32ToDPD( unsigned char *buffer,
-                                          Decimal32      decimal);
+                                Decimal32      decimal);
     static void decimal64ToDPD( unsigned char *buffer,
-                                          Decimal64      decimal);
+                                Decimal64      decimal);
     static void decimal128ToDPD(unsigned char *buffer,
-                                          Decimal128     decimal);
+                                Decimal128     decimal);
     static void decimalToDPD(   unsigned char *buffer,
-                                          Decimal32      decimal);
+                                Decimal32      decimal);
     static void decimalToDPD(   unsigned char *buffer,
-                                          Decimal64      decimal);
+                                Decimal64      decimal);
     static void decimalToDPD(   unsigned char *buffer,
-                                          Decimal128     decimal);
+                                Decimal128     decimal);
         // Populate the specified 'buffer' with the Densely Packed Decimal
         // (DPD) representation of the specified 'decimal' value.  The DPD
         // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
@@ -180,17 +180,63 @@ struct DecimalConvertUtil_IntelDfp {
         // 'sizeof(decimal)' in size containing a value in DPD format.
 
     static void decimalFromDPD(Decimal32           *decimal,
-                                         const unsigned char *buffer);
+                               const unsigned char *buffer);
     static void decimalFromDPD(Decimal64           *decimal,
-                                         const unsigned char *buffer);
+                               const unsigned char *buffer);
     static void decimalFromDPD(Decimal128          *decimal,
-                                         const unsigned char *buffer);
+                               const unsigned char *buffer);
         // Store, into the specified 'decimal', the native implementation
         // representation of the value of the same size base-10 floating point
         // value represented in Densely Packed Decimal format, at the specified
         // 'buffer' address.  The behavior is undefined unless 'buffer' points
         // to a memory area at least 'sizeof(decimal)' in size containing a
         // value in DPD format.
+
+                        // decimalToBID functions
+
+    static void decimal32ToBID( unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimal64ToBID( unsigned char *buffer,
+                                Decimal64      decimal);
+    static void decimal128ToBID(unsigned char *buffer,
+                                Decimal128     decimal);
+    static void decimalToBID(   unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimalToBID(   unsigned char *buffer,
+                                Decimal64      decimal);
+    static void decimalToBID(   unsigned char *buffer,
+                                Decimal128     decimal);
+        // Populate the specified 'buffer' with the Binary Integer Decimal
+        // (BID) representation of the specified 'decimal' value.  The BID
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the BID representation is
+        // defined in section 3.5 of IEEE 754-2008.
+
+                        // decimalFromBID functions
+
+    static Decimal32  decimal32FromBID( const unsigned char *buffer);
+    static Decimal64  decimal64FromBID( const unsigned char *buffer);
+    static Decimal128 decimal128FromBID(const unsigned char *buffer);
+        // Return the native implementation representation of the value of the
+        // same size base-10 floating-point value stored in Binary Integer
+        // Decimal format at the specified 'buffer' address.  The behavior is
+        // undefined unless 'buffer' points to a memory area at least
+        // 'sizeof(decimal)' in size containing a value in BID format.
+
+    static void decimalFromBID(Decimal32           *decimal,
+                               const unsigned char *buffer);
+    static void decimalFromBID(Decimal64           *decimal,
+                               const unsigned char *buffer);
+    static void decimalFromBID(Decimal128          *decimal,
+                               const unsigned char *buffer);
+        // Store, into the specified 'decimal', the native implementation
+        // representation of the value of the same size base-10 floating point
+        // value represented in Binary Integer Decimal format, at the specified
+        // 'buffer' address.  The behavior is undefined unless 'buffer' points
+        // to a memory area at least 'sizeof(decimal)' in size containing a
+        // value in BID format.
 };
 
 // ============================================================================
@@ -289,64 +335,57 @@ DecimalConvertUtil_IntelDfp::decimalToFloat(Decimal128 decimal)
     return __bid128_to_binary32(decimal.data()->d_raw, &flags);
 }
 
-                        // decimalToNetwork functions
+                        // decimalToDPD functions
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimal32ToDPD(unsigned char *buffer,
-                                                      Decimal32      decimal)
+void DecimalConvertUtil_IntelDfp::decimal32ToDPD(unsigned char *buffer,
+                                                 Decimal32      decimal)
 {
     decimalToDPD(buffer, decimal);
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimal64ToDPD(unsigned char *buffer,
-                                                      Decimal64      decimal)
+void DecimalConvertUtil_IntelDfp::decimal64ToDPD(unsigned char *buffer,
+                                                 Decimal64      decimal)
 {
     decimalToDPD(buffer, decimal);
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimal128ToDPD(unsigned char *buffer,
-                                                       Decimal128     decimal)
+void DecimalConvertUtil_IntelDfp::decimal128ToDPD(unsigned char *buffer,
+                                                  Decimal128     decimal)
 {
     decimalToDPD(buffer, decimal);
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
-                                                    Decimal32      decimal)
+void DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
+                                               Decimal32      decimal)
 {
     decimal.data()->d_raw = __bid_to_dpd32(decimal.data()->d_raw);
     bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
-                                                    Decimal64      decimal)
+void DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
+                                               Decimal64      decimal)
 {
     decimal.data()->d_raw = __bid_to_dpd64(decimal.data()->d_raw);
     bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
-                                                    Decimal128     decimal)
+void DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
+                                               Decimal128     decimal)
 {
     decimal.data()->d_raw = __bid_to_dpd128(decimal.data()->d_raw);
     bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
 
-                        // decimalFromDPD functions
+                       // decimalFromDPD functions
 
 inline
-Decimal32
-DecimalConvertUtil_IntelDfp::decimal32FromDPD(
+Decimal32 DecimalConvertUtil_IntelDfp::decimal32FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -359,8 +398,7 @@ DecimalConvertUtil_IntelDfp::decimal32FromDPD(
 }
 
 inline
-Decimal64
-DecimalConvertUtil_IntelDfp::decimal64FromDPD(
+Decimal64 DecimalConvertUtil_IntelDfp::decimal64FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -373,8 +411,7 @@ DecimalConvertUtil_IntelDfp::decimal64FromDPD(
 }
 
 inline
-Decimal128
-DecimalConvertUtil_IntelDfp::decimal128FromDPD(
+Decimal128 DecimalConvertUtil_IntelDfp::decimal128FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -387,10 +424,8 @@ DecimalConvertUtil_IntelDfp::decimal128FromDPD(
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimalFromDPD(
-                                                  Decimal32           *decimal,
-                                                  const unsigned char *buffer)
+void DecimalConvertUtil_IntelDfp::decimalFromDPD(Decimal32           *decimal,
+                                                 const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
@@ -399,10 +434,8 @@ DecimalConvertUtil_IntelDfp::decimalFromDPD(
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimalFromDPD(
-                                                  Decimal64           *decimal,
-                                                  const unsigned char *buffer)
+void DecimalConvertUtil_IntelDfp::decimalFromDPD(Decimal64           *decimal,
+                                                 const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
@@ -411,10 +444,8 @@ DecimalConvertUtil_IntelDfp::decimalFromDPD(
 }
 
 inline
-void
-DecimalConvertUtil_IntelDfp::decimalFromDPD(
-                                                  Decimal128          *decimal,
-                                                  const unsigned char *buffer)
+void DecimalConvertUtil_IntelDfp::decimalFromDPD(Decimal128          *decimal,
+                                                 const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
@@ -422,6 +453,119 @@ DecimalConvertUtil_IntelDfp::decimalFromDPD(
     *decimal = decimal128FromDPD(buffer);
 }
 
+                        // decimalToBID functions
+
+inline
+void
+DecimalConvertUtil_IntelDfp::decimal32ToBID(unsigned char *buffer,
+                                            Decimal32      decimal)
+{
+    decimalToBID(buffer, decimal);
+}
+
+inline
+void
+DecimalConvertUtil_IntelDfp::decimal64ToBID(unsigned char *buffer,
+                                            Decimal64      decimal)
+{
+    decimalToBID(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil_IntelDfp::decimal128ToBID(unsigned char *buffer,
+                                                  Decimal128     decimal)
+{
+    decimalToBID(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil_IntelDfp::decimalToBID(unsigned char *buffer,
+                                               Decimal32      decimal)
+{
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
+}
+
+inline
+void DecimalConvertUtil_IntelDfp::decimalToBID(unsigned char *buffer,
+                                               Decimal64      decimal)
+{
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
+}
+
+inline
+void DecimalConvertUtil_IntelDfp::decimalToBID(unsigned char *buffer,
+                                               Decimal128     decimal)
+{
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
+}
+
+                          // decimalFromBID functions
+
+inline
+Decimal32 DecimalConvertUtil_IntelDfp::decimal32FromBID(
+                                                   const unsigned char *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    DecimalImpUtil::ValueType32 value;
+    bsl::memcpy(&value, buffer, sizeof(value));
+
+    return Decimal32(value);
+}
+
+inline
+Decimal64 DecimalConvertUtil_IntelDfp::decimal64FromBID(
+                                                   const unsigned char *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    DecimalImpUtil::ValueType64 value;
+    bsl::memcpy(&value, buffer, sizeof(value));
+
+    return Decimal64(value);
+}
+
+inline
+Decimal128 DecimalConvertUtil_IntelDfp::decimal128FromBID(
+                                                   const unsigned char *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    DecimalImpUtil::ValueType128 value;
+    bsl::memcpy(&value, buffer, sizeof(value));
+
+    return Decimal128(value);
+}
+
+inline
+void DecimalConvertUtil_IntelDfp::decimalFromBID(Decimal32           *decimal,
+                                                 const unsigned char *buffer)
+{
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal32FromBID(buffer);
+}
+
+inline
+void DecimalConvertUtil_IntelDfp::decimalFromBID(Decimal64           *decimal,
+                                                 const unsigned char *buffer)
+{
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal64FromBID(buffer);
+}
+
+inline
+void DecimalConvertUtil_IntelDfp::decimalFromBID(Decimal128          *decimal,
+                                                 const unsigned char *buffer)
+{
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal128FromBID(buffer);
+}
 
 }  // close package namespace
 }  // close enterprise namespace
