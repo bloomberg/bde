@@ -45,7 +45,7 @@
      bsla_printf
      bsla_scanf
      bsla_unreachable
-     bsla_unused
+     bsla_unused                                        !DEPRECATED!
      bsla_warning
 ..
 
