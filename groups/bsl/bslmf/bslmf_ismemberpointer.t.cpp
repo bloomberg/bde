@@ -80,10 +80,30 @@ void aSsErT(bool condition, const char *message, int line)
 # define BSLMF_ISMEMBERPOINTER_NO_ABOMINABLE_TYPES 1
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1920 && \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
-// Visual Studio 2019 in C++17 mode runs out of heap space.
-# define DO_FEWER_TESTS 1
+// Visual Studio 2017 and 2019 in C++17 mode (when 'noexcept' types are
+// supported) runs out of heap space.  Factoring out the large test case (case
+// 1) was attempted and it made no difference.  The conditions below are
+// structured so that they remove tests for known (not future) compiler
+// versions only, so we automatically put them back once the compilers are
+// fixed.
+#if defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+// Visual Studio 2019 runs out of memory compiling this file.  If you have
+// installed a new update and still runs out of memory, bump the upper limit
+// number in the '#if' below to 1925, and do not forget to update the number in
+// this comment as well.
+# if (BSLS_PLATFORM_CMP_VERSION >= 1920) && (BSLS_PLATFORM_CMP_VERSION <= 1924)
+#   define DO_FEWER_TESTS 1
+# endif
+// Visual Studio 2017 runs out of memory optimizing this file.  If you have
+// installed a new update and still runs out of memory, bump the upper limit
+// number in the '#if' below to 1917, and do not forget to update the number in
+// this comment as well.
+# if (BSLS_PLATFORM_CMP_VERSION >= 1910) && (BSLS_PLATFORM_CMP_VERSION <= 1916)
+#   if defined(BDE_BUILD_TARGET_OPT)
+#     define DO_FEWER_TESTS 1
+#   endif
+# endif
 #endif
 
 // #define BSLMF_ISMEMBERPOINTER_SHOW_FAIL_FOR_DIAGNOSTICS 1
@@ -770,7 +790,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
