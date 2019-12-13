@@ -222,7 +222,7 @@ struct UserDefinedNonTcTestType {
     // implicitly bitwise movable, we add a trivial data member to make this
     // type large enough to remain non-bitwise-movable.
     UserDefinedNonTcTestType() : d_dummy() {}
-    UserDefinedNonTcTestType(const UserDefinedNonTcTestType& other)
+    UserDefinedNonTcTestType(const UserDefinedNonTcTestType&)
     : d_dummy()
     {}
 
