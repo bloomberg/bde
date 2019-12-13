@@ -139,7 +139,7 @@ struct Pretty {
 #if   defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
         d_funcName = __PRETTY_FUNCTION__;
 #elif defined(BSLS_PLATFORM_CMP_SUN)
-# if  BSLS_PLATFORM_CMP_VERSION >= 20768
+# if  BSLS_PLATFORM_CMP_VERSION >= 0x5120
         d_funcName = __PRETTY_FUNCTION__;
 # else
         d_funcName = "unknown_type";
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 20768
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5120
         // This component doesn't work on Solaris CC before 5.12.
 
         break;
@@ -361,7 +361,7 @@ if (verbose) {
 #if   defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
             P(nameOfType(__PRETTY_FUNCTION__));
 #elif defined(BSLS_PLATFORM_CMP_SUN)
-# if  BSLS_PLATFORM_CMP_VERSION >= 20768
+# if  BSLS_PLATFORM_CMP_VERSION >= 0x5120
             P(nameOfType(__PRETTY_FUNCTION__));
 # else
             P(nameOfType(__FUNCTION__));;
@@ -388,7 +388,7 @@ if (verbose) {
             ASSERT(nameOfType(jj + 11)  == pc);
         }
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 20768
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5120
         // This component doesn't work on Solaris CC before 5.12.
 
         ASSERT(eq("unknown_type", NameOf<int>()));

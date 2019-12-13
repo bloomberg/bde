@@ -1,5 +1,24 @@
-bsl-internal (3.43.0.0) unstable; urgency=low
+bsl-internal (3.44.0.0) unstable; urgency=low
 
+  * 7f5d6a4bb Bumped version to 3.44.0.0
+  * 0f64083d4 Merge pull request #2564 from ameredit/applications_of_void_t
+  * 8d28be3fe Merge pull request #2615 from jberne4/whitespace_cleanup
+  * 2f2a91c1c Merge pull request #2604 from jberne4/asserttest_docupdate
+  * 6be22b0c2 Merge pull request #2562 from jmendelsohn4/drqs-150475152/test-time-source-destructor
+  * 33a4eddc2 Merge pull request #2603 from bchapman/bdls_processutil-instrument-with-bsls_log-drqs-151273546
+  * fef06d492 Merge pull request #2611 from osubbotin/review/add-decnumber-mem
+  * 2b3ff17b1 Merge pull request #2597 from ameredit/correct_library_macros_for_oracle_CC
+  * b3bcbb88b Merge pull request #2608 from osubbotin/review/revert-drqs-143286899
+  * 9c4cb3a39 Merge pull request #2607 from osubbotin/review/ball-log-stream-dtor-drqs-152353031
+  * 04706eede Merge pull request #2600 from rkhlebnikov/drqs-151904020-alignas-fix-msvc-2017-2019
+  * 7cde9374f Merge pull request #2601 from osubbotin/review/bdlcc-ctor-fix-drqs-152231776
+  * a473c710f Merge pull request #2598 from mgiroux/cleanup-bos-references-to-bsl+stdhdrs-drqs147859520
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 6 Dec 2019 14:00:53 -0500
+
+bsl-internal (3.43.0.0) git; urgency=low
+
+  * 27685abad Changelog for version 3.43.0.0
   * ac2ad7200 Bumped version to 3.43.0.0
   * bfd1de8b3 Merge pull request #2528 from dsokolov7/review/bde-update-make-shared-drqs-150062297
   * 69c2c5ef8 Merge pull request #2514 from dsokolov7/review/bde-make-managed-drqs-148076542
@@ -21,7 +40,7 @@ bsl-internal (3.43.0.0) unstable; urgency=low
   * f6e55bb10 Merge pull request #2517 from bchapman/baltzo_windowstimezoneutil-drqs-149125960
   * 5b88d634c Merge pull request #2576 from osubbotin/review/address-ball-warnings
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Nov 2019 15:36:49 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Nov 2019 15:41:42 -0500
 
 bsl-internal (3.42.0.1) git; urgency=low
 

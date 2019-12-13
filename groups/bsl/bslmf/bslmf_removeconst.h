@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
     // verified as required for the xlC 12.1 compiler - more recent compilers
     // still need testing.
 
-#elif (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5150)  \
+#elif (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130)  \
    || (defined(BSLS_PLATFORM_CMP_MSVC)                                        \
             && BSLS_PLATFORM_CMP_VERSION <= 1900                              \
             && _MSC_FULL_VER < 190023918)

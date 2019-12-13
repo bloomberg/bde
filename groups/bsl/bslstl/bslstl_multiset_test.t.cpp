@@ -249,6 +249,30 @@ void aSsErT(bool b, const char *s, int i)
 //                      TEST CONFIGURATION MACROS
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
+// Some compilers struggle with the number of template instantiations in this
+// test driver.  We define this macro to simplify the test driver for them,
+// until such time as we can provide a more specific review of the type based
+// concerns, and narrow the range of tests needed for confirmed coverage.
+//
+// Currently we are enabling the minimal set of test types on:
+// Sun Studio 12.4            (CMP_SUN)
+// (note: despite over-eager version check, we have not tested later compilers)
+# define BSLSTL_MULTISET_TEST_LOW_MEMORY     1
+#endif
+
+#if defined(BSLSTL_MULTISET_TEST_LOW_MEMORY)
+// For platforms that cannot sustain the full set of test concerns, reduce the
+// number of elements in the most commonly use macro defining sets of test
+// tyoes.
+# undef  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+# define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR  \
+        signed char,                                    \
+        bsltf::TemplateTestFacility::MethodPtr,         \
+        bsltf::AllocBitwiseMoveableTestType,            \
+        bsltf::MovableAllocTestType
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types

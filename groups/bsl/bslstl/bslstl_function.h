@@ -651,7 +651,7 @@ class Function_Rep {
         // over the C++ virtual-function mechanism, especially when the number
         // of different instantiations of 'bsl::function' is large.
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
   public:
     // Not really public: made public to work around a Sun compiler bug.
 #endif

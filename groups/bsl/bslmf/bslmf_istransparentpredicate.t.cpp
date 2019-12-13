@@ -628,7 +628,7 @@ void verifyNonTransparency()
 #if defined(BSLS_PLATFORM_CMP_SUN)
 // Sun CC has an error whereby an identical typedef in two base classes is not
 // an ambiguous name in the derived class.  This breaks the assumption upon
-// which 'AmbiguousChildOfTransparentType' works.
+// which 'AmbiguousChildOfTransparentType' works.  Last tested with CC 12.4.
 InvertNonTransparencyTest(AmbiguousChildOfTransparentType)
 #endif
 

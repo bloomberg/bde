@@ -10,8 +10,6 @@ BSLS_IDENT_RCSID(bdlb_bitstringutil_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
-#include <bsla_unused.h>
-
 #include <bsls_alignmentfromtype.h>
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
@@ -166,7 +164,7 @@ class BitPtrDiff {
     // FRIENDS
     friend bool operator> (const BitPtrDiff&, const BitPtrDiff&);
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    friend bool operator< (const BitPtrDiff&, const BitPtrDiff&) BSLA_UNUSED;
+    friend bool operator< (const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator<=(const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator>=(const BitPtrDiff&, const BitPtrDiff&);
 #endif

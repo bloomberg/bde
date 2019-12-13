@@ -787,7 +787,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Note that memory for the object itself is supplied by the default allocator,
 // while memory for the copy of the passed string is supplied by another
 // allocator:
-//:
+//..
 //          assert(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
 //          assert(&ta == stringManagedPtr->allocator());
 //          assert(STR_LENGTH + 1 == ta.numBytesInUse());
@@ -1208,7 +1208,7 @@ class ManagedPtr {
         // empty.
 
     template <class BDE_OTHER_TYPE>
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original)
                                                          BSLS_KEYWORD_NOEXCEPT;
 #else
@@ -1373,7 +1373,7 @@ class ManagedPtr {
         // pointer.
 
     template <class BDE_OTHER_TYPE>
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     ManagedPtr<TARGET_TYPE>&
 #else
     typename bsl::enable_if<
@@ -2446,7 +2446,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(bslmf::MovableRef<ManagedPtr> original)
 template <class TARGET_TYPE>
 template <class BDE_OTHER_TYPE>
 inline
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 ManagedPtr<TARGET_TYPE>::ManagedPtr(
    bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original)
                                                           BSLS_KEYWORD_NOEXCEPT
@@ -2635,7 +2635,7 @@ ManagedPtr<TARGET_TYPE>::operator=(bslmf::MovableRef<ManagedPtr> rhs)
 template <class TARGET_TYPE>
 template <class BDE_OTHER_TYPE>
 inline
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 ManagedPtr<TARGET_TYPE>&
 #else
 typename bsl::enable_if<

@@ -32,7 +32,8 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_EXCEPTION_HANDLING: except handling provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM: searcher object overloads
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS: searcher function objects
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD: searcher object overload
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: 'ptr_fun' et al. gone
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
@@ -587,9 +588,25 @@ BSLS_IDENT("$Id: $")
 //:   o Clang 3.0 (using at least GCC 7.0 STL)
 //:   o MSVC 2013
 //
-///'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM'
-///-------------------------------------------------
-// The  'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' macro is defined if
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS'
+///------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' macro is defined if the
+// native library supplies the following class templates in '<functional>':
+//
+//: o 'default_searcher'
+//: o 'boyer_moore_searcher'
+//: o 'boyer_moore_horspool_searcher'
+//
+// Currently the following compilers define this function template in C++17 or
+// later modes:
+//
+//:   o GCC 8.3.0
+//:   o MSVC 2019
+//:   o clang 3.0 with GNU library
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD'
+///------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' macro is defined if
 // '<algorithm>' defines an overload for the 'search' function template that
 // accepts instances of the searcher classes introduced in C++17.  See
 // [alg.search]:
@@ -600,18 +617,13 @@ BSLS_IDENT("$Id: $")
 //                                        const Searcher& searcher);
 //..
 //
-// Additionally, the 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM' *also*
-// implies that the native library supplies the following class templates in
-// '<functional>':
-//
-//: o 'default_searcher'
-//: o 'boyer_moore_searcher'
-//: o 'boyer_moore_horspool_searcher'
-//
-// Currently the following compilers define this function template:
+// Currently the following compilers define this function template in C++17 or
+// later modes:
 //
 //:   o GCC 8.3.0
-//:   o MSVC 2019
+//:   o MSVC 2017+
+//:   o clang above 3.0 with GNU library
+//:   0 Apple clang all supported versions
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED'
 ///---------------------------------------------------
@@ -1016,8 +1028,8 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY                  1
-    #if (__cplusplus >= 201103L) ||                                          \
-           (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                           \
+    #if (__cplusplus >= 201103L) ||                                           \
+           (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                            \
             BSLS_PLATFORM_CMP_VERSION >= 40800)
         // C99 functions are available in C++11 builds.
 
@@ -1058,7 +1070,8 @@ BSLS_IDENT("$Id: $")
     #endif
     #if __cplusplus > 201402L  // > C++14
         #if BSLS_PLATFORM_CMP_VERSION >= 70301
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD            1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS            1
         #endif
     #endif
     #if __cplusplus >= 201703L
@@ -1104,7 +1117,8 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     // #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
@@ -1150,7 +1164,8 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
@@ -1168,24 +1183,25 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
     // #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
 
-    #if defined(__APPLE_CC__) &&                                             \
-        __APPLE_CC__ >= 6000
+    #if defined(__APPLE_CC__) && (__APPLE_CC__ >= 6000)
 
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS        1
             // libc++ provides this C++11 feature as a C++98 extension.
 
-        #if defined(__GXX_EXPERIMENTAL_CXX0X__)
+        #if defined(__GXX_EXPERIMENTAL_CXX0X__) || (_LIBCPP_STD_VER >= 11)
             #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY              1
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF             1
         #endif
-        #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)
+        #if (defined(__GXX_EXPERIMENTAL_CXX0X__)  || (_LIBCPP_STD_VER >= 11)) \
+          && (__cplusplus >= 201103L)
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY   1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING 1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR 1
@@ -1203,7 +1219,8 @@ BSLS_IDENT("$Id: $")
         #if __cplusplus >= 201703L
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
 
-            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM   1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD    1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS    1
 
             //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
             //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
@@ -1253,7 +1270,14 @@ BSLS_IDENT("$Id: $")
         #endif
         #if __cplusplus >= 201703L
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY       1
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM       1
+            #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD    1
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS    1
+            #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD    1
+            #else
+                #error Unsupported standard library for g++
+            #endif
 
             //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
             //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
@@ -1309,9 +1333,16 @@ BSLS_IDENT("$Id: $")
         #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     #endif
 
-    #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
-        #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM   1
+    // The search algorithm with functor has appeared Visual Studio 2017, but
+    // the searchers (functors) have appeared in Visual Studio 2019.
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201402L
+        #if BSLS_PLATFORM_CMP_VERSION >= 1910  // Visual Studio 2017
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD    1
+        #endif
+    #endif
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L
+        #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS    1
         #endif
     #endif
 
@@ -1356,7 +1387,7 @@ BSLS_IDENT("$Id: $")
 #endif // INCLUDED_BSLS_LIBRARYFEATURES
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

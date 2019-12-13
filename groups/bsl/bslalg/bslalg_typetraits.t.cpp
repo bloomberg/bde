@@ -664,8 +664,9 @@ int main(int argc, char *argv[])
         TRAIT_TEST(unsigned int, TRAIT_EQPOD);
         TRAIT_TEST(bsls::Types::Int64, TRAIT_EQPOD);
         TRAIT_TEST(bsls::Types::Uint64, TRAIT_EQPOD);
-        TRAIT_TEST(float, TRAIT_POD);
-        TRAIT_TEST(double, TRAIT_POD);
+        // Revert {DRQS 143286899} for float and double. Must be TRAIT_POD.
+        TRAIT_TEST(float, TRAIT_EQPOD);
+        TRAIT_TEST(double, TRAIT_EQPOD);
         TRAIT_TEST(char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(const char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);

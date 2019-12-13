@@ -4734,10 +4734,9 @@ int main(int argc, char *argv[])
                             "\n============================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
-                                 TestDriverWrapper,
-                                 testCase6,
-                                 BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                                 long double);
+                                TestDriverWrapper,
+                                testCase6,
+                                BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 5: {
         // --------------------------------------------------------------------

@@ -360,10 +360,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #include <sun_prefetch.h>  // for 'sparc_prefetch_write|read_many'
 
-#if BSLS_PLATFORM_CMP_VERSION >= 0x5110
 #include <mbarrier.h>
-#endif
-
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -407,7 +404,7 @@ namespace BloombergLP {
     #if __has_attribute(cold)
     #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
     #endif
-#elif (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)
+#elif defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
 #endif
 
@@ -450,13 +447,12 @@ namespace BloombergLP {
     #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
                              _Asm_sched_fence(_UP_MEM_FENCE|_DOWN_MEM_FENCE)
 
-#elif (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5110)
+#elif defined(BSLS_PLATFORM_CMP_SUN)
 
     #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE __compiler_barrier()
 
 #elif defined(BSLS_PLATFORM_CMP_GNU)                                          \
-   || defined(BSLS_PLATFORM_CMP_CLANG)                                        \
-   || (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5100)
+   || defined(BSLS_PLATFORM_CMP_CLANG)
 
     #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE asm volatile("":::"memory")
 

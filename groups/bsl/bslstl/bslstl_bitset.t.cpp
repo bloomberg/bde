@@ -7,6 +7,7 @@
 #include <bslmf_assert.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_types.h>
 
 #include <cstdlib>
@@ -190,8 +191,8 @@ void aSsErT(bool condition, const char *message, int line)
 //              PLATFORM DEFECT TRACKING MACROS TO SUPPORT TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
-    // Last tested with the 12.3 compiler chain, and applies only to the
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+    // Last tested with the 12.4 compiler chain, and applies only to the
     // (default) Rogue Wave library
 # define BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR
 #endif

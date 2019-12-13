@@ -142,6 +142,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
@@ -158,7 +159,7 @@ namespace bslstl {
 
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 class TreeIterator
-#ifdef BSLS_PLATFORM_OS_SOLARIS
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
     : public std::iterator<std::bidirectional_iterator_tag, VALUE>
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.
@@ -440,8 +441,7 @@ operator--(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int)
 }  // close enterprise namespace
 
 #ifndef BSLS_PLATFORM_CMP_SUN
-
-#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+# ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
 namespace bsl {
 
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
@@ -451,14 +451,13 @@ struct is_trivially_copyable<
 };
 
 }  // close namespace bsl
-#endif // BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
-
-#endif // BSLS_PLATFORM_OS_SOLARIS
+# endif // BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+#endif  // BSLS_PLATFORM_CMP_SUN
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

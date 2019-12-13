@@ -529,7 +529,7 @@ struct DefaultSearcher_ImpUtil {
 }  // close package namespace
 }  // close enterprise namespace
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 namespace bsl {
                         // ======================
                         // class default_searcher
@@ -609,7 +609,7 @@ class default_searcher {
 };
 
 }  // close namespace bsl
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 
 // ----------------------------------------------------------------------------
 //                          INLINE DEFINITIONS
@@ -820,7 +820,7 @@ bsl::enable_if<
 }  // close package namespace
 }  // close enterprise namespace
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 namespace bsl {
                         // ----------------------
                         // class default_searcher
@@ -855,8 +855,7 @@ pair<ForwardIterator2,
 }
 
 }  // close namespace bsl
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_ALGORITHM
-
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 
 #endif
 

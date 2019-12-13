@@ -76,10 +76,6 @@ Architecture: any
 Description: BSL 
  groups/bsl development files
 
-Package: libdecnumber-dev
-Architecture: any
-Description: DecNumber Library
-
 Package: libinteldfp-dev
 Architecture: any
 Description: Intel Decimal Floating-Point Math Library

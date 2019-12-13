@@ -604,11 +604,8 @@ void testReorderingFence(int argc)
         printf("\trate = %f\n", rateWithoutFence);
     }
 
-#if defined(BDE_BUILD_TARGET_OPT) &&                                          \
-  !(defined(BSLS_PLATFORM_CMP_SUN) && (BSLS_PLATFORM_CMP_VERSION < 0x5110))
-
-    // Perform this test only for optimized builds.  Also older Sun compilers
-    // do not support this fence.
+#if defined(BDE_BUILD_TARGET_OPT)
+    // Perform this test only for optimized builds.
 
     LOOP2_ASSERT(rateWithFence, rateWithoutFence,
                  rateWithFence < rateWithoutFence);

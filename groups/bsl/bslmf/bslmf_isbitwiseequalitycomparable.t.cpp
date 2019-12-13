@@ -96,7 +96,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPILER DEFECT MACROS TO GUIDE TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5140
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 # define BSLMF_ISBITWISEEQUALITYCOMPARABLE_ABOMINABLE_FUNCTION_MATCH_CONST 1
 // The Solaris CC compiler matches 'const' qualified abominable functions as
 // 'const'-qualified template parameters, but does not strip the 'const'
@@ -897,9 +897,13 @@ int main(int argc, char *argv[])
 
         // floating-point types are not bitwise EqualityComparable.
 
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(float, false);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(double, false);
-        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long double, false);
+        // Revert of {DRQS 143286899}. Once clients are fixed, change to false.
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(float, true);
+        ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(double, true);
+        // This test relates to the above DRQS - long double is 10 bytes long
+        // and to not pass "no padding" test. Uncomment with other floating
+        // types.
+        //ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(long double, true);
 
         // C-2 : 'void' is not an object type, but can be cv-qualified.
 

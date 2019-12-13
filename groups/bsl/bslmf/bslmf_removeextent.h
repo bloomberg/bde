@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 
-#include <cstdlib>
+#include <cstddef>
 
 namespace bsl {
 
@@ -122,7 +122,7 @@ using remove_extent_t = typename remove_extent<TYPE>::type;
 #endif // ! defined(INCLUDED_BSLMF_REMOVEEXTENT)
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

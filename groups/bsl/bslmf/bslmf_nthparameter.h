@@ -63,7 +63,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 
-#include <cstdlib>
+#include <bsls_compilerfeatures.h>
+
+#include <cstddef>
 
 namespace BloombergLP {
 
@@ -72,33 +74,6 @@ namespace bslmf {
                         // ===========================
                         // class template NthParameter
                         // ===========================
-
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130 \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-template <std::size_t N, class... PARAMS>
-struct NthParameter {
-    using Type = typename NthParameter<N - 1, PARAMS...>::Type;
-        // The type of the Nth parameter, computed by recursively stripping off
-        // the first parameter until 'N == 0'.
-};
-
-template <class FIRST_PARAM, class... PARAMS>
-struct NthParameter<0, FIRST_PARAM, PARAMS...> {
-    // Specialization of 'NthParameter' the matches finding the first item in
-    // the list.
-
-    using Type = FIRST_PARAM;
-};
-
-template <std::size_t N>
-struct NthParameter<N> {
-    // Specialization of 'NthParameter' for when 'N' exceeds the actual number
-    // of parameters.
-
-    // No 'Type' member is defined, so that failure by specifying too large a
-    // value for 'N' fails in a SFINAE-friendly manner.
-};
-#else
 
 struct NthParameter_Sentinel;  // Declared but not defined
 
@@ -912,16 +887,13 @@ struct NthParameter<0, NthParameter_Sentinel> {
 #endif
 };
 
-#endif // Sun C++11 workaround
-
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLMF_NTHPARAMETER)
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

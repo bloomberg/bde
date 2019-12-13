@@ -297,6 +297,34 @@ void aSsErT(bool condition, const char *message, int line)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 #define TD BSLS_BSLTESTUTIL_FORMAT_TD
 
+// ============================================================================
+//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
+// Some compilers struggle with the number of template instantiations in this
+// test driver.  We define this macro to simplify the test driver for them,
+// until such time as we can provide a more specific review of the type based
+// concerns, and narrow the range of tests needed for confirmed coverage.
+//
+// Currently we are enabling the minimal set of test types on:
+// Sun Studio 12.4            (CMP_SUN)
+// (note: despite over-eager version check, we have not tested later compilers)
+# define BSLSTL_LIST_TEST_LOW_MEMORY     1
+#endif
+
+#if defined(BSLSTL_LIST_TEST_LOW_MEMORY)
+// For platforms that cannot sustain the full set of test concerns, reduce the
+// number of elements in the most commonly use macro defining sets of test
+// tyoes.
+# undef  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+# define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR  \
+        signed char,                                    \
+        bsltf::TemplateTestFacility::MethodPtr,         \
+        bsltf::AllocBitwiseMoveableTestType,            \
+        bsltf::MovableAllocTestType
+#endif
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -10130,6 +10158,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING MOVE ASSIGN\n"
                             "===================\n");
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION < 0x5130
         RUN_EACH_TYPE(TestDriver,
                       test31_moveAssign,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
@@ -10153,6 +10182,28 @@ int main(int argc, char *argv[])
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
         // TBD test 'bsltf::MoveOnlyAllocTestType' here
+#else   // Oracle CC 12.4 runs out of memory compiling the full test case
+        RUN_EACH_TYPE(TestDriver,
+                      test31_moveAssign,
+                      bsltf::MoveOnlyAllocTestType);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      test31_moveAssign,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      int);
+
+        // 'propagate_on_container_move_assignment' testing
+
+        RUN_EACH_TYPE(TestDriver,
+                      test31_propagate_on_container_move_assignment,
+                      int);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      test31_propagate_on_container_move_assignment,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      int);
+        // TBD test 'bsltf::MoveOnlyAllocTestType' here
+#endif
       } break;
       case 30: {
         // --------------------------------------------------------------------

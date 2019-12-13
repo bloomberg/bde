@@ -2018,7 +2018,7 @@ DEFINE_TEST_CASE(5) {
             // Instead, we must explicitly construct references with a wrapper,
             // so as to pass them by value as in the following:
 
-#if !defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     // The combination of Sun CC, 'BindS', 'bsl::cref/ref', 'ForwardingType',
     // and who knows what else, makes this test fail to compile.
 
@@ -2085,7 +2085,7 @@ DEFINE_TEST_CASE(5) {
             ASSERT(&X2 == mX4); // 'mX4' should hold the address of the
                                 // binder's copy of 'X2', not of 'X2' itself.
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
             // The IBM xlC compiler is broken in ellipsis matching, meaning
             // 'bdlf::Bind_FuncTraitsHasNoEllipsis' will return 0 even for
             // functions that do not have an ellipsis in their function
@@ -2328,8 +2328,7 @@ DEFINE_TEST_CASE(4) {
             ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS_DEFAULT,
                                              veryVerbose));
 
-#if    !defined(BSLS_PLATFORM_CMP_IBM) \
-   && (!defined(BSLS_PLATFORM_CMP_SUN) || __SUNPRO_CC < 0x580)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
             ASSERT(14 == bdlf::BindUtil::bind(&mX,
                               // first bound argument below
                               bdlf::BindUtil::bind(&selectArgument1,

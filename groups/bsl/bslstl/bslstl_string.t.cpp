@@ -6040,11 +6040,6 @@ int main(int argc, char *argv[])
         ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
 
-        // SUN for some reasons declares this trait for native strings.
-#if !defined(BSLS_PLATFORM_CMP_SUN)
-        ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
-#endif
-
         // MSVC has unconditional 'noexcept' specifications for move
         // constructor in C++11 mode.  Fixed in MSVC 2015.
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || \
@@ -6057,10 +6052,6 @@ int main(int argc, char *argv[])
 
         ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
-
-#if !defined(BSLS_PLATFORM_CMP_SUN)
-        ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
-#endif
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || \
     (defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900))
@@ -6514,11 +6505,9 @@ int main(int argc, char *argv[])
                                                nameOfType(strName) != strName);
             ASSERT(nameOfType(std::string("woof")) == strName);
         }
-#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION >= 20768
         else {
             ASSERT(0 && "'NameOf' should work everywhere but old Sun CC");
         }
-#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         if (verbose) printf("\nAdditional tests: initializer lists.\n");

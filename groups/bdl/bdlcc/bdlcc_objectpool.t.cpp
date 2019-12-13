@@ -686,15 +686,7 @@ bdlcc::ObjectPool<Counter> *pool;
 
 bslmt::Barrier barrier(k_NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
-
     void *workerThread9(void *arg)
     {
         (void)arg;
@@ -730,14 +722,7 @@ bdlcc::ObjectPool<my_Class> *pool;
 
 bslmt::Barrier barrier(k_NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
     void *workerThread8(void *arg)
     {
         (void)arg;
@@ -781,14 +766,7 @@ bdlcc::ObjectPool<my_Class> *pool;
 
 bslmt::Barrier barrier(k_NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
     void *workerThread7(void *arg)
     {
         (void)arg;
@@ -828,14 +806,7 @@ bslmt::Barrier barrierAll(k_NUM_THREADS); // barrier for all threads
 bslmt::Barrier barrier0(k_NUM_THREADS/4); // barrier for threads having
                                        // thread-number % 4 == 0
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
     void *workerThread6(void *arg)
     {
         my_Class *arr[k_NUM_OBJECTS];
@@ -931,15 +902,7 @@ bdlcc::ObjectPool<my_Class> *pool;
 
 bslmt::Barrier barrier(k_NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
-
     void *workerThread5(void *arg)
     {
         (void)arg;
@@ -976,15 +939,7 @@ bslmt::Barrier barrierAll(k_NUM_THREADS);    // barrier for all threads
 bslmt::Barrier barrier0(k_NUM_THREADS / 2);  // barrier for even numbered
                                              // threads
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
-
     void *workerThread4(void *arg)
     {
         my_Class *arr[k_NUM_OBJECTS];
@@ -1046,15 +1001,7 @@ bdlcc::ObjectPool<my_Class> *pool;
 
 bslmt::Barrier barrier(k_NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
-
     void *workerThread3(void *arg)
     {
       my_Class *arr[k_NUM_OBJECTS];

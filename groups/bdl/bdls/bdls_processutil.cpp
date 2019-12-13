@@ -20,6 +20,8 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
+#include <bsls_atomicoperations.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
@@ -58,6 +60,36 @@ namespace {
 namespace u {
 
 using namespace BloombergLP;
+
+// This macro is equivalent to calling 'BSLS_LOG_ERROR(...)', except that it
+// uses a static atomic int to only emit one trace per process.
+
+#define U_LOG_ERROR_ONCE(...)                                                 \
+    do {                                                                      \
+        static bsls::AtomicOperations::AtomicTypes::Int done = { 0 };         \
+        if (0 == bsls::AtomicOperations::testAndSwapInt(&done, 0, 1)) {       \
+            if (bsls::LogSeverity::e_ERROR <=                                 \
+                                            bsls::Log::severityThreshold()) { \
+                bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,    \
+                                               __FILE__,                      \
+                                               __LINE__,                      \
+                                               __VA_ARGS__);                  \
+            }                                                                 \
+        }                                                                     \
+    } while (false)
+
+static
+const char *doesProcExist()
+    // Return a ptr to a string describing whether "/proc" exists or not.
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return "";
+#else
+    return bdls::FilesystemUtil::isDirectory("/proc", true)
+                                                 ? "\"/proc\" exists."
+                                                 : "\"/proc\" does not exist.";
+#endif
+}
 
 static inline
 int getPid()
@@ -105,7 +137,8 @@ void resolveSymLinksIfAny(bsl::string *fileName)
     // If the specified 'fileName' is a symlink, resolve it and overwrite
     // 'fileName' with the new value, but only if the new value refers to an
     // executable file.  The behavior is undefined unless '*fileName' is an
-    // executable file or a symlink to one.
+    // executable file or a symlink to one.  Note that this will only write
+    // over 'fileName' if 'fileName' is a link to an executable file.
 {
     BSLS_ASSERT_SAFE(isExecutable(*fileName));
 
@@ -179,6 +212,9 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // 'argv[0]', which might be a relative path.
 
     if (0 != ::getargs(&procBuf, sizeof(procBuf), buf, k_BUF_LEN - 1)) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: ::getargs failed.  %s",
+                                                           u::doesProcExist());
+
         return -1;                                                    // RETURN
     }
 
@@ -196,6 +232,9 @@ int ProcessUtil::getProcessName(bsl::string *result)
                                   &pidPathBuf[0],
                                   PROC_PIDPATHINFO_MAXSIZE);
     if (numChars <= 0) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: ::proc_pidpath failed.  %s",
+                                                           u::doesProcExist());
+
         return -1;                                                    // RETURN
     }
     BSLS_ASSERT(numChars <= PROC_PIDPATHINFO_MAXSIZE);
@@ -211,7 +250,10 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // spaces.
 
     const char *argv0 = ::program_invocation_name;
-    if (!argv0) {
+    if (!argv0 || !*argv0) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: ::program_invocation_name"
+                                                                " failed.  %s",
+                                                           u::doesProcExist());
         return -1;                                                    // RETURN
     }
     result->assign(argv0);
@@ -219,12 +261,14 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
 #elif defined BSLS_PLATFORM_OS_SOLARIS
 
+    // "/proc/<pid>/cmdline' contains all the 'argv[*]' elements, separated by
+    // '\0's.
+
     //: o If 'argv0' is obtained and is executable, use that.
     //: o Else, if 'execName' is non-empty and executable, use 'execName'.
     //: o Else, If 'execName' is non-empty and 'argv0' is empty, use
     //:   'execName'.
-    //: o Else, if 'execName' and 'argv0' are both non-empty and neither is
-    //:   executable, use 'argv0' since that will not have symlinks resolved.
+    //: o Else, if 'argv0' is not empty, use that.
 
     char cmdLineFileName[100];
     bdlsb::FixedMemOutStreamBuf sb(cmdLineFileName, sizeof(cmdLineFileName));
@@ -235,7 +279,11 @@ int ProcessUtil::getProcessName(bsl::string *result)
                      bsl::ios_base::in | bsl::ios_base::binary);
 
     bsl::string argv0;
-    if (cmdLineFile.is_open()) {
+    if (!cmdLineFile.is_open()) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: Couldn't open %s.  %s",
+                                          cmdLineFileName, u::doesProcExist());
+    }
+    else {
         bsl::getline(cmdLineFile, argv0, '\0');
 
         if (!argv0.empty() && u::isExecutable(argv0)) {
@@ -254,8 +302,11 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // directory has changed since task startup.
 
     const char *execName = ::getexecname();
-    if (execName && *execName &&
-                                (argv0.empty() || u::isExecutable(execName))) {
+    if (!execName || !*execName) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: ::getexecname failed.  %s",
+                                                           u::doesProcExist());
+    }
+    else if (argv0.empty() || u::isExecutable(execName)) {
         result->assign(execName);
         return 0;                                                     // RETURN
     }
@@ -282,7 +333,14 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
     bsl::wstring wResult(64 * 1024, '\0');
     DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
-    if (0 < length && length < wResult.length()) {
+    if (!length) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: GetModuleFileName failed.");
+    }
+    else if (wResult.length() <= length) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: GetModuleFileName buffer"
+                                                                 " overflow.");
+    }
+    else {
         wResult.resize(length);
 
         // Use '*result's allocator for 'utf8Path', since 'utf8Path' will be
@@ -291,6 +349,8 @@ int ProcessUtil::getProcessName(bsl::string *result)
         bsl::string utf8Path(result->allocator().mechanism());
         int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&utf8Path, wResult);
         if (0 != rc) {
+            U_LOG_ERROR_ONCE("bdls::ProcessUtil: utf16ToUtf8 failed.");
+
             return -1;                                                // RETURN
         }
 
@@ -318,7 +378,11 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
 
     bsl::string processName;
     rc = getProcessName(&processName);
-    if (0 == rc && u::isExecutable(processName)) {
+    if (0 != rc) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil::getPathToExecutable:"
+                            " getProcessName failed.  %s", u::doesProcExist());
+    }
+    else if (u::isExecutable(processName)) {
         result->assign(processName);
 
         return 0;                                                     // RETURN
@@ -328,7 +392,7 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     // directory since task startup.  Get the orignal directory from '$PWD' and
     // see if we can build the correct path to the executable with that.
 
-    if (PathUtil::isRelative(processName)) {
+    if (0 == rc && PathUtil::isRelative(processName)) {
         const char *taskStartUpDir = ::getenv("PWD");
         if (taskStartUpDir &&
                            FilesystemUtil::isDirectory(taskStartUpDir, true)) {
@@ -346,7 +410,7 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     // different solution based on "/proc", which might or might not be
     // available.
 
-#if defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX || \
+#if defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX ||         \
                                                defined BSLS_PLATFORM_OS_SOLARIS
     char linkName[100];
     bdlsb::FixedMemOutStreamBuf sb(linkName, sizeof(linkName));
@@ -358,7 +422,11 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     os << "/proc/" << u::getPid() << "/object/a.out" << bsl::ends;
 #endif
 
-    if (u::isExecutable(linkName)) {
+    if (!u::isExecutable(linkName)) {
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: '%s' not executable.  %s",
+                                                 linkName, u::doesProcExist());
+    }
+    else {
         // "/proc" was available (not always the case).
         //
         // 'linkName' may be a symlink or hardlink.  If it's a symlink, resolve

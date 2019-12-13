@@ -87,7 +87,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_annotation.h>
+#include <bsla_maybeunused.h>
+
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
@@ -110,7 +111,7 @@ namespace BloombergLP {
                              // Support types
                              // =============
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VER_MAJOR < 0x5130
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 
 // Using a different implementation on Sun; see BSLMF_ASSERT for details.
 
@@ -165,7 +166,7 @@ struct AssertTest {
                              // macro BSLMF_ASSERT
                              // ==================
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VER_MAJOR < 0x5130
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 
 // The usual definition of the 'BSLMF_ASSERT' macro doesn't work with SunCC
 // (version 10 and below) inside template classes.  Note that Sun CC has a
@@ -188,10 +189,9 @@ struct AssertTest {
 #else
 
 #define BSLMF_ASSERT(expr) \
-typedef BloombergLP::bslmf::AssertTest< \
-        sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
-               BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__) BSLS_ANNOTATION_UNUSED
-
+BSLA_MAYBE_UNUSED typedef BloombergLP::bslmf::AssertTest<                     \
+         sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
+                                    BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)
 #endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
