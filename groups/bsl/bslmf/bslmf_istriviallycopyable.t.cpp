@@ -121,6 +121,13 @@ void aSsErT(bool condition, const char *message, int line)
     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85679 for more details.
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_COMPILER_FEATURES_CMP_VERSION < 1910
+    // The compiler intrinsic older MSVC compilers use to determine whether a
+    // type is trivially copyable believes reference types may be trivially
+    // copyable, while the standard states that reference types are never
+    // trivially copyable types.
+# define BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_ORACLE_BAD_REFS    1
+#endif
 // ============================================================================
 //                      TEST DRIVER CONFIGURATION MACROS
 // ----------------------------------------------------------------------------
@@ -217,14 +224,29 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT(TYPE)
 
 
+// Macro: ASSERT_IS_TRIVIALLY_COPYABLE_LVAL_REF
+//   This macro tests that the 'is_trivially_copyable' trait has the expected
+//   'RESULT' for an rvalue reference to the given 'TYPE' on platforms that
+//   implement language support, and performs no test otherwise.  Note that the
+//   native trait implementation shipping with Visual C++ compilers prior to
+//   MSVC 2017 erroneously reports that rvalue-references to arrays are
+//   trivially copyable.
+#if !defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_ORACLE_BAD_REFS)
+# define ASSERT_IS_TRIVIALLY_COPYABLE_LVAL_REF(TYPE, RESULT)                  \
+    ASSERT_IS_TRIVIALLY_COPYABLE(bsl::add_lvalue_reference<TYPE>::type, false)
+#else
+# define ASSERT_IS_TRIVIALLY_COPYABLE_LVAL_REF(TYPE, RESULT)
+#endif
+
 // Macro: ASSERT_IS_TRIVIALLY_COPYABLE_RVAL_REF
 //   This macro tests that the 'is_trivially_copyable' trait has the expected
 //   'RESULT' for an rvalue reference to the given 'TYPE' on platforms that
 //   implement language support, and performs no test otherwise.  Note that the
 //   native trait implementation shipping with Visual C++ compilers prior to
-//   MSVC 2017 erroneously reports that rvalue-references to arrays are NOT
+//   MSVC 2017 erroneously reports that rvalue-references to arrays are
 //   trivially copyable.
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
+   !defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_ORACLE_BAD_REFS)
 # define ASSERT_IS_TRIVIALLY_COPYABLE_RVAL_REF(TYPE, RESULT)                  \
     ASSERT_IS_TRIVIALLY_COPYABLE(bsl::add_rvalue_reference<TYPE>::type, false)
 #else
@@ -239,8 +261,7 @@ void aSsErT(bool condition, const char *message, int line)
 # define ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT)                      \
     ASSERT_IS_TRIVIALLY_COPYABLE(TYPE, RESULT);                               \
     ASSERT_IS_TRIVIALLY_COPYABLE(bsl::add_pointer<TYPE>::type, true);         \
-    ASSERT_IS_TRIVIALLY_COPYABLE(                                             \
-                               bsl::add_lvalue_reference<TYPE>::type, false); \
+    ASSERT_IS_TRIVIALLY_COPYABLE_LVAL_REF(TYPE, RESULT)                       \
     ASSERT_IS_TRIVIALLY_COPYABLE_RVAL_REF(TYPE, RESULT)
 
 // Macro: ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE
