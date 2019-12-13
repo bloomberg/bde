@@ -113,13 +113,19 @@ bool isExecutable(const char *path)
 #if defined BSLS_PLATFORM_OS_UNIX
     const int executableBits = S_IXUSR | S_IXGRP | S_IXOTH;
 
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
+    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
     struct stat s;
     int rc = ::stat(path, &s);
+# else
+    struct stat64 s;
+    int rc = ::stat64(path, &s);
+# endif
 #else    // Windows
     const int executableBits = S_IEXEC;
 
-    struct _stat s;
-    int rc = ::_stat(path, &s);
+    struct _stati64 s;
+    int rc = ::_stati64(path, &s);
 #endif
 
     return 0 == rc && !(s.st_mode & S_IFDIR) && (s.st_mode & executableBits);
@@ -423,8 +429,15 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
 #endif
 
     if (!u::isExecutable(linkName)) {
-        U_LOG_ERROR_ONCE("bdls::ProcessUtil: '%s' not executable.  %s",
-                                                 linkName, u::doesProcExist());
+        bool procNameExists = FilesystemUtil::exists(processName);
+        bool linkNameExists = FilesystemUtil::exists(linkName);
+
+        U_LOG_ERROR_ONCE("bdls::ProcessUtil: '%s' not executable, %s."
+                                                  " ProcessName: '%s' %s.  %s",
+                        linkName, linkNameExists ? "exists" : "does not exist",
+                        processName.c_str(),
+                                  procNameExists ? "exists" : "does not exist",
+                                                           u::doesProcExist());
     }
     else {
         // "/proc" was available (not always the case).
