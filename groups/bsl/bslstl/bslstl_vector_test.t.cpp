@@ -1774,9 +1774,7 @@ struct TestDriver {
         k_IS_MOVABLE =
                      bslmf::IsBitwiseMoveable<TYPE>::value ||
                     !bsl::is_copy_constructible<TYPE>::value ||
-                     bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
-                     bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
-                     bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value
+                     bsl::is_nothrow_move_constructible<TYPE>::value
     };
 
     // TEST APPARATUS

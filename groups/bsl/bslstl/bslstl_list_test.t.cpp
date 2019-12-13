@@ -7439,9 +7439,9 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
                     // Choose a value to insert that is deliberately aliasing a
                     // list element.
 
-                    bool        useDefault = (TEST_EMPLACE_A0       ||
-                                              TEST_EMPLACE_FRONT_A0 ||
-                                              TEST_EMPLACE_BACK_A0);
+                    bool        useDefault = (TEST_EMPLACE_A0 == op       ||
+                                              TEST_EMPLACE_FRONT_A0 == op ||
+                                              TEST_EMPLACE_BACK_A0 == op);
                     const TYPE& NEW_ELEM_REF(useDefault ?
                                              DEFAULT_VALUE :
                                              LENGTH ?

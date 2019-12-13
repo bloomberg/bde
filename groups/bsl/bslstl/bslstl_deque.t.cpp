@@ -1850,10 +1850,8 @@ struct TestDriver {
                         : e_STATEFUL;
 
     static
-    const bool s_keyIsMoveEnabled =
-                      bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
-                      bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
-                      bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value;
+    const bool s_keyIsMoveEnabled = bsl::is_nothrow_move_constructible<TYPE>::
+                                                                         value;
 
     // CLASS METHODS
     static

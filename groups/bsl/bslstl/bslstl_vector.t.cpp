@@ -1223,10 +1223,8 @@ struct TestDriver {
                                         bslma::UsesBslmaAllocator<TYPE>::value;
 
     static
-    const bool s_typeIsMoveEnabled =
-                      bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
-                      bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
-                      bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value;
+    const bool s_typeIsMoveEnabled = bsl::is_nothrow_move_constructible<TYPE>::
+                                                                         value;
 
 
     // CLASS METHODS
