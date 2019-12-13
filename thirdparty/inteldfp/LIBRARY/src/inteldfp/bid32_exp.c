@@ -27,10 +27,7 @@
   THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-
 #include "bid_internal.h"
-
-double exp(double);
 
 BID_TYPE0_FUNCTION_ARGTYPE1(BID_UINT32, bid32_exp, BID_UINT32, x)
 

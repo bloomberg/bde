@@ -57,8 +57,6 @@
    (lo) = (lo) << (c)                                           \
   )
 
-double tan(double);
-
 #define BID32_1   0x32800001ul
 
 #define BID32_NAN 0x7c000000ul

@@ -153,8 +153,6 @@ bid_long_sqrt128 (BID_UINT128 * pCS, BID_UINT256 C256) {
 
 #else
 
-BID_EXTERN_C double sqrt (double);
-
 __BID_INLINE__ BID_UINT64
 short_sqrt128 (BID_UINT128 A10) {
   BID_UINT256 ARS, ARS0, AE0, AE, S;

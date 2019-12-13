@@ -28,10 +28,6 @@
 ******************************************************************************/
 
 #include "bid_internal.h"
-double lgamma(double);
-double fabs(double);
-double log(double);
-double sin(double);
 
 #define BID32_INF 0x78000000ul 
 

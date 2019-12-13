@@ -30,9 +30,6 @@
 
 #include "bid_internal.h"
 
-BID_EXTERN_C double cbrt(double);
-
-
 BID_TYPE0_FUNCTION_ARGTYPE1(BID_UINT32, bid32_cbrt, BID_UINT32, x)
 
   BID_UINT32 sign_x, coefficient_x;

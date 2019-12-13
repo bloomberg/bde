@@ -28,8 +28,6 @@
 ******************************************************************************/
 
 #include "bid_internal.h"
-double sin(double);
-double tgamma(double);
 
 #define BID32_NAN 0x7c000000ul
 #define BID32_SHIFTER 0x329e8480ul

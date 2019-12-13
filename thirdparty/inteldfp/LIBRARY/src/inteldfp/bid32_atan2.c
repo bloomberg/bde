@@ -30,8 +30,6 @@
 
 #include "bid_internal.h"
 
-BID_EXTERN_C double atan2(double, double);
-
 BID_TYPE_FUNCTION_ARG2(BID_UINT32, bid32_atan2, x, y)
   BID_UINT32 sign_x, sign_y, coefficient_x, coefficient_y;
   BID_UINT32 valid_x, valid_y, res;
