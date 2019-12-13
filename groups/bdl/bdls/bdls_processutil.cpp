@@ -429,14 +429,18 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
 #endif
 
     if (!u::isExecutable(linkName)) {
-        bool procNameExists = FilesystemUtil::exists(processName);
-        bool linkNameExists = FilesystemUtil::exists(linkName);
+        // Both 'processName' and 'linkName' are not executable.  Include
+        // whether they even exist in the trace.
+
+        const char *linkNameExists = FilesystemUtil::exists(linkName)
+                                   ? "exists" : "doesn't exist";
+        const char *procNameExists = FilesystemUtil::exists(processName)
+                                   ? "exists" : "doesn't exist";
 
         U_LOG_ERROR_ONCE("bdls::ProcessUtil: '%s' not executable, %s."
                                                   " ProcessName: '%s' %s.  %s",
-                        linkName, linkNameExists ? "exists" : "does not exist",
-                        processName.c_str(),
-                                  procNameExists ? "exists" : "does not exist",
+                                           linkName, linkNameExists,
+                                           processName.c_str(), procNameExists,
                                                            u::doesProcExist());
     }
     else {
