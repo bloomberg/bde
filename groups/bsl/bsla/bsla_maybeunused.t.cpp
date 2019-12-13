@@ -142,6 +142,8 @@ void aSsErT(bool condition, const char *message, int line)
         // 'cubeFactor' and 'zeroC' are unused for now but will be used in
         // future expansion of the function to handle cubic polynomials.
     {
+        typedef int UnusedTypedef;
+
         const double discriminant = b * b - 4 * a * c;
         if (discriminant < 0 || 0.0 == a) {
             *zeroA = *zeroB = 0.0;
@@ -153,6 +155,7 @@ void aSsErT(bool condition, const char *message, int line)
         *zeroB = (-b - root) / (2 * a);
 
 #if !U_TRIGGER_WARNINGS
+        (void) static_cast<UnusedTypedef*>(0);
         (void) zeroC;
         (void) cubeFactor;
 #endif
@@ -165,24 +168,27 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 // Then, we observe the warnings:
 //..
-// .../bsla_maybeunused.t.cpp:134:27: warning: unused parameter 'zeroC'
+// .../bsla_maybeunused.t.cpp:145:21: warning: typedef 'UnusedTypedef' locally
+// defined but not used [-Wunused-local-typedefs]
+//          typedef int UnusedTypedef;
+//                      ^~~~~~~~~~~~~
+// .../bsla_maybeunused.t.cpp:133:27: warning: unused parameter 'zeroC'
 // [-Wunused-parameter]
 //                    double *zeroC,
 //                            ^~~~~
-// .../bsla_maybeunused.t.cpp:135:26: warning: unused parameter 'cubeFactor'
+// .../bsla_maybeunused.t.cpp:134:26: warning: unused parameter 'cubeFactor'
 // [-Wunused-parameter]
 //                    double cubeFactor,
 //                           ^~~~~~~~~~
-// .../bsla_maybeunused.t.cpp:132:9: warning: 'int {anonymous}::warn::
+// .../bsla_maybeunused.t.cpp:131:9: warning: 'int {anonymous}::warn::
 // quadratic(double*, double*, double*, double, double, double, double)'
 // defined but not used [-Wunused-function]
 //      int quadratic(double *zeroA,
 //          ^~~~~~~~~
-// .../bsla_maybeunused.t.cpp:125:12: warning: '{anonymous}::warn::x' defined
+// .../bsla_maybeunused.t.cpp:124:12: warning: '{anonymous}::warn::x' defined
 // but not used [-Wunused-variable]
 //      double x;
 //             ^
-//
 //..
 // Note that none of the compilers currently in use by the development team
 // issue a warning on the unused 'warn::ResultRec', but some in the future
@@ -225,6 +231,8 @@ void aSsErT(bool condition, const char *message, int line)
                   double                    b,
                   double                    c)
     {
+        BSLA_MAYBE_UNUSED typedef int UnusedTypedef;
+
         const double discriminant = b * b - 4 * a * c;
         if (discriminant < 0 || 0.0 == a) {
             *zeroA = *zeroB = 0.0;

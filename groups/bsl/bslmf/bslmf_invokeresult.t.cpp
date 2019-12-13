@@ -7,6 +7,8 @@
 #include <bslmf_removecv.h>
 #include <bslmf_removepointer.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
@@ -1944,8 +1946,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING FUNCTION INVOCABLES"
                             "\n===========================\n");
 
-        typedef Ic01 (*Fp)(MyClass, int);
-        typedef Ic02 (MyClass::*MFp)(int);
+        BSLA_MAYBE_UNUSED typedef Ic01 (*Fp)(MyClass, int);
+        BSLA_MAYBE_UNUSED typedef Ic02 (MyClass::*MFp)(int);
         typedef Ic03 Arry[10];
         typedef Ic04 F(MyClass, int);
 

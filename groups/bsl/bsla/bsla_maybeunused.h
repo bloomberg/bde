@@ -61,6 +61,8 @@ BSLS_IDENT("$Id: $")
 //      // 'cubeFactor' and 'zeroC' are unused for now but will be used in
 //      // future expansion of the function to handle cubic polynomials.
 //  {
+//      typedef int UnusedTypedef;
+//
 //      const double discriminant = b * b - 4 * a * c;
 //      if (discriminant < 0 || 0.0 == a) {
 //          *zeroA = *zeroB = 0.0;
@@ -79,20 +81,24 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we observe the warnings:
 //..
-// .../bsla_maybeunused.t.cpp:134:27: warning: unused parameter 'zeroC'
+// .../bsla_maybeunused.t.cpp:145:21: warning: typedef 'UnusedTypedef' locally
+// defined but not used [-Wunused-local-typedefs]
+//          typedef int UnusedTypedef;
+//                      ^~~~~~~~~~~~~
+// .../bsla_maybeunused.t.cpp:133:27: warning: unused parameter 'zeroC'
 // [-Wunused-parameter]
 //                    double *zeroC,
 //                            ^~~~~
-// .../bsla_maybeunused.t.cpp:135:26: warning: unused parameter 'cubeFactor'
+// .../bsla_maybeunused.t.cpp:134:26: warning: unused parameter 'cubeFactor'
 // [-Wunused-parameter]
 //                    double cubeFactor,
 //                           ^~~~~~~~~~
-// .../bsla_maybeunused.t.cpp:132:9: warning: 'int {anonymous}::warn::
+// .../bsla_maybeunused.t.cpp:131:9: warning: 'int {anonymous}::warn::
 // quadratic(double*, double*, double*, double, double, double, double)'
 // defined but not used [-Wunused-function]
 //      int quadratic(double *zeroA,
 //          ^~~~~~~~~
-// .../bsla_maybeunused.t.cpp:125:12: warning: '{anonymous}::warn::x' defined
+// .../bsla_maybeunused.t.cpp:124:12: warning: '{anonymous}::warn::x' defined
 // but not used [-Wunused-variable]
 //      double x;
 //             ^
@@ -138,6 +144,8 @@ BSLS_IDENT("$Id: $")
 //                double                    b,
 //                double                    c)
 //  {
+//      BSLA_MAYBE_UNUSED typedef int UnusedTypedef;
+//
 //      const double discriminant = b * b - 4 * a * c;
 //      if (discriminant < 0 || 0.0 == a) {
 //          *zeroA = *zeroB = 0.0;
@@ -161,6 +169,10 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED)
     #define BSLA_MAYBE_UNUSED [[ maybe_unused ]]
+
+    #define BSLA_MAYBE_UNUSED_IS_ACTIVE 1
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLA_MAYBE_UNUSED __attribute__((__unused__))
 
     #define BSLA_MAYBE_UNUSED_IS_ACTIVE 1
 #else

@@ -677,6 +677,8 @@ int main(int argc, char *argv[])
     (void) argc;
     (void) argv;
 
+    ASSERT(true); // remove unused warning for 'aSsErT'
+
     printf("Cannot test 'bslmf::IntegerSequence' in pre-C++11 mode.\n");
     return -1;
 }
