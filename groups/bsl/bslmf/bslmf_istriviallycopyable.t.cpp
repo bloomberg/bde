@@ -13,6 +13,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
+#include <bsls_nameof.h>
 #include <bsls_timeinterval.h>
 
 #include <stdio.h>   // 'printf'
@@ -163,14 +164,16 @@ void aSsErT(bool condition, const char *message, int line)
 #   define ASSERT_IS_TRIVIALLY_COPYABLE_CONSULT_ORACLE(TYPE)                  \
   {                                                                           \
     typedef bsl::remove_volatile<TYPE>::type TestType;                        \
-    ASSERTV( native_std::is_trivially_copyable<TestType>::value,              \
+    ASSERTV( bsls::NameOf<TYPE>().name(),                                     \
+             native_std::is_trivially_copyable<TestType>::value,              \
              bsl       ::is_trivially_copyable<TestType>::value,              \
              native_std::is_trivially_copyable<TestType>::value ==            \
              bsl       ::is_trivially_copyable<TestType>::value);             \
   }
 # else
 #   define ASSERT_IS_TRIVIALLY_COPYABLE_CONSULT_ORACLE(TYPE)                  \
-    ASSERTV( native_std::is_trivially_copyable<TYPE>::value,                  \
+    ASSERTV( bsls::NameOf<TYPE>().name(),                                     \
+             native_std::is_trivially_copyable<TYPE>::value,                  \
              bsl       ::is_trivially_copyable<TYPE>::value,                  \
              native_std::is_trivially_copyable<TYPE>::value ==                \
              bsl       ::is_trivially_copyable<TYPE>::value)
@@ -327,8 +330,8 @@ struct UserDefinedTcTestType {
 
     int d_data;
 
-    UserDefinedTcTestType() {}
-    UserDefinedTcTestType(const UserDefinedTcTestType&) {}
+//    UserDefinedTcTestType() {}
+//    UserDefinedTcTestType(const UserDefinedTcTestType&) {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -344,8 +347,8 @@ struct UserDefinedTcTestType2 {
 
     int d_data;
 
-    UserDefinedTcTestType2() {}
-    UserDefinedTcTestType2(const UserDefinedTcTestType2&) {}
+//    UserDefinedTcTestType2() {}
+//    UserDefinedTcTestType2(const UserDefinedTcTestType2&) {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
