@@ -261,7 +261,7 @@ void aSsErT(bool condition, const char *message, int line)
 # define ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT)                      \
     ASSERT_IS_TRIVIALLY_COPYABLE(TYPE, RESULT);                               \
     ASSERT_IS_TRIVIALLY_COPYABLE(bsl::add_pointer<TYPE>::type, true);         \
-    ASSERT_IS_TRIVIALLY_COPYABLE_LVAL_REF(TYPE, RESULT)                       \
+    ASSERT_IS_TRIVIALLY_COPYABLE_LVAL_REF(TYPE, RESULT);                      \
     ASSERT_IS_TRIVIALLY_COPYABLE_RVAL_REF(TYPE, RESULT)
 
 // Macro: ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE
@@ -272,7 +272,7 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT);                          \
     ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(bsl::add_const<TYPE>::type, RESULT);    \
     ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(bsl::add_volatile<TYPE>::type, RESULT); \
-    ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(bsl::add_cv<TYPE>::type, RESULT);
+    ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(bsl::add_cv<TYPE>::type, RESULT)
 
 
 // Macro: ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE
@@ -285,15 +285,15 @@ void aSsErT(bool condition, const char *message, int line)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
 // correctly handling arrays of unknown bound as template parameters.
 # define ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(TYPE, RESULT)               \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT)                        \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[128], RESULT)                   \
+    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT);                       \
+    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[128], RESULT);                  \
     ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[12][8], RESULT)
 #else
 # define ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(TYPE, RESULT)               \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT)                        \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[128], RESULT)                   \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[12][8], RESULT)                 \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[], RESULT)                      \
+    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT);                       \
+    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[128], RESULT);                  \
+    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[12][8], RESULT);                \
+    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[], RESULT);                     \
     ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[][8], RESULT)
 #endif
 
