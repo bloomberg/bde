@@ -1,5 +1,25 @@
-bsl-internal (3.44.0.0) unstable; urgency=low
+bsl-internal (3.45.0.0) unstable; urgency=low
 
+  * 4d366df7b Bumped version to 3.45.0.0
+  * 327e0ef1b Merge pull request #2633 from bchapman/bdls_processutil-a.out-exists-drqs-153152443
+  * a7cb8b875 Merge pull request #2632 from jberne4/unused_fixes
+  * 0bf67619f Merge pull request #2619 from hrosen4/bid-no-extern-c
+  * d72eba021 Merge pull request #2629 from jberne4/extra_semicolon
+  * 8389a059f Merge pull request #2617 from afeher/apple-clang-cpp17-search-fix2
+  * 6e9c3be83 Merge pull request #2621 from jberne4/deprecate_unused
+  * 45d6ba4e4 Merge pull request #2624 from osubbotin/review/doxygen-typo
+  * f50fd702d Merge pull request #2614 from osubbotin/review/remove-decnumber
+  * 5a2223cbc Merge pull request #2622 from jmendelsohn4/drqs-152983769/bdlmt_multiqueuethreadpool-tc-30
+  * 9bd43e95f Merge pull request #2623 from ameredit/removing_workarounds_for_sun_12_4
+  * ac31ea513 Merge pull request #2532 from dsokolov7/review/bde-fdstreambuf-test-fail-drqs-150089531
+  * ae56e258c Merge pull request #2620 from afeher/drqs-152975789-use-getmodulehandlea
+  * c0b912434 Merge pull request #2618 from bde/osubbotin-bdlb-tokenizer
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 14 Dec 2019 11:42:35 -0500
+
+bsl-internal (3.44.0.0) git; urgency=low
+
+  * a69ac89e8 Changelog for version 3.44.0.0
   * 7f5d6a4bb Bumped version to 3.44.0.0
   * 0f64083d4 Merge pull request #2564 from ameredit/applications_of_void_t
   * 8d28be3fe Merge pull request #2615 from jberne4/whitespace_cleanup
@@ -14,7 +34,7 @@ bsl-internal (3.44.0.0) unstable; urgency=low
   * 7cde9374f Merge pull request #2601 from osubbotin/review/bdlcc-ctor-fix-drqs-152231776
   * a473c710f Merge pull request #2598 from mgiroux/cleanup-bos-references-to-bsl+stdhdrs-drqs147859520
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 6 Dec 2019 14:00:53 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 6 Dec 2019 14:05:18 -0500
 
 bsl-internal (3.43.0.0) git; urgency=low
 
