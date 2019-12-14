@@ -45,7 +45,7 @@
      bsla_printf
      bsla_scanf
      bsla_unreachable
-     bsla_unused                                        !DEPRECATED!
+     bsla_unused                                         !DEPRECATED!
      bsla_warning
 ..
 
@@ -90,7 +90,7 @@
 : 'bsla_unreachable':
 :      Provide a compiler-hint macro to indicate unreachable code.
 :
-: 'bsla_unused':
+: 'bsla_unused':                                         !DEPRECATED!
 :      Provide a macro to suppress "unused" warnings.
 :
 : 'bsla_used':
