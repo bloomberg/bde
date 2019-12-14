@@ -112,6 +112,17 @@ void aSsErT(bool condition, const char *message, int line)
     // the correct value for this trait.
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1910
+    // The compiler intrinsic older MSVC compilers use to determine whether a
+    // type is trivially copyable believes reference types may be trivially
+    // copyable, while the standard states that reference types are never
+    // trivially copyable types.  Similarly, it has problems with volatile
+    // qualified trivial class types, and a few other cases, so we do not trust
+    // the native trait, although available, to serve as an oracle on this
+    // platform.
+# undef BSLMF_ISTRIVIALLYCOPYABLE_USE_NATIVE_ORACLE
+#endif
+
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 100000
 # define BSLMF_ISTRIVIALLYCOPYABLE_BAD_NATIVE_ORACLE        1
     // The compiler intrinsic gcc uses to determine whether a type is trivially
@@ -120,13 +131,6 @@ void aSsErT(bool condition, const char *message, int line)
     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85679 for more details.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1910
-    // The compiler intrinsic older MSVC compilers use to determine whether a
-    // type is trivially copyable believes reference types may be trivially
-    // copyable, while the standard states that reference types are never
-    // trivially copyable types.
-# define BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_ORACLE_BAD_REFS   1
-#endif
 // ============================================================================
 //                      TEST DRIVER CONFIGURATION MACROS
 // ----------------------------------------------------------------------------
