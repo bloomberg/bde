@@ -310,14 +310,16 @@ class StripedUnorderedContainerImpl_Bucket {
         // Set the pointer of the tail of this bucket list to the specified
         // 'value'.
 
+    template <class EQUAL>
     bsl::size_t setValue(const KEY&   key,
+                         const EQUAL& equal,
                          const VALUE& value,
                          BucketScope  scope);
         // Set the value attribute of the element in this bucket having the
-        // specified 'key' to the specified 'value'.  If no such element
-        // exists, insert '(key, value)'.  The behavior with respect to
-        // duplicate key values in the bucket depends on the specified
-        // 'scope':
+        // specified 'key' to the specified 'value', using the specified
+        // 'equal' to compare keys.  If no such element exists, insert
+        // '(key, value)'.  The behavior with respect to duplicate key values
+        // in the bucket depends on the specified 'scope':
         //
         //: 'e_BUCKETSCOPE_ALL':
         //:   Set 'value' to every element in the bucket having 'key'.
@@ -332,16 +334,19 @@ class StripedUnorderedContainerImpl_Bucket {
         // performant when there is a single element in the bucket having
         // 'key'.
 
+    template <class EQUAL>
     bsl::size_t setValue(const KEY&               key,
+                         const EQUAL&             equal,
                          bslmf::MovableRef<VALUE> value);
         // Set the value attribute of the element in this bucket having the
-        // specified 'key' to the specified 'value'.  If no such element
-        // exists, insert '(key, value)'.  If there are multiple elements in
-        // this hash map having 'key' then set the value of the first such
-        // element found.  Return the number of elements found having 'key'
-        // that had their value set.  Note that, when there are multiple
-        // elements having 'key', the selection of "first" is unspecified and
-        // subject to change.
+        // specified 'key' to the specified 'value', using the specified
+        // 'equal' to compare keys.  If no such element exists, insert
+        // '(key, value)'.  If there are multiple elements in this hash map
+        // having 'key' then set the value of the first such element found.
+        // Return the number of elements found having 'key' that had their
+        // value set.  Note that, when there are multiple elements having
+        // 'key', the selection of "first" is unspecified and subject to
+        // change.
 
     // ACCESSORS
     bool empty() const;
@@ -1406,8 +1411,10 @@ void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setTail(
 }
 
 template <class KEY, class VALUE>
+template <class EQUAL>
 bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
                                                             const KEY&   key,
+                                                            const EQUAL& equal,
                                                             const VALUE& value,
                                                             BucketScope  scope)
 {
@@ -1426,7 +1433,7 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = d_head_p;
     int                                             count   = 0;
     for (; curNode != NULL; curNode = curNode->next()) {
-        if (curNode->key() == key) {
+        if (equal(curNode->key(), key)) {
             curNode->value() = value;
             if (e_BUCKETSCOPE_FIRST == scope) {
                 return 1;                                             // RETURN
@@ -1450,8 +1457,10 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
 }
 
 template <class KEY, class VALUE>
+template <class EQUAL>
 bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
                                                 const KEY&               key,
+                                                const EQUAL&             equal,
                                                 bslmf::MovableRef<VALUE> value)
 {
     if (d_head_p == NULL) {
@@ -1467,7 +1476,7 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
     }
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = d_head_p;
     for (; curNode != NULL; curNode = curNode->next()) {
-        if (curNode->key() == key) {
+        if (equal(curNode->key(), key)) {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
             curNode->value() = bslmf::MovableRefUtil::move(value);
 #else
@@ -1702,7 +1711,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::erase(
 
     Node **prevNodeAddress = bucket.headAddress();
     while (*prevNodeAddress) {
-        if ((*prevNodeAddress)->key() == key) {
+        if (d_comparator((*prevNodeAddress)->key(), key)) {
             Node *node = *prevNodeAddress;
             *prevNodeAddress = node->next();
             d_allocator_p->deleteObject(node);
@@ -1771,7 +1780,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
             const KEY&   key   = first[dataIdx];
 
             bool continueFlag = false;
-            while (bucket.head()->key() == key) {
+            while (d_comparator(bucket.head()->key(), key)) {
                 StripedUnorderedContainerImpl_Node<KEY, VALUE> *nextNode =
                                                          bucket.head()->next();
                 d_allocator_p->deleteObject(bucket.head());
@@ -1797,7 +1806,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
             }
             for (; curNode->next() != NULL;
                                prevNode = curNode, curNode = curNode->next()) {
-                if (curNode->key() == key) {
+                if (d_comparator(curNode->key(), key)) {
                     prevNode->setNext(curNode->next());
                     d_allocator_p->deleteObject(curNode);
                     bucket.incrementSize(-1);
@@ -1840,6 +1849,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
         // Update only the first value if key exists.  Use only in hash map.
         ret = d_buckets[bucketIdx].setValue(
         key,
+        d_comparator,
         value,
         StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::e_BUCKETSCOPE_FIRST);
     }
@@ -1875,6 +1885,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
         // Update only the first value if key exists.  Use only in hash map.
         ret = d_buckets[bucketIdx].setValue(
                                            key,
+                                           d_comparator,
                                            bslmf::MovableRefUtil::move(value));
     }
     if (ret == 1) {
@@ -1947,6 +1958,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertBulk(
             } else {
                 bsl::size_t ret = d_buckets[bucketIdx].setValue(
                     key,
+                    d_comparator,
                     value,
                     StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
                                                           e_BUCKETSCOPE_FIRST);
@@ -1981,7 +1993,7 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValue(
     int                                             count = 0;
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
-        if (curNode->key() == key) {
+        if (d_comparator(curNode->key(), key)) {
             bool ret = visitor(&curNode->value(), key);
             if (false == setAll) {
                 return ret ? 1 : -1;                                  // RETURN
@@ -2040,7 +2052,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValue(
     StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
                                                           d_buckets[bucketIdx];
 
-    bsl::size_t count = bucket.setValue(key, value, setAll);
+    bsl::size_t count = bucket.setValue(key, d_comparator, value, setAll);
     if (count == 0) {
         guard.release();
         d_numElements.addRelaxed(1);
@@ -2455,6 +2467,7 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValueFirst(
                                                           d_buckets[bucketIdx];
 
     bsl::size_t count = bucket.setValue(key,
+                                        d_comparator,
                                         bslmf::MovableRefUtil::move(value));
     if (count == 0) {
         guard.release();
@@ -2480,7 +2493,7 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::update(
     int                                             count = 0;
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
-        if (curNode->key() == key) {
+        if (d_comparator(curNode->key(), key)) {
             ++count;
             bool ret = visitor(&curNode->value(), key);
             if (ret == false) {
@@ -2595,7 +2608,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
     // Loop on the elements in the list
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode  = bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
-        if (curNode->key() == key) {
+        if (d_comparator(curNode->key(), key)) {
             *value = curNode->value();
             return 1;                                                 // RETURN
         }
@@ -2622,7 +2635,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
     // Loop on the elements in the list
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode  = bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
-        if (curNode->key() == key) {
+        if (d_comparator(curNode->key(), key)) {
             valuesPtr->push_back(curNode->value());
             ++count;
         }
@@ -2635,7 +2648,7 @@ inline
 HASH
 StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::hashFunction() const
 {
-    return HASH();
+    return d_hasher;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>

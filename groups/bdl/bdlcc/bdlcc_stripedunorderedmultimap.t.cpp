@@ -32,6 +32,7 @@
 #include <bsltf_movabletesttype.h>
 #include <bsltf_movablealloctesttype.h>
 #include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_nonequalcomparabletesttype.h>
 #include <bsltf_nontypicaloverloadstesttype.h>
 #include <bsltf_simpletesttype.h>
 #include <bsltf_streamutil.h>
@@ -212,7 +213,8 @@ void aSsErT(bool condition, const char *message, int line)
     bsltf::BitwiseMoveableTestType,                                           \
     bsltf::AllocBitwiseMoveableTestType,                                      \
     bsltf::MovableTestType,                                                   \
-    bsltf::MovableAllocTestType
+    bsltf::MovableAllocTestType,                                              \
+    bsltf::NonEqualComparableTestType
 
     // This macro is equivalent to
     // BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, except that
@@ -805,7 +807,7 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase15Updater::operator()(
                                                              const KEY&  key)
 {
     (void)key;
-    if (*value == VALUE()) {
+    if (areEqual(*value, VALUE())) {
         *value = d_value;
     }
     return true;
@@ -829,7 +831,7 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase14Updater::operator()(
     // assume that it must be within the first 51 members.
     int keyIdx;
     for (keyIdx = 0; keyIdx < 51; ++keyIdx) {
-        if (key == d_values[keyIdx].first) {
+        if (areEqual(key, d_values[keyIdx].first)) {
             break;
         }
     }
@@ -890,13 +892,13 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase12Updater::operator()(
                                                              VALUE      *value,
                                                              const KEY&  key)
 {
-    s_testCase12_found = *value != VALUE();
+    s_testCase12_found = !areEqual(*value, VALUE());
     s_testCase12_key   = key;
     if (s_testCase12_found) {
         s_testCase12_valueId = TstFacility::getIdentifier(*value);
     }
     else {
-        ASSERTV(*value == VALUE());
+        ASSERTV(areEqual(*value, VALUE()));
         s_testCase12_valueId = 0;
     }
     *value = s_testCase12_value;
@@ -2298,7 +2300,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
         int rc = mX.update(VALUES[LENGTH - 1].first, testCase13UpdaterSuccess);
         ASSERTV(rc, 1 == rc);
         ASSERTV(VALUES[LENGTH - 1].first, s_testCase13_key,
-                VALUES[LENGTH - 1].first  == s_testCase13_key);
+                areEqual(VALUES[LENGTH - 1].first, s_testCase13_key));
         ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1].second),
                 s_testCase13_valueId,
                 TstFacility::getIdentifier(VALUES[LENGTH - 1].second)
@@ -2374,7 +2376,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
         int rc = mX.update(VALUES[LENGTH - 1].first, testCase13UpdaterSuccess);
         ASSERTV(rc, 2 == rc);
         ASSERTV(VALUES[LENGTH - 1].first, s_testCase13_key,
-                VALUES[LENGTH - 1].first  == s_testCase13_key);
+                areEqual(VALUES[LENGTH - 1].first, s_testCase13_key));
 
         // Update did not change size.
         ASSERTV(2 * LENGTH == X.size());
@@ -2416,7 +2418,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
         rc = mX.update(VALUES[LENGTH - 2].first, testCase13UpdaterFail);
         ASSERTV(rc, -1 == rc);
         ASSERTV(VALUES[LENGTH - 2].first, s_testCase13_key,
-                VALUES[LENGTH - 2].first  == s_testCase13_key);
+                areEqual(VALUES[LENGTH - 2].first, s_testCase13_key));
 
         // Update did not change size.
         ASSERTV(2 * LENGTH == X.size());
@@ -2468,7 +2470,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
                                         testCase13UpdaterSuccess);
         ASSERTV(rc, 1 == rc);
         ASSERTV(VALUES[LENGTH - 1].first, s_testCase13_key,
-                VALUES[LENGTH - 1].first  == s_testCase13_key);
+                areEqual(VALUES[LENGTH - 1].first, s_testCase13_key));
         ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1].second),
                 s_testCase13_valueId,
                 TstFacility::getIdentifier(VALUES[LENGTH - 1].second)
@@ -2612,7 +2614,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
         ASSERTV(rc1, 1 == rc1);
         ASSERTV(true                      == s_testCase12_found);
         ASSERTV(VALUES[LENGTH - 1].first, s_testCase12_key,
-                VALUES[LENGTH - 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH - 1].first, s_testCase12_key));
 
         ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1].second),
                 s_testCase12_valueId,
@@ -2655,7 +2657,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
 
         ASSERTV(false                     == s_testCase12_found);
         ASSERTV(VALUES[LENGTH + 1].first, s_testCase12_key,
-                VALUES[LENGTH + 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH + 1].first, s_testCase12_key));
 
         // Insert increased size by 1.
         ASSERTV(LENGTH + 1 == X.size());
@@ -2718,7 +2720,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
         ASSERTV(rc1, 2 == rc1);
         ASSERTV(true                      == s_testCase12_found);
         ASSERTV(VALUES[LENGTH - 1].first, s_testCase12_key,
-                VALUES[LENGTH - 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH - 1].first, s_testCase12_key));
 
         // Update did not change size.
         ASSERTV(2 * LENGTH == X.size());
@@ -2763,7 +2765,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
 
         ASSERTV(false                     == s_testCase12_found);
         ASSERTV(VALUES[LENGTH + 1].first, s_testCase12_key,
-                VALUES[LENGTH + 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH + 1].first, s_testCase12_key));
 
         // Insert increased size by 1
         ASSERTV(2 * LENGTH + 1 == X.size());
@@ -2932,7 +2934,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
         ASSERTV(rc1, 1 == rc1);
         ASSERTV(true                      == s_testCase12_found);
         ASSERTV(VALUES[LENGTH - 1].first, s_testCase12_key,
-                VALUES[LENGTH - 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH - 1].first, s_testCase12_key));
         ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1].second),
                 s_testCase12_valueId,
                 TstFacility::getIdentifier(VALUES[LENGTH - 1].second)
@@ -2973,7 +2975,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
 
         ASSERTV(false                     == s_testCase12_found);
         ASSERTV(VALUES[LENGTH + 1].first, s_testCase12_key,
-                VALUES[LENGTH + 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH + 1].first, s_testCase12_key));
 
         // Insert increased size by 1.
         ASSERTV(LENGTH + 1 == X.size());
@@ -3037,7 +3039,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
 
         ASSERTV(true                      == s_testCase12_found);
         ASSERTV(VALUES[LENGTH - 1].first, s_testCase12_key,
-                VALUES[LENGTH - 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH - 1].first, s_testCase12_key));
 
         // Update did not change size.
         ASSERTV(2 * LENGTH == X.size());
@@ -3082,7 +3084,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
 
         ASSERTV(false                     == s_testCase12_found);
         ASSERTV(VALUES[LENGTH + 1].first, s_testCase12_key,
-                VALUES[LENGTH + 1].first  == s_testCase12_key);
+                areEqual(VALUES[LENGTH + 1].first, s_testCase12_key));
 
         // Insert increased size by 1
         ASSERTV(2 * LENGTH + 1 == X.size());
@@ -5547,7 +5549,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     bsl::vector<VALUE> values(&scratch);
                     bsl::size_t        rc = X.getValueAll(&values, cKEY);
                     ASSERT(numElements == rc);
-                    ASSERT(values[0]   == cVALUE);
+                    ASSERT(areEqual(values[0] , cVALUE));
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
                 ASSERTV(sam.isTotalUp());    // Memory was allocated.
@@ -5668,12 +5670,19 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
                     ASSERT(numElements == rc);
 
-                    const bsl::size_t V1COUNT = bsl::count(values.begin(),
-                                                           values.end(),
-                                                           VALUE1);
-                    const bsl::size_t V2COUNT = bsl::count(values.begin(),
-                                                           values.end(),
-                                                           VALUE2);
+                    bsl::size_t V1COUNT = 0;
+                    bsl::size_t V2COUNT = 0;
+                    for (typename bsl::vector<VALUE>::const_iterator
+                                                itr  = values.begin(),
+                                                end  = values.end();
+                                                end != itr; ++itr) {
+                        if (areEqual(*itr, VALUE1)) {
+                            ++V1COUNT;
+                        }
+                        if (areEqual(*itr, VALUE2)) {
+                            ++V2COUNT;
+                        }
+                    }
 
                     if (veryVeryVerbose) {
                         P(LINE)
