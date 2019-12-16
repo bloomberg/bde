@@ -348,6 +348,10 @@ struct PathUtil {
         // {Parsing and Performance ('rootEn'd argument)}.  See also
         // {Terminology} for the definition of leaf and root.
 
+    static int getExtension(bsl::string             *extension,
+                            const bslstl::StringRef& path,
+                            int                      rootEnd = -1);
+
     static int getRoot(bsl::string              *root,
                        const bslstl::StringRef&  path,
                        int                       rootEnd = -1);
