@@ -171,7 +171,6 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
-#include <bsls_objectbuffer.h>
 #include <cstdio>
 
 namespace BloombergLP {
@@ -237,6 +236,15 @@ struct ProtocolTest_MethodReturnRefType {
     // reference type.  When an object of this class is returned from a test
     // implementation of a protocol method, it is implicitly converted to
     // the return type of the protocol method.
+
+    // CLASS METHODS
+    template <class T>
+    static T* & getAddress();
+        // Return a reference to the pointer which will be dereferenced by
+        // 'operator T&()'.  Returning a reference prevents the compiler from
+        // being able to optimize out dereference of a null pointer, as the
+        // program may potentially change the pointer before 'operator T&()' is
+        // called.
 
     // ACCESSORS
     template <class T>
@@ -493,13 +501,21 @@ ProtocolTest_MethodReturnType::operator T() const
                    // class ProtocolTest_MethodReturnRefType
                    // --------------------------------------
 
+// CLASS METHODS
+template <class T>
+inline
+T* & ProtocolTest_MethodReturnRefType::getAddress()
+{
+    static T* address = 0;
+    return address;
+}
+
 // ACCESSORS
 template <class T>
 inline
 ProtocolTest_MethodReturnRefType::operator T&() const
 {
-    static bsls::ObjectBuffer<T> buffer;
-    return *reinterpret_cast<T *>(buffer.address());
+    return *getAddress<T>();
 }
 
                        // -----------------------

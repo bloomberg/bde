@@ -59,7 +59,6 @@
       bsls_log
 
    9. bsls_atomicoperations
-      bsls_protocoltest
 
    8. bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
@@ -114,6 +113,7 @@
       bsls_macrorepeat
       bsls_nativestd
       bsls_platform
+      bsls_protocoltest
       bsls_review_macroreset                                          !PRIVATE!
 
    1. bsls_deprecate
