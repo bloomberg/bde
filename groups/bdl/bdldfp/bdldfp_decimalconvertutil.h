@@ -614,6 +614,58 @@ struct DecimalConvertUtil {
         // to a memory area at least 'sizeof(decimal)' in size containing a
         // value in DPD format.
 
+                        // decimalToBID functions
+
+    static void decimal32ToBID (unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimal64ToBID (unsigned char *buffer,
+                                Decimal64      decimal);
+    static void decimal128ToBID(unsigned char *buffer,
+                                Decimal128     decimal);
+    static void decimalToBID   (unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimalToBID   (unsigned char *buffer,
+                                Decimal64      decimal);
+    static void decimalToBID   (unsigned char *buffer,
+                                Decimal128     decimal);
+        // Populate the specified 'buffer' with the Binary Integer Decimal
+        // (BID) representation of the specified 'decimal' value.  The BID
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the BID representation is
+        // defined in section 3.5 of IEEE 754-2008.
+
+                         // decimalFromBID functions
+
+    static Decimal32  decimal32FromBID (const unsigned char *buffer);
+    static Decimal64  decimal64FromBID (const unsigned char *buffer);
+    static Decimal128 decimal128FromBID(const unsigned char *buffer);
+        // Return the native implementation representation of the value of the
+        // same size base-10 floating-point value stored in Binary Integer
+        // Decimal format at the specified 'buffer' address.  The behavior is
+        // undefined unless 'buffer' points to a memory area at least
+        // 'sizeof(decimal)' in size containing a value in BID format.
+
+    static void decimal32FromBID (Decimal32           *decimal,
+                                  const unsigned char *buffer);
+    static void decimal64FromBID (Decimal64           *decimal,
+                                  const unsigned char *buffer);
+    static void decimal128FromBID(Decimal128          *decimal,
+                                  const unsigned char *buffer);
+    static void decimalFromBID   (Decimal32           *decimal,
+                                  const unsigned char *buffer);
+    static void decimalFromBID   (Decimal64           *decimal,
+                                  const unsigned char *buffer);
+    static void decimalFromBID   (Decimal128          *decimal,
+                                  const unsigned char *buffer);
+        // Store, into the specified 'decimal', the native implementation
+        // representation of the value of the same size base-10 floating point
+        // value represented in Binary Integer Decimal format, at the specified
+        // 'buffer' address.  The behavior is undefined unless 'buffer' points
+        // to a memory area at least 'sizeof(decimal)' in size containing a
+        // value in BID format.
+
                         // decimalToNetwork functions
 
     static unsigned char *decimal32ToNetwork (unsigned char *buffer,
@@ -1392,6 +1444,122 @@ DecimalConvertUtil::decimalFromDPD(Decimal128          *decimal,
                                    const unsigned char *buffer)
 {
     Imp::decimalFromDPD(decimal, buffer);
+}
+
+
+                        // decimalToBID functions
+
+inline
+void DecimalConvertUtil::decimal32ToBID(unsigned char *buffer,
+                                        Decimal32      decimal)
+{
+    Imp::decimalToBID(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimal64ToBID(unsigned char *buffer,
+                                        Decimal64      decimal)
+{
+    Imp::decimalToBID(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimal128ToBID(unsigned char *buffer,
+                                         Decimal128     decimal)
+{
+    Imp::decimalToBID(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
+                                      Decimal32      decimal)
+{
+    Imp::decimalToBID(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
+                                      Decimal64      decimal)
+{
+    Imp::decimalToBID(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
+                                      Decimal128     decimal)
+{
+    Imp::decimalToBID(buffer, decimal);
+}
+
+                        // decimalFromBID functions
+
+inline
+Decimal32
+DecimalConvertUtil::decimal32FromBID(const unsigned char *buffer)
+{
+    return Imp::decimal32FromBID(buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimal32FromBID(Decimal32           *decimal,
+                                     const unsigned char *buffer)
+{
+    *decimal = Imp::decimal32FromBID(buffer);
+}
+
+inline
+Decimal64
+DecimalConvertUtil::decimal64FromBID(const unsigned char *buffer)
+{
+    return Imp::decimal64FromBID(buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimal64FromBID(Decimal64           *decimal,
+                                     const unsigned char *buffer)
+{
+    *decimal = Imp::decimal64FromBID(buffer);
+}
+
+inline
+Decimal128
+DecimalConvertUtil::decimal128FromBID(const unsigned char *buffer)
+{
+    return Imp::decimal128FromBID(buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimal128FromBID(Decimal128          *decimal,
+                                      const unsigned char *buffer)
+{
+    *decimal = Imp::decimal128FromBID(buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBID(Decimal32           *decimal,
+                                   const unsigned char *buffer)
+{
+    Imp::decimalFromBID(decimal, buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBID(Decimal64           *decimal,
+                                   const unsigned char *buffer)
+{
+    Imp::decimalFromBID(decimal, buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBID(Decimal128          *decimal,
+                                   const unsigned char *buffer)
+{
+    Imp::decimalFromBID(decimal, buffer);
 }
 
 }  // close package namespace

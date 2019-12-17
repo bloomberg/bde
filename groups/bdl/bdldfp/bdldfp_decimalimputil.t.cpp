@@ -7055,7 +7055,7 @@ void TestDriver::testCase21()
     }
 
     // Test that with any of a set of exponents, we can convert 64-bit
-    // values correctly to DPD.
+    // values correctly to BID.
 
     {
         Util::ValueType64 testDecimal;
@@ -7144,7 +7144,7 @@ void TestDriver::testCase21()
     }
 
     // Test that with any of a set of exponents, we can convert 128-bit
-    // values correctly to DPD.
+    // values correctly to BID.
 
     {
         Util::ValueType128 testDecimal;
