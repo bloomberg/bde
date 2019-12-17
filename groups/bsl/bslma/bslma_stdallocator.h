@@ -368,6 +368,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
@@ -460,14 +461,19 @@ class allocator {
         // pointed to by 'mechanism()'.  Also note that this method's
         // definition is compiler generated.
 
-    //! allocator& operator=(const allocator& rhs);
+    // MANIPULATORS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    allocator& operator=(const allocator& rhs) = default;
         // Assign to this object the value of the specified 'rhs'.
         // Postcondition: 'this->mechanism() == rhs->mechanism()'.  Note that
         // this does not delete the object pointed to by the previous value of
         // 'mechanism()'.  Also note that this method's definition is compiler
-        // generated.
+        // generated.  Also note that this must be explicitly defaulted to
+        // silence compiler warnings on later versions of C++.
+#else
+    //! allocator& operator=(const allocator& rhs) = default;
+#endif
 
-    // MANIPULATORS
     pointer allocate(size_type n, const void *hint = 0);
         // Allocate enough (properly aligned) space for the specified 'n'
         // objects of (template parameter) 'TYPE' by calling 'allocate' on the

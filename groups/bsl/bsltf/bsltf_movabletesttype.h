@@ -83,6 +83,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsltf_movestate.h>
 
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_keyword.h>
@@ -111,6 +112,12 @@ class MovableTestType {
     MoveState::Enum    d_movedFrom;    // moved-from state
     MoveState::Enum    d_movedInto;    // moved-into state
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MovableTestType,
+                                   bsl::is_nothrow_move_constructible);
+#endif
 
   public:
     // CREATORS
@@ -271,13 +278,6 @@ bool bsltf::operator!=(const MovableTestType& lhs,
 }
 
 }  // close enterprise namespace
-
-// TRAITS
-namespace bsl {
-template <>
-struct is_nothrow_move_constructible<BloombergLP::bsltf::MovableTestType>
-        : bsl::true_type {};
-}  // close namespace bsl
 
 #endif
 

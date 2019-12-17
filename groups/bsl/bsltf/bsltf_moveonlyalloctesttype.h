@@ -78,8 +78,8 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_movestate.h>
 
 #include <bslma_usesbslmaallocator.h>
-
 #include <bslmf_movableref.h>
+#include <bsls_keyword.h>
 
 namespace BloombergLP {
 
@@ -113,6 +113,13 @@ class MoveOnlyAllocTestType {
 
     MoveState::Enum         d_movedInto;     // moved-from state
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MoveOnlyAllocTestType,
+                                   bsl::is_nothrow_move_constructible);
+#endif
+
   private:
     // NOT IMPLEMENTED
     MoveOnlyAllocTestType& operator=(const MoveOnlyAllocTestType&);
@@ -137,7 +144,8 @@ class MoveOnlyAllocTestType {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    MoveOnlyAllocTestType(bslmf::MovableRef<MoveOnlyAllocTestType> original);
+    MoveOnlyAllocTestType(bslmf::MovableRef<MoveOnlyAllocTestType> original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     MoveOnlyAllocTestType(
             bslmf::MovableRef<MoveOnlyAllocTestType>           original,
             bslma::Allocator                                  *basicAllocator);

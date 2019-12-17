@@ -44,7 +44,7 @@ MoveOnlyAllocTestType::MoveOnlyAllocTestType(int               data,
 }
 
 MoveOnlyAllocTestType::MoveOnlyAllocTestType(
-                             bslmf::MovableRef<MoveOnlyAllocTestType> original)
+       bslmf::MovableRef<MoveOnlyAllocTestType> original) BSLS_KEYWORD_NOEXCEPT
 : d_allocator_p(bslmf::MovableRefUtil::access(original).d_allocator_p)
 , d_self_p(this)
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
@@ -57,9 +57,8 @@ MoveOnlyAllocTestType::MoveOnlyAllocTestType(
         lvalue.d_data_p = 0;
     }
     else {
-        d_data_p =
-                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-        *d_data_p = 0;
+        d_data_p = 0;
+        d_movedFrom = bsltf::MoveState::e_MOVED;
     }
     lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
 }
@@ -80,9 +79,8 @@ MoveOnlyAllocTestType::MoveOnlyAllocTestType(
             lvalue.d_data_p = 0;
         }
         else {
-            d_data_p =
-                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-            *d_data_p = 0;
+            d_data_p = 0;
+            d_movedFrom = bsltf::MoveState::e_MOVED;
         }
     }
     else {

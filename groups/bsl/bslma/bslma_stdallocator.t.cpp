@@ -826,7 +826,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        bslma::TestAllocator ta("breathing test", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("breathing test A", veryVeryVeryVerbose);
+        bslma::TestAllocator tb("breathing test B", veryVeryVeryVerbose);
 
         my_FixedSizeArray<int, bsl::allocator<int> > a1(5, &ta);
 
@@ -845,6 +846,14 @@ int main(int argc, char *argv[])
         ASSERT(a1.allocator() != a2.allocator());
         ASSERT(&countingAlloc == a2.allocator());
         ASSERT(1 == countingAlloc.blocksOutstanding());
+
+        bsl::allocator<int> aiA(&ta);
+        bsl::allocator<int> aiB(&tb);
+
+        ASSERT(aiA != aiB);
+        bsl::allocator<int>& aiC = (aiB = aiA);
+        ASSERT(aiA == aiB);
+        ASSERT(&aiC == &aiB);
 
         // Test that this will compile:
 

@@ -385,6 +385,7 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT( bslma::UsesBslmaAllocator<Obj>::value);
         BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<Obj>::value);
+        BSLMF_ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1737,14 +1738,14 @@ int main(int argc, char *argv[])
         ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
 
         Obj ZZ(bslmf::MovableRefUtil::move(Y));
-        ASSERT(Z != Y);
-        ASSERT(Z.data() == 2);
-        ASSERT(Y.data() == 0);
+        ASSERT(ZZ == Y);
+        ASSERT(ZZ.data() == 0);
+        ASSERT(Y.data()  == 0);
         ASSERT(X != Y);
 
         ASSERT(bsltf::MoveState::e_MOVED     ==  Y.movedFrom());
         ASSERT(bsltf::MoveState::e_NOT_MOVED ==  Y.movedInto());
-        ASSERT(bsltf::MoveState::e_NOT_MOVED == ZZ.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == ZZ.movedFrom());
         ASSERT(bsltf::MoveState::e_MOVED     == ZZ.movedInto());
 
         X = bslmf::MovableRefUtil::move(Z);

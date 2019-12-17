@@ -2294,7 +2294,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
 
         ASSERT_SAFE_FAIL(Obj(static_cast<const char *>(0)));
         ASSERT_SAFE_FAIL(Obj(static_cast<const char *>(0), ta));
-        ASSERT_SAFE_PASS(Obj(SPEC));
+        ASSERT_SAFE_PASS(Obj(SPEC + 0));    // foil most vexing parse
         ASSERT_SAFE_PASS(Obj(SPEC, ta));
     }
 }

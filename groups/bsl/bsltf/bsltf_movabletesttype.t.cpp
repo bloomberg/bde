@@ -227,16 +227,22 @@ int main(int argc, char *argv[])
       case 12: {
         if (verbose) printf("\nVERIFYING CC 12.4 CONCERNS"
                             "\n==========================\n");
-         typedef bsltf::MovableTestType Obj;
+        typedef bsltf::MovableTestType Obj;
 
-         ASSERT(( bsl::is_convertible<Obj, Obj>::value ));
-         ASSERT(( bsl::is_convertible<Obj&, Obj>::value ));
-         ASSERT(( bsl::is_convertible<const Obj, Obj>::value ));
-         ASSERT(( bsl::is_convertible<const Obj&, Obj>::value ));
-         ASSERT(( bsl::is_convertible<bslmf::MovableRef<Obj>, Obj>::value ));
-         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>, Obj>::value ));
-         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>&, Obj>::value ));
-        } break;
+        ASSERT(( bsl::is_convertible<Obj, Obj>::value ));
+        ASSERT(( bsl::is_convertible<Obj&, Obj>::value ));
+        ASSERT(( bsl::is_convertible<const Obj, Obj>::value ));
+        ASSERT(( bsl::is_convertible<const Obj&, Obj>::value ));
+        ASSERT(( bsl::is_convertible<bslmf::MovableRef<Obj>, Obj>::value ));
+        ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>,
+                                                             Obj>::value ));
+        ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>&,
+                                                             Obj>::value ));
+
+        // Not mentioned in CC 12.4, but something we want to test.
+
+        BSLMF_ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
+      } break;
       case 11: {
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");

@@ -46,6 +46,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_keyword.h>
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -62,7 +64,8 @@ class NonAssignableTestType {
 
   private:
     // NOT IMPLEMENTED
-    NonAssignableTestType& operator=(const NonAssignableTestType&);
+    NonAssignableTestType& operator=(const NonAssignableTestType&)
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
 
