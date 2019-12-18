@@ -3,6 +3,8 @@
 #include <bslstl_stringref.h>
 
 #include <bslstl_string.h>
+#include <bslstl_stringrefdata.h>
+#include <bslstl_stringview.h>
 
 #include <bslh_hash.h>
 
@@ -150,8 +152,9 @@ using namespace bsl;  // automatically added by script
 // [11] bsl::string::operator=(const bslstl::StringRefData&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 // [12] TYPE TRAITS
+// [13] STRING CONSTRUCTORS COMPATIBILITY
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -2379,6 +2382,73 @@ void copyStringValue(wchar_t *result, const char *asciiInput)
     } while (*asciiInput);
 }
 
+template <class TARGET, class SOURCE>
+void testStringCtorsAmbiguityTemplate(const SOURCE& source)
+    // Check constructors of the (themplate parameter) 'TARGET' type for
+    // ambiguity, passing the specified 'source' as a parameter.
+{
+    TARGET target(source);
+    (void) target;
+}
+
+void testStringCtorsAmbiguity(const bslstl::StringRefData<char>& source)
+    // Check constructors of the 'bsl::string' for ambiguity, passing the
+    // specified 'source' as a parameter.
+{
+    bsl::basic_string<char> target(source);
+    (void) target;
+}
+
+void testStringImplicitCtor(bsl::basic_string<char> str)
+    // This function is used to check if implicit constructor of the
+    // 'bsl::string' is called to construct the specified 'str'.
+{
+    (void) str;
+}
+
+template <class CHAR_TYPE>
+class ImplicitlyConvertibleToString {
+    // This dummy class has an implicit conversion operator to
+    // 'bslstl::StringRefImp' to check if implicit constructor of the
+    // 'bsl::string' is called.
+
+  public:
+    // CREATORS
+    ImplicitlyConvertibleToString()
+        // Create an object o fthis type.
+    {
+    }
+
+    // ACCESSORS
+    operator bslstl::StringRefImp<CHAR_TYPE>() const
+        // Return an empty 'StringRefImp' object.
+    {
+        const CHAR_TYPE *NULL_PTR = 0;
+        return bslstl::StringRefImp<CHAR_TYPE>(NULL_PTR, 0);
+    }
+};
+
+class IncompleteType;
+    // Incomplete class to check the correctness of the SFINAE conditions of
+    // the 'bsl::basic_string' template constructor.
+
+void overloadedFunction(const bsl::string&)
+    // This function is the first of a pair of overloads for a SFINAE check.
+{
+}
+
+void overloadedFunction(const IncompleteType&)
+    // This function is the second of a pair of overloads for a SFINAE check.
+{
+}
+
+void testIncompleteTypeConversion(const IncompleteType &obj)
+    // This function calls the overloaded function name with the specified
+    // inclomplete 'obj'.
+{
+    overloadedFunction(obj);
+}
+
 
 template <class CHAR_TYPE>
 class TestDriver {
@@ -2986,7 +3056,7 @@ int main(int argc, char *argv[])
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -3098,6 +3168,73 @@ int main(int argc, char *argv[])
     numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // STRING CONSTRUCTORS COMPATIBILITY
+        //   The appearance of the 'bsl::string_view' class in the inheritance
+        //   chain
+        //   "'bsl::string_view'<-'bslstl::StringRefData'<-'bslstl::StringRef'"
+        //   has created several potentially dangerous places.  This test is
+        //   intended to reveal these problems if any.
+        //
+        // Concerns:
+        //: 1 Calls for the 'bsl::string' constructors are unambiguous while
+        //:   passing objects of 'bsl::string_view', 'bslstl::StringRefData' or
+        //:   'bslstl::StringRef' types as a parameter.
+        //:
+        //: 2 The 'bsl::string' constructor, accepting constant reference to
+        //:   'bslstl::StringRefData' object can be called implicitly.
+        //
+        // Plan:
+        //: 1 Explicitly call 'bsl::string' constructor, passing objects of
+        //:   'bsl::string_view', 'bslstl::StringRefData' or
+        //:   'bslstl::StringRef' types as a parameter.
+        //:
+        //: 2 Call special fuctions, that implicitly or explicitly invoke
+        //:   'bsl::string' constructors and pass objects of
+        //:   'bsl::string_view', 'bslstl::StringRefData' or
+        //:   'bslstl::StringRef' types as a parameter.  (C-1..2)
+        //
+        // Testing:
+        //   STRING CONSTRUCTORS COMPATIBILITY
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTRING CONSTRUCTORS COMPATIBILITY"
+                            "\n=================================\n");
+
+        const char   *testStr = "testStr";
+        const size_t  TEST_STR_LENGTH =
+                                       bsl::char_traits<char>::length(testStr);
+
+        const bsl::basic_string_view<char> SV( testStr,  TEST_STR_LENGTH);
+        const bslstl::StringRefData<char>  SRD(testStr,
+                                               testStr + TEST_STR_LENGTH);
+        const bslstl::StringRefImp<char>   SR( testStr,
+                                               testStr + TEST_STR_LENGTH);
+
+        bsl::basic_string<char> strSV( SV );
+        bsl::basic_string<char> strSRD(SRD);
+        bsl::basic_string<char> strSR( SR );
+
+        // testStringImplicitCtor(SV);  // explicit ctor
+        testStringImplicitCtor(SRD);    // implicit ctor
+        testStringImplicitCtor(SR);     // implicit ctor
+
+        testStringCtorsAmbiguityTemplate<bsl::basic_string<char> >(SV );
+        testStringCtorsAmbiguityTemplate<bsl::basic_string<char> >(SRD);
+        testStringCtorsAmbiguityTemplate<bsl::basic_string<char> >(SR );
+
+        // testStringCtorsAmbiguity(SV );
+        testStringCtorsAmbiguity(SRD);
+        testStringCtorsAmbiguity(SR );
+
+        // Test operator implicit conversion.
+
+        ImplicitlyConvertibleToString<char> icts;
+        bsl::basic_string<char>             str(icts);
+        (void) str;   // suppress compiler warning
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -4647,9 +4784,9 @@ int main(int argc, char *argv[])
             // of section for explanation.
 
             // Ensure += returns correctly
-            LOOP_ASSERT(LINE, RESULT == (s1 += X2));
+            LOOP2_ASSERT(LINE, RESULT, RESULT == (s1 += X2));
             // Ensure += left operand has proper value afterwards
-            LOOP_ASSERT(LINE, RESULT == s1);
+            LOOP3_ASSERT(LINE, RESULT, s1, RESULT == s1);
         }
       } break;
       case 6: {

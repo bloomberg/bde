@@ -318,13 +318,6 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     // PRIVATE TYPES
     typedef StringRefData<CHAR_TYPE> Base;
 
-    // FRIENDS
-    template <class OTHER_CHAR_TYPE>
-    friend
-    std::basic_ostream<OTHER_CHAR_TYPE>& operator<<(
-                                 std::basic_ostream<OTHER_CHAR_TYPE>&        ,
-                                 const bslstl::StringRefImp<OTHER_CHAR_TYPE>&);
-
   public:
     // PUBLIC TYPES
     typedef const CHAR_TYPE                        value_type;
@@ -784,14 +777,6 @@ operator+(const StringRefImp<CHAR_TYPE>&  lhs,
     // Return a 'bsl::string' having the value of the concatenation of the
     // strings referred to by the specified 'lhs' and 'rhs' values.
 
-template <class CHAR_TYPE>
-std::basic_ostream<CHAR_TYPE>&
-operator<<(std::basic_ostream<CHAR_TYPE>& stream,
-           const StringRefImp<CHAR_TYPE>& stringRef);
-    // Write the value of the string bound to the specified 'stringRef' to the
-    // specified output 'stream' and return a reference to the modifiable
-    // 'stream'.
-
 // FREE FUNCTIONS
 template <class CHAR_TYPE, class HASHALG>
 void hashAppend(HASHALG& hashAlg, const StringRefImp<CHAR_TYPE>&  input);
@@ -949,8 +934,8 @@ void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data)
     BSLS_ASSERT_SAFE(data);
 
     *this = StringRefImp(
-                data,
-                data + native_std::char_traits<CHAR_TYPE>::length(data));
+                      data,
+                      data + native_std::char_traits<CHAR_TYPE>::length(data));
 }
 
 template <class CHAR_TYPE>
@@ -1592,45 +1577,6 @@ bslstl::operator+(const StringRefImp<CHAR_TYPE>&  lhs,
     return lhs + StringRefImp<CHAR_TYPE>(rhs);
 }
 
-template <class CHAR_TYPE>
-std::basic_ostream<CHAR_TYPE>&
-bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
-                   const StringRefImp<CHAR_TYPE>& stringRef)
-{
-    typedef CHAR_TYPE                                           char_type;
-    typedef typename std::basic_ostream<char_type>::ios_base    ios_base;
-    typedef typename bslstl::StringRefImp<char_type>::size_type size_type;
-
-    size_type width = static_cast<size_type>(stream.width());
-    size_type len = stringRef.length();
-
-    if (len < width) {
-        bool leftAdjusted =
-                    (stream.flags() & ios_base::adjustfield) == ios_base::left;
-
-        char_type fillChar = stream.fill();
-
-        if (leftAdjusted) {
-            stringRef.write(stream);
-        }
-
-        for (size_type n = 0; n != width - len; ++n) {
-            stream.put(fillChar);
-        }
-
-        if (!leftAdjusted) {
-            stringRef.write(stream);
-        }
-    }
-    else {
-        stringRef.write(stream);
-    }
-
-    stream.width(0);
-
-    return stream;
-}
-
 template <class CHAR_TYPE, class HASHALG>
 inline
 void bslstl::hashAppend(HASHALG&                       hashAlg,
@@ -1654,15 +1600,6 @@ extern template
 bsl::basic_string<wchar_t>
 operator+(const StringRefImp<wchar_t>& lhs, const StringRefImp<wchar_t>& rhs);
 
-extern template
-std::basic_ostream<char>&
-operator<<(std::basic_ostream<char>& stream,
-           const StringRefImp<char>& stringRef);
-
-extern template
-std::basic_ostream<wchar_t>&
-operator<<(std::basic_ostream<wchar_t>& stream,
-           const StringRefImp<wchar_t>& stringRef);
 }  // close package namespace
 #endif
 }  // close enterprise namespace

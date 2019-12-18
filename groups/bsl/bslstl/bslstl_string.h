@@ -618,6 +618,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 #include <bslstl_stdexceptutil.h>
 #include <bslstl_stringrefdata.h>
+#include <bslstl_stringview.h>
 
 #include <bslalg_containerbase.h>
 #include <bslalg_scalarprimitives.h>
@@ -1523,6 +1524,14 @@ class basic_string
         // to supply memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
 
+    explicit basic_string(const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
+                                           strView,
+                          const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create a string that has the same value as the specified 'strView'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not specified, then a default-constructed
+        // allocator is used.
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     basic_string(std::initializer_list<CHAR_TYPE> values,
                  const ALLOCATOR&                 basicAllocator =
@@ -1558,10 +1567,9 @@ class basic_string
         // state.
 
     basic_string& operator=(
-                     const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs);
-        // Assign to this string the value of the specified 'rhs' string
-        // reference, and return a reference providing modifiable access to
-        // this string.
+                    const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& rhs);
+        // Assign to this string the value of the specified 'rhs' string view,
+        // and return a reference providing modifiable access to this string.
 
     basic_string& operator=(const CHAR_TYPE *rhs);
         // Assign to this string the value of the specified null-terminated
@@ -1572,6 +1580,12 @@ class basic_string
         // Assign to this string the value of the string of length one
         // consisting of the specified 'character', and return a reference
         // providing modifiable access to this string.
+
+    template <class ALLOC2>
+    basic_string& operator=(
+          const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs);
+        // Assign to this string the value of the specified 'rhs' string, and
+        // return a reference providing modifiable access to this string.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     basic_string& operator=(std::initializer_list<CHAR_TYPE> values);
@@ -1665,9 +1679,9 @@ class basic_string
         // reference providing modifiable access to this string.
 
     basic_string& operator+=(
-                  const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
-        // Append the specified 'strRef' to this string, and return a reference
-        // providing modifiable access to this string.
+                       bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView);
+        // Append the specified 'strView' to this string, and return a
+        // reference providing modifiable access to this string.
 
     basic_string& append(const basic_string& suffix);
         // Append to this string the specified 'suffix', and return a reference
@@ -1768,11 +1782,11 @@ class basic_string
         // 'characterString' is at least 'numChars' long.
 
     basic_string& assign(
-                  const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
-        // Assign to this string the value of the specified 'strRef' string
-        // reference, and return a reference providing modifiable access to
-        // this string.  Note that this method has exactly the same behavior as
-        // the corresponding 'operator='.
+                       bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView);
+        // Assign to this string the value of the specified 'strView', and
+        // return a reference providing modifiable access to this string.  Note
+        // that this method has exactly the same behavior as the corresponding
+        // 'operator='.
 
     basic_string& assign(size_type numChars, CHAR_TYPE character);
         // Assign to this string the value of a string of the specified
@@ -2690,7 +2704,8 @@ wstring operator ""_S(const wchar_t *characterString, std::size_t length);
 }
 }
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY &&
+        // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
 // FREE FUNCTIONS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4127,13 +4142,24 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::basic_string(
            const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
            const ALLOCATOR&                                     basicAllocator)
 : Imp()
 , ContainerBase(basicAllocator)
 {
     assign(strRef.begin(), strRef.end());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::basic_string(
+          const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& strView,
+          const ALLOCATOR&                                      basicAllocator)
+: Imp()
+, ContainerBase(basicAllocator)
+{
+    assign(strView.begin(), strView.end());
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -4216,9 +4242,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
-                      const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs)
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::operator=(
+                     const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& rhs)
 {
     return privateAssignDispatch(
                   rhs.begin(),
@@ -4242,6 +4268,19 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(CHAR_TYPE character)
 {
     return assign(1, character);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class ALLOC2>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+{
+    return privateAssignDispatch(
+            rhs.data(),
+            rhs.size(),
+            "string<...>::operator=(native_std::string&...): string too long");
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -4415,9 +4454,9 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
-                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
+                        bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView)
 {
-    return append(strRef.begin(),strRef.end());
+    return append(strView.begin(),strView.end());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4596,9 +4635,9 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
-                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
+                        bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView)
 {
-    return this->operator=(strRef);
+    return this->operator=(strView);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>

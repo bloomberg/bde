@@ -18,16 +18,6 @@ template
 bsl::basic_string<wchar_t>
 operator+(const StringRefImp<wchar_t>& lhs, const StringRefImp<wchar_t>& rhs);
 
-template
-std::basic_ostream<char>&
-operator<<(std::basic_ostream<char>& stream,
-           const StringRefImp<char>& stringRef);
-
-template
-std::basic_ostream<wchar_t>&
-operator<<(std::basic_ostream<wchar_t>& stream,
-           const StringRefImp<wchar_t>& stringRef);
-
 }  // close package namespace
 }  // close enterprise namespace
 

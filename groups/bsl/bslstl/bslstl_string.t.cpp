@@ -2,7 +2,6 @@
 #include <bslstl_string.h>
 
 #include <bslstl_forwarditerator.h>
-#include <bslstl_stringrefdata.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -1106,6 +1105,9 @@ struct TestDriver {
         }
     };
 
+    typedef char size1[1];  // A type of size 1.
+    typedef char size2[2];  // A type of size 2.
+
     // TEST APPARATUS
     static int getValues(const TYPE **values);
         // Load the specified 'values' with the address of an array containing
@@ -1154,6 +1156,10 @@ struct TestDriver {
     static void checkCompare(const Obj& X, const Obj& Y, int result);
         // Compare the specified 'X' and 'Y' strings according to the
         // specifications, and check that the specified 'result' agrees.
+
+    static size1& fromStringView(...);
+    static size2& fromStringView(const Obj &);
+        // Test apparatus for implicit conversion from 'string_view' to string.
 
     // TEST CASES
     template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
@@ -1861,9 +1867,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                         mU = V; // test assignment here
                     }
                     else {
-                        bslstl::StringRefData<TYPE> srd(
-                                              V.data(), V.data() + V.length());
-                        mU = srd; // test assignment here
+                        bsl::basic_string_view<TYPE> bsw(V.data(), V.length());
+                        mU = bsw; // test assignment here
                     }
 
                     const Int64 TDB = defaultAllocator.numAllocations();
@@ -1992,9 +1997,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                             mU = V; // test assignment here
                         }
                         else {
-                            bslstl::StringRefData<TYPE> srd(
-                                              V.data(), V.data() + V.length());
-                            mU = srd; // test assignment here
+                            bsl::basic_string_view<TYPE> bsw(V.data(),
+                                                             V.length());
+                            mU = bsw; // test assignment here
                         }
                         guard.release();
 
@@ -2026,14 +2031,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             SELF_ASSIGN_MODE_FIRST = 0,
             SELF_ASSIGN_STRING = 0,
             SELF_ASSIGN_CSTRING = 1,
-            SELF_ASSIGN_STRINGREFDATA = 2,
+            SELF_ASSIGN_STRINGVIEW = 2,
             SELF_ASSIGN_MODE_LAST = 2
         };
 
         enum {
             PARTIAL_SELF_ASSIGN_MODE_FIRST = 0,
             PARTIAL_SELF_ASSIGN_MODE_CSTRING = 0,
-            PARTIAL_SELF_ASSIGN_MODE_STRINGREFDATA = 1,
+            PARTIAL_SELF_ASSIGN_MODE_STRINGVIEW = 1,
             PARTIAL_SELF_ASSIGN_MODE_LAST = 1
         };
 
@@ -2104,10 +2109,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                           case SELF_ASSIGN_CSTRING: {
                             mY = Y.c_str();
                           } break;
-                          case SELF_ASSIGN_STRINGREFDATA: {
-                            const bslstl::StringRefData<TYPE> srd(
-                                                           Y.begin(), Y.end());
-                            mY = srd;
+                          case SELF_ASSIGN_STRINGVIEW: {
+                            const bsl::basic_string_view<TYPE> bsw(Y.begin(),
+                                                                   Y.length());
+                            mY = bsw;
                           } break;
                           default: {
                             printf("***UNKNOWN SELF_ASSIGN MODE***\n");
@@ -2173,10 +2178,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                           case PARTIAL_SELF_ASSIGN_MODE_CSTRING: {
                             mY = Y.c_str() + OFFSET;
                           } break;
-                          case PARTIAL_SELF_ASSIGN_MODE_STRINGREFDATA: {
-                            const bslstl::StringRefData<TYPE> srd(
-                                                  Y.begin() + OFFSET, Y.end());
-                            mY = srd;
+                          case PARTIAL_SELF_ASSIGN_MODE_STRINGVIEW: {
+                            const bsl::basic_string_view<TYPE> bsw(
+                                                          Y.begin() + OFFSET,
+                                                          Y.length() - OFFSET);
+                            mY = bsw;
                           } break;
                           default: {
                             printf("***UNKNOWN PARTIAL_SELF_ASSIGN MODE***\n");
@@ -5091,6 +5097,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
               LOOP_ASSERT(i, 0 == testAllocator.numBlocksInUse());  // 9.
             }
         }
+    }
+
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\n\tTesting no implicit conversion from "
+                        "'string_view'.\n");
+    {
+        bsl::basic_string_view<TYPE> bsw;
+        ASSERTV(1 == sizeof(fromStringView(bsw)));
     }
 }
 

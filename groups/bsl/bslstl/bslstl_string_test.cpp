@@ -5,7 +5,6 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_forwarditerator.h>     // for testing only
-#include <bslstl_stringrefdata.h>       // for testing only
 
 
 // ----------------------------------------------------------------------------

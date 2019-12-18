@@ -973,7 +973,8 @@ bsl::wstring operator ""_S(const wchar_t *characterString, std::size_t length)
 }
 }
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY &&
+        // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
 
 #endif

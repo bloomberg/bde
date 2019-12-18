@@ -3,7 +3,7 @@
 
 #include <bslstl_forwarditerator.h>
 #include <bslstl_string.h>
-#include <bslstl_stringrefdata.h>
+#include <bslstl_string.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -9662,7 +9662,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         APPEND_CSTRING            = 5,
         APPEND_RANGE              = 6,
         APPEND_CONST_RANGE        = 7,
-        APPEND_STRINGREFDATA      = 8,
+        APPEND_STRINGVIEW         = 8,
         APPEND_STRING_MODE_LAST   = 8
     };
 
@@ -9752,9 +9752,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    bslstl::StringRefData<TYPE> mV(&*Y.begin(),
-                                                   &*Y.end());
-                    const bslstl::StringRefData<TYPE> V = mV;
+                    bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                          Y.length());
+                    const bsl::basic_string_view<TYPE> V = mV;
 
                     Obj mX(INIT_LENGTH,
                            DEFAULT_VALUE,
@@ -9818,8 +9818,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX.append(U.begin(), U.end());
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_STRINGREFDATA: {
-                            //operator+=(const StringRefData& strRefData);
+                          case APPEND_STRINGVIEW: {
+                            //operator+=(bsl::basic_string_view strView);
                             Obj &result = mX += V;
                             ASSERT(&result == &mX);
                           } break;
@@ -10012,9 +10012,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    bslstl::StringRefData<TYPE> mV(&*Y.begin(),
-                                                   &*Y.end());
-                    const bslstl::StringRefData<TYPE> V = mV;
+                    bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                          Y.length());
+                    const bsl::basic_string_view<TYPE> V = mV;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const Int64 AL = testAllocator.allocationLimit();
@@ -10075,8 +10075,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX.append(Y, 0); // 'npos' dflt. arg.
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_STRINGREFDATA: {
-                        // string& operator+=(const StringRefData& strRefData);
+                          case APPEND_STRINGVIEW: {
+                        // string& operator+=(bsl::basic_string_view strView);
                             Obj &result = mX += V;
                             ASSERT(&result == &mX);
                           } break;
@@ -10151,9 +10151,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 Obj mY(X, AllocType(&testAllocator)); const Obj& Y = mY;
                                                                  // ^-- control
 
-                bslstl::StringRefData<TYPE> mV(&*Y.begin(),
-                                                   &*Y.end());
-                const bslstl::StringRefData<TYPE> V = mV;
+                bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                      Y.length());
+                const bsl::basic_string_view<TYPE> V = mV;
 
                 if (veryVerbose) {
                     printf("\t\t\tAppend itself.\n");
@@ -10203,8 +10203,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         mX.append(Y.begin(), Y.end());
                         mY.append(Y.begin(), Y.end());
                       } break;
-                      case APPEND_STRINGREFDATA: {
-                    //operator+=(const StringRefData& strRefData);
+                      case APPEND_STRINGVIEW: {
+                    //operator+=(bsl::basic_string_view strView);
                         mX += V;
                         mY += V;
                       } break;
@@ -11679,7 +11679,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrRefData()
 
                 Obj mY(g(SPEC)); const Obj& Y = mY;
 
-                const bslstl::StringRefData<TYPE> strRef(Y.begin(), Y.end());
+                const bsl::basic_string_view<TYPE> strView(Y.begin(),
+                                                           Y.length());
 
                 if (veryVerbose) {
                     printf("\t\tAssign "); P_(LENGTH);
@@ -11698,7 +11699,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrRefData()
                 {
                     AllocatorUseGuard guardG(globalAllocator_p);
                     AllocatorUseGuard guardD(defaultAllocator_p);
-                    mX.assign(strRef);
+                    mX.assign(strView);
                 }
 
                 if (LENGTH <= preCapacity) {
