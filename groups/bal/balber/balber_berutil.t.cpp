@@ -53,6 +53,7 @@
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_climits.h>
+#include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
@@ -1800,7 +1801,7 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
           BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
       } break;
       case e_SUBNORMAL: {
-          static const float minSubnormal = 0x1p-149f;
+          static const float minSubnormal = 1.4012984E-45f;
 
           int mantissa;
           this->operator()(&mantissa);
@@ -1812,25 +1813,27 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
       case e_NORMAL: {
           int mantissa;
           this->operator()(&mantissa);
+          mantissa %= 1 << 23;
 
-          float floatMantissa =
-                  mantissa >= 0 ?  1.f + ((mantissa % (1 << 23)) * 0x1p-23f)
-                                : -1.f + ((mantissa % (1 << 23)) * 0x1p-23f);
+          int mantissaExponent;
+          float floatMantissa = bsl::frexp(static_cast<float>(mantissa),
+                                           &mantissaExponent);
+          BSLS_ASSERT(floatMantissa >= 0
+                      ?  0.5f <= floatMantissa
+                      : -0.5f >= floatMantissa);
+          BSLS_ASSERT(floatMantissa >= 0
+                      ?  1.0f >= floatMantissa
+                      : -1.0f <= floatMantissa);
 
           unsigned char exponent;
           this->operator()(&exponent);
 
-          float floatExponent = 0x1p-126f;
-          floatExponent *= ((exponent >> 0) & 0x01) ? 0x1p+126f : 1.f;
-          floatExponent *= ((exponent >> 1) & 0x01) ? 0x1p+1f   : 1.f;
-          floatExponent *= ((exponent >> 2) & 0x01) ? 0x1p+2f   : 1.f;
-          floatExponent *= ((exponent >> 3) & 0x01) ? 0x1p+4f   : 1.f;
-          floatExponent *= ((exponent >> 4) & 0x01) ? 0x1p+8f   : 1.f;
-          floatExponent *= ((exponent >> 5) & 0x01) ? 0x1p+16f  : 1.f;
-          floatExponent *= ((exponent >> 6) & 0x01) ? 0x1p+32f  : 1.f;
-          floatExponent *= ((exponent >> 7) & 0x01) ? 0x1p+64f  : 1.f;
+          const int integerExponent = static_cast<int>(exponent % 253) - 125;
+          BSLS_ASSERT(-125 <= integerExponent);
+          BSLS_ASSERT( 127 >= integerExponent);
 
-          *value = floatMantissa * floatExponent;
+          *value = bsl::ldexp(floatMantissa, integerExponent);
+
           BSLS_ASSERT(bdlb::Float::isNormal(*value));
       } break;
     }
@@ -1898,28 +1901,25 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(double *value)
           this->operator()(&mantissa);
           mantissa %= 1ll << 53;
 
-          double doubleMantissa =
-                mantissa >= 0 ?  1.0 + ((mantissa % (1ll << 53)) * 0x1p-53)
-                              : -1.0 + ((mantissa % (1ll << 53)) * 0x1p-53);
+          int mantissaExponent;
+          double doubleMantissa = bsl::frexp(static_cast<double>(mantissa),
+                                             &mantissaExponent);
+          BSLS_ASSERT(doubleMantissa >= 0
+                      ?  0.5 <= doubleMantissa
+                      : -0.5 >= doubleMantissa);
+          BSLS_ASSERT(doubleMantissa >= 0
+                      ?  1.0 >= doubleMantissa
+                      : -1.0 <= doubleMantissa);
 
           unsigned int exponent;
           this->operator()(&exponent);
-          exponent %= 1 << 11;
 
-          double doubleExponent = 0x1p-1022;
-          doubleExponent *= ((exponent >>  0) & 0x01) ? 0x1p+1022 : 1.0;
-          doubleExponent *= ((exponent >>  1) & 0x01) ? 0x1p+1    : 1.0;
-          doubleExponent *= ((exponent >>  2) & 0x01) ? 0x1p+2    : 1.0;
-          doubleExponent *= ((exponent >>  3) & 0x01) ? 0x1p+4    : 1.0;
-          doubleExponent *= ((exponent >>  4) & 0x01) ? 0x1p+8    : 1.0;
-          doubleExponent *= ((exponent >>  5) & 0x01) ? 0x1p+16   : 1.0;
-          doubleExponent *= ((exponent >>  6) & 0x01) ? 0x1p+32   : 1.0;
-          doubleExponent *= ((exponent >>  7) & 0x01) ? 0x1p+64   : 1.0;
-          doubleExponent *= ((exponent >>  8) & 0x01) ? 0x1p+128  : 1.0;
-          doubleExponent *= ((exponent >>  9) & 0x01) ? 0x1p+256  : 1.0;
-          doubleExponent *= ((exponent >> 10) & 0x01) ? 0x1p+512  : 1.0;
+          const int integerExponent = static_cast<int>(exponent % 2045) - 1021;
+          BSLS_ASSERT(-1022 <= integerExponent);
+          BSLS_ASSERT( 1023 >= integerExponent);
 
-          *value = doubleMantissa * doubleExponent;
+          *value = bsl::ldexp(doubleMantissa, integerExponent);
+
           BSLS_ASSERT(bdlb::Float::isNormal(*value));
       } break;
     }
@@ -4563,18 +4563,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .-----------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "0b1d30d705775382a8519ff616ba292d" },
-            { L_, SEED_0, 50000, 3, true , "8c06edd4dc2a5540dee441b49952bbd7" },
-            { L_, SEED_0, 50000, 6, false, "60f12a39a074957b1a3a2c53f51d9336" },
-            { L_, SEED_0, 50000, 6, true , "8c06edd4dc2a5540dee441b49952bbd7" },
-            { L_, SEED_1, 50000, 3, false, "b12eb41b295710ce5cc9e63b43a21214" },
-            { L_, SEED_1, 50000, 3, true , "e929369f0d8dc4eff80dc2bafb453dc8" },
-            { L_, SEED_1, 50000, 6, false, "7c833777ce272fc79e71aff72eb1a486" },
-            { L_, SEED_1, 50000, 6, true , "e929369f0d8dc4eff80dc2bafb453dc8" },
-            { L_, SEED_2, 50000, 3, false, "c91ca7415c6cad29185dc3d122133646" },
-            { L_, SEED_2, 50000, 3, true , "b4400197957afc4f84bb41be7dcd19d0" },
-            { L_, SEED_2, 50000, 6, false, "55c1d98a51f0e18fd28a0d43cd357dcc" },
-            { L_, SEED_2, 50000, 6, true , "b4400197957afc4f84bb41be7dcd19d0" },
+            { L_, SEED_0, 50000, 3, false, "0b77dcf53c883bddb27f53a9fc62421c" },
+            { L_, SEED_0, 50000, 3, true , "e9b31f13d9b7cf790de4db4ef3aed6ce" },
+            { L_, SEED_0, 50000, 6, false, "092c25f398cdb35c3b46487e17095e30" },
+            { L_, SEED_0, 50000, 6, true , "e9b31f13d9b7cf790de4db4ef3aed6ce" },
+            { L_, SEED_1, 50000, 3, false, "a80d5a70396d0eb3d640805e6bd97dce" },
+            { L_, SEED_1, 50000, 3, true , "18480b9a5d53a5f66877d2ae1d99a682" },
+            { L_, SEED_1, 50000, 6, false, "77a0cb8d4f965dad92b535e5f9ecb031" },
+            { L_, SEED_1, 50000, 6, true , "18480b9a5d53a5f66877d2ae1d99a682" },
+            { L_, SEED_2, 50000, 3, false, "37979c5e961b6799028a7443d433fbbe" },
+            { L_, SEED_2, 50000, 3, true , "aba7ccf4f4ba996ee198f571989ed3b5" },
+            { L_, SEED_2, 50000, 6, false, "261199ffd26f4daada3a556116798e45" },
+            { L_, SEED_2, 50000, 6, true , "aba7ccf4f4ba996ee198f571989ed3b5" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -4687,18 +4687,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .---------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "5afa726724b36cecb895019090788664" },
-            { L_, SEED_0, 50000, 3, true , "a79594f15cb01bea3e278675e0bb0cfb" },
-            { L_, SEED_0, 50000, 6, false, "e6c42fc5c42ebbe830fb9d4283c830c0" },
-            { L_, SEED_0, 50000, 6, true , "a79594f15cb01bea3e278675e0bb0cfb" },
-            { L_, SEED_1, 50000, 3, false, "f48c8e737e158aece5e39fac9ca48a0e" },
-            { L_, SEED_1, 50000, 3, true , "63215129ebd0ba23e9bf0fbdfc51a206" },
-            { L_, SEED_1, 50000, 6, false, "5d39171d952b60a5b7f3bbd8dde75707" },
-            { L_, SEED_1, 50000, 6, true , "63215129ebd0ba23e9bf0fbdfc51a206" },
-            { L_, SEED_2, 50000, 3, false, "4c7c02aa34d3db868a0295cfd19d5c72" },
-            { L_, SEED_2, 50000, 3, true , "99e2c20c4bd817ab4d969127adf5d94d" },
-            { L_, SEED_2, 50000, 6, false, "782a1ab5d083573f268e4acef37b5a41" },
-            { L_, SEED_2, 50000, 6, true , "99e2c20c4bd817ab4d969127adf5d94d" },
+            { L_, SEED_0, 50000, 3, false, "55df8f6297bd4189292cccaa147ce0f1" },
+            { L_, SEED_0, 50000, 3, true , "3a435bcbce577532a2040156b21b513b" },
+            { L_, SEED_0, 50000, 6, false, "53bc6a9155800bb9f0be46648adf7a84" },
+            { L_, SEED_0, 50000, 6, true , "3a435bcbce577532a2040156b21b513b" },
+            { L_, SEED_1, 50000, 3, false, "18b7b4b172bf9edd9aa0a7b66aaa5493" },
+            { L_, SEED_1, 50000, 3, true , "d366a60d9f0b46bdbf8ba18f156fcf2b" },
+            { L_, SEED_1, 50000, 6, false, "6e438df903afdfc6d4b7dfdf4e42ccb8" },
+            { L_, SEED_1, 50000, 6, true , "d366a60d9f0b46bdbf8ba18f156fcf2b" },
+            { L_, SEED_2, 50000, 3, false, "09546ddcc525c56442c6d456a6cb4044" },
+            { L_, SEED_2, 50000, 3, true , "906a9e921c8ed681090ddfeee5a622f0" },
+            { L_, SEED_2, 50000, 6, false, "3ddce2112d164a68eaff0bad606d8436" },
+            { L_, SEED_2, 50000, 6, true , "906a9e921c8ed681090ddfeee5a622f0" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
