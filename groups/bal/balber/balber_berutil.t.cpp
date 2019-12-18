@@ -1328,15 +1328,6 @@ class PutValueFingerprint {
         // 0 'numSamples' attribute, a 0 'fractionalSecondPrecision' attribute,
         // and a 'false' 'encodeDateAndTimeTypesAsBinary' attribute.
 
-    PutValueFingerprint(int  seed,
-                        int  numSamples,
-                        int  fractionalSecondPrecision,
-                        bool encodeDateAndTimeTypesAsBinary);
-        // Create a 'PutValueFingerprint' object having the specified 'seed'
-        // attribute, the specified 'numSamples' attribute, the specified
-        // 'fractionalSecondPrecision' attribute, and the specified
-        // 'encodeDateAndTimeTypesAsBinary' attribute.
-
     // MANIPULATORS
     void setSeed(int value);
         // Assign the specified 'value' to the 'seed' attribute of this
@@ -1441,15 +1432,6 @@ class GetValueFingerprint {
         // Create a 'GetValueFingerprint' object having a 0 'seed' attribute, a
         // 0 'numSamples' attribute, a 0 'fractionalSecondPrecision' attribute,
         // and a 'false' 'encodeDateAndTimeTypesAsBinary' attribute.
-
-    GetValueFingerprint(int  seed,
-                        int  numSamples,
-                        int  fractionalSecondPrecision,
-                        bool encodeDateAndTimeTypesAsBinary);
-        // Create a 'GetValueFingerprint' object having the specified 'seed'
-        // attribute, the specified 'numSamples' attribute, the specified
-        // 'fractionalSecondPrecision' attribute, and the specified
-        // 'encodeDateAndTimeTypesAsBinary' attribute.
 
     // MANIPULATORS
     void setSeed(int value);
@@ -1776,12 +1758,12 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
           BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_NEGATIVE_ZERO: {
-          *value = -0x0p+1f;
+          *value = -0.f;
           BSLS_ASSERT(bdlb::Float::isZero(*value));
           BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_POSITIVE_ZERO: {
-          *value = 0x0p+1f;
+          *value = 0.f;
           BSLS_ASSERT(bdlb::Float::isZero(*value));
           BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
       } break;
@@ -1887,7 +1869,7 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(double *value)
           BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
       } break;
       case e_SUBNORMAL: {
-          static const double minSubnormal = 0x1p-1074;
+          static const double minSubnormal = 4.950656458412E-324;
 
           bsls::Types::Int64 mantissa;
           this->operator()(&mantissa);
@@ -3610,17 +3592,6 @@ PutValueFingerprint::PutValueFingerprint()
 {
 }
 
-PutValueFingerprint::PutValueFingerprint(int  seed,
-                                         int  numSamples,
-                                         int  fractionalSecondPrecision,
-                                         bool encodeDateAndTimeTypesAsBinary)
-: d_seed(seed)
-, d_numSamples(numSamples)
-, d_fractionalSecondPrecision(fractionalSecondPrecision)
-, d_encodeDateAndTimeTypesAsBinary(encodeDateAndTimeTypesAsBinary)
-{
-}
-
 // MANIPULATORS
 void PutValueFingerprint::setSeed(int value)
 {
@@ -3798,17 +3769,6 @@ GetValueFingerprint::GetValueFingerprint()
 , d_numSamples(0)
 , d_fractionalSecondPrecision(0)
 , d_encodeDateAndTimeTypesAsBinary(false)
-{
-}
-
-GetValueFingerprint::GetValueFingerprint(int  seed,
-                                         int  numSamples,
-                                         int  fractionalSecondPrecision,
-                                         bool encodeDateAndTimeTypesAsBinary)
-: d_seed(seed)
-, d_numSamples(numSamples)
-, d_fractionalSecondPrecision(fractionalSecondPrecision)
-, d_encodeDateAndTimeTypesAsBinary(encodeDateAndTimeTypesAsBinary)
 {
 }
 
