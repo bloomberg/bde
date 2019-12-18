@@ -71,7 +71,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPILER DEFECT MACROS TO GUIDE TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5140
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 # define BSLALG_HASSTLITERATORS_ABOMINABLE_FUNCTION_MATCH_CONST 1
 // The Solaris CC compiler matches 'const' qualified abominable functions as
 // 'const'-qualified template parameters, but does not strip the 'const'
@@ -82,6 +82,14 @@ void aSsErT(bool condition, const char *message, int line)
 // that would leave an awkward difference in behavior between for 'const'
 // qualified class types between using a nested trait and directly specializing
 // the trait.
+#endif
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900)   \
+ || defined(BSLMF_ISTRIVIALLYCOPYABLE_ABOMINABLE_FUNCTION_MATCH_CONST)
+# define BSLALG_HASSTLITERATORS_NO_ABOMINABLE_FUNCTIONS  1
+// Older MSVC compilers do not parse abominable function types, so it does not
+// matter whether trait would support them or not, we can simply disable such
+// tests on this platform.
 #endif
 
 //=============================================================================
@@ -194,7 +202,7 @@ int main(int argc, char *argv[])
 
         ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType[]>::value);
         ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType()>::value);
-#if !defined(BSLALG_HASSTLITERATORS_ABOMINABLE_FUNCTION_MATCH_CONST)
+#if !defined(BSLALG_HASSTLITERATORS_NO_ABOMINABLE_FUNCTIONS)
         ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType() const>::value);
 #endif
 

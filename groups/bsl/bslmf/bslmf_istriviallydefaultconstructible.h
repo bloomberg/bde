@@ -170,17 +170,16 @@ namespace bslmf {
 template <class TYPE, class = void>
 struct IsTriviallyDefaultConstructible_Scalar : bsl::false_type {};
 template <class TYPE>
-struct IsTriviallyDefaultConstructible_Scalar<
-                                            TYPE,
-                                            BSLMF_VOIDTYPE(TYPE[sizeof(TYPE)])>
+struct IsTriviallyDefaultConstructible_Scalar<TYPE, BSLMF_VOIDTYPE(TYPE[])>
     : bsl::true_type {
     // This implementation-detail trait determines whether 'TYPE' is a scalar
     // type (an arithmetic type, enumeration, pointer, or pointer-to-member).
     // This implementation takes advantage of a previous layer of filtering
     // handling all class-types, and only object types being valid as both
-    // array elements, and return values from functions.  Note that the array
-    // bound 'sizeof(TYPE)' is needed only so that the Sun CC compiler will
-    // filter function types, which a compiler bug would otherwise accept.
+    // array elements, and return values from functions.  Note that the test
+    // for valid function return type only adds array types to the filter, and
+    // we separately specialize for arrays already, so the 'BSLMF_VOIDTYPE'
+    // filter is simplified to checking for valid array elements.
 };
 
                     // ==========================================

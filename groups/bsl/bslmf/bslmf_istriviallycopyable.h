@@ -208,9 +208,14 @@ struct IsTriviallyCopyable_Imp<TYPE,
 # else
 template <class TYPE, class = void>
 struct IsTriviallyCopyable_Scalar : bsl::false_type {};
+#   if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 template <class TYPE>
 struct IsTriviallyCopyable_Scalar<TYPE,
                                   BSLMF_VOIDTYPE2(TYPE[sizeof(TYPE)], TYPE())>
+#   else
+template <class TYPE>
+struct IsTriviallyCopyable_Scalar<TYPE, BSLMF_VOIDTYPE2(TYPE[], TYPE())>
+#   endif
     : bsl::true_type {
     // This implementation-detail trait determines whether 'TYPE' is a scalar
     // type (an arithmetic type, enumeration, pointer, or pointer-to-member).
