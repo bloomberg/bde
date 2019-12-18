@@ -1449,11 +1449,11 @@ union {\
 
 #if !defined (_MSC_VER) || defined (__INTEL_COMPILER)
 #include <fenv.h>
-#else
+#elif !defined _FENV
     // VS 2013 fenv.h contains an initializer 1.0 / 1e300 that fails to compile
     // in /fp:strict mode.  It's ameliorated in later versions where 1e-300 is
     // used.
-typedef unsigned short int fexcept_t;
+typedef unsigned long fexcept_t;
 #endif
 #include <float.h>
 #include <math.h>
