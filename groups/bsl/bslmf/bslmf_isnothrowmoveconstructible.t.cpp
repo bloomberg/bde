@@ -156,8 +156,11 @@ void aSsErT(bool condition, const char *message, int line)
 // Note that these are not type-dependent contexts, so there is no need to use
 // 'typename' when fetching the result from any of the queried traits.  Valid
 // entry points into this system of macros are:
-//  ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE      : single type
-//  ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE : a type, plus pointer/references
+//  ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE             : single type
+//  ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE        : a type, plus associated
+//                                                     pointer/reference types
+//  ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE : an object type, plus all
+//                                                     reasonable variations
 //
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE
@@ -165,8 +168,10 @@ void aSsErT(bool condition, const char *message, int line)
 //   native trait if it is available, and expands to nothing otherwise.
 #if defined(BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_USE_NATIVE_ORACLE)
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)            \
-    ASSERT( native_std::is_nothrow_move_constructible<TYPE>::value ==         \
-            bsl       ::is_nothrow_move_constructible<TYPE>::value)
+    ASSERTV( native_std::is_nothrow_move_constructible<TYPE>::value,          \
+             bsl       ::is_nothrow_move_constructible<TYPE>::value,          \
+             native_std::is_nothrow_move_constructible<TYPE>::value ==        \
+             bsl       ::is_nothrow_move_constructible<TYPE>::value)
     // Confirm that the result of 'bsl::is_nothrow_move_constructible<TYPE>'
     // agrees with the oracle 'native_std::is_nothrow_move_constructible'.
 #else
@@ -179,7 +184,7 @@ void aSsErT(bool condition, const char *message, int line)
 // Macro: ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT
 //   This macro validates that the 'bsl' variable template has the same value
 //   as the associated trait, if variable templates are supported by the
-//   compiler, and expands to nothing otherwise..
+//   compiler, and expands to nothing otherwise.
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
 # define ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT(TYPE)                         \
     ASSERT( bsl::is_nothrow_move_constructible  <TYPE>::value ==              \
@@ -211,7 +216,7 @@ void aSsErT(bool condition, const char *message, int line)
 //   'RESULT' for an rvalue reference to the given 'TYPE' on platforms that
 //   implement language support, and performs no test otherwise.  Note that the
 //   native trait implementation shipping with Visual C++ compilers prior to
-//   VC 2017 erroneously reports that rvalue-references to arrays are NOT
+//   MSVC 2017 erroneously reports that rvalue-references to arrays are NOT
 //   no-throw move constructible.
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1910
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_RVAL_REF(TYPE, RESULT)          \
@@ -260,7 +265,6 @@ void aSsErT(bool condition, const char *message, int line)
 //   types, and arrays of those cv-qualified types.  Note that this macro does
 //   not recursively test arrays of pointers to 'TYPE'.
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT);       \
-    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT);               \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false);           \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false);         \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[], false);              \
@@ -628,18 +632,16 @@ int main(int argc, char *argv[])
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bool, true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char, true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(int,  true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(long double, true);
-
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(long double,    true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bsl::nullptr_t, true);
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char16_t, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char16_t,       true);
 #endif
 
         // C-2
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType,   true);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumClassType, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumClassType,  true);
 #endif
 
         // C-3
@@ -664,11 +666,6 @@ int main(int argc, char *argv[])
                                                                          true);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
-        // Note that this particular test stresses compilers handling of
-        // function types, and function reference types, in the template type
-        // system.  We incrementally disable tests for compilers known to have
-        // bugs that we cannot easily work around,
-
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(void(),               false);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(int(float,double...), false);
 #ifndef BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_NO_NESTED_FOR_ABOMINABLE_FUNCTIONS

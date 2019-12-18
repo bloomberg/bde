@@ -39,7 +39,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_assert.h>
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_istriviallycopyable.h>
@@ -98,7 +97,7 @@ struct IsNothrowMoveConstructible_Impl<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     // techniques are also detected as no-throw move constructible, even if the
     // 'noexcept' operator would draw a different conclusion.
 
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 
 template <class TYPE>
@@ -107,7 +106,7 @@ struct IsNothrowMoveConstructible_Impl<const TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
                  bool,
                  ::native_std::is_nothrow_move_constructible<const TYPE>::value
                  || bsl::is_trivially_copyable<TYPE>::value> {
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<volatile TYPE,
@@ -115,7 +114,7 @@ struct IsNothrowMoveConstructible_Impl<volatile TYPE,
     : bsl::integral_constant<
            bool,
            ::native_std::is_nothrow_move_constructible<volatile TYPE>::value> {
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<const volatile TYPE,
@@ -123,7 +122,7 @@ struct IsNothrowMoveConstructible_Impl<const volatile TYPE,
     : bsl::integral_constant<bool,
                              ::native_std::is_nothrow_move_constructible<
                                                  const volatile TYPE>::value> {
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
     // Partial specializations to avoid detecting cv-qualified class types with
     // nested trait declarations as having no-throw constructors that take
@@ -160,25 +159,25 @@ struct IsNothrowMoveConstructible_Impl<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     // techniques are also detected as no-throw move constructible, even if the
     // 'noexcept' operator would draw a different conclusion.
 
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<const TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::is_trivially_copyable<TYPE>::type {
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<volatile TYPE,
                                        BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::false_type {
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<const volatile TYPE,
                                        BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::false_type {
-    BSLMF_ASSERT(sizeof(TYPE) != 0);    // Diagnose incomplete types
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
     // Partial specializations to avoid detecting cv-qualified class types with
     // nested trait declarations as having no-throw constructors that take
@@ -198,6 +197,18 @@ struct IsNothrowMoveConstructible_Impl<TYPE&> : bsl::true_type {};
     // Partial specializations to indicate that reference binding from an
     // identical reference can never throw.
 
+template <class TYPE>
+struct IsNothrowMoveConstructible_Impl<TYPE[]>
+    :  bsl::false_type {};
+template <class TYPE>
+struct IsNothrowMoveConstructible_Impl<const TYPE[]>
+    :  bsl::false_type {};
+template <class TYPE>
+struct IsNothrowMoveConstructible_Impl<volatile TYPE[]>
+    :  bsl::false_type {};
+template <class TYPE>
+struct IsNothrowMoveConstructible_Impl<const volatile TYPE[]>
+    :  bsl::false_type {};
 template <class TYPE, size_t LEN>
 struct IsNothrowMoveConstructible_Impl<TYPE[LEN]>
     :  bsl::false_type {};
@@ -210,11 +221,12 @@ struct IsNothrowMoveConstructible_Impl<volatile TYPE[LEN]>
 template <class TYPE, size_t LEN>
 struct IsNothrowMoveConstructible_Impl<const volatile TYPE[LEN]>
     :  bsl::false_type {};
-    // These partial specializations ensures that array types are not detected
-    // as movable.  Note that there is no need to specialize for arrays of
-    // unknown bound, and the primary template for this trait delegated to
-    // 'bsl::is_trivially_copyable', which always produces 'false_type' for
-    // arrays of unknown bound.
+    // These partial specializations ensure that array types are not detected
+    // as move constructible.  Note that while array data members of classes
+    // will correctly move each element through move-construction (when
+    // initializing the owning class), the standard defines the type trait in
+    // terms of a variable declaration, where the move construction syntax is
+    // invalid.
 
 #endif
 }  // close package namespace

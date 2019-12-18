@@ -146,7 +146,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_addconst.h>
 #include <bslmf_addlvaluereference.h>
-#include <bslmf_assert.h>
 #include <bslmf_conditional.h>
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
@@ -206,7 +205,7 @@ template <class TYPE,
 struct IsConvertible_CheckComplete {
     typedef TYPE type;
 
-    BSLMF_ASSERT((sizeof(TYPE) > 0));
+    enum { k_CHECK_COMPLETE = sizeof(TYPE) };
 };
 
 template <class TYPE>

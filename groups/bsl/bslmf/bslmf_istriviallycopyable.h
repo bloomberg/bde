@@ -121,6 +121,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #include <bslmf_ismemberpointer.h>
 #include <bslmf_ispointer.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -160,6 +161,14 @@ namespace bsl {
 
 template <class TYPE>
 struct is_trivially_copyable;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_copyable_v = is_trivially_copyable<TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_trivially_copyable' meta-function.
+#endif
 
 }  // close namespace bsl
 
@@ -226,11 +235,31 @@ struct IsTriviallyCopyable_Intrinsic<void> : bsl::false_type {
 };
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+template <class NON_CV_TYPE, class = void>
+struct IsTriviallyCopyable_Solaris
+     : bsl::false_type {
+    // The Solaris CC compiler (prior to CC 12.4) will match certain types,
+    // such as abominable function types, as matching a 'cv'-qualified type in
+    // partial specialization, even when that type is not 'cv'-qualified.  The
+    // idiom of implementing a partial specialization for 'cv'-qualified traits
+    // in terms of the primary template then becomes infinitely recursive for
+    // those special cases, so we provide a shim implementation class to handle
+    // the delegation.  This primary template always derives from 'false_type',
+    // and will be matched for function types, reference types, and 'void',
+    // none of which are trivially copyable.  The partial specialization below
+    // handles recursion back to the primary trait for all other types.
+};
+
+template <class NON_CV_TYPE>
+struct IsTriviallyCopyable_Solaris<NON_CV_TYPE, BSLMF_VOIDTYPE(NON_CV_TYPE[])>
+     : bsl::is_trivially_copyable<NON_CV_TYPE>::type {
+};
+#endif
 }  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
-
                          // ============================
                          // struct is_trivially_copyable
                          // ============================
@@ -253,42 +282,52 @@ struct is_trivially_copyable
     // 'bsl::true_type' for them.
 };
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_trivially_copyable_v = is_trivially_copyable<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_trivially_copyable' meta-function.
-#endif
-
-///IMPLEMENTATION NOTE
-///-------------------
-// We specialize 'is_trivially_copyable' for 'bsls::TimeInterval' here because
-// 'bsls' is levelized below 'bslmf'.  Previously, 'bsls_timeinterval.h' had
-// forward declared the 'is_trivially_copyable' template and provided a
-// specialization for 'TimeInterval' (see BDE 2.24.0 tag), but the forward
-// declaration caused compilation errors with the Sun CC 5.13 compiler.
-//
-// We specialize 'is_trivially_copyable' for 'bslmf::Nil' here to avoid
-// increasing the dependency envelope of 'bslmf_nil'.
-//
-// Neither of these trait declarations will be needed once we fully migrate to
-// a C++11 definition for 'is_trivially_copyable'.
-
-template <>
-struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> : bsl::true_type{
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'TimeInterval' is a trivially copyable type.
+struct is_trivially_copyable<TYPE &> :  false_type {
+    // This partial specialization optimizes away a number of nested template
+    // instantiations to prove that reference types are never trivially
+    // copyable.
 };
 
-#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
-template <>
-struct is_trivially_copyable<BloombergLP::bslmf::Nil> : bsl::true_type {
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'Nil' is a trivially copyable type.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE>
+struct is_trivially_copyable<TYPE &&> :  false_type {
+    // This partial specialization optimizes away a number of nested template
+    // instantiations to prove that reference types are never trivially
+    // copyable.
 };
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+// Solaris CC compiler will erroneously match a cv-qualified abominable
+// function type with a partial specialization for cv-qualified types, and then
+// infinitely recurse when the cv-qualifier is not stripped when instantiating
+// the base class.  As this is only a problem for abominable function types
+// that are never trivially copyable, the following workaround (preserving lazy
+// evaluation of the recursive template instantiation) is ugly, but suffices.
+// Compiler fix verified for the CC 12.4 compiler.
+
+template <class TYPE>
+struct is_trivially_copyable<const TYPE>
+    :  BloombergLP::bslmf::IsTriviallyCopyable_Solaris<TYPE>::type {
+    // This partial specialization ensures that const-qualified types have the
+    // same result as their element type.
+};
+
+template <class TYPE>
+struct is_trivially_copyable<volatile TYPE>
+    :  BloombergLP::bslmf::IsTriviallyCopyable_Solaris<TYPE>::type {
+    // This partial specialization ensures that volatile-qualified types have
+    // the same result as their element type.
+};
+
+template <class TYPE>
+struct is_trivially_copyable<const volatile TYPE>
+    :  BloombergLP::bslmf::IsTriviallyCopyable_Solaris<TYPE>::type {
+    // This partial specialization ensures that const-volatile-qualified types
+    // have the same result as their element type.
+};
+#else
 template <class TYPE>
 struct is_trivially_copyable<const TYPE>
     :  is_trivially_copyable<TYPE>::type {
@@ -309,6 +348,7 @@ struct is_trivially_copyable<const volatile TYPE>
     // This partial specialization ensures that const-volatile-qualified types
     // have the same result as their element type.
 };
+#endif
 
 template <class TYPE, size_t LEN>
 struct is_trivially_copyable<TYPE[LEN]>
@@ -371,28 +411,39 @@ struct is_trivially_copyable<const volatile TYPE[]>
 };
 #endif
 
-template <class TYPE>
-struct is_trivially_copyable<TYPE &> :  false_type {
-    // This partial specialization optimizes away a number of nested template
-    // instantiations to prove that reference types are never trivially
-    // copyable.
+///IMPLEMENTATION NOTE
+///-------------------
+// We specialize 'is_trivially_copyable' for 'bsls::TimeInterval' here because
+// 'bsls' is levelized below 'bslmf'.  Previously, 'bsls_timeinterval.h' had
+// forward declared the 'is_trivially_copyable' template and provided a
+// specialization for 'TimeInterval' (see BDE 2.24.0 tag), but the forward
+// declaration caused compilation errors with the Sun CC 5.13 compiler.
+//
+// We specialize 'is_trivially_copyable' for 'bslmf::Nil' here to avoid
+// increasing the dependency envelope of 'bslmf_nil'.
+//
+// Neither of these trait declarations will be needed once we fully migrate to
+// a C++11 definition for 'is_trivially_copyable'.
+
+template <>
+struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> : bsl::true_type{
+    // This template specialization for 'is_trivially_copyable' indicates that
+    // 'TimeInterval' is a trivially copyable type.
 };
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class TYPE>
-struct is_trivially_copyable<TYPE &&> :  false_type {
-    // This partial specialization optimizes away a number of nested template
-    // instantiations to prove that reference types are never trivially
-    // copyable.
+#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+template <>
+struct is_trivially_copyable<BloombergLP::bslmf::Nil> : bsl::true_type {
+    // This template specialization for 'is_trivially_copyable' indicates that
+    // 'Nil' is a trivially copyable type.
 };
 #endif
-
 }  // close namespace bsl
 
 #endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
