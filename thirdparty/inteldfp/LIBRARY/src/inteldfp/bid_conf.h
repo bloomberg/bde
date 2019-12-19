@@ -1447,7 +1447,14 @@ union {\
 #   define BID_MS_FLAGS
 #endif
 
+#if !defined (_MSC_VER) || defined (__INTEL_COMPILER)
 #include <fenv.h>
+#elif !defined _FENV
+    // VS 2013 fenv.h contains an initializer 1.0 / 1e300 that fails to compile
+    // in /fp:strict mode.  It's ameliorated in later versions where 1e-300 is
+    // used.
+typedef unsigned long fexcept_t;
+#endif
 #include <float.h>
 #include <math.h>
 
