@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using the trait to implement `destructiveMoveArray`
+///Example 1: Using the Trait to implement 'destructiveMoveArray'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
 // which moves elements from one array to another.  The algorithm is
@@ -492,7 +492,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 3: Avoiding False Positives on One-Byte Classes
-/// -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we define an empty class that has a non-trivial copy
 // constructor that has a global side effect.  The side effect should not be
 // omitted, even in a destructive-move situation, so 'IsBitwiseMoveable' should
@@ -624,13 +624,13 @@ struct IsBitwiseMoveable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)> {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
     defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
-    // In C++11 and beyond, we can accurately detect trivial-copiable types
+    // We can accurately detect trivially copyable types in C++11 (and beyond),
     // which would allow us to remove the one-byte heuristic used above.
-    // Testing with gcc-5 on Bloomberg production software indicates that
-    // there are many 1-byte types, which are conceptually bitwise moveable,
-    // that are not correctly marked bitwise moveable (for example, any 1-byte
-    // code-generated type).  For the moment we have decided not to enable
-    // more conservative logic for automatically deducing the
+    // Testing with gcc-5 on Bloomberg production software indicates that there
+    // are many 1-byte types, which are conceptually bitwise moveable, that are
+    // not correctly marked bitwise moveable (for example, any 1-byte
+    // code-generated type).  For the moment we have decided not to enable more
+    // conservative logic for automatically deducing the
     // 'IsBitwiseMoveableTrait'.  The more conservative logic is shown below
     // for future reference:
 

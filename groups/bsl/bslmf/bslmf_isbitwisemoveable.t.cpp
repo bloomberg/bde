@@ -301,7 +301,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
 // BDE_VERIFY pragma : -IEC01  // Some example types have implicit ctors
 // BDE_VERIFY pragma : -NT01   // Used examples provide additional packages
 
-///Example 1: Using the trait to implement `destructiveMoveArray`
+///Example 1: Using the Trait to implement 'destructiveMoveArray'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
 // which moves elements from one array to another.  The algorithm is
@@ -663,7 +663,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
 //..
 //
 ///Example 3: Avoiding False Positives on One-Byte Classes
-/// -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we define an empty class that has a non-trivial copy
 // constructor that has a global side effect.  The side effect should not be
 // omitted, even in a destructive-move situation, so 'IsBitwiseMoveable' should
