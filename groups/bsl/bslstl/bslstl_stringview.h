@@ -2163,22 +2163,6 @@ void bsl::hashAppend(HASHALG&                                         hashAlg,
 
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-namespace BloombergLP {
-
-template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
-void bslh::hashAppend(
-    HASHALG&                                                           hashAlg,
-    const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input)
-{
-    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
-    hashAppend(hashAlg, input.size());
-}
-
-}  // close enterprise namespace
-
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif
 
 // ----------------------------------------------------------------------------
