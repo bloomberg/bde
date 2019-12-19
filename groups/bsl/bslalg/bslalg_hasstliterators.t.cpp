@@ -113,7 +113,8 @@ struct HasStlIteratorsTrait : bslalg::HasStlIterators<TYPE>::type {
 };
 
 class Incomplete;
-    // This class supports testing of incomplete types.
+    // This incomplete class is supplied for testing trait support of
+    // incomplete types.
 
 struct RequiresStlIteratorsType {
     // This class template has the 'HasStlIterators' trait, which is registered
@@ -130,7 +131,7 @@ struct DoesNotRequireStlIteratorsType {
 
 struct SpecializedForStlIteratorsType {
     // This class template has the 'HasStlIterators' trait, which is registered
-    // by explicit template of the trait for this type.
+    // by explicit template specialization of the trait for this type.  This
     // class tests interoperability of the old scheme with the new.
 };
 

@@ -185,8 +185,8 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 struct Incomplete;
-    // This class supports testing the 'IsBitwiseMovable' trait for incomplete
-    // types.
+    // This incomplete class is supplied for testing trait support of
+    // incomplete types.
 
 struct UserDefinedBwmTestType {
     // This user-defined type, which is marked to be bitwise movable using
@@ -365,7 +365,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
         NonMoveableClass(int val = 0) : d_value(val) { ++s_ctorCount; }
         NonMoveableClass(const NonMoveableClass& other)
             : d_value(other.d_value) { ++s_ctorCount; }
-        ~NonMoveableClass() { s_dtorCount++; }
+        ~NonMoveableClass() { ++s_dtorCount; }
 
         int value() const { return d_value; }
     };
@@ -391,7 +391,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
         MoveableClass1(int val = 0) : d_value(val) { ++s_ctorCount; }
         MoveableClass1(const MoveableClass1& other)
             : d_value(other.d_value) { ++s_ctorCount; }
-        ~MoveableClass1() { s_dtorCount++; }
+        ~MoveableClass1() { ++s_dtorCount; }
 
         int value() const { return d_value; }
     };
@@ -425,7 +425,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
         MoveableClass2(int val = 0) : d_value(val) { ++s_ctorCount; }
         MoveableClass2(const MoveableClass2& other)
             : d_value(other.d_value) { ++s_ctorCount; }
-        ~MoveableClass2() { s_dtorCount++; }
+        ~MoveableClass2() { ++s_dtorCount; }
 
         int value() const { return d_value; }
     };
@@ -671,7 +671,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
 // class (including an empty class) as bitwise-moveable by default, so we must
 // take specific action to set the trait to false in this (rare) case.
 //
-// First, we declare a normal empty class which *is* bitwise moveable:
+// First, we declare a normal empty class that *is* bitwise moveable:
 //..
     namespace BloombergLP {
     namespace xyza {

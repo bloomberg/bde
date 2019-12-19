@@ -286,7 +286,6 @@ struct IsConvertible_Match {
         match(TYPE&);
         // Return 'yes_type' if the (template parameter) 'TYPE' is
         // 'IsConvertible_Match' and 'no_type' otherwise.
-
 #else
     template <class TYPE>
     static no_type match(TYPE&&);
@@ -325,8 +324,6 @@ struct IsConvertible_Imp {
 #   pragma warning(disable: 4244)  // loss of precision warning ignored
 #endif
     enum {
-        // IBM has a hard time finding a match for the comma operator when
-        // 'FROM_TYPE' is a 2-D array where the first is of unknown bound.
         value = (sizeof(IsConvertible_Match::yes_type) ==
                  sizeof(IsConvertible_Match::match(
                                          (Test(), TypeRep<FROM_TYPE>::rep()))))
@@ -334,6 +331,10 @@ struct IsConvertible_Imp {
             // This is set by invoking the 'operator,' method having 'Test&' on
             // the left and 'FROM_TYPE' on the right.  The 'value' is 'true' if
             // 'FROM_TYPE' is convertible to 'TO_TYPE', and 'false' otherwise.
+            // Note that IBM xlC has a hard time finding a match for the comma
+            // operator (for the expression inside the 'match' call) when
+            // 'FROM_TYPE' is a 2-D array with the first dimension of unknown
+            // bound; such types are not supported by this trait.
     };
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -689,7 +690,7 @@ struct IsConvertible : bsl::is_convertible<FROM_TYPE, TO_TYPE>::type {
 #endif // ! defined(INCLUDED_BSLMF_ISCONVERTIBLE)
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

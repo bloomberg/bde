@@ -26,9 +26,9 @@ using namespace BloombergLP;
 // The component under test defines a metafunction,
 // 'bslmf::HasPointerSemantics', which determines whether a template parameter
 // type is intended to be dereferenced like a pointer.  By default, the
-// metafunction supports only naitve pointers, including non-derefencable
-// pointer types such as 'void *' and function pointers,  and can be extended
-// to support other types through either template specialization or use of the
+// metafunction supports only native pointers, including non-derefencable
+// pointer types such as 'void *' and function pointers, and can be extended to
+// support other types through either template specialization or use of the
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
 //
 // Thus, we need to ensure that the natively supported types are correctly
@@ -134,15 +134,15 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT-SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Each of the macros below will test the 'bslmf::HasPointerSemantics'
-// trait with a set of variations on a type.  There are several layers of
-// macros, as object types support the full range of variation, but function
-// types cannot form an array, nor be cv-qualified.  Similarly, 'void' may be
-// cv-qualified but still cannot form an array.  As macros are strictly
-// text-substitution we must use the appropriate 'add_decoration' traits to
-// transform types in a manner that is guaranteed to be syntactically valid.
-// Note that these are not type-dependent contexts, so there is no need to use
-// 'typename' when fetching the result from any of the queried traits.
+// Each of the macros below will test the 'bslmf::HasPointerSemantics' trait
+// with a set of variations on a type.  There are several layers of macros, as
+// object types support the full range of variation, but function types cannot
+// form an array, nor be cv-qualified.  Similarly, 'void' may be cv-qualified
+// but still cannot form an array.  As macros are strictly text-substitution we
+// must use the appropriate 'add_decoration' traits to transform types in a
+// manner that is guaranteed to be syntactically valid.  Note that these are
+// not type-dependent contexts, so there is no need to use 'typename' when
+// fetching the result from any of the queried traits.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 #define ASSERT_TYPE_HAS_POINTER_SEMANTICS(TYPE, RESULT)                       \
@@ -159,7 +159,7 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT(!bslmf::HasPointerSemantics<                                       \
                                  bsl::add_lvalue_reference<TYPE>::type>::value)
 #endif
-    // Pointers always has pointer semantincs, and references are never
+    // Pointers always has pointer semantics, and references are never
     // pointer-like, regardless of the type they refer to.
 
 #define ASSERT_CV_TYPE_HAS_POINTER_SEMANTICS(TYPE, RESULT)                    \
@@ -169,7 +169,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_TYPE_HAS_POINTER_SEMANTICS(bsl::add_cv<TYPE>::type, RESULT)
     // Confirm that all cv-qualified variations on a type produce the same
     // result as for the specified 'TYPE' itself.
-
 
 #define ASSERT_OBJECT_TYPE_HAS_POINTER_SEMANTICS(TYPE, RESULT)                \
     ASSERT_CV_TYPE_HAS_POINTER_SEMANTICS(TYPE, RESULT);                       \
@@ -191,10 +190,12 @@ enum EnumTestType {
     // This 'enum' type is used for testing.
 };
 
-class Incomplete;
-union Uncomplete;
+class Incomplete; // declaration to support testing trait with incomplete types
+union Uncomplete; // declaration to support testing trait with incomplete types
 
-struct NotAPointer {};
+struct NotAPointer {
+    // This class does not have pointer semantics.
+};
 
 typedef int Incomplete::* MemberDataTestType;
     // This pointer to non-static data member type is used for testing.
@@ -203,11 +204,18 @@ typedef int (Incomplete::*MethodPtrTestType) ();
     // This pointer to non-static function member type is used for testing.
 
 struct PointerLikeNested {
+    // This class indicates it has pointer semantics through use of the
+    // 'BSLMF_NESTED_TRAIT' declaration scheme.
+
     BSLMF_NESTED_TRAIT_DECLARATION(PointerLikeNested,
                                    bslmf::HasPointerSemantics);
 };
 
-struct PointerLikeSpecialized {};
+struct PointerLikeSpecialized {
+    // This class indicates it has pointer semantics through explicit
+    // specialization of the 'bslmf::HasPointerSemantics' trait.
+};
+
 }  // close unnamed namespace
 
 namespace BloombergLP {
@@ -271,8 +279,8 @@ int main(int argc, char *argv[])
         //:   the type is completed.
         //
         // Plan:
-        //:  1 Create a macro that will generate an 'ASSERT' test for
-        //:    all variants of a type:  (C-1..5)
+        //:  1 Create a macro that will generate an 'ASSERT' test for all
+        //:    variants of a type:  (C-1..5)
         //:    o  reference and pointer types
         //:    o  all cv-qualified combinations
         //:    o  arrays, of fixed and runtime bounds, and multiple dimensions
@@ -292,9 +300,8 @@ int main(int argc, char *argv[])
         //   EXTENDING 'bslmf::HasPointerSemantics'
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                         "\nEXTENDING 'bslmf::HasPointerSemantics'"
-                         "\n==============================================\n");
+        if (verbose) printf("\nEXTENDING 'bslmf::HasPointerSemantics'"
+                            "\n======================================\n");
 
         // C-1
         ASSERT_OBJECT_TYPE_HAS_POINTER_SEMANTICS(NotAPointer,false);
@@ -324,8 +331,8 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // TESTING 'bslmf::HasPointerSemantics::value'
-        //   Ensure the 'bslmf::HasPointerSemantics' metafunction
-        //   returns the correct value for intrinsically supported types.
+        //   Ensure the 'bslmf::HasPointerSemantics' metafunction returns the
+        //   correct value for intrinsically supported types.
         //
         // Concerns:
         //:  1 The metafunction returns 'false' for fundamental object types.
@@ -366,9 +373,8 @@ int main(int argc, char *argv[])
         //   bslmf::HasPointerSemantics::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                    "\nTESTING 'bslmf::HasPointerSemantics::value'"
-                    "\n===================================================\n");
+        if (verbose) printf("\nTESTING 'bslmf::HasPointerSemantics::value'"
+                            "\n===========================================\n");
 
         // C-1 : Test all fundamental types to be sure there are no accidental
         // gaps in coverage.

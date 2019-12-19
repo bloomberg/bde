@@ -281,9 +281,9 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 struct Incomplete;
-    // This class supports testing the 'is_trivially_default_constructible'
-    // trait for incomplete types.
-
+    // This incomplete class is supplied for testing trait support of
+    // incomplete types.
+ 
 struct UserDefinedTdcTestType {
     // This user-defined type, which is marked to be trivially
     // default-constructible using template specialization (below), is used for

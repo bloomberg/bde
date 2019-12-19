@@ -332,8 +332,8 @@ template <class TYPE>
 struct is_trivially_default_constructible<TYPE&> : false_type {
     // This partial specialization ensures that references are never detected
     // as trivially default constructible.  Note that this specialization is
-    // required for the Sun CC compiler (last tested at for version 12.3) but
-    // provides a useful short-circuit in other platforms, so is retained
+    // required for the Sun CC compiler (last tested with version 12.3) but
+    // provides a useful short-circuit on other platforms, so is retained
     // unconditionally.  There is no motivation to detect support and add a
     // similar overload for rvalue references.
 };
@@ -342,8 +342,8 @@ template <>
 struct is_trivially_default_constructible<void> : false_type {
     // This explicit specialization ensures that 'void' is never detected as
     // trivially default constructible.  Note that this specialization is
-    // required for the Sun CC compiler (last tested at for version 12.3) but
-    // provides a useful short-circuit in other platforms, so is retained
+    // required for the Sun CC compiler (last tested with version 12.3) but
+    // provides a useful short-circuit on other platforms, so is retained
     // unconditionally.
 };
 
@@ -361,7 +361,7 @@ constexpr bool is_trivially_default_constructible_v
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

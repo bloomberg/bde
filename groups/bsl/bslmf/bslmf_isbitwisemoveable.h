@@ -130,12 +130,12 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using the Trait to Implement 'destructiveMoveArray'
+///Example 1: Using the trait to implement `destructiveMoveArray`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
 // which moves elements from one array to another.  The algorithm is
 // implemented using two implementation functions, one for types that are known
-// to be bit-wise moveable, and one for other types.  The first takes an extra
+// to be bitwise moveable, and one for other types.  The first takes an extra
 // function argument of type 'true_type', the second takes and extra function
 // argument of type 'false_type':
 //..
@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 //                               int   size,
 //                               bsl::true_type)
 //  {
-//      // Bitwise moveable types can be moved using memcpy
+//      // Bitwise moveable types can be moved using 'memcpy'.
 //      memcpy(static_cast<void *>(to), from, size * sizeof(TYPE));
 //  }
 //
@@ -184,23 +184,23 @@ BSLS_IDENT("$Id: $")
 //    private:
 //      int d_value;
 //
-//      static int d_ctorCount;
-//      static int d_dtorCount;
+//      static int s_ctorCount;
+//      static int s_dtorCount;
 //
 //    public:
-//      static int ctorCount() { return d_ctorCount; }
-//      static int dtorCount() { return d_dtorCount; }
+//      static int ctorCount() { return s_ctorCount; }
+//      static int dtorCount() { return s_dtorCount; }
 //
-//      NonMoveableClass(int val = 0) : d_value(val) { ++d_ctorCount; }
+//      NonMoveableClass(int val = 0) : d_value(val) { ++s_ctorCount; }
 //      NonMoveableClass(const NonMoveableClass& other)
-//          : d_value(other.d_value) { ++d_ctorCount; }
-//      ~NonMoveableClass() { d_dtorCount++; }
+//          : d_value(other.d_value) { ++s_ctorCount; }
+//      ~NonMoveableClass() { ++s_dtorCount; }
 //
 //      int value() const { return d_value; }
 //  };
 //
-//  int NonMoveableClass::d_ctorCount = 0;
-//  int NonMoveableClass::d_dtorCount = 0;
+//  int NonMoveableClass::s_ctorCount = 0;
+//  int NonMoveableClass::s_dtorCount = 0;
 //..
 // The second class is similar except that we declare it to be bit-wise
 // moveable by specializing 'IsBitwiseMoveable':
@@ -210,23 +210,23 @@ BSLS_IDENT("$Id: $")
 //    private:
 //      int d_value;
 //
-//      static int d_ctorCount;
-//      static int d_dtorCount;
+//      static int s_ctorCount;
+//      static int s_dtorCount;
 //
 //    public:
-//      static int ctorCount() { return d_ctorCount; }
-//      static int dtorCount() { return d_dtorCount; }
+//      static int ctorCount() { return s_ctorCount; }
+//      static int dtorCount() { return s_dtorCount; }
 //
-//      MoveableClass1(int val = 0) : d_value(val) { ++d_ctorCount; }
+//      MoveableClass1(int val = 0) : d_value(val) { ++s_ctorCount; }
 //      MoveableClass1(const MoveableClass1& other)
-//          : d_value(other.d_value) { ++d_ctorCount; }
-//      ~MoveableClass1() { d_dtorCount++; }
+//          : d_value(other.d_value) { ++s_ctorCount; }
+//      ~MoveableClass1() { ++s_dtorCount; }
 //
 //      int value() const { return d_value; }
 //  };
 //
-//  int MoveableClass1::d_ctorCount = 0;
-//  int MoveableClass1::d_dtorCount = 0;
+//  int MoveableClass1::s_ctorCount = 0;
+//  int MoveableClass1::s_dtorCount = 0;
 //
 //  namespace bslmf {
 //      template <> struct IsBitwiseMoveable<MoveableClass1> : bsl::true_type {
@@ -241,26 +241,26 @@ BSLS_IDENT("$Id: $")
 //    private:
 //      int d_value;
 //
-//      static int d_ctorCount;
-//      static int d_dtorCount;
+//      static int s_ctorCount;
+//      static int s_dtorCount;
 //
 //    public:
 //      BSLMF_NESTED_TRAIT_DECLARATION(MoveableClass2,
 //                                     bslmf::IsBitwiseMoveable);
 //
-//      static int ctorCount() { return d_ctorCount; }
-//      static int dtorCount() { return d_dtorCount; }
+//      static int ctorCount() { return s_ctorCount; }
+//      static int dtorCount() { return s_dtorCount; }
 //
-//      MoveableClass2(int val = 0) : d_value(val) { ++d_ctorCount; }
+//      MoveableClass2(int val = 0) : d_value(val) { ++s_ctorCount; }
 //      MoveableClass2(const MoveableClass2& other)
-//          : d_value(other.d_value) { ++d_ctorCount; }
-//      ~MoveableClass2() { d_dtorCount++; }
+//          : d_value(other.d_value) { ++s_ctorCount; }
+//      ~MoveableClass2() { ++s_dtorCount; }
 //
 //      int value() const { return d_value; }
 //  };
 //
-//  int MoveableClass2::d_ctorCount = 0;
-//  int MoveableClass2::d_dtorCount = 0;
+//  int MoveableClass2::s_ctorCount = 0;
+//  int MoveableClass2::s_dtorCount = 0;
 //..
 // Finally, invoke 'destructiveMoveArray' on arrays of all three classes:
 //..
@@ -400,8 +400,8 @@ BSLS_IDENT("$Id: $")
 // In this example, we associate a trait not with a class, but with a class
 // *template*.  We create three class templates, each of which uses a different
 // mechanisms for being associated with the 'IsBitwiseMoveable' trait, plus a
-// "control" template that is not bit-wise moveable.  First, we define the
-// non-bit-wise-moveable template, 'NonMoveableTemplate':
+// "control" template that is not bitwise moveable.  First, we define the
+// non-bitwise-moveable template, 'NonMoveableTemplate':
 //..
 //  namespace BloombergLP {
 //
@@ -440,8 +440,8 @@ BSLS_IDENT("$Id: $")
 //                                     bslmf::IsBitwiseMoveable);
 //  };
 //..
-// Fourth, we define 'MoveableTemplate3', which is bit-wise moveable iff its
-// 'TYPE' template parameter is bit-wise moveable.  There is no way to get this
+// Fourth, we define 'MoveableTemplate3', which is bitwise moveable iff its
+// 'TYPE' template parameter is bitwise moveable.  There is no way to get this
 // effect using 'BSLMF_NESTED_TRAIT_DECLARATION', so we use partial
 // specialization combined with inheritance to "inherit" the trait from 'TYPE':
 //..
@@ -458,7 +458,7 @@ BSLS_IDENT("$Id: $")
 //  }  // close namespace bslmf
 //..
 // Now, we check that the traits are correctly associated by instantiating each
-// class with both bit-wise moveable and non-moveable types and verifying the
+// class with both bitwise moveable and non-moveable types and verifying the
 // value of 'IsBitwiseMoveable<T>::value':
 //..
 //  int usageExample2()
@@ -492,7 +492,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 3: Avoiding False Positives on One-Byte Classes
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we define an empty class that has a non-trivial copy
 // constructor that has a global side effect.  The side effect should not be
 // omitted, even in a destructive-move situation, so 'IsBitwiseMoveable' should
@@ -520,18 +520,18 @@ BSLS_IDENT("$Id: $")
 //      // However, because it has a non-trivial move/copy constructor, it
 //      // should not be bitwise moved.
 //
-//      static int d_count;
+//      static int s_count;
 //
 //    public:
-//      NonMoveableEmptyClass() { ++d_count; }
-//      NonMoveableEmptyClass(const NonMoveableEmptyClass&) { ++d_count; }
+//      NonMoveableEmptyClass() { ++s_count; }
+//      NonMoveableEmptyClass(const NonMoveableEmptyClass&) { ++s_count; }
 //  };
 //
-//  int NonMoveableEmptyClass::d_count = 0;
+//  int NonMoveableEmptyClass::s_count = 0;
 //
 //  }  // close package namespace
 //..
-// Next, we specialize the 'IsBitwiseMoveable' trait so that
+// Now, we specialize the 'IsBitwiseMoveable' trait so that
 // 'NonMoveableEmptyClass' is not incorrectly flagged by trait deduction as
 // having the 'IsBitwiseMoveable' trait:
 //..
@@ -547,12 +547,13 @@ BSLS_IDENT("$Id: $")
 // Finally, we show that the first class has the 'IsBitwiseMoveable' trait and
 // the second class does not:
 //..
-//  int main()
+//  int usageExample3()
 //  {
 //      using namespace bslmf;
-//
 //      assert(  IsBitwiseMoveable<xyza::MoveableEmptyClass>::value);
 //      assert(! IsBitwiseMoveable<xyza::NonMoveableEmptyClass>::value);
+//
+//      return 0;
 //  }
 //
 //  }  // close enterprise namespace
