@@ -110,6 +110,31 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 //=============================================================================
+//                  COMPILER DEFECT MACROS TO GUIDE TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+# define BSLMF_ISBITWISEMOVEABLE_ABOMINABLE_FUNCTION_MATCH_CONST 1
+// The Solaris CC compiler matches 'const' qualified abominable functions as
+// 'const'-qualified template parameters, but does not strip the 'const'
+// qualifier when passing that template parameter onto the next instantiation.
+// Therefore, 'is_trivially_copyable<void() const>' requests infinite template
+// recursion.  We opt to not try a workaround in the header for this platform,
+// where we delegate to the same implementation as the primary template, as
+// that would leave an awkward difference in behavior between for 'const'
+// qualified class types between using a nested trait and directly specializing
+// the trait.
+#endif
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900)   \
+ || defined(BSLMF_ISBITWISEMOVEABLE_ABOMINABLE_FUNCTION_MATCH_CONST)
+# define BSLMF_ISBITWISEMOVEABLE_NO_ABOMINABLE_FUNCTIONS  1
+// Older MSVC compilers do not parse abominable function types, so it does not
+// matter whether trait would support them or not, we can simply disable such
+// tests on this platform.
+#endif
+
+//=============================================================================
 //                  MACROS TO CONFIGURE TESTING
 //-----------------------------------------------------------------------------
 
@@ -895,8 +920,9 @@ int main(int argc, char *argv[])
         ASSERT(!bslmf::IsBitwiseMoveable<int(float, double...)>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<void(&)()>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<int(&)(float, double...)>::value);
-#if !defined(BSLMF_ISBITWISEMOVEABLE_ABOMINABLE_FUNCTION_MATCH_CONST)
-        ASSERT(!bslmf::IsBitwiseMoveable<void() const>::value);
+#if !defined(BSLMF_ISBITWISEMOVEABLE_NO_ABOMINABLE_FUNCTIONS)
+        ASSERT(!bslmf::IsBitwiseMoveable<void() volatile>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<int(float,double...) const>::value);
 #endif
 
         // C-6 : Pointer types are mostly tested as object types in the macros

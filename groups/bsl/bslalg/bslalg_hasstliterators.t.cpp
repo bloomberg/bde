@@ -85,7 +85,7 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900)   \
- || defined(BSLMF_ISTRIVIALLYCOPYABLE_ABOMINABLE_FUNCTION_MATCH_CONST)
+ || defined(BSLALG_HASSTLITERATORS_ABOMINABLE_FUNCTION_MATCH_CONST)
 # define BSLALG_HASSTLITERATORS_NO_ABOMINABLE_FUNCTIONS  1
 // Older MSVC compilers do not parse abominable function types, so it does not
 // matter whether trait would support them or not, we can simply disable such
