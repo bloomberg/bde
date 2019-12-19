@@ -88,6 +88,143 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                  COMPILER DEFECT MACROS TO GUIDE TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+# define BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTABLE_ABOMINABLE_FUNCTION_MATCH_CV 1
+// The Solaris CC compiler matches 'const' qualified abominable functions as
+// 'const'-qualified template parameters, but does not strip the 'const'
+// qualifier when passing that template parameter onto the next instantiation.
+// Therefore, 'is_trivially_default_constructible<void() const>' requests
+// infinite template recursion.  We opt to not try a workaround in the header
+// for this platform, where we would delegate to the same implementation as the
+// primary template, as that would leave an awkward difference in behavior for
+// 'const' qualified class types between using a nested trait and directly
+// specializing the trait.  Likeiwise, we choose not to add a compiler-specific
+// workaround using 'bsl::is_function' to conditionally produce 'false_type'
+// rather than delegate to the primary template, as the additional template
+// instantiation overhead is not worth the cost of supporting such an awkaward
+// corner case.  Abominable function types are a sufficiently unlikely to occur
+// in production code that the risk from simply silencing this test case (on
+// just this broken platform) is negligible.
+#endif
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900)   \
+ || defined(BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTABLE_ABOMINABLE_FUNCTION_MATCH_CV)
+# define BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTABLE_NO_ABOMINABLE_FUNCTIONS  1
+// Older MSVC compilers do not parse abominable function types, so it does not
+// matter whether trait would support them or not, we can simply disable such
+// tests on this platform.
+#endif
+
+//=============================================================================
+//                  MACROS TO CONFIGURE TESTING
+//-----------------------------------------------------------------------------
+
+//#define BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTABLE_TEST_INCOMPLETE_TYPES 1
+// Define this macro to enable test coverage of incomplete class types, which
+// should produce a compile-error.  Testing with this macro must be enabled
+// outside the regular nightly regression cycle, as by its existence, it would
+// cause the test driver to fail.
+
+//=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+// This test driver intentional creates types with unusual use of cv-qualifiers
+// in order to confirm that there are no strange corners of the type system
+// that are not addressed by this traits component.  Consequently, we disable
+// certain warnings from common compilers.
+
+#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+# pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4180)
+#elif defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages (off, functypequal)
+#endif
+
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Whether Types are Trivially Default-Constructible
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a type is trivially
+// default-constructible.
+//
+// First, we define a set of types to evaluate:
+//..
+    typedef int MyFundamentalType;
+    typedef int& MyFundamentalTypeReference;
+
+    class MyTriviallyDefaultConstructibleType {
+    };
+
+    struct MyNonTriviallyDefaultConstructibleType {
+
+        int d_data;
+
+        MyNonTriviallyDefaultConstructibleType()
+        : d_data(1)
+        {
+        }
+    };
+//..
+// Then, since user-defined types cannot be automatically evaluated by
+// 'is_trivially_default_constructible', we define a template specialization to
+// specify that 'MyTriviallyDefaultConstructibleType' is trivially
+// default-constructible:
+//..
+    namespace bsl {
+
+    template <>
+    struct is_trivially_default_constructible<
+                        MyTriviallyDefaultConstructibleType> : bsl::true_type {
+        // This template specialization for
+        // 'is_trivially_default_constructible' indicates that
+        // 'MyTriviallyDefaultConstructibleType' is a trivially
+        // default-constructible type.
+    };
+
+    }  // close namespace bsl
+//..
+// Now, we verify whether each type is trivially default-constructible using
+// 'bsl::is_trivially_default_constructible':
+//..
+    void showUsage()
+    {
+        ASSERT(true  == bsl::is_trivially_default_constructible<
+                                                    MyFundamentalType>::value);
+        ASSERT(false == bsl::is_trivially_default_constructible<
+                                           MyFundamentalTypeReference>::value);
+        ASSERT(true  == bsl::is_trivially_default_constructible<
+                                  MyTriviallyDefaultConstructibleType>::value);
+        ASSERT(false == bsl::is_trivially_default_constructible<
+                               MyNonTriviallyDefaultConstructibleType>::value);
+//..
+// Note that if the current compiler supports the variable templates C++14
+// feature, then we can re-write the snippet of code above as follows:
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        ASSERT(true  == bsl::is_trivially_default_constructible_v<
+                                                           MyFundamentalType>);
+        ASSERT(false == bsl::is_trivially_default_constructible_v<
+                                                  MyFundamentalTypeReference>);
+        ASSERT(true  == bsl::is_trivially_default_constructible_v<
+                                         MyTriviallyDefaultConstructibleType>);
+        ASSERT(false == bsl::is_trivially_default_constructible_v<
+                                      MyNonTriviallyDefaultConstructibleType>);
+#endif
+    }
+//..
+
+//=============================================================================
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -113,7 +250,7 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE(TYPE, RESULT)          \
-    ASSERT( bsl::is_trivially_default_constructible  <TYPE>::value == RESULT);\
+    ASSERT( bsl::is_trivially_default_constructible<TYPE>::value == RESULT);  \
     ASSERT_V_SAME(TYPE);                                                      \
     ASSERT( bsl::is_trivially_default_constructible<                          \
                                        bsl::add_pointer<TYPE>::type>::value); \
@@ -130,23 +267,12 @@ void aSsErT(bool condition, const char *message, int line)
                                       bsl::add_cv<TYPE>::type, RESULT);
 
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
-
-#define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)   \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)           \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[128], RESULT)      \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], RESULT)
-
-#else
 #define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)   \
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)           \
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[128], RESULT)      \
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], RESULT)    \
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[], RESULT)         \
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[][8], RESULT)
-#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -154,39 +280,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-class MyTriviallyDefaultConstructibleType {
-};
-
-struct MyNonTriviallyDefaultConstructibleType {
-
-    int d_data;
-
-    MyNonTriviallyDefaultConstructibleType()
-        // Create a 'MyNonTriviallyDefaultConstructibleType' object.  This user
-        // defined constructor ensures that this class is not trivially default
-        // constructible, while it is default constructible.
-    : d_data(1)
-    {
-    }
-};
-
-}  // close unnamed namespace
-
-namespace bsl {
-
-template <>
-struct is_trivially_default_constructible<
-    MyTriviallyDefaultConstructibleType> : bsl::true_type {
-        // This template specialization for
-        // 'is_trivially_default_constructible' indicates that
-        // 'MyTriviallyDefaultConstructibleType' is a trivially
-        // default-constructible type.
-};
-
-}  // close namespace bsl
-
-namespace {
-
+struct Incomplete;
+    // This incomplete class is supplied for testing trait support of
+    // incomplete types.
+ 
 struct UserDefinedTdcTestType {
     // This user-defined type, which is marked to be trivially
     // default-constructible using template specialization (below), is used for
@@ -219,8 +316,11 @@ typedef int (UserDefinedNonTdcTestType::*MethodPtrTestType) ();
 namespace bsl {
 
 template <>
-struct is_trivially_default_constructible<
-                                     UserDefinedTdcTestType> : bsl::true_type {
+struct is_trivially_default_constructible<UserDefinedTdcTestType>
+    : bsl::true_type {
+    // Explicit specialization of the 'bsl::is_trivially_default_constructible'
+    // trait to inidate that 'UserDefinedTdcTestType' is trivially default
+    // constructible.
 };
 
 }  // close namespace bsl
@@ -266,81 +366,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-///Usage
-///-----
-// In this section we show intended use of this component.
-//
-///Example 1: Verify Whether Types are Trivially Default-Constructible
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a type is trivially
-// default-constructible.
-//
-// First, we define a set of types to evaluate:
-//..
-    typedef int MyFundamentalType;
-    typedef int& MyFundamentalTypeReference;
-//
-//  class MyTriviallyDefaultConstructibleType {
-//  };
-//
-//  struct MyNonTriviallyDefaultConstructibleType {
-//
-//      int d_data;
-//
-//      MyNonTriviallyDefaultConstructibleType()
-//      : d_data(1)
-//      {
-//      }
-//  };
-//..
-// Then, since user-defined types cannot be automatically evaluated by
-// 'is_trivially_default_constructible', we define a template specialization to
-// specify that 'MyTriviallyDefaultConstructibleType' is trivially
-// default-constructible:
-//..
-//  namespace bsl {
-//
-//  template <>
-//  struct is_trivially_default_constructible<
-//                      MyTriviallyDefaultConstructibleType> : bsl::true_type {
-//      // This template specialization for
-//      // 'is_trivially_default_constructible' indicates that
-//      // 'MyTriviallyDefaultConstructibleType' is a trivially
-//      // default-constructible type.
-//  };
-//
-//  }  // close namespace bsl
-//..
-// Now, we verify whether each type is trivially default-constructible using
-// 'bsl::is_trivially_default_constructible':
-//..
-    ASSERT(true  ==
-            bsl::is_trivially_default_constructible<MyFundamentalType>::value);
-    ASSERT(false ==
-                 bsl::is_trivially_default_constructible<
-                     MyFundamentalTypeReference>::value);
-    ASSERT(true  ==
-                 bsl::is_trivially_default_constructible<
-                     MyTriviallyDefaultConstructibleType>::value);
-    ASSERT(false ==
-                 bsl::is_trivially_default_constructible<
-                     MyNonTriviallyDefaultConstructibleType>::value);
-//..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(true  == bsl::is_trivially_default_constructible_v<
-                                                           MyFundamentalType>);
-    ASSERT(false == bsl::is_trivially_default_constructible_v<
-                                                  MyFundamentalTypeReference>);
-    ASSERT(true  == bsl::is_trivially_default_constructible_v<
-                                         MyTriviallyDefaultConstructibleType>);
-    ASSERT(false == bsl::is_trivially_default_constructible_v<
-                                      MyNonTriviallyDefaultConstructibleType>);
-#endif
-//..
+        // Usage example is moved out of line, as it must define several
+        // classes, and provide template specializations.
 
+        showUsage();
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -469,17 +498,67 @@ int main(int argc, char *argv[])
         // C-5 : Function types are not object types, nor cv-qualifiable.
         // Note that this particular test stresses compilers handling of
         // function types, and function reference types, in the template type
-        // system.  We incrementally disable tests for compilers known to have
-        // bugs that we cannot easily work around/
-        ASSERT( bsl::is_trivially_default_constructible<void(*)()>::value);
-        ASSERT( bsl::is_trivially_default_constructible<
-                                             int(*)(float, double...)>::value);
+        // system.
+
         ASSERT(!bsl::is_trivially_default_constructible<void()>::value);
         ASSERT(!bsl::is_trivially_default_constructible<
                                                 int(float, double...)>::value);
         ASSERT(!bsl::is_trivially_default_constructible<void(&)()>::value);
         ASSERT(!bsl::is_trivially_default_constructible<
                                              int(&)(float, double...)>::value);
+#if !defined(BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTABLE_NO_ABOMINABLE_FUNCTIONS)
+        ASSERT(!bsl::is_trivially_default_constructible<void() const>::value);
+#endif
+
+        // C-6 : Pointer types are mostly tested as object types in the macros
+        // above, but we should add a few extra cases to recursively validate
+        // them as object types in their own right, and to handle the untested
+        // case of function pointers, and pointers to 'void'.
+
+        // Typedefs are needed to avoid strange parsings in the test macros.
+        typedef void VoidFn();
+        typedef void MoreFn(float, double...);
+
+        ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(int *, true);
+        ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(void *, true);
+        ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(Incomplete *,
+                                                                        true);
+        ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(VoidFn *, true);
+        ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(MoreFn *, true);
+
+        // Verify no surprises for incomplete types
+#if defined(BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTABLE_TEST_INCOMPLETE_TYPES)
+        // Compile-fail check for incomplete class is guarded by a test
+        // configuration macro.
+
+        ASSERT(!bsl::is_trivially_default_constructible<Incomplete>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                                     const Incomplete>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                                  volatile Incomplete>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                            const volatile Incomplete>::value);
+#endif
+
+        // References to incomplete types are themselves complete, so the trait
+        // should give the correct answer.  Pointers to incomplete types are
+        // already tested above.
+
+        ASSERT( bsl::is_trivially_default_constructible<Incomplete *>::value);
+        ASSERT( bsl::is_trivially_default_constructible<
+                                                   const Incomplete *>::value);
+        ASSERT( bsl::is_trivially_default_constructible<
+                                                volatile Incomplete *>::value);
+        ASSERT( bsl::is_trivially_default_constructible<
+                                          const volatile Incomplete *>::value);
+
+        ASSERT(!bsl::is_trivially_default_constructible<Incomplete &>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                                   const Incomplete &>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                                volatile Incomplete &>::value);
+        ASSERT(!bsl::is_trivially_default_constructible<
+                                          const volatile Incomplete &>::value);
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -494,7 +573,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

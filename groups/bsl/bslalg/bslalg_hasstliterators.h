@@ -45,9 +45,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_detectnestedtrait.h>
+#include <bslmf_integralconstant.h>
 
 namespace BloombergLP {
-
 namespace bslalg {
 
                         //=======================
@@ -55,22 +55,45 @@ namespace bslalg {
                         //=======================
 
 template <class TYPE>
-struct HasStlIterators : bslmf::DetectNestedTrait<TYPE, HasStlIterators>
+struct HasStlIterators
+    : bslmf::DetectNestedTrait<TYPE, HasStlIterators>::type {
     // This class detects if the specified class 'TYPE' has STL-like iterators.
     // If the class 'TYPE' provides STL-like iterators then
     // 'HasStlIterators<TYPE>::value == true', and
     // 'HasStlIterators<TYPE>::value == false' otherwise.
-{
+};
+
+template <class TYPE>
+struct HasStlIterators<const TYPE> : HasStlIterators<TYPE>::type {
+    // 'const' qualified versions of 'TYPE' are presumed to provide similar
+    // access with 'const_iterator' overloads of 'begin' and 'end'.  Delegate
+    // detection/specialization to the primary trait, so that there is a
+    // consistent result, whether the nested trait detection is employed, or
+    // the user provides an explicit specilization of this trait for (the
+    // non-cv-qualified) 'TYPE'.
+};
+
+template <class TYPE>
+struct HasStlIterators<volatile TYPE> : bsl::false_type {
+    // It is exceedingly rare to support volatile iterators, and 'volatile'
+    // qualfied 'begin'/'end' calls.  We can expect the user to provide
+    // explicit specialization for all cv-qualifiers in such cases.
+};
+
+template <class TYPE>
+struct HasStlIterators<const volatile TYPE> : bsl::false_type {
+    // It is exceedingly rare to support volatile iterators, and 'volatile'
+    // qualfied 'begin'/'end' calls.  We can expect the user to provide
+    // explicit specialization for all cv-qualifiers in such cases.
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

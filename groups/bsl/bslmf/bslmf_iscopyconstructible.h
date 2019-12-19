@@ -220,10 +220,6 @@ struct is_copy_constructible<const volatile TYPE[LEN]> : false_type
     // types have the result false.
 };
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
-
 template <class TYPE>
 struct is_copy_constructible<TYPE[]> : false_type
 {
@@ -252,8 +248,6 @@ struct is_copy_constructible<const volatile TYPE[]> : false_type
     // array-of-unknown-bound types have the result 'false'.
 };
 
-#endif  // defined(BSLS_PLATFORM_CMP_IBM)
-
 }  // close namespace bsl
 
 #endif  // defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
@@ -261,7 +255,7 @@ struct is_copy_constructible<const volatile TYPE[]> : false_type
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

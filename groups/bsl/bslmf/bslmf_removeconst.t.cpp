@@ -94,13 +94,6 @@ void aSsErT(bool condition, const char *message, int line)
 #   define BSLMF_REMOVECONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES 1
 # endif
 
-# if defined(BSLS_PLATFORM_CMP_IBM)
-#   define BSLMF_REMOVECONST_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES 1
-// The IBM compiler cannot handle references to cv-qualified types, where such
-// referenced types are typedefs to regular (non-abominable) functions.  A
-// conforming compiler should silently drop the cv-qualifier, although some may
-// be noisy and issue a warning.  Last tested with xlC 12.2
-# endif
 #endif // BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS
 
 //=============================================================================
@@ -116,6 +109,8 @@ void aSsErT(bool condition, const char *message, int line)
 # pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 # pragma warning(disable : 4180)
+#elif defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages (off, functypequal)
 #endif
 
 //=============================================================================
@@ -352,16 +347,8 @@ int main(int argc, char *argv[])
                                            volatile Pmq>::value));
 
         // C-4
-        ASSERT((is_same<remove_const<int const(&)()>::type,
-                                     int const(&)()>::value));
-
-# if!defined(BSLMF_REMOVECONST_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES)
-        typedef int const FnType();
-
-        ASSERT((is_same<remove_const<const FnType&>::type,
-                                     const FnType&>::value));
-#endif
-
+        ASSERT((is_same<remove_const<int const(&        )()>::type,
+                                     int const(&        )()>::value));
         ASSERT((is_same<remove_const<int const(* const  )()>::type,
                                      int const(*        )()>::value));
         ASSERT((is_same<remove_const<int const(* const &)()>::type,
@@ -432,7 +419,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

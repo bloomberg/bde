@@ -422,6 +422,13 @@ struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
                      // struct IsBitwiseEqualityComparable_Imp
                      // ======================================
 
+# if defined(BSLS_PLATFORM_CMP_MSVC)
+#   pragma warning(push)
+#   pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
+# elif defined(BSLS_PLATFORM_CMP_SUN)
+#   pragma error_messages (off, functypequal)
+# endif
+
 template <class TYPE, class = void>
 struct IsBitwiseEqualityComparable_Imp
     :  bsl::is_const<const TYPE>::type {};
@@ -436,7 +443,14 @@ struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     // any other non-class type (that is not handled by specializations of the
     // primary template) will be a scalar type.
 };
-#endif
+
+# if defined(BSLS_PLATFORM_CMP_MSVC)
+#   pragma warning(pop)
+# elif defined(BSLS_PLATFORM_CMP_SUN)
+#   pragma error_messages (default, functypequal)
+# endif
+
+#endif  // BSLS_PLATFORM_CMP_IBM
 
                      // ==================================
                      // struct IsBitwiseEqualityComparable
