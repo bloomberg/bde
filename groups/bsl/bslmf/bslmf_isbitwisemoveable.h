@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using the Trait to implement 'destructiveMoveArray'
+///Example 1: Using the Trait to Implement 'destructiveMoveArray'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
 // which moves elements from one array to another.  The algorithm is

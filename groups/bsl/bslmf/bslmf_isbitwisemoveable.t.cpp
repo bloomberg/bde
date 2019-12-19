@@ -301,7 +301,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
 // BDE_VERIFY pragma : -IEC01  // Some example types have implicit ctors
 // BDE_VERIFY pragma : -NT01   // Used examples provide additional packages
 
-///Example 1: Using the Trait to implement 'destructiveMoveArray'
+///Example 1: Using the Trait to Implement 'destructiveMoveArray'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
 // which moves elements from one array to another.  The algorithm is
