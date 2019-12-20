@@ -1,5 +1,13 @@
-bsl-internal (3.45.0.0) unstable; urgency=low
+bsl-internal (3.45.1.0) unstable; urgency=low
 
+  * ad93bd375 Bumped version to 3.45.1.0
+  * 53202afdc Merge pull request #2647 from osubbotin/pr/2591-rebased-releases/3.45.x
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Dec 2019 10:49:19 -0500
+
+bsl-internal (3.45.0.0) git; urgency=low
+
+  * 5afca6e5c Changelog for version 3.45.0.0
   * 4d366df7b Bumped version to 3.45.0.0
   * 327e0ef1b Merge pull request #2633 from bchapman/bdls_processutil-a.out-exists-drqs-153152443
   * a7cb8b875 Merge pull request #2632 from jberne4/unused_fixes
@@ -15,7 +23,7 @@ bsl-internal (3.45.0.0) unstable; urgency=low
   * ae56e258c Merge pull request #2620 from afeher/drqs-152975789-use-getmodulehandlea
   * c0b912434 Merge pull request #2618 from bde/osubbotin-bdlb-tokenizer
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 14 Dec 2019 11:42:35 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 14 Dec 2019 11:43:08 -0500
 
 bsl-internal (3.44.0.0) git; urgency=low
 
