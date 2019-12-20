@@ -1,9 +1,16 @@
-bsl-internal (3.45.1.0) unstable; urgency=low
+bsl-internal (3.45.2.0) unstable; urgency=low
 
+  * 538e51de2 Bumped version to 3.45.2.0
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Dec 2019 15:15:57 -0500
+
+bsl-internal (3.45.1.0) git; urgency=low
+
+  * 714848721 Changelog for version 3.45.1.0
   * ad93bd375 Bumped version to 3.45.1.0
   * 53202afdc Merge pull request #2647 from osubbotin/pr/2591-rebased-releases/3.45.x
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Dec 2019 10:49:19 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Dec 2019 10:54:42 -0500
 
 bsl-internal (3.45.0.0) git; urgency=low
 
