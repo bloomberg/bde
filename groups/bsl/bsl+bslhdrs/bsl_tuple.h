@@ -70,7 +70,8 @@ template <std::size_t I, class TYPE> using tuple_element_t =
     using native_std::tuple_size_v;
 #elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     template <class TYPE>
-    constexpr bool tuple_size_v = native_std::tuple_size<TYPE>::value;
+    BSLS_KEYWORD_INLINE_VARIABLE
+    constexpr bsl::size_t tuple_size_v = native_std::tuple_size<TYPE>::value;
         // This template variable represents the result value of the
         // 'native_std::tuple_size' meta-function.
 

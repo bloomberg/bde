@@ -393,15 +393,15 @@ constexpr bool is_nothrow_destructible_v =
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool alignment_of_v = native_std::alignment_of<TYPE>::value;
+constexpr std::size_t alignment_of_v = native_std::alignment_of<TYPE>::value;
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool rank_v = native_std::rank<TYPE>::value;
+constexpr std::size_t rank_v = native_std::rank<TYPE>::value;
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool extent_v = native_std::extent<TYPE>::value;
+constexpr std::size_t extent_v = native_std::extent<TYPE>::value;
 
 template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
