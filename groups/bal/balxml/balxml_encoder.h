@@ -1449,7 +1449,8 @@ Encoder_SequenceFirstPass::Encoder_SequenceFirstPass(Encoder_Context *context)
     // problem (which can cause build failures if '-Wmaybe-uninitialized' and
     // '-Werror' are set).  See also {DRQS 75130685<GO>} and {DRQS
     // 115347303<GO>}.
-    d_simpleContentId.makeValue(0); d_simpleContentId.reset();
+    d_simpleContentId.makeValue(0);
+    d_simpleContentId.reset();
 }
 
 // MANIPULATORS
