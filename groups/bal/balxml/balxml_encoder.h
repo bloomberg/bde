@@ -1443,6 +1443,13 @@ Encoder_SequenceFirstPass::Encoder_SequenceFirstPass(Encoder_Context *context)
 {
     BSLS_ASSERT(d_context_p);
     BSLS_ASSERT(d_simpleContentId.isNull());
+
+    // {DRQS 153551134<GO>}: gcc can occasionally mis-diagnose
+    // 'd_simpleContentId' as uninitialized.  This workaround avoids that
+    // problem (which can cause build failures if '-Wmaybe-uninitialized' and
+    // '-Werror' are set).  See also {DRQS 75130685<GO>} and {DRQS
+    // 115347303<GO>}.
+    d_simpleContentId.makeValue(0); d_simpleContentId.reset();
 }
 
 // MANIPULATORS

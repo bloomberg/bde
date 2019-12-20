@@ -2334,6 +2334,13 @@ Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(TYPE *object,
     (void) formattingMode;
     BSLS_REVIEW(bdlat_FormattingMode::e_DEFAULT ==
                      (formattingMode & bdlat_FormattingMode::e_TYPE_MASK));
+
+    // {DRQS 153551134<GO>}: gcc can occasionally mis-diagnose
+    // 'd_simpleContentId' as uninitialized.  This workaround avoids that
+    // problem (which can cause build failures if '-Wmaybe-uninitialized' and
+    // '-Werror' are set).  See also {DRQS 75130685<GO>} and {DRQS
+    // 115347303<GO>}.
+    d_simpleContentId.makeValue(0); d_simpleContentId.reset();
 }
 
 // CALLBACKS
