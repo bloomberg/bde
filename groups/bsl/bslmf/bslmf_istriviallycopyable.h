@@ -125,6 +125,9 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_isenum.h>
+#include <bslmf_isfundamental.h>
+#include <bslmf_ismemberpointer.h>
+#include <bslmf_ispointer.h>
 #include <bsls_timeinterval.h>   // see DRQS 131017375
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 

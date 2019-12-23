@@ -579,6 +579,12 @@ BSLS_IDENT("$Id: $")
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_conditional.h>
+#include <bslmf_isfunction.h>
+#include <bslmf_isreference.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace BloombergLP {
 namespace bslmf {
 
