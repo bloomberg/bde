@@ -1494,8 +1494,11 @@ class set {
         // 'lower_bound(key)'; the second returned iterator will be
         // 'upper_bound(key)'; and, if this set contains no 'value_type'
         // objects equivalent to 'key', then the two returned iterators will
-        // have the same value.  Note that since a set maintains unique keys,
-        // the range will contain at most one element.
+        // have the same value.  Note that although a set maintains unique
+        // keys, the range may contain more than one element, because a
+        // transparent comparator may have been supplied that provides a
+        // different (but compatible) partitioning of keys for 'LOOKUP_KEY' as
+        // the comparisons used to order the keys in the set.
         //
         // Note: implemented inline due to Sun CC compilation error.
     {
@@ -1503,6 +1506,15 @@ class set {
         iterator endIt   = startIt;
         if (endIt != end() && !comparator()(key, *endIt.node())) {
             ++endIt;
+
+            // Typically, even with a transparent comparator, we expect to find
+            // either 0 or 1 matching keys. We test for those two common cases
+            // before performing a logarithmic search via 'upper_bound' to
+            // determine the end of the range.
+
+            if (endIt != end() && !comparator()(key, *endIt.node())) {
+                endIt = upper_bound(key);
+            }
         }
         return pair<iterator, iterator>(startIt, endIt);
     }
@@ -1629,12 +1641,22 @@ class set {
         size_type>::type
     count(const LOOKUP_KEY& key) const
         // Return the number of 'value_type' objects within this set that are
-        // equivalent to the specified 'key'.  Note that since a set maintains
-        // unique keys, the returned value will be either 0 or 1.
+        // equivalent to the specified 'key'.  Note that although a set
+        // maintains unique keys, the returned value can be other than 0 or 1,
+        // because a transparent comparator may have been supplied that
+        // provides a different (but compatible) partitioning of keys for
+        // 'LOOKUP_KEY' as the comparisons used to order the keys in the set.
         //
         // Note: implemented inline due to Sun CC compilation error.
     {
-        return (find(key) != end()) ? 1 : 0;
+        int            count = 0;
+        const_iterator it    = lower_bound(key);
+
+        while (it != end() && !comparator()(key, *it.node())) {
+            ++it;
+            ++count;
+        }
+        return count;
     }
 
     const_iterator lower_bound(const key_type& key) const
@@ -1747,8 +1769,11 @@ class set {
         // 'lower_bound(key)'; the second returned iterator will be
         // 'upper_bound(key)'; and, if this set contains no 'value_type'
         // objects equivalent to 'key', then the two returned iterators will
-        // have the same value.  Note that since a set maintains unique keys,
-        // the range will contain at most one element.
+        // have the same value.  Note that although a set maintains unique
+        // keys, the range may contain more than one element, because a
+        // transparent comparator may have been supplied that provides a
+        // different (but compatible) partitioning of keys for 'LOOKUP_KEY' as
+        // the comparisons used to order the keys in the set.
         //
         // Note: implemented inline due to Sun CC compilation error.
     {
@@ -1756,6 +1781,15 @@ class set {
         const_iterator endIt   = startIt;
         if (endIt != end() && !comparator()(key, *endIt.node())) {
             ++endIt;
+
+            // Typically, even with a transparent comparator, we expect to find
+            // either 0 or 1 matching keys. We test for those two common cases
+            // before performing a logarithmic search via 'upper_bound' to
+            // determine the end of the range.
+
+            if (endIt != end() && !comparator()(key, *endIt.node())) {
+                endIt = upper_bound(key);
+            }
         }
         return pair<const_iterator, const_iterator>(startIt, endIt);
     }

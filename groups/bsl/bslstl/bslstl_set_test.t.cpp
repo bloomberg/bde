@@ -3,9 +3,11 @@
 
 #include <bslstl_forwarditerator.h>
 #include <bslstl_iterator.h>
+#include <bslstl_map.h>
 #include <bslstl_pair.h>
 #include <bslstl_randomaccessiterator.h>
 #include <bslstl_set.h>
+#include <bslstl_string.h>
 
 #include <bslalg_rangecompare.h>
 
@@ -189,6 +191,11 @@
 // [34] CONCERN: 'lower_bound' properly handles transparent comparators.
 // [34] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [34] CONCERN: 'equal_range' properly handles transparent comparators.
+// [35] CONCERN: 'count'       properly handles multi-value comparators.
+// [35] CONCERN: 'find'        properly handles multi-value comparators.
+// [35] CONCERN: 'lower_bound' properly handles multi-value comparators.
+// [35] CONCERN: 'upper_bound' properly handles multi-value comparators.
+// [35] CONCERN: 'equal_range' properly handles multi-value comparators.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -992,6 +999,46 @@ void testTransparentComparator(Container& container,
     ASSERT(NON_EXISTING_UB         == NON_EXISTING_ER.second);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
 }
+
+            // ====================================================
+            // struct TransparentComparatorWithMultiValueEqualRange
+            // ====================================================
+
+struct TransparentComparatorWithMultiValueEqualRange {
+    // This class can be used as a comparator for containers, having
+    // 'bsl::string' type as a 'KEY'.  It is classified as transparent by the
+    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
+    // heterogeneous comparison.  But note that additional operators accepting
+    // 'char' objects behave differently than the main one accepting
+    // 'bsl::string' objects only.  That leads to puzzling return values of
+    // such container methods as 'count' and 'equal_range' accepting 'char'
+    // objects.  'count' can return a value greater than one and 'equal_range'
+    // can return a range containing more than one element, while container is
+    // still has only unique values.
+
+    typedef void is_transparent;
+
+    bool operator()(const bsl::string& lhs, const bsl::string& rhs) const
+        // Return 'true' if the specified 'lhs' is less than the specified
+        // 'rhs', and 'false' otherwise.
+    {
+        return lhs < rhs;
+    }
+
+    bool operator()(const bsl::string& s, char c) const
+        // Return 'true' if the first symbol of the specified 's' is less than
+        // the specified 'c', and 'false' otherwise.
+    {
+        return s.length() == 0 || s[0] < c;
+    }
+
+    bool operator()(char c, const bsl::string& s) const
+        // Return 'true' if the specified 'c' is less than the first symbol of
+        // the specified 's', and 'false' otherwise.
+    {
+        return s.length() != 0 && c < s[0];
+    }
+};
 
                        // =====================
                        // class TemplateWrapper
@@ -7656,7 +7703,192 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-#if 1
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING TRANSPARENT COMPARATORS WITH MULTI-VALUE EQUAL RANGES
+        //   Although in most cases additional operators accepting reference
+        //   to the 'LOOKUP_KEY' value are in compliance with the main
+        //   comparator's operator, accepting two references to the 'KEY'
+        //   value, user can provide a transparent comparator, whose operators
+        //   change the equality ranges.  We need to check that our container
+        //   handles such comparators correctly.
+        //
+        // Concerns:
+        //: 1 The following 'set' methods: 'find, 'count', 'lower_bound',
+        //:   'upper_bound' and 'equal_range' correctly handle additional
+        //:   operators (those that accept parameters other than set 'KEY') of
+        //:   supplied comparator, even if their behavior differs from the
+        //:   behavior of the main one.
+        //:
+        //: 2 'count' can return a value greater than one.
+        //:
+        //: 3 'equal_range' can return range, containing more than one element
+        //
+        // Plan:
+        //: 1 Construct a set with a transparent comparator, that has
+        //:   additional operators, allowing multiple matches for the same
+        //:   parameter value.
+        //:
+        //: 2 Fill the set with unique values and call the lookup functions
+        //:   with a parameters that can be both unambiguously and ambiguously
+        //:   matched with the set elements.  Verify the results.  (C-1..3)
+        //
+        // Testing:
+        //   CONCERN: 'count'       properly handles multi-value comparators.
+        //   CONCERN: 'find'        properly handles multi-value comparators.
+        //   CONCERN: 'lower_bound' properly handles multi-value comparators.
+        //   CONCERN: 'upper_bound' properly handles multi-value comparators.
+        //   CONCERN: 'equal_range' properly handles multi-value comparators.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                "\n" "TESTING COMPARATORS WITH MULTI-VALUE EQUAL RANGES" "\n"
+                     "=================================================" "\n");
+
+        typedef bsl::set<bsl::string,
+                         TransparentComparatorWithMultiValueEqualRange>
+                                                             TransparentSet;
+        typedef TransparentSet::size_type                    size_type;
+        typedef TransparentSet::iterator                     Iterator;
+        typedef TransparentSet::const_iterator               ConstIterator;
+        typedef bsl::pair<Iterator, Iterator>                ERResultType;
+        typedef bsl::pair<ConstIterator, ConstIterator>      ConstERResultType;
+
+        static const struct {
+            int         d_lineNum;
+            const char *d_keyValue_p;
+
+        } DATA[] = {
+        //    LINE  VALUE
+        //    ----  ------
+            { L_,   ""    },
+            { L_,   "b"   },
+            { L_,   "d"   },
+            { L_,   "dd"  },
+            { L_,   "f"   },
+            { L_,   "ff"  },
+            { L_,   "fff" },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        bsl::map<char, int>   symbolEntryNumMap;
+
+        TransparentSet        mX;
+        const TransparentSet& X = mX;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int                 LINE  = DATA[i].d_lineNum;
+            const bsl::string         VALUE = DATA[i].d_keyValue_p;
+
+            mX.insert(VALUE);
+            symbolEntryNumMap[VALUE[0]] += 1;
+
+            for (char c = 'a'; c < 'h'; ++c) {
+                // Testing 'find'.
+                {
+                    ConstIterator constResult = X.find(c);
+                    Iterator      result      = mX.find(c);
+                    if (0 == symbolEntryNumMap[c]) {
+                        ASSERTV(LINE, c, X.end()  == constResult);
+                        ASSERTV(LINE, c, mX.end() == result     );
+                    }
+                    else {
+                        ASSERTV(LINE, c, X.end()      != constResult);
+                        ASSERTV(LINE, c, mX.end()     != result     );
+                        ASSERTV(LINE, c, *constResult == *result    );
+
+                        ASSERTV(LINE, c, (*constResult)[0],
+                                c == (*constResult)[0]);
+                    }
+                }
+
+                // Testing 'lower_bound'.
+                {
+                    ConstIterator EXPECTED_CONST_LB =  X.begin();
+                    Iterator      EXPECTED_LB       = mX.begin();
+
+                    while (EXPECTED_CONST_LB != X.end()) {
+                        if (c <= (*EXPECTED_CONST_LB)[0]) {
+                            break;
+                        }
+                        ++EXPECTED_CONST_LB;
+                        ++EXPECTED_LB;
+                    }
+
+                    ConstIterator constResult = X.lower_bound(c);
+                    Iterator      result      = mX.lower_bound(c);
+
+                    ASSERTV(LINE, c, EXPECTED_CONST_LB == constResult);
+                    ASSERTV(LINE, c, EXPECTED_LB       == result     );
+                }
+
+                // Testing 'upper_bound'.
+                {
+                    ConstIterator EXPECTED_CONST_UB =  X.begin();
+                    Iterator      EXPECTED_UB       = mX.begin();
+
+                    while (EXPECTED_CONST_UB != X.end()) {
+                        if (c < (*EXPECTED_CONST_UB)[0]) {
+                            break;
+                        }
+                        ++EXPECTED_CONST_UB;
+                        ++EXPECTED_UB;
+                    }
+
+                    ConstIterator constResult = X.upper_bound(c);
+                    Iterator      result      = mX.upper_bound(c);
+
+                    ASSERTV(LINE, c, EXPECTED_CONST_UB == constResult);
+                    ASSERTV(LINE, c, EXPECTED_UB       == result     );
+                }
+
+                // Testing 'count'.
+                {
+                    ConstIterator   EXPECTED_CONST_LB = X.lower_bound(c);
+                    const size_type EXPECTED_COUNT =
+                     (X.end() == EXPECTED_CONST_LB) ? 0 : symbolEntryNumMap[c];
+
+                    size_type       count       = X.count(c);
+
+                    ASSERTV(c, EXPECTED_COUNT, count ,EXPECTED_COUNT == count);
+                }
+
+                // Testing 'equal_range'.
+                {
+                    ConstIterator   EXPECTED_CONST_LB = X.lower_bound(c);
+                    ConstIterator   EXPECTED_CONST_UB = X.upper_bound(c);
+                    Iterator        EXPECTED_LB = mX.lower_bound(c);
+                    Iterator        EXPECTED_UB = mX.upper_bound(c);
+                    const size_type EXPECTED_COUNT = X.count(c);
+
+                    ERResultType      result      = mX.equal_range(c);
+                    ConstERResultType constResult = X.equal_range(c);
+
+                    ConstIterator  resultConstLB = constResult.first;
+                    ConstIterator  resultConstUB = constResult.second;
+                    Iterator       resultLB      = result.first;
+                    Iterator       resultUB      = result.second;
+
+                    ASSERTV(LINE, c, EXPECTED_CONST_LB == resultConstLB);
+                    ASSERTV(LINE, c, EXPECTED_CONST_UB == resultConstUB);
+                    ASSERTV(LINE, c, EXPECTED_LB       == resultLB     );
+                    ASSERTV(LINE, c, EXPECTED_UB       == resultUB     );
+
+                    for (size_type counter = 0;
+                         counter < EXPECTED_COUNT;
+                         ++counter) {
+                         ++resultConstLB;
+                         ++resultLB;
+                    }
+
+                    ASSERTV(LINE, c, EXPECTED_COUNT,
+                            resultConstUB == resultConstLB);
+                    ASSERTV(LINE, c, EXPECTED_COUNT,
+                            resultUB      == resultLB     );
+                }
+            }
+        }
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // TESTING TRANSPARENT COMPARATOR
@@ -7856,7 +8088,6 @@ int main(int argc, char *argv[])
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
-#endif
       case 26: {
         // --------------------------------------------------------------------
         // TESTING MOVE CONSTRUCTOR
