@@ -28,41 +28,42 @@
 // implementation of C++ features, but just the fact that features are
 // supported.
 //-----------------------------------------------------------------------------
-// [22] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
+// [23] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-// [18] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-// [23] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-// [24] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
-// [25] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
-// [26] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+// [10] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+// [24] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// [25] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
+// [26] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+// [27] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-// [ 3] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-// [ 4] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+// [ 3] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+// [ 4] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+// [ 5] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-// [ 5] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// [ 8] BSLS_COMPILERFEATURES_SUPPORT_FINAL
-// [ 9] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-// [21] BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-// [10] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+// [ 9] BSLS_COMPILERFEATURES_SUPPORT_FINAL
+// [10] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+// [22] BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+// [11] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-// [11] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-// [29] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
-// [12] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [13] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-// [14] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-// [28] BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-// [19] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-// [15] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// [16] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [27] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+// [12] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// [30] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+// [13] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// [14] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+// [15] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+// [29] BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+// [20] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+// [16] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [17] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [28] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-// [20] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+// [21] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-// [17] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [18] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 //=============================================================================
@@ -139,8 +140,8 @@ template <class TYPE> using alias_template2 = alias_base<char, TYPE>;
 
 int x; // not constant
 struct A {
-    constexpr A(bool b) : m(b?42:x) { }
-    int m;
+    constexpr A(bool b) : d_m(b?42:x) { }
+    int d_m;
 };
 
 class OracleMiscompile {
@@ -291,7 +292,7 @@ struct ClassWithDeletedOps {
 
 namespace TESTING_EXTERN_TEMPLATE {
 // Note that extern template declarations cannot have internal linkage, so are
-// not allowed in unnamed namespces, even for testing the feature.
+// not allowed in unnamed namespaces, even for testing the feature.
 
 // define class template
 template <class TYPE>
@@ -303,7 +304,7 @@ extern template class ExternTemplateClass<char>;
 // instantiate in this translation unit
 template class ExternTemplateClass<char>;
 
-}  // close namespace  TESTING_EXTERN_TEMPLATE
+}  // close namespace TESTING_EXTERN_TEMPLATE
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 
@@ -601,7 +602,7 @@ void test_func() {
     // platform that also supports at least the C++11 level of 'constexpr'.
 namespace {
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
 constexpr int relaxedConstExprFunc(bool b)
     // Return a different integer value depending on the specified 'b' boolean
     // value.  This function demonstrates relaxed 'constexpr' requirements
@@ -618,7 +619,26 @@ constexpr int relaxedConstExprFunc(bool b)
         return i;                                                     // RETURN
     }
 }
-#endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+constexpr int moreRelaxedConstExprFunc(bool b)
+    // Return the result of a invoking a locally defined lambda, with a lambda
+    // that cannot be evaluated at compile time used on the false path.
+{
+    if (b) {
+        return []{
+                   return 42;
+               }();                                                   // RETURN
+    }
+    else {
+        return []{
+                   static int i = 17;
+                   return i;
+               }();                                                   // RETURN
+    }
+}
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 
 struct FalseType {
     // A type to represent 'false'.  Notice that its size is different from
@@ -703,9 +723,9 @@ constexpr int Feature11::call(bool) const
     return 42;
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
 struct Feature14 {
-    // This literal type is for testing C++11 'constexpr' support.
+    // This literal type is for testing C++14 'constexpr' support.
 
     // PUBLIC DATA
     int d_value;
@@ -736,13 +756,51 @@ constexpr int Feature14::call(bool b)
         return d_value;                                               // RETURN
     }
 }
-#endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+struct Feature17 {
+    // This literal type is for testing C++17 'constexpr' support.
+
+    // PUBLIC DATA
+    int d_value;
+
+    // CREATORS
+    constexpr Feature17();
+        // Create a, possibly 'constexpr', 'Feature17' object.
+
+    constexpr int call(bool b);
+        // Return, a possibly 'constexpr' integer value that depends on the
+        // specified 'b' flag.  This method is "complex", cannot be 'constexpr'
+        // in C++11, only in C++17 and onwards.
+};
+
+constexpr Feature17::Feature17()
+: d_value(-1)
+{
+}
+
+constexpr int Feature17::call(bool b)
+{
+    if (b) {
+        d_value = []{
+                      return 42;                                      // RETURN
+                  }();
+        return d_value;                                               // RETURN
+    }
+    else {
+        d_value = []{
+                      return 21;                                      // RETURN
+                  }();
+        return d_value;                                               // RETURN
+    }
+}
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 
 }  // close unnamed namespace
-#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 
-
-                    // case 22
+                    // case 23
 
 static const bool
     u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined =
@@ -754,7 +812,7 @@ static const bool
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 
-namespace test_case_22 {
+namespace test_case_23 {
 
 class MyType {
   public:
@@ -814,12 +872,12 @@ void runTest() {
 # endif
 }
 
-}  // close namespace test_case_22
+}  // close namespace test_case_23
 #endif
 
-                    // case 23
+                    // case 24
 
-namespace test_case_23 {
+namespace test_case_24 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 
 [[noreturn]] void runTest() {
@@ -842,11 +900,11 @@ namespace test_case_23 {
 #endif
 
 #endif
-}  // close namespace test_case_23
+}  // close namespace test_case_24
 
-                    // case 24
+                    // case 25
 
-namespace test_case_24 {
+namespace test_case_25 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 
 [[nodiscard]] int runTest() {
@@ -869,11 +927,11 @@ namespace test_case_24 {
 #endif
 
 #endif
-}  // close namespace test_case_24
+}  // close namespace test_case_25
 
-                    // case 25
+                    // case 26
 
-namespace test_case_25 {
+namespace test_case_26 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 
 void runTest() {
@@ -884,9 +942,9 @@ void runTest() {
     {
     case 4: [[fallthrough]];
     case 7:
-        return;
+        return;                                                       // RETURN
     default:
-        return;
+        return;                                                       // RETURN
     }
 }
 
@@ -906,11 +964,11 @@ void runTest() {
 #endif
 
 #endif
-}  // close namespace test_case_25
+}  // close namespace test_case_26
 
-                    // case 26
+                    // case 27
 
-namespace test_case_26 {
+namespace test_case_27 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 
 void runTest([[maybe_unused]] int i) {
@@ -936,11 +994,11 @@ void runTest([[maybe_unused]] int i) {
 #endif
 
 #endif
-}  // close namespace test_case_26
+}  // close namespace test_case_27
 
-                    // case 29
+                    // case 30
 
-namespace test_case_29 {
+namespace test_case_30 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
 void foo()
@@ -964,7 +1022,7 @@ struct is_same<T,T>
 };
 
 #endif
-}  // close namespace test_case_29
+}  // close namespace test_case_30
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -1120,10 +1178,18 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
     printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED) );
+                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+    printf("%s\n",
+                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1557,7 +1623,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'
         //
@@ -1577,7 +1643,7 @@ int main(int argc, char *argv[])
            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'"
            "\n======================================================\n");
 
-        using namespace test_case_29;
+        using namespace test_case_30;
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
         if (verbose) printf("noexcept not supported in this configuration\n");
@@ -1591,7 +1657,7 @@ int main(int argc, char *argv[])
 #endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
       } break;
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'
         //
@@ -1601,8 +1667,8 @@ int main(int argc, char *argv[])
         //:    literals.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS' is
-        //:   defined then compile code that attempts to use a raw string.
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS' is defined then
+        //:   compile code that attempts to use a raw string.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
@@ -1623,7 +1689,7 @@ will not improve the flavor.
         (void)raw_string;
 #endif
       } break;
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'
         //
@@ -1694,7 +1760,7 @@ will not improve the flavor.
         ASSERTV(caughtBadException, caughtBadException);
 #endif
       } break;
-    case 26: {
+    case 27: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED'
         //
@@ -1720,11 +1786,11 @@ will not improve the flavor.
             );
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED)
-        test_case_26::runTest(5);
+        test_case_27::runTest(5);
 #endif
 
       } break;
-    case 25: {
+    case 26: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH'
         //
@@ -1750,11 +1816,11 @@ will not improve the flavor.
             );
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH)
-        test_case_25::runTest();
+        test_case_26::runTest();
 #endif
 
       } break;
-    case 24: {
+    case 25: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD'
         //
@@ -1780,12 +1846,12 @@ will not improve the flavor.
             );
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD)
-        int i = test_case_24::runTest();
+        int i = test_case_25::runTest();
         (void)i;
 #endif
 
       } break;
-    case 23: {
+    case 24: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
         //
@@ -1811,11 +1877,11 @@ will not improve the flavor.
             );
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-        if (false) { test_case_23::runTest(); }
+        if (false) { test_case_24::runTest(); }
 #endif
 
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
         //
@@ -1851,7 +1917,7 @@ will not improve the flavor.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #    if defined(BDE_BUILD_TARGET_EXC)
-        test_case_22::runTest();
+        test_case_23::runTest();
 #    else
         if (verbose) printf("Test disabled as exceptions are NOT enabled.\n");
 #    endif
@@ -1867,7 +1933,7 @@ will not improve the flavor.
         }
 
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE'
         //
@@ -1909,7 +1975,7 @@ will not improve the flavor.
 # endif
 #endif
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
         //
@@ -1964,7 +2030,7 @@ will not improve the flavor.
 #endif
 
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
         //
@@ -2014,7 +2080,7 @@ will not improve the flavor.
         };
 #endif
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
         //
@@ -2041,7 +2107,7 @@ will not improve the flavor.
         alignas(8) int foo; (void) foo;
 #endif
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
         //
@@ -2069,7 +2135,7 @@ will not improve the flavor.
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
         //
@@ -2096,7 +2162,7 @@ will not improve the flavor.
         static_assert(1,    "static_assert with int");
 #endif
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
         //
@@ -2129,7 +2195,7 @@ will not improve the flavor.
         z.test();
 #endif
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
         //
@@ -2160,7 +2226,7 @@ will not improve the flavor.
         struct Override: OverrideBase { void f() const override {} };
 #endif
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
         //
@@ -2198,7 +2264,7 @@ will not improve the flavor.
         ASSERT(result);
 #endif
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
         //
@@ -2226,7 +2292,7 @@ will not improve the flavor.
         OverloadForNullptr(nullptr);
 #endif
       } break;
-      case 11:{
+      case 12:{
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
         //
@@ -2260,7 +2326,7 @@ will not improve the flavor.
         ASSERT(false == noexcept(notNoexceptTest2()));
 #endif
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
         //
@@ -2287,7 +2353,7 @@ will not improve the flavor.
         if (verbose) printf("#include_next is tested at global scope.\n");
 #endif
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
         //
@@ -2319,7 +2385,7 @@ will not improve the flavor.
         mX.use( {object{}, { object{}, object{} } });
 #endif
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
         //
@@ -2351,7 +2417,7 @@ will not improve the flavor.
 #endif
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
         //
@@ -2380,7 +2446,7 @@ will not improve the flavor.
 #endif
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
         //
@@ -2408,7 +2474,7 @@ will not improve the flavor.
         ClassWithDeletedOps* p; (void)p;
 #endif
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
         //
@@ -2456,7 +2522,7 @@ will not improve the flavor.
         ASSERT(42 == defaulted.d_value);
 #endif
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
         //
@@ -2493,38 +2559,81 @@ will not improve the flavor.
 #endif
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED'
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17'
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined only
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17' is defined only
+        //:   when the compiler is actually able to compile code with relaxed
+        //:   constexpr functions that may define lambdas that are themselves
+        //:   'constexpr' or not.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17' is defined
+        //:   then compile code that uses this feature to define relaxed
+        //:   constant expression functions.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                 "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17'"
+                 "\n======================================================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
+        static_assert(moreRelaxedConstExprFunc(true) == 42,
+                      "Relaxed (C++17) 'constexpr' is not supported");
+
+        if (sizeof(Sniffer::test<Feature17>(0)) == sizeof(FalseType)) {
+            ASSERT(!"C++17 did not detect more relaxed constexpr");
+        }
+
+        if (sizeof(Sniffer::test<Feature14>(0)) == sizeof(FalseType)) {
+            ASSERT(!"C++17 did not detect relaxed constexpr");
+        }
+
+        if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
+            ASSERT(!"C++17 did not detect original constexpr");
+        }
+#endif
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14'
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined only
         //:   when the compiler is actually able to compile code with relaxed
         //:   constexpr functions that may comprise of multiple statements,
         //:   including multiple return statements, and may mutate the state of
         //:   local variables.
-        //: 2 When 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
+        //: 2 When 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
         //:   constexpr member functions are not implicitly const.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
         //:   then compile code that uses this feature to define relaxed
         //:   constant expression functions.
-        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
+        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
         //:   then compile code that uses this feature to define a constexpr
         //:   member function and detect that it is not a const member
         //:   function.  Use expression SFINAE to detect this without invoking
         //:   a compiler error.
         //
         // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+        //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED'"
-              "\n=========================================================\n");
+                 "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14'"
+                 "\n======================================================\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
         if (verbose) printf("Feature not supported in this configuration.\n");
 #else
         static_assert(relaxedConstExprFunc(true) == 42,
@@ -2571,7 +2680,7 @@ will not improve the flavor.
         constexpr OracleMiscompile d; // Just declaring 'd' crashes CC 12.4.
         (void) d;
 
-        constexpr int v = A(true).m;
+        constexpr int v = A(true).d_m;
         ASSERT(v == 42);
 
         if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {

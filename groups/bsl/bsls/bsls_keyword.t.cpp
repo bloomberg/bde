@@ -20,19 +20,21 @@ using namespace std;
 // [ 2] BSLS_KEYWORD_CONSTEXPR
 // [  ] BSLS_KEYWORD_CONSTEXPR_MEMBER
 // [ 3] BSLS_KEYWORD_CONSTEXPR_RELAXED
-// [ 9] BSLS_KEYWORD_DELETED
-// [ 4] BSLS_KEYWORD_EXPLICIT
-// [ 5] BSLS_KEYWORD_FINAL (class)
-// [ 6] BSLS_KEYWORD_FINAL (function)
+// [ 3] BSLS_KEYWORD_CONSTEXPR_CPP14
+// [ 4] BSLS_KEYWORD_CONSTEXPR_CPP17
+// [10] BSLS_KEYWORD_DELETED
+// [ 5] BSLS_KEYWORD_EXPLICIT
+// [ 6] BSLS_KEYWORD_FINAL (class)
+// [ 7] BSLS_KEYWORD_FINAL (function)
 // [  ] BSLS_KEYWORD_INLINE_CONSTEXPR
 // [  ] BSLS_KEYWORD_INLINE_VARIABLE
-// [ 7] BSLS_KEYWORD_NOEXCEPT
+// [ 8] BSLS_KEYWORD_NOEXCEPT
 // [  ] BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-// [ 7] BSLS_KEYWORD_NOEXCEPT_OPERATOR
-// [ 7] BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
-// [ 8] BSLS_KEYWORD_OVERRIDE
+// [ 8] BSLS_KEYWORD_NOEXCEPT_OPERATOR
+// [ 8] BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
+// [ 9] BSLS_KEYWORD_OVERRIDE
 //-----------------------------------------------------------------------------
-// [10] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 // [ 1] Test machinery
 
 // ============================================================================
@@ -87,26 +89,6 @@ namespace {
 
 namespace
 {
-    template <class TYPE>
-    class Optional
-    {
-        TYPE *d_value_p;
-    public:
-        Optional(): d_value_p() {}
-            // Create an empty 'Optional'.
-        explicit Optional(const TYPE& value): d_value_p(new TYPE(value)) {}
-            // Sets this object to the specified 'value'.
-        ~Optional() { delete d_value_p; }
-            // Destroy this object.
-
-        // ...
-
-        BSLS_KEYWORD_EXPLICIT
-        operator bool() const { return d_value_p; }
-            // Return 'true' if this object has a 'value'; and return 'false'
-            // otherwise.
-    };
-
     template <class, bool Pred>
     struct TestMetafunction {
         // A meta-function for testing.  It takes a type parameter (ignored)
@@ -129,8 +111,194 @@ namespace
     template <class, class>
     void throws4() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)       {}
     void throws5() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)       {}
-}  // close unnamed namespace
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Preparing C++03 Code for C++11 Features
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// To use these macros, simply insert them where the corresponding C++11
+// keyword would go.  When compiling with C++03 mode there will be no effect
+// but when compiling with C++11 mode additional restrictions will apply.  When
+// compiling with C++11 mode the restriction will be checked providing some
+// additional checking over what is done with C++11.
+//
+// C++ uses the 'explicit' keyword to indicate that constructors taking just
+// one argument are not considered for implicit conversions.  Instead, they can
+// only be used for explicit conversions.  C++ also provides the ability to
+// define conversion operators but prior to C++11 these conversion operators
+// are considered for implicit conversion.  C++11 allows the use of the
+// 'explicit' keyword with conversion operators to avoid its use for implicit
+// conversions.  The macro 'BSLS_KEYWORD_EXPLICIT' can be used to mark
+// conversions as explicit conversions which will be checked when compiling
+// with C++11 mode.  For example, an 'Optional' type may have an explicit
+// conversion to 'bool' to indicate that the value is set (note the conversion
+// operator):
+//..
+template <class TYPE>
+class Optional
+{
+    TYPE* d_value_p;
+public:
+    Optional(): d_value_p() {}
+    explicit Optional(const TYPE& value): d_value_p(new TYPE(value)) {}
+    ~Optional() { delete d_value_p; }
+    // ...
+
+    BSLS_KEYWORD_EXPLICIT operator bool() const { return d_value_p; }
+};
+//..
+// When using an object of the 'Optional' class in a condition it is desirable
+// that it converts to a 'bool':
+//..
+void testFunction() {
+    Optional<int> value;
+    if (value) { /*... */ }
+//..
+// In places where an implicit conversion takes place it is not desirable that
+// the conversion is used.  When compiling with C++11 mode the conversion
+// operator will not be used, e.g., the following code will result in an error:
+//..
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+    bool flag = value;
+#endif
+}
+//..
+// The code will compile successfully when using C++03 mode; without the macro,
+// when using C++11 or greater mode we get an error like this:
+//..
+//     error: cannot convert 'Optional<int>' to 'bool' in initialization
+//..
+//
+// When defining conversion operators to 'bool' for code which needs to compile
+// with C++03 mode the conversion operator should convert to a member pointer
+// type instead: doing so has a similar effect to making the conversion
+// operator 'explicit'.
+//
+// Some classes are not intended for use as a base class.  To clearly label
+// these classes and enforce that they can't be derived from C++11 allows using
+// the 'final' keyword after the class name in the class definition to label
+// classes which are not intended to be derived from.  The macro
+// 'BSLS_KEYWORD_FINAL' is replaced by 'final' when compiling with C++11
+// causing the compiler to enforce that a class can't be further derived.  The
+// code below defines a class which can't be derived from:
+//..
+class FinalClass BSLS_KEYWORD_FINAL
+{
+    int d_value;
+public:
+    explicit FinalClass(int value = 0): d_value(value) {}
+    int value() const { return d_value; }
+};
+//..
+// An attempt to derive from this class will fail when compiling with C++11
+// mode:
+//..
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+class FinalClassDerived : public FinalClass {
+    int d_anotherValue;
+public:
+    explicit FinalClassDerived(int value)
+    : d_anotherValue(2 * value) {
+    }
+    int anotherValue() const { return d_anotherValue; }
+};
+#endif
+//..
+// The code will compile successfully when using C++03 mode; without the macro,
+// when using C++11 or greater mode we get an error like this:
+//..
+//    error: cannot derive from 'final' base 'FinalClass' in derived type
+//    'FinalClassDerived'
+//..
+//
+// Sometime it is useful to declare that an overriding function is the final
+// overriding function and further derived classes won't be allowed to further
+// override the function.  One use of this feature could be informing the
+// compiler that it won't need to use virtual dispatch when calling this
+// function on a pointer or a reference of the corresponding type.  C++11
+// allows marking functions as the final overrider using the keyword 'final'.
+// The macro 'BSLS_KEYWORD_FINAL' can also be used for this purpose.  To
+// demonstrate the use of this keyword first a base class with a 'virtual'
+// function is defined:
+//..
+struct FinalFunctionBase
+{
+    virtual int f() { return 0; }
+};
+//..
+// When defining a derived class this function 'f' can be marked as the final
+// overrider using 'BSLS_KEYWORD_FINAL':
+//..
+struct FinalFunctionDerived: FinalFunctionBase
+{
+    int f() BSLS_KEYWORD_FINAL { return 1; }
+};
+//..
+// The semantics of the overriding function aren't changed but a further
+// derived class can't override the function 'f', i.e., the following code will
+// result in an error when compiling with C++11 mode:
+//..
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+struct FinalFunctionFailure: FinalFunctionDerived
+{
+    int f() { return 2; }
+};
+#endif
+//..
+// The code will compile successfully when using C++03 mode; without the macro,
+// when using C++11 or greater mode we get an error like this:
+//..
+//     error: virtual function 'virtual int FinalFunctionFailure::f()'
+//     error: overriding final function 'virtual int FinalFunctionDerived::f()'
+//..
+//
+//
+// The C++11 keyword 'override' is used to identify functions overriding a
+// 'virtual' function from a base class.  If a function identified as
+// 'override' does not override a 'virtual' function from a base class the
+// compilation results in an error.  The macro 'BSLS_KEYWORD_OVERRIDE' is used
+// to insert the 'override' keyword when compiling with C++11 mode.  When
+// compiling with C++03 mode it has no effect but it both cases it documents
+// that a function is overriding a 'virtual' function from a base class.  To
+// demonstrate the use of the 'BSLS_KEYWORD_OVERRIDE' macro first a base class
+// is defined:
+//..
+struct OverrideBase
+{
+    virtual int f() const { return 0; }
+};
+//..
+// When overriding 'OverrideBase::f' in a derived class the
+// 'BSLS_KEYWORD_OVERRIDE' macro should be used to ascertain that the function
+// in the derived class is indeed overriding a 'virtual' function:
+//..
+struct OverrideSuccess: OverrideBase
+{
+    int f() const BSLS_KEYWORD_OVERRIDE { return 1; }
+};
+//..
+// The above code compiles successfully with both C++03 mode and C++11.  When
+// the function meant to be an override actually isn't overriding any function
+// the compilation will fail when using C++11 mode as is demonstrated by the
+// following example (note the missing 'const' in the function declaration):
+//..
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+struct OverrideFailure: OverrideBase
+{
+    int f() BSLS_KEYWORD_OVERRIDE { return 2; }
+};
+#endif
+//..
+// The code will compile successfully when using C++03 mode (though it might
+// produce a warning); without the macro, when using C++11 or greater mode we
+// get an error like this:
+//..
+//    error: 'int OverrideFailure::f()' marked 'override', but does not
+//    override
+//..
+//
 ///Example 2: Creating an extended 'constexpr' function
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // To use these macros, simply insert them where the corresponding C++14
@@ -143,20 +311,76 @@ namespace
 // may be evaluated compile-time if all its input is known compile time.  C++14
 // allows more complex functions to be 'constexpr'.  Also, in C++14,
 // 'constexpr' member functions are not implicitly 'const' as in C++11.
-// Thefore we have a separate macro 'BSLS_KEYWORD_CONSTEXPR_RELAXED' that can
-// be used to mark functions 'constexpr' when compiling with C++14 mode:
+// Thefore we have a separate macro 'BSLS_KEYWORD_CONSTEXPR_CPP14' that can be
+// used to mark functions 'constexpr' when compiling with C++14 mode:
 //..
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 int complexConstexprFunc(bool b)
 {
     if (b) {
-        return 42;                                                    // RETURN
+        return 42;                                                // RETURN
     }
     else {
-        return 0;                                                     // RETURN
+        return 17;                                                // RETURN
     }
 }
 //..
+// When compiling with C++14 'constexpr' support it is possible to use the
+// result of 'complexConstexprFunc' in compile-time constants:
+//..
+void useComplexConstexprFunc()
+{
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+    constexpr
+#endif
+    int result = complexConstexprFunc(true);
+    ASSERT(42 == result);
+//..
+// The macro 'BSLS_KEYWORD_CONSTEXPR_CPP14' can also be used on variables to
+// achieve an identical result:
+//..
+    BSLS_KEYWORD_CONSTEXPR_CPP14 int result2 = complexConstexprFunc(true);
+    ASSERT(42 == result2);
+}
+//..
+// C++17 made small but significant changes to what is allowed in a 'constexpr'
+// function.  Notably, a lambda can now be defined in such a function (and, if
+// not called at compile time, does not itself need to be 'constexpr').  To
+// take advantage of this there is a separate macro
+// 'BSLS_KEYWORD_CONSTEXPR_CPP14' that can be used to mark functions
+// 'constexpr' when compiling with C++17 mode:
+//..
+BSLS_KEYWORD_CONSTEXPR_CPP17
+int moreComplexConstexprFunc(bool b)
+{
+    if (b) {
+        return 42;                                                // RETURN
+    }
+    else {
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        return []{
+                   static int b = 17;
+                   return b;
+               }();                                               // RETURN
+#else
+        return 17;
+#endif
+    }
+}
+//..
+// Then, just like 'useComplexConstexprFunc', we can invoke
+// 'moreComplexConstexprFunc' to populate a compile-time constant when it is
+// suported:
+//..
+void useMoreComplexConstexprFunc()
+{
+    BSLS_KEYWORD_CONSTEXPR_CPP17 int result
+                                          = moreComplexConstexprFunc(true);
+    ASSERT(42 == result);
+}
+//..
+
+}  // close unnamed namespace
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -182,6 +406,20 @@ static void printFlags()
     printf("\n  BSLS_KEYWORD_CONSTEXPR_RELAXED: ");
 #ifdef BSLS_KEYWORD_CONSTEXPR_RELAXED
     printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR_RELAXED) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_CONSTEXPR_CPP14: ");
+#ifdef BSLS_KEYWORD_CONSTEXPR_CPP14
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP14) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_CONSTEXPR_CPP17: ");
+#ifdef BSLS_KEYWORD_CONSTEXPR_CPP17
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP17) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -258,10 +496,10 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
     printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED) );
+                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -337,7 +575,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -354,6 +592,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING USAGE EXAMPLE"
                             "\n=====================\n");
+
+        (void)testFunction();
 
 #undef    FAIL_USAGE_EXPLICIT
 //#define FAIL_USAGE_EXPLICIT
@@ -482,19 +722,10 @@ int main(int argc, char *argv[])
         ASSERT(static_cast<const OverrideBase&>(overrideFailure).f() == 0);
 #endif
 
-///Example 2: Creating an extended 'constexpr' function
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// See before 'main' for 'complexConstexprFunc'.
-//..
-// When compiling with C++14 'constexpr' support it is possible to use the
-// result of 'complexConstexprFunc' in compile-time constants:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-   constexpr
-#endif
-   int result = complexConstexprFunc(true);
-   ASSERT(42 == result);
-//..
+        // See before 'main' for 'useComplexConstexprFunc' and
+        // 'useMoreComplexConstexprFunc'.
+        useComplexConstexprFunc();
+        useMoreComplexConstexprFunc();
 
 #undef    FAIL_USAGE_EXPLICIT
 #undef    FAIL_USAGE_FINAL_CLASS
@@ -502,7 +733,7 @@ int main(int argc, char *argv[])
 #undef    FAIL_USAGE_OVERRIDE_TYPE
 #undef    FAIL_USAGE_NO_OVERRIDE
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_KEYWORD_DELETED
         //
@@ -531,7 +762,7 @@ int main(int argc, char *argv[])
 #endif
         ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_DELETED), expected) == 0);
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_KEYWORD_OVERRIDE
         //
@@ -627,9 +858,9 @@ int main(int argc, char *argv[])
 #undef    FAIL_OVERRIDE_TYPE
 #undef    FAIL_NO_OVERRIDE
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
-        // TESTING NOEXPCEPT SUPPORT
+        // TESTING NOEXCEPT SUPPORT
         //
         // Concerns:
         //: 1 Marking a function 'noexcept' using 'BSLS_KEYWORD_NOEXCEPT' or
@@ -664,8 +895,8 @@ int main(int argc, char *argv[])
         //   BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
         //   BSLS_KEYWORD_NOEXCEPT_OPERATOR
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING NOEXPCEPT SUPPORT"
-                            "\n=========================\n");
+        if (verbose) printf("\nTESTING NOEXCEPT SUPPORT"
+                            "\n========================\n");
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
         const bool hasNoexceptSupport = true;
 #else
@@ -728,7 +959,7 @@ int main(int argc, char *argv[])
         ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_NOEXCEPT_AVAILABLE), expected2)
                                                                          == 0);
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING BSLS_KEYWORD_FINAL (function)
         //
@@ -797,7 +1028,7 @@ int main(int argc, char *argv[])
 #endif
         ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_FINAL), expected) == 0);
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_KEYWORD_FINAL (class)
         //
@@ -862,7 +1093,7 @@ int main(int argc, char *argv[])
 #endif
         ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_FINAL), expected) == 0);
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_KEYWORD_EXPLICIT
         //
@@ -914,54 +1145,107 @@ int main(int argc, char *argv[])
 #endif
         ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_EXPLICIT), expected) == 0);
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_KEYWORD_CONSTEXPR_RELAXED
+        // TESTING BSLS_KEYWORD_CONSTEXPR_CPP17
         //
         // Concerns:
         //: 1 Marking a complex function 'constexpr' using
-        //:   'BSLS_KEYWORD_CONSTEXPR_RELAXED' should result in a successful
+        //:   'BSLS_KEYWORD_CONSTEXPR_CPP17' should result in a successful
         //:   compilation.
         //:
-        //: 2 'BSLS_KEYWORD_CONSTEXPR_RELAXED' member functions are not
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17' is defined
+        //:   then compile code that uses 'BSLS_KEYWORD_CONSTEXPR_CPP17' to
+        //:   define constant expression functions.  Invoke the function in a
+        //:   compile time constant context ('static_assert').
+        //
+        // Testing:
+        //   BSLS_KEYWORD_CONSTEXPR_CPP17
+        // --------------------------------------------------------------------
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+        if (verbose) {
+            printf("\nTESTING BSLS_KEYWORD_CONSTEXPR_CPP17 SKIPPED"
+                    "\n===========================================\n");
+        }
+
+        ASSERT(moreComplexConstexprFunc(true) == 42);
+        ASSERT(moreComplexConstexprFunc(false) == 17);
+#else
+        if (verbose) printf("\nTESTING BSLS_KEYWORD_CONSTEXPR_CPP17"
+                            "\n====================================\n");
+
+        static_assert(moreComplexConstexprFunc(true) == 42,
+                      "Relaxed (C++17) 'constexpr' is not supported");
+        ASSERT(moreComplexConstexprFunc(false) == 17);
+#endif
+
+        const char *expected =
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+            "constexpr";
+#else
+            "";
+#endif
+        ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP17), expected)
+            == 0);
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_KEYWORD_CONSTEXPR_CPP14
+        //
+        // Concerns:
+        //: 1 Marking a complex function 'constexpr' using
+        //:   'BSLS_KEYWORD_CONSTEXPR_CPP14' should result in a successful
+        //:   compilation.
+        //:
+        //: 2 'BSLS_KEYWORD_CONSTEXPR_CPP14' member functions are not
         //:    implicitly 'const'.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
-        //:   then compile code that uses 'BSLS_KEYWORD_CONSTEXPR_RELAXED' to
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
+        //:   then compile code that uses 'BSLS_KEYWORD_CONSTEXPR_CPP14' to
         //:   define relaxed constant expression functions.  Invoke the
         //:   function in a compile time constant context ('static_assert').
         //:
-        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
-        //:   then compile code that uses 'BSLS_KEYWORD_CONSTEXPR_RELAXED' to
+        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
+        //:   then compile code that uses 'BSLS_KEYWORD_CONSTEXPR_CPP14' to
         //:   define a constexpr member function and detect that it is not a
         //:   const member function.  Use expression SFINAE to detect this
         //:   without invoking a compiler error.
         //
         // Testing:
+        //   BSLS_KEYWORD_CONSTEXPR_CPP14
         //   BSLS_KEYWORD_CONSTEXPR_RELAXED
         // --------------------------------------------------------------------
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
         if (verbose) {
-            printf("\nTESTING BSLS_KEYWORD_CONSTEXPR_RELAXED SKIPPED"
-                    "\n==============================================\n");
+            printf("\nTESTING BSLS_KEYWORD_CONSTEXPR_CPP14 SKIPPED"
+                    "\n===========================================\n");
         }
+        ASSERT(complexConstexprFunc(true) == 42);
+        ASSERT(complexConstexprFunc(false) == 17);
 #else
-        if (verbose) printf("\nTESTING BSLS_KEYWORD_CONSTEXPR_RELAXED"
+        if (verbose) printf("\nTESTING BSLS_KEYWORD_CONSTEXPR_CPP14"
                             "\n======================================\n");
 
         static_assert(complexConstexprFunc(true) == 42,
                       "Relaxed (C++14) 'constexpr' is not supported");
+        ASSERT(complexConstexprFunc(false) == 17);
 #endif
 
         const char *expected =
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
             "constexpr";
 #else
             "";
 #endif
-        ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_CONSTEXPR_RELAXED), expected)
+        ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP14), expected)
             == 0);
+
+        ASSERT(strcmp(STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP14),
+                      STRINGIFY(BSLS_KEYWORD_CONSTEXPR_RELAXED)) == 0);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1040,6 +1324,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   Test machinery
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TEST MACHINERY"
+                            "\n======================\n");
 
         const char s1[] = STRINGIFY(A string literal);
         const char l1[] = "A string literal";

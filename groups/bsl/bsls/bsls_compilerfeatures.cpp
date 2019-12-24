@@ -16,9 +16,15 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED) &&               \
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) &&                 \
     !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 #error Relaxed 'constexpr' support should imply 'constexpr' support!
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17) &&                 \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
+#error Relaxed (C++17) 'constexpr' support should imply relaxed (C++14)       \
+    'constexpr' support!
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS) &&                  \

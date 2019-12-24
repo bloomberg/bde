@@ -51,9 +51,9 @@ using namespace bslstl;
 //: o 'size()'
 //
 // We will follow our standard 10-case approach to testing value-semantic
-// types, with the default constructor and primary manipulators tested fully
-// in case 2 and additional operators, accessors, and manipulators tested above
-// case 10. Aggregate initialization is also tested in test case 15 by
+// types, with the default constructor and primary manipulators tested fully in
+// case 2 and additional operators, accessors, and manipulators tested above
+// case 10.  Aggregate initialization is also tested in test case 15 by
 // initializing with a variety of sizes and verifying all values are as
 // expected.
 //
@@ -799,8 +799,8 @@ struct AggregateTest<TYPE, 0>
 
 template <class TYPE>
 bool isPtrConstant(const TYPE *)
-    // This specialization of 'isPtrConstant' is called for const pointer
-    // types and always returns 'true'.
+    // This specialization of 'isPtrConstant' is called for const pointer types
+    // and always returns 'true'.
 {
     return true;
 }
@@ -2126,7 +2126,7 @@ struct TestDriver {
         // Test primary manipulators.
 
     static void testCase1();
-        // Breathing Test. Exercises basic functionality.
+        // Breathing Test.  Exercises basic functionality.
 };
 
 template<class TYPE>
@@ -2142,7 +2142,7 @@ struct TestDriverWrapper{
         // Test 'data' member.
 
     static void testCase19();
-        // Test 'front' and 'back'  members.
+        // Test 'front' and 'back' members.
 
     static void testCase18();
         // Test 'at' member.
@@ -2196,7 +2196,7 @@ struct TestDriverWrapper{
         // Test primary manipulators.
 
     static void testCase1();
-        // Breathing Test. Exercises basic functionality.
+        // Breathing Test.  Exercises basic functionality.
 };
 
                                 // ----------
@@ -2230,8 +2230,8 @@ void TestDriver<TYPE, SIZE>::testCase22()
     //: 2 Unequal objects hash as unequal (not required, but we can hope).
     //
     // Plan:
-    //: 1 Specify a set S of unique object values having various
-    //:   minor or subtle differences.
+    //: 1 Specify a set S of unique object values having various minor or
+    //:   subtle differences.
     //:
     //: 2 Verify the correctness of hash values matching using all elements of
     //:   the cross product S X S.  (C-1..2)
@@ -2417,7 +2417,7 @@ void TestDriver<TYPE, SIZE>::testCase19()
     // Plan:
     //: 1 Generate an array from a spec string
     //:
-    //: 2 Verify  that the address of the referenced element returned from
+    //: 2 Verify that the address of the referenced element returned from
     //:   'front' and 'back' are the addresses of the first and last elements.
     //:   (C-1..2)
     //:
@@ -2507,14 +2507,14 @@ void TestDriver<TYPE, SIZE>::testCase18()
     //: 1 The 'at' method accesses each element both as a reference offering
     //:   modifiable access and as a const-reference.
     //:
-    //: 2 Elements can be set using 'at' for any type that supports
-    //:   the assignment operator.
+    //: 2 Elements can be set using 'at' for any type that supports the
+    //:   assignment operator.
     //
     // Plan:
     //: 1 Construct an array from the spec string and verify all values are
     //:   accessed as expected.
     //:
-    //: 2 Verify  that the address of the referenced element returned from 'at'
+    //: 2 Verify that the address of the referenced element returned from 'at'
     //:   is the same as that return by adding the specified index to the
     //:   'd_data' pointer.  (C-1..2)
     //:
@@ -2827,9 +2827,9 @@ void TestDriver<TYPE, SIZE>::testCase14()
     //: 3 The ranges '[begin(), end())' and '[cbegin(), cend())' traverse the
     //:   elements of the array in index order.
     //:
-    //: 4 'reverse_iterator' and 'const_reverse_iterator' are
-    //:   implemented by the (fully-tested) 'bslstl::ReverseIterator' over a
-    //:   pointer to 'TYPE' or 'const TYPE'.
+    //: 4 'reverse_iterator' and 'const_reverse_iterator' are implemented by
+    //:   the (fully-tested) 'bslstl::ReverseIterator' over a pointer to 'TYPE'
+    //:   or 'const TYPE'.
     //:
     //: 5 The ranges '[rbegin(), rend())' and '[crbegin(), crend())' traverse
     //:   the elements of the array in reverse index order.
@@ -3039,7 +3039,7 @@ void TestDriver<TYPE, SIZE>::testCase12()
     //
     // Plan:
     //: 1 Construct two arrays (source and target) using default constructor
-    //:   and populate them with different values. Call the move-assignment
+    //:   and populate them with different values.  Call the move-assignment
     //:   operator and verify the values of the target object.
     //:
     //: 2 Call the move-assignment operator for two arrays with elements of a
@@ -3196,7 +3196,7 @@ void TestDriver<TYPE, SIZE>::testCase11()
     //
     // Plan:
     //: 1 Move construct an array of a type with a default generated move
-    //:   constructor. Ensure the new array has the expected values.
+    //:   constructor.  Ensure the new array has the expected values.
     //:
     //: 2 Move construct an array of a special type allowing to track down
     //:   movement of each element and verify that all elements are moved.
@@ -3347,7 +3347,7 @@ void TestDriver<TYPE, SIZE>::testCase9()
     //: 4 In the second pair modify and then let the source object go out of
     //:   scope and verify that the target object remains unchanged.  (C-4)
     //:
-    //: 5 Create an array and assign it to itself. Verify that its value
+    //: 5 Create an array and assign it to itself.  Verify that its value
     //:   remains unchanged.  (C-5)
     //
     // Testing:
@@ -3633,8 +3633,7 @@ void TestDriver<TYPE, SIZE>::testCase7()
     //:
     //: 4 Verify that the array W1 is equal to X1 and W2 is equal to X2.  (C-3)
     //:
-    //: 5 Modify the source array X1 and verify that W1 and Y1 are
-    //:   still equal.
+    //: 5 Modify the source array X1 and verify that W1 and Y1 are still equal.
     //:
     //: 6 Modify the copy-constructed array Y2 and check that W2 and X2 are
     //:   still equal.
@@ -4083,14 +4082,14 @@ void TestDriver<TYPE, SIZE>::testCase2()
     // TESTING PRIMARY MANIPULATORS
     //
     // Concerns:
-    //: 1 An object created with the default constructor defalt constructs
-    //:   a number of elements equal to the size of the array with the
-    //:   exception of 0 length arrays that will construct 1 element.
+    //: 1 An object created with the default constructor defalt constructs a
+    //:   number of elements equal to the size of the array with the exception
+    //:   of 0 length arrays that will construct 1 element.
     //:
     //: 2 Destructor calls the destructor of every element.
     //:
-    //: 3 Elements can be set using 'operator[]' for any type that supports
-    //:   the assignment operator.
+    //: 3 Elements can be set using 'operator[]' for any type that supports the
+    //:   assignment operator.
     //:
     //: 4 Asserted precondition violations are detected when enabled.
     //
@@ -4234,8 +4233,8 @@ void TestDriver<TYPE, SIZE>::testCase1()
     //  This case exercises (buit does not fully test) basic functionality.
     //
     // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive
-    //:   testing in subsequent test cases.
+    //: 1 The class is sufficiently functional to enable comprehensive testing
+    //:   in subsequent test cases.
     //
     // Plan:
     //: 1 Create an object 'x' (default ctor).           { x:D           }
@@ -4312,7 +4311,7 @@ namespace UsageExample {
 // In this section we show intended use of this component.
 //
 ///Example 1: Returning an array from a function
-///- - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to define a function that will return an array of 'float's.
 // If a raw array were used, the size would need to be tracked separately
 // because raw arrays decay to pointers when passed as function arguments, or
@@ -4326,9 +4325,10 @@ Point createPoint(float f1, float f2, float f3)
     bsl::array<float, 3> ret = {f1, f2, f3};
     return ret;
 }
+//..
 // Create a bsl::array object containing three values set to the specified
 // 'f1', 'f2', 'f3'.
-
+//..
 void usageExample()
 {
     Point p1 = createPoint(1.0, 1.0, 1.0);
@@ -4343,6 +4343,7 @@ void usageExample()
         }
     }
 }
+//..
 // Use the createPoint function to generate three arrays of floats.  The arrays
 // are returned by copy and the 'size()' member function is used to access the
 // size of the arrays that could not be done with a raw array.
@@ -4423,8 +4424,8 @@ int main(int argc, char *argv[])
         //:   o size
         //:   o get  (x2)
         //:
-        //: 2 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR_RELAXED'
-        //:   macro can be used in constant evaluation on a C++14 compiler (or
+        //: 2 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR_CPP14' macro
+        //:   can be used in constant evaluation on a C++14 compiler (or
         //:   later).
         //:   o operator[]
         //:   o at
@@ -4477,7 +4478,7 @@ int main(int argc, char *argv[])
         static_assert(13 == bsl::get<6>(X), "Bad value for 'get' at index 6");
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
         static_assert( 1 == X[0], "Bad value at index 0");
         static_assert( 1 == X[1], "Bad value at index 1");
         static_assert( 2 == X[2], "Bad value at index 2");
