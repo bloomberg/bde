@@ -171,6 +171,9 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
+#include <bsls_libraryfeatures.h>
+
+#include <cstddef>
 #include <cstdio>
 
 namespace BloombergLP {
@@ -237,20 +240,11 @@ struct ProtocolTest_MethodReturnRefType {
     // implementation of a protocol method, it is implicitly converted to
     // the return type of the protocol method.
 
-    // CLASS METHODS
-    template <class T>
-    static T* & getAddress();
-        // Return a reference to the pointer which will be dereferenced by
-        // 'operator T&()'.  Returning a reference prevents the compiler from
-        // being able to optimize out dereference of a null pointer, as the
-        // program may potentially change the pointer before 'operator T&()' is
-        // called.
-
     // ACCESSORS
     template <class T>
     operator T&() const;
         // Return a 'T&' reference to an invalid object.  The returned value
-        // cannot be used and should be immediately discarded.
+        // should not be used and should be immediately discarded.
 };
 
                        // =======================
@@ -308,6 +302,31 @@ class ProtocolTest_Status {
     bool last() const;
         // Return 'true' if the last test completed successfully (or no test
         // has yet completed), and 'false' if it failed.
+};
+
+                    // ===========================
+                    // class ProtocolTest_AsBigAsT
+                    // ===========================
+
+template <class T>
+class ProtocolTest_AsBigAsT {
+    // This auxiliary structure has a size no less than the size of (template
+    // parameter) 'T'.
+
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
+    // DATA
+    std::max_align_t d_dummy[sizeof(T) / sizeof(std::max_align_t) + 1];
+#else
+    // PRIVATE TYPES
+    union MaxAlignType {
+        void               *d_v_p;
+        unsigned long long  d_ull;
+        long double         d_ul;
+    };
+
+    // DATA
+    MaxAlignType d_dummy[sizeof(T) / sizeof(MaxAlignType) + 1];
+#endif
 };
 
                           // =====================
@@ -501,21 +520,13 @@ ProtocolTest_MethodReturnType::operator T() const
                    // class ProtocolTest_MethodReturnRefType
                    // --------------------------------------
 
-// CLASS METHODS
-template <class T>
-inline
-T* & ProtocolTest_MethodReturnRefType::getAddress()
-{
-    static T* address = 0;
-    return address;
-}
-
 // ACCESSORS
 template <class T>
 inline
 ProtocolTest_MethodReturnRefType::operator T&() const
 {
-    return *getAddress<T>();
+    static ProtocolTest_AsBigAsT<T> obj;
+    return *reinterpret_cast<T *>(&obj);
 }
 
                        // -----------------------
