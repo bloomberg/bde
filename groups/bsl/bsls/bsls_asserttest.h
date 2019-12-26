@@ -345,6 +345,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_asserttestexception.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #ifdef BDE_BUILD_TARGET_SAFE_2

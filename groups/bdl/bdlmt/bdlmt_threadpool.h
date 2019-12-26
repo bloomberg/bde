@@ -354,6 +354,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_compilerfeatures.h>
 
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_movableref.h>

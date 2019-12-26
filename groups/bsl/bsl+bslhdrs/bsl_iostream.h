@@ -21,6 +21,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 
 #include <iostream>
 

@@ -90,6 +90,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_iso8601util.h>
 #include <bdlt_datetimeinterval.h>
 
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_c_stdio.h>

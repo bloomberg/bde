@@ -48,6 +48,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
