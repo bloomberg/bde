@@ -331,6 +331,7 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalconvertutil_inteldfp.h>
 #include <bdldfp_decimalimputil.h>
 #include <bdldfp_decimalimputil_inteldfp.h>
+#include <bdldfp_decimalplatform.h>
 #include <bdldfp_decimalutil.h>
 #include <bdldfp_intelimpwrapper.h>
 

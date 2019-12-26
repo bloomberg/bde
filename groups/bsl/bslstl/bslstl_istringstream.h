@@ -97,10 +97,12 @@ BSL_OVERRIDES_STD mode"
 #endif
 #include <bslscm_version.h>
 
+#include <bslma_usesbslmaallocator.h>
+
+#include <bsls_libraryfeatures.h>
+
 #include <bslstl_string.h>
 #include <bslstl_stringbuf.h>
-
-#include <bslma_usesbslmaallocator.h>
 
 #include <ios>
 

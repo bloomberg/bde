@@ -149,6 +149,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_assertimputil.h>
 #include <bsls_libraryfeatures.h>
 
 #include <algorithm>

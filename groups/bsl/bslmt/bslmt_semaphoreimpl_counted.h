@@ -54,13 +54,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_atomic.h>
 
-#ifndef BSLMT_SEMAPHOREIMPL_PTHREAD
 #include <bslmt_semaphoreimpl_pthread.h>
-#endif
-
-#ifndef BSLMT_SEMAPHOREIMPL_DARWIN
 #include <bslmt_semaphoreimpl_darwin.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

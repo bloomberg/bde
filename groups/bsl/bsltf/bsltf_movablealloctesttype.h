@@ -75,12 +75,15 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsltf_movestate.h>
-
 #include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_movableref.h>
+
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+
+#include <bsltf_movestate.h>
 
 namespace BloombergLP {
 

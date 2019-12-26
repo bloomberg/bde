@@ -207,6 +207,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <algorithm>  // swap (C++03)
 #include <utility>    // swap (C++17)

@@ -313,6 +313,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #include <bsls_assert.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_platform.h>
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
 

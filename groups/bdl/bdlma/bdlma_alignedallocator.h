@@ -233,6 +233,7 @@ BSLS_IDENT("$Id$")
 #include <bslma_allocator.h>
 
 #include <bsls_annotation.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>

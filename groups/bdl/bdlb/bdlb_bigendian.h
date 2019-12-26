@@ -104,6 +104,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_byteorder.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_iosfwd.h>

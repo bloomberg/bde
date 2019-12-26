@@ -64,6 +64,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #include <bslmf_typelist.h>
 
+#include <bsls_compilerfeatures.h>
+
 namespace BloombergLP {
 
 namespace bslmf {

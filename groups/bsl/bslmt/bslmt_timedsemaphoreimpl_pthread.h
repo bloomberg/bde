@@ -57,6 +57,7 @@ BSLS_IDENT("$Id: $")
 // Platform specific implementation starts here.
 
 #include <bsls_atomic.h>
+#include <bsls_platform.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
 

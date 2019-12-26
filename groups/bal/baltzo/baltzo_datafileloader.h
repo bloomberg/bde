@@ -199,6 +199,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_string.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
