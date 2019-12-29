@@ -311,6 +311,8 @@ BSLS_IDENT("$Id: $")
 // not propagated from the container to its elements.  First, we create a
 // C++03-style allocator class template:
 //..
+//  #include <bsls_compilerfeatures.h>
+//
 //  template <class TYPE>
 //  class MyCpp03Allocator {
 //      int d_state;

@@ -223,6 +223,7 @@ BSL_OVERRIDES_STD mode"
 
 #include <bslmf_movableref.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_util.h>
 
 namespace BloombergLP {

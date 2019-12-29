@@ -131,6 +131,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 
 #include <cstddef>  // std::size_t
 

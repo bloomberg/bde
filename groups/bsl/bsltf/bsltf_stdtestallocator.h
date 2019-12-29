@@ -125,6 +125,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 
 #include <bslmf_util.h>
 

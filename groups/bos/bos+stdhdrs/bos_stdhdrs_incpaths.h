@@ -119,6 +119,7 @@ extern "C++" {
 #include <bsls_compilerfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
+
 } // extern "C++"
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)

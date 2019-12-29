@@ -144,6 +144,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_issame.h>
 #include <bslmf_util.h>
 
+#include <bsls_compilerfeatures.h>
+
 #include <new>
 
 namespace BloombergLP {
