@@ -1,10 +1,29 @@
-bsl-internal (3.45.0.0) unstable; urgency=low
+bsl-internal (3.46.0.0) unstable; urgency=low
 
+  * d5d8e2955 Bumped version to 3.46.0.0
+  * 3f96918dc Merge pull request #2652 from mgiroux/add-missing-includes-for-if-ifn-defs-drqs153708911
+  * 4d4e964ac Merge pull request #2648 from mgiroux/suppress-maybe-uninit-balxml_encoder-drqs153551134
+  * ceb31bd1c Merge pull request #2649 from mgiroux/pr/2591-rebased-master
+  * 98ca63085 Merge pull request #2640 from ameredit/detect_nested_traits_no_sun_abomination
+  * a28735f22 Merge pull request #2644 from hrosen4/bad-string-hash_drqs-153467238
+  * ad96a9143 Merge pull request #2642 from hrosen4/bad-fenv_drqs-153457037
+  * e3fb70d37 Merge pull request #2630 from afeher/drqs-153145297-fix-msvc-2017-out-of-memory
+  * d9f5ec454 Merge pull request #2626 from ameredit/fix_isnothrow_move_constructible_for_gcc03
+  * 2d53e7a2f Merge pull request #2628 from dsokolov7/review/bde-decimal-bid-conversion-drqs-151660179
+  * 69505a652 Merge pull request #2636 from hrosen4/striped-custom-equal_drqs-153304888
+  * 51129a3bd Merge pull request #2570 from bchapman/bsltf-move-noexcept-drqs-150993980
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 28 Dec 2019 22:45:35 -0500
+
+bsl-internal (3.45.0.0) git; urgency=low
+
+  * 5afca6e5c Changelog for version 3.45.0.0
   * 4d366df7b Bumped version to 3.45.0.0
   * 327e0ef1b Merge pull request #2633 from bchapman/bdls_processutil-a.out-exists-drqs-153152443
   * a7cb8b875 Merge pull request #2632 from jberne4/unused_fixes
   * 0bf67619f Merge pull request #2619 from hrosen4/bid-no-extern-c
   * d72eba021 Merge pull request #2629 from jberne4/extra_semicolon
+  * 75982729b Conversion to/from BID format has been added to 'DecimalConvertUtil'
   * 8389a059f Merge pull request #2617 from afeher/apple-clang-cpp17-search-fix2
   * 6e9c3be83 Merge pull request #2621 from jberne4/deprecate_unused
   * 45d6ba4e4 Merge pull request #2624 from osubbotin/review/doxygen-typo
@@ -15,7 +34,7 @@ bsl-internal (3.45.0.0) unstable; urgency=low
   * ae56e258c Merge pull request #2620 from afeher/drqs-152975789-use-getmodulehandlea
   * c0b912434 Merge pull request #2618 from bde/osubbotin-bdlb-tokenizer
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 14 Dec 2019 11:42:35 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 14 Dec 2019 11:43:08 -0500
 
 bsl-internal (3.44.0.0) git; urgency=low
 
