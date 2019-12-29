@@ -1,5 +1,12 @@
-bsl-internal (3.46.0.0) unstable; urgency=low
+bsl-internal (3.46.0.1) unstable; urgency=low
 
+  * 16d726335 Merge pull request #2653 from mgiroux/restore-deleted-transitive-includes
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 29 Dec 2019 13:10:08 -0500
+
+bsl-internal (3.46.0.0) git; urgency=low
+
+  * 3366afb62 Changelog for version 3.46.0.0
   * d5d8e2955 Bumped version to 3.46.0.0
   * 3f96918dc Merge pull request #2652 from mgiroux/add-missing-includes-for-if-ifn-defs-drqs153708911
   * 4d4e964ac Merge pull request #2648 from mgiroux/suppress-maybe-uninit-balxml_encoder-drqs153551134
@@ -13,7 +20,7 @@ bsl-internal (3.46.0.0) unstable; urgency=low
   * 69505a652 Merge pull request #2636 from hrosen4/striped-custom-equal_drqs-153304888
   * 51129a3bd Merge pull request #2570 from bchapman/bsltf-move-noexcept-drqs-150993980
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 28 Dec 2019 22:45:35 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 28 Dec 2019 22:46:35 -0500
 
 bsl-internal (3.45.0.0) git; urgency=low
 
@@ -214,6 +221,7 @@ bsl-internal (3.37.1.0) git; urgency=low
   * 38a7b9dbf Merge pull request #2465 from bde/revert-2456-searchers-drqs-142948762.3
   * 424f93dce Merge pull request #2463 from jmendelsohn4/nb/20190819/transitive-include-issue
   * b301a6567 Merge pull request #2454 from oimanuel/add_shutdown_bslmt_throughputbenchmark-drqs-146969724
+  * 51b74c830 Initial dlcu_utf8util import
   * 4a47fb7c6 Merge pull request #2461 from osubbotin/review/doxygen-fixes
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 23 Aug 2019 13:56:50 -0400
@@ -1044,7 +1052,9 @@ bsl-internal (3.5.0.0) git; urgency=low
   * 5fa01ef1c Merge pull request #1303 from csharpe/patch-1
   * b9f8ea970 Merge pull request #1337 from mivanov15/patch-2
   * e5d658cb0 Merge pull request #1389 from mivanov15/patch-3
+  * d68bb73e0 Manually forward to member function to work around bug in the IBM compiler that sees setg as protected, even though it is imported into the public interface.
   * 5b316538a Merge pull request #1585 from bchapman/balst_stacktraceresolver-DWARF-recent-versions-drqs-107745446
+  * afcc1220a Work around bug in IBM compiler that sees setg as protected, even though it is imported into the public interface.
   * 5c943308e Merge pull request #1586 from osubbotin/review/cmake-internal-release
   * 113526b72 Merge pull request #1516 from apaprock/test-bitwise-moveable-fixes
   * 16c3dbcf5 Merge pull request #1559 from oimanuel/addifvalid_bdlt_datetime-drqs-59819730
@@ -1628,6 +1638,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * cf151fa78 Merge pull request #972 from cwilson/tryLock-return-type-doc-typo-drqs-68105782
   * 148ee2da3 Merge pull request #968 from oimanuel/balxml_decoder_keep_name-drqs-93848941
   * beee75c24 Merge pull request #928 from oimanuel/bdlcc_skiplist_add_bounds-drqs-30255759
+  * 7e606ac53 imported changes; test driver does not work yet
   * 6deb1769c Merge pull request #967 from ameredit/document_function_test_driver
   * 26085aecb Merge pull request #964 from hrosen4/Darwin-ENOTCONN-drqs-84385318
   * c018bf4f6 add missing bdex direct tests for version 2
@@ -1820,6 +1831,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * 60c67961f Merge pull request #820 from ameredit/array_decay_on_msvc
   * 46015794f Merge pull request #762 from glaptev1/feature/extract-HasStlIterators-into-its-own-component-drqs-55521776
   * e3b350fe8 Merge pull request #792 from mgiroux/review/avoid-uninit-errors-for-isnull
+  * bd0640bc0 Add 'noexcept' to several important utilities
   * 3bed12636 Merge pull request #816 from ameredit/null_literals_for_bslmaallocator
   * 0d9bad344 Merge pull request #813 from ccotter/ccotter-patch-1
   * 863302269 Merge pull request #819 from hrosen4/temp-files-drqs-91111766
@@ -2272,6 +2284,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 5bbe62543 Merge pull request #399 from jolkin/patch-1
   * 5d7762395 Merge pull request #397 from hversche/fix-sun-function-failures-for-dpkg
   * 7b342281c Merge pull request #398 from mgiroux/review/undefine-BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+  * 3ca674266 Have bsl_typeinfo.h include <exception> when it imports its names.
   * 00a35f973 Merge pull request #393 from bde/revert-388-update-bsls_log-for-3.0
   * 186411901 Merge pull request #388 from hversche/update-bsls_log-for-3.0
   * 3034ca5c5 Adopt commit 007cdb0 from master: Merge pull request #392 from hrosen4/decimal-format-github-pull-213
@@ -2375,6 +2388,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 38c63ae83 Merge pull request #185 from dgoffred/managedptr-elementtype-drqs-78683245
   * 1fe5e53d1 Adopt commit 31661fe from branch-name: Merge pull request #206 from hversche/resolveutil-schumann-drqs-76780625
   * 31661feb9 Merge pull request #206 from hversche/resolveutil-schumann-drqs-76780625
+  * 440aedb0b Adopt commit 13c2004 from master: [IMPORT] Merge branch github-pull-210 into import-PR-210-drqs-79437944
   * e6b4e8a6d Merge pull request #210 into oss/master
   * 1346f60f7 Adopt commit 62f1b71 from master: Merge pull request #187 from jmendelsohn4/calendarcache-drqs-78537580
   * cff28fd5b Adopt commit e9c867c from master: Merge pull request #220 from ameredit/patch/better_is_convertible_testing
@@ -2393,6 +2407,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 2cb016936 Adopt commit 3da3876 from master: Merge pull request #164 from osubbotin/review/bde-pcre2-drqs-75830340
   * ac6593bf9 Adopt commit 4d430f6 from master: Merge pull request #189 from ameredit/patch/fixing_is_convertible_tests
   * 7a4dd7e58 Adopt commit e33f44c from master: Merge pull request #188 from che2/workaround-sun-cc-bug-decimal-streambuf
+  * 13c200456 [IMPORT] Merge branch github-pull-210 into import-PR-210-drqs-79437944
   * 62f1b719e Merge pull request #187 from jmendelsohn4/calendarcache-drqs-78537580
   * e9c867c3d Merge pull request #220 from ameredit/patch/better_is_convertible_testing
   * 51bca5fa6 Merge pull request #184 from rbhindwa/btlso_resolveutil-test-failures
@@ -2577,6 +2592,8 @@ bsl-internal (3.0.0.0) git; urgency=low
   * b1305be84 [APPROVAL] OSS updatebsloss-releasenotes to master
   * a6d101e7b [APPROVAL] updatebsloss-releasenotes to master
   * 6edd9566f Update release notes
+  * c8a38ebc7 import initializer_list to bsl for g++ 4.8 and above in c++11 mode
+  * 6eba76071 add unique_ptr and nullptr_t imports into namespace bsl for g++ 4.8 and above in C++11 mode
   * 5de1b39e6 [APPROVAL] OSS pending/master/fix-baltzo-build to master
   * 28dd72664 [APPROVAL] pending/master/fix-baltzo-build to master
   * 8b6da42a6 [APPROVAL] OSS pending/master/fix-osx-tcptimereventmanager to master
@@ -2643,6 +2660,7 @@ bsl-internal (3.0.0.0) git; urgency=low
 bsl-internal (2.24.0.3) git; urgency=low
 
   * 96deef815 Changelog for version 2.24.0.3
+  * 6938c4e87 Fix 'swap' ADL failure in imported standard test driver.
   * edaa52f27 Fix incomplete enum conversion in btlsos_tcptimedchannel.t.cpp
   * 90726a1e3 [APPROVAL] OSS pending/master/bbldcu_initial_development-drqs-64659538 to master
   * 9bc216634 [APPROVAL] pending/master/bbldcu_initial_development-drqs-64659538 to master
@@ -3634,6 +3652,8 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 3cae99a9c drqs-40608146: Additional format fixes in 2.17 for 'doxygen' conversion.
   * 663207c13 [APPROVAL] OSS review/update-gyp-files to master
   * a4a931036 [APPROVAL] review/update-gyp-files to master
+  * 3fe9dd75b Base commit for imported branches
+  * df48f3d1c Sync point for importing existing branches
   * c8e9575ef [APPROVAL] INTERNAL review/fix-omit-macro-use-in-bslstl_hash-drqs-40636011 to master
   * d6bdff8d2 [APPROVAL] review/fix-omit-macro-use-in-bslstl_hash-drqs-40636011 to master
   * c2d67d81f [APPROVAL] OSS review/add-internal-build-tool-support-revised to master
@@ -3645,11 +3665,15 @@ bsl-internal (2.18.0.0) git; urgency=low
   * f8eb0de61 [APPROVAL] add-internal-build-tool-support-revised to master
   * b0edd545f [APPROVAL] OSS review/remove-bslma-size-is-signed-from-bslstl-allocator-drqs-40228902 to master
   * c92e96fcd [APPROVAL] OSS master to master
+  * 012f154b3 Merge branch 'import' into import-test
   * 27f334853 Import internal commit 0454183481f25471c59b3a0f5740766f5a22812b : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
+  * c8dc1e4e5 Merge remote-tracking branch 'oss/master' into import
+  * 07b3dbac9 Merge branch 'import' into import-test
   * 6734b02b5 Import internal commit 7602e96e54223a3ac2a9c15554d971a7031741d0 : [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
   * afd9b76dd Import internal commit f9a3125265ac3d13b12c5c62babdffa669cba457 : [APPROVAL] pending/master/alloctesttype-td-safe-fix-drqs-36772136 to master
   * e2140fb2e Import internal commit 899fb2b4cd942eba7a41d7016769cf4cc2938eef : [APPROVAL] pending/master/oss-universal-size-type-printf-code-in-bsls_bsltestutil-drqs_37405914 to master
   * de5ec8719 Remove hardcoded GCC and Clang version numbers
+  * 634c36ebe Merge branch 'import' into import-test
   * 22e0cb6e9 Import internal commit cf441df5f54da3445a2bd15a68aceda8d631b684 : [APPROVAL] pending/master/revert_hash_const_char_intentional_breakage_drqs38592188 to master
   * 6cfb352e4 Import internal commit a100fe32303c878dd982b899e810b60e2ae45f21 : [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
   * ba3149f50 Import internal commit 091f6194ae0f32c9f07cb3ab191c0abf6f03f8a0 : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
@@ -3686,8 +3710,11 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 81b7d17f8 Import internal commit 018b110162ce1bb470001fa0c50d46cf9a03a85e : [APPROVAL] origin/review/bsl-stringbuf-assertsize-drqs38618050 to master
   * b9e8a0488 Import internal commit 90e91784ee3e86697cbfccd9ca0ab88680eb7d7a : [APPROVAL] origin/review/fixes_for_doxygen-drqs-38664727 to master
   * e7a6ea092 Import internal commit 414edb6e54182def7d25aa540cdcfe70818d92ee : [APPROVAL] pending/master/fix-bdeut_variant-warning-drqs-37689270 to master
+  * de710d9e1 Merge branch 'upstream-master' into import-test
+  * 5a4d2f32b Merge branch 'import' into import-test
   * 1f5eebf74 Import internal commit 49a9b029b9417d6b4bfe8ff366c554d82e4fb7d8 : [APPROVAL] pending/master/bslalg_autoarray-move-destructor-usage-drqs-34554786 to master
   * 8783b8876 Import internal commit de0473a297248668b55a3385ba5eda7b73184ff3 : [APPROVAL] pending/master/restore_non_standard_bsl_hash_for_strings_drqs37540921 to master
+  * 003b32b19 Merge branch 'import' into master
   * e3755a09a Import internal commit e02418a7deff5f08ca6cd1d9ff425c3ddb0da679 : [APPROVAL] pending/master/bslmf-tests-msvc-drqs37446628 to master
   * 7a4ceaef3 Import internal commit d33d90ed2a832a83ddb0dff2d2e623ac0418caae : [APPROVAL] pending/master/fix-bslmf_removepointer_t_cpp-omit_deprecated-on-aix-drqs-37503925 to master
   * 702d68fde Import internal commit 529cd3d19fe59ddddc86df57e5ad0ce7190c0b8f : [APPROVAL] pending/master/bslmf_isfunction-fails-test-case-1-on-clang-drqs-37510095 to master
@@ -3706,13 +3733,16 @@ bsl-internal (2.18.0.0) git; urgency=low
   * a601505ea Import internal commit d830a8b9f65f96cb2a6ab0b984126c66325c1d6b : [APPROVAL] pending/master/fix-warnings-in-bslalg_rangecompare-drqs-37088163 to master
   * 6000026ce Import internal commit a2a7ceb7fadb076fdda57f4da8078b2400faed7b : [APPROVAL] pending/master/fix-warnings-in-bslalg_dequeprimitives-drqs-37088378 to master
   * e659c43fd Import internal commit 136c4b5ac15a30254a505e6e2f32ec52cd105e20 : [APPROVAL] pending/master/fix-warnings-issues-41_42_46_47_56-drqs-37220936 to master
+  * e60dc6377 Merge branch 'import' into master
   * 608cbbc13 Import internal commit 5693cf365d7cd954d10232cccae661679a0ef836 : [APPROVAL] origin/review/bsl-stdhdrs-time-h-drqs37074038 to master
   * d909e7c77 Import internal commit 007676d1c2830fbb1a066f94ab8e2f0a4ed66356 : [APPROVAL] pending/master/fix-unused-warnings-oss-issues-22-24_drqs-36943712 to master
   * 22293b718 Import internal commit 791cabf2cf00354a52739c59e55145b6cdd71ec8 : [APPROVAL] pending/master/bslcleanup-update_pkg_synopses-drqs-35798568 to master
   * f9b052cee Import internal commit 60a0c65fd1ad1b5f5d5d6aa7f9f68da7fee8269f : [APPROVAL] pending/master/drqs-35256287-bslma-package-level-doc to master
   * 501143e89 Import internal commit a65a561ba7f4b14a43c8bd1a056159db1a5a95cd : [APPROVAL] pending/master/reduce-scope-of-omit-transitional-in-bsl_functional_drqs-36719120 to master
+  * 02a9c0ff2 Merge branch 'import'
   * 346e72af2 Import internal commit 849c21ede5e4f898db51adc9147c73ce2020f993 : [APPROVAL] bump-versions-to-2.16.0 to master
   * 19a0f6f4a Import internal commit ad11f5e7116a3834fee7839eb3fb62fd37775be3 : [APPROVAL] pending/master/remove-my_class5-tests-from-typetraits-test-drivers_drqs-35644799 to master
+  * 67f32ad64 Merge branch 'import' into master
   * bfb2aea42 Import internal commit 91357c2f70de28a6092f685d17e2d946ec3793c3 : [APPROVAL] origin/review/allow-pointer-to-member-in-bsl_pair_drqs-36958527 to master
   * a1855369e Import internal commit 37c0921a9ef817cfde697f335588abf2ab525d23 : [APPROVAL] origin/review/bsls_platform-docs-missing-os-darwin-platform_drqs-36943777 to master
   * c76d698cb Import internal commit 67870004e468d51e21292b0cee7f90bb91ea48fb : [APPROVAL] origin/review/oss-issue-26-cosmetica_drqs-36959222 to master
@@ -3720,6 +3750,7 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 90992723a Import internal commit 5d963eb25ecd65d14ca06586bc9564194e120e21 : [APPROVAL] origin/review/fix-bslstl_iteratorutil-on-sun_drqs-36781261 to master
   * 872d7c590 Import internal commit b8202f86dc414ac04ced53909a5b49c88f5b6242 : [APPROVAL] origin/review/fix-bslstl_unorderedmultiset-test-case-1_drqs-36781261 to master
   * 4a3a384cf Import internal commit b1320d9de0fac94e84113f489e71bfe68b3913ca : [APPROVAL] origin/review/oss-issue-5-bsls-timeutil-darwin-includes_drqs-36883008 to master
+  * 9164eb282 Merge branch 'import'
   * 5d4f8c5aa Import internal commit 84799c6fac6b795652b2c99127b1ae9a718ffbf7 : [APPROVAL] origin/review/fix-package-prefix-use-in-bsls_buildtarget-phase-2-drqs-36700708 to master
   * 7959a10aa Import internal commit b2540abc5d7c3ca1acdc5e44d5c34125d6e9a544 : [APPROVAL] origin/review/cleanup-legacy-identifier-use_drqs-36870775 to master
   * ed6172ab5 Import internal commit 64e4529545b04f6bcc0eec290a18e0d70f6cc90f : [APPROVAL] unordered_polish-master-merge to master
