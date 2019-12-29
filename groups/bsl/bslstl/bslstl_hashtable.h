@@ -1519,6 +1519,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_ispointer.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>

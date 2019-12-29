@@ -69,6 +69,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_alignmentutil.h>
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
+#include <bsls_assertimputil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_exceptionutil.h>

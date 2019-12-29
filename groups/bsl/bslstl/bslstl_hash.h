@@ -430,6 +430,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_assert.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <cstddef>  // for 'std::size_t'
 

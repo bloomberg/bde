@@ -79,6 +79,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_usesbslmaallocator.h>
 #include <bslmf_movableref.h>
+
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
 namespace BloombergLP {

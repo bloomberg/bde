@@ -27,6 +27,7 @@ BSLS_IDENT("$Id: $")
 #endif  /* INCLUDED_NATIVE_C_STDDEF */
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 #   include <bos_stdhdrs_incpaths.h>

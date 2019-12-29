@@ -53,6 +53,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #include <bslmt_platform.h>
 
+#include <bsls_platform.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
 

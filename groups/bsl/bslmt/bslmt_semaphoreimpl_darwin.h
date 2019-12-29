@@ -39,6 +39,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <bslmt_platform.h>
 

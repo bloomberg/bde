@@ -170,6 +170,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 #include <bslscm_version.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>

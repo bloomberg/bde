@@ -308,6 +308,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadgroup.h>
 
 #include <bsls_atomic.h>
+#include <bsls_platform.h>
 
 #include <bdlf_bind.h>
 

@@ -17,6 +17,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 
 #include <cstdio>
 

@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 
 #include <bsl_ios.h>
 

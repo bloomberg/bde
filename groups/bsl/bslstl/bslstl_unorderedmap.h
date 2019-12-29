@@ -973,6 +973,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_performancehint.h>
+#include <bsls_platform.h>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # include <initializer_list>

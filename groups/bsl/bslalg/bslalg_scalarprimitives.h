@@ -101,6 +101,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_util.h>
 
 #include <stddef.h>

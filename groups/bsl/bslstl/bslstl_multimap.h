@@ -558,6 +558,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_keyword.h>
 #include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
+#include <bsls_platform.h>
 
 #include <functional>
 

@@ -120,6 +120,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_functoradapter.h>
 #include <bslalg_swaputil.h>
 
+#include <bsls_platform.h>
 #include <bsls_util.h>
 
 namespace BloombergLP {
