@@ -870,18 +870,18 @@ class Md5BlockInputIterator {
 BSLA_MAYBE_UNUSED
 bool operator==(const Md5BlockInputIterator& lhs,
                 const Md5BlockInputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same value,
-    // and return 'false' otherwise.  Two 'Md5BlockInputIterator' objects have
-    // the same value if and only if they address the same first 'unsigned char'
-    // and have the same 'end'.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
+    // objects have the same value if and only if they address the same first
+    // 'unsigned char' and have the same 'end'.
 
 BSLA_MAYBE_UNUSED
 bool operator!=(const Md5BlockInputIterator& lhs,
                 const Md5BlockInputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have different values,
-    // and return 'false' otherwise.  Two 'Md5BlockInputIterator' objects have
-    // different values if and only if they address different first 'unsigned char'
-    // objects or have different 'end' values.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have different
+    // values, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
+    // objects have different values if and only if they address different
+    // first 'unsigned char' objects or have different 'end' values.
 
                           // ========================
                           // class Md5BlockInputRange
@@ -1251,7 +1251,8 @@ class FingerprintHash {
     // structured similarly to 'bslh::Hash', but has the ability to return the
     // 'result_type' of the 'HASH_ALGORITHM', rather than 'bsl::size_t'.  The
     // program is ill-formed unless the 'HASH_ALGORITHM' class meets the
-    // requirements of a 'HashAlgorithm' specified in the 'bslh_hash' component.
+    // requirements of a 'HashAlgorithm' specified in the 'bslh_hash'
+    // component.
 
   public:
     // TYPES
@@ -1357,8 +1358,8 @@ class PutValueFingerprint {
         // this object.
 
     bool encodeDateAndTimeTypesAsBinary() const;
-        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute of
-        // this object.
+        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute
+        // of this object.
 };
 
 // FREE FUNCTIONS
@@ -1462,8 +1463,8 @@ class GetValueFingerprint {
         // this object.
 
     bool encodeDateAndTimeTypesAsBinary() const;
-        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute of
-        // this object.
+        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute
+        // of this object.
 };
 
 // FREE FUNCTIONS
@@ -1504,9 +1505,9 @@ struct GetValueFingerprint_ImplUtil {
                        const balber::BerEncoderOptions&  options);
         // Decode a pseudo-random value loaded by the specified 'loader' and
         // encoded by supplied the value and the specified 'options' to
-        // 'balber::BerUtil::putValue'.  Load the value of the decoded object into
-        // the specififed 'value', and the number of bytes decoded to produce the
-        // value into the specified 'accumNumBytesConsumed'.
+        // 'balber::BerUtil::putValue'.  Load the value of the decoded object
+        // into the specififed 'value', and the number of bytes decoded to
+        // produce the value into the specified 'accumNumBytesConsumed'.
 };
 
                              // ===================
@@ -1710,7 +1711,8 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(int *value)
 }
 
 template <class INPUT_ITERATOR>
-void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(unsigned long long *value)
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(
+                                                     unsigned long long *value)
 {
     BSLMF_ASSERT(8 == sizeof(unsigned long long));
 
@@ -1758,7 +1760,7 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
           BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_NEGATIVE_ZERO: {
-          *value = -0.f;
+          *value = 0.f * -1.f;
           BSLS_ASSERT(bdlb::Float::isZero(*value));
           BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
@@ -1789,7 +1791,7 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
           this->operator()(&mantissa);
           mantissa %= 1 << 22;
 
-          *value = mantissa * minSubnormal;
+          *value = static_cast<float>(mantissa) * minSubnormal;
           BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
       } break;
       case e_NORMAL: {
@@ -1844,12 +1846,12 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(double *value)
           BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_NEGATIVE_ZERO: {
-          *value = -0x0p+1;
+          *value = 0.0 * -1.0;
           BSLS_ASSERT(bdlb::Float::isZero(*value));
           BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
       } break;
       case e_POSITIVE_ZERO: {
-          *value = 0x0p+1;
+          *value = 0.0;
           BSLS_ASSERT(bdlb::Float::isZero(*value));
           BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
       } break;
@@ -1875,7 +1877,7 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(double *value)
           this->operator()(&mantissa);
           mantissa %= 1ll << 52;
 
-          *value = mantissa * minSubnormal;
+          *value = static_cast<double>(mantissa) * minSubnormal;
           BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
       } break;
       case e_NORMAL: {
@@ -2643,7 +2645,8 @@ Md5BlockInputIterator::Md5BlockInputIterator(const unsigned char *begin,
     }
 }
 
-Md5BlockInputIterator::Md5BlockInputIterator(const Md5BlockInputIterator& original)
+Md5BlockInputIterator::Md5BlockInputIterator(
+                                         const Md5BlockInputIterator& original)
 : d_block(original.d_block)
 , d_iterator_p(original.d_iterator_p)
 , d_end_p(original.d_end_p)
@@ -2651,7 +2654,8 @@ Md5BlockInputIterator::Md5BlockInputIterator(const Md5BlockInputIterator& origin
 }
 
 // MANIPULATORS
-Md5BlockInputIterator& Md5BlockInputIterator::operator=(const Md5BlockInputIterator& original)
+Md5BlockInputIterator& Md5BlockInputIterator::operator=(
+                                         const Md5BlockInputIterator& original)
 {
     d_block      = original.d_block;
     d_iterator_p = original.d_iterator_p;
@@ -2720,7 +2724,8 @@ bool operator!=(const Md5BlockInputIterator& lhs,
 Md5BlockInputRange::Md5BlockInputRange(const unsigned char *begin,
                                        const unsigned char *end)
 : d_begin(begin, end)
-, d_end(end + (Md5Block::k_CAPACITY - ((end - begin) % Md5Block::k_CAPACITY)), end)
+, d_end(end + (Md5Block::k_CAPACITY - ((end - begin) % Md5Block::k_CAPACITY)),
+        end)
 {
     BSLS_ASSERT(begin <= end);
 }
