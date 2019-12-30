@@ -1777,7 +1777,9 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
       case e_SNAN: {
           BSLMF_ASSERT(bsl::numeric_limits<float>::has_signaling_NaN);
           *value = bsl::numeric_limits<float>::signaling_NaN();
-          BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
+          // Some platforms do not support signaling NaN values and may
+          // implicitly convert such values to non-signaling NaN values.
+          //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
       } break;
       case e_QNAN: {
           BSLMF_ASSERT(bsl::numeric_limits<float>::has_quiet_NaN);
@@ -1863,7 +1865,9 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(double *value)
       case e_SNAN: {
           BSLMF_ASSERT(bsl::numeric_limits<double>::has_signaling_NaN);
           *value = bsl::numeric_limits<double>::signaling_NaN();
-          BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
+          // Some platforms do not support signaling NaN values and may
+          // implicitly convert such values to non-signaling NaN values.
+          //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
       } break;
       case e_QNAN: {
           BSLMF_ASSERT(bsl::numeric_limits<double>::has_quiet_NaN);
