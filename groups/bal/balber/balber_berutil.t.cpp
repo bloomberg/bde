@@ -1194,10 +1194,11 @@ struct Md5Util {
 };
 
                            // ======================
-                           // class Md5HashAlgorithm
+                           // class Md5ChecksumAlgorithm
                            // ======================
 
-class Md5HashAlgorithm {
+class Md5ChecksumAlgorithm {
+    // TODO(Nate): Edit Documentation.
     // This function-object class provides an implementation of the
     // requirements for a hashing algorithm has specified in the 'bslh_hash'
     // component.
@@ -1206,8 +1207,8 @@ class Md5HashAlgorithm {
     Md5State d_state; // current MD5 state
 
     // NOT IMPLEMENTED
-    Md5HashAlgorithm(const Md5HashAlgorithm&) BSLS_KEYWORD_DELETED;
-    Md5HashAlgorithm& operator=(const Md5HashAlgorithm) BSLS_KEYWORD_DELETED;
+    Md5ChecksumAlgorithm(const Md5ChecksumAlgorithm&) BSLS_KEYWORD_DELETED;
+    Md5ChecksumAlgorithm& operator=(const Md5ChecksumAlgorithm) BSLS_KEYWORD_DELETED;
 
   public:
     // TYPES
@@ -1216,8 +1217,8 @@ class Md5HashAlgorithm {
         // algorithm.
 
     // CREATORS
-    Md5HashAlgorithm();
-        // Create a 'Md5HashAlgorithm' object.
+    Md5ChecksumAlgorithm();
+        // Create a 'Md5ChecksumAlgorithm' object.
 
     // MANIPULATORS
     void operator()(const void *data, bsl::size_t numBytes);
@@ -1232,7 +1233,7 @@ class Md5HashAlgorithm {
         // behavior is undefined unless 'data' addresses a contiguous array of
         // at least 'numBytes' initialized memory.
 
-    result_type computeHash();
+    result_type computeChecksum();
         // Return the finalized version of the hash that has been accumulated
         // and make an unspecified change to the internal state of the
         // algorithm.  Note that calling 'computeHash' multiple times in a row
@@ -1240,12 +1241,14 @@ class Md5HashAlgorithm {
         // will match the expected result of the algorithm.
 };
 
-                           // =====================
-                           // class FingerprintHash
-                           // =====================
+                               // ==============
+                               // class Checksum
+                               // ==============
 
-template <class HASH_ALGORITHM>
-class FingerprintHash {
+template <class CHECKSUM_ALGORITHM>
+class Checksum {
+    // TODO(Nate): Re-write docs.
+
     // This function-object class provides a wrapper around the specified
     // 'HASH_ALGORITHM' capable of hashing objects.  This class template is
     // structured similarly to 'bslh::Hash', but has the ability to return the
@@ -1256,10 +1259,10 @@ class FingerprintHash {
 
   public:
     // TYPES
-    typedef HASH_ALGORITHM                      HashAlgorithm;
+    typedef CHECKSUM_ALGORITHM ChecksumAlgorithm;
         // 'HashAlgorithm' is an alias to the specified 'HASH_ALGORITHM'.
 
-    typedef typename HashAlgorithm::result_type result_type;
+    typedef typename ChecksumAlgorithm::result_type result_type;
         // 'result_type' is an alias to the value type returned by the
         // function-call operator of objects of 'HASH_ALGORITHM' type, as well
         // as the function-call operator of this class.
@@ -1271,13 +1274,13 @@ class FingerprintHash {
         // specified 'object'.
 };
 
-                           // ======================
-                           // struct FingerprintUtil
-                           // ======================
+                             // ===================
+                             // struct ChecksumUtil
+                             // ===================
 
-struct FingerprintUtil {
+struct ChecksumUtil {
     // This utility 'struct' is a namespace for a suite of functions that
-    // compute a "fingerprint" for an object.
+    // compute a checksum for an object.
 
     // CLASS METHODS
     template <class OBJECT_TYPE>
@@ -1363,8 +1366,8 @@ class PutValueFingerprint {
 };
 
 // FREE FUNCTIONS
-template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const PutValueFingerprint& object);
+template <class ALGORITHM> // TODO(Nate): Documentation
+void checksumAppend(ALGORITHM& algorithm, const PutValueFingerprint& object);
     // Deterministically and pseudo-randomly generate 'object.numSamples()'
     // number of inputs for 'balber::BerUtil::putValue' using 'object.seed()'
     // as a pseudo-random seed.  Supply a 'balber::BerEncoderOptions' object
@@ -1468,8 +1471,8 @@ class GetValueFingerprint {
 };
 
 // FREE FUNCTIONS
-template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const GetValueFingerprint& object);
+template <class ALGORITHM> // TODO(Nate): Documentation.
+void checksumAppend(ALGORITHM& algorithm, const GetValueFingerprint& object);
     // Deterministically and pseudo-randomly generate 'object.numSamples()'
     // number of inputs for 'balber::BerUtil::getValue' using 'object.seed()'
     // as a pseudo-random seed.  Provide input to 'balber::BerUtil::getValue'
@@ -1510,9 +1513,67 @@ struct GetValueFingerprint_ImplUtil {
         // produce the value into the specified 'accumNumBytesConsumed'.
 };
 
-                             // ===================
-                             // struct TestDataUtil
-                             // ===================
+                        // ============================
+                        // Checksum Customization Point
+                        // ============================
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, char value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, signed char value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
+                           const bdldfp::Decimal64& value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bsl::string&  value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::Date&   value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::DateTz  value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM&   checksum,
+                           const bdlt::Datetime& value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM&     checksum,
+                           const bdlt::DatetimeTz& value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::Time    value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::TimeTz  value);
+
+template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
+static void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
+                           const bdlb::Variant2<VALUE_1, VALUE_2>& value);
+
+                            // ===================
+                            // struct TestDataUtil
+                            // ===================
 
 struct TestDataUtil {
     // This utility 'struct' is a namespace for a set of static,
@@ -3528,18 +3589,18 @@ Md5Fingerprint Md5Util::getFingerprint(const unsigned char *begin,
 }
 
                            // ----------------------
-                           // class Md5HashAlgorithm
+                           // class Md5ChecksumAlgorithm
                            // ----------------------
 
 
 // CREATORS
-Md5HashAlgorithm::Md5HashAlgorithm()
+Md5ChecksumAlgorithm::Md5ChecksumAlgorithm()
 : d_state(Md5StateUtil::getSeedValue())
 {
 }
 
 // MANIPULATORS
-void Md5HashAlgorithm::operator()(const void *data, bsl::size_t numBytes)
+void Md5ChecksumAlgorithm::operator()(const void *data, bsl::size_t numBytes)
 {
     const Md5BlockInputRange range(static_cast<const unsigned char *>(data),
                                    static_cast<const unsigned char *>(data) +
@@ -3552,7 +3613,7 @@ void Md5HashAlgorithm::operator()(const void *data, bsl::size_t numBytes)
     }
 }
 
-Md5HashAlgorithm::result_type Md5HashAlgorithm::computeHash()
+Md5ChecksumAlgorithm::result_type Md5ChecksumAlgorithm::computeChecksum()
 {
     Md5StateUtil::appendPaddingAndLength(&d_state);
     return d_state.fingerprint();
@@ -3563,28 +3624,27 @@ Md5HashAlgorithm::result_type Md5HashAlgorithm::computeHash()
                             // ---------------------
 
 // ACCESSORS
-template <class HASH_ALGORITHM>
+template <class CHECKSUM_ALGORITHM>
 template <class TYPE>
-typename FingerprintHash<HASH_ALGORITHM>::result_type
-FingerprintHash<HASH_ALGORITHM>::operator()(const TYPE& object) const
+typename Checksum<CHECKSUM_ALGORITHM>::result_type
+Checksum<CHECKSUM_ALGORITHM>::operator()(const TYPE& object) const
 {
-    HASH_ALGORITHM hashAlg;
+    CHECKSUM_ALGORITHM algorithm;
 
-    using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, object);
+    checksumAppend(algorithm, object);
 
-    return static_cast<result_type>(hashAlg.computeHash());
+    return static_cast<result_type>(algorithm.computeChecksum());
 }
 
-                           // ----------------------
-                           // struct FingerprintUtil
-                           // ----------------------
+                             // -------------------
+                             // struct ChecksumUtil
+                             // -------------------
 
 // CLASS METHODS
 template <class OBJECT_TYPE>
-Md5Fingerprint FingerprintUtil::getMd5(const OBJECT_TYPE& object)
+Md5Fingerprint ChecksumUtil::getMd5(const OBJECT_TYPE& object)
 {
-    FingerprintHash<Md5HashAlgorithm> hash;
+    Checksum<Md5ChecksumAlgorithm> hash;
     return hash(object);
 }
 
@@ -3645,7 +3705,7 @@ bool PutValueFingerprint::encodeDateAndTimeTypesAsBinary() const
 
 // FREE FUNCTIONS
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const PutValueFingerprint& object)
+void checksumAppend(HASHALG& hashAlg, const PutValueFingerprint& object)
 {
     balber::BerEncoderOptions encoderOptions;
     encoderOptions.setDatetimeFractionalSecondPrecision(
@@ -3825,7 +3885,7 @@ bool GetValueFingerprint::encodeDateAndTimeTypesAsBinary() const
 
 // FREE FUNCTIONS
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
+void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
 {
     balber::BerEncoderOptions encoderOptions;
     encoderOptions.setDatetimeFractionalSecondPrecision(
@@ -3864,8 +3924,6 @@ void hashAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
 
         typedef GetValueFingerprint_ImplUtil ImplUtil;
 
-        using ::BloombergLP::bslh::hashAppend;
-
         switch (RandomValueUtil::generateInInterval<int>(
             randomValueLoader, 0, k_NUM_SUPPORTED_TYPES - 1)) {
           case e_BOOL: {
@@ -3873,157 +3931,136 @@ void hashAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_CHAR: {
             char value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_SIGNED_CHAR: {
             signed char value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_UNSIGNED_CHAR: {
             unsigned char value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_FLOAT: {
             float value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DOUBLE: {
             double value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DECIMAL64: {
             bdldfp::Decimal64 value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_STRING: {
             bsl::string value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DATE: {
             bdlt::Date value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DATETZ: {
             bdlt::DateTz value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DATE_VARIANT: {
             bdlb::Variant2<bdlt::Date, bdlt::DateTz> value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value.is<bdlt::Date>());
-            if (value.is<bdlt::Date>()) {
-                hashAppend(hashAlg, value.the<bdlt::Date>());
-            }
-            else {
-                BSLS_ASSERT(value.is<bdlt::DateTz>());
-                hashAppend(hashAlg, value.the<bdlt::DateTz>());
-            }
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DATETIME: {
             bdlt::Datetime value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DATETIMETZ: {
             bdlt::DatetimeTz value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_DATETIME_VARIANT: {
               bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> value;
               int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value.is<bdlt::Datetime>());
-            if (value.is<bdlt::Datetime>()) {
-                hashAppend(hashAlg, value.the<bdlt::Datetime>());
-            }
-            else {
-                BSLS_ASSERT(value.is<bdlt::DatetimeTz>());
-                hashAppend(hashAlg, value.the<bdlt::DatetimeTz>());
-            }
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_TIME: {
             bdlt::Time value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_TIMETZ: {
             bdlt::TimeTz value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value);
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           case e_TIME_VARIANT: {
             bdlb::Variant2<bdlt::Time, bdlt::TimeTz> value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
-            hashAppend(hashAlg, value.is<bdlt::Time>());
-            if (value.is<bdlt::Time>()) {
-                hashAppend(hashAlg, value.the<bdlt::Time>());
-            }
-            else {
-                BSLS_ASSERT(value.is<bdlt::TimeTz>());
-                hashAppend(hashAlg, value.the<bdlt::TimeTz>());
-            }
-            hashAppend(hashAlg, numBytes);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
           } break;
           default: {
             BSLS_ASSERT_OPT(!"Unreachable");
@@ -4095,9 +4132,170 @@ void GetValueFingerprint_ImplUtil::getRandomValue(
     BSLS_ASSERT(0 == rc);
 }
 
-                             // -------------------
-                             // struct TestDataUtil
-                             // -------------------
+                               // ---------------
+                               // Checksum Traits
+                               // ---------------
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value)
+{
+    const char normalizedValue = value;
+    BSLMF_ASSERT(1 == sizeof(normalizedValue));
+    checksum(&normalizedValue, sizeof(normalizedValue));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, char value)
+{
+    BSLMF_ASSERT(1 == sizeof(value));
+    checksum(&value, sizeof(value));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, signed char value)
+{
+    BSLMF_ASSERT(1 == sizeof(value));
+    checksum(&value, sizeof(value));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value)
+{
+    BSLMF_ASSERT(1 == sizeof(value));
+    checksum(&value, sizeof(value));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
+{
+    int         exponent;
+    const float floatFraction = bsl::frexp(value, &exponent);
+    const int   fraction      = static_cast<int>(
+        floatFraction * static_cast<float>(bsl::numeric_limits<int>::max()));
+
+    checksumAppend(checksum, fraction);
+    checksumAppned(checksum, exponent);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value)
+{
+    int                      exponent;
+    const double             doubleFraction = bsl::frexp(value, &exponent);
+    const bsls::Types::Int64 fraction       = static_cast<bsls::Types::Int64>(
+        doubleFraction *
+        static_cast<double>(bsl::numeric_limits<bsls::Types::Int64>::max()));
+
+    checksumAppend(checksum, fraction);
+    checksumAppend(checksum, exponent);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
+                    const bdldfp::Decimal64& value)
+{
+    int                 sign;
+    bsls::Types::Uint64 significand;
+    int                 exponent;
+    const int           classification =
+        bdldfp::DecimalUtil::decompose(&sign, &significand, &exponent, value);
+
+    checksumAppend(checksum, sign);
+    checksumAppend(checksum, significand);
+    checksumAppend(checksum, exponent);
+    checksumAppend(checksum, classification);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bsl::string& value)
+{
+    checksum(value.data(), static_cast<int>(value.size()));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::Date& value)
+{
+    int year;
+    int month;
+    int day;
+
+    value.getYearMonthDay(&year, &month, &day);
+
+    checksumAppend(checksum, year);
+    checksumAppend(checksum, month);
+    checksumAppend(checksum, day);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::DateTz& value)
+{
+    checksumAppend(checksum, value.localDate());
+    checksumAppend(checksum, value.offset());
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::Datetime& value)
+{
+    checksumAppend(checksum, value.date());
+    checksumAppend(checksum, value.time());
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM&     checksum,
+                    const bdlt::DatetimeTz& value)
+{
+    checksumAppend(checksum, value.localDatetime());
+    checksumAppend(checksum, value.offset());
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::Time& value)
+{
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+    int microsecond;
+
+    value.getTime(&hour, &minute, &second, &millisecond, &microsecond);
+
+    checksumAppend(checksum, hour);
+    checksumAppend(checksum, minute);
+    checksumAppend(checksum, second);
+    checksumAppend(checksum, millisecond);
+    checksumAppend(checksum, microsecond);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::TimeTz& value)
+{
+    checksumAppend(checksum, value.localTime());
+    checksumAppend(checksum, value.offset());
+}
+
+template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
+void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
+                    const bdlb::Variant2<VALUE_1, VALUE_2>& value)
+{
+    const int typeIndex = value.typeIndex();
+    checksumAppend(checksum, typeIndex);
+
+    switch (typeIndex) {
+      case 1: {
+          checksumAppend(checksum, value.template the<VALUE_1>());
+      } break;
+      case 2: {
+          checksumAppend(checksum, value.template the<VALUE_2>());
+      } break;
+      default: {
+          BSLS_ASSERT(0 == typeIndex);
+      } break;
+    }
+}
+
+                            // -------------------
+                            // struct TestDataUtil
+                            // -------------------
 
 // CLASS DATA
 #define NL "\n"
