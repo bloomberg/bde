@@ -4496,20 +4496,10 @@ class DecimalNumGet : public bsl::locale::facet {
 
     // CREATORS
     explicit DecimalNumGet(bsl::size_t refs = 0);
-        // Constructs a 'DecimalNumGet' object as if
-        //..
-        // explicit DecimalNumGet(bsl::size_t refs)
-        //    : bsl::locale::facet(refs), baseloc(bsl::locale()) ...
-        //..
-        // and optionally specify a 'refs', which will default to 0.
-
-    explicit DecimalNumGet(const bsl::locale& b, bsl::size_t refs = 0);
-        // Constructs a 'DecimalNumGet' object, from the specified 'b', as if
-        //..
-        // explicit DecimalNumGet(bsl::size_t refs)
-        //    : bsl::locale::facet(refs), baseloc(b) ...
-        //..
-        // and optionally specify a 'refs', which will default to 0.
+        // Constructs a 'DecimalNumGet' object.  Optionally specify starting
+        // reference count 'refs', which will default to 0.  If 'refs' is
+        // non-zero, the 'DecimalNumGet' object will not be deleted when the
+        // last locale referencing it goes out of scope.
 
     // ACCESSORS
     iter_type get(iter_type               begin,
@@ -4782,20 +4772,10 @@ class DecimalNumPut : public bsl::locale::facet {
 
     // CREATORS
     explicit DecimalNumPut(bsl::size_t refs = 0);
-        // Constructs a 'DecimalNumPut' object as if
-        //..
-        // explicit DecimalNumPut(bsl::size_t refs)
-        //    : bsl::locale::facet(refs), baseloc(bsl::locale()) ...
-        //..
-        // and optionally specify 'refs', which will default to 0.
-
-    explicit DecimalNumPut(const bsl::locale & b, bsl::size_t refs = 0);
-        // Constructs a 'DecimalNumPut' object, using the specified 'b', as if
-        //..
-        // explicit DecimalNumPut(bsl::size_t refs)
-        //    : bsl::locale::facet(refs), baseloc(b) ...
-        //..
-        // and optionally specify 'refs', which will default to 0.
+        // Constructs a 'DecimalNumPut' object.  Optionally specify starting
+        // reference count 'refs', which will default to 0.  If 'refs' is
+        // non-zero, the 'DecimalNumPut' object will not be deleted when the
+        // last locale referencing it goes out of scope.
 
     // ACCESSORS
     iter_type put(iter_type      out,
