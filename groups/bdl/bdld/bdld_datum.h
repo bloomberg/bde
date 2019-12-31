@@ -2365,8 +2365,8 @@ class DatumIntMapRef {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bdlb::HasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapRef, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapRef, bdlb::HasPrintMethod);
 
     // CREATORS
       DatumIntMapRef(const DatumIntMapEntry *data,
