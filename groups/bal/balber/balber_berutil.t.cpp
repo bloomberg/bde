@@ -1193,9 +1193,9 @@ struct Md5Util {
         // '[begin, end)'.
 };
 
-                           // ======================
-                           // class Md5ChecksumAlgorithm
-                           // ======================
+                         // ==========================
+                         // class Md5ChecksumAlgorithm
+                         // ==========================
 
 class Md5ChecksumAlgorithm {
     // TODO(Nate): Edit Documentation.
@@ -1530,6 +1530,17 @@ template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value);
 
 template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, int value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           bsls::Types::Int64  value);
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           bsls::Types::Uint64  value);
+
+template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value);
 
 template <class CHECKSUM_ALGORITHM>
@@ -1549,7 +1560,7 @@ static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
-                           const bdlt::DateTz  value);
+                           const bdlt::DateTz& value);
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM&   checksum,
@@ -1561,11 +1572,11 @@ static void checksumAppend(CHECKSUM_ALGORITHM&     checksum,
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
-                           const bdlt::Time    value);
+                           const bdlt::Time&   value);
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
-                           const bdlt::TimeTz  value);
+                           const bdlt::TimeTz& value);
 
 template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
 static void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
@@ -3704,8 +3715,9 @@ bool PutValueFingerprint::encodeDateAndTimeTypesAsBinary() const
 }
 
 // FREE FUNCTIONS
-template <class HASHALG>
-void checksumAppend(HASHALG& hashAlg, const PutValueFingerprint& object)
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM&        checksumAlg,
+                    const PutValueFingerprint& object)
 {
     balber::BerEncoderOptions encoderOptions;
     encoderOptions.setDatetimeFractionalSecondPrecision(
@@ -3806,7 +3818,7 @@ void checksumAppend(HASHALG& hashAlg, const PutValueFingerprint& object)
           } break;
         }
 
-        hashAlg(streamBuf.data(), streamBuf.length());
+        checksumAlg(streamBuf.data(), streamBuf.length());
     }
 }
 
@@ -3826,7 +3838,6 @@ void PutValueFingerprint_ImplUtil::putRandomValue(
     int rc = balber::BerUtil::putValue(streamBuf, value, &options);
     BSLS_ASSERT(0 == rc);
 }
-
 
                           // -------------------------
                           // class GetValueFingerprint
@@ -4166,6 +4177,71 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value)
 }
 
 template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, int value)
+{
+    BSLMF_ASSERT(4 == sizeof(value));
+
+    const signed char byte0 = (value >> (0 * 8)) & 0xFF;
+    const signed char byte1 = (value >> (1 * 8)) & 0xFF;
+    const signed char byte2 = (value >> (2 * 8)) & 0xFF;
+    const signed char byte3 = (value >> (3 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Int64 value)
+{
+    BSLMF_ASSERT(8 == sizeof(bsls::Types::Int64));
+
+    const signed char byte0 = (value >> (0 * 8)) & 0xFF;
+    const signed char byte1 = (value >> (1 * 8)) & 0xFF;
+    const signed char byte2 = (value >> (2 * 8)) & 0xFF;
+    const signed char byte3 = (value >> (3 * 8)) & 0xFF;
+    const signed char byte4 = (value >> (4 * 8)) & 0xFF;
+    const signed char byte5 = (value >> (5 * 8)) & 0xFF;
+    const signed char byte6 = (value >> (6 * 8)) & 0xFF;
+    const signed char byte7 = (value >> (7 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
+    checksumAppend(checksum, byte4);
+    checksumAppend(checksum, byte5);
+    checksumAppend(checksum, byte6);
+    checksumAppend(checksum, byte7);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Uint64 value)
+{
+    BSLMF_ASSERT(8 == sizeof(bsls::Types::Uint64));
+
+    const unsigned char byte0 = (value >> (0 * 8)) & 0xFF;
+    const unsigned char byte1 = (value >> (1 * 8)) & 0xFF;
+    const unsigned char byte2 = (value >> (2 * 8)) & 0xFF;
+    const unsigned char byte3 = (value >> (3 * 8)) & 0xFF;
+    const unsigned char byte4 = (value >> (4 * 8)) & 0xFF;
+    const unsigned char byte5 = (value >> (5 * 8)) & 0xFF;
+    const unsigned char byte6 = (value >> (6 * 8)) & 0xFF;
+    const unsigned char byte7 = (value >> (7 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
+    checksumAppend(checksum, byte4);
+    checksumAppend(checksum, byte5);
+    checksumAppend(checksum, byte6);
+    checksumAppend(checksum, byte7);
+}
+
+
+template <class CHECKSUM_ALGORITHM>
 void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
 {
     int         exponent;
@@ -4174,7 +4250,7 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
         floatFraction * static_cast<float>(bsl::numeric_limits<int>::max()));
 
     checksumAppend(checksum, fraction);
-    checksumAppned(checksum, exponent);
+    checksumAppend(checksum, exponent);
 }
 
 template <class CHECKSUM_ALGORITHM>
@@ -4730,18 +4806,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .-----------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "0b77dcf53c883bddb27f53a9fc62421c" },
-            { L_, SEED_0, 50000, 3, true , "e9b31f13d9b7cf790de4db4ef3aed6ce" },
-            { L_, SEED_0, 50000, 6, false, "092c25f398cdb35c3b46487e17095e30" },
-            { L_, SEED_0, 50000, 6, true , "e9b31f13d9b7cf790de4db4ef3aed6ce" },
-            { L_, SEED_1, 50000, 3, false, "a80d5a70396d0eb3d640805e6bd97dce" },
-            { L_, SEED_1, 50000, 3, true , "18480b9a5d53a5f66877d2ae1d99a682" },
-            { L_, SEED_1, 50000, 6, false, "77a0cb8d4f965dad92b535e5f9ecb031" },
-            { L_, SEED_1, 50000, 6, true , "18480b9a5d53a5f66877d2ae1d99a682" },
-            { L_, SEED_2, 50000, 3, false, "37979c5e961b6799028a7443d433fbbe" },
-            { L_, SEED_2, 50000, 3, true , "aba7ccf4f4ba996ee198f571989ed3b5" },
-            { L_, SEED_2, 50000, 6, false, "261199ffd26f4daada3a556116798e45" },
-            { L_, SEED_2, 50000, 6, true , "aba7ccf4f4ba996ee198f571989ed3b5" },
+            { L_, SEED_0, 50000, 3, false, "a48b35a8d5a6a3ccc6d83e8cd54d9c33" },
+            { L_, SEED_0, 50000, 3, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
+            { L_, SEED_0, 50000, 6, false, "94e042c7151df917151e1dc87f400cf0" },
+            { L_, SEED_0, 50000, 6, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
+            { L_, SEED_1, 50000, 3, false, "cf42250257c0a2fcf8a9b595926f6825" },
+            { L_, SEED_1, 50000, 3, true , "754256ea7c6547902d73d4e3adda41bd" },
+            { L_, SEED_1, 50000, 6, false, "2de002a9343fc76e25b5ed2ce5554283" },
+            { L_, SEED_1, 50000, 6, true , "754256ea7c6547902d73d4e3adda41bd" },
+            { L_, SEED_2, 50000, 3, false, "028c5a113694b898ce0cf6d7c0a5259c" },
+            { L_, SEED_2, 50000, 3, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
+            { L_, SEED_2, 50000, 6, false, "478133ffaa0ddad6fa0c57570c2d77e7" },
+            { L_, SEED_2, 50000, 6, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -4763,7 +4839,7 @@ int main(int argc, char *argv[])
                                           ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
 
             const u::Md5Fingerprint md5Fingerprint =
-                u::FingerprintUtil::getMd5(getValueFingerprint);
+                u::ChecksumUtil::getMd5(getValueFingerprint);
 
             bdlsb::MemOutStreamBuf md5FingerprintStreamBuf;
             bsl::ostream md5FingerprintStream(&md5FingerprintStreamBuf);
@@ -4887,7 +4963,7 @@ int main(int argc, char *argv[])
                                           ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
 
             const u::Md5Fingerprint md5Fingerprint =
-                u::FingerprintUtil::getMd5(putValueFingerprint);
+                u::ChecksumUtil::getMd5(putValueFingerprint);
 
             bdlsb::MemOutStreamBuf md5FingerprintStreamBuf;
             bsl::ostream md5FingerprintStream(&md5FingerprintStreamBuf);
