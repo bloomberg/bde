@@ -216,6 +216,12 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
 // ----------------------------------------------------------------------------
 
 namespace {
+
+// GLOBAL DATA
+static bool verbose         = false;
+static bool veryVerbose     = false;
+static bool veryVeryVerbose = false;
+
 namespace u {
 
                           // =========================
@@ -4620,7 +4626,6 @@ const unsigned char TestDataUtil::s_RANDOM_GARBAGE_1K[1024] = {
   0x75, 0x6d, 0x88, 0xac
 };
 
-
 }  // close u namespace
 }  // close unnamed namespace
 
@@ -4628,17 +4633,16 @@ const unsigned char TestDataUtil::s_RANDOM_GARBAGE_1K[1024] = {
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+            verbose = argc > 2;
+        veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
