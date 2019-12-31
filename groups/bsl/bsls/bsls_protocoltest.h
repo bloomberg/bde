@@ -171,7 +171,9 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
-#include <bsls_objectbuffer.h>
+#include <bsls_libraryfeatures.h>
+
+#include <cstddef>
 #include <cstdio>
 
 namespace BloombergLP {
@@ -242,7 +244,7 @@ struct ProtocolTest_MethodReturnRefType {
     template <class T>
     operator T&() const;
         // Return a 'T&' reference to an invalid object.  The returned value
-        // cannot be used and should be immediately discarded.
+        // should not be used and should be immediately discarded.
 };
 
                        // =======================
@@ -300,6 +302,31 @@ class ProtocolTest_Status {
     bool last() const;
         // Return 'true' if the last test completed successfully (or no test
         // has yet completed), and 'false' if it failed.
+};
+
+                    // ===========================
+                    // class ProtocolTest_AsBigAsT
+                    // ===========================
+
+template <class T>
+class ProtocolTest_AsBigAsT {
+    // This auxiliary structure has a size no less than the size of (template
+    // parameter) 'T'.
+
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
+    // DATA
+    std::max_align_t d_dummy[sizeof(T) / sizeof(std::max_align_t) + 1];
+#else
+    // PRIVATE TYPES
+    union MaxAlignType {
+        void               *d_v_p;
+        unsigned long long  d_ull;
+        long double         d_ul;
+    };
+
+    // DATA
+    MaxAlignType d_dummy[sizeof(T) / sizeof(MaxAlignType) + 1];
+#endif
 };
 
                           // =====================
@@ -498,8 +525,8 @@ template <class T>
 inline
 ProtocolTest_MethodReturnRefType::operator T&() const
 {
-    static bsls::ObjectBuffer<T> buffer;
-    return *reinterpret_cast<T *>(buffer.address());
+    static ProtocolTest_AsBigAsT<T> obj;
+    return *reinterpret_cast<T *>(&obj);
 }
 
                        // -----------------------

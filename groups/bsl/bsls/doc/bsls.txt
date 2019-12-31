@@ -59,11 +59,11 @@
       bsls_log
 
    9. bsls_atomicoperations
-      bsls_protocoltest
 
    8. bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
       bsls_objectbuffer
+      bsls_protocoltest
 
    7. bsls_alignmentfromtype
       bsls_assertimputil

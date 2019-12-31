@@ -756,6 +756,12 @@ int main(int argc, char *argv[])
                                       bsls::ProtocolTest_MethodReturnRefType();
                 (void) ref;
                 (void) const_ref;
+
+                // test the possibility of conversions to abstract classes
+
+                ProtocolClass& protocolRef =
+                                      bsls::ProtocolTest_MethodReturnRefType();
+                (void) protocolRef;
             }
 
             if (veryVerbose) printf("\tbsls_ProtocolTest_Status\n");
