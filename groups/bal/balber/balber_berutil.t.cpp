@@ -3948,6 +3948,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "bool value: " << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -3956,6 +3959,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "char value: " << static_cast<int>(value) << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -3964,6 +3970,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "signed char value: " << static_cast<int>(value) <<
+                    bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -3972,6 +3982,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "unsigned char value: " <<
+                    static_cast<int>(value) << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -3980,6 +3994,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "float value: " <<
+                    value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -3988,6 +4006,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "double value: "
+                    << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -3996,6 +4018,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "decimal64 value: "
+                    << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4004,6 +4030,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "string value: [" << value << "]" << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4012,6 +4041,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "date value: " << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4020,6 +4052,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "datetz value: " << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4028,6 +4063,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "datetz variant value: ..." << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4036,6 +4074,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "datetime value: " << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4044,6 +4085,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "datetimetz value: " << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4052,6 +4096,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
               int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "datetime variant value: ..." << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4060,6 +4107,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "time value: " << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4068,6 +4118,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "timetz value: " << value << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4076,6 +4129,9 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            bsl::cout << "timetz variant value: " << bsl::endl;
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
