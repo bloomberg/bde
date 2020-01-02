@@ -49,12 +49,13 @@
 #include <bsla_maybeunused.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_numeric.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
+#include <bsl_cfloat.h>
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
+#include <bsl_numeric.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -1204,17 +1205,20 @@ struct Md5Util {
                          // ==========================
 
 class Md5ChecksumAlgorithm {
-    // TODO(Nate): Edit Documentation.
     // This function-object class provides an implementation of the
-    // requirements for a hashing algorithm has specified in the 'bslh_hash'
-    // component.
+    // requirements for a hashing algorithm as specified in the 'bslh_hash'
+    // component.  It is suitable for use as a message digest.  Note that
+    // the 'result_type' of this function object is not convertible to
+    // 'bsl::size_t', and so this class cannot be used as the hashing
+    // algorithm for a 'bslh::Hash' object.
 
     // DATA
     Md5State d_state; // current MD5 state
 
     // NOT IMPLEMENTED
     Md5ChecksumAlgorithm(const Md5ChecksumAlgorithm&) BSLS_KEYWORD_DELETED;
-    Md5ChecksumAlgorithm& operator=(const Md5ChecksumAlgorithm) BSLS_KEYWORD_DELETED;
+    Md5ChecksumAlgorithm& operator=(const Md5ChecksumAlgorithm)
+            BSLS_KEYWORD_DELETED;
 
   public:
     // TYPES
@@ -1253,20 +1257,19 @@ class Md5ChecksumAlgorithm {
 
 template <class CHECKSUM_ALGORITHM>
 class Checksum {
-    // TODO(Nate): Re-write docs.
-
     // This function-object class provides a wrapper around the specified
-    // 'HASH_ALGORITHM' capable of hashing objects.  This class template is
-    // structured similarly to 'bslh::Hash', but has the ability to return the
-    // 'result_type' of the 'HASH_ALGORITHM', rather than 'bsl::size_t'.  The
-    // program is ill-formed unless the 'HASH_ALGORITHM' class meets the
-    // requirements of a 'HashAlgorithm' specified in the 'bslh_hash'
-    // component.
+    // 'HASH_ALGORITHM' capable of computing a checksum, or "fingerprint" of
+    // objects.  This class template is structured similarly to 'bslh::Hash',
+    // but has the ability to return the 'result_type' of the 'HASH_ALGORITHM',
+    // rather than 'bsl::size_t'.  The program is ill-formed unless the
+    // 'HASH_ALGORITHM' class meets the requirements of a 'HashAlgorithm'
+    // specified in the 'bslh_hash' component.
 
   public:
     // TYPES
     typedef CHECKSUM_ALGORITHM ChecksumAlgorithm;
-        // 'HashAlgorithm' is an alias to the specified 'HASH_ALGORITHM'.
+        // 'ChecksumAlgorithm' is an alias to the specified
+        // 'CHECKSUM_ALGORITHM'.
 
     typedef typename ChecksumAlgorithm::result_type result_type;
         // 'result_type' is an alias to the value type returned by the
@@ -1372,7 +1375,7 @@ class PutValueFingerprint {
 };
 
 // FREE FUNCTIONS
-template <class ALGORITHM> // TODO(Nate): Documentation
+template <class ALGORITHM>
 void checksumAppend(ALGORITHM& algorithm, const PutValueFingerprint& object);
     // Deterministically and pseudo-randomly generate 'object.numSamples()'
     // number of inputs for 'balber::BerUtil::putValue' using 'object.seed()'
@@ -1383,7 +1386,8 @@ void checksumAppend(ALGORITHM& algorithm, const PutValueFingerprint& object);
     // 'object.fractionalSecondPrecision()' and
     // 'object.encodeDateAndTimeTypesAsBinary()' respectively, instead.  Supply
     // all of the output of invoking 'balber::BerUtil::putValue' with the
-    // encoding options and generated input to the specified 'hashAlg'.
+    // encoding options and generated input to the specified checksum
+    // 'algorithm'.
 
                      // ===================================
                      // struct PutValueFingerprint_ImplUtil
@@ -1477,7 +1481,7 @@ class GetValueFingerprint {
 };
 
 // FREE FUNCTIONS
-template <class ALGORITHM> // TODO(Nate): Documentation.
+template <class ALGORITHM>
 void checksumAppend(ALGORITHM& algorithm, const GetValueFingerprint& object);
     // Deterministically and pseudo-randomly generate 'object.numSamples()'
     // number of inputs for 'balber::BerUtil::getValue' using 'object.seed()'
@@ -1489,7 +1493,8 @@ void checksumAppend(ALGORITHM& algorithm, const GetValueFingerprint& object);
     // 'object.fractionalSecondPrecision()' and
     // 'object.encodeDateAndTimeTypesAsBinary()' respectively, instead.  Supply
     // all of the output of invoking 'balber::BerUtil::getValue' with the
-    // encoding options and generated input to the specified 'hashAlg'.
+    // encoding options and generated input to the specified checksum
+    // 'algorithm'.
 
                      // ===================================
                      // struct GetValueFingerprint_ImplUtil
@@ -1519,74 +1524,128 @@ struct GetValueFingerprint_ImplUtil {
         // produce the value into the specified 'accumNumBytesConsumed'.
 };
 
-                        // ============================
-                        // Checksum Customization Point
-                        // ============================
+                               // ===============
+                               // Checksum Traits
+                               // ===============
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, char value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, signed char value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, int value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            bsls::Types::Int64  value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            bsls::Types::Uint64  value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
                            const bdldfp::Decimal64& value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bsl::string&  value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::Date&   value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::DateTz& value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM&   checksum,
                            const bdlt::Datetime& value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM&     checksum,
                            const bdlt::DatetimeTz& value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::Time&   value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::TimeTz& value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
 static void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
                            const bdlb::Variant2<VALUE_1, VALUE_2>& value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
 
                             // ===================
                             // struct TestDataUtil
