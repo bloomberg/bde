@@ -4373,8 +4373,34 @@ void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
     int                 sign;
     bsls::Types::Uint64 significand;
     int                 exponent;
-    const int           classification =
-        bdldfp::DecimalUtil::decompose(&sign, &significand, &exponent, value);
+    int                 classification;
+    switch (bdldfp::DecimalUtil::decompose(
+        &sign, &significand, &exponent, value)) {
+      case FP_NAN: {
+          classification = 0;
+      } break;
+      case FP_INFINITE: {
+          classification = 1;
+      } break;
+      case FP_SUBNORMAL: {
+          classification = 2;
+      } break;
+      case FP_ZERO: {
+          classification = 3;
+      } break;
+      case FP_NORMAL: {
+          classification = 4;
+      } break;
+      default: {
+          BSLS_ASSERT(!"Unreachable");
+          return;
+      } break;
+    }
+
+    bsl::cout << "sign: " << sign << bsl::endl;
+    bsl::cout << "signifcand: " << significand << bsl::endl;
+    bsl::cout << "exponent: " << exponent << bsl::endl;
+    bsl::cout << "classification: " << classification << bsl::endl;
 
     checksumAppend(checksum, sign);
     checksumAppend(checksum, significand);
@@ -4904,18 +4930,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .-----------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "a48b35a8d5a6a3ccc6d83e8cd54d9c33" },
-            { L_, SEED_0, 50000, 3, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
-            { L_, SEED_0, 50000, 6, false, "94e042c7151df917151e1dc87f400cf0" },
-            { L_, SEED_0, 50000, 6, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
-            { L_, SEED_1, 50000, 3, false, "cf42250257c0a2fcf8a9b595926f6825" },
-            { L_, SEED_1, 50000, 3, true , "754256ea7c6547902d73d4e3adda41bd" },
-            { L_, SEED_1, 50000, 6, false, "2de002a9343fc76e25b5ed2ce5554283" },
-            { L_, SEED_1, 50000, 6, true , "754256ea7c6547902d73d4e3adda41bd" },
-            { L_, SEED_2, 50000, 3, false, "028c5a113694b898ce0cf6d7c0a5259c" },
-            { L_, SEED_2, 50000, 3, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
-            { L_, SEED_2, 50000, 6, false, "478133ffaa0ddad6fa0c57570c2d77e7" },
-            { L_, SEED_2, 50000, 6, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
+            //{ L_, SEED_0, 50000, 3, false, "a48b35a8d5a6a3ccc6d83e8cd54d9c33" },
+            //{ L_, SEED_0, 50000, 3, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
+            //{ L_, SEED_0, 50000, 6, false, "94e042c7151df917151e1dc87f400cf0" },
+            //{ L_, SEED_0, 50000, 6, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
+              { L_, SEED_1, 15176, 3, false, "" },
+            //{ L_, SEED_1, 50000, 3, true , "754256ea7c6547902d73d4e3adda41bd" },
+            //{ L_, SEED_1, 50000, 6, false, "2de002a9343fc76e25b5ed2ce5554283" },
+            //{ L_, SEED_1, 50000, 6, true , "754256ea7c6547902d73d4e3adda41bd" },
+            //{ L_, SEED_2, 50000, 3, false, "028c5a113694b898ce0cf6d7c0a5259c" },
+            //{ L_, SEED_2, 50000, 3, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
+            //{ L_, SEED_2, 50000, 6, false, "478133ffaa0ddad6fa0c57570c2d77e7" },
+            //{ L_, SEED_2, 50000, 6, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
