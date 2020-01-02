@@ -1566,6 +1566,12 @@ static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
     // of the algorithm is used to produce the resulting checksum value.
 
 template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned int value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
+
+template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            bsls::Types::Uint64  value);
     // Pass the specified 'value' into the specified 'checksum', which combines
@@ -3795,6 +3801,10 @@ void checksumAppend(CHECKSUM_ALGORITHM&        checksumAlg,
         e_CHAR,
         e_SIGNED_CHAR,
         e_UNSIGNED_CHAR,
+        e_INT,
+        e_INT64,
+        e_UINT,
+        e_UINT64,
         e_FLOAT,
         e_DOUBLE,
         e_DECIMAL64,
@@ -3835,6 +3845,22 @@ void checksumAppend(CHECKSUM_ALGORITHM&        checksumAlg,
           } break;
           case e_UNSIGNED_CHAR: {
             ImplUtil::putRandomValue<unsigned char>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_INT: {
+            ImplUtil::putRandomValue<int>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_INT64: {
+            ImplUtil::putRandomValue<bsls::Types::Int64>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_UINT: {
+            ImplUtil::putRandomValue<unsigned int>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_UINT64: {
+            ImplUtil::putRandomValue<bsls::Types::Uint64>(
                 &streamBuf, randomValueLoader, encoderOptions);
           } break;
           case e_FLOAT: {
@@ -3974,6 +4000,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
         e_CHAR,
         e_SIGNED_CHAR,
         e_UNSIGNED_CHAR,
+        e_INT,
+        e_INT64,
+        e_UINT,
+        e_UINT64,
         e_FLOAT,
         e_DOUBLE,
         e_DECIMAL64,
@@ -4028,6 +4058,38 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
           } break;
           case e_UNSIGNED_CHAR: {
             unsigned char value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_INT: {
+            int value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_INT64: {
+            bsls::Types::Int64 value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_UINT: {
+            unsigned int value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_UINT64: {
+            bsls::Types::Uint64 value;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4279,6 +4341,22 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Int64 value)
     checksumAppend(checksum, byte5);
     checksumAppend(checksum, byte6);
     checksumAppend(checksum, byte7);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned int value)
+{
+    BSLMF_ASSERT(4 == sizeof(unsigned int));
+
+    const unsigned char byte0 = (value >> (0 * 8)) & 0xFF;
+    const unsigned char byte1 = (value >> (1 * 8)) & 0xFF;
+    const unsigned char byte2 = (value >> (2 * 8)) & 0xFF;
+    const unsigned char byte3 = (value >> (3 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
 }
 
 template <class CHECKSUM_ALGORITHM>
@@ -4890,18 +4968,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .-----------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "a48b35a8d5a6a3ccc6d83e8cd54d9c33" },
-            { L_, SEED_0, 50000, 3, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
-            { L_, SEED_0, 50000, 6, false, "94e042c7151df917151e1dc87f400cf0" },
-            { L_, SEED_0, 50000, 6, true , "22d1e7ec8f9e7f1c2eb23a0c7efc6361" },
-            { L_, SEED_1, 50000, 3, false, "bba73067b63d816cfde230ce29b5a407" },
-            { L_, SEED_1, 50000, 3, true , "156102206b65b8772bfc88d355b268e9" },
-            { L_, SEED_1, 50000, 6, false, "698d2a49013b7dd8a68f87ffd37d3296" },
-            { L_, SEED_1, 50000, 6, true , "156102206b65b8772bfc88d355b268e9" },
-            { L_, SEED_2, 50000, 3, false, "028c5a113694b898ce0cf6d7c0a5259c" },
-            { L_, SEED_2, 50000, 3, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
-            { L_, SEED_2, 50000, 6, false, "478133ffaa0ddad6fa0c57570c2d77e7" },
-            { L_, SEED_2, 50000, 6, true , "b4d00c81b5ed99ec255228bcd43fb15b" },
+            { L_, SEED_0, 50000, 3, false, "1b2e019994dc63fc77ff0c71da92fae3" },
+            { L_, SEED_0, 50000, 3, true , "cf29b74e1db09b5b1937b0d693ca959f" },
+            { L_, SEED_0, 50000, 6, false, "28534c41469c9ef744a53a40f9fcd44e" },
+            { L_, SEED_0, 50000, 6, true , "cf29b74e1db09b5b1937b0d693ca959f" },
+            { L_, SEED_1, 50000, 3, false, "9a88898ce0a6f01d433a4143d9efabb9" },
+            { L_, SEED_1, 50000, 3, true , "da180d4f32ed806a31eb77f3bcd8e4bf" },
+            { L_, SEED_1, 50000, 6, false, "0b7b3f43c4dbac53db030ff62db6f606" },
+            { L_, SEED_1, 50000, 6, true , "da180d4f32ed806a31eb77f3bcd8e4bf" },
+            { L_, SEED_2, 50000, 3, false, "9c967817484da5319c675af3537991cc" },
+            { L_, SEED_2, 50000, 3, true , "e901c8087b2390643f19ed0a13da0d67" },
+            { L_, SEED_2, 50000, 6, false, "1dc97a75f266721c8dd7938c8b600283" },
+            { L_, SEED_2, 50000, 6, true , "e901c8087b2390643f19ed0a13da0d67" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -5014,18 +5092,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .---------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "55df8f6297bd4189292cccaa147ce0f1" },
-            { L_, SEED_0, 50000, 3, true , "3a435bcbce577532a2040156b21b513b" },
-            { L_, SEED_0, 50000, 6, false, "53bc6a9155800bb9f0be46648adf7a84" },
-            { L_, SEED_0, 50000, 6, true , "3a435bcbce577532a2040156b21b513b" },
-            { L_, SEED_1, 50000, 3, false, "18b7b4b172bf9edd9aa0a7b66aaa5493" },
-            { L_, SEED_1, 50000, 3, true , "d366a60d9f0b46bdbf8ba18f156fcf2b" },
-            { L_, SEED_1, 50000, 6, false, "6e438df903afdfc6d4b7dfdf4e42ccb8" },
-            { L_, SEED_1, 50000, 6, true , "d366a60d9f0b46bdbf8ba18f156fcf2b" },
-            { L_, SEED_2, 50000, 3, false, "09546ddcc525c56442c6d456a6cb4044" },
-            { L_, SEED_2, 50000, 3, true , "906a9e921c8ed681090ddfeee5a622f0" },
-            { L_, SEED_2, 50000, 6, false, "3ddce2112d164a68eaff0bad606d8436" },
-            { L_, SEED_2, 50000, 6, true , "906a9e921c8ed681090ddfeee5a622f0" },
+            { L_, SEED_0, 50000, 3, false, "a893e5c4643b5b40b45aa8d93c90a097" },
+            { L_, SEED_0, 50000, 3, true , "7166428b5ca3e18a0953877091f37ce7" },
+            { L_, SEED_0, 50000, 6, false, "95acf3bfe61bed5bf29c686c61ff6269" },
+            { L_, SEED_0, 50000, 6, true , "7166428b5ca3e18a0953877091f37ce7" },
+            { L_, SEED_1, 50000, 3, false, "37ce54c6d2f92fd9a822080aeda006e2" },
+            { L_, SEED_1, 50000, 3, true , "d0a8c8d46f37a89f15e71dae0c64d492" },
+            { L_, SEED_1, 50000, 6, false, "9d3d66bd3b64fc76d51ba638c2d88531" },
+            { L_, SEED_1, 50000, 6, true , "d0a8c8d46f37a89f15e71dae0c64d492" },
+            { L_, SEED_2, 50000, 3, false, "06c17b7af732eaa78f2fb8a03351d0fc" },
+            { L_, SEED_2, 50000, 3, true , "2689b7bf2a0a5002170e1c631fdf29ef" },
+            { L_, SEED_2, 50000, 6, false, "b3bf9ce8ffa3a8601e8edf915b8c418a" },
+            { L_, SEED_2, 50000, 6, true , "2689b7bf2a0a5002170e1c631fdf29ef" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
