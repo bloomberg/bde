@@ -139,6 +139,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isconst.h>
+#include <bslmf_ismemberpointer.h>
 #include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
@@ -167,6 +168,7 @@ namespace bslmf {
 
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
+
                     // =============================================
                     // struct IsTriviallyDefaultConstructible_Scalar
                     // =============================================
@@ -186,6 +188,33 @@ struct IsTriviallyDefaultConstructible_Scalar<TYPE, BSLMF_VOIDTYPE(TYPE[])>
     // filter is simplified to checking for valid array elements.
 };
 
+                         // ==========================================
+                         // struct IsTriviallyDefaultConstructible_Imp
+                         // ==========================================
+
+template <class TYPE>
+struct IsTriviallyDefaultConstructible_Imp
+: bsl::integral_constant<
+                     bool,
+                     !bsl::is_reference<TYPE>::value
+                     && (  bsl::is_fundamental<TYPE>::value
+                        || bsl::is_enum<TYPE>::value
+                        || bsl::is_pointer<TYPE>::value
+                        || bsl::is_member_pointer<TYPE>::value
+                        || DetectNestedTrait<TYPE,
+                            bsl::is_trivially_default_constructible>::value)> {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
+    // default-constructible.
+};
+
+template <>
+struct IsTriviallyDefaultConstructible_Imp<void> : bsl::false_type {
+    // This explicit specialization reports that 'void' is not a trivially
+    // default constructible type, despite being a fundamental type.
+};
+
+#if 0
                     // ==========================================
                     // struct IsTriviallyDefaultConstructible_Imp
                     // ==========================================
@@ -198,6 +227,8 @@ template <class TYPE>
 struct IsTriviallyDefaultConstructible_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : DetectNestedTrait<TYPE, bsl::is_trivially_default_constructible>::type {
 };
+#endif
+
 #else
                     // ==========================================
                     // struct IsTriviallyDefaultConstructible_Imp
