@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(bosscm_version_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#define BOS_VERSION_PATCH 0
+#define BOS_VERSION_PATCH 1
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
