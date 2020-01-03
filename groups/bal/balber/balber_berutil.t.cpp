@@ -1098,7 +1098,7 @@ struct Md5StateUtil_ImplUtil {
     // CLASS DATA
     enum {
         k_BYTES_PER_BLOCK = 64,
-        k_BLOCK_SIZE      = 16,
+        k_BLOCK_SIZE      = 16
     };
 
     static const unsigned int k_T_TABLE[64];
@@ -4220,8 +4220,6 @@ void GetValueFingerprint_ImplUtil::getRandomValue(
                        LOADER&                           loader,
                        const balber::BerEncoderOptions&  options)
 {
-
-
     bdlsb::MemOutStreamBuf outStreamBuf;
 
     if (RandomValueUtil::generate<bool>(loader)) {
@@ -4383,30 +4381,68 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Uint64 value)
     checksumAppend(checksum, byte7);
 }
 
-
 template <class CHECKSUM_ALGORITHM>
 void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
 {
-    int         exponent;
-    const float floatFraction = bsl::frexp(value, &exponent);
-    const int   fraction      = static_cast<int>(
-        floatFraction * static_cast<float>(bsl::numeric_limits<int>::max()));
+    // Note that the implementation of this operation requires that the
+    // platform represents 'float' values using the 32 bit IEEE 754 binary
+    // floating point format.
 
-    checksumAppend(checksum, fraction);
-    checksumAppend(checksum, exponent);
+    BSLMF_ASSERT(4 == sizeof(value));
+
+    enum {
+        k_NOT_SIGNALING_NAN,
+        k_SIGNALING_NAN
+    };
+
+    if (bdlb::Float::isSignalingNan(value)) {
+        // Signaling NaN values are not guaranteed to be stable on some
+        // platforms.
+
+        checksumAppend(checksum, k_SIGNALING_NAN);
+        return;                                                       // RETURN
+    }
+
+    unsigned char bytes[sizeof(value)];
+    bsl::memcpy(&bytes, &value, sizeof(value));
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsl::reverse(bytes, bytes + sizeof(bytes));
+#endif
+
+    checksum(bytes, sizeof(bytes));
 }
 
 template <class CHECKSUM_ALGORITHM>
 void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value)
 {
-    int                      exponent;
-    const double             doubleFraction = bsl::frexp(value, &exponent);
-    const bsls::Types::Int64 fraction       = static_cast<bsls::Types::Int64>(
-        doubleFraction *
-        static_cast<double>(bsl::numeric_limits<bsls::Types::Int64>::max()));
+    // Note that the implementation of this operation requires that the
+    // platform represents 'float' values using the 32 bit IEEE 754 binary
+    // floating point format.
 
-    checksumAppend(checksum, fraction);
-    checksumAppend(checksum, exponent);
+    BSLMF_ASSERT(8 == sizeof(value));
+
+    enum {
+        k_NOT_SIGNALING_NAN,
+        k_SIGNALING_NAN
+    };
+
+    if (bdlb::Float::isSignalingNan(value)) {
+        // Signaling NaN values are not guaranteed to be stable on some
+        // platforms.
+
+        checksumAppend(checksum, k_SIGNALING_NAN);
+        return;                                                       // RETURN
+    }
+
+    unsigned char bytes[sizeof(value)];
+    bsl::memcpy(&bytes, &value, sizeof(value));
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsl::reverse(bytes, bytes + sizeof(bytes));
+#endif
+
+    checksum(bytes, sizeof(bytes));
 }
 
 template <class CHECKSUM_ALGORITHM>
@@ -4968,18 +5004,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .-----------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "1b2e019994dc63fc77ff0c71da92fae3" },
-            { L_, SEED_0, 50000, 3, true , "cf29b74e1db09b5b1937b0d693ca959f" },
-            { L_, SEED_0, 50000, 6, false, "28534c41469c9ef744a53a40f9fcd44e" },
-            { L_, SEED_0, 50000, 6, true , "cf29b74e1db09b5b1937b0d693ca959f" },
-            { L_, SEED_1, 50000, 3, false, "9a88898ce0a6f01d433a4143d9efabb9" },
-            { L_, SEED_1, 50000, 3, true , "da180d4f32ed806a31eb77f3bcd8e4bf" },
-            { L_, SEED_1, 50000, 6, false, "0b7b3f43c4dbac53db030ff62db6f606" },
-            { L_, SEED_1, 50000, 6, true , "da180d4f32ed806a31eb77f3bcd8e4bf" },
-            { L_, SEED_2, 50000, 3, false, "9c967817484da5319c675af3537991cc" },
-            { L_, SEED_2, 50000, 3, true , "e901c8087b2390643f19ed0a13da0d67" },
-            { L_, SEED_2, 50000, 6, false, "1dc97a75f266721c8dd7938c8b600283" },
-            { L_, SEED_2, 50000, 6, true , "e901c8087b2390643f19ed0a13da0d67" },
+            { L_, SEED_0, 50000, 3, false, "e4e5d51e9fd2837a8776bf25e9911b31" },
+            { L_, SEED_0, 50000, 3, true , "85d740f3cc28218b170897468e396b6e" },
+            { L_, SEED_0, 50000, 6, false, "f351664744449c1fdd51c2d33c27f555" },
+            { L_, SEED_0, 50000, 6, true , "85d740f3cc28218b170897468e396b6e" },
+            { L_, SEED_1, 50000, 3, false, "2dd4d4a7fa3948e6589a36548af69b5b" },
+            { L_, SEED_1, 50000, 3, true , "00f29a37516ebc34073d7328d9633842" },
+            { L_, SEED_1, 50000, 6, false, "289020133fc81b4adb1dbc58f97f84db" },
+            { L_, SEED_1, 50000, 6, true , "00f29a37516ebc34073d7328d9633842" },
+            { L_, SEED_2, 50000, 3, false, "f94765760c0d87567393d5ccfaf6c8c9" },
+            { L_, SEED_2, 50000, 3, true , "80340e0eb3c61d4d22a9680c7dfe33f7" },
+            { L_, SEED_2, 50000, 6, false, "b31c62da9eb31f30c194c0bf71d8031b" },
+            { L_, SEED_2, 50000, 6, true , "80340e0eb3c61d4d22a9680c7dfe33f7" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -5070,7 +5106,7 @@ int main(int argc, char *argv[])
         enum {
             SEED_0 = 0,          // a sensible default seed
             SEED_1 = -24036583,  // a decently large, negated mersenne prime
-            SEED_2 = 32582657,   // a decently large mersenne prime
+            SEED_2 = 32582657    // a decently large mersenne prime
         };
 
         static const struct {
