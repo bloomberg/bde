@@ -214,21 +214,6 @@ struct IsTriviallyDefaultConstructible_Imp<void> : bsl::false_type {
     // default constructible type, despite being a fundamental type.
 };
 
-#if 0
-                    // ==========================================
-                    // struct IsTriviallyDefaultConstructible_Imp
-                    // ==========================================
-
-template <class TYPE, class = void>
-struct IsTriviallyDefaultConstructible_Imp
-    : IsTriviallyDefaultConstructible_Scalar<TYPE>::type {};
-
-template <class TYPE>
-struct IsTriviallyDefaultConstructible_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
-    : DetectNestedTrait<TYPE, bsl::is_trivially_default_constructible>::type {
-};
-#endif
-
 #else
                     // ==========================================
                     // struct IsTriviallyDefaultConstructible_Imp
