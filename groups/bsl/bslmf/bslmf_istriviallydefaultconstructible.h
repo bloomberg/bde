@@ -139,6 +139,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isconst.h>
+#include <bslmf_ismemberpointer.h>
 #include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
@@ -167,37 +168,33 @@ namespace bslmf {
 
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-                    // =============================================
-                    // struct IsTriviallyDefaultConstructible_Scalar
-                    // =============================================
 
-template <class TYPE, class = void>
-struct IsTriviallyDefaultConstructible_Scalar : bsl::false_type {};
+                         // ==========================================
+                         // struct IsTriviallyDefaultConstructible_Imp
+                         // ==========================================
+
 template <class TYPE>
-struct IsTriviallyDefaultConstructible_Scalar<TYPE, BSLMF_VOIDTYPE(TYPE[])>
-    : bsl::true_type {
-    // This implementation-detail trait determines whether 'TYPE' is a scalar
-    // type (an arithmetic type, enumeration, pointer, or pointer-to-member).
-    // This implementation takes advantage of a previous layer of filtering
-    // handling all class-types, and only object types being valid as both
-    // array elements, and return values from functions.  Note that the test
-    // for valid function return type only adds array types to the filter, and
-    // we separately specialize for arrays already, so the 'BSLMF_VOIDTYPE'
-    // filter is simplified to checking for valid array elements.
-};
-
-                    // ==========================================
-                    // struct IsTriviallyDefaultConstructible_Imp
-                    // ==========================================
-
-template <class TYPE, class = void>
 struct IsTriviallyDefaultConstructible_Imp
-    : IsTriviallyDefaultConstructible_Scalar<TYPE>::type {};
-
-template <class TYPE>
-struct IsTriviallyDefaultConstructible_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
-    : DetectNestedTrait<TYPE, bsl::is_trivially_default_constructible>::type {
+: bsl::integral_constant<
+                     bool,
+                     !bsl::is_reference<TYPE>::value
+                     && (  bsl::is_fundamental<TYPE>::value
+                        || bsl::is_enum<TYPE>::value
+                        || bsl::is_pointer<TYPE>::value
+                        || bsl::is_member_pointer<TYPE>::value
+                        || DetectNestedTrait<TYPE,
+                            bsl::is_trivially_default_constructible>::value)> {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
+    // default-constructible.
 };
+
+template <>
+struct IsTriviallyDefaultConstructible_Imp<void> : bsl::false_type {
+    // This explicit specialization reports that 'void' is not a trivially
+    // default constructible type, despite being a fundamental type.
+};
+
 #else
                     // ==========================================
                     // struct IsTriviallyDefaultConstructible_Imp
