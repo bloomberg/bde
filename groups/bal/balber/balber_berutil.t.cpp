@@ -4058,7 +4058,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
                 &value, &numBytes, randomValueLoader, encoderOptions);
 
             if (veryVeryVerbose) {
-                bsl::cout << "char value: " << value
+                bsl::cout << "char value: " << static_cast<int>(value)
                           << " num bytes: " << numBytes;
             }
 
@@ -4162,6 +4162,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
                 static const int floatMaxDigits10 = 9;
 
                 bsl::cout.flags(oldFlags
+                                | bsl::ostream::hex
                                 | bsl::ostream::scientific
                                 | bsl::ostream::fixed);
                 bsl::cout.precision(floatMaxDigits10);
@@ -4189,6 +4190,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
                 static const int doubleMaxDigits10 = 17;
 
                 bsl::cout.flags(oldFlags
+                                | bsl::ostream::hex
                                 | bsl::ostream::scientific
                                 | bsl::ostream::fixed);
                 bsl::cout.precision(doubleMaxDigits10);
