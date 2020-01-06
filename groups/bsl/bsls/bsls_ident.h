@@ -93,10 +93,6 @@
 //..
 
 
-// For the initial BDE 3.0 test build phase, undefine these macros.
-#undef BDE_OMIT_INTERNAL_DEPRECATED
-#undef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 /* ident string intentionally omitted for this header (do not add to binaries)
  * Its use is expected to be so extensive that the cost outweighs benefit
  * of including an ident string for every file that includes this header

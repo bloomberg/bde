@@ -13,6 +13,8 @@
 
 #include <bdlsb_fixedmemoutstreambuf.h>
 
+#include <bslalg_constructorproxy.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
