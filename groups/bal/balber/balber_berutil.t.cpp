@@ -4161,10 +4161,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
 
                 static const int floatMaxDigits10 = 9;
 
-                bsl::cout.flags(oldFlags
-                                | bsl::ostream::hex
-                                | bsl::ostream::scientific
-                                | bsl::ostream::fixed);
+                bsl::cout.flags(bsl::ostream::scientific);
                 bsl::cout.precision(floatMaxDigits10);
 
                 bsl::cout << "float value: " << value
@@ -4189,10 +4186,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
 
                 static const int doubleMaxDigits10 = 17;
 
-                bsl::cout.flags(oldFlags
-                                | bsl::ostream::hex
-                                | bsl::ostream::scientific
-                                | bsl::ostream::fixed);
+                bsl::cout.flags(bsl::ostream::scientific);
                 bsl::cout.precision(doubleMaxDigits10);
 
                 bsl::cout << "double value: " << value
@@ -4571,16 +4565,9 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
 
     BSLMF_ASSERT(4 == sizeof(value));
 
-    enum {
-        k_NOT_SIGNALING_NAN,
-        k_SIGNALING_NAN
-    };
 
-    if (bdlb::Float::isSignalingNan(value)) {
-        // Signaling NaN values are not guaranteed to be stable on some
-        // platforms.
-
-        checksumAppend(checksum, k_SIGNALING_NAN);
+    if (bdlb::Float::isNan(value)) {
+        checksumAppend(checksum, 0);
         return;                                                       // RETURN
     }
 
@@ -4603,16 +4590,8 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value)
 
     BSLMF_ASSERT(8 == sizeof(value));
 
-    enum {
-        k_NOT_SIGNALING_NAN,
-        k_SIGNALING_NAN
-    };
-
-    if (bdlb::Float::isSignalingNan(value)) {
-        // Signaling NaN values are not guaranteed to be stable on some
-        // platforms.
-
-        checksumAppend(checksum, k_SIGNALING_NAN);
+    if (bdlb::Float::isNan(value)) {
+        checksumAppend(checksum, 0);
         return;                                                       // RETURN
     }
 
@@ -5185,18 +5164,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .-----------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "e4e5d51e9fd2837a8776bf25e9911b31" },
-            { L_, SEED_0, 50000, 3, true , "85d740f3cc28218b170897468e396b6e" },
-            { L_, SEED_0, 50000, 6, false, "f351664744449c1fdd51c2d33c27f555" },
-            { L_, SEED_0, 50000, 6, true , "85d740f3cc28218b170897468e396b6e" },
-            { L_, SEED_1, 50000, 3, false, "2dd4d4a7fa3948e6589a36548af69b5b" },
-            { L_, SEED_1, 50000, 3, true , "00f29a37516ebc34073d7328d9633842" },
-            { L_, SEED_1, 50000, 6, false, "289020133fc81b4adb1dbc58f97f84db" },
-            { L_, SEED_1, 50000, 6, true , "00f29a37516ebc34073d7328d9633842" },
-            { L_, SEED_2, 50000, 3, false, "f94765760c0d87567393d5ccfaf6c8c9" },
-            { L_, SEED_2, 50000, 3, true , "80340e0eb3c61d4d22a9680c7dfe33f7" },
-            { L_, SEED_2, 50000, 6, false, "b31c62da9eb31f30c194c0bf71d8031b" },
-            { L_, SEED_2, 50000, 6, true , "80340e0eb3c61d4d22a9680c7dfe33f7" },
+            { L_, SEED_0, 50000, 3, false, "a4f4796fce831c62afed26b178c63715" },
+            { L_, SEED_0, 50000, 3, true , "a9e9d0fbbc1487449bf928907792f211" },
+            { L_, SEED_0, 50000, 6, false, "0bab0341289bddcd8c66fd607b0b76dc" },
+            { L_, SEED_0, 50000, 6, true , "a9e9d0fbbc1487449bf928907792f211" },
+            { L_, SEED_1, 50000, 3, false, "53229ec3841b3815e8efb6cc8e64a098" },
+            { L_, SEED_1, 50000, 3, true , "1c7ceb60dbd74c17be929311f86ab185" },
+            { L_, SEED_1, 50000, 6, false, "4f884d423a3fbb65b531c5f4fe1ec0ed" },
+            { L_, SEED_1, 50000, 6, true , "1c7ceb60dbd74c17be929311f86ab185" },
+            { L_, SEED_2, 50000, 3, false, "01defb86e00fc10ca4c4a5dc802f9c54" },
+            { L_, SEED_2, 50000, 3, true , "de75fb921b25090f0f6975b6e4bf8bd3" },
+            { L_, SEED_2, 50000, 6, false, "af150f3a022e5fd55ccb5b400bfbc487" },
+            { L_, SEED_2, 50000, 6, true , "de75fb921b25090f0f6975b6e4bf8bd3" },
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
