@@ -1,3 +1,4 @@
+
 // balber_berutil.t.cpp                                               -*-C++-*-
 
 // ----------------------------------------------------------------------------
@@ -1425,10 +1426,10 @@ class GetValueFingerprint {
 
     // DATA
     int  d_seed;
-    // pseudo-random seed
+        // pseudo-random seed
 
     int  d_numSamples;
-    // number of input-output pairs to generate
+        // number of input-output pairs to generate
 
     int  d_fractionalSecondPrecision;
         // value to fix for the 'datetimeFractionalSecondPrecision'
@@ -4030,6 +4031,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
 
         typedef GetValueFingerprint_ImplUtil ImplUtil;
 
+        if (veryVeryVerbose) {
+            bsl::cout << "[GetValueFingerprint ";
+        }
+
         switch (RandomValueUtil::generateInInterval<int>(
             randomValueLoader, 0, k_NUM_SUPPORTED_TYPES - 1)) {
           case e_BOOL: {
@@ -4037,6 +4042,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "bool value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4045,6 +4056,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "char value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4053,6 +4070,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "signed char value: " << static_cast<int>(value)
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4061,6 +4084,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "unsigned char value: " << static_cast<int>(value)
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4069,6 +4098,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "int value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4077,6 +4112,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "int64 value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4085,6 +4126,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "unsigned int value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4093,6 +4140,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "unsigned int64 value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4101,6 +4154,25 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::ostream::fmtflags oldFlags     = bsl::cout.flags();
+                bsl::streamsize        oldPrecision = bsl::cout.precision();
+
+                static const int floatMaxDigits10 = 9;
+
+                bsl::cout.flags(oldFlags
+                                | bsl::ostream::scientific
+                                | bsl::ostream::fixed);
+                bsl::cout.precision(floatMaxDigits10);
+
+                bsl::cout << "float value: " << value
+                          << " num bytes: " << numBytes;
+
+                bsl::cout.flags(oldFlags);
+                bsl::cout.precision(oldPrecision);
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4109,6 +4181,25 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::ostream::fmtflags oldFlags     = bsl::cout.flags();
+                bsl::streamsize        oldPrecision = bsl::cout.precision();
+
+                static const int doubleMaxDigits10 = 17;
+
+                bsl::cout.flags(oldFlags
+                                | bsl::ostream::scientific
+                                | bsl::ostream::fixed);
+                bsl::cout.precision(doubleMaxDigits10);
+
+                bsl::cout << "double value: " << value
+                          << " num bytes: " << numBytes;
+
+                bsl::cout.flags(oldFlags);
+                bsl::cout.precision(oldPrecision);
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4117,6 +4208,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "decimal64 value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4125,6 +4222,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "string value: \"" << value
+                          << "\" num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4133,6 +4236,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "date value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4141,6 +4250,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "datetz value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4149,6 +4264,18 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose && value.is<bdlt::Date>()) {
+                bsl::cout << "date variant date value: "
+                          << value.the<bdlt::Date>()
+                          << " num bytes: " << numBytes;
+            }
+            else if (veryVeryVerbose && value.is<bdlt::DateTz>()) {
+                bsl::cout << "date variant datetz value: "
+                          << value.the<bdlt::DateTz>()
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4157,6 +4284,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "datetime value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4165,14 +4298,32 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "datetimetz value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_DATETIME_VARIANT: {
-              bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> value;
-              int numBytes = 0;
+            bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> value;
+            int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose && value.is<bdlt::Datetime>()) {
+                bsl::cout << "datetime variant datetime value: "
+                          << value.the<bdlt::Datetime>()
+                          << " num bytes: " << numBytes;
+            }
+            else if (veryVeryVerbose && value.is<bdlt::DatetimeTz>()) {
+                bsl::cout << "datetime variant datetimetz value: "
+                          << value.the<bdlt::DatetimeTz>()
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4181,6 +4332,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "time value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4189,6 +4346,12 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "timetz value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4197,6 +4360,18 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose && value.is<bdlt::Time>()) {
+                bsl::cout << "time variant time value: "
+                          << value.the<bdlt::Time>()
+                          << " num bytes: " << numBytes;
+            }
+            else if (veryVeryVerbose && value.is<bdlt::TimeTz>()) {
+                bsl::cout << "time variant timetz value: "
+                          << value.the<bdlt::TimeTz>()
+                          << " num bytes: " << numBytes;
+            }
+
             checksumAppend(hashAlg, value);
             checksumAppend(hashAlg, numBytes);
           } break;
@@ -4204,6 +4379,10 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             BSLS_ASSERT_OPT(!"Unreachable");
             return;                                                   // RETURN
           } break;
+        }
+
+        if (veryVeryVerbose) {
+            bsl::cout << "]" << bsl::endl;
         }
     }
 }
