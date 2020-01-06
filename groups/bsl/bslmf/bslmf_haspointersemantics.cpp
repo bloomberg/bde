@@ -4,21 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslmf_addconst.h>                 // for testing only
-#include <bslmf_addcv.h>                    // for testing only
-#include <bslmf_addlvaluereference.h>       // for testing only
-#include <bslmf_addpointer.h>               // for testing only
-#include <bslmf_addrvaluereference.h>       // for testing only
-#include <bslmf_addvolatile.h>              // for testing only
-#include <bslmf_nestedtraitdeclaration.h>   // for testing only
-
-namespace BloombergLP {
-namespace bslmf {
-
-}  // close package namespace
-}  // close enterprise namespace
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

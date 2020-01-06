@@ -6,9 +6,6 @@
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
-#include <bslmf_isenum.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_ismemberpointer.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -428,7 +425,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
