@@ -173,11 +173,9 @@ struct is_function<const volatile void> : false_type {
 #else  // This is the simplest implementation, for conforming compilers.
 namespace bsl {
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#ifdef BSLS_PLATFORM_CMP_MSVC
 # pragma warning(push)
 # pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
-#elif defined(BSLS_PLATFORM_CMP_SUN)
-# pragma error_messages (off, functypequal)
 #endif
 
 template <class TYPE>
@@ -192,10 +190,8 @@ struct is_function
     // that 'is_const<const TYPE>' will actually yield 'false'.
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#ifdef BSLS_PLATFORM_CMP_MSVC
 # pragma warning(pop)
-#elif defined(BSLS_PLATFORM_CMP_SUN)
-# pragma error_messages (default, functypequal)
 #endif
 
 template <class TYPE>
@@ -232,7 +228,7 @@ constexpr bool is_function_v = is_function<TYPE>::value;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
