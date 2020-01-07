@@ -9,6 +9,8 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -39,7 +41,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_trivially_default_constructible::value
 //
 // ----------------------------------------------------------------------------
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
+// [ 3] TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
 // [ 2] EXTENDING 'bsl::is_trivially_default_constructible'
 
 // ============================================================================
@@ -223,6 +226,47 @@ struct is_trivially_default_constructible<
 
 }  // close namespace bsl
 
+namespace {
+    // Support types for test case
+    //      TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+
+struct StructWithCtor {
+    // This user-defined type with a constructor with side-effects is used to
+    // guarantee that the type is detected as NOT
+    // 'is_trivially_default_constructible' even by the native implementation.
+    StructWithCtor()
+    {
+        printf("default StructWithCtor\n");
+    }
+};
+
+struct NamedStructWithNonPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' non-copyable type.
+    StructWithCtor x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' non-default-constructible type (checking to make sure
+    // we're not encountering AIX bug {DRQS 153975424}).
+    StructWithCtor x;
+} TypedefedStructWithNonPodMember;
+
+struct NamedStructWithPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' POD type.
+    int x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' POD type.
+    int x;
+} TypedefedStructWithPodMember;
+
+}  // close unnamed namespace
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -244,7 +288,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -339,6 +383,59 @@ int main(int argc, char *argv[])
 #endif
 //..
 
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //   Ensure unnamed structs are handled correctly.
+        //
+        // Concerns:
+        //: 1 Ensure that named 'struct's and 'typedef'd anonymous 'struct's
+        //    are handled identically.
+        //
+        // Plan:
+        //: 1 Verify 'bsl::is_trivially_dflt_ctible<StructWithCtor>' is 'false'
+        //: 2 Verify 'bsl::is_trivially_dflt_ctible<NSWNPM>' is 'false'
+        //: 3 Verify 'bsl::is_trivially_dflt_ctible<TSWNPM>' is 'false'
+        //: 4 Verify 'bsl::is_trivially_dflt_ctible<NSWPM>' is 'false'
+        //: 5 Verify 'bsl::is_trivially_dflt_ctible<TSWPM>' is 'false'
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+              "\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
+              "153975424})\n"
+              "\n====================================================="
+              "===========\n");
+
+        // C-1
+        ASSERTV(
+            !bsl::is_trivially_default_constructible<StructWithCtor>::value,
+            !bsl::is_trivially_default_constructible<StructWithCtor>::value);
+        // C-2
+        ASSERTV(!bsl::is_trivially_default_constructible<
+                    NamedStructWithNonPodMember>::value,
+                !bsl::is_trivially_default_constructible<
+                    NamedStructWithNonPodMember>::value);
+        // C-3
+        ASSERTV(!bsl::is_trivially_default_constructible<
+                    TypedefedStructWithNonPodMember>::value,
+                !bsl::is_trivially_default_constructible<
+                    TypedefedStructWithNonPodMember>::value);
+
+        // C-4
+        ASSERTV(!bsl::is_trivially_default_constructible<
+                    NamedStructWithPodMember>::value,
+                !bsl::is_trivially_default_constructible<
+                    NamedStructWithPodMember>::value);
+        // C-5
+        ASSERTV(!bsl::is_trivially_default_constructible<
+                    TypedefedStructWithPodMember>::value,
+                !bsl::is_trivially_default_constructible<
+                    TypedefedStructWithPodMember>::value);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -472,16 +569,12 @@ int main(int argc, char *argv[])
         ASSERT( bsl::is_trivially_default_constructible<void(*)()>::value);
         ASSERT( bsl::is_trivially_default_constructible<
                                              int(*)(float, double...)>::value);
-#if !defined(BSLS_PLATFORM_CMP_SUN) // last tested for v12.3
         ASSERT(!bsl::is_trivially_default_constructible<void()>::value);
         ASSERT(!bsl::is_trivially_default_constructible<
                                                 int(float, double...)>::value);
-#if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
         ASSERT(!bsl::is_trivially_default_constructible<void(&)()>::value);
         ASSERT(!bsl::is_trivially_default_constructible<
                                              int(&)(float, double...)>::value);
-#endif
-#endif
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

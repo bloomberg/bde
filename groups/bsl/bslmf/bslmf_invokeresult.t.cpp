@@ -47,6 +47,19 @@ using namespace BloombergLP;
 // [7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+# define BSLMF_INVOKERESULT_ABRIDGED_TEST 1
+    // Use Abridged set of tests for xlC 12 and Sun CC 5.12. These compilers
+    // get overwhelmed with too many template instantiations. They will work
+    // fine for a real program, but fail for test programs like this that
+    // recursively create hundreds of instantiations. The abridged tests lose
+    // a bit of redundancy, but are probably adaquate for testing the
+    // component, especially when combined with the full tests on other
+    // platforms.
+#else
+# define BSLMF_INVOKERESULT_ABRIDGED_TEST 0
+#endif
+
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -90,40 +103,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//              PLATFORM-SPECIFIC MACROS FOR WORKAROUNDS
-//-----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
-# define BSLMF_INVOKERESULT_ABRIDGED_TEST 1
-    // Use Abridged set of tests for xlC 12 and Sun CC 5.12. These compilers
-    // get overwhelmed with too many template instantiations. They will work
-    // fine for a real program, but fail for test programs like this that
-    // recursively create hundreds of instantiations. The abridged tests lose
-    // a bit of redundancy, but are probably adaquate for testing the
-    // component, especially when combined with the full tests on other
-    // platforms.
-#else
-# define BSLMF_INVOKERESULT_ABRIDGED_TEST 0
-#endif
-
-//=============================================================================
-//                      WARNING SUPPRESSION
-//-----------------------------------------------------------------------------
-
-// This test driver intentional creates types with unusual use of cv-qualifiers
-// in order to confirm that there are no strange corners of the type system
-// that are not addressed by this traits component.  Consequently, we disable
-// certain warnings from common compilers.
-
-#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
-# pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-# pragma warning(disable : 4180)
-#elif defined(BSLS_PLATFORM_CMP_SUN)
-# pragma error_messages (off, functypequal)
-#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -2165,7 +2144,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

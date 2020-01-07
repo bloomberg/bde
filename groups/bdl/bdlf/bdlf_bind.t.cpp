@@ -17,12 +17,10 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bslmf_haspointersemantics.h>
-#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
 
-#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
+#include <bsls_bsltestutil.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>        // 'atoi'
@@ -97,7 +95,7 @@ using namespace bsl;  // automatically added by script
 // (case 6).
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TESTING BSLMF_NESTED_TRAIT_DECLARATION
+// [ 2] TESTING BSLALG_DECLARE_NESTED_TRAITS
 // [ 3] MIXING BOUND ARGUMENTS AND PLACEHOLDERS
 // [ 4] PASSING 'bdlf_bind' OBJECTS AS PARAMETERS
 // [ 5] RESPECTING THE SIGNATURE OF THE INVOKABLE
@@ -3406,7 +3404,7 @@ DEFINE_TEST_CASE(2) {
         //   set of template parameters.
         //
         // Testing:
-        //   TESTING BSLMF_NESTED_TRAIT_DECLARATION
+        //   TESTING BSLALG_DECLARE_NESTED_TRAITS
         // ------------------------------------------------------------------
 
         (void)veryVerbose;
@@ -3510,7 +3508,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
