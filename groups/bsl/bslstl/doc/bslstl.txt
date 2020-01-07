@@ -17,55 +17,57 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 79 components having 8 levels of physical
+ The 'bslstl' package currently has 80 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  8. bslstl_ownerless
+  9. bslstl_ownerless
      bslstl_typeindex
 
-  7. bslstl_map_test                                                  !PRIVATE!
+  8. bslstl_map_test                                                  !PRIVATE!
      bslstl_multimap_test                                             !PRIVATE!
      bslstl_multiset_test                                             !PRIVATE!
      bslstl_set_test                                                  !PRIVATE!
      bslstl_sharedptr
 
-  6. bslstl_boyermoorehorspoolsearcher
-     bslstl_deque_test                                                !PRIVATE!
-     bslstl_map
+  7. bslstl_map
      bslstl_multimap
      bslstl_multiset
-     bslstl_queue
      bslstl_set
+
+  6. bslstl_boyermoorehorspoolsearcher
+     bslstl_deque_test                                                !PRIVATE!
+     bslstl_istringstream
+     bslstl_mapcomparator
+     bslstl_ostringstream
+     bslstl_queue
+     bslstl_setcomparator
      bslstl_stack
+     bslstl_stringstream
+     bslstl_treenodepool
      bslstl_unorderedmap_test                                         !PRIVATE!
      bslstl_unorderedmultimap_test                                    !PRIVATE!
      bslstl_unorderedmultiset_test                                    !PRIVATE!
      bslstl_unorderedset_test                                         !PRIVATE!
 
-  5. bslstl_deque
+  5. bslstl_bitset
+     bslstl_defaultsearcher
+     bslstl_deque
      bslstl_hashtable_test                                            !PRIVATE!
-     bslstl_istringstream
-     bslstl_mapcomparator
-     bslstl_ostringstream
-     bslstl_setcomparator
-     bslstl_stringstream
-     bslstl_treenodepool
+     bslstl_string_test                                               !PRIVATE!
+     bslstl_stringbuf
+     bslstl_stringref
+     bslstl_treenode
      bslstl_unorderedmap
      bslstl_unorderedmultimap
      bslstl_unorderedmultiset
      bslstl_unorderedset
 
-  4. bslstl_bitset
-     bslstl_defaultsearcher
-     bslstl_hashtable
+  4. bslstl_hashtable
      bslstl_randomaccessiterator
-     bslstl_string_test                                               !PRIVATE!
-     bslstl_stringbuf
-     bslstl_stringref
+     bslstl_string
      bslstl_systemerror
-     bslstl_treenode
 
   3. bslstl_algorithmworkaround
      bslstl_bidirectionaliterator
@@ -75,7 +77,7 @@
      bslstl_hashtableiterator
      bslstl_list_test                                                 !PRIVATE!
      bslstl_priorityqueue
-     bslstl_string
+     bslstl_stringrefdata
      bslstl_vector_test                                               !PRIVATE!
 
   2. bslstl_array
@@ -106,7 +108,6 @@
      bslstl_sharedptrallocateoutofplacerep
      bslstl_simplepool
      bslstl_stdexceptutil
-     bslstl_stringrefdata
      bslstl_unorderedmapkeyconfiguration
      bslstl_unorderedsetkeyconfiguration
 ..
@@ -294,10 +295,13 @@
 :      Provide a reference to a 'const' string.
 :
 : 'bslstl_stringrefdata':
-:      Provide an attribute-only base class for 'bslstl::StringRef'.
+:      Provide a base class for 'bslstl::StringRef'.
 :
 : 'bslstl_stringstream':
 :      Provide a C++03-compatible 'stringstream' class.
+:
+: 'bslstl_stringview':
+:      Provide a standard-compliant 'basic_string_view' class template.
 :
 : 'bslstl_systemerror':
 :      Provide a standard compliant 'system_error' class.
