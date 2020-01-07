@@ -414,14 +414,14 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::timedWaitSlowPath(
                 state = ATOMIC_OP::getInt64Acquire(&d_state);
             }
 
-            if (disabledGen != disabledGeneration(state)) {
-                ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
-                rv = e_DISABLED;
-            }
-            else {
+            if (hasAvailable(state)) {
                 state = ATOMIC_OP::addInt64NvAcqRel(
                                            &d_state,
                                            -(k_AVAILABLE_INC + k_BLOCKED_INC));
+            }
+            else {
+                ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
+                rv = e_DISABLED;
             }
         }
 
@@ -491,14 +491,14 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::waitSlowPath(
                 state = ATOMIC_OP::getInt64Acquire(&d_state);
             }
 
-            if (disabledGen != disabledGeneration(state)) {
-                ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
-                rv = e_DISABLED;
-            }
-            else {
+            if (hasAvailable(state)) {
                 state = ATOMIC_OP::addInt64NvAcqRel(
                                            &d_state,
                                            -(k_AVAILABLE_INC + k_BLOCKED_INC));
+            }
+            else {
+                ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
+                rv = e_DISABLED;
             }
         }
 
