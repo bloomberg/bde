@@ -255,14 +255,13 @@ typedef struct {
 
 struct NamedStructWithPodMember {
     // This user-defined type is used to check the expected behaviour for a
-    // 'well-behaved' default-constructible (with native traits) type.
+    // 'well-behaved' POD type.
     int x;
 };
 
 typedef struct {
     // This user-defined type is used to check the expected behaviour for a
-    // 'typedef struct' default-constructible (with native traits) type
-    // (checking to make sure we're not encountering AIX bug {DRQS 153975424}).
+    // 'typedef struct' POD type.
     int x;
 } TypedefedStructWithPodMember;
 
@@ -398,8 +397,8 @@ int main(int argc, char *argv[])
         //: 1 Verify 'bsl::is_trivially_dflt_ctible<StructWithCtor>' is 'false'
         //: 2 Verify 'bsl::is_trivially_dflt_ctible<NSWNPM>' is 'false'
         //: 3 Verify 'bsl::is_trivially_dflt_ctible<TSWNPM>' is 'false'
-        //: 4 Verify 'bsl::is_trivially_dflt_ctible<NSWPM>' is as expected
-        //: 5 Verify 'bsl::is_trivially_dflt_ctible<TSWPM>' is as expected
+        //: 4 Verify 'bsl::is_trivially_dflt_ctible<NSWPM>' is 'false'
+        //: 5 Verify 'bsl::is_trivially_dflt_ctible<TSWPM>' is 'false'
         //
         // Testing:
         //
@@ -427,28 +426,16 @@ int main(int argc, char *argv[])
                 !bsl::is_trivially_default_constructible<
                     TypedefedStructWithNonPodMember>::value);
 
-        // Native trait checks detect that POD types are trivially copyable,
-        // even without trait info.  Our non-native trait check implementation
-        // has to be pessimistic and assume they are not.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-        bool expected_i_t_d_c_with_pod_member = true;
-#else
-        bool expected_i_t_d_c_with_pod_member = false;
-#endif
         // C-4
-        ASSERTV(bsl::is_trivially_default_constructible<
+        ASSERTV(!bsl::is_trivially_default_constructible<
                     NamedStructWithPodMember>::value,
-                expected_i_t_d_c_with_pod_member,
-                bsl::is_trivially_default_constructible<
-                    NamedStructWithPodMember>::value ==
-                    expected_i_t_d_c_with_pod_member);
+                !bsl::is_trivially_default_constructible<
+                    NamedStructWithPodMember>::value);
         // C-5
-        ASSERTV(bsl::is_trivially_default_constructible<
+        ASSERTV(!bsl::is_trivially_default_constructible<
                     TypedefedStructWithPodMember>::value,
-                expected_i_t_d_c_with_pod_member,
-                bsl::is_trivially_default_constructible<
-                    TypedefedStructWithPodMember>::value ==
-                    expected_i_t_d_c_with_pod_member);
+                !bsl::is_trivially_default_constructible<
+                    TypedefedStructWithPodMember>::value);
       } break;
       case 2: {
         // --------------------------------------------------------------------
