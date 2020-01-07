@@ -172,18 +172,30 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
 #define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 #define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
-#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
 #define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
-#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+#else
+#define ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)
+#endif
 
 // ============================================================================
 //                             SWAP TEST HELPERS
@@ -191,8 +203,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace incorrect {
 
-template <class TYPE>
-void swap(TYPE&, TYPE&)
+void swap(...)
     // Fail.  In a successful test, this 'swap' should never be called.  It is
     // set up to be called (and fail) in the case where ADL fails to choose the
     // right 'swap' in 'invokeAdlSwap' below.
@@ -250,7 +261,7 @@ static bslma::TestAllocator *defaultAllocator_p;
 static bslma::TestAllocator *objectAllocator_p;
 
 template <class TYPE>
-class DummyTrait
+class DummyTrait : public bsl::char_traits<TYPE>
     // This class is used to simulate 'invalid length of string' scenario.  We
     // juggle the calculated length of string instead of allocating enormous
     // amount of memory, filling it and passing it's address to the
@@ -671,8 +682,10 @@ struct TestDriver {
     static void testCase22();
         // Test 'operator ""_sv'.
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     static void testCase21();
         // Test 'starts_with' and 'ends_with'.
+#endif
 
     static void testCase20();
         // Test comparison operators.
@@ -987,6 +1000,7 @@ void TestDriver<TYPE,TRAITS>::testCase22()
 
 }
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE, TRAITS>::testCase21() {
     // ------------------------------------------------------------------------
@@ -1253,6 +1267,7 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
         ASSERT_SAFE_FAIL(X.ends_with(NULL_PTR));
     }
 }
+#endif
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase20()
@@ -1816,11 +1831,11 @@ void TestDriver<TYPE, TRAITS>::testCase18()
             Obj        mXZero(STRING, 0);
             const Obj& XZero = mXZero;
 
-            ASSERTV(LINE, -1 == XEmpty.compare(X     ));
-            ASSERTV(LINE,  1 == X.compare(     XEmpty));
+            ASSERTV(LINE, 0 >  XEmpty.compare(X     ));
+            ASSERTV(LINE, 0 <  X.compare(     XEmpty));
 
-            ASSERTV(LINE,  0 == XEmpty.compare(XZero ));
-            ASSERTV(LINE,  0 == XZero.compare( XEmpty));
+            ASSERTV(LINE, 0 == XEmpty.compare(XZero ));
+            ASSERTV(LINE, 0 == XZero.compare( XEmpty));
         }
 
         // int compare(size_type position, size_type n, basic_string_view o);
@@ -1839,7 +1854,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
             // We can only use null values for 'position' and 'numChars',
             // because length of empty object is equal to zero.
 
-            ASSERTV(LINE, -1 == XEmpty.compare(0, 0, X));
+            ASSERTV(LINE, 0 > XEmpty.compare(0, 0, X));
 
             // But for the non-empty objects we need to iterate through the
             // range of positions and through the range of numbers of requested
@@ -2187,27 +2202,6 @@ void TestDriver<TYPE, TRAITS>::testCase18()
                                                              XRHS,
                                                              RHS_POSITION,
                                                              NPOS);
-
-                                ASSERTV(LINE    , LHS_POSITION,
-                                        RHS_LINE, RHS_POSITION,
-                                        EXP, RESULT,
-                                        EXP == RESULT);
-                            }
-
-                            // Now we can check that the default parameter gets
-                            // the expected value.
-
-                            {
-                                const int EXP    = X.compare(LHS_POSITION,
-                                                             LHS_NUM_CHARS,
-                                                             XRHS,
-                                                             RHS_POSITION,
-                                                             NPOS);
-
-                                const int RESULT = X.compare(LHS_POSITION,
-                                                             LHS_NUM_CHARS,
-                                                             XRHS,
-                                                             RHS_POSITION);
 
                                 ASSERTV(LINE    , LHS_POSITION,
                                         RHS_LINE, RHS_POSITION,
@@ -5074,7 +5068,7 @@ void TestDriver<TYPE, TRAITS>::testCase9()
 
     const TYPE      *STRING        = s_testString;
     const size_type  STRING_LENGTH = s_testStringLength;
-    const size_type  MAX_SIZE      = (Obj::npos - 1) / sizeof(TYPE);
+    const size_type  MAX_MAX_SIZE  = (Obj::npos - 1) / sizeof(TYPE);
 
     // Testing empty object.
     {
@@ -5082,9 +5076,9 @@ void TestDriver<TYPE, TRAITS>::testCase9()
         Obj         mXEmpty(NULL_PTR, 0);
         const Obj&  XEmpty = mXEmpty;
 
-        ASSERTV(XEmpty.size(),     0        == XEmpty.size()    );
-        ASSERTV(XEmpty.max_size(), MAX_SIZE == XEmpty.max_size());
-        ASSERTV(XEmpty.empty(),    true     == XEmpty.empty()   );
+        ASSERTV(XEmpty.size(),     0            == XEmpty.size()    );
+        ASSERTV(XEmpty.max_size(), MAX_MAX_SIZE >= XEmpty.max_size());
+        ASSERTV(XEmpty.empty(),    true         == XEmpty.empty()   );
     }
 
     // Testing non-empty objects.
@@ -5099,7 +5093,7 @@ void TestDriver<TYPE, TRAITS>::testCase9()
             const Obj&  X = mX;
 
             ASSERTV(i, j, X.size(),     LENGTH             == X.size()    );
-            ASSERTV(i, j, X.max_size(), MAX_SIZE           == X.max_size());
+            ASSERTV(i, j, X.max_size(), MAX_MAX_SIZE       >= X.max_size());
             ASSERTV(i, j, X.empty(),    EXPECTED_EMPTINESS == X.empty()   );
         }
     }
@@ -5215,18 +5209,7 @@ void TestDriver<TYPE, TRAITS>::testCase8()
 
         ASSERT_SAFE_PASS((Obj(            STRING)));
         ASSERT_SAFE_FAIL((Obj(                 0)));
-#ifdef BDE_BUILD_TARGET_EXC
-        bool lengthErrorCaught = false;
-        try {
-            (DummyStringView(STRING));
-        }
-        catch (const std::length_error&) {
-            lengthErrorCaught = true;
-        }
-        ASSERT(lengthErrorCaught);
-#else
         ASSERT_SAFE_FAIL((DummyStringView(STRING)));
-#endif
     }
 
     // Verify no memory was ever allocated.
@@ -6256,18 +6239,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         ASSERT_SAFE_FAIL((Obj(0     , STRING_LENGTH)));
 
         ASSERT_SAFE_PASS((Obj(STRING, (Obj::npos - 1) / sizeof(TYPE))));
-#ifdef BDE_BUILD_TARGET_EXC
-        bool lengthErrorCaught = false;
-        try {
-            Obj(STRING, Obj::npos);
-        }
-        catch (const std::length_error&) {
-            lengthErrorCaught = true;
-        }
-        ASSERT(lengthErrorCaught);
-#else
         ASSERT_SAFE_FAIL((Obj(STRING, Obj::npos    )));
-#endif
     }
 
     // Verify no memory was ever allocated.
@@ -6408,8 +6380,12 @@ int main(int argc, char *argv[])
         if (verbose) printf ("\nTESTING 'STARTS_WITH' AND 'ENDS_WITH'"
                              "\n====================================\n");
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
         TestDriver<char>::testCase21();
         TestDriver<wchar_t>::testCase21();
+#else
+        if (verbose) printf ("Methods not available prior to C++20\n");
+#endif
       } break;
       case 20: {
 
