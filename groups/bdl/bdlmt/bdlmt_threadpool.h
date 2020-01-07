@@ -355,6 +355,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>  // BSLS_PLATFORM_OS_UNIX
 
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_movableref.h>
@@ -364,7 +365,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsl_deque.h>
-
 #if defined(BSLS_PLATFORM_OS_UNIX)
     #include <bsl_csignal.h>              // sigfillset
 #endif
