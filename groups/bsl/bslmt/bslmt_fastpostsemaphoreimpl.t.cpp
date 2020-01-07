@@ -940,7 +940,7 @@ extern "C" void *watchdog(void *arg)
 extern "C" void *timedWaitExpectDisabled(void *arg)
     // Invoke 'timedWait' with a one second timeout on the specified 'arg' and
     // verify the result value is 'e_DISABLED'.  The behavior is undefined
-    // unless 'arg' is a point to a valid instance of 'Obj'.
+    // unless 'arg' is a pointer to a valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -953,7 +953,7 @@ extern "C" void *timedWaitExpectDisabled(void *arg)
 extern "C" void *timedWaitExpectSuccess(void *arg)
     // Invoke 'timedWait' with a one second timeout on the specified 'arg' and
     // verify the result value is 'e_SUCCESS'.  The behavior is undefined
-    // unless 'arg' is a point to a valid instance of 'Obj'.
+    // unless 'arg' is a pointer to a valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -965,7 +965,7 @@ extern "C" void *timedWaitExpectSuccess(void *arg)
 
 extern "C" void *waitExpectDisabled(void *arg)
     // Invoke 'wait' on the specified 'arg' and verify the result value is
-    // 'e_DISABLED'.  The behavior is undefined unless 'arg' is a point to a
+    // 'e_DISABLED'.  The behavior is undefined unless 'arg' is a pointer to a
     // valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
@@ -977,7 +977,7 @@ extern "C" void *waitExpectDisabled(void *arg)
 
 extern "C" void *waitExpectSuccess(void *arg)
     // Invoke 'wait' on the specified 'arg' and verify the result value is
-    // 'e_SUCCESS'.  The behavior is undefined unless 'arg' is a point to a
+    // 'e_SUCCESS'.  The behavior is undefined unless 'arg' is a pointer to a
     // valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
@@ -1314,6 +1314,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 Disablement of the queue releases blocked threads and results
         //:   in the correct semaphore count.
+        //:
+        //: 5 Sequences of operations with a guaranteed result (e.g., one
+        //:   thread invoking 'wait' while another does 'disable' and then
+        //:   'post') operate as expected.
         //
         // Plan:
         //: 1 Create semaphores with varying initial count, invoke a
@@ -1328,13 +1332,17 @@ int main(int argc, char *argv[])
         //:
         //: 3 Directly verify the timeout functionality of 'timedWait', the
         //:   return value of the method, and use 'tryWait' to verify the
-        //:   semaphore count.
+        //:   semaphore count.  (C-3)
         //:
         //: 4 Create semaphores with zero initial count, use 'timedWait' (with
         //:   a very long timeout) and 'wait' to block created threads on the
         //:   semaphore, execute the 'disable' method, verify the return value
         //:   and then join the created threads to verify they were released.
-        //:   Use a watchdog to detect unreleased threads.  (C-2)
+        //:   Use a watchdog to detect unreleased threads.  (C-4)
+        //:
+        //: 5 Perform sequences of operations with a guaranteed result and
+        //:   verify the expected outcome.  Note that the untested method
+        //:   'getValue' is used.  (C-5)
         //
         // Testing:
         //   void post();
@@ -1598,6 +1606,64 @@ int main(int argc, char *argv[])
             s_continue = 0;
 
             bslmt::ThreadUtil::join(watchdogHandle);
+        }
+
+        if (verbose) cout << "\nVerify guaranteed outcomes." << endl;
+        for (int i = 0; i < 1000; ++i) {
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle, waitExpectDisabled, &mX);
+
+                mX.disable();
+                mX.post();
+
+                bslmt::ThreadUtil::join(handle);
+            }
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle,
+                                          timedWaitExpectDisabled,
+                                          &mX);
+
+                mX.disable();
+                mX.post();
+
+                bslmt::ThreadUtil::join(handle);
+            }
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle, waitExpectSuccess, &mX);
+
+                mX.post();
+                while (mX.getValue()) {
+                    bslmt::ThreadUtil::yield();
+                }
+                mX.disable();
+
+                bslmt::ThreadUtil::join(handle);
+            }
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle,
+                                          timedWaitExpectSuccess,
+                                          &mX);
+
+                mX.post();
+                while (mX.getValue()) {
+                    bslmt::ThreadUtil::yield();
+                }
+                mX.disable();
+
+                bslmt::ThreadUtil::join(handle);
+            }
         }
       } break;
       case 5: {
