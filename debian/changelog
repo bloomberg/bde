@@ -1,11 +1,25 @@
-bsl-internal (3.46.1.0) unstable; urgency=low
+bsl-internal (3.46.2.0) unstable; urgency=low
 
+  * a384b1433 Bump version to 3.46.2.0
+  * b3f351fa4 Merge pull request #2661 from mgiroux/revert-detectnestedtraits-consistency-branch-releases-3.46.x
+  * 9a395f2d4 Revert "Merge pull request #2640 from ameredit/detect_nested_traits_no_sun_abomination"
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Jan 2020 14:12:11 -0500
+
+bsl-internal (3.46.1.0) git; urgency=low
+
+  * ecb5b9218 Changelog for version 3.46.1.0
   * 123fb4cc9 Bump version to 3.46.1.0
   * 9e4e5a6c1 Merge pull request #2659 from mgiroux/pr/2657-rebased-releases/3.46.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Jan 2020 17:17:21 -0500
+
+bsl-internal (3.46.0.1) git; urgency=low
+
   * c1d7dbc5e Changelog for version 3.46.0.1
   * 16d726335 Merge pull request #2653 from mgiroux/restore-deleted-transitive-includes
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Jan 2020 17:15:29 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 29 Dec 2019 13:14:24 -0500
 
 bsl-internal (3.46.0.0) git; urgency=low
 
