@@ -114,12 +114,6 @@ class FastPostSemaphoreImpl {
         // wait operations (without further 'post' invocations).
 
     // PRIVATE MANIPULATORS
-    bool setEnable(bool value);
-        // If 'true == value', enable waiting on this semaphore.  Otherwise,
-        // disable waiting on this queue.  Return 'true' if
-        // 'value == isDisabled()' initially; otherwise return false and this
-        // call has no effect.
-
     int timedWaitSlowPath(const bsls::TimeInterval& timeout,
                           const bsls::Types::Int64  initialState);
         // If this semaphore becomes disabled as detected from the disabled
@@ -345,32 +339,6 @@ bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::willHaveBlockedThread(
 
 // PRIVATE MANIPULATORS
 template <class ATOMIC_OP, class MUTEX, class CONDITION>
-bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::setEnable(bool value)
-{
-    Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-
-    if (value == isDisabled(state)) {
-        Int64 expState;
-        do {
-            // increment, without overflowing, the disabled attribute
-
-            expState = state;
-
-            Int64 newState = (state & ~k_DISABLED_GEN_MASK) |
-                          ((state + k_DISABLED_GEN_INC) & k_DISABLED_GEN_MASK);
-
-            state = ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
-                                                      state,
-                                                      newState);
-        } while (state != expState && value == isDisabled(state));
-
-        return true;                                                  // RETURN
-    }
-
-    return false;
-}
-
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
 int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::timedWaitSlowPath(
                                         const bsls::TimeInterval& timeout,
                                         const bsls::Types::Int64  initialState)
@@ -554,23 +522,72 @@ FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::FastPostSemaphoreImpl(
 template <class ATOMIC_OP, class MUTEX, class CONDITION>
 void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::disable()
 {
-    if (setEnable(false)) {
-        // note that 'd_waitMutex' must be acquired to ensure a thread in a
-        // wait operation either "sees" the change in state before determining
-        // whether to block using 'd_waitCondition', or has blocked and will
-        // receive a signal sent to 'd_waitCondition'
+    Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
-        {
-            LockGuard<MUTEX> guard(&d_waitMutex);
+    while (false == isDisabled(state)) {
+        const Int64 expState = state;
+
+        // increment, without overflowing, the disabled attribute
+
+        Int64 newState = (state & ~k_DISABLED_GEN_MASK) |
+                          ((state + k_DISABLED_GEN_INC) & k_DISABLED_GEN_MASK);
+
+        state = ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
+                                                  state,
+                                                  newState);
+
+        if (expState == state) {
+            state = newState;
+
+            // note that 'd_waitMutex' must be acquired to ensure a thread in a
+            // wait operation either "sees" the change in state before
+            // determining whether to block using 'd_waitCondition', or has
+            // blocked and will receive a signal sent to 'd_waitCondition'
+
+            {
+                LockGuard<MUTEX> guard(&d_waitMutex);
+            }
+            d_waitCondition.broadcast();
         }
-        d_waitCondition.broadcast();
+    }
+
+    // note that the semaphore may be re-enabled (and re-disabled)
+
+    while (isDisabled(state) && willHaveBlockedThread(state)) {
+        ThreadUtil::yield();
+
+        state = ATOMIC_OP::getInt64Acquire(&d_state);
     }
 }
 
 template <class ATOMIC_OP, class MUTEX, class CONDITION>
 void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::enable()
 {
-    setEnable(true);
+    Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+
+    while (isDisabled(state)) {
+        if (willHaveBlockedThread(state)) {
+            ThreadUtil::yield();
+
+            state = ATOMIC_OP::getInt64Acquire(&d_state);
+        }
+        else {
+            const Int64 expState = state;
+
+            // increment, without overflowing, the disabled attribute
+
+            Int64 newState = (state & ~k_DISABLED_GEN_MASK) |
+                          ((state + k_DISABLED_GEN_INC) & k_DISABLED_GEN_MASK);
+
+            state = ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
+                                                      state,
+                                                      newState);
+
+            if (expState == state) {
+                state = newState;
+            }
+        }
+    }
 }
 
 template <class ATOMIC_OP, class MUTEX, class CONDITION>
