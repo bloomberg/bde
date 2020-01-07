@@ -203,6 +203,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace incorrect {
 
+// We use a variadic function here rather than a function template with two
+// arguments to avoid ambiguity with 'std::swap' when 'bsl::string_view' is an
+// alias for 'std::string_view'.
 void swap(...)
     // Fail.  In a successful test, this 'swap' should never be called.  It is
     // set up to be called (and fail) in the case where ADL fails to choose the

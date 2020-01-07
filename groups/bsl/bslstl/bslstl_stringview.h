@@ -980,7 +980,7 @@ wstring_view operator ""_sv(const wchar_t *characterString,
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY &&
         // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
 namespace BloombergLP {
 namespace bslh {
 
@@ -988,7 +988,7 @@ template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 void hashAppend(
           HASHALG&                                                     hashAlg,
-          const native_std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input)
+          const native_std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input);
     // Pass the specified 'input' string to the specified 'hashAlg' hashing
     // algorithm of the (template parameter) type 'HASHALG'.  Note that this
     // function violates the BDE coding standard, adding a function for a
@@ -998,14 +998,10 @@ void hashAppend(
     // 'string_view' type as we are not allowed to add overloads directly into
     // namespace 'std', and this component essentially provides the interface
     // between 'bsl' and 'std' string types.
-{
-    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
-    hashAppend(hashAlg, input.size());
-}
 
 }  // close namespace bslh
 }  // close enterprise namespace
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -2148,6 +2144,22 @@ void bsl::hashAppend(HASHALG&                                         hashAlg,
     hashAppend(hashAlg, input.size());
 }
 
+#endif  // BSLSTL_STRING_VIEW_IS_ALIASED
+
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+namespace BloombergLP {
+
+template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+void bslh::hashAppend(
+          HASHALG&                                                     hashAlg,
+          const native_std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input)
+{
+    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
+    hashAppend(hashAlg, input.size());
+}
+
+}  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
 #endif
