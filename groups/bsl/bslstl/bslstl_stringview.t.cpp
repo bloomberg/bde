@@ -2445,8 +2445,8 @@ void TestDriver<TYPE, TRAITS>::testCase17()
                         EXPECTED_LENGTH == RESULT.length());
             }
         }
-    }
 #endif
+    }
 
     if (verbose) printf("\tNegative testing.\n");
     {
