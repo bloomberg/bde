@@ -2095,12 +2095,12 @@ INTEGRAL_TYPE RandomValueUtil::generateInInterval(LOADER& loader,
 template <class LOADER>
 void loadRandomValue(bdldfp::Decimal64 *value, LOADER& loader)
 {
-    static const long long minSignificand = -9999999999999999;
-    static const long long maxSignificand =  9999999999999999;
+    static const bsls::Types::Int64 minSignificand = -9999999999999999ll;
+    static const bsls::Types::Int64 maxSignificand =  9999999999999999ll;
     static const int minExponent = -398;
     static const int maxExponent = 369;
 
-    const long long significand = RandomValueUtil::generateInInterval(
+    const bsls::Types::Int64 significand = RandomValueUtil::generateInInterval(
                                                                loader         ,
                                                                minSignificand ,
                                                                maxSignificand);
