@@ -2444,8 +2444,8 @@ void TestDriver<TYPE, TRAITS>::testCase17()
                 ASSERTV(OFFSET, LENGTH,
                         EXPECTED_LENGTH == RESULT.length());
             }
-        }
 #endif
+        }
     }
 
     if (verbose) printf("\tNegative testing.\n");
