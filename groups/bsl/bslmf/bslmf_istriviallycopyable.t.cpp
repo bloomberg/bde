@@ -48,7 +48,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_trivially_copyable_v
 //
 // ----------------------------------------------------------------------------
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
+// [ 5] TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
 // [ 2] EXTENDING bsl::is_trivially_copyable
 // [ 3] CONCERN: bsl::is_trivially_copyable<bsls::TimeInterval>::value
 // [ 4] CONCERN: bsl::is_trivially_copyable<bslmf::Nil>::value
@@ -387,6 +388,50 @@ struct UserDefinedNonTcTestType {
 
 }  // close unnamed namespace
 
+namespace {
+
+struct StructWithCtor {
+    // This user-defined type with constructors with side-effects is used to
+    // guarantee that the type is detected as NOT 'is_trivially_copyable' even
+    // by the native implementation.
+    StructWithCtor()
+    {
+        printf("default StructWithCtor\n");
+    }
+
+    StructWithCtor(const StructWithCtor&)
+    {
+        printf("copy StructWithCtor\n");
+    }
+};
+
+struct NamedStructWithNonPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' non-copyable type.
+    StructWithCtor x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' non-copyable type (checking to make sure we're not
+    // encountering AIX bug {DRQS 153975424}).
+    StructWithCtor x;
+} TypedefedStructWithNonPodMember;
+
+struct NamedStructWithPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' copyable type.
+    int x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' copyable type (checking to make sure we're not
+    // encountering AIX bug {DRQS 153975424}).
+    int x;
+} TypedefedStructWithPodMember;
+
+}  // close unnamed namespace
 
 namespace bsl {
 
@@ -418,7 +463,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -493,6 +538,66 @@ int main(int argc, char *argv[])
 #endif
 //..
 
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //   Ensure unnamed structs are handled correctly.
+        //
+        // Concerns:
+        //: 1 Ensure that named 'struct's and 'typedef'd anonymous 'struct's
+        //    are handled identically.
+        //
+        // Plan:
+        //: 1 Verify 'bsl::is_trivially_copyable<StructWithCtor>' is 'false'
+        //: 2 Verify 'bsl::is_trivially_copyable<NSWNPM>' is 'false'
+        //: 3 Verify 'bsl::is_trivially_copyable<TSWNPM>' is 'false'
+        //: 4 Verify 'bsl::is_trivially_copyable<NSWPM>' is as expected
+        //: 5 Verify 'bsl::is_trivially_copyable<TSWPM>' is as expected
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+              "\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
+              "153975424})\n"
+              "\n====================================================="
+              "===========\n");
+
+        // C-1
+        ASSERTV(!bsl::is_trivially_copyable<StructWithCtor>::value,
+                !bsl::is_trivially_copyable<StructWithCtor>::value);
+        // C-2
+        ASSERTV(
+            !bsl::is_trivially_copyable<NamedStructWithNonPodMember>::value,
+            !bsl::is_trivially_copyable<NamedStructWithNonPodMember>::value);
+        // C-3
+        ASSERTV(!bsl::is_trivially_copyable<
+                    TypedefedStructWithNonPodMember>::value,
+                !bsl::is_trivially_copyable<
+                    TypedefedStructWithNonPodMember>::value);
+
+        // Native trait checks detect that POD types are trivially copyable,
+        // even without trait info.  Our non-native trait check implementation
+        // has to be pessimistic and assume they are not.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        bool expected_i_t_c_with_pod_member = true;
+#else
+        bool expected_i_t_c_with_pod_member = false;
+#endif
+        // C-4
+        ASSERTV(bsl::is_trivially_copyable<NamedStructWithPodMember>::value,
+                expected_i_t_c_with_pod_member,
+                bsl::is_trivially_copyable<NamedStructWithPodMember>::value ==
+                    expected_i_t_c_with_pod_member);
+        // C-5
+        ASSERTV(
+            bsl::is_trivially_copyable<TypedefedStructWithPodMember>::value,
+            expected_i_t_c_with_pod_member,
+            bsl::is_trivially_copyable<TypedefedStructWithPodMember>::value ==
+                expected_i_t_c_with_pod_member);
       } break;
       case 4: {
         // --------------------------------------------------------------------
