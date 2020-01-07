@@ -50,12 +50,15 @@
 #include <bsla_maybeunused.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cctype.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_numeric.h>
+#include <bsl_ostream.h>
 #include <bsl_string.h>
 
 using namespace BloombergLP;
@@ -64,9 +67,75 @@ using namespace bsl;
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The component under test defines a utility 'struct' used to encode and
+// decode objects of 'bdlat' 'Simple' type according to the specification of
+// the BER ("Basic Encoding Rules") format defined by ITU-T X.690.  The
+// 'Simple' types include the C++ fundamental types, BDE date and time types,
+// and strings, etc.  The utility also provides ancillary operations associated
+// with the encoding and decoding of these types in BER, such operating on
+// encoded BER meta-information, etc.  This component also provides
+// non-standard extensions to the BER specification, such as an optional
+// alternate, compact format for representing date and time values.
 //
+// The primary operations provided by this component are
+// 'balber::BerUtil::putValue', and 'balber::BerUtil::getValue', which are
+// responsible for the encoding and decoding objects of 'Simple' types,
+// respectively.
 //
+// This test checks "behavioral fingerprints" of 'putValue', and 'getValue',
+// which are checksums of the output for a large, pseudo-randomly generated
+// set of inputs for said functions.  In order to generate the input, this test
+// provides machinery for pseudo-randomly creating values of types used in
+// the input space of the functions.  Further, it provides an implementation of
+// the MD5 Message Digest Algorithm, which is known to be a high-quality
+// checksum algorithm with a specification.  The checksum algorithm is
+// high-quality in that it can be formally shown to have an astronomically
+// low probability of hash collision between input bit sequences with low
+// edit distance.  Basically, in MD5, every bit matters and nearly-identical
+// inputs have different hashes with near certainty.
+//
+// Global Concerns:
+//: o Except for non-standard extensions, the encoding and decoding of objects
+//:   provided by this component comply with the Basic Encoding Rules of the
+//:   ITU-T X.690 specification, according to the ASN.1 interpretation of the
+//:   values of said objects.
+//: o Ancillary functions provided by this component that calculate values
+//:   specified by ITU-T X.690 comply with the specification.
 // ----------------------------------------------------------------------------
+// CLASS METHODS
+// [16] int getEndOfContentsOctets(bsl::streambuf *, int *nBytes);
+// [17] int getIdentifierOctets(streambuf *, cls *, ty *, tag *, int *nBytes);
+// [12] int getLength(bsl::streambuf *, int *result, int *nBytes);
+// [23] int getValue(bsl::streambuf *, TYPE *, int length, const Options&);
+// [23] int getValue(bsl::streambuf *, TYPE *, int *nBytes, const Options&);
+// [16] int putEndOfContentOctets(bsl::streambuf *);
+// [17] int putIdentifierOctets(bsl::streambuf *, cls *, ty *, int tag);
+// [16] int putIndefiniteLengthOctet(bsl::streambuf *);
+// [12] int putLength(bsl::streambuf *, int length);
+// [22] int putValue(bsl::streambuf *, const TYPE& value, const Options * = 0);
+// ----------------------------------------------------------------------------
+// [-1] PERFORMANCE TEST
+// [ 1] BREATHING TEST
+// [ 2] CONCERN: 'putValue' & 'getValue' for bool values
+// [ 3] CONCERN: 'putValue' & 'getValue' for signed char values
+// [ 4] CONCERN: 'putValue' & 'getValue' for unsigned char values
+// [ 5] CONCERN: 'numBytesToStream' (component-private)
+// [ 6] CONCERN: 'numBytesToStream' (component-private) for unsigned types
+// [ 7] CONCERN: 'putIntegerGivenLength' (component-private)
+// [ 8] CONCERN: 'get/putIntegetGivenLength' for unsigned values
+// [ 9] CONCERN: 'putValue' & 'getValue' for signed integral values
+// [10] CONCERN: 'putValue' & 'getValue' for unsigned integral types
+// [11] CONCERN: 'get/putDoubleValue' (c-p) for 'float' and 'double'
+// [12] CONCERN: 'putLength' & 'getLength'
+// [13] CONCERN: 'putValue' & 'getValue' for 'bsl::string'
+// [14] CONCERN: 'putValue' & 'getValue' for 'bslstl::StringRef'
+// [15] CONCERN: 'putValue' & 'getValue' for date/time types
+// [18] CONCERN: 'putValue' & 'getValue' for date/time types
+// [19] CONCERN: 'putValue' & 'getVaule' for date/time types brute force
+// [20] CONCERN: 'putValue' for date/time types
+// [21] CONCERN: 'getValue' for date/time and timezone variant types
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -413,54 +482,35 @@ struct RandomValueUtil {
         // 'INTEGRAL_TYPE' is a fundamental integral type.
 };
 
-                  // ========================================
-                  // Random Value Traits for all Simple Types
-                  // ========================================
+                     // ===================================
+                     // customization point loadRandomValue
+                     // ===================================
 
 template <class LOADER>
 void loadRandomValue(bdldfp::Decimal64 *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER>
 void loadRandomValue(bsl::string *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER>
 void loadRandomValue(bdlt::Date *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER>
 void loadRandomValue(bdlt::DateTz *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER>
 void loadRandomValue(bdlt::Datetime *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER>
 void loadRandomValue(bdlt::DatetimeTz *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER>
 void loadRandomValue(bdlt::Time *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER>
 void loadRandomValue(bdlt::TimeTz *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
-
 template <class LOADER, class TYPE, class TYPETZ>
 void loadRandomValue(bdlb::Variant2<TYPE, TYPETZ> *value, LOADER& loader);
     // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.
+    // using the specified 'loader'.  Note that the values are not guaranteed
+    // to be distributed according to any particular criteria.  Individual
+    // values considered uninteresting may be common and repeated.  This
+    // function is intended to be used to sample large numbers of values, such
+    // that potential low quality of the sample distribution is compensated by
+    // the large number of samples.
 
                             // ===================
                             // class ByteArrayUtil
@@ -1521,132 +1571,60 @@ struct GetValueFingerprint_ImplUtil {
         // Decode a pseudo-random value loaded by the specified 'loader' and
         // encoded by supplied the value and the specified 'options' to
         // 'balber::BerUtil::putValue'.  Load the value of the decoded object
-        // into the specififed 'value', and the number of bytes decoded to
+        // into the specified 'value', and the number of bytes decoded to
         // produce the value into the specified 'accumNumBytesConsumed'.
 };
 
-                               // ===============
-                               // Checksum Traits
-                               // ===============
+                     // ==================================
+                     // customization point checksumAppend
+                     // ==================================
 
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, char value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, signed char value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, int value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            bsls::Types::Int64  value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned int value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            bsls::Types::Uint64  value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
                            const bdldfp::Decimal64& value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bsl::string&  value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::Date&   value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::DateTz& value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM&   checksum,
                            const bdlt::Datetime& value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM&     checksum,
                            const bdlt::DatetimeTz& value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::Time&   value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
                            const bdlt::TimeTz& value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
-
 template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
 static void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
                            const bdlb::Variant2<VALUE_1, VALUE_2>& value);
@@ -1664,9 +1642,8 @@ struct TestDataUtil {
     // this test driver.
 
     // CLASS DATA
-    static const char s_DECLARATION_OF_INDEPENDENCE[];
-        // ASCII contents of the United States Declaration of Independence, a
-        // public-domain text.
+    static const char s_RANDOM_LOREM_IPSUM[];
+        // 5 paragraphs of randomly-generated "lorem ipsum" placeholder text.
 
     static const unsigned char s_RANDOM_GARBAGE_1K[1024];
         // 1024 bytes sampled from '/dev/urandom'.
@@ -1690,7 +1667,7 @@ unsigned char RandomInputIterator::generateValue(int *seed)
     // 3.44.0.  It is replicated here to ensure that randomly generated data in
     // this test driver does not change if 'bdlb::Random' were to change
     // behavior.  It is modified from its original form to fit the API
-    // requirement of yielding 'unsighed char' values, rather than 'int'
+    // requirement of yielding 'unsigned char' values, rather than 'int'
     // values.
 
     unsigned int unsignedSeed = *seed;
@@ -2111,9 +2088,9 @@ INTEGRAL_TYPE RandomValueUtil::generateInInterval(LOADER& loader,
     return offset >= 0 ? minimum + offset : maximum + offset;
 }
 
-                  // ----------------------------------------
-                  // Random Value Traits for all Simple Types
-                  // ----------------------------------------
+                     // -----------------------------------
+                     // customization point loadRandomValue
+                     // -----------------------------------
 
 template <class LOADER>
 void loadRandomValue(bdldfp::Decimal64 *value, LOADER& loader)
@@ -3671,9 +3648,9 @@ Md5Fingerprint Md5Util::getFingerprint(const unsigned char *begin,
     return state.fingerprint();
 }
 
-                           // ----------------------
-                           // class Md5ChecksumAlgorithm
-                           // ----------------------
+                         // --------------------------
+                         // class Md5ChecksumAlgorithm
+                         // --------------------------
 
 
 // CREATORS
@@ -4443,9 +4420,9 @@ void GetValueFingerprint_ImplUtil::getRandomValue(
     BSLS_ASSERT(0 == rc);
 }
 
-                               // ---------------
-                               // Checksum Traits
-                               // ---------------
+                     // ----------------------------------
+                     // customization point checksumAppend
+                     // ----------------------------------
 
 template <class CHECKSUM_ALGORITHM>
 void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value)
@@ -4736,159 +4713,61 @@ void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
 // CLASS DATA
 #define NL "\n"
 
-const char TestDataUtil::s_DECLARATION_OF_INDEPENDENCE[] =
-"When in the Course of human events it becomes necessary for one people to" NL
-"dissolve the political bands which have connected them with another and to" NL
-"assume among the powers of the earth, the separate and equal station to which" NL
-"the Laws of Nature and of Nature's God entitle them, a decent respect to the" NL
-"opinions of mankind requires that they should declare the causes which impel" NL
-"them to the separation." NL
+const char TestDataUtil::s_RANDOM_LOREM_IPSUM[] =
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc rutrum enim" NL
+"ante, ac fermentum augue vulputate vitae. Vestibulum scelerisque, lacus" NL
+"nec volutpat posuere, lectus ante congue augue, a consequat elit urna in" NL
+"diam.  Vestibulum vestibulum placerat varius. Aliquam viverra blandit" NL
+"blandit.  Nullam volutpat orci orci, a euismod ligula tristique vel." NL
+"Phasellus sollicitudin interdum luctus. In justo leo, accumsan sed" NL
+"aliquet sit amet, porta vel nulla. Vivamus at purus vitae nunc rutrum" NL
+"posuere ut eu libero.  Fusce porttitor dui quis orci pretium, vel rutrum" NL
+"quam interdum. Suspendisse rutrum lacus nec nisl venenatis, in ornare" NL
+"diam molestie. Pellentesque quis odio non massa semper porttitor ac vel" NL
+"nulla. Aliquam a blandit mauris. Duis id condimentum arcu, semper" NL
+"consequat magna. Praesent sollicitudin elit quis aliquam volutpat." NL
 "" NL
-"We hold these truths to be self-evident, that all men are created equal, that" NL
-"they are endowed by their Creator with certain unalienable Rights, that among" NL
-"these are Life, Liberty and the pursuit of Happiness. — That to secure these" NL
-"rights, Governments are instituted among Men, deriving their just powers from" NL
-"the consent of the governed, — That whenever any Form of Government becomes" NL
-"destructive of these ends, it is the Right of the People to alter or to abolish" NL
-"it, and to institute new Government, laying its foundation on such principles" NL
-"and organizing its powers in such form, as to them shall seem most likely to" NL
-"effect their Safety and Happiness. Prudence, indeed, will dictate that" NL
-"Governments long established should not be changed for light and transient" NL
-"causes; and accordingly all experience hath shewn that mankind are more" NL
-"disposed to suffer, while evils are sufferable than to right themselves by" NL
-"abolishing the forms to which they are accustomed. But when a long train of" NL
-"abuses and usurpations, pursuing invariably the same Object evinces a design to" NL
-"reduce them under absolute Despotism, it is their right, it is their duty, to" NL
-"throw off such Government, and to provide new Guards for their future security." NL
-"— Such has been the patient sufferance of these Colonies; and such is now the" NL
-"necessity which constrains them to alter their former Systems of Government." NL
-"The history of the present King of Great Britain is a history of repeated" NL
-"injuries and usurpations, all having in direct object the establishment of an" NL
-"absolute Tyranny over these States. To prove this, let Facts be submitted to a" NL
-"candid world." NL
+"Donec commodo nibh quis massa fringilla pellentesque. Vivamus faucibus" NL
+"metus turpis, ac vehicula est efficitur eu. Fusce at iaculis neque, eget" NL
+"lacinia nunc. Aliquam a pretium tortor. Nunc a justo a nisl vestibulum" NL
+"tempus et ut magna. Pellentesque molestie nisl vitae lacus efficitur, ac" NL
+"blandit mi consequat. Etiam non quam fringilla, mattis enim nec, porta" NL
+"massa. Quisque volutpat quis quam eu consequat. Pellentesque maximus" NL
+"aliquet nisl, eu pretium massa pellentesque ut. Etiam leo mauris, pretium" NL
+"sed turpis auctor, cursus lacinia sapien. Donec sit amet sodales nisl, in" NL
+"rhoncus enim.  Curabitur maximus varius nisl. Pellentesque lobortis" NL
+"vestibulum ante sit amet auctor. Sed molestie erat ornare lacus fermentum" NL
+"luctus. Nam rutrum vitae orci sed luctus." NL
 "" NL
-"He has refused his Assent to Laws, the most wholesome and necessary for the" NL
-"public good." NL
+"Class aptent taciti sociosqu ad litora torquent per conubia nostra, per" NL
+"inceptos himenaeos. Fusce vel sapien non tellus mattis gravida vel ac" NL
+"lorem.  Nam ligula metus, cursus vel diam id, sagittis pellentesque" NL
+"risus. Maecenas a purus vulputate, luctus mi eu, ullamcorper lectus." NL
+"Donec tincidunt quis odio ut hendrerit. Cras at aliquam elit, at" NL
+"pellentesque tellus. Pellentesque luctus sapien a dolor egestas porta." NL
+"Aliquam a semper ipsum, eget auctor urna.  Vestibulum at lectus nisl." NL
+"Cras maximus pharetra lobortis. Fusce condimentum efficitur diam in" NL
+"porttitor." NL
 "" NL
-"He has forbidden his Governors to pass Laws of immediate and pressing" NL
-"importance, unless suspended in their operation till his Assent should be" NL
-"obtained; and when so suspended, he has utterly neglected to attend to them." NL
+"Nullam ut fringilla orci. Quisque urna lacus, dictum a dolor id, mattis" NL
+"placerat nulla. Phasellus facilisis dapibus magna id scelerisque." NL
+"Phasellus vel velit massa. Nam pulvinar quis enim sit amet accumsan. Cras" NL
+"efficitur ipsum quis mattis maximus. Donec placerat diam sem, nec lacinia" NL
+"nisl ullamcorper eget. Sed dapibus mi sit amet metus vehicula porttitor." NL
+"Quisque eget nunc ante.  Aenean libero leo, sodales a odio nec, auctor" NL
+"efficitur risus. Pellentesque ut tortor vitae mauris tempor auctor." NL
 "" NL
-"He has refused to pass other Laws for the accommodation of large districts of" NL
-"people, unless those people would relinquish the right of Representation in the" NL
-"Legislature, a right inestimable to them and formidable to tyrants only." NL
-"" NL
-"He has called together legislative bodies at places unusual, uncomfortable, and" NL
-"distant from the depository of their Public Records, for the sole purpose of" NL
-"fatiguing them into compliance with his measures." NL
-"" NL
-"He has dissolved Representative Houses repeatedly, for opposing with manly" NL
-"firmness his invasions on the rights of the people." NL
-"" NL
-"He has refused for a long time, after such dissolutions, to cause others to be" NL
-"elected, whereby the Legislative Powers, incapable of Annihilation, have" NL
-"returned to the People at large for their exercise; the State remaining in the" NL
-"mean time exposed to all the dangers of invasion from without, and convulsions" NL
-"within." NL
-"" NL
-"He has endeavoured to prevent the population of these States; for that purpose" NL
-"obstructing the Laws for Naturalization of Foreigners; refusing to pass others" NL
-"to encourage their migrations hither, and raising the conditions of new" NL
-"Appropriations of Lands." NL
-"" NL
-"He has obstructed the Administration of Justice by refusing his Assent to Laws" NL
-"for establishing Judiciary Powers." NL
-"" NL
-"He has made Judges dependent on his Will alone for the tenure of their offices," NL
-"and the amount and payment of their salaries." NL
-"" NL
-"He has erected a multitude of New Offices, and sent hither swarms of Officers" NL
-"to harass our people and eat out their substance." NL
-"" NL
-"He has kept among us, in times of peace, Standing Armies without the Consent of" NL
-"our legislatures." NL
-"" NL
-"He has affected to render the Military independent of and superior to the Civil" NL
-"Power." NL
-"" NL
-"He has combined with others to subject us to a jurisdiction foreign to our" NL
-"constitution, and unacknowledged by our laws; giving his Assent to their Acts" NL
-"of pretended Legislation:" NL
-"" NL
-"For quartering large bodies of armed troops among us:" NL
-"" NL
-"For protecting them, by a mock Trial from punishment for any Murders which they" NL
-"should commit on the Inhabitants of these States:" NL
-"" NL
-"For cutting off our Trade with all parts of the world:" NL
-"" NL
-"For imposing Taxes on us without our Consent:" NL
-"" NL
-"For depriving us in many cases, of the benefit of Trial by Jury:" NL
-"" NL
-"For transporting us beyond Seas to be tried for pretended offences:" NL
-"" NL
-"For abolishing the free System of English Laws in a neighbouring Province," NL
-"establishing therein an Arbitrary government, and enlarging its Boundaries so" NL
-"as to render it at once an example and fit instrument for introducing the same" NL
-"absolute rule into these Colonies" NL
-"" NL
-"For taking away our Charters, abolishing our most valuable Laws and altering" NL
-"fundamentally the Forms of our Governments:" NL
-"" NL
-"For suspending our own Legislatures, and declaring themselves invested with" NL
-"power to legislate for us in all cases whatsoever." NL
-"" NL
-"He has abdicated Government here, by declaring us out of his Protection and" NL
-"waging War against us." NL
-"" NL
-"He has plundered our seas, ravaged our coasts, burnt our towns, and destroyed" NL
-"the lives of our people." NL
-"" NL
-"He is at this time transporting large Armies of foreign Mercenaries to compleat" NL
-"the works of death, desolation, and tyranny, already begun with circumstances" NL
-"of Cruelty & Perfidy scarcely paralleled in the most barbarous ages, and" NL
-"totally unworthy the Head of a civilized nation." NL
-"" NL
-"He has constrained our fellow Citizens taken Captive on the high Seas to bear" NL
-"Arms against their Country, to become the executioners of their friends and" NL
-"Brethren, or to fall themselves by their Hands." NL
-"" NL
-"He has excited domestic insurrections amongst us, and has endeavoured to bring" NL
-"on the inhabitants of our frontiers, the merciless Indian Savages whose known" NL
-"rule of warfare, is an undistinguished destruction of all ages, sexes and" NL
-"conditions." NL
-"" NL
-"In every stage of these Oppressions We have Petitioned for Redress in the most" NL
-"humble terms: Our repeated Petitions have been answered only by repeated" NL
-"injury. A Prince, whose character is thus marked by every act which may define" NL
-"a Tyrant, is unfit to be the ruler of a free people." NL
-"" NL
-"Nor have We been wanting in attentions to our British brethren. We have warned" NL
-"them from time to time of attempts by their legislature to extend an" NL
-"unwarrantable jurisdiction over us. We have reminded them of the circumstances" NL
-"of our emigration and settlement here. We have appealed to their native justice" NL
-"and magnanimity, and we have conjured them by the ties of our common kindred to" NL
-"disavow these usurpations, which would inevitably interrupt our connections and" NL
-"correspondence. They too have been deaf to the voice of justice and of" NL
-"consanguinity. We must, therefore, acquiesce in the necessity, which denounces" NL
-"our Separation, and hold them, as we hold the rest of mankind, Enemies in War," NL
-"in Peace Friends." NL
-"" NL
-"We, therefore, the Representatives of the united States of America, in General" NL
-"Congress, Assembled, appealing to the Supreme Judge of the world for the" NL
-"rectitude of our intentions, do, in the Name, and by Authority of the good" NL
-"People of these Colonies, solemnly publish and declare, That these united" NL
-"Colonies are, and of Right ought to be Free and Independent States, that they" NL
-"are Absolved from all Allegiance to the British Crown, and that all political" NL
-"connection between them and the State of Great Britain, is and ought to be" NL
-"totally dissolved; and that as Free and Independent States, they have full" NL
-"Power to levy War, conclude Peace, contract Alliances, establish Commerce, and" NL
-"to do all other Acts and Things which Independent States may of right do. — And" NL
-"for the support of this Declaration, with a firm reliance on the protection of" NL
-"Divine Providence, we mutually pledge to each other our Lives, our" NL
-"Fortunes, and our sacred Honor." NL
+"Suspendisse in rutrum sapien. Ut posuere est sed dui malesuada egestas." NL
+"Sed eu consectetur quam. Quisque rutrum nisi velit, quis rutrum lacus" NL
+"sagittis ac. Ut sit amet ligula turpis. In volutpat, sapien sit amet" NL
+"eleifend faucibus, lacus ligula faucibus justo, ut ultricies nisl enim eu" NL
+"dui.  Vestibulum non nulla sed turpis tincidunt egestas sit amet tempus" NL
+"nulla.  Phasellus arcu nibh, maximus ultricies pulvinar a, egestas id ex." NL
+"Etiam at erat sed tellus tincidunt fermentum nec ut orci. Phasellus sed" NL
+"turpis congue, finibus ligula a, porttitor ipsum. Integer dapibus cursus" NL
+"elit id mollis.  Mauris quis purus sit amet justo dapibus cursus." NL
 ;
+
 #undef NL
 
 const unsigned char TestDataUtil::s_RANDOM_GARBAGE_1K[1024] = {
@@ -5102,10 +4981,12 @@ int main(int argc, char *argv[])
         //   "fingerprint" is compared against the known fingerprint of the
         //   function applied to the same input as of BDE 3.44.0.
         //
-        //   This test case is used, primarily, as a "canary" to detect if
-        //   there is *any* behavioral difference between the current
-        //   implementation of 'balber::BerUtil::getValue' and that provided
-        //   by BDE 3.44.0.
+        //   This case provides a regression test for the input-output space of
+        //   'balber::BerUtil::getValue' from BDE release 3.44.0.  If the
+        //   behavior of 'getValue' changes in any way, this test provides a
+        //   high likelihood of failing.  Intentional behavioral modifications
+        //   should update the behavioral fingerprints in this test case
+        //   accordingly.
         //
         //   Note that this test merely indicates a *high* *probability* of
         //   expected behavior, not *certainty*.  The entire input-output space
@@ -5115,8 +4996,9 @@ int main(int argc, char *argv[])
         //   Note however, that this probability is astronomically small.
         //
         // Concerns:
-        //: 1 More than 1 random seed is used to protect against potentially
-        //:   degenerate input sets created by a particular seed.
+        //: 1 The sampled input-output space does not have incidental patterns
+        //:   arising from the use of an underlying linear congruential
+        //:   generator supplied with a single seed.
         //:
         //: 2 The fingerprint of 'getValue' does not change when the
         //:   encoding is configured to use binary date and time values and
@@ -5129,15 +5011,21 @@ int main(int argc, char *argv[])
         //:   for which all combinations of the values mentioned should be
         //:   permuted:
         //:
-        //:   a. 'encodeDateAndTimeTypesAsBinary', which may take values
+        //:   1 'encodeDateAndTimeTypesAsBinary', which may take values
         //:      'true' and 'false'.
         //:
-        //:   b. 'datetimeFractionalSecondPrecision', which may take values
+        //:   2 'datetimeFractionalSecondPrecision', which may take values
         //:      3 and 6.
         //
         // Testing:
-        //  int getValue(bsl::streambuf *, TYPE *, int length, const Options&);
         // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'getValue' BEHAVIORAL FINGERPRINT"
+                      << bsl::endl
+                      << "========================================="
+                      << bsl::endl;
 
         enum {
             SEED_0 = 0,          // a sensible default seed
@@ -5226,10 +5114,12 @@ int main(int argc, char *argv[])
         //   the known fingerprint of the function applied to the same input as
         //   of BDE 3.44.0.
         //
-        //   This test case is used, primarily, as a "canary" to detect if
-        //   there is *any* behavioral difference between the current
-        //   implementation of 'balber::BerUtil::putValue' and that provided
-        //   by BDE 3.44.0.
+        //   This case provides a regression test for the input-output space of
+        //   'balber::BerUtil::putValue' from BDE release 3.44.0.  If the
+        //   behavior of 'putValue' changes in any way, this test provides a
+        //   high likelihood of failing.  Intentional behavioral modifications
+        //   should update the behavioral fingerprints in this test case
+        //   accordingly.
         //
         //   Note that this test merely indicates a *high* *probability* of
         //   expected behavior, not *certainty*.  The entire input-output space
@@ -5239,8 +5129,9 @@ int main(int argc, char *argv[])
         //   Note however, that this probability is astronomically small.
         //
         // Concerns:
-        //: 1 More than 1 random seed is used to protect against potentially
-        //:   degenerate input sets created by a particular seed.
+        //: 1 The sampled input-output space of 'putValue' does not have
+        //:   incidental patterns arising from the use of an underlying
+        //:   linear congruential generator supplied with a single seed.
         //:
         //: 2 The fingerprint of 'putValue' does not change when the
         //:   encoding is configured to use binary date and time values and
@@ -5253,15 +5144,21 @@ int main(int argc, char *argv[])
         //:   for which all combinations of the values mentioned should be
         //:   permuted:
         //:
-        //:   a. 'encodeDateAndTimeTypesAsBinary', which may take values
-        //:      'true' and 'false'.
+        //:   1 'encodeDateAndTimeTypesAsBinary', which may take values
+        //:     'true' and 'false'.
         //:
-        //:   b. 'datetimeFractionalSecondPrecision', which may take values
-        //:      3 and 6.
+        //:   2 'datetimeFractionalSecondPrecision', which may take values
+        //:     3 and 6.
         //
         // Testing:
-        //   int putValue(bsl::streambuf *, const TYPE&, const Options *);
         // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'putValue' BEHAVIORAL FINGERPRINT"
+                      << bsl::endl
+                      << "========================================="
+                      << bsl::endl;
 
         enum {
             SEED_0 = 0,          // a sensible default seed
@@ -5387,6 +5284,11 @@ int main(int argc, char *argv[])
         //   u::Md5Util
         // --------------------------------------------------------------------
 
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING MD5 Test Apparatus" << bsl::endl
+                      << "==========================" << bsl::endl;
+
         {
             static const struct {
                 int         d_line;
@@ -5423,8 +5325,8 @@ int main(int argc, char *argv[])
                     // Verify that the MD5 apparatus passes the 'MDTestSuite'
                     // from Appendix A of the specification.
 
-                { L_, u::TestDataUtil::s_DECLARATION_OF_INDEPENDENCE
-                                      , "95254cbbef7f754364b2d62d4cbf9879" }
+                { L_, u::TestDataUtil::s_RANDOM_LOREM_IPSUM
+                                      , "c6ee2c717ffcedd951e082e8194f408f" }
                     // Verify that the fingerprint is calculated correctly
                     // for large messages.
             };
@@ -6897,7 +6799,7 @@ int main(int argc, char *argv[])
   {   L_,    23,  59,  59, 999,   0, "0C 32333A35 393A3539 2E393939"         },
 
   {   L_,    24,   0,   0,   0,   1, "01 00"                                 },
-// TBD: Current doesnt work
+// TBD: Currently doesn't work
 // {  L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"         },
   //------------v
             };
@@ -7073,7 +6975,7 @@ int main(int argc, char *argv[])
                                "12 32333A35 393A3539 2E393939 2D32333A 3539" },
 
   {   L_,    24,   0,   0,   0,     0,  1, "01 00"                           },
-// TBD: Current doesnt work
+// TBD: Current doesn't work
 //{   L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"         },
   //------------v
             };
@@ -11723,7 +11625,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for unsigned char
+        // TESTING 'putValue' & 'getValue' for unsigned char values
         //
         // Concerns:
         //
