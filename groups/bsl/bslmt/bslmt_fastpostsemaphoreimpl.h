@@ -50,7 +50,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmt_lockguard.h>
-#include <bslmt_threadutil.h>
 
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
@@ -65,7 +64,7 @@ namespace bslmt {
                        // class FastPostSemaphoreImpl
                        // ===========================
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 class FastPostSemaphoreImpl {
     // This class implements a semaphore type, optimized for 'post', for thread
     // synchronization.
@@ -289,58 +288,60 @@ class FastPostSemaphoreImpl {
                        // ---------------------------
 
 // PRIVATE CLASS METHODS
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-bsls::Types::Int64 FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>
+bsls::Types::Int64
+                 FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
                                               ::disabledGeneration(Int64 state)
 {
     return state & k_DISABLED_GEN_MASK;
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-bsls::Types::Int64 FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>
+bsls::Types::Int64
+                 FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
                                                      ::getValueRaw(Int64 state)
 {
     return (state >> k_AVAILABLE_SHIFT) - (state & k_BLOCKED_MASK);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::hasAvailable(
-                                                                   Int64 state)
+bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                    ::hasAvailable(Int64 state)
 {
     return k_AVAILABLE_INC <= state;
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::hasBlockedThread(
-                                                                   Int64 state)
+bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                ::hasBlockedThread(Int64 state)
 {
     return 0 != (state & k_BLOCKED_MASK);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::isDisabled(
-                                                                   Int64 state)
+bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                      ::isDisabled(Int64 state)
 {
     return 0 != (state & k_DISABLED_GEN_INC);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::willHaveBlockedThread(
-                                                                   Int64 state)
+bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                           ::willHaveBlockedThread(Int64 state)
 {
     return (state >> k_AVAILABLE_SHIFT) < (state & k_BLOCKED_MASK);
 }
 
 // PRIVATE MANIPULATORS
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::timedWaitSlowPath(
-                                        const bsls::TimeInterval& timeout,
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                    ::timedWaitSlowPath(const bsls::TimeInterval& timeout,
                                         const bsls::Types::Int64  initialState)
 {
     int rv = e_SUCCESS;
@@ -350,7 +351,7 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::timedWaitSlowPath(
     // 'state' currently indicates the thread should block, yield and retest
     // instead
 
-    ThreadUtil::yield();
+    THREADUTIL::yield();
 
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
@@ -419,9 +420,9 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::timedWaitSlowPath(
     return rv;
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::waitSlowPath(
-                                         const bsls::Types::Int64 initialState)
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                          ::waitSlowPath(const bsls::Types::Int64 initialState)
 {
     int rv = e_SUCCESS;
 
@@ -430,7 +431,7 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::waitSlowPath(
     // 'state' currently indicates the thread should block, yield and retest
     // instead
 
-    ThreadUtil::yield();
+    THREADUTIL::yield();
 
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
@@ -497,20 +498,20 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::waitSlowPath(
 }
 
 // CREATORS
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::FastPostSemaphoreImpl(
-                                         bsls::SystemClockType::Enum clockType)
+FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                 ::FastPostSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_waitMutex()
 , d_waitCondition(clockType)
 {
     ATOMIC_OP::initInt64(&d_state, 0);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::FastPostSemaphoreImpl(
-                                         int                         count,
+FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                 ::FastPostSemaphoreImpl(int                         count,
                                          bsls::SystemClockType::Enum clockType)
 : d_waitMutex()
 , d_waitCondition(clockType)
@@ -519,8 +520,8 @@ FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::FastPostSemaphoreImpl(
 }
 
 // MANIPULATORS
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
-void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::disable()
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
+void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::disable()
 {
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
@@ -554,20 +555,20 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::disable()
     // note that the semaphore may be re-enabled (and re-disabled)
 
     while (isDisabled(state) && willHaveBlockedThread(state)) {
-        ThreadUtil::yield();
+        THREADUTIL::yield();
 
         state = ATOMIC_OP::getInt64Acquire(&d_state);
     }
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
-void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::enable()
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
+void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::enable()
 {
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
     while (isDisabled(state)) {
         if (willHaveBlockedThread(state)) {
-            ThreadUtil::yield();
+            THREADUTIL::yield();
 
             state = ATOMIC_OP::getInt64Acquire(&d_state);
         }
@@ -590,9 +591,9 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::enable()
     }
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::post()
+void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::post()
 {
     Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
 
@@ -615,9 +616,10 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::post()
     }
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::post(int value)
+void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                              ::post(int value)
 {
     Int64 v     = k_AVAILABLE_INC * value;
     Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state, v);
@@ -641,9 +643,10 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::post(int value)
     }
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::take(int maximumToTake)
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                      ::take(int maximumToTake)
 {
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
     Int64 expState;
@@ -673,17 +676,17 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::take(int maximumToTake)
     return static_cast<int>(count);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::takeAll()
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::takeAll()
 {
     return take(INT_MAX);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::timedWait(
-                                             const bsls::TimeInterval& timeout)
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                 ::timedWait(const bsls::TimeInterval& timeout)
 {
     Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state, -k_AVAILABLE_INC);
 
@@ -699,9 +702,9 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::timedWait(
     return 0;
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::tryWait()
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::tryWait()
 {
     Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state, -k_AVAILABLE_INC);
 
@@ -718,9 +721,9 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::tryWait()
     return 0;
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::wait()
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::wait()
 {
     Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state, -k_AVAILABLE_INC);
 
@@ -737,10 +740,10 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::wait()
 }
 
 // ACCESSORS
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::
-                                                       getDisabledState() const
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                     ::getDisabledState() const
 {
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
@@ -748,18 +751,20 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::
                                                       >> k_DISABLED_GEN_SHIFT);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::getValue() const
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                             ::getValue() const
 {
     Int64 count = getValueRaw(ATOMIC_OP::getInt64Acquire(&d_state));
 
     return static_cast<int>(count > 0 ? count : 0);
 }
 
-template <class ATOMIC_OP, class MUTEX, class CONDITION>
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
-bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::isDisabled() const
+bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                           ::isDisabled() const
 {
     Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
@@ -772,7 +777,7 @@ bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION>::isDisabled() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

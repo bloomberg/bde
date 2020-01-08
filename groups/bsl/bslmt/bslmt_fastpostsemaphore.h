@@ -253,6 +253,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_fastpostsemaphoreimpl.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_atomicoperations.h>
 #include <bsls_systemclocktype.h>
@@ -273,7 +274,8 @@ class FastPostSemaphore {
     // PRIVATE TYPES
     typedef FastPostSemaphoreImpl<bsls::AtomicOperations,
                                   bslmt::Mutex,
-                                  bslmt::Condition> Impl;
+                                  bslmt::Condition,
+                                  bslmt::ThreadUtil> Impl;
 
     // DATA
     Impl d_impl;
