@@ -2457,6 +2457,19 @@ class basic_string
         result.assign(data(), length());
         return result;
     }
+
+    template <template <class, class> class string_view>
+    operator string_view<CHAR_TYPE, CHAR_TRAITS>() const
+        // Convert this object to a 'string_view' type, either native to the
+        // compiler's library or our own implementation, instantiated with the
+        // same character type and traits type.  The return view will contain
+        // the same sequence of characters as this object.  Note that this
+        // conversion operator can be invoked implicitly (e.g., during argument
+        // passing).
+    {
+        // See {DRQS 131792157} for why this is inline.
+        return string_view<CHAR_TYPE, CHAR_TRAITS>(data(), size());
+    }
 };
 
 // FREE OPERATORS

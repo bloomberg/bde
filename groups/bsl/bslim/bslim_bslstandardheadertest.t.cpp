@@ -412,6 +412,43 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING CONVERSIONS TO 'string_view'
+        //
+        // Concerns:
+        //: 1 Every flavor of string we support should be convertible to
+        //:   'string_view'.
+        //
+        // Plan:
+        //: 1 Create an object of each string type and convert it to
+        //:   'string_view'.
+        //
+        // Testing
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONVERSIONS TO 'string_view'"
+                            "\n====================================\n");
+
+        bsl::string sb;
+        std::string ss;
+        native_std::string sn;
+        bsl::string_view v;
+        bsl::string_view vbsb(sb);
+        bsl::string_view vbss(ss);
+        bsl::string_view vbsn(sn);
+        v = sb;
+        v = ss;
+        v = sn;
+
+        bsl::string svb(v);
+        std::string svs(v);
+        native_std::string sns(v);
+        svb = v;
+        svs = v;
+        sns = v;
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SEARCHERS

@@ -331,15 +331,26 @@ class basic_string_view {
         // the specified 'characterString'.  The behavior is undefined unless
         // 'characterString || (numChars == 0)' and 'numChars <= max_size()'.
 
+    template <template <class, class, class> class string, class ALLOCATOR>
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
+    basic_string_view(const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
+        // Create a view of the specified 'string'.
+
     //! ~basic_string_view() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    //! BSLS_KEYWORD_CONSTEXPR
-    //! basic_string_view& operator=(const basic_string_view& rhs)
-    //!                                        BSLS_KEYWORD_NOEXCEPT = default;
-        // Assign to this view the value of the specified 'rhs' object, a
-        // reference providing modifiable access to this view.
+    basic_string_view& operator=(const basic_string_view& rhs)
+    BSLS_KEYWORD_NOEXCEPT;
+        // Assign to this view the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this view.
+
+    template <template <class, class, class> class string, class ALLOCATOR>
+    basic_string_view&
+    operator=(const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+    BSLS_KEYWORD_NOEXCEPT;
+        // Assign to this view the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this view.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     void remove_prefix(size_type numChars);
@@ -807,6 +818,23 @@ class basic_string_view {
         // can be found in this view (on or *before* the optionally specified
         // 'position' if such a 'position' is specified), and return 'npos'
         // otherwise.
+
+            // *** BDE compatibility with platform libraries: ***
+
+    template <template <class, class, class> class string, class ALLOCATOR>
+    operator string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>() const
+        // Convert this object to a string type native to the compiler's
+        // library or our own implementation, instantiated with the same
+        // character type and traits type.  The return string will contain the
+        // same sequence of characters as this object and will have a
+        // default-constructed allocator.  Note that this conversion operator
+        // can be invoked implicitly (e.g., during argument passing).
+    {
+        // See {DRQS 131792157} for why this is inline.
+        string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> result;
+        result.assign(d_start_p, d_length);
+        return result;
+    }
 };
 
 // TYPEDEFS
@@ -1087,9 +1115,46 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     d_length  = numChars;
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS>
+template <template <class, class, class> class string, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+           const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
+{
+    d_start_p = str.data();
+    d_length  = str.size();
+}
+
 // MANIPULATORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR_CPP14
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
+                                                  const basic_string_view& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    d_start_p = rhs.d_start_p;
+    d_length  = rhs.d_length;
+    return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+template <template <class, class, class> class string, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
+                          const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    d_start_p = rhs.data();
+    d_length  = rhs.size();
+    return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 void
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::remove_prefix(size_type numChars)
 {
