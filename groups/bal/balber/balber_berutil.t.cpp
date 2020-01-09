@@ -84,17 +84,17 @@ using namespace bsl;
 // responsible for the encoding and decoding objects of 'Simple' types,
 // respectively.
 //
-// This test checks "behavioral fingerprints" of 'putValue', and 'getValue',
-// which are checksums of the output for a large, pseudo-randomly generated
-// set of inputs for said functions.  In order to generate the input, this test
-// provides machinery for pseudo-randomly creating values of types used in
-// the input space of the functions.  Further, it provides an implementation of
-// the MD5 Message Digest Algorithm, which is known to be a high-quality
-// checksum algorithm with a specification.  The checksum algorithm is
-// high-quality in that it can be formally shown to have an astronomically
-// low probability of hash collision between input bit sequences with low
-// edit distance.  Basically, in MD5, every bit matters and nearly-identical
-// inputs have different hashes with near certainty.
+// This test driver checks "behavioral fingerprints" of 'putValue', and
+// 'getValue', which are checksums of the output for a large, pseudo-randomly
+// generated set of inputs for said functions.  In order to generate the input,
+// this test driver provides machinery for pseudo-randomly creating values of
+// types used in the input space of the functions.  Further, it provides an
+// implementation of the MD5 Message Digest Algorithm, which is known to be a
+// high-quality checksum algorithm with a specification.  The checksum
+// algorithm is high-quality in that it can be formally shown to have an
+// astronomically low probability of hash collision between input bit sequences
+// with low edit distance.  Basically, in MD5, every bit matters and
+// nearly-identical inputs have different hashes with near certainty.
 //
 // Global Concerns:
 //: o Except for non-standard extensions, the encoding and decoding of objects
@@ -1664,7 +1664,8 @@ unsigned char RandomInputIterator::generateValue(int *seed)
     ///-------------------
     // The following function implements a 15-bit linear congruential generator
     // based on the implementation of 'bdlb::Random::generate15' from BDE
-    // 3.44.0.  It is replicated here to ensure that randomly generated data in
+    // 3.44.0.  This function implements its own LCG and not use
+    // 'bdlb::Random::generate15' to ensure that randomly generated data in
     // this test driver does not change if 'bdlb::Random' were to change
     // behavior.  It is modified from its original form to fit the API
     // requirement of yielding 'unsigned char' values, rather than 'int'
@@ -4967,7 +4968,7 @@ int main(int argc, char *argv[])
       } break;
         case 26: {
         // --------------------------------------------------------------------
-        // TESTING behavioral fingerprints of 'getValue'
+        // TESTING 'getValue' BEHAVIORAL FINGERPRINT
         //   This case tests that the values decoded by
         //   'balber::BerUtil::getValue' for a large, deterministically and
         //   pseudo-randomly generated set of inputs, are *likely* equivalent to
@@ -5100,7 +5101,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING behavioral fingerprints of 'putValue'
+        // TESTING 'putValue' BEHAVIORAL FINGERPRINT
         //   This case tests that the encodings provided by
         //   'balber::BerUtil::putValue' for a large, deterministically and
         //   pseudo-randomly generated set of inputs, is *likely* equivalent to
@@ -5255,22 +5256,27 @@ int main(int argc, char *argv[])
         //:   'MDTestSuite' function in the April 1992 revision of IETF RFC
         //:   1321 Appendix A.
         //:
-        //: 2 It produces the correct fingerprint for the empty message.
+        //: 2 Fingerprints do not depend on the chunking of a message.
         //:
-        //: 3 It produces the correct fingerprint for small messages, as
-        //:   calculated by an assumed-correct third party implementation.
-        //:
-        //: 4 It produces correct fingerprints for large messages, as
-        //:   calculated by an assumed-correct third party implementation.
-        //:
-        //: 5 It produces fingerprints that do not depend on the chunking
-        //:   of a message.
+        //: 3 That MD5 is demonstrably a high-quality message digest algorithm,
+        //:   where quality is defined as a measure of the probability that two
+        //:   randomly-selected and near identical messages have different
+        //:   fingerprints, and where message similarity can be measured by
+        //:   minimum edit distance.  Stated another way, it is a measure
+        //:   of the risk that two similar messages will have a checksum
+        //:   collision.
         //
         // Plan:
         //: 1 Verify that the MD5 apparatus produces the same fingerprints
         //:   as the reference implementation for the messages specified
         //:   in the 'MDTestSuite' function in the April 1992 revision of
         //:   IETF RFC 1321 Appendix A.
+        //:
+        //: 2 Verify that the apparatus produces the same fingerprint
+        //:   regardless of the chunking of a message.
+        //:
+        //: 3 Verify that the quality of MD5 is at least 99% for a reasonable
+        //:   sample set of messages.
         //
         // Testing:
         //   u::Md5Fingerprint
@@ -5289,6 +5295,8 @@ int main(int argc, char *argv[])
                       << "TESTING MD5 Test Apparatus" << bsl::endl
                       << "==========================" << bsl::endl;
 
+        // Verify that the apparatus produces the same fingerprints as the
+        // reference implementation.
         {
             static const struct {
                 int         d_line;
@@ -5359,6 +5367,8 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Verify that the apparatus produces the same fingerprint regardless
+        // of the chunking of a message.
         {
             enum {
                 k_NUM_CHUNK_SIZES = 10 // num chunk sizes per data row
@@ -5510,6 +5520,65 @@ int main(int argc, char *argv[])
                 LOOP1_ASSERT_EQ(LINE                   ,
                                 fingerprintString      ,
                                 k_EXPECTED_FINGERPRINT);
+            }
+        }
+
+        // Verify that MD5 is a high-quality message-digest algorithm by
+        // verifying that modifying any individual bit in a sample message of
+        // 8192 bits produces a different fingerprint.  Note that different
+        // checksums are not guaranteed, it just so happens that no collisions
+        // occur with any 1-bit perturbation of this sample message.
+        {
+            const unsigned char (&k_RANDOM_GARBAGE)[1024] =
+                    u::TestDataUtil::s_RANDOM_GARBAGE_1K;
+
+            static const char k_FINGERPRINT[] =
+                "044d5905fa983dd9845075cb302dbe76";
+                // The expected fingerprint for
+                // 'u::TestDataUtil::s_RANDOM_GARBAGE_1K'.  Note that this
+                // fingerprint was computed using a third party implementation
+                // that is assumed to be correct.
+
+            for (int i = 0; i != 8 * sizeof(k_RANDOM_GARBAGE); ++i) {
+                bsl::vector<unsigned char> randomGarbageCopy(
+                    k_RANDOM_GARBAGE,
+                    k_RANDOM_GARBAGE + sizeof(k_RANDOM_GARBAGE));
+                // A copy of the value of 'RANDOM_GARBAGE' for which to change
+                // a single bit.
+
+                const unsigned char byteAtIdx = randomGarbageCopy[i / 8];
+
+                const unsigned char bitMask =
+                    static_cast<unsigned char>(0x01 << (i % 8));
+                const unsigned char byteMask = ~bitMask;
+
+                const unsigned char bitAtIdx = byteAtIdx & bitMask;
+
+                // Calculate the unsigned char value having the same value
+                // as 'byteAtIdx' except for having exactly 1 of its 8 bits
+                // flipped.
+                const unsigned char newByteAtIdx = (byteAtIdx & byteMask) |
+                                                   (~bitAtIdx & bitMask);
+
+                // Replace the byte at the specified index with the above
+                // calculated value, thereby flipping a single bit in the
+                // message.
+                randomGarbageCopy[i / 8] = newByteAtIdx;
+
+                // Verify that this changes the fingerprint of the message.
+                u::Md5Fingerprint fingerprint =
+                        u::Md5Util::getFingerprint(randomGarbageCopy.begin(),
+                                                   randomGarbageCopy.end());
+
+                bdlsb::MemOutStreamBuf fingerprintStreamBuf;
+                bsl::ostream fingerprintStream(&fingerprintStreamBuf);
+                fingerprintStream << fingerprint;
+
+                const bslstl::StringRef fingerprintRef(
+                    fingerprintStreamBuf.data(),
+                    fingerprintStreamBuf.length());
+
+                LOOP1_ASSERT_NE(i, fingerprintRef, k_FINGERPRINT);
             }
         }
       } break;
