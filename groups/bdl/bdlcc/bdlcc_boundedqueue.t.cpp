@@ -1018,7 +1018,7 @@ int main(int argc, char *argv[])
         //:   which makes the queue empty is guaranteed to complete the pop.
         //
         // Plan:
-        //: 1 Create a thread which will push an element onto the queue,
+        //: 1 Create a thread that will push an element onto the queue,
         //:   'waitUntilEmpty', and then 'disablePopFront' while the main
         //:   thread executes 'popFront'.  Verify the pop was successful
         //:   (i.e., did not return due to disablement).  (C-1)

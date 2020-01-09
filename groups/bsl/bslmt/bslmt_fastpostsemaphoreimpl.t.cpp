@@ -332,8 +332,9 @@ class ExhaustiveTest {
         // Mark the invoking thread as having completed.
 
     static void next(bool allowRepeat = true);
-        // Schedule the next thread to make progress using 's_schedule', and
-        // wait to be scheduled.
+        // Schedule the next thread to make progress using 's_schedule',
+        // preventing this thread from being scheduled next if the specified
+        // 'allowRepeat' is 'true', and wait to be scheduled.
 
     static void next(bsls::Types::Uint64 id);
         // Schedule the thread having the specified 'id' to make progress, and
