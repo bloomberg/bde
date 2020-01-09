@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
         // Native trait checks detect that POD types are trivially copyable,
         // even without trait info.  Our non-native trait check implementation
         // has to be pessimistic and assume they are not.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#ifdef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
         bool expected_i_t_c_with_pod_member = true;
 #else
         bool expected_i_t_c_with_pod_member = false;
