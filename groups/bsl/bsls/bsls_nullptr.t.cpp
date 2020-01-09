@@ -2,7 +2,9 @@
 
 #include <bsls_nullptr.h>
 
-#include <bsls_bsltestutil.h>  // for testing only
+#include <bsls_compilerfeatures.h> // for testing only
+#include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>      // sprintf()
 #include <stdlib.h>     // atoi()
@@ -82,6 +84,15 @@ static void aSsErT(bool b, const char *s, int i)
     // gcc 6.
 
 # define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_XXX
+#endif
+
+#if (BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L) \
+  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR <= 90999
+    // gcc cannot handle certain overload resolution regarding references in
+    // C++03 mode, so we do not attempt certain known-to-be-broken tests.  The
+    // condition is deliberately written so that it enables the tests again
+    // starting with the next major gcc version.
+# define BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN
 #endif
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -298,7 +309,9 @@ int main(int argc, char *argv[])
         static void *const Cptr = 0;
         void *ptr = 0;
         int Local::*mem = 0;
+#if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         static const int& s_zeroRef = 0;
+#endif
         int zero = 0;
 
         enum { MY_NULL = 0 };
@@ -343,9 +356,11 @@ int main(int argc, char *argv[])
         ASSERT(!Local::isNullPointer(mem));
         ASSERT(!Local::isNullPointer((void*)0));
         ASSERT(!Local::isNullPointer(zero));
+#if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         ASSERT(!Local::isNullPointer(s_zeroRef));
-        ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(s_zeroRef*1));
+#endif
+        ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));
 
       } break;
@@ -407,7 +422,9 @@ int main(int argc, char *argv[])
         static void *const Cptr = 0;
         void *ptr = 0;
         int Local::*mem = 0;
+#if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         static const int& s_zeroRefGcc = 0;
+#endif
         int zero = 0;
 
         enum { MY_NULL = 0 };
@@ -430,9 +447,11 @@ int main(int argc, char *argv[])
         ASSERT(!Local::isNullPointer(mem));
         ASSERT(!Local::isNullPointer((void*)0));
         ASSERT(!Local::isNullPointer(zero));
+#if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         ASSERT(!Local::isNullPointer(s_zeroRefGcc));
-        ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(s_zeroRefGcc*1));
+#endif
+        ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));
 
 #endif
