@@ -2458,18 +2458,12 @@ class basic_string
         return result;
     }
 
-    template <template <class, class> class string_view>
-    operator string_view<CHAR_TYPE, CHAR_TRAITS>() const
-        // Convert this object to a 'string_view' type, either native to the
-        // compiler's library or our own implementation, instantiated with the
+    operator basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const;
+        // Convert this object to a 'string_view' type instantiated with the
         // same character type and traits type.  The return view will contain
         // the same sequence of characters as this object.  Note that this
         // conversion operator can be invoked implicitly (e.g., during argument
         // passing).
-    {
-        // See {DRQS 131792157} for why this is inline.
-        return string_view<CHAR_TYPE, CHAR_TRAITS>(data(), size());
-    }
 };
 
 // FREE OPERATORS
@@ -5911,6 +5905,14 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                    lhsNumChars,
                    other,
                    CHAR_TRAITS::length(other));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+operator basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const
+{
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(data(), size());
 }
 
 // PUBLIC ACCESSORS

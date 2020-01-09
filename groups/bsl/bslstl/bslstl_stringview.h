@@ -240,9 +240,13 @@ namespace bsl {
 
 using native_std::char_traits;
 
-                          // =======================
-                          // class basic_string_view
-                          // =======================
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+class basic_string;
+    // Forward declare our own string type.
+
+                        // =======================
+                        // class basic_string_view
+                        // =======================
 
 template <class CHAR_TYPE, class CHAR_TRAITS = char_traits<CHAR_TYPE> >
 class basic_string_view {
@@ -331,9 +335,16 @@ class basic_string_view {
         // the specified 'characterString'.  The behavior is undefined unless
         // 'characterString || (numChars == 0)' and 'numChars <= max_size()'.
 
-    template <template <class, class, class> class string, class ALLOCATOR>
+    template <class ALLOCATOR>
     BSLS_KEYWORD_CONSTEXPR_RELAXED
-    basic_string_view(const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
+    basic_string_view(
+       const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
+        // Create a view of the specified 'string'.
+
+    template <class ALLOCATOR>
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
+    basic_string_view(
+              const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
         // Create a view of the specified 'string'.
 
     //! ~basic_string_view() = default;
@@ -345,9 +356,16 @@ class basic_string_view {
         // Assign to this view the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this view.
 
-    template <template <class, class, class> class string, class ALLOCATOR>
+    template <class ALLOCATOR>
+    basic_string_view& operator=(
+        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+    BSLS_KEYWORD_NOEXCEPT;
+        // Assign to this view the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this view.
+
+    template <class ALLOCATOR>
     basic_string_view&
-    operator=(const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+    operator=(const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
     BSLS_KEYWORD_NOEXCEPT;
         // Assign to this view the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this view.
@@ -821,19 +839,33 @@ class basic_string_view {
 
             // *** BDE compatibility with platform libraries: ***
 
-    template <template <class, class, class> class string, class ALLOCATOR>
-    operator string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>() const
+    template <class ALLOCATOR>
+    operator native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>()
+    const
         // Convert this object to a string type native to the compiler's
-        // library or our own implementation, instantiated with the same
-        // character type and traits type.  The return string will contain the
-        // same sequence of characters as this object and will have a
-        // default-constructed allocator.  Note that this conversion operator
-        // can be invoked implicitly (e.g., during argument passing).
+        // library, instantiated with the same character type and traits type.
+        // The return string will contain the same sequence of characters as
+        // this object and will have a default-constructed allocator.  Note
+        // that this conversion operator can be invoked implicitly (e.g.,
+        // during argument passing).
     {
         // See {DRQS 131792157} for why this is inline.
-        string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> result;
-        result.assign(d_start_p, d_length);
-        return result;
+        return native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
+            d_start_p, d_length);
+    }
+
+    template <class ALLOCATOR>
+    operator bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>() const
+        // Convert this object to a string type of or our own implementation,
+        // instantiated with the same character type and traits type.  The
+        // return string will contain the same sequence of characters as this
+        // object and will have a default-constructed allocator.  Note that
+        // this conversion operator can be invoked implicitly (e.g., during
+        // argument passing).
+    {
+        // See {DRQS 131792157} for why this is inline.
+        return bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(d_start_p,
+                                                                    d_length);
     }
 };
 
@@ -1116,11 +1148,22 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
-template <template <class, class, class> class string, class ALLOCATOR>
+template <class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_RELAXED
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
-           const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
+        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
+{
+    d_start_p = str.data();
+    d_length  = str.size();
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+template <class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+               const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
 {
     d_start_p = str.data();
     d_length  = str.size();
@@ -1141,11 +1184,24 @@ BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
-template <template <class, class, class> class string, class ALLOCATOR>
+template <class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
-                          const string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    d_start_p = rhs.data();
+    d_length  = rhs.size();
+    return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+template <class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
+               const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
     d_start_p = rhs.data();
