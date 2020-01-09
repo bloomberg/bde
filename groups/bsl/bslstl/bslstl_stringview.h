@@ -240,10 +240,6 @@ namespace bsl {
 
 using native_std::char_traits;
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-class basic_string;
-    // Forward declare our own string type.
-
                         // =======================
                         // class basic_string_view
                         // =======================
@@ -341,15 +337,6 @@ class basic_string_view {
        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
         // Create a view of the specified 'string'.
 
-    template <class ALLOCATOR>
-    BSLS_KEYWORD_CONSTEXPR_RELAXED
-    basic_string_view(
-              const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
-        // Create a view of the specified 'string'.
-
-    //! ~basic_string_view() = default;
-        // Destroy this object.
-
     // MANIPULATORS
     basic_string_view& operator=(const basic_string_view& rhs)
     BSLS_KEYWORD_NOEXCEPT;
@@ -363,14 +350,7 @@ class basic_string_view {
         // Assign to this view the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this view.
 
-    template <class ALLOCATOR>
-    basic_string_view&
-    operator=(const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
-    BSLS_KEYWORD_NOEXCEPT;
-        // Assign to this view the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this view.
-
-    BSLS_KEYWORD_CONSTEXPR_CPP14
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void remove_prefix(size_type numChars);
         // Move the start of this view forward by the specified 'numChars'.
         // The behavior is undefined unless 'numChars <= length()'.
@@ -853,20 +833,6 @@ class basic_string_view {
         return native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
             d_start_p, d_length);
     }
-
-    template <class ALLOCATOR>
-    operator bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>() const
-        // Convert this object to a string type of or our own implementation,
-        // instantiated with the same character type and traits type.  The
-        // return string will contain the same sequence of characters as this
-        // object and will have a default-constructed allocator.  Note that
-        // this conversion operator can be invoked implicitly (e.g., during
-        // argument passing).
-    {
-        // See {DRQS 131792157} for why this is inline.
-        return bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(d_start_p,
-                                                                    d_length);
-    }
 };
 
 // TYPEDEFS
@@ -1158,17 +1124,6 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     d_length  = str.size();
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS>
-template <class ALLOCATOR>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
-BSLS_KEYWORD_CONSTEXPR_RELAXED
-basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
-               const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
-{
-    d_start_p = str.data();
-    d_length  = str.size();
-}
-
 // MANIPULATORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR_CPP14
@@ -1189,19 +1144,6 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
         const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
-BSLS_KEYWORD_NOEXCEPT
-{
-    d_start_p = rhs.data();
-    d_length  = rhs.size();
-    return *this;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS>
-template <class ALLOCATOR>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
-basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
-basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
-               const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
     d_start_p = rhs.data();
