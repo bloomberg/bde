@@ -81,7 +81,7 @@ using native_std::count_if;
 #else
 template<class ForwardIt, class Searcher>
 inline
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 ForwardIt search( ForwardIt first, ForwardIt last,
                   const Searcher& searcher )
     // Return the position in the specified range '[first, last)' of the first
