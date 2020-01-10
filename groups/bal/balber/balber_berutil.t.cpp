@@ -5548,10 +5548,15 @@ int main(int argc, char *argv[])
 
                 const unsigned char byteAtIdx = randomGarbageCopy[i / 8];
 
+                // Create 2 masks.  One for a single bit in the byte at the
+                // current index, the other for all but that one bit.
                 const unsigned char bitMask =
                     static_cast<unsigned char>(0x01 << (i % 8));
                 const unsigned char byteMask = ~bitMask;
 
+                // Use the single-bit mask to get a byte having all bits 0,
+                // except for the masked bit from the byte at the current
+                // index (which may be 0 or 1).
                 const unsigned char bitAtIdx = byteAtIdx & bitMask;
 
                 // Calculate the unsigned char value having the same value
