@@ -549,13 +549,18 @@ int main(int argc, char *argv[])
         //    are handled identically.
         //
         // Plan:
-        //: 1 Verify 'bsl::is_trivially_copyable<StructWithCtor>' is 'false'
-        //: 2 Verify 'bsl::is_trivially_copyable<NSWNPM>' is 'false'
-        //: 3 Verify 'bsl::is_trivially_copyable<TSWNPM>' is 'false'
-        //: 4 Verify 'bsl::is_trivially_copyable<NSWPM>' is as expected
-        //: 5 Verify 'bsl::is_trivially_copyable<TSWPM>' is as expected
+        //: 1 Verify 'bsl::is_trivially_copyable<StructWithCtor>' is 'false'.
+        //:
+        //: 2 Verify 'bsl::is_trivially_copyable<NSWNPM>' is 'false'.
+        //:
+        //: 3 Verify 'bsl::is_trivially_copyable<TSWNPM>' is 'false'.
+        //:
+        //: 4 Verify 'bsl::is_trivially_copyable<NSWPM>' is as expected.
+        //:
+        //: 5 Verify 'bsl::is_trivially_copyable<TSWPM>' is as expected (C-1).
         //
         // Testing:
+        //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
         //
         // --------------------------------------------------------------------
 
@@ -566,14 +571,14 @@ int main(int argc, char *argv[])
               "\n====================================================="
               "===========\n");
 
-        // C-1
+        // P-1
         ASSERTV(!bsl::is_trivially_copyable<StructWithCtor>::value,
                 !bsl::is_trivially_copyable<StructWithCtor>::value);
-        // C-2
+        // P-2
         ASSERTV(
             !bsl::is_trivially_copyable<NamedStructWithNonPodMember>::value,
             !bsl::is_trivially_copyable<NamedStructWithNonPodMember>::value);
-        // C-3
+        // P-3
         ASSERTV(!bsl::is_trivially_copyable<
                     TypedefedStructWithNonPodMember>::value,
                 !bsl::is_trivially_copyable<
@@ -587,12 +592,12 @@ int main(int argc, char *argv[])
 #else
         bool expected_i_t_c_with_pod_member = false;
 #endif
-        // C-4
+        // P-4
         ASSERTV(bsl::is_trivially_copyable<NamedStructWithPodMember>::value,
                 expected_i_t_c_with_pod_member,
                 bsl::is_trivially_copyable<NamedStructWithPodMember>::value ==
                     expected_i_t_c_with_pod_member);
-        // C-5
+        // P-5
         ASSERTV(
             bsl::is_trivially_copyable<TypedefedStructWithPodMember>::value,
             expected_i_t_c_with_pod_member,

@@ -394,13 +394,18 @@ int main(int argc, char *argv[])
         //    are handled identically.
         //
         // Plan:
-        //: 1 Verify 'bsl::is_trivially_dflt_ctible<StructWithCtor>' is 'false'
-        //: 2 Verify 'bsl::is_trivially_dflt_ctible<NSWNPM>' is 'false'
-        //: 3 Verify 'bsl::is_trivially_dflt_ctible<TSWNPM>' is 'false'
-        //: 4 Verify 'bsl::is_trivially_dflt_ctible<NSWPM>' is 'false'
-        //: 5 Verify 'bsl::is_trivially_dflt_ctible<TSWPM>' is 'false'
+        //: 1 Verify 'is_trivially_dflt_ctible<StructWithCtor>' is 'false'.
+        //:
+        //: 2 Verify 'is_trivially_dflt_ctible<NSWNPM>' is 'false'.
+        //:
+        //: 3 Verify 'is_trivially_dflt_ctible<TSWNPM>' is 'false'.
+        //:
+        //: 4 Verify 'is_trivially_dflt_ctible<NSWPM>' is 'false'.
+        //:
+        //: 5 Verify 'is_trivially_dflt_ctible<TSWPM>' is 'false' (C-1).
         //
         // Testing:
+        //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
         //
         // --------------------------------------------------------------------
 
@@ -411,27 +416,27 @@ int main(int argc, char *argv[])
               "\n====================================================="
               "===========\n");
 
-        // C-1
+        // P-1
         ASSERTV(
             !bsl::is_trivially_default_constructible<StructWithCtor>::value,
             !bsl::is_trivially_default_constructible<StructWithCtor>::value);
-        // C-2
+        // P-2
         ASSERTV(!bsl::is_trivially_default_constructible<
                     NamedStructWithNonPodMember>::value,
                 !bsl::is_trivially_default_constructible<
                     NamedStructWithNonPodMember>::value);
-        // C-3
+        // P-3
         ASSERTV(!bsl::is_trivially_default_constructible<
                     TypedefedStructWithNonPodMember>::value,
                 !bsl::is_trivially_default_constructible<
                     TypedefedStructWithNonPodMember>::value);
 
-        // C-4
+        // P-4
         ASSERTV(!bsl::is_trivially_default_constructible<
                     NamedStructWithPodMember>::value,
                 !bsl::is_trivially_default_constructible<
                     NamedStructWithPodMember>::value);
-        // C-5
+        // P-5
         ASSERTV(!bsl::is_trivially_default_constructible<
                     TypedefedStructWithPodMember>::value,
                 !bsl::is_trivially_default_constructible<

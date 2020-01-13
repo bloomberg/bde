@@ -46,7 +46,8 @@ using namespace bsl;
 // PUBLIC CLASS DATA
 // [ 1] bslmf::IsBitwiseMoveable::value
 // ----------------------------------------------------------------------------
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
+// [ 3] TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
 // [ 2] EXTENDING 'bslmf::IsBitwiseMoveable'
 
 // ============================================================================
@@ -259,6 +260,54 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
 };
 
 }  // close namespace bsl
+
+namespace {
+
+struct StructWithCtor {
+    // This user-defined type with constructors with side-effects and a data
+    // member is used to guarantee that the type is detected as NOT
+    // 'IsBitwiseMoveable' even by the native-assisted implementation.
+    StructWithCtor()
+    {
+        printf("default StructWithCtor\n");
+    }
+
+    StructWithCtor(const StructWithCtor&)
+    {
+        printf("copy StructWithCtor\n");
+    }
+
+    double d_d;
+};
+
+struct NamedStructWithNonPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' non-copyable type.
+    StructWithCtor x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' non-copyable type (checking to make sure we're not
+    // encountering AIX bug {DRQS 153975424}).
+    StructWithCtor x;
+} TypedefedStructWithNonPodMember;
+
+struct NamedStructWithPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' 'IsBitwiseMoveable' type.
+    int x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' copyable type (checking to make sure we're not
+    // encountering AIX bug {DRQS 153975424}).
+    int x;
+} TypedefedStructWithPodMember;
+
+}  // close unnamed namespace
+
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -734,7 +783,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -759,6 +808,71 @@ int main(int argc, char *argv[])
         usageExample3();
 
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //   Ensure unnamed structs are handled correctly.
+        //
+        // Concerns:
+        //: 1 Ensure that named 'struct's and 'typedef'd anonymous 'struct's
+        //    are handled identically.
+        //
+        // Plan:
+        //: 1 Verify 'bslmf::IsBitwiseMoveable<StructWithCtor>' is 'false'.
+        //:
+        //: 2 Verify 'bslmf::IsBitwiseMoveable<NSWNPM>' is 'false'.
+        //:
+        //: 3 Verify 'bslmf::IsBitwiseMoveable<TSWNPM>' is 'false'.
+        //:
+        //: 4 Verify 'bslmf::IsBitwiseMoveable<NSWPM>' is as expected.
+        //:
+        //: 5 Verify 'bslmf::IsBitwiseMoveable<TSWPM>' is as expected (C-1).
+        //
+        // Testing:
+        //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+              "\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
+              "153975424})\n"
+              "\n====================================================="
+              "===========\n");
+
+        // P-1
+        ASSERTV(!bslmf::IsBitwiseMoveable<StructWithCtor>::value,
+                !bslmf::IsBitwiseMoveable<StructWithCtor>::value);
+        // P-2
+        ASSERTV(
+            !bslmf::IsBitwiseMoveable<NamedStructWithNonPodMember>::value,
+            !bslmf::IsBitwiseMoveable<NamedStructWithNonPodMember>::value);
+        // P-3
+        ASSERTV(
+            !bslmf::IsBitwiseMoveable<TypedefedStructWithNonPodMember>::value,
+            !bslmf::IsBitwiseMoveable<TypedefedStructWithNonPodMember>::value);
+
+        // Native trait checks detect that POD types are trivially copyable,
+        // even without trait info.  Our non-native trait check implementation
+        // has to be pessimistic and assume they are not.
+#ifdef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+        bool expected_i_b_m_with_pod_member = true;
+#else
+        bool expected_i_b_m_with_pod_member = false;
+#endif
+        // P-4
+        ASSERTV(bslmf::IsBitwiseMoveable<NamedStructWithPodMember>::value,
+                expected_i_b_m_with_pod_member,
+                bslmf::IsBitwiseMoveable<NamedStructWithPodMember>::value ==
+                    expected_i_b_m_with_pod_member);
+        // P-5
+        ASSERTV(
+            bslmf::IsBitwiseMoveable<TypedefedStructWithPodMember>::value,
+            expected_i_b_m_with_pod_member,
+            bslmf::IsBitwiseMoveable<TypedefedStructWithPodMember>::value ==
+                expected_i_b_m_with_pod_member);
+      } break;
+
       case 2: {
         // --------------------------------------------------------------------
         // EXTENDING 'bslmf::IsBitwiseMoveable'
