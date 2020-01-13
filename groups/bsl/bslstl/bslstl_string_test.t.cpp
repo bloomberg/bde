@@ -880,50 +880,6 @@ CharArray<TYPE,TRAITS,ALLOC>::end() const {
     return const_iterator(&*d_value.end());
 }
 
-                                 // ==============
-                                 // class UserChar
-                                 // ==============
-
-template <int SIZE>
-class UserChar {
-    // This class is a simulation of a user-defined char type.  It has a
-    // variable object size to test that the string works with chars larger
-    // than 'char' and 'wchar_t'.
-  private:
-    // DATA
-    union {
-        size_t d_words[SIZE];
-        char   d_char;
-    };
-
-  public:
-    // CREATORS
-    explicit
-    UserChar(char c = 10);
-
-    // ACCESSORS
-    bool operator==(const UserChar& rhs) const;
-    bool operator!=(const UserChar& rhs) const;
-};
-
-template <int SIZE>
-inline
-UserChar<SIZE>::UserChar(char c)
-: d_char(c)
-{}
-
-template <int SIZE>
-inline
-bool UserChar<SIZE>::operator==(const UserChar& rhs) const {
-    return d_char == rhs.d_char;
-}
-
-template <int SIZE>
-inline
-bool UserChar<SIZE>::operator!=(const UserChar& rhs) const {
-    return !(*this == rhs);
-}
-
                               // ====================
                               // class LimitAllocator
                               // ====================
@@ -3059,16 +3015,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase28()
     //  2) Construct strings with lengths from 0 to N (where N > initial
     //     capacity) and verify that the string class allocates when the string
     //     length becomes larger than the short string buffer.
-    //  3) Instantiate the string class with 'UserChar' char type and run it
-    //     through this test.  'UserChar' is parameterized with size from 1 to
-    //     8 words.
-    //  4) Construct a long string.  Erase some characters from it, so the
+    //  3) Construct a long string.  Erase some characters from it, so the
     //     length becomes smaller than the size of the short string buffer.
     //     Then make a copy of this string using the test allocator and verify
     //     that the new copy did not need any new memory.
-    //  5) Make 'UserChar' default value something other than '\0'.  Make sure
-    //     that strings of different lengths terminate with 'UserChar()' value
-    //     rather than '\0'.
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nString has a non-zero initial capacity.\n");
@@ -17051,17 +17001,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase28();
-
-        if (verbose)
-            printf("\n... with 'UserChar' that can be pretty large.\n");
-        TestDriver<UserChar<1> >::testCase28();
-        TestDriver<UserChar<2> >::testCase28();
-        TestDriver<UserChar<3> >::testCase28();
-        TestDriver<UserChar<4> >::testCase28();
-        TestDriver<UserChar<5> >::testCase28();
-        TestDriver<UserChar<6> >::testCase28();
-        TestDriver<UserChar<7> >::testCase28();
-        TestDriver<UserChar<8> >::testCase28();
       } break;
       case 27: {
         // --------------------------------------------------------------------

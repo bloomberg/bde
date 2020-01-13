@@ -1,5 +1,6 @@
 // bslstl_stringview.t.cpp                                            -*-C++-*-
 #include <bslstl_stringview.h>
+#include <bslstl_stringref.h>
 
 #include <bslstl_algorithmworkaround.h>  // bsl::count()
 #include <bslstl_map.h>
@@ -683,6 +684,9 @@ struct TestDriver {
     static const int  s_testStringLength = 49;  // length of test string
 
     // TEST CASES
+    static void testCase23();
+        // C'tor from 'native_std::basic_string'.
+
     static void testCase22();
         // Test 'operator ""_sv'.
 
@@ -769,6 +773,135 @@ const TYPE TestDriver<TYPE, TRAITS>::s_testString [] =
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS>
+void TestDriver<TYPE,TRAITS>::testCase23()
+{
+    // --------------------------------------------------------------------
+    // TESTING CONSTRUCTION FROM 'native_std::basic_string'
+    //
+    // Concerns:
+    //: 1 That it is possible to construct a 'string_view' from a
+    //:   'native_std::string'.
+    //:
+    //: 2 That the source is not modified.
+    //:
+    //: 3 That the contents of the constructed object match the original
+    //:   string.
+    //
+    // Plan:
+    //: 1 Do some stuff.
+    // --------------------------------------------------------------------
+
+    static const char *DATA[] = {
+        "", "woof", "meow", "bow wow",
+        "The rain in Spain falls mainly in the plain.",
+        "By george, I think she's got it!" };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const char *CHAR_STR = DATA[ti];
+        const char *pc;
+        TYPE        buffer[100], *pB;
+
+        // Copy from 'char' buffer to 'TYPE' buffer.
+
+        for (pB = buffer, pc = CHAR_STR; (*pB++ = *pc++); ) {
+            ;  // do nothing
+        }
+        const size_t LEN = pB - 1 - buffer;
+        ASSERT(0 == buffer[LEN]);
+
+        pB = buffer;
+
+        const native_std::basic_string<TYPE> str(pB);
+        ASSERT(pB == str);
+        const bsl::basic_string_view<TYPE> sv(str);
+        ASSERT(pB == str);    // unchanged
+
+        // Compare 'sv' with 'str', they should match.
+
+        ASSERT(str.length() == sv.length());
+        ASSERT(!sv.data()[sv.length()]);
+
+        for (unsigned ii = 0; ii < LEN; ++ii) {
+            ASSERT(sv[ii] == str[ii]);
+            ASSERT(sv[ii] == buffer[ii]);
+        }
+
+        if (LEN < 4) {
+            continue;
+        }
+
+        // Now, do it over again with an embedded zero in the string.
+
+        buffer[2] = 0;
+
+        const native_std::basic_string<TYPE> zStr(pB, LEN);
+        ASSERT(LEN == zStr.length());
+        ASSERT(zStr != str);
+        ASSERT(zStr[2] == 0);
+
+        const native_std::basic_string<TYPE> zStrB(pB, LEN);
+        ASSERT(LEN == zStrB.length());
+        ASSERT(zStrB != str);
+        ASSERT(zStrB[2] == 0);
+        ASSERT(zStr == zStrB);
+
+        const bsl::basic_string_view<TYPE> zSv(zStr);
+        ASSERT(LEN == zSv.length());
+        ASSERT(zSv.data() == zStr.data());
+        ASSERT(zSv[2] == 0);
+
+        ASSERT(LEN == zStr.length());  // unchanged
+        ASSERT(zStr == zStrB);         // unchanged
+
+        for (unsigned ii = 0; ii < LEN; ++ii) {
+            ASSERT(zSv[ii] == zStr[ii]);
+            ASSERT(zSv[ii] == buffer[ii]);
+        }
+
+        {
+            bsl::basic_string<TYPE> s;
+            bsl::basic_string_view<TYPE> v(s);
+            v = s;
+            bsl::basic_string<TYPE> o(v);
+            o = v;
+        }
+
+        {
+            std::basic_string<TYPE> s;
+            bsl::basic_string_view<TYPE> v(s);
+            v = s;
+            std::basic_string<TYPE> o(v);
+            o = v;
+        }
+
+        {
+            native_std::basic_string<TYPE> s;
+            bsl::basic_string_view<TYPE> v(s);
+            v = s;
+            native_std::basic_string<TYPE> o(v);
+            o = v;
+        }
+
+        {
+            bslstl::StringRefImp<TYPE> s;
+            bsl::basic_string_view<TYPE> v(s);
+            v = s;
+            bslstl::StringRefImp<TYPE> o(v);
+            o = v;
+        }
+
+        {
+            bslstl::StringRefData<TYPE> s;
+            bsl::basic_string_view<TYPE> v(s);
+            v = s;
+            bslstl::StringRefData<TYPE> o(v);
+            o = v;
+        }
+    }
+}
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase22()
@@ -6299,7 +6432,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6369,6 +6502,18 @@ int main(int argc, char *argv[])
         sfa.deleteObject(sPtr);
         svfa.deleteObject(svPtr);
 //..
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTION FROM 'native_std::basic_string'
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nCONSTRUCTION FROM 'native_std::basic_string'"
+                   "\n============================================\n");
+
+        TestDriver<char>::testCase23();
+        TestDriver<wchar_t>::testCase23();
       } break;
       case 22: {
 
