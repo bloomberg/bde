@@ -685,7 +685,7 @@ struct TestDriver {
 
     // TEST CASES
     static void testCase23();
-        // C'tor from 'native_std::basic_string'.
+        // Conversions between strings and string views.
 
     static void testCase22();
         // Test 'operator ""_sv'.
@@ -778,7 +778,7 @@ template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase23()
 {
     // --------------------------------------------------------------------
-    // TESTING CONSTRUCTION FROM 'native_std::basic_string'
+    // TESTING CONVERSION W.R.T. 'native_std::basic_string'
     //
     // Concerns:
     //: 1 That it is possible to construct a 'string_view' from a
@@ -788,9 +788,16 @@ void TestDriver<TYPE,TRAITS>::testCase23()
     //:
     //: 3 That the contents of the constructed object match the original
     //:   string.
+    //:
+    //: 4 That a variety of string and string view types are constructible and
+    //:   assignable from each other.
     //
     // Plan:
-    //: 1 Do some stuff.
+    //: 1 Using a few samples, create strings with those contents, create
+    //:   string views from them, and verify that the results are consistent.
+    //:
+    //: 2 Construct a variety of string-like objects and verify that they
+    //:   inter-convert properly with string views.
     // --------------------------------------------------------------------
 
     static const char *DATA[] = {
@@ -861,44 +868,69 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             ASSERT(zSv[ii] == buffer[ii]);
         }
 
+        if (veryVerbose) printf("\tbsl::string vs. string_view\n");
         {
-            bsl::basic_string<TYPE> s;
+            bsl::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
             v = s;
+            ASSERT(v.data() == s.data());
             bsl::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
             o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
         }
 
+        if (veryVerbose) printf("\tstd::string vs. string_view\n");
         {
-            std::basic_string<TYPE> s;
+            std::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
             v = s;
+            ASSERT(v.data() == s.data());
             std::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
             o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
         }
 
+        if (veryVerbose) printf("\tnative_std::string vs. string_view\n");
         {
-            native_std::basic_string<TYPE> s;
+            native_std::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
             v = s;
+            ASSERT(v.data() == s.data());
             native_std::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
             o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
         }
 
+        if (veryVerbose) printf("\tStringRefImp vs. string_view\n");
         {
-            bslstl::StringRefImp<TYPE> s;
+            bslstl::StringRefImp<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
             v = s;
+            ASSERT(v.data() == s.data());
             bslstl::StringRefImp<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
             o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
         }
 
+        if (veryVerbose) printf("\tStringRefData vs. string_view\n");
         {
-            bslstl::StringRefData<TYPE> s;
+            bslstl::StringRefData<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
             v = s;
+            ASSERT(v.data() == s.data());
             bslstl::StringRefData<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
             o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
         }
     }
 }
@@ -6509,8 +6541,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nCONSTRUCTION FROM 'native_std::basic_string'"
-                   "\n============================================\n");
+            printf("\nTESTING CONVERSION W.R.T. 'native_std::basic_string'"
+                   "\n====================================================\n");
 
         TestDriver<char>::testCase23();
         TestDriver<wchar_t>::testCase23();
