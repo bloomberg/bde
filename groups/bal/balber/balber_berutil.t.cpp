@@ -1815,10 +1815,16 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(unsigned *value)
 {
     BSLMF_ASSERT(4 == sizeof(unsigned));
 
-    *value = (static_cast<unsigned int>(*d_iterator++) << (8 * 0)) +
-             (static_cast<unsigned int>(*d_iterator++) << (8 * 1)) +
-             (static_cast<unsigned int>(*d_iterator++) << (8 * 2)) +
-             (static_cast<unsigned int>(*d_iterator++) << (8 * 3));
+    const unsigned int byte0 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 0);
+    const unsigned int byte1 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 1);
+    const unsigned int byte2 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 2);
+    const unsigned int byte3 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 3);
+
+    *value = byte0 + byte1 + byte2 + byte3;
 }
 
 template <class INPUT_ITERATOR>
@@ -1838,14 +1844,24 @@ void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(
 {
     BSLMF_ASSERT(8 == sizeof(unsigned long long));
 
-    *value = (static_cast<unsigned long long>(*d_iterator++) << (8 * 0)) +
-             (static_cast<unsigned long long>(*d_iterator++) << (8 * 1)) +
-             (static_cast<unsigned long long>(*d_iterator++) << (8 * 2)) +
-             (static_cast<unsigned long long>(*d_iterator++) << (8 * 3)) +
-             (static_cast<unsigned long long>(*d_iterator++) << (8 * 4)) +
-             (static_cast<unsigned long long>(*d_iterator++) << (8 * 5)) +
-             (static_cast<unsigned long long>(*d_iterator++) << (8 * 6)) +
-             (static_cast<unsigned long long>(*d_iterator++) << (8 * 7));
+    const unsigned long long byte0 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 0);
+    const unsigned long long byte1 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 1);
+    const unsigned long long byte2 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 2);
+    const unsigned long long byte3 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 3);
+    const unsigned long long byte4 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 4);
+    const unsigned long long byte5 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 5);
+    const unsigned long long byte6 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 6);
+    const unsigned long long byte7 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 7);
+
+    *value = byte0 + byte1 + byte2 + byte3 + byte4 + byte5 + byte6 + byte7;
 }
 
 template <class INPUT_ITERATOR>
