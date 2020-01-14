@@ -173,19 +173,12 @@ static Datum copyArray(const DatumArrayRef&  array,
     // allocated memory inside the 'Datum' objects within 'array' is also deep-
     // copied.
 
-#if 0
-// A lot of functions related to 'int map' are unused, causing compiler
-// warnings.  They are '#if 0'ed out as part of a fast sweep to get all of bde
-// to compile with '-Werror' set, without enough intimate knowledge of this
-// component to know if this code may become useful in the future.
-
 static Datum copyIntMap(const DatumIntMapRef&  map,
                         bslma::Allocator      *basicAllocator);
     // Clone the elements in the specified int 'map'.  Use the specified
     // 'basicAllocator' to allocate memory (if needed).  Any dynamically
     // allocated memory inside the 'Datum' objects within 'map' is also
     // deep-copied.
-#endif
 
 static Datum copyMapOwningKeys(const DatumMapRef&  map,
                                bslma::Allocator   *basicAllocator);
@@ -339,7 +332,6 @@ void Datum_ArrayProctor<DatumMapEntry>::destroy()
     d_allocator_p->deallocate(d_base_p);
 }
 
-#if 0
 template <>
 void Datum_ArrayProctor<DatumIntMapEntry>::destroy()
 {
@@ -351,7 +343,6 @@ void Datum_ArrayProctor<DatumIntMapEntry>::destroy()
 
     d_allocator_p->deallocate(d_base_p);
 }
-#endif
 
 template <class ELEMENT>
 ELEMENT *Datum_ArrayProctor<ELEMENT>::moveEnd(bsl::ptrdiff_t offset)
@@ -554,12 +545,10 @@ void Datum_CopyVisitor::operator()(const DatumMapRef& value)
     *d_result_p = copyMapOwningKeys(value, d_allocator_p);
 }
 
-#if 0
 void Datum_CopyVisitor::operator()(const DatumIntMapRef& value)
 {
     *d_result_p = copyIntMap(value, d_allocator_p);
 }
-#endif
 
 void Datum_CopyVisitor::operator()(const DatumBinaryRef& value)
 {
@@ -706,7 +695,6 @@ Datum copyArray(const DatumArrayRef& array, bslma::Allocator *basicAllocator)
     return Datum::adoptArray(ref);
 }
 
-#if 0
 static
 Datum copyIntMap(const DatumIntMapRef&  map,
                  bslma::Allocator      *basicAllocator)
@@ -740,7 +728,6 @@ Datum copyIntMap(const DatumIntMapRef&  map,
 
     return Datum::adoptIntMap(ref);
 }
-#endif
 
 static
 Datum copyMapOwningKeys(const DatumMapRef&  map,
