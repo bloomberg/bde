@@ -890,8 +890,12 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             ASSERT(v.data() == s.data());
             std::basic_string<TYPE> o(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            // Will not work with 'explicit string_view::operator std::string'
+            // in our implementation.
             o = v;
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#endif
         }
 
         if (veryVerbose) printf("\tnative_std::string vs. string_view\n");
@@ -903,8 +907,12 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             ASSERT(v.data() == s.data());
             native_std::basic_string<TYPE> o(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            // Will not work with 'explicit string_view::operator std::string'
+            // in our implementation.
             o = v;
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#endif
         }
 
         if (veryVerbose) printf("\tStringRefImp vs. string_view\n");

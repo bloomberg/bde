@@ -338,12 +338,14 @@ class basic_string_view {
         // Create a view of the specified 'string'.
 
     // MANIPULATORS
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     basic_string_view& operator=(const basic_string_view& rhs)
     BSLS_KEYWORD_NOEXCEPT;
         // Assign to this view the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this view.
 
     template <class ALLOCATOR>
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     basic_string_view& operator=(
         const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
     BSLS_KEYWORD_NOEXCEPT;
@@ -820,6 +822,7 @@ class basic_string_view {
             // *** BDE compatibility with platform libraries: ***
 
     template <class ALLOCATOR>
+    BSLS_KEYWORD_EXPLICIT
     operator native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>()
     const
         // Convert this object to a string type native to the compiler's
@@ -1128,6 +1131,7 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR_CPP14
 BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
                                                   const basic_string_view& rhs)
@@ -1141,6 +1145,7 @@ BSLS_KEYWORD_NOEXCEPT
 template <class CHAR_TYPE, class CHAR_TRAITS>
 template <class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
         const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
