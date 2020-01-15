@@ -3384,20 +3384,25 @@ void TestDriver<TYPE, ALLOC>::testCase6()
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
 
                 const char *const U_SPEC = SPECS[si];
-                const int         LENGTH = static_cast<int>(strlen(U_SPEC));
+                const int         U_LENGTH = static_cast<int>(strlen(U_SPEC));
+
+                if (5 < U_LENGTH) {
+                    continue;
+                }
 
                 Obj        mU(ALLOCATOR[ai]);
                 const Obj& U = gg(&mU, U_SPEC);
 
                 // same lengths
-                ASSERTV(si, LENGTH == static_cast<int>(U.size()));
+                ASSERTV(si, U_LENGTH == static_cast<int>(U.size()));
 
-                if (LENGTH != oldLen) {
+                if (U_LENGTH != oldLen) {
                     if (verbose)
-                        printf("\tUsing lhs objects of length %d.\n", LENGTH);
+                        printf("\tUsing lhs objects of length %d.\n",
+                               U_LENGTH);
 
-                    ASSERTV(U_SPEC, oldLen <= LENGTH);
-                    oldLen = LENGTH;
+                    ASSERTV(U_SPEC, oldLen <= U_LENGTH);
+                    oldLen = U_LENGTH;
                 }
 
                 if (veryVerbose) { P_(si); P_(U_SPEC); P(U); }
@@ -3409,6 +3414,13 @@ void TestDriver<TYPE, ALLOC>::testCase6()
                         for (int e = 0; e < NUM_EXTEND; ++e) {
 
                             const char *const V_SPEC = SPECS[sj];
+                            const int         V_LENGTH =
+                                              static_cast<int>(strlen(V_SPEC));
+
+                            if (5 < V_LENGTH) {
+                                continue;
+                            }
+
                             Obj               mV(ALLOCATOR[aj]);
                             const Obj&        V = gg(&mV, V_SPEC);
 

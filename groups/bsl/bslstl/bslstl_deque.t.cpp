@@ -3623,19 +3623,23 @@ void TestDriver<TYPE,ALLOC>::testCase6()
 
         // Create first object.
         for (int si = 0; SPECS[si]; ++si) {
+            const char *const U_SPEC = SPECS[si];
+            const int         U_LENGTH = (int) strlen(U_SPEC);
+
+            if (4 < U_LENGTH && U_LENGTH % 3) {
+                continue;
+            }
+
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
-
-                const char *const U_SPEC = SPECS[si];
-                const int         LENGTH = (int) strlen(U_SPEC);
-
                 Obj mU(ALLOCATOR[ai]);  const Obj& U = gg(&mU, U_SPEC);
-                LOOP2_ASSERT(si, ai, LENGTH == (int) U.size()); // same lengths
+                LOOP2_ASSERT(si, ai, U_LENGTH == (int) U.size());
+                                                                // same lengths
 
-                if (LENGTH != oldLen) {
-                    if (verbose)
-                        printf( "\tUsing lhs objects of length %d.\n", LENGTH);
-                    LOOP_ASSERT(U_SPEC, oldLen <= LENGTH);  //non-decreasing
-                    oldLen = LENGTH;
+                if (U_LENGTH != oldLen) {
+                    if (verbose) printf( 
+                              "\tUsing lhs objects of length %d.\n", U_LENGTH);
+                    LOOP_ASSERT(U_SPEC, oldLen <= U_LENGTH);  //non-decreasing
+                    oldLen = U_LENGTH;
                 }
 
                 if (veryVerbose) { T_; T_;
@@ -3643,9 +3647,14 @@ void TestDriver<TYPE,ALLOC>::testCase6()
 
                 // Create second object.
                 for (int sj = 0; SPECS[sj]; ++sj) {
-                    for (int aj = 0; aj < NUM_ALLOCATOR; ++aj) {
+                    const char *const V_SPEC = SPECS[sj];
+                    const int         V_LENGTH = (int) strlen(V_SPEC);
 
-                        const char *const V_SPEC = SPECS[sj];
+                    if (4 < V_LENGTH && V_LENGTH % 3) {
+                        continue;
+                    }
+
+                    for (int aj = 0; aj < NUM_ALLOCATOR; ++aj) {
                         Obj mV(ALLOCATOR[aj]);
                         const Obj& V = gg(&mV, V_SPEC);
 
@@ -3669,30 +3678,40 @@ void TestDriver<TYPE,ALLOC>::testCase6()
 
         // Create first object.
         for (int si = 0; SPECS[si]; ++si) {
+            const char *const U_SPEC = SPECS[si];
+            const int         U_LENGTH = (int) strlen(U_SPEC);
+
+            if (4 < U_LENGTH && U_LENGTH % 5) {
+                continue;
+            }
+
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
-
-                const char *const U_SPEC = SPECS[si];
-                const int         LENGTH = (int) strlen(U_SPEC);
-
                 Obj mU(ALLOCATOR[ai]);  const Obj& U = mU;
                 gg(&mU, U_SPEC);
-                LOOP_ASSERT(si, LENGTH == (int) U.size());  // same lengths
+                LOOP_ASSERT(si, U_LENGTH == (int) U.size());  // same lengths
 
-                if (LENGTH != oldLen) {
+                if (U_LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length %d.\n", LENGTH);
-                    LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);
-                    oldLen = LENGTH;
+                        printf("\tUsing lhs objects of length %d.\n",
+                               U_LENGTH);
+                    LOOP_ASSERT(U_SPEC, oldLen <= (int)U_LENGTH);
+                    oldLen = U_LENGTH;
                 }
 
                 if (veryVerbose) { P_(si); P_(U_SPEC); P(U); }
                 // Create second object.
                 for (int sj = 0; SPECS[sj]; ++sj) {
+                    const char *const V_SPEC = SPECS[sj];
+                    const int         V_LENGTH = (int) strlen(V_SPEC);
+
+                    if (4 < V_LENGTH && V_LENGTH % 5) {
+                        continue;
+                    }
+
+
                     for (int aj = 0; aj < NUM_ALLOCATOR; ++aj) {
                         //Perform perturbation
                         for (int e = START_POS; e <= FINISH_POS; e+=INCREMENT){
-
-                            const char *const V_SPEC = SPECS[sj];
                             Obj mV(ALLOCATOR[aj]);  const Obj& V = mV;
 
                             setInternalState(&mV, e);

@@ -8443,7 +8443,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
                     const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
                     const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
-                    if (4 < LENGTH && 14 != LENGTH) {
+                    if (4 < LENGTH && NUM_DATA-1 != i && NUM_DATA-1 != ti) {
                         continue;
                     }
 
@@ -8841,7 +8841,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
             const char *const EXPECTED = DATA[ti].d_results;
             const size_t      SIZE     = strlen(SPEC);
 
-            if (4 < SIZE && 12 != SIZE) {
+            if (4 < SIZE && NUM_DATA-1 != ti) {
                 continue;
             }
 
@@ -9150,8 +9150,6 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
         }
     }
 
-    bool firstTime = true;
-
     // TBD: There is no strong exception guarantee when the copy constructor
     // throws during 'insert' of a single element...
 
@@ -9165,13 +9163,8 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
             const char *const EXPECTED = DATA[ti].d_results;
             const size_t      SIZE     = strlen(SPEC);
 
-            if (4 < SIZE) {
-                if (firstTime) {
-                    firstTime = false;
-                }
-                else {
-                    continue;
-                }
+            if (4 < SIZE && NUM_DATA-1 != ti) {
+                continue;
             }
 
             for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
@@ -9492,7 +9485,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                     const size_t  NUM_ELEMENTS = strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
-                    if (4 < LENGTH && 34 != LENGTH) {
+                    if (4 < LENGTH && NUM_DATA-1 != i && NUM_U_DATA-1 != ti) {
                         continue;
                     }
 
