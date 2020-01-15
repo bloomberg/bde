@@ -5359,13 +5359,31 @@ void TestDriver<TYPE,ALLOC>::test27_mergeNoComp()
         if (verbose) printf(doMove ? "Testing void merge(list&& other);\n"
                                    : "Testing void merge(list& other);\n");
 
-        for (SortedSpecGen xgen; xgen; ++xgen) {
-            for (SortedSpecGen ygen; ygen; ++ygen) {
+        bool first5X = true;
 
-                const char* const X_SPEC     = xgen.spec();
-                const int         X_SPEC_LEN = xgen.len();
+        for (SortedSpecGen xgen; xgen; ++xgen) {
+            const char* const X_SPEC     = xgen.spec();
+            const int         X_SPEC_LEN = xgen.len();
+
+            if (5 == X_SPEC_LEN && first5X) {
+                first5X = false;
+            }
+            else if (3 < X_SPEC_LEN) {
+                continue;
+            }
+
+            bool first5Y = true;
+
+            for (SortedSpecGen ygen; ygen; ++ygen) {
                 const char* const Y_SPEC     = ygen.spec();
                 const int         Y_SPEC_LEN = ygen.len();
+
+                if (5 == Y_SPEC_LEN && first5Y) {
+                    first5Y = false;
+                }
+                else if (3 < Y_SPEC_LEN) {
+                    continue;
+                }
 
                 Obj mX(xoa);  const Obj& X = gg(&mX, X_SPEC);
                 Obj mY(xoa);  const Obj& Y = gg(&mY, Y_SPEC);
@@ -6997,11 +7015,21 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const char *const SPEC1 = DATA[ti].d_spec_p;
+        const int         LEN1  = std::strlen(SPEC1);
+
+        if (4 < LEN1 && NUM_DATA-1 != ti) {
+            continue;
+        }
 
         Obj mXX(xscratch);  const Obj& XX = gg(&mXX, SPEC1);
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const char *const SPEC2 = DATA[tj].d_spec_p;
+            const int         LEN2  = std::strlen(SPEC2);
+
+            if (4 < LEN2 && NUM_DATA-1 != tj) {
+                continue;
+            }
 
             Obj mYY(xscratch);  const Obj& YY = gg(&mYY, SPEC2);
 

@@ -5539,6 +5539,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
             const char *const RESULT1 = DATA[ti].d_results_p;
             const size_t      LENGTH1 = strlen(RESULT1);
 
+            if (4 < LENGTH1 && NUM_DATA-1 != ti) {
+                continue;
+            }
+
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPEC1);
@@ -5550,6 +5554,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec_p;
                 const size_t      LENGTH2 = strlen(DATA[tj].d_results_p);
+
+                if (4 < LENGTH2 && NUM_DATA-1 != tj) {
+                    continue;
+                }
 
                 for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
                     const char CONFIG = cfg;  // how we specify the allocator
@@ -5649,7 +5657,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
     ASSERTV(0 == da.numAllocations());
 
     BSLMF_ASSERT(2 == DEFAULT_NUM_MAX_LENGTH);
-    ASSERTV(doneA, doneB, doneC, 4 == doneA && 2 == doneB && 4 == doneC);
+    ASSERTV(doneA, doneB, doneC, 4 == doneA && 2 == doneB && 1 == doneC);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -8317,7 +8325,6 @@ int main(int argc, char *argv[])
         // Since 'KEY' is 'const', copy c'tor of 'KEY' must be used to insert
         // elements, so cannot have move-only 'KEY'.
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         TestDriver<signed char,
                    bsltf::MoveOnlyAllocTestType>::testCase28();
         TestDriver<bsltf::MovableTestType,
@@ -8328,7 +8335,6 @@ int main(int argc, char *argv[])
                    bsltf::WellBehavedMoveOnlyAllocTestType>::testCase28();
 
         TestDriver<TestKeyType, TestValueType>::testCase28();
-#endif
 
         // 'propagate_on_container_move_assignment' testing
 

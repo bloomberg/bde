@@ -4572,6 +4572,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase29()
             const char *const RESULT1 = DATA[ti].d_results;
             const size_t      LENGTH1 = strlen(RESULT1);
 
+            if (5 < LENGTH1 && NUM_DATA-1 != ti) {
+                continue;
+            }
+
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bsl::allocator<KEY>  xscratch(&scratch);
 
@@ -4600,6 +4604,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase29()
                 const char *const SPEC2   = DATA[tj].d_spec;
                 const char *const RESULT2 = DATA[tj].d_results;
                 const size_t      LENGTH2 = strlen(RESULT2);
+
+                if (5 < LENGTH2 && NUM_DATA-1 != tj) {
+                    continue;
+                }
 
                 for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
                     const char CONFIG = cfg;  // how we specify the allocator
@@ -4794,6 +4802,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase29()
             const char *const RESULT1 = DATA[ti].d_results;
             const size_t      LENGTH1 = strlen(RESULT1);
 
+            if (4 < LENGTH1 && NUM_DATA-1 != ti) {
+                continue;
+            }
+
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bsl::allocator<KEY>  xscratch(&scratch);
 
@@ -4806,6 +4818,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase29()
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
+                const char *const RESULT2 = DATA[tj].d_results;
+                const size_t      LENGTH2 = strlen(RESULT2);
+
+                if (4 < LENGTH2 && NUM_DATA-1 != tj) {
+                    continue;
+                }
 
                 for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
                     const char CONFIG = cfg;  // how we specify the allocator

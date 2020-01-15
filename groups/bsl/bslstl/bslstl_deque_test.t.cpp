@@ -9073,6 +9073,10 @@ void TestDriver<TYPE,ALLOC>::testCase19(const CONTAINER&)
             const int    INIT_LINE   = DATA[i].d_lineNum;
             const size_t INIT_LENGTH = DATA[i].d_length;
 
+            if (4 < INIT_LENGTH && NUM_DATA-1 != i) {
+                continue;
+            }
+
             for (int l = i; l < NUM_DATA; ++l) {
                 const size_t INIT_CAP = DATA[l].d_length;
                 ASSERT(INIT_LENGTH <= INIT_CAP);
@@ -9088,6 +9092,10 @@ void TestDriver<TYPE,ALLOC>::testCase19(const CONTAINER&)
                     const char   *SPEC         = U_DATA[ti].d_spec_p;
                     const int     NUM_ELEMENTS = (int) strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
+
+                    if (4 < NUM_ELEMENTS && NUM_U_DATA-1 != ti) {
+                        continue;
+                    }
 
                     CONTAINER mU(gV(SPEC));  const CONTAINER& U = mU;
 
@@ -9156,7 +9164,7 @@ void TestDriver<TYPE,ALLOC>::testCase19(const CONTAINER&)
     ASSERT(0 == oa.numBlocksInUse());
 }
 
-template <class TYPE, class ALLOC>
+ttemplate <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::testCase18()
 {
     // ------------------------------------------------------------------------
@@ -9413,6 +9421,10 @@ void TestDriver<TYPE,ALLOC>::testCase18()
             const int    INIT_LINE   = DATA[i].d_lineNum;
             const size_t INIT_LENGTH = DATA[i].d_length;
 
+            if (4 < INIT_LENGTH && NUM_DATA-1 != i) {
+                continue;
+            }
+
             for (int l = i; l < NUM_DATA; ++l) {
                 const size_t INIT_CAP = DATA[l].d_length;
                 ASSERT(INIT_LENGTH <= INIT_CAP);
@@ -9428,6 +9440,10 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                     const size_t NUM_ELEMENTS = DATA[ti].d_length;
                     const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
                     const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
+
+                    if (4 < NUM_ELEMENTS && NUM_DATA-1 != ti) {
+                        continue;
+                    }
 
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                         const size_t POS = j;
