@@ -273,7 +273,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
-//             COMPILER CONFIGURATION AND WORKAROUNDS
+//             COMPILER CONFIGURATION AND WORKAROUNDS 
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
@@ -409,11 +409,10 @@ typedef bslmf::MovableRefUtil MRU;
 //-----------------------------------------------------------------------------
 
 // TYPES
-typedef bsls::Types::Int64          Int64;
-typedef bsls::Types::Uint64         Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
-typedef Vector_Util                 ImpUtil;
-typedef bsltf::TemplateTestFacility TTF;
+typedef Vector_Util         ImpUtil;
 
 enum {
     // The following enum is set to '1' when exceptions are enabled and to '0'
@@ -502,9 +501,9 @@ const int NUM_ALLOCS[] = {
        7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  8,  8,  8,  8,  8,  8,  8
 };
 
-enum NumNumAllocsEnum {    // If this type is not named, AIX compiler objects
-                     NUM_NUM_ALLOCS = sizeof NUM_ALLOCS / sizeof *NUM_ALLOCS };
+static const size_t NUM_NUM_ALLOCS = sizeof NUM_ALLOCS / sizeof *NUM_ALLOCS;
 static const size_t ZERO = 0;   // Add this to a signed expression to easily
+                                // make it unsigned.
 
 // Define values used to initialize positional arguments for
 // 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
@@ -1791,14 +1790,14 @@ struct TestDriver {
 
     enum AllocCategory { e_BSLMA, e_STDALLOC, e_ADAPTOR, e_STATEFUL };
 
-    enum { k_TYPE_IS_WELL_BEHAVED =
-                     bsl::is_same<TYPE,
-                               bsltf::WellBehavedMoveOnlyAllocTestType>::value,
-           k_TYPE_IS_MOVE_ENABLED =
-                     bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
-                     bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
-                     bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value ||
-                      k_TYPE_IS_WELL_BEHAVED };
+    enum MovableTrait {
+        k_IS_MOVABLE =
+                     bslmf::IsBitwiseMoveable<TYPE>::value ||
+                    !bsl::is_copy_constructible<TYPE>::value ||
+                     bsl::is_nothrow_move_constructible<TYPE>::value,
+        k_IS_WELL_BEHAVED = bsl::is_same<TYPE,
+                                bsltf::WellBehavedMoveOnlyAllocTestType>::value
+    };
 
     // TEST APPARATUS
 
@@ -1816,6 +1815,18 @@ struct TestDriver {
                                                 bsl::allocator<TYPE> > >::value
                         ? e_ADAPTOR
                         : e_STATEFUL;
+
+    static
+    const bool s_typeUsesAllocator = e_STATEFUL != s_allocCategory &&
+                                        bslma::UsesBslmaAllocator<TYPE>::value;
+
+    static
+    const bool s_typeIsMoveEnabled =
+            bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
+            bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
+            bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value ||
+            bsl::is_same<TYPE, bsltf::WellBehavedMoveOnlyAllocTestType>::value;
+
 
     // CLASS METHODS
     static
@@ -1942,16 +1953,6 @@ struct TestDriver {
         // semantics based on integer template parameters 'N01' ... 'N10'.
 
     // TEST CASES
-    static void testCase39_n_copies();
-        // Test 'insert' 'n' copies.
-
-    static void testCase39Negative();
-        // Negative testing for 'insert'.
-
-    static void testCase38_insert_constref();
-        // New test for 'insert' method taking a reference to non-modifiable
-        // 'value_type' that is consistent with other containers and can be
-        // easily duplicated for version taking an rvalue reference.
 
     static void testCase35();
         // Test 'noexcept' specifications
@@ -2053,10 +2054,21 @@ struct TestDriver {
     static void testCase18Range(const CONTAINER&);
         // Test 'insert' member template for iterator ranges.
 
+    static void testCase17_n_copies();
+        // Test 'insert' 'n' copies.
+
     static void testCase17_push_back();
         // New test for 'push_back' method taking a reference to non-modifiable
         // 'value_type' that is consistent with other containers and can be
         // easily duplicated for version taking an rvalue reference.
+
+    static void testCase17_insert_constref();
+        // New test for 'insert' method taking a reference to non-modifiable
+        // 'value_type' that is consistent with other containers and can be
+        // easily duplicated for version taking an rvalue reference.
+
+    static void testCase17Negative();
+        // Negative testing for 'insert'.
 
     static void testCase16();
         // Test iterators.
@@ -2119,9 +2131,6 @@ struct MetaTestDriver {
     // functions within it dispatch to functions in 'TestDriver' instantiated
     // with different types of allocator.
 
-    enum { k_TYPE_IS_WELL_BEHAVED =
-          bsl::is_same<TYPE, bsltf::WellBehavedMoveOnlyAllocTestType>::value };
-
     static void testCase24();
         // Test move-assign.
 };
@@ -2172,933 +2181,6 @@ void TestDriver<TYPE, ALLOC>::stretchRemoveAll(Obj         *object,
     stretch(object, size, identifier);
     object->clear();
     ASSERT(0 == object->size());
-}
-
-template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase39_n_copies()
-{
-    // ------------------------------------------------------------------------
-    // TESTING INSERTION
-    //
-    // We have the following concerns:
-    //   1) That the resulting vector value is correct.
-    //   2) That the 'insert' return (if any) value is a valid iterator, even
-    //      when the vector underwent a reallocation.
-    //   3) That the resulting capacity is correctly set up.
-    //   4) That existing elements are moved without copy-construction if the
-    //      bitwise-moveable trait is present.
-    //   5) That insertion is exception neutral w.r.t. memory allocation.
-    //   6) The internal memory management system is hooked up properly
-    //      so that *all* internally allocated memory draws from a
-    //      user-supplied allocator whenever one is specified.
-    //   7) The move 'push_back' and 'insert' move the value, capacity, and
-    //      allocator correctly, and without performing any allocation.
-    //   8) That inserting a 'const T& value' that is a reference to an element
-    //      of the vector does not suffer from aliasing problems.
-    //
-    // Plan:
-    //   For insertion we will create objects of varying sizes and capacities
-    //   containing default values, and insert a distinct 'value' at various
-    //   positions, or a variable number of copies of this value.  Perform the
-    //   above tests:
-    //      - Without exceptions, and compute the number of allocations.
-    //      - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*,
-    //        but do not compute the number of allocations.
-    //   and use basic accessors to verify the resulting
-    //      - size
-    //      - capacity
-    //      - element value at each index position { 0 .. length - 1 }.
-    //   In addition, the number of allocations should reflect proper internal
-    //   memory management: the number of allocations should equal the sum of
-    //      - NUM_ELEMENTS + (INIT_LENGTH - POS) if the type uses an allocator
-    //        and is not bitwise-moveable,  0 otherwise
-    //      - 1 if there a change in capacity, 0 otherwise
-    //      - 1 if the type uses an allocator and the value is an alias.
-    //
-    //   For concerns 4 and 7, we test with a bitwise-moveable type that the
-    //   only allocation for a move 'push_back' or 'insert' is the one for the
-    //   vector reallocation (if capacity changes; all elements are moved), and
-    //   for insertion the only reallocations should be for the new elements
-    //   plus one if the vector undergoes a reallocation (capacity changes).
-    //
-    //   For concern 8, we insert an element of some vector where all the
-    //   values are distinct into the same vector, taking care of the cases
-    //   where the reference is before or after the position of insertion, and
-    //   that the vector undergoes a reallocation or not (i.e., capacity
-    //   changes or not).  We verify that the value is as expected, i.e.,
-    //   identical to t it would be if the value had not been aliased.
-    //
-    // Testing:
-    //   iterator insert(const_iterator pos, const T& value);
-    //   void insert(const_iterator pos, size_type n, const T& value);
-    // ------------------------------------------------------------------------
-
-    bslma::TestAllocator ta(veryVeryVeryVerbose);
-    ALLOC                xta(&ta);
-
-    const TestValues VALUES;
-    const int        NUM_VALUES = 5;         // TBD: fix this
-    const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
-    enum {
-        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value,
-        TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value ||
-                        bsl::uses_allocator<TYPE, ALLOC>::value
-    };
-
-    const size_t AP = allocationsByPrimaryManipulator();
-        // Allocations per element inserted by primary manipulator, assuming
-        // there is sufficient capacity.
-
-    if (verbose) printf(
-            "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, AP = " ZU ").\n",
-                        NameOf<TYPE>().name(),
-                        TYPE_ALLOC,
-                        TYPE_MOVEABLE,
-                        AP);
-
-    static const struct {
-        int d_lineNum;  // source line number
-        int d_length;   // expected length
-    } DATA[] = {
-        //line  length
-        //----  ------
-        { L_,        0 },
-        { L_,        1 },
-        { L_,        2 },
-        { L_,        3 },
-        { L_,        4 },
-        { L_,        5 },
-        { L_,        6 },
-        { L_,        7 },
-        { L_,        8 },
-        { L_,        9 },
-        { L_,       11 },
-        { L_,       12 },
-        { L_,       14 },
-        { L_,       15 },
-        { L_,       16 },
-        { L_,       17 }
-    };
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-
-    if (verbose) printf("\tTesting 'insert'.\n");
-
-    if (verbose) printf("\tUsing a single 'value'.\n");
-    {
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int    INIT_LINE   = DATA[i].d_lineNum;
-            const size_t INIT_LENGTH = DATA[i].d_length;
-            const TYPE   VALUE        = VALUES[i % NUM_VALUES];
-            const size_t LENGTH       = INIT_LENGTH + 1;
-
-            for (int l = i; l < NUM_DATA; ++l) {
-                const size_t INIT_CAP = DATA[l].d_length;
-                ASSERT(INIT_LENGTH <= INIT_CAP);
-
-                if (veryVerbose) {
-                    printf("\t\tWith initial value of ");
-                    P_(INIT_LENGTH); P_(INIT_CAP);
-                    printf("using default value.\n");
-                }
-
-                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
-                    const size_t POS = j;
-
-                    Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
-                    const Obj& X = mX;
-                    mX.reserve(INIT_CAP);
-
-                    size_t k;
-                    for (k = 0; k < INIT_LENGTH; ++k) {
-                        mX[k] =  VALUES[k % NUM_VALUES];
-                    }
-
-                    const size_t CAP = 0 == INIT_CAP && 0 == LENGTH
-                                     ? 0
-                                     : LENGTH <= INIT_CAP
-                                     ? -1
-                                     : ImpUtil::computeNewCapacity(
-                                                                 LENGTH,
-                                                                 INIT_CAP,
-                                                                 X.max_size());
-
-                    if (veryVerbose) {
-                        printf("\t\t\tInsert with "); P_(LENGTH);
-                        printf(" at "); P_(POS);
-                        printf(" using "); P(VALUE);
-                    }
-
-                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
-                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
-
-                    if (veryVerbose) {
-                        printf("\t\t\t\tBefore:"); P_(BB); P(B);
-                    }
-
-                    iterator result = mX.insert(X.begin() + POS, VALUE);
-
-                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
-                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
-
-                    if (veryVerbose) {
-                        printf("\t\t\t\tAfter :"); P_(AA); P(A);
-                        T_; T_; T_; T_; P_(X); P(X.capacity());
-                    }
-
-                    ASSERTV(INIT_LINE, i, j, LENGTH == X.size());
-                    if (CAP != (size_t) -1) {
-                        ASSERTV(INIT_LINE, i, j, CAP == X.capacity());
-                    }
-                    ASSERTV(INIT_LINE, i, j, X.begin() + POS == result);
-
-                    for (k = 0; k < POS; ++k) {
-                        ASSERTV(INIT_LINE, LENGTH, POS, k,
-                                VALUES[k % NUM_VALUES] == X[k]);
-                    }
-                    ASSERTV(INIT_LINE, LENGTH, POS, VALUE == X[POS]);
-                    for (++k; k < LENGTH; ++k) {
-                        ASSERTV(INIT_LINE, LENGTH, POS, k,
-                                VALUES[(k - 1) % NUM_VALUES] == X[k]);
-                    }
-
-                    const int REALLOC = X.capacity() > INIT_CAP;
-
-                    const bsls::Types::Int64 TYPE_ALLOCS =
-                                  TYPE_ALLOC && !TYPE_MOVEABLE
-                                  ? (REALLOC ? INIT_LENGTH : INIT_LENGTH - POS)
-                                  : 0;
-                    const bsls::Types::Int64 EXP_ALLOCS =
-                                            REALLOC + TYPE_ALLOCS + TYPE_ALLOC;
-
-                    ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, TYPE_ALLOCS,
-                            BB + EXP_ALLOCS == AA);
-                    ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
-                            B + (0 == INIT_CAP) + TYPE_ALLOC == A );
-                }
-            }
-        }
-    }
-    ASSERT(0 == ta.numMismatches());
-    ASSERT(0 == ta.numBlocksInUse());
-
-    if (verbose) printf("\tUsing 'n' copies of 'value'.\n");
-    {
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int    INIT_LINE   = DATA[i].d_lineNum;
-            const size_t INIT_LENGTH = DATA[i].d_length;
-
-            for (int l = i; l < NUM_DATA; ++l) {
-                const size_t INIT_CAP = DATA[l].d_length;
-                ASSERT(INIT_LENGTH <= INIT_CAP);
-
-                if (veryVerbose) {
-                    printf("\t\tWith initial value of ");
-                    P_(INIT_LENGTH); P_(INIT_CAP);
-                    printf("using default value.\n");
-                }
-
-                for (int ti = 0; ti < NUM_DATA; ++ti) {
-                    const int    LINE         = DATA[ti].d_lineNum;
-                    const int    NUM_ELEMENTS = DATA[ti].d_length;
-                    const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
-                    const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
-
-                    for (size_t j = 0; j <= INIT_LENGTH; ++j) {
-                        const size_t POS = j;
-
-                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
-                        const Obj& X = mX;
-
-                        mX.reserve(INIT_CAP);
-
-                        size_t k;
-                        for (k = 0; k < INIT_LENGTH; ++k) {
-                            mX[k] =  VALUES[k % NUM_VALUES];
-                        }
-
-                        const size_t CAP = 0 == INIT_CAP && 0 == LENGTH
-                                         ? 0
-                                         : LENGTH <= INIT_CAP
-                                         ? -1
-                                         : ImpUtil::computeNewCapacity(
-                                                                 LENGTH,
-                                                                 INIT_CAP,
-                                                                 X.max_size());
-
-                        if (veryVerbose) {
-                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
-                            printf("at "); P_(POS);
-                            printf("using "); P(VALUE);
-                        }
-
-                        const bsls::Types::Int64 BB = ta.numBlocksTotal();
-                        const bsls::Types::Int64 B  = ta.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            printf("\t\t\t\tBefore:"); P_(BB); P(B);
-                        }
-
-                        mX.insert(X.begin() + POS, NUM_ELEMENTS, VALUE);
-
-                        const bsls::Types::Int64 AA = ta.numBlocksTotal();
-                        const bsls::Types::Int64 A  = ta.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            printf("\t\t\t\tAfter :"); P_(AA); P(A);
-                            T_; T_; T_; T_; P_(X); P(X.capacity());
-                        }
-
-                        ASSERTV(INIT_LINE, LINE, i, j, LENGTH == X.size());
-                        if (static_cast<size_t>(-1) != CAP) {
-                            ASSERTV(INIT_LINE, LINE, i, j,
-                                    CAP == X.capacity());
-                        }
-
-                        size_t m = 0;
-                        for (k = 0; k < POS; ++k) {
-                            ASSERTV(INIT_LINE, LINE, j, k,
-                                    VALUES[k % NUM_VALUES] == X[k]);
-                        }
-                        for (; k < POS + NUM_ELEMENTS; ++k) {
-                            ASSERTV(INIT_LINE, LINE, j, k, VALUE == X[k]);
-                        }
-                        for (m = POS; k < LENGTH; ++k, ++m) {
-                            ASSERTV(INIT_LINE, LINE, j, k, m,
-                                    VALUES[m % NUM_VALUES] == X[k]);
-                        }
-
-                        const int REALLOC = X.capacity() > INIT_CAP;
-
-                        // Have to separate const's from vars in boolean
-                        // operations or we get these really stupid warnings
-                        // from g++.
-
-                        const bsls::Types::Int64 TYPE_ALLOCS =
-                                              !TYPE_ALLOC || TYPE_MOVEABLE
-                                              ? 0
-                                              : 0 == NUM_ELEMENTS
-                                                ? 0
-                                                : REALLOC ? INIT_LENGTH
-                                                          : INIT_LENGTH - POS;
-
-                        const bsls::Types::Int64 EXP_ALLOCS  =
-                                                     REALLOC + TYPE_ALLOCS +
-                                                     NUM_ELEMENTS * TYPE_ALLOC;
-
-                        ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
-                                BB + EXP_ALLOCS == AA);
-                        ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
-                                B + (REALLOC && 0 == INIT_CAP) +
-                                              NUM_ELEMENTS * TYPE_ALLOC == A );
-                    }
-                }
-            }
-        }
-    }
-    ASSERT(0 == ta.numMismatches());
-    ASSERT(0 == ta.numBlocksInUse());
-
-    if (verbose) printf("\tWith exceptions.\n");
-    {
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int    INIT_LINE   = DATA[i].d_lineNum;
-            const size_t INIT_LENGTH = DATA[i].d_length;
-
-            for (int l = i; l < NUM_DATA; ++l) {
-                const size_t INIT_CAP = DATA[l].d_length;
-                ASSERT(INIT_LENGTH <= INIT_CAP);
-
-                if (veryVerbose) {
-                    printf("\t\tWith initial value of ");
-                    P_(INIT_LENGTH); P_(INIT_CAP);
-                    printf("using default value.\n");
-                }
-
-                for (int ti = 0; ti < NUM_DATA; ++ti) {
-                    const int    LINE         = DATA[ti].d_lineNum;
-                    const size_t NUM_ELEMENTS = DATA[ti].d_length;
-                    const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
-                    const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
-
-                    if (TYPE_ALLOC && 4 < LENGTH) {
-                        // This case was taking too long with exceptions.
-
-                        continue;
-                    }
-
-                    for (size_t j = 0; j <= INIT_LENGTH; ++j) {
-                        const size_t POS = j;
-
-                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
-                            const bsls::Types::Int64 AL = ta.allocationLimit();
-                            ta.setAllocationLimit(-1);
-
-                            Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
-                            const Obj& X = mX;
-                            mX.reserve(INIT_CAP);
-
-                            const size_t CAP = (0 == INIT_CAP && 0 == LENGTH)
-                                             ? 0
-                                             : LENGTH <= INIT_CAP
-                                             ? -1
-                                             : ImpUtil::computeNewCapacity(
-                                                                 LENGTH,
-                                                                 INIT_CAP,
-                                                                 X.max_size());
-
-                            ta.setAllocationLimit(AL);
-
-                            mX.insert(X.begin() + POS, NUM_ELEMENTS, VALUE);
-                                                         // test insertion here
-
-                            if (veryVerbose) {
-                                T_; T_; T_; P_(X); P(X.capacity());
-                            }
-
-                            ASSERTV(INIT_LINE, LINE, i, j, LENGTH == X.size());
-                            if ((size_t) -1 != CAP) {
-                                ASSERTV(INIT_LINE, LINE, i, j,
-                                        CAP == X.capacity());
-                            }
-
-                            size_t k;
-                            for (k = 0; k < POS; ++k) {
-                                ASSERTV(INIT_LINE, LINE, i, j, k,
-                                        DEFAULT_VALUE == X[k]);
-                            }
-                            for (; k < POS + NUM_ELEMENTS; ++k) {
-                                ASSERTV(INIT_LINE, LINE, i, j, k,
-                                        VALUE == X[k]);
-                            }
-                            for (; k < LENGTH; ++k) {
-                                ASSERTV(INIT_LINE, LINE, i, j, k,
-                                        DEFAULT_VALUE == X[k]);
-                            }
-                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                    }
-                }
-            }
-        }
-    }
-    ASSERT(0 == ta.numMismatches());
-    ASSERT(0 == ta.numBlocksInUse());
-
-    if (verbose) printf("\tTesting aliasing concerns.\n");
-    {
-        // insert a single element
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int    INIT_LINE   = DATA[i].d_lineNum;
-            const size_t INIT_LENGTH = DATA[i].d_length;
-            const size_t LENGTH      = INIT_LENGTH + 1;
-
-            for (int l = i; l < NUM_DATA; ++l) {
-                const size_t INIT_CAP = DATA[l].d_length;
-                ASSERT(INIT_LENGTH <= INIT_CAP);
-
-                if (veryVerbose) {
-                    printf("\t\tWith initial value of ");
-                    P_(INIT_LENGTH); P_(INIT_CAP);
-                    printf("using distinct (cyclic) values.\n");
-                }
-
-                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
-                    const size_t POS = j;
-
-                    for (size_t h = 0; h < INIT_LENGTH; ++h) {
-                        const size_t INDEX = h;
-
-                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
-                        const Obj& X = mX;
-                        mX.reserve(INIT_CAP);
-
-                        for (size_t k = 0; k < INIT_LENGTH; ++k) {
-                            mX[k] = VALUES[k % NUM_VALUES];
-                        }
-
-                        Obj mY(X); const Obj& Y = mY;  // control
-
-                        if (veryVerbose) {
-                            printf("\t\t\tInsert with "); P_(LENGTH);
-                            printf(" at "); P_(POS);
-                            printf(" using value at "); P(INDEX);
-                        }
-
-                        mY.insert(Y.begin() + POS, X[INDEX]);  // control
-                        mX.insert(X.begin() + POS, X[INDEX]);
-
-                        if (veryVerbose) {
-                            T_; T_; T_; T_; P(X);
-                            T_; T_; T_; T_; P(Y);
-                        }
-
-                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
-                    }
-                }
-            }
-        }
-
-        // insert 'n; copies within capacity
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int    INIT_LINE   = DATA[i].d_lineNum;
-            const size_t INIT_LENGTH = DATA[i].d_length;
-            const size_t LENGTH      = INIT_LENGTH + 1;
-
-            for (int l = i; l < NUM_DATA; ++l) {
-                const size_t INIT_CAP = DATA[l].d_length;
-                ASSERT(INIT_LENGTH <= INIT_CAP);
-
-                if (veryVerbose) {
-                    printf("\t\tWith initial value of ");
-                    P_(INIT_LENGTH); P_(INIT_CAP);
-                    printf("using distinct (cyclic) values.\n");
-                }
-
-                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
-                    const size_t POS = j;
-
-                    for (size_t h = 0; h < INIT_LENGTH; ++h) {
-                        const size_t INDEX = h;
-
-                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
-                        const Obj& X = mX;
-                        mX.reserve(INIT_CAP);
-
-                        for (size_t k = 0; k < INIT_LENGTH; ++k) {
-                            mX[k] = VALUES[k % NUM_VALUES];
-                        }
-
-                        Obj mY(X); const Obj& Y = mY;  // control
-
-                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
-
-                        if (veryVerbose) {
-                            printf("\t\t\tInsert with "); P_(LENGTH);
-                            printf(" at "); P_(POS);
-                            printf(" using enough of value at "); P_(INDEX);
-                            printf(" to reach capacity.\n");
-                        }
-
-                        size_t EXTRA = X.capacity() - X.size();
-
-                        mY.insert(Y.begin() + POS, EXTRA, X[INDEX]); // control
-                        mX.insert(X.begin() + POS, EXTRA, X[INDEX]);
-
-                        if (veryVerbose) {
-                            T_; T_; T_; T_; P(X);
-                            T_; T_; T_; T_; P(Y);
-                        }
-
-                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
-                    }
-                }
-            }
-        }
-
-        // insert 'n; copies while overflowing capacity
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int    INIT_LINE   = DATA[i].d_lineNum;
-            const size_t INIT_LENGTH = DATA[i].d_length;
-            const size_t LENGTH      = INIT_LENGTH + 1;
-
-            for (int l = i; l < NUM_DATA; ++l) {
-                const size_t INIT_CAP = DATA[l].d_length;
-                ASSERT(INIT_LENGTH <= INIT_CAP);
-
-                if (veryVerbose) {
-                    printf("\t\tWith initial value of ");
-                    P_(INIT_LENGTH); P_(INIT_CAP);
-                    printf("using distinct (cyclic) values.\n");
-                }
-
-                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
-                    const size_t POS = j;
-
-                    for (size_t h = 0; h < INIT_LENGTH; ++h) {
-                        const size_t INDEX = h;
-
-                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
-                        const Obj& X = mX;
-                        mX.reserve(INIT_CAP);
-
-                        for (size_t k = 0; k < INIT_LENGTH; ++k) {
-                            mX[k] = VALUES[k % NUM_VALUES];
-                        }
-
-                        Obj mY(X); const Obj& Y = mY;  // control
-
-                        if (veryVerbose) {
-                            printf("\t\t\tInsert with "); P_(LENGTH);
-                            printf(" at "); P_(POS);
-                            printf(" using 0 copies of value at "); P(INDEX);
-                        }
-
-                        mY.insert(Y.begin() + POS, 0, X[INDEX]);  // control
-                        mX.insert(X.begin() + POS, 0, X[INDEX]);
-
-                        if (veryVerbose) {
-                            T_; T_; T_; T_; P(X);
-                            T_; T_; T_; T_; P(Y);
-                        }
-
-                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
-
-                        if (veryVerbose) {
-                            printf("\t\t\tInsert with "); P_(LENGTH);
-                            printf(" at "); P_(POS);
-                            printf(" using enough of value at "); P_(INDEX);
-                            printf(" to exceed capacity.\n");
-                        }
-
-                        size_t EXTRA = X.capacity() - X.size() + 1;
-
-                        mY.insert(Y.begin() + POS, EXTRA, X[INDEX]); // control
-                        mX.insert(X.begin() + POS, EXTRA, X[INDEX]);
-
-                        if (veryVerbose) {
-                            T_; T_; T_; T_; P(X);
-                            T_; T_; T_; T_; P(Y);
-                        }
-
-                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
-                    }
-                }
-            }
-        }
-    }
-    ASSERT(0 == ta.numMismatches());
-    ASSERT(0 == ta.numBlocksInUse());
-}
-
-template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase39Negative()
-{
-    // ------------------------------------------------------------------------
-    // NEGATIVE TESTING INSERTION
-    //
-    // Concerns:
-    //   1 'insert' methods assert (in appropriate build modes) on undefined
-    //     behavior when the iterator passed to specify the insertion point is
-    //     not a valid iterator for this vector object.
-    //
-    //   2 An attempt to insert a range of elements specified by a pair of
-    //     iterators should assert (in appropriate build modes) if the range is
-    //     observably not valid i.e., a pair of random access iterators where
-    //     'last' precedes 'first'.
-    //
-    // Plan:
-    //   Construct a string object with some string data, and then call
-    //   'insert' with a
-    //   NULL C-string pointer and verify that it asserts.  Then call 'insert'
-    //   with invalid iterators and verify that it asserts.
-    //
-    // Testing:
-    //   iterator insert(const_iterator pos, const T& val);
-    //   iterator insert(const_iterator pos, size_type n, const T& val);
-    //   template <class InputIter>
-    //       void insert(const_iterator pos, InputIter first, InputIter last);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nTesting '%s'.\n", NameOf<TYPE>().name());
-
-    const typename Obj::const_iterator badIterator =
-                                               typename Obj::const_iterator();
-    (void) badIterator;    // Quell 'unused' warnings in unsafe builds
-
-    bsls::AssertTestHandlerGuard guard;
-
-    if (veryVerbose) printf("\tNegative testing of 'insert(p, c)'.\n");
-
-    {
-        Obj mX;     const Obj& X = gg(&mX, "ABCDE");
-        Obj mY;     const Obj& Y = gg(&mY, "ABCDE");
-        (void) Y;    // Quell 'unused' warnings in unsafe builds.
-
-        // position < begin()
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, X[0]));
-
-        // position > end()
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, X[0]));
-
-        // arbitrary bad iterator
-        ASSERT_SAFE_FAIL_RAW(mX.insert(badIterator, X[0]));
-
-        // iterator to another container
-        ASSERT_SAFE_FAIL_RAW(mX.insert(Y.begin(), X[0]));
-
-        // begin() <= position < end()
-        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin() + 1, X[0]));
-        ASSERT_SAFE_PASS_RAW(mX.insert(X.end(), X[0]));
-    }
-
-    if (veryVerbose) printf("\tNegative testing of 'insert(p, n, c)'.\n");
-
-    {
-        Obj mX;     const Obj& X = gg(&mX, "ABCDE");
-        Obj mY;     const Obj& Y = gg(&mY, "ABCDE");
-        (void) Y;    // Quell 'unused' warnings in unsafe builds.
-
-        // position < begin()
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, 0, X[0]));
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, 2, X[0]));
-
-        // position > end()
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, 0, X[0]));
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, 2, X[0]));
-
-        // arbitrary bad iterator
-        ASSERT_SAFE_FAIL_RAW(mX.insert(badIterator, 0, X[0]));
-        ASSERT_SAFE_FAIL_RAW(mX.insert(badIterator, 2, X[0]));
-
-        // iterator to another container
-        ASSERT_SAFE_FAIL_RAW(mX.insert(Y.begin(), 0, X[0]));
-        ASSERT_SAFE_FAIL_RAW(mX.insert(Y.begin(), 2, X[0]));
-
-        // begin() <= position <= end()
-        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin() + 1, 0, X[0]));
-        ASSERT_SAFE_PASS_RAW(mX.insert(X.end(), 2, X[0]));
-    }
-
-    if (veryVerbose)
-        printf("\tNegative testing of 'insert(p, first, last)'.\n");
-
-    {
-        Obj mX;     const Obj& X = gg(&mX, "ABCDE");
-        Obj mY;     const Obj& Y = gg(&mY, "ABCDE");
-
-        // position < begin()
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, Y.begin(), Y.end()));
-
-        // position > end()
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, Y.begin(), Y.end()));
-
-        // first > last
-        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin(), Y.end(), Y.begin()));
-        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin(), Y.end(), Y.end()));
-
-        // two null pointers form a valid (empty) range
-        const TYPE *nullPtr = 0;
-        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin(), nullPtr, nullPtr));
-
-        // begin() <= position <= end() && first <= last
-        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin(), Y.begin(), Y.end()));
-    }
-}
-
-template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase38_insert_constref()
-{
-    // ------------------------------------------------------------------------
-    // TESTING 'insert(const_iterator position, const T&)'
-    //
-    // Concerns:
-    //: 1 A new element is inserted at the correct position in the container
-    //:   and the order of elements in the container, before and after the
-    //:   insertion point, remain correct.
-    //:
-    //: 2 The capacity is increased as expected.
-    //:
-    //: 3 The internal memory management system is hooked up properly so that
-    //:   *all* internally allocated memory draws from a user-supplied
-    //:   allocator whenever one is specified.
-    //:
-    //: 4 Insertion is exception neutral w.r.t. memory allocation.
-    //
-    // Plan:
-    //: 1 For 'insert' we will create objects of varying sizes and
-    //:   capacities containing default values, and insert a 'value' at
-    //:   various positions.
-    //:
-    //:   1 Verify that the element was added at the expected position in the
-    //:     container.(C-1)
-    //:
-    //:   2 Ensure that the order is preserved for elements before and after
-    //:     the insertion point.
-    //:
-    //:   3 Compute the number of allocations and verify it is as expected.
-    //:                                                                   (C-2)
-    //:
-    //:   4 Verify all allocations are from the object's allocator.       (C-3)
-    //:
-    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
-    //
-    // Testing:
-    //   iterator insert(const_iterator position, const value_type& value);
-    // ------------------------------------------------------------------------
-
-    const TestValues VALUES;
-
-    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value ? 0 : 1;
-    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
-                           bsl::uses_allocator<TYPE, ALLOC>::value;
-
-    if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
-                        NameOf<TYPE>().name(),
-                        TYPE_ALLOC,
-                        TYPE_MOVE);
-
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        int         d_pos;      // position to insert
-        char        d_element;  // specification string
-        const char *d_results;  // expected element values
-    } DATA[] = {
-        //line  spec         pos  element  results
-        //----  -----------  ---  -------  -----------
-        { L_,   "",          -1,  'Z',     "Z"         },
-        { L_,   "",          99,  'Z',     "Z"         },
-        { L_,   "A",         -1,  'Z',     "ZA"        },
-        { L_,   "A",          0,  'Z',     "ZA"        },
-        { L_,   "A",          1,  'Z',     "AZ"        },
-        { L_,   "A",         99,  'Z',     "AZ"        },
-        { L_,   "AB",        -1,  'B',     "BAB"       },
-        { L_,   "AB",         0,  'B',     "BAB"       },
-        { L_,   "AB",         1,  'Z',     "AZB"       },
-        { L_,   "AB",         2,  'A',     "ABA"       },
-        { L_,   "AB",        99,  'Z',     "ABZ"       },
-        { L_,   "CAB",       -1,  'Z',     "ZCAB"      },
-        { L_,   "CAB",        0,  'A',     "ACAB"      },
-        { L_,   "CAB",        1,  'B',     "CBAB"      },
-        { L_,   "CAB",        2,  'C',     "CACB"      },
-        { L_,   "CAB",        3,  'Z',     "CABZ"      },
-        { L_,   "CAB",       99,  'Z',     "CABZ"      },
-        { L_,   "CABD",      -1,  'A',     "ACABD"     },
-        { L_,   "CABD",       0,  'Z',     "ZCABD"     },
-        { L_,   "CABD",       1,  'Z',     "CZABD"     },
-        { L_,   "CABD",       2,  'B',     "CABBD"     },
-        { L_,   "CABD",       3,  'Z',     "CABZD"     },
-        { L_,   "CABD",       4,  'B',     "CABDB"     },
-        { L_,   "CABD",      99,  'A',     "CABDA"     },
-        { L_,   "HGFEDCBA",   0,  'Z',     "ZHGFEDCBA" },
-        { L_,   "HGFEDCBA",   7,  'Z',     "HGFEDCBZA" },
-        { L_,   "HGFEDCBA",   8,  'Z',     "HGFEDCBAZ" }
-    };
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-    if (verbose) printf("\tTesting 'insert' without exceptions.\n");
-    {
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE     = DATA[ti].d_line;
-            const char *const SPEC     = DATA[ti].d_spec;
-            const int         POS      = DATA[ti].d_pos;
-            const char        ELEMENT  = DATA[ti].d_element;
-            const char *const EXPECTED = DATA[ti].d_results;
-            const size_t      SIZE     = strlen(SPEC);
-
-            for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
-                const char CONFIG = cfg;
-
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                ALLOC                xoa(&oa);
-                Obj                  mX(xoa);
-                const Obj&           X = gg(&mX, SPEC);
-
-                if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P(X) }
-
-                // Verify any attribute allocators are installed properly.
-
-                ASSERTV(LINE, CONFIG, xoa == X.get_allocator());
-
-                ASSERTV(LINE, CONFIG, SIZE, X.size(), SIZE == X.size());
-
-                const bsls::Types::Int64 BB = oa.numBlocksTotal();
-                const bsls::Types::Int64 B  = oa.numBlocksInUse();
-
-                size_t index = POS == -1 ? 0
-                             : POS == 99 ? X.size()
-                             :             POS;
-                mX.insert(X.begin() + index, VALUES[ELEMENT - 'A']);
-
-                if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P_(ELEMENT) P(X) }
-
-                const bsls::Types::Int64 AA = oa.numBlocksTotal();
-                const bsls::Types::Int64 A  = oa.numBlocksInUse();
-
-                ASSERTV(LINE, CONFIG, SIZE, X.size(), SIZE + 1 == X.size());
-
-                TestValues exp(EXPECTED);
-                ASSERTV(LINE, CONFIG, 0 == verifyContainer(X, exp, SIZE + 1));
-
-                // Vector increases capacity only if the current length is zero
-                // or a power of 2.  In addition, when the type allocates, an
-                // extra allocation is used for the new element, and when the
-                // type is not bitwise moveable, size() allocations are used
-                // during the move, but an equal amount is destroyed thus the
-                // number of blocks in use is unchanged.
-
-                if (expectToAllocate(SIZE)) {
-                    const bsls::Types::Int64 TYPE_ALLOC_MOVES =
-                                           TYPE_ALLOC * (1 + SIZE * TYPE_MOVE);
-                    ASSERTV(LINE, CONFIG, BB, AA,
-                            BB + 1 + TYPE_ALLOC_MOVES == AA);
-                }
-                else {
-                    const bsls::Types::Int64 TYPE_ALLOC_MOVES =
-                                 TYPE_ALLOC * (1 + (SIZE - index) * TYPE_MOVE);
-                    ASSERTV(LINE, CONFIG, BB, AA,
-                            BB + 0 + TYPE_ALLOC_MOVES == AA);
-                }
-
-                ASSERTV(LINE, CONFIG, B, A,
-                        B + (SIZE == 0) + TYPE_ALLOC ==  A);
-            }
-        }
-    }
-
-    // TBD: There is no strong exception guarantee when the copy constructor
-    // throws during 'insert' of a single element...
-    if (verbose) printf("\tTesting 'insert' with injected exceptions.\n");
-    {
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE     = DATA[ti].d_line;
-            const char *const SPEC     = DATA[ti].d_spec;
-            const int         POS      = DATA[ti].d_pos;
-            const char        ELEMENT  = DATA[ti].d_element;
-            const char *const EXPECTED = DATA[ti].d_results;
-            const size_t      SIZE     = strlen(SPEC);
-            for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                ALLOC                xoa(&oa);
-                // TBD: since there is no strong exception guarantee, the
-                //      following two lines moved to within the exception test
-                //      block
-                // Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
-                // ASSERTV(LINE, SIZE, X.size(), SIZE == X.size());
-
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    // TBD: no strong exception guarantee
-                    // ExceptionProctor<Obj> guard(&X, L_, &scratch);
-
-                    const bsls::Types::Int64 AL = oa.allocationLimit();
-                    oa.setAllocationLimit(-1);
-
-                    Obj mX(xoa);  const Obj& X = gg(&mX, SPEC);
-
-                    ASSERTV(LINE, SIZE, X.size(), SIZE == X.size());
-
-                    size_t index = POS == -1 ? 0
-                                 : POS == 99 ? X.size()
-                                 :             POS;
-
-                    oa.setAllocationLimit(AL);
-
-                    mX.insert(X.begin() + index, VALUES[ELEMENT - 'A']);
-
-                    ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
-
-                    TestValues exp(EXPECTED);
-                    ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));
-
-                    // guard.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-            }
-        }
-    }
 }
 
 template <class TYPE, class ALLOC>
@@ -3559,6 +2641,39 @@ TestDriver<TYPE, ALLOC>::testCase28a_RunTest(Obj            *target,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase38()
+{
+    // ------------------------------------------------------------------------
+    // TEST ABILITY TO MOVE MOVABLE TYPES WHEN GROWING VECTOR.
+    // ------------------------------------------------------------------------
+
+    enum { k_NUM_ELEMENTS = 513 };
+
+    const char *typeName = bsls::NameOf<ValueType>().name();
+    if (verbose) P(typeName);
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+    Obj mX(&ta);    const Obj& X = mX;
+
+    for (int ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+        bsls::ObjectBuffer<ValueType>  buffer;
+        ValueType                     *valptr = buffer.address();
+        TstFacility::emplace(valptr, ii / 8, &ta);
+
+        mX.push_back(MRU::move(*valptr));
+
+        valptr->~ValueType();
+    }
+
+    for (int ii = k_NUM_ELEMENTS; 0 < ii--; ) {
+        ASSERTV(ii / 8, X[ii].data(), ii / 8 == X[ii].data());
+        ASSERTV(typeName, ii, X[ii].movedInto(),
+                                      X[ii].movedInto() == MoveState::e_MOVED);
+    }
+}
 
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase37()
@@ -4969,6 +4084,7 @@ void TestDriver<TYPE, ALLOC>::testCase29()
                 ASSERTV(Y, X, Y == X);
 
                 ASSERT(&da == X.get_allocator());
+
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(xscratch == Y.get_allocator());
@@ -5066,6 +4182,7 @@ void TestDriver<TYPE, ALLOC>::testCase29()
                 Obj *mR = &(mX = DATA[ti].d_list);
                 ASSERTV(mR, &mX, mR == &mX);
                 ASSERTV(Y,  X,   Y  == X  );
+
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(dam.isTotalSame());
@@ -5227,12 +4344,8 @@ void TestDriver<TYPE, ALLOC>::testCase28()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value
-                        || bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value
-                       &&  bsl::is_copy_constructible<TYPE>::value
-                       && !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE
+                       &&  bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -5241,7 +4354,7 @@ void TestDriver<TYPE, ALLOC>::testCase28()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -5688,12 +4801,8 @@ void TestDriver<TYPE, ALLOC>::testCase27()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value
-                        || bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value
-                       &&  bsl::is_copy_constructible<TYPE>::value
-                       && !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE
+                       &&  bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -6075,12 +5184,8 @@ void TestDriver<TYPE, ALLOC>::testCase26()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value
-                        || bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value
-                       &&  bsl::is_copy_constructible<TYPE>::value
-                       && !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE
+                       &&  bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -6089,7 +5194,7 @@ void TestDriver<TYPE, ALLOC>::testCase26()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -6203,13 +5308,15 @@ void TestDriver<TYPE, ALLOC>::testCase26()
 
                 if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P_(ELEMENT) P(X) }
 
-                const MoveState::Enum expMove =
-                                        k_TYPE_IS_MOVE_ENABLED
-                                        ? (k_TYPE_IS_WELL_BEHAVED && &sa != &oa
-                                           ? MoveState::e_NOT_MOVED
-                                           : MoveState::e_MOVED)
-                                        : MoveState::e_UNKNOWN;
-                ASSERTV(expMove, mState, NameOf<TYPE>(), expMove == mState);
+                {
+                    const MoveState::Enum exp = !s_typeIsMoveEnabled
+                                              ? MoveState::e_UNKNOWN
+                                              : k_IS_WELL_BEHAVED && &oa != &sa
+                                              ? MoveState::e_NOT_MOVED
+                                              : MoveState::e_MOVED;
+
+                    ASSERTV(exp, mState, exp == mState);
+                }
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
                 const bsls::Types::Int64 A  = oa.numBlocksInUse();
@@ -6229,10 +5336,9 @@ void TestDriver<TYPE, ALLOC>::testCase26()
                 // destroyed thus the number of blocks in use is unchanged.
 
                 if (expectToAllocate(SIZE)) {
-                    ASSERTV(SIZE, numMovedInto(X), NameOf<TYPE>(), expMove,
-                                 !TYPE_MOVE || expMove != MoveState::e_MOVED ||
+                    ASSERTV(SIZE, numMovedInto(X),
+                          !k_IS_MOVABLE || (k_IS_WELL_BEHAVED && &oa != &sa) ||
                                                 (SIZE + 1 == numMovedInto(X)));
-
                     const bsls::Types::Int64 EXP = BB +  1      // realloc
                           +  TYPE_ALLOC                         // new element
                           +  TYPE_ALLOC * (SIZE * TYPE_COPY)    // SIZE copies
@@ -6243,7 +5349,7 @@ void TestDriver<TYPE, ALLOC>::testCase26()
                 else {
                     ASSERTV(SIZE,
                             numMovedInto(X, index + 1),
-                            !TYPE_MOVE
+                            !k_IS_MOVABLE
                          || (SIZE - index) == numMovedInto(X, index + 1));
                     const bsls::Types::Int64 EXP = BB
                           +  TYPE_ALLOC                          // new element
@@ -6403,7 +5509,6 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
     const int        NUM_VALUES = 5;  // TBD: fix this
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
-    const int TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value;
     const int TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
@@ -6554,9 +5659,9 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
                                     VALUES[m % NUM_VALUES] == X[k]);
                         }
 
-                        if (TYPE_MOVEABLE && INPUT_ITERATOR_TAG) {
+                        if (k_IS_MOVABLE && INPUT_ITERATOR_TAG) {
                             ASSERTV(NUM_ELEMENTS,  NUM_NUM_ALLOCS,
-                                    NUM_ELEMENTS < NUM_NUM_ALLOCS);
+                                    NUM_ELEMENTS + ZERO < NUM_NUM_ALLOCS);
                             ASSERTV(X.capacity(),  NUM_NUM_ALLOCS,
                                     X.capacity() < NUM_NUM_ALLOCS);
 
@@ -6566,7 +5671,7 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
                                               : 0;
                             const bsls::Types::Int64 TYPE_ALLOCS =
                                               NUM_ELEMENTS &&
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
@@ -6585,7 +5690,7 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
                                                        X.capacity() > INIT_CAP;
                             const bsls::Types::Int64 TYPE_ALLOCS =
                                               NUM_ELEMENTS &&
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
@@ -6747,12 +5852,8 @@ void TestDriver<TYPE, ALLOC>::testCase25()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE = !bsl::is_copy_constructible<TYPE>::value ||
-                           bsl::is_nothrow_move_constructible<TYPE>::value;
-
-    const int TYPE_COPY = !bslmf::IsBitwiseMoveable<TYPE>::value &&
-                           bsl::is_copy_constructible<TYPE>::value &&
-                          !bsl::is_nothrow_move_constructible<TYPE>::value;
+    const int TYPE_COPY = !k_IS_MOVABLE &&
+                           bsl::is_copy_constructible<TYPE>::value;
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
@@ -6761,7 +5862,7 @@ void TestDriver<TYPE, ALLOC>::testCase25()
          "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, TYPE_COPY = %d).\n",
          NameOf<TYPE>().name(),
          TYPE_ALLOC,
-         TYPE_MOVE,
+         k_IS_MOVABLE,
          TYPE_COPY);
 
     static const struct {
@@ -6859,13 +5960,15 @@ void TestDriver<TYPE, ALLOC>::testCase25()
 
                 if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P_(ELEMENT) P(X) }
 
-                const MoveState::Enum expMove =
-                                        k_TYPE_IS_MOVE_ENABLED
-                                        ? (k_TYPE_IS_WELL_BEHAVED && &sa != &oa
-                                           ? MoveState::e_NOT_MOVED
-                                           : MoveState::e_MOVED)
-                                        : MoveState::e_UNKNOWN;
-                ASSERTV(expMove, mState, NameOf<TYPE>(), expMove == mState);
+                {
+                    const MoveState::Enum exp = !s_typeIsMoveEnabled
+                                              ? MoveState::e_UNKNOWN
+                                              : k_IS_WELL_BEHAVED && &oa != &sa
+                                              ? MoveState::e_NOT_MOVED
+                                              : MoveState::e_MOVED;
+
+                    ASSERTV(exp, mState, exp == mState);
+                }
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
                 const bsls::Types::Int64 A  = oa.numBlocksInUse();
@@ -6884,11 +5987,9 @@ void TestDriver<TYPE, ALLOC>::testCase25()
                 // thus the number of blocks in use is unchanged.
 
                 if (expectToAllocate(SIZE))  {
-                    ASSERTV(SIZE, numMovedInto(X), NameOf<TYPE>(), expMove,
-                                     TTF::getMovedIntoState(X.front()), mState,
-                                 !TYPE_MOVE || expMove != MoveState::e_MOVED ||
+                    ASSERTV(SIZE, numMovedInto(X),
+                          !k_IS_MOVABLE || (k_IS_WELL_BEHAVED && &oa != &sa) ||
                                                 (SIZE + 1 == numMovedInto(X)));
-
                     const bsls::Types::Int64 EXP = BB
                           +  1                                  // realloc
                           +  TYPE_ALLOC                         // new element
@@ -7103,7 +6204,6 @@ void TestDriver<TYPE, ALLOC>::testCase24_dispatch()
                 AllocatorTraits::propagate_on_container_move_assignment::value;
     const bool otherTraitsSet =
                 AllocatorTraits::propagate_on_container_copy_assignment::value;
-    const bool usesBslma = bslma::UsesBslmaAllocator<Obj>::value;
 
     // We can print the banner now:
 
@@ -7259,7 +6359,7 @@ void TestDriver<TYPE, ALLOC>::testCase24_dispatch()
                 ASSERTV(SPEC1, SPEC2, za.numAllocations(), zaBase,
                         za.numAllocations() == zaBase);
 
-                if (&ra == &oa || isPropagate) {
+                if (&xra == &xoa || isPropagate) {
 
                     // same allocator
 
@@ -7277,22 +6377,11 @@ void TestDriver<TYPE, ALLOC>::testCase24_dispatch()
                 }
                 else {
                     // 1. each element in original move-inserted
-                    ASSERTV(CONFIG, 'a' == CONFIG);
-
-                    enum { k_ALLOC_PASSED_TO_MOVE =
-                                           e_BSLMA == s_allocCategory ||
-                                                e_ADAPTOR == s_allocCategory };
-
-                    const typename Obj::const_iterator expIt =
-                               k_TYPE_IS_WELL_BEHAVED && k_ALLOC_PASSED_TO_MOVE
-                               ? X.begin()
-                               : X.end();
-                    const typename Obj::const_iterator first =
-                        TstMoveUtil::findFirstNotMovedInto(X.begin(), X.end());
-
-                    ASSERTV(NameOf<TYPE>(), allocCategoryAsStr(), usesBslma,
-                                          X.begin() == first, X.end() == first,
-                                                               expIt == first);
+                    if (!k_IS_WELL_BEHAVED) {
+                        ASSERTV(SPEC1, SPEC2, X.end() ==
+                                  TstMoveUtil::findFirstNotMovedInto(X.begin(),
+                                                                     X.end()));
+                    }
 
                     // 2. additional memory checks
                     ASSERTV(SPEC1, SPEC2, &xra == &xoa,
@@ -7592,7 +6681,7 @@ void TestDriver<TYPE, ALLOC>::testCase23()
                 // is left with the same number of elements but with each
                 // element in the 'moved-from' state, whatever that is.
 
-                if (&sa == &oa) {
+                if (xsa == xoa) {
                     // 1. no memory allocation
                     ASSERTV(SPEC, CONFIG, xsa == xoa, oam.isTotalSame());
 
@@ -7606,15 +6695,12 @@ void TestDriver<TYPE, ALLOC>::testCase23()
                 }
                 else {
                     // 1. each element in original move-inserted
-                    const typename Obj::const_iterator expIt =
-                                                         k_TYPE_IS_WELL_BEHAVED
-                                                         ? X.begin()
-                                                         : X.end();
-
-                    ASSERTV(SPEC, NameOf<TYPE>(), allocCategoryAsStr(),
-                                   expIt == TstMoveUtil::findFirstNotMovedInto(
+                    if (!k_IS_WELL_BEHAVED) {
+                        ASSERTV(SPEC,
+                                X.end() == TstMoveUtil::findFirstNotMovedInto(
                                                                      X.begin(),
                                                                      X.end()));
+                    }
 
                     // 2. original object left with same size
                     ASSERTV(SPEC, CONFIG, xsa == xoa, Z, LENGTH == Z.size());
@@ -8615,7 +7701,6 @@ void TestDriver<TYPE, ALLOC>::testCase19()
     const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
 
     enum {
-        TYPE_MOVEABLE = bslmf::IsBitwiseMoveable<TYPE>::value,
         TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value ||
                         bsl::uses_allocator<TYPE, ALLOC>::value
     };
@@ -8623,7 +7708,7 @@ void TestDriver<TYPE, ALLOC>::testCase19()
     if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVEABLE);
+                        k_IS_MOVABLE);
 
     static const struct {
         int d_lineNum;  // source line number
@@ -8714,10 +7799,12 @@ void TestDriver<TYPE, ALLOC>::testCase19()
                     }
 
                     const bsls::Types::Int64 TYPE_ALLOCS =
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   TYPE_ALLOC && !k_IS_MOVABLE
                                                    ? LENGTH - POS
                                                    : 0;
                     ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, POS,
+                            BB + TYPE_ALLOCS == AA);
+                    ASSERTV(bsls::NameOf<TYPE>(), BB, TYPE_ALLOCS, AA,
                             BB + TYPE_ALLOCS == AA);
                     ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, POS,
                             B - TYPE_ALLOC == A );
@@ -8850,7 +7937,7 @@ void TestDriver<TYPE, ALLOC>::testCase19()
                     }
 
                     const bsls::Types::Int64 TYPE_ALLOCS =
-                                          TYPE_ALLOC && !TYPE_MOVEABLE &&
+                                          TYPE_ALLOC && !k_IS_MOVABLE &&
                                                                    NUM_ELEMENTS
                                           ? INIT_LENGTH - END_POS
                                           : 0;
@@ -9011,6 +8098,599 @@ void TestDriver<TYPE, ALLOC>::testCase19Negative()
 }
 
 template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
+{
+    // ------------------------------------------------------------------------
+    // TESTING INSERTION
+    //
+    // We have the following concerns:
+    //   1) That the resulting vector value is correct.
+    //   2) That the 'insert' return (if any) value is a valid iterator, even
+    //      when the vector underwent a reallocation.
+    //   3) That the resulting capacity is correctly set up.
+    //   4) That existing elements are moved without copy-construction if the
+    //      bitwise-moveable trait is present.
+    //   5) That insertion is exception neutral w.r.t. memory allocation.
+    //   6) The internal memory management system is hooked up properly
+    //      so that *all* internally allocated memory draws from a
+    //      user-supplied allocator whenever one is specified.
+    //   7) The move 'push_back' and 'insert' move the value, capacity, and
+    //      allocator correctly, and without performing any allocation.
+    //   8) That inserting a 'const T& value' that is a reference to an element
+    //      of the vector does not suffer from aliasing problems.
+    //
+    // Plan:
+    //   For insertion we will create objects of varying sizes and capacities
+    //   containing default values, and insert a distinct 'value' at various
+    //   positions, or a variable number of copies of this value.  Perform the
+    //   above tests:
+    //      - Without exceptions, and compute the number of allocations.
+    //      - In the presence of exceptions during memory allocations using
+    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*,
+    //        but do not compute the number of allocations.
+    //   and use basic accessors to verify the resulting
+    //      - size
+    //      - capacity
+    //      - element value at each index position { 0 .. length - 1 }.
+    //   In addition, the number of allocations should reflect proper internal
+    //   memory management: the number of allocations should equal the sum of
+    //      - NUM_ELEMENTS + (INIT_LENGTH - POS) if the type uses an allocator
+    //        and is not bitwise-moveable,  0 otherwise
+    //      - 1 if there a change in capacity, 0 otherwise
+    //      - 1 if the type uses an allocator and the value is an alias.
+    //
+    //   For concerns 4 and 7, we test with a bitwise-moveable type that the
+    //   only allocation for a move 'push_back' or 'insert' is the one for the
+    //   vector reallocation (if capacity changes; all elements are moved), and
+    //   for insertion the only reallocations should be for the new elements
+    //   plus one if the vector undergoes a reallocation (capacity changes).
+    //
+    //   For concern 8, we insert an element of some vector where all the
+    //   values are distinct into the same vector, taking care of the cases
+    //   where the reference is before or after the position of insertion, and
+    //   that the vector undergoes a reallocation or not (i.e., capacity
+    //   changes or not).  We verify that the value is as expected, i.e.,
+    //   identical to t it would be if the value had not been aliased.
+    //
+    // Testing:
+    //   iterator insert(const_iterator pos, const T& value);
+    //   void insert(const_iterator pos, size_type n, const T& value);
+    // ------------------------------------------------------------------------
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    ALLOC                xta(&ta);
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = 5;         // TBD: fix this
+    const TYPE&      DEFAULT_VALUE = VALUES['Z' - 'A'];
+    enum {
+        TYPE_ALLOC    = bslma::UsesBslmaAllocator<TYPE>::value ||
+                        bsl::uses_allocator<TYPE, ALLOC>::value
+    };
+
+    const size_t AP = allocationsByPrimaryManipulator();
+        // Allocations per element inserted by primary manipulator, assuming
+        // there is sufficient capacity.
+
+    if (verbose) printf(
+            "\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d, AP = " ZU ").\n",
+                        NameOf<TYPE>().name(),
+                        TYPE_ALLOC,
+                        k_IS_MOVABLE,
+                        AP);
+
+    static const struct {
+        int d_lineNum;  // source line number
+        int d_length;   // expected length
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        0 },
+        { L_,        1 },
+        { L_,        2 },
+        { L_,        3 },
+        { L_,        4 },
+        { L_,        5 },
+        { L_,        6 },
+        { L_,        7 },
+        { L_,        8 },
+        { L_,        9 },
+        { L_,       11 },
+        { L_,       12 },
+        { L_,       14 },
+        { L_,       15 },
+        { L_,       16 },
+        { L_,       17 }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    if (verbose) printf("\tTesting 'insert'.\n");
+
+    if (verbose) printf("\tUsing a single 'value'.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+            const TYPE   VALUE        = VALUES[i % NUM_VALUES];
+            const size_t LENGTH       = INIT_LENGTH + 1;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using default value.\n");
+                }
+
+                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                    const size_t POS = j;
+
+                    Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
+                    const Obj& X = mX;
+                    mX.reserve(INIT_CAP);
+
+                    size_t k;
+                    for (k = 0; k < INIT_LENGTH; ++k) {
+                        mX[k] =  VALUES[k % NUM_VALUES];
+                    }
+
+                    const size_t CAP = 0 == INIT_CAP && 0 == LENGTH
+                                     ? 0
+                                     : LENGTH <= INIT_CAP
+                                     ? -1
+                                     : ImpUtil::computeNewCapacity(
+                                                                 LENGTH,
+                                                                 INIT_CAP,
+                                                                 X.max_size());
+
+                    if (veryVerbose) {
+                        printf("\t\t\tInsert with "); P_(LENGTH);
+                        printf(" at "); P_(POS);
+                        printf(" using "); P(VALUE);
+                    }
+
+                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tBefore:"); P_(BB); P(B);
+                    }
+
+                    iterator result = mX.insert(X.begin() + POS, VALUE);
+
+                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tAfter :"); P_(AA); P(A);
+                        T_; T_; T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(INIT_LINE, i, j, LENGTH == X.size());
+                    if (CAP != (size_t) -1) {
+                        ASSERTV(INIT_LINE, i, j, CAP == X.capacity());
+                    }
+                    ASSERTV(INIT_LINE, i, j, X.begin() + POS == result);
+
+                    for (k = 0; k < POS; ++k) {
+                        ASSERTV(INIT_LINE, LENGTH, POS, k,
+                                VALUES[k % NUM_VALUES] == X[k]);
+                    }
+                    ASSERTV(INIT_LINE, LENGTH, POS, VALUE == X[POS]);
+                    for (++k; k < LENGTH; ++k) {
+                        ASSERTV(INIT_LINE, LENGTH, POS, k,
+                                VALUES[(k - 1) % NUM_VALUES] == X[k]);
+                    }
+
+                    const int REALLOC = X.capacity() > INIT_CAP;
+
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                                  TYPE_ALLOC && !k_IS_MOVABLE
+                                  ? (REALLOC ? INIT_LENGTH : INIT_LENGTH - POS)
+                                  : 0;
+                    const bsls::Types::Int64 EXP_ALLOCS =
+                                            REALLOC + TYPE_ALLOCS + TYPE_ALLOC;
+
+                    ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, TYPE_ALLOCS,
+                            BB + EXP_ALLOCS == AA);
+                    ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
+                            B + (0 == INIT_CAP) + TYPE_ALLOC == A );
+                }
+            }
+        }
+    }
+    ASSERT(0 == ta.numMismatches());
+    ASSERT(0 == ta.numBlocksInUse());
+
+    if (verbose) printf("\tUsing 'n' copies of 'value'.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using default value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int    LINE         = DATA[ti].d_lineNum;
+                    const int    NUM_ELEMENTS = DATA[ti].d_length;
+                    const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
+                    const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
+
+                    for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                        const size_t POS = j;
+
+                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
+                        const Obj& X = mX;
+
+                        mX.reserve(INIT_CAP);
+
+                        size_t k;
+                        for (k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] =  VALUES[k % NUM_VALUES];
+                        }
+
+                        const size_t CAP = 0 == INIT_CAP && 0 == LENGTH
+                                         ? 0
+                                         : LENGTH <= INIT_CAP
+                                         ? -1
+                                         : ImpUtil::computeNewCapacity(
+                                                                 LENGTH,
+                                                                 INIT_CAP,
+                                                                 X.max_size());
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
+                            printf("at "); P_(POS);
+                            printf("using "); P(VALUE);
+                        }
+
+                        const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                        const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBefore:"); P_(BB); P(B);
+                        }
+
+                        mX.insert(X.begin() + POS, NUM_ELEMENTS, VALUE);
+
+                        const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                        const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tAfter :"); P_(AA); P(A);
+                            T_; T_; T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        ASSERTV(INIT_LINE, LINE, i, j, LENGTH == X.size());
+                        if (static_cast<size_t>(-1) != CAP) {
+                            ASSERTV(INIT_LINE, LINE, i, j,
+                                    CAP == X.capacity());
+                        }
+
+                        size_t m = 0;
+                        for (k = 0; k < POS; ++k) {
+                            ASSERTV(INIT_LINE, LINE, j, k,
+                                    VALUES[k % NUM_VALUES] == X[k]);
+                        }
+                        for (; k < POS + NUM_ELEMENTS; ++k) {
+                            ASSERTV(INIT_LINE, LINE, j, k, VALUE == X[k]);
+                        }
+                        for (m = POS; k < LENGTH; ++k, ++m) {
+                            ASSERTV(INIT_LINE, LINE, j, k, m,
+                                    VALUES[m % NUM_VALUES] == X[k]);
+                        }
+
+                        const int REALLOC = X.capacity() > INIT_CAP;
+
+                        // Have to separate const's from vars in boolean
+                        // operations or we get these really stupid warnings
+                        // from g++.
+
+                        const bsls::Types::Int64 TYPE_ALLOCS =
+                                              !TYPE_ALLOC || k_IS_MOVABLE
+                                              ? 0
+                                              : 0 == NUM_ELEMENTS
+                                                ? 0
+                                                : REALLOC ? INIT_LENGTH
+                                                          : INIT_LENGTH - POS;
+
+                        const bsls::Types::Int64 EXP_ALLOCS  =
+                                                     REALLOC + TYPE_ALLOCS +
+                                                     NUM_ELEMENTS * TYPE_ALLOC;
+
+                        ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
+                                BB + EXP_ALLOCS == AA);
+                        ASSERTV(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
+                                B + (REALLOC && 0 == INIT_CAP) +
+                                              NUM_ELEMENTS * TYPE_ALLOC == A );
+                    }
+                }
+            }
+        }
+    }
+    ASSERT(0 == ta.numMismatches());
+    ASSERT(0 == ta.numBlocksInUse());
+
+    if (verbose) printf("\tWith exceptions.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using default value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int    LINE         = DATA[ti].d_lineNum;
+                    const size_t NUM_ELEMENTS = DATA[ti].d_length;
+                    const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
+                    const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
+
+                    if (4 < LENGTH && 14 != LENGTH) {
+                        continue;
+                    }
+
+                    for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                        const size_t POS = j;
+
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
+                            const bsls::Types::Int64 AL = ta.allocationLimit();
+                            ta.setAllocationLimit(-1);
+
+                            Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
+                            const Obj& X = mX;
+                            mX.reserve(INIT_CAP);
+
+                            const size_t CAP = (0 == INIT_CAP && 0 == LENGTH)
+                                             ? 0
+                                             : LENGTH <= INIT_CAP
+                                             ? -1
+                                             : ImpUtil::computeNewCapacity(
+                                                                 LENGTH,
+                                                                 INIT_CAP,
+                                                                 X.max_size());
+
+                            ta.setAllocationLimit(AL);
+
+                            mX.insert(X.begin() + POS, NUM_ELEMENTS, VALUE);
+                                                         // test insertion here
+
+                            if (veryVerbose) {
+                                T_; T_; T_; P_(X); P(X.capacity());
+                            }
+
+                            ASSERTV(INIT_LINE, LINE, i, j, LENGTH == X.size());
+                            if ((size_t) -1 != CAP) {
+                                ASSERTV(INIT_LINE, LINE, i, j,
+                                        CAP == X.capacity());
+                            }
+
+                            size_t k;
+                            for (k = 0; k < POS; ++k) {
+                                ASSERTV(INIT_LINE, LINE, i, j, k,
+                                        DEFAULT_VALUE == X[k]);
+                            }
+                            for (; k < POS + NUM_ELEMENTS; ++k) {
+                                ASSERTV(INIT_LINE, LINE, i, j, k,
+                                        VALUE == X[k]);
+                            }
+                            for (; k < LENGTH; ++k) {
+                                ASSERTV(INIT_LINE, LINE, i, j, k,
+                                        DEFAULT_VALUE == X[k]);
+                            }
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    }
+                }
+            }
+        }
+    }
+    ASSERT(0 == ta.numMismatches());
+    ASSERT(0 == ta.numBlocksInUse());
+
+    if (verbose) printf("\tTesting aliasing concerns.\n");
+    {
+        // insert a single element
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+            const size_t LENGTH      = INIT_LENGTH + 1;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using distinct (cyclic) values.\n");
+                }
+
+                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                    const size_t POS = j;
+
+                    for (size_t h = 0; h < INIT_LENGTH; ++h) {
+                        const size_t INDEX = h;
+
+                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
+                        const Obj& X = mX;
+                        mX.reserve(INIT_CAP);
+
+                        for (size_t k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] = VALUES[k % NUM_VALUES];
+                        }
+
+                        Obj mY(X); const Obj& Y = mY;  // control
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert with "); P_(LENGTH);
+                            printf(" at "); P_(POS);
+                            printf(" using value at "); P(INDEX);
+                        }
+
+                        mY.insert(Y.begin() + POS, X[INDEX]);  // control
+                        mX.insert(X.begin() + POS, X[INDEX]);
+
+                        if (veryVerbose) {
+                            T_; T_; T_; T_; P(X);
+                            T_; T_; T_; T_; P(Y);
+                        }
+
+                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
+                    }
+                }
+            }
+        }
+
+        // insert 'n; copies within capacity
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+            const size_t LENGTH      = INIT_LENGTH + 1;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using distinct (cyclic) values.\n");
+                }
+
+                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                    const size_t POS = j;
+
+                    for (size_t h = 0; h < INIT_LENGTH; ++h) {
+                        const size_t INDEX = h;
+
+                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
+                        const Obj& X = mX;
+                        mX.reserve(INIT_CAP);
+
+                        for (size_t k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] = VALUES[k % NUM_VALUES];
+                        }
+
+                        Obj mY(X); const Obj& Y = mY;  // control
+
+                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert with "); P_(LENGTH);
+                            printf(" at "); P_(POS);
+                            printf(" using enough of value at "); P_(INDEX);
+                            printf(" to reach capacity.\n");
+                        }
+
+                        size_t EXTRA = X.capacity() - X.size();
+
+                        mY.insert(Y.begin() + POS, EXTRA, X[INDEX]); // control
+                        mX.insert(X.begin() + POS, EXTRA, X[INDEX]);
+
+                        if (veryVerbose) {
+                            T_; T_; T_; T_; P(X);
+                            T_; T_; T_; T_; P(Y);
+                        }
+
+                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
+                    }
+                }
+            }
+        }
+
+        // insert 'n; copies while overflowing capacity
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+            const size_t LENGTH      = INIT_LENGTH + 1;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using distinct (cyclic) values.\n");
+                }
+
+                for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                    const size_t POS = j;
+
+                    for (size_t h = 0; h < INIT_LENGTH; ++h) {
+                        const size_t INDEX = h;
+
+                        Obj        mX(INIT_LENGTH, DEFAULT_VALUE, xta);
+                        const Obj& X = mX;
+                        mX.reserve(INIT_CAP);
+
+                        for (size_t k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] = VALUES[k % NUM_VALUES];
+                        }
+
+                        Obj mY(X); const Obj& Y = mY;  // control
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert with "); P_(LENGTH);
+                            printf(" at "); P_(POS);
+                            printf(" using 0 copies of value at "); P(INDEX);
+                        }
+
+                        mY.insert(Y.begin() + POS, 0, X[INDEX]);  // control
+                        mX.insert(X.begin() + POS, 0, X[INDEX]);
+
+                        if (veryVerbose) {
+                            T_; T_; T_; T_; P(X);
+                            T_; T_; T_; T_; P(Y);
+                        }
+
+                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert with "); P_(LENGTH);
+                            printf(" at "); P_(POS);
+                            printf(" using enough of value at "); P_(INDEX);
+                            printf(" to exceed capacity.\n");
+                        }
+
+                        size_t EXTRA = X.capacity() - X.size() + 1;
+
+                        mY.insert(Y.begin() + POS, EXTRA, X[INDEX]); // control
+                        mX.insert(X.begin() + POS, EXTRA, X[INDEX]);
+
+                        if (veryVerbose) {
+                            T_; T_; T_; T_; P(X);
+                            T_; T_; T_; T_; P(Y);
+                        }
+
+                        ASSERTV(INIT_LINE, INIT_CAP, POS, INDEX, X, Y, X == Y);
+                    }
+                }
+            }
+        }
+    }
+    ASSERT(0 == ta.numMismatches());
+    ASSERT(0 == ta.numBlocksInUse());
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase17_push_back()
 {
     // ------------------------------------------------------------------------
@@ -9047,14 +8727,13 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
 
     const TestValues VALUES;
 
-    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value ? 0 : 1;
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
                            bsl::uses_allocator<TYPE, ALLOC>::value;
 
     if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d, TYPE_MOVE = %d).\n",
                         NameOf<TYPE>().name(),
                         TYPE_ALLOC,
-                        TYPE_MOVE);
+                        k_IS_MOVABLE);
 
     static const struct {
         int         d_line;     // source line number
@@ -9138,7 +8817,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
                 // number of blocks in use is unchanged.
 
                 const bsls::Types::Int64 TYPE_ALLOC_MOVES =
-                                           TYPE_ALLOC * (1 + SIZE * TYPE_MOVE);
+                                       TYPE_ALLOC * (1 + SIZE * !k_IS_MOVABLE);
                 if (expectToAllocate(SIZE)) {
                     ASSERTV(LINE, CONFIG, BB, AA,
                             BB + 1 + TYPE_ALLOC_MOVES == AA);
@@ -9161,6 +8840,11 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
             const char        ELEMENT  = DATA[ti].d_element;
             const char *const EXPECTED = DATA[ti].d_results;
             const size_t      SIZE     = strlen(SPEC);
+
+            if (4 < SIZE && 12 != SIZE) {
+                continue;
+            }
+
             for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
                 ALLOC                xoa(&oa);
@@ -9296,6 +8980,237 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
             mX.push_back(X[2]);
 
             ASSERTV(X, Y, X == Y);
+        }
+    }
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'insert(const_iterator position, const T&)'
+    //
+    // Concerns:
+    //: 1 A new element is inserted at the correct position in the container
+    //:   and the order of elements in the container, before and after the
+    //:   insertion point, remain correct.
+    //:
+    //: 2 The capacity is increased as expected.
+    //:
+    //: 3 The internal memory management system is hooked up properly so that
+    //:   *all* internally allocated memory draws from a user-supplied
+    //:   allocator whenever one is specified.
+    //:
+    //: 4 Insertion is exception neutral w.r.t. memory allocation.
+    //
+    // Plan:
+    //: 1 For 'insert' we will create objects of varying sizes and
+    //:   capacities containing default values, and insert a 'value' at
+    //:   various positions.
+    //:
+    //:   1 Verify that the element was added at the expected position in the
+    //:     container.(C-1)
+    //:
+    //:   2 Ensure that the order is preserved for elements before and after
+    //:     the insertion point.
+    //:
+    //:   3 Compute the number of allocations and verify it is as expected.
+    //:                                                                   (C-2)
+    //:
+    //:   4 Verify all allocations are from the object's allocator.       (C-3)
+    //:
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
+    //
+    // Testing:
+    //   iterator insert(const_iterator position, const value_type& value);
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+
+    const int IS_NOT_MOVABLE = !k_IS_MOVABLE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
+                           bsl::uses_allocator<TYPE, ALLOC>::value;
+
+    if (verbose) printf(
+                    "\nTesting '%s' (TYPE_ALLOC = %d, IS_NOT_MOVABLE = %d).\n",
+                        NameOf<TYPE>().name(),
+                        TYPE_ALLOC,
+                        IS_NOT_MOVABLE);
+
+    static const struct {
+        int         d_line;     // source line number
+        const char *d_spec;     // specification string
+        int         d_pos;      // position to insert
+        char        d_element;  // specification string
+        const char *d_results;  // expected element values
+    } DATA[] = {
+        //line  spec         pos  element  results
+        //----  -----------  ---  -------  -----------
+        { L_,   "",          -1,  'Z',     "Z"         },
+        { L_,   "",          99,  'Z',     "Z"         },
+        { L_,   "A",         -1,  'Z',     "ZA"        },
+        { L_,   "A",          0,  'Z',     "ZA"        },
+        { L_,   "A",          1,  'Z',     "AZ"        },
+        { L_,   "A",         99,  'Z',     "AZ"        },
+        { L_,   "AB",        -1,  'B',     "BAB"       },
+        { L_,   "AB",         0,  'B',     "BAB"       },
+        { L_,   "AB",         1,  'Z',     "AZB"       },
+        { L_,   "AB",         2,  'A',     "ABA"       },
+        { L_,   "AB",        99,  'Z',     "ABZ"       },
+        { L_,   "CAB",       -1,  'Z',     "ZCAB"      },
+        { L_,   "CAB",        0,  'A',     "ACAB"      },
+        { L_,   "CAB",        1,  'B',     "CBAB"      },
+        { L_,   "CAB",        2,  'C',     "CACB"      },
+        { L_,   "CAB",        3,  'Z',     "CABZ"      },
+        { L_,   "CAB",       99,  'Z',     "CABZ"      },
+        { L_,   "CABD",      -1,  'A',     "ACABD"     },
+        { L_,   "CABD",       0,  'Z',     "ZCABD"     },
+        { L_,   "CABD",       1,  'Z',     "CZABD"     },
+        { L_,   "CABD",       2,  'B',     "CABBD"     },
+        { L_,   "CABD",       3,  'Z',     "CABZD"     },
+        { L_,   "CABD",       4,  'B',     "CABDB"     },
+        { L_,   "CABD",      99,  'A',     "CABDA"     },
+        { L_,   "HGFEDCBA",   0,  'Z',     "ZHGFEDCBA" },
+        { L_,   "HGFEDCBA",   7,  'Z',     "HGFEDCBZA" },
+        { L_,   "HGFEDCBA",   8,  'Z',     "HGFEDCBAZ" }
+    };
+
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    if (verbose) printf("\tTesting 'insert' without exceptions.\n");
+    {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE     = DATA[ti].d_line;
+            const char *const SPEC     = DATA[ti].d_spec;
+            const int         POS      = DATA[ti].d_pos;
+            const char        ELEMENT  = DATA[ti].d_element;
+            const char *const EXPECTED = DATA[ti].d_results;
+            const size_t      SIZE     = strlen(SPEC);
+
+            for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
+                const char CONFIG = cfg;
+
+                bslma::TestAllocator         da("default",
+                                                veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                ALLOC                xoa(&oa);
+                Obj                  mX(xoa);
+                const Obj&           X = gg(&mX, SPEC);
+
+                if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P(X) }
+
+                // Verify any attribute allocators are installed properly.
+
+                ASSERTV(LINE, CONFIG, xoa == X.get_allocator());
+
+                ASSERTV(LINE, CONFIG, SIZE, X.size(), SIZE == X.size());
+
+                const bsls::Types::Int64 BB = oa.numBlocksTotal();
+                const bsls::Types::Int64 B  = oa.numBlocksInUse();
+
+                size_t index = POS == -1 ? 0
+                             : POS == 99 ? X.size()
+                             :             POS;
+                mX.insert(X.begin() + index, VALUES[ELEMENT - 'A']);
+
+                if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P_(ELEMENT) P(X) }
+
+                const bsls::Types::Int64 AA = oa.numBlocksTotal();
+                const bsls::Types::Int64 A  = oa.numBlocksInUse();
+
+                ASSERTV(LINE, CONFIG, SIZE, X.size(), SIZE + 1 == X.size());
+
+                TestValues exp(EXPECTED);
+                ASSERTV(LINE, CONFIG, 0 == verifyContainer(X, exp, SIZE + 1));
+
+                // Vector increases capacity only if the current length is zero
+                // or a power of 2.  In addition, when the type allocates, an
+                // extra allocation is used for the new element, and when the
+                // type is not bitwise moveable, size() allocations are used
+                // during the move, but an equal amount is destroyed thus the
+                // number of blocks in use is unchanged.
+
+                if (expectToAllocate(SIZE)) {
+                    const bsls::Types::Int64 TYPE_ALLOC_MOVES =
+                                      TYPE_ALLOC * (1 + SIZE * IS_NOT_MOVABLE);
+                    ASSERTV(LINE, CONFIG, BB, AA,
+                            BB + 1 + TYPE_ALLOC_MOVES == AA);
+                }
+                else {
+                    const bsls::Types::Int64 TYPE_ALLOC_MOVES =
+                            TYPE_ALLOC * (1 + (SIZE - index) * IS_NOT_MOVABLE);
+                    ASSERTV(LINE, CONFIG, BB, AA,
+                            BB + 0 + TYPE_ALLOC_MOVES == AA);
+                }
+
+                ASSERTV(LINE, CONFIG, B, A,
+                        B + (SIZE == 0) + TYPE_ALLOC ==  A);
+            }
+        }
+    }
+
+    bool firstTime = true;
+
+    // TBD: There is no strong exception guarantee when the copy constructor
+    // throws during 'insert' of a single element...
+
+    if (verbose) printf("\tTesting 'insert' with injected exceptions.\n");
+    {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE     = DATA[ti].d_line;
+            const char *const SPEC     = DATA[ti].d_spec;
+            const int         POS      = DATA[ti].d_pos;
+            const char        ELEMENT  = DATA[ti].d_element;
+            const char *const EXPECTED = DATA[ti].d_results;
+            const size_t      SIZE     = strlen(SPEC);
+
+            if (4 < SIZE) {
+                if (firstTime) {
+                    firstTime = false;
+                }
+                else {
+                    continue;
+                }
+            }
+
+            for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                ALLOC                xoa(&oa);
+                // TBD: since there is no strong exception guarantee, the
+                //      following two lines moved to within the exception test
+                //      block
+                // Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+                // ASSERTV(LINE, SIZE, X.size(), SIZE == X.size());
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    // TBD: no strong exception guarantee
+                    // ExceptionProctor<Obj> guard(&X, L_, &scratch);
+
+                    const bsls::Types::Int64 AL = oa.allocationLimit();
+                    oa.setAllocationLimit(-1);
+
+                    Obj mX(xoa);  const Obj& X = gg(&mX, SPEC);
+
+                    ASSERTV(LINE, SIZE, X.size(), SIZE == X.size());
+
+                    size_t index = POS == -1 ? 0
+                                 : POS == 99 ? X.size()
+                                 :             POS;
+
+                    oa.setAllocationLimit(AL);
+
+                    mX.insert(X.begin() + index, VALUES[ELEMENT - 'A']);
+
+                    ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
+
+                    TestValues exp(EXPECTED);
+                    ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));
+
+                    // guard.release();
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            }
         }
     }
 }
@@ -9561,12 +9476,6 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
             const int    INIT_LINE   = DATA[i].d_lineNum;
             const size_t INIT_LENGTH = DATA[i].d_length;
 
-            if (TYPE_ALLOC && 4 < INIT_LENGTH) {
-                // This test was taking way too long on the allocating types.
-
-                continue;
-            }
-
             for (int l = i; l < NUM_DATA; ++l) {
                 const size_t INIT_CAP = DATA[l].d_length;
                 ASSERT(INIT_LENGTH <= INIT_CAP);
@@ -9583,10 +9492,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                     const size_t  NUM_ELEMENTS = strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
-                    if (TYPE_ALLOC && 4 < LENGTH) {
-                        // This test was taking way too long on the allocating
-                        // types.
-
+                    if (4 < LENGTH && 34 != LENGTH) {
                         continue;
                     }
 
@@ -9626,7 +9532,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                             if ((size_t) -1 != CAP) {
                                 ASSERTV(INIT_LINE, LINE, i, j,
                                         CAP == X.capacity());
-                            }
+                           }
 
                             size_t k;
                             for (k = 0; k < POS; ++k) {
@@ -9651,6 +9557,122 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
     }
     ASSERT(0 == ta.numMismatches());
     ASSERT(0 == ta.numBlocksInUse());
+}
+
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase17Negative()
+{
+    // ------------------------------------------------------------------------
+    // NEGATIVE TESTING INSERTION
+    //
+    // Concerns:
+    //   1 'insert' methods assert (in appropriate build modes) on undefined
+    //     behavior when the iterator passed to specify the insertion point is
+    //     not a valid iterator for this vector object.
+    //
+    //   2 An attempt to insert a range of elements specified by a pair of
+    //     iterators should assert (in appropriate build modes) if the range is
+    //     observably not valid i.e., a pair of random access iterators where
+    //     'last' precedes 'first'.
+    //
+    // Plan:
+    //   Construct a string object with some string data, and then call
+    //   'insert' with a
+    //   NULL C-string pointer and verify that it asserts.  Then call 'insert'
+    //   with invalid iterators and verify that it asserts.
+    //
+    // Testing:
+    //   iterator insert(const_iterator pos, const T& val);
+    //   iterator insert(const_iterator pos, size_type n, const T& val);
+    //   template <class InputIter>
+    //       void insert(const_iterator pos, InputIter first, InputIter last);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting '%s'.\n", NameOf<TYPE>().name());
+
+    const typename Obj::const_iterator badIterator =
+                                               typename Obj::const_iterator();
+    (void) badIterator;    // Quell 'unused' warnings in unsafe builds
+
+    bsls::AssertTestHandlerGuard guard;
+
+    if (veryVerbose) printf("\tNegative testing of 'insert(p, c)'.\n");
+
+    {
+        Obj mX;     const Obj& X = gg(&mX, "ABCDE");
+        Obj mY;     const Obj& Y = gg(&mY, "ABCDE");
+        (void) Y;    // Quell 'unused' warnings in unsafe builds.
+
+        // position < begin()
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, X[0]));
+
+        // position > end()
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, X[0]));
+
+        // arbitrary bad iterator
+        ASSERT_SAFE_FAIL_RAW(mX.insert(badIterator, X[0]));
+
+        // iterator to another container
+        ASSERT_SAFE_FAIL_RAW(mX.insert(Y.begin(), X[0]));
+
+        // begin() <= position < end()
+        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin() + 1, X[0]));
+        ASSERT_SAFE_PASS_RAW(mX.insert(X.end(), X[0]));
+    }
+
+    if (veryVerbose) printf("\tNegative testing of 'insert(p, n, c)'.\n");
+
+    {
+        Obj mX;     const Obj& X = gg(&mX, "ABCDE");
+        Obj mY;     const Obj& Y = gg(&mY, "ABCDE");
+        (void) Y;    // Quell 'unused' warnings in unsafe builds.
+
+        // position < begin()
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, 0, X[0]));
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, 2, X[0]));
+
+        // position > end()
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, 0, X[0]));
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, 2, X[0]));
+
+        // arbitrary bad iterator
+        ASSERT_SAFE_FAIL_RAW(mX.insert(badIterator, 0, X[0]));
+        ASSERT_SAFE_FAIL_RAW(mX.insert(badIterator, 2, X[0]));
+
+        // iterator to another container
+        ASSERT_SAFE_FAIL_RAW(mX.insert(Y.begin(), 0, X[0]));
+        ASSERT_SAFE_FAIL_RAW(mX.insert(Y.begin(), 2, X[0]));
+
+        // begin() <= position <= end()
+        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin() + 1, 0, X[0]));
+        ASSERT_SAFE_PASS_RAW(mX.insert(X.end(), 2, X[0]));
+    }
+
+    if (veryVerbose)
+        printf("\tNegative testing of 'insert(p, first, last)'.\n");
+
+    {
+        Obj mX;     const Obj& X = gg(&mX, "ABCDE");
+        Obj mY;     const Obj& Y = gg(&mY, "ABCDE");
+
+        // position < begin()
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin() - 1, Y.begin(), Y.end()));
+
+        // position > end()
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.end() + 1, Y.begin(), Y.end()));
+
+        // first > last
+        ASSERT_SAFE_FAIL_RAW(mX.insert(X.begin(), Y.end(), Y.begin()));
+        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin(), Y.end(), Y.end()));
+
+        // two null pointers form a valid (empty) range
+        const TYPE *nullPtr = 0;
+        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin(), nullPtr, nullPtr));
+
+        // begin() <= position <= end() && first <= last
+        ASSERT_SAFE_PASS_RAW(mX.insert(X.begin(), Y.begin(), Y.end()));
+    }
 }
 
 template <class TYPE, class ALLOC>
@@ -12795,59 +12817,15 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 39: {
-        // --------------------------------------------------------------------
-        // TESTING INSERTION PART C
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING INSERTION PART C"
-                            "\n========================\n");
-
-        if (verbose) printf("\nFirst, with BDE allocators:"
-                            "\n===========================\n");
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase39_n_copies,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        if (verbose) printf("\nThen, with 'std' allocators:"
-                            "\n============================\n");
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase39_n_copies,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
-
-        if (verbose) printf("\nNegative Testing Insertions"
-                            "\n===========================\n");
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase39Negative,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-      } break;
       case 38: {
         // --------------------------------------------------------------------
-        // TESTING INSERTION PART B
+        // TESTING ABILITY TO MOVE BSLTF MOVABLE TYPES
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING INSERTION PART B"
-                            "\n========================\n");
-
-        if (verbose) printf("\nFirst, with BDE allocators:"
-                            "\n===========================\n");
-
         RUN_EACH_TYPE(TestDriver,
-                      testCase38_insert_constref,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-
-        if (verbose) printf("\nThen, with 'std' allocators:"
-                            "\n============================\n");
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase38_insert_constref,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+                      testCase38,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 37: {
         // --------------------------------------------------------------------
@@ -13317,6 +13295,7 @@ int main(int argc, char *argv[])
                                     , testCase26Range
                                     , bsltf::NonDefaultConstructibleTestType
                                     , bsltf::MoveOnlyAllocTestType
+                                    , bsltf::WellBehavedMoveOnlyAllocTestType
                                     , NotAssignable
                                     , BitwiseNotAssignable
                                     );
@@ -13381,7 +13360,6 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver
                      , testCase25
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
-                     , bsltf::MoveOnlyAllocTestType
                      , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
 
@@ -13404,8 +13382,6 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(MetaTestDriver
                      , testCase24
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
-                     , bsltf::MovableTestType
-                     , bsltf::MovableAllocTestType
                      , bsltf::MoveOnlyAllocTestType
                      , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
@@ -13618,11 +13594,11 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING INSERTION PART A
+        // TESTING INSERTION
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING INSERTION PART A"
-                            "\n========================\n");
+        if (verbose) printf("\nTESTING INSERTION"
+                            "\n=================\n");
 
         if (verbose) printf("\nFirst, with BDE allocators:"
                             "\n===========================\n");
@@ -13631,6 +13607,15 @@ int main(int argc, char *argv[])
                       testCase17_push_back,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+        RUN_EACH_TYPE(TestDriver,
+                      testCase17_insert_constref,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase17_n_copies,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+
         if (verbose) printf("\nThen, with 'std' allocators:"
                             "\n============================\n");
 
@@ -13638,6 +13623,23 @@ int main(int argc, char *argv[])
                       testCase17_push_back,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCase17_insert_constref,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCase17_n_copies,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+        if (verbose) printf("\nNegative Testing Insertions"
+                            "\n===========================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase17Negative,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 16: {
         // --------------------------------------------------------------------
