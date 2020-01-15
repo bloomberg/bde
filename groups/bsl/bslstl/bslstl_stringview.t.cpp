@@ -873,11 +873,15 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             bsl::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
             ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
             v = s;
             ASSERT(v.data() == s.data());
             bsl::basic_string<TYPE> o(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
             o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
         }
 
@@ -886,6 +890,8 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             std::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
             ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
             v = s;
             ASSERT(v.data() == s.data());
             std::basic_string<TYPE> o(v);
@@ -895,6 +901,8 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             // in our implementation.
             o = v;
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
 #endif
         }
 
@@ -903,6 +911,8 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             native_std::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
             ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
             v = s;
             ASSERT(v.data() == s.data());
             native_std::basic_string<TYPE> o(v);
@@ -912,6 +922,8 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             // in our implementation.
             o = v;
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
 #endif
         }
 
@@ -920,11 +932,15 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             bslstl::StringRefImp<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
             ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
             v = s;
             ASSERT(v.data() == s.data());
             bslstl::StringRefImp<TYPE> o(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
             o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
         }
 
@@ -933,6 +949,8 @@ void TestDriver<TYPE,TRAITS>::testCase23()
             bslstl::StringRefData<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
             ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
             v = s;
             ASSERT(v.data() == s.data());
             bslstl::StringRefData<TYPE> o(v);
