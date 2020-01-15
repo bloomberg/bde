@@ -9164,7 +9164,7 @@ void TestDriver<TYPE,ALLOC>::testCase19(const CONTAINER&)
     ASSERT(0 == oa.numBlocksInUse());
 }
 
-ttemplate <class TYPE, class ALLOC>
+template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::testCase18()
 {
     // ------------------------------------------------------------------------
