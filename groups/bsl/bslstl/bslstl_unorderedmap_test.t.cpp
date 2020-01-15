@@ -8190,8 +8190,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase34,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase34();
@@ -8270,8 +8270,8 @@ int main(int argc, char *argv[])
 #if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase30,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase30,
@@ -8295,15 +8295,13 @@ int main(int argc, char *argv[])
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase29();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase29();
+                   bsltf::MoveOnlyAllocTestType>::testCase29();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::MoveOnlyAllocTestType>::testCase29();
         TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase29();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase29();
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase29();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase29();
 #endif
       } break;
       case 28: {
@@ -8321,15 +8319,13 @@ int main(int argc, char *argv[])
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase28();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase28();
+                   bsltf::MoveOnlyAllocTestType>::testCase28();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::MoveOnlyAllocTestType>::testCase28();
         TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase28();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase28();
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase28();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase28();
 
         TestDriver<TestKeyType, TestValueType>::testCase28();
 #endif
@@ -8346,16 +8342,15 @@ int main(int argc, char *argv[])
         TestDriver<signed char, bsltf::MoveOnlyAllocTestType>::
                            testCase28_propagate_on_container_move_assignment();
 
-        TestDriver<signed char, BAD_MOVE_GUARD(
-                                    bsltf::WellBehavedMoveOnlyAllocTestType)>::
+        TestDriver<signed char, bsltf::WellBehavedMoveOnlyAllocTestType)>::
                            testCase28_propagate_on_container_move_assignment();
 
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+        TestDriver<bsltf::MovableAllocTestType,
+                   bsltf::MoveOnlyAllocTestType>::
                            testCase28_propagate_on_container_move_assignment();
 
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
+        TestDriver<bsltf::MovableAllocTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::
                            testCase28_propagate_on_container_move_assignment();
 #endif
 
@@ -8377,16 +8372,14 @@ int main(int argc, char *argv[])
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase27();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase27();
+                   bsltf::MoveOnlyAllocTestType>::testCase27();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::MoveOnlyAllocTestType>::testCase27();
 
         TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase27();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase27();
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase27();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase27();
 #endif
       } break;
       case 26: {
@@ -8424,14 +8417,12 @@ int main(int argc, char *argv[])
         TestDriver<signed char,
                    bsltf::MoveOnlyAllocTestType>::testCase24();
         TestDriver<TestKeyType,
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase24();
+                   bsltf::MoveOnlyAllocTestType>::testCase24();
 
         TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase24();
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase24();
         TestDriver<TestKeyType,
-                   BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)>::
-                                                                  testCase24();
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase24();
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase24();
@@ -8491,8 +8482,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase20();
@@ -8524,8 +8515,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase18();
@@ -8575,8 +8566,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase14();
@@ -8594,8 +8585,8 @@ int main(int argc, char *argv[])
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase13,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase13();

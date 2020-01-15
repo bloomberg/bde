@@ -4730,10 +4730,9 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         MetaTestDriver<int,
-                    BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase8();
+                    bsltf::MoveOnlyAllocTestType>::testCase8();
         MetaTestDriver<int,
-                    BAD_MOVE_GUARD(
-                        bsltf::WellBehavedMoveOnlyAllocTestType)>::testCase8();
+                       bsltf::WellBehavedMoveOnlyAllocTestType>::testCase8();
         MetaTestDriver<TestKeyType, TestValueType>::testCase8();
       } break;
       case 7: {
@@ -4776,8 +4775,8 @@ int main(int argc, char *argv[])
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase6();
       } break;
@@ -4804,8 +4803,8 @@ int main(int argc, char *argv[])
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
         TestDriver<TestKeyType, TestValueType>::testCase4();
       } break;
       case 3: {
@@ -4820,8 +4819,8 @@ int main(int argc, char *argv[])
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase3();
       } break;
@@ -4837,8 +4836,8 @@ int main(int argc, char *argv[])
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase2();
       } break;

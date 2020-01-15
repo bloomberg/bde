@@ -8320,8 +8320,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_move,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_copy,
@@ -8434,8 +8434,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE( MetaTestDriver
                      , testCase10
-                     , BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)
-                     , BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType)
+                     , bsltf::MoveOnlyAllocTestType
+                     , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
       } break;
       case 9: {
@@ -8479,8 +8479,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase9,
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::WellBehavedMoveOnlyAllocTestType));
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
       } break;
       case 8: {
         // --------------------------------------------------------------------
