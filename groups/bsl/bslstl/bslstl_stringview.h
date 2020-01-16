@@ -545,6 +545,7 @@ class basic_string_view {
         // Throw 'std::out_of_range' if 'lhsPosition > length()'.  The behavior
         // is undefined unless 'other || 0 == otherNumChars'.
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     BSLS_KEYWORD_CONSTEXPR_CPP14
     bool starts_with(basic_string_view subview) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this view starts with the specified 'subview', and
