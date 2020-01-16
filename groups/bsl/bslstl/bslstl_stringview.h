@@ -206,7 +206,6 @@ BSLS_IDENT("$Id: $")
 #include <string>      // for 'native_std::char_traits'
 #include <functional>  // for 'native_std::less', 'native_std::greater_equal'
 
-#ifdef BDE_ENABLE_CPP17_ABI
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #include <string_view>
@@ -214,16 +213,22 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
 using native_std::basic_string_view;
+using native_std::string_view;
+using native_std::wstring_view;
 
-// TYPEDEFS
-typedef basic_string_view<char>     string_view;
-typedef basic_string_view<wchar_t> wstring_view;
+using native_std::swap;
+
+using native_std::operator==;
+using native_std::operator!=;
+using native_std::operator<;
+using native_std::operator<=;
+using native_std::operator>;
+using native_std::operator>=;
 
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-#endif  // BDE_ENABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
@@ -283,13 +288,6 @@ class basic_string_view {
     // DATA
     const CHAR_TYPE *d_start_p;  // pointer to the data
     size_type        d_length;   // length of the view
-
-    // PRIVATE CLASS METHODS
-    static void privateThrowLengthError(bool        maxLengthExceeded,
-                                        const char *message);
-        // Throw 'length_error' with the specified 'message' if the specified
-        // 'maxLengthExceeded' is 'true'.  Otherwise, this method has no
-        // effect.
 
     // PRIVATE ACCESSORS
     int privateCompareRaw(size_type        lhsPosition,
@@ -492,14 +490,14 @@ class basic_string_view {
                 size_type         lhsNumChars,
                 basic_string_view other,
                 size_type         otherPosition,
-                size_type         otherNumChars = npos) const;
+                size_type         otherNumChars) const;
         // Lexicographically compare the subview of this view of the specified
         // 'lhsNumChars' length starting at the specified 'lhsPosition' (or the
         // suffix of this view starting at 'lhsPosition' if
         // 'lhsPosition + lhsNumChars > length()') with the subview of the
-        // specified 'other' view of the optionally specified 'otherNumChars'
-        // length starting at the specified 'otherPosition' (or the suffix of
-        // 'other' starting at 'otherPosition' if
+        // specified 'other' view of the specified 'otherNumChars' length
+        // starting at the specified 'otherPosition' (or the suffix of 'other'
+        // starting at 'otherPosition' if
         // 'otherPosition + otherNumChars > other.length()').  Return a
         // negative value if the indicated subview of this view is less than
         // the indicated subview of 'other', a positive value if it is greater
@@ -576,6 +574,7 @@ class basic_string_view {
     bool ends_with(const CHAR_TYPE* characterString) const;
         // Return 'true' if this view ends with the specified
         // 'characterString', and 'false' otherwise.
+#endif
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     size_type find(basic_string_view subview,
@@ -980,7 +979,7 @@ wstring_view operator ""_sv(const wchar_t *characterString,
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY &&
         // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
 namespace BloombergLP {
 namespace bslh {
 
@@ -1001,7 +1000,7 @@ void hashAppend(
 
 }  // close namespace bslh
 }  // close enterprise namespace
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1019,19 +1018,6 @@ namespace bsl {
 template <class CHAR_TYPE, class CHAR_TRAITS>
 const typename basic_string_view<CHAR_TYPE,CHAR_TRAITS>::size_type
 basic_string_view<CHAR_TYPE,CHAR_TRAITS>::npos;
-
-// PRIVATE CLASS METHODS
-template <class CHAR_TYPE, class CHAR_TRAITS>
-inline
-void basic_string_view<CHAR_TYPE, CHAR_TRAITS>::privateThrowLengthError(
-                                                 bool        maxLengthExceeded,
-                                                 const char *message)
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(maxLengthExceeded)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(message);
-    }
-}
 
 // PRIVATE ACCESSORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
@@ -1081,9 +1067,6 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     d_start_p = characterString;
     d_length  = CHAR_TRAITS::length(characterString);
 
-    privateThrowLengthError(d_length > max_size(),
-                            "string_view::string_view(characterString): "
-                            "length exceeds max_size()");
     BSLS_ASSERT_SAFE(d_length <= max_size());
 }
 
@@ -1094,10 +1077,6 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                                              const CHAR_TYPE  *characterString,
                                              size_type         numChars)
 {
-    privateThrowLengthError(numChars > max_size(),
-                            "string_view::string_view(characterString, "
-                            "numChars): numChars exceeds max_size()");
-
     BSLS_ASSERT_SAFE(characterString || (numChars == 0));
     BSLS_ASSERT_SAFE(numChars <= max_size());
 
@@ -1488,6 +1467,7 @@ int basic_string_view<CHAR_TYPE, CHAR_TRAITS>::compare(
                              otherNumChars);
 }
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
@@ -1557,6 +1537,7 @@ bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::ends_with(
 {
     return ends_with(basic_string_view(characterString));
 }
+#endif
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -2162,6 +2143,22 @@ void bsl::hashAppend(HASHALG&                                         hashAlg,
     hashAppend(hashAlg, input.size());
 }
 
+#endif  // BSLSTL_STRING_VIEW_IS_ALIASED
+
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+namespace BloombergLP {
+
+template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+void bslh::hashAppend(
+          HASHALG&                                                     hashAlg,
+          const native_std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input)
+{
+    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
+    hashAppend(hashAlg, input.size());
+}
+
+}  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
 #endif
