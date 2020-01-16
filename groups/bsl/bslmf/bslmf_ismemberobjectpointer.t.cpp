@@ -130,8 +130,6 @@ void aSsErT(bool condition, const char *message, int line)
 # pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 # pragma warning(disable : 4180)
-#elif defined(BSLS_PLATFORM_CMP_SUN)
-# pragma error_messages (off, functypequal)
 #endif
 
 //=============================================================================
@@ -800,7 +798,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2013-2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -533,7 +533,7 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position)
     // Return the position of the *first* occurrence of a character *not*
     // belonging to the specified 'characterString', if such an occurrence can
-    // be found in  the specified 'stringView' (on or *after* the optionally
+    // be found in the specified 'stringView' (on or *after* the optionally
     // specified 'position'), and return 'npos' otherwise.
 {
     typedef typename bsl::basic_string_view<CHAR_TYPE>::traits_type TRAITS;
@@ -2535,7 +2535,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
     //:            referred by the 'ADDR'
     //:   Each string referred by 'ADDR' from the 'P2' can contain null
     //:   symbols.  Various strings can contain the same symbols (or even
-    //:   sequences of symbols). Some strings contain the set of unique
+    //:   sequences of symbols).  Some strings contain the set of unique
     //:   symbols.  For each element 'p1' in the 'P2', containing 'ADDR1' and
     //:   'LENGTH1' values:
     //:
@@ -3138,7 +3138,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
     //:            referred by the 'ADDR'
     //:   Each string referred by 'ADDR' from the 'P2' can contain null
     //:   symbols.  Various strings can contain the same symbols (or even
-    //:   sequences of symbols). Some strings contain the set of unique
+    //:   sequences of symbols).  Some strings contain the set of unique
     //:   symbols.  For each element 'p1' in the 'P2', containing 'ADDR1' and
     //:   'LENGTH1' values:
     //:

@@ -1,3 +1,4 @@
+
 // balber_berutil.t.cpp                                               -*-C++-*-
 
 // ----------------------------------------------------------------------------
@@ -18,6 +19,9 @@
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
 
+#include <bdlb_random.h>
+
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
@@ -39,13 +43,23 @@
 #include <bdlt_prolepticdateimputil.h>
 #include <bdlt_timetz.h>
 
+#include <bdlb_float.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 
-#include <bsl_iostream.h>
-#include <bsl_string.h>
+#include <bsla_maybeunused.h>
+
+#include <bsl_algorithm.h>
+#include <bsl_cctype.h>
+#include <bsl_cfloat.h>
 #include <bsl_climits.h>
+#include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_numeric.h>
+#include <bsl_ostream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -53,9 +67,75 @@ using namespace bsl;
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The component under test defines a utility 'struct' used to encode and
+// decode objects of 'bdlat' 'Simple' type according to the specification of
+// the BER ("Basic Encoding Rules") format defined by ITU-T X.690.  The
+// 'Simple' types include the C++ fundamental types, BDE date and time types,
+// and strings, etc.  The utility also provides ancillary operations associated
+// with the encoding and decoding of these types in BER, such operating on
+// encoded BER meta-information, etc.  This component also provides
+// non-standard extensions to the BER specification, such as an optional
+// alternate, compact format for representing date and time values.
 //
+// The primary operations provided by this component are
+// 'balber::BerUtil::putValue', and 'balber::BerUtil::getValue', which are
+// responsible for the encoding and decoding objects of 'Simple' types,
+// respectively.
 //
+// This test driver checks "behavioral fingerprints" of 'putValue', and
+// 'getValue', which are checksums of the output for a large, pseudo-randomly
+// generated set of inputs for said functions.  In order to generate the input,
+// this test driver provides machinery for pseudo-randomly creating values of
+// types used in the input space of the functions.  Further, it provides an
+// implementation of the MD5 Message Digest Algorithm, which is known to be a
+// high-quality checksum algorithm with a specification.  The checksum
+// algorithm is high-quality in that it can be formally shown to have an
+// astronomically low probability of hash collision between input bit sequences
+// with low edit distance.  Basically, in MD5, every bit matters and
+// nearly-identical inputs have different hashes with near certainty.
+//
+// Global Concerns:
+//: o Except for non-standard extensions, the encoding and decoding of objects
+//:   provided by this component comply with the Basic Encoding Rules of the
+//:   ITU-T X.690 specification, according to the ASN.1 interpretation of the
+//:   values of said objects.
+//: o Ancillary functions provided by this component that calculate values
+//:   specified by ITU-T X.690 comply with the specification.
 // ----------------------------------------------------------------------------
+// CLASS METHODS
+// [16] int getEndOfContentsOctets(bsl::streambuf *, int *nBytes);
+// [17] int getIdentifierOctets(streambuf *, cls *, ty *, tag *, int *nBytes);
+// [12] int getLength(bsl::streambuf *, int *result, int *nBytes);
+// [23] int getValue(bsl::streambuf *, TYPE *, int length, const Options&);
+// [23] int getValue(bsl::streambuf *, TYPE *, int *nBytes, const Options&);
+// [16] int putEndOfContentOctets(bsl::streambuf *);
+// [17] int putIdentifierOctets(bsl::streambuf *, cls *, ty *, int tag);
+// [16] int putIndefiniteLengthOctet(bsl::streambuf *);
+// [12] int putLength(bsl::streambuf *, int length);
+// [22] int putValue(bsl::streambuf *, const TYPE& value, const Options * = 0);
+// ----------------------------------------------------------------------------
+// [-1] PERFORMANCE TEST
+// [ 1] BREATHING TEST
+// [ 2] CONCERN: 'putValue' & 'getValue' for bool values
+// [ 3] CONCERN: 'putValue' & 'getValue' for signed char values
+// [ 4] CONCERN: 'putValue' & 'getValue' for unsigned char values
+// [ 5] CONCERN: 'numBytesToStream' (component-private)
+// [ 6] CONCERN: 'numBytesToStream' (component-private) for unsigned types
+// [ 7] CONCERN: 'putIntegerGivenLength' (component-private)
+// [ 8] CONCERN: 'get/putIntegetGivenLength' for unsigned values
+// [ 9] CONCERN: 'putValue' & 'getValue' for signed integral values
+// [10] CONCERN: 'putValue' & 'getValue' for unsigned integral types
+// [11] CONCERN: 'get/putDoubleValue' (c-p) for 'float' and 'double'
+// [12] CONCERN: 'putLength' & 'getLength'
+// [13] CONCERN: 'putValue' & 'getValue' for 'bsl::string'
+// [14] CONCERN: 'putValue' & 'getValue' for 'bslstl::StringRef'
+// [15] CONCERN: 'putValue' & 'getValue' for date/time types
+// [18] CONCERN: 'putValue' & 'getValue' for date/time types
+// [19] CONCERN: 'putValue' & 'getVaule' for date/time types brute force
+// [20] CONCERN: 'putValue' for date/time types
+// [21] CONCERN: 'getValue' for date/time and timezone variant types
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -77,6 +157,9 @@ static void aSsErT(int c, const char *s, int i) {
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
 #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP1_ASSERT_EQ(L,X,Y) ASSERTV(L,X,Y,X == Y)
+#define LOOP1_ASSERT_NE(L,X,Y) ASSERTV(L,X,Y,X != Y)
 
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
@@ -159,12 +242,12 @@ int compareBuffers(const char *stream, const char *buffer)
     return 0;
 }
 
-void printBuffer(const char *buffer, int length)
+void printBuffer(const char *buffer, bsl::size_t length)
     // Print the specified 'buffer' of the specified 'length' in hex form
 {
     cout << hex;
     int numOutput = 0;
-    for (int i = 0; i < length; ++i) {
+    for (bsl::size_t i = 0; i < length; ++i) {
         if ((unsigned char) buffer[i] < 16) {
             cout << '0';
         }
@@ -200,9 +283,4605 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
 }
 
 // ============================================================================
-//                               USAGE EXAMPLE
+//                            ENTITIES FOR TESTING
 // ----------------------------------------------------------------------------
 
+namespace {
+
+// GLOBAL DATA
+static bool verbose         = false;
+static bool veryVerbose     = false;
+static bool veryVeryVerbose = false;
+
+namespace u {
+
+                          // =========================
+                          // class RandomInputIterator
+                          // =========================
+
+class RandomInputIterator {
+    // This value-semantic class provides an implementation of the
+    // 'InputIterator' concept for a sequence of pseudo-random
+    // 'unsigned char' values.
+
+    // DATA
+    int           d_seed;   // linear congruential generator seed
+    unsigned char d_value;  // current pseudo-random value
+
+    // PRIVATE CLASS METHODS
+    static unsigned char generateValue(int *seed);
+        // Return a pseudo-random value deterministically generated from the
+        // value of the integer addressed by the specified 'seed' and update
+        // set the integer to a new pseudo-random value.
+
+  public:
+    // TRAITS
+    typedef int                      difference_type;
+    typedef unsigned char            value_type;
+    typedef const unsigned char     *pointer;
+    typedef const unsigned char&     reference;
+    typedef bsl::input_iterator_tag  iterator_category;
+
+    // CLASS METHODS
+    static bool areEqual(const RandomInputIterator& lhs,
+                         const RandomInputIterator& rhs);
+        // Return 'true' if the specified 'lhs' and 'rhs' have the same value,
+        // and return 'false' otherwise.  Two 'RandomInputIterator' objects
+        // have the same value if and only if they have the same 'seed'
+        // attribute.
+
+    // CREATORS
+    RandomInputIterator();
+        // Create a new 'RandomInputIterator' object having a 0 'seed'
+        // attribute.
+
+    explicit RandomInputIterator(int seed);
+        // Create a new 'RandomInputIterator' object having a 'seed' attribute
+        // with the specified 'seed' value.
+
+    RandomInputIterator(const RandomInputIterator& original);
+        // Create a new 'RandomInputIterator' object having a copy of the value
+        // of the specified 'original' object.
+
+    // MANIPULATORS
+    RandomInputIterator& operator=(const RandomInputIterator& original);
+        // Assign a copy of the value of the specified 'original' object to the
+        // value of this object.  Return a reference providing modifiable
+        // access to this object.
+
+    RandomInputIterator& operator++();
+        // Assign to this object a new pseudo-random value deterministically
+        // generated from the 'seed' attribute of this object.  Return a
+        // reference providing modifiable access to this object.
+
+    RandomInputIterator operator++(int);
+        // Assign to this object a new pseudo-random value deterministically
+        // generated from the 'seed' attribute of this object.  Return a copy
+        // of the value of this object prior to assigning a new value.
+
+    // ACCESSORS
+    const unsigned char& operator*() const;
+        // Return a reference providing non-modifiable access to the
+        // current pseudo-random value generated by this object.
+
+    const unsigned char *operator->() const;
+        // Return a pointer providing non-modifiable access to the
+        // current pseudo-random value generated by this object.
+};
+
+                        // ============================
+                        // class BasicRandomValueLoader
+                        // ============================
+
+template <class INPUT_ITERATOR>
+class BasicRandomValueLoader {
+    // This mechanism class provides a function-object whose function-call
+    // operator may be used to load pseudo-random values into objects of some
+    // fundamental types.  These pseudo-random values are deterministically
+    // generated based on the sequence of 'unsigned char' values received from
+    // an internally-managed object of the specified 'INPUT_ITERATOR'.  The
+    // program is ill-formed unless the 'INPUT_ITERATOR' satisfies the
+    // 'InputIterator' concept having an 'unsigned char' 'value_type', and
+    // which has no 'end'.
+
+  public:
+    // TYPES
+    typedef INPUT_ITERATOR InputIteratorType;
+        // The 'InputIterator' implementation wrapped by this object that
+        // provides the underlying source of pseudo-random data.
+
+  private:
+    // DATA
+    InputIteratorType d_iterator;
+        // underlying source of pseudo-random data
+
+  public:
+    // CREATORS
+    BasicRandomValueLoader();
+        // Create a new 'BasicRandomValueLoader' object having a default
+        // underlying 'iterator' attribute.
+
+    explicit BasicRandomValueLoader(InputIteratorType iterator);
+        // Create a new 'BasicRandomValueLoader' object an underlying
+        // 'iterator' attribute with a copy of the value of the
+        // specified 'iterator'.
+
+    BasicRandomValueLoader(const BasicRandomValueLoader& original);
+        // Create a new 'BasicRandomValueLoader' object having a copy of value
+        // of the specified 'original' object.
+
+    // MANIPULATORS
+    BasicRandomValueLoader& operator=(const BasicRandomValueLoader& original);
+        // Assign to this object a copy of the value of the specified
+        // 'original' object and return a reference providing modifiable access
+        // to this object.
+
+    void operator()(bool *value);
+    void operator()(char *value);
+    void operator()(unsigned char *value);
+    void operator()(signed char *value);
+    void operator()(unsigned *value);
+    void operator()(int *value);
+    void operator()(unsigned long long *value);
+    void operator()(long long *value);
+    void operator()(float *value);
+    void operator()(double *value);
+        // Deterministically load a pseudo-random value into the specified
+        // 'value' based on the underlying 'iterator' attribute of this object
+        // and increment the 'iterator' attribute of this object.
+};
+
+                       // ==============================
+                       // namespace RandomValueFunctions
+                       // ==============================
+
+namespace RandomValueFunctions {
+
+    // FREE FUNCTIONS
+    template <class VALUE_TYPE, class LOADER>
+    void loadRandomValue(VALUE_TYPE *value, LOADER& loader);
+        // Deterministically load a pseudo-random value into the specified
+        // 'value' using the specified 'loader'.
+
+}  // close RandomValueFunctions namespace
+
+                           // ======================
+                           // struct RandomValueUtil
+                           // ======================
+
+struct RandomValueUtil {
+    // This utility 'struct' provides a namespace for a suite of functions that
+    // provide non-primitive functionality for psuedo-random value 'loader'
+    // objects.
+
+    // CLASS METHODS
+    template <class VALUE_TYPE, class LOADER>
+    static void load(VALUE_TYPE *value, LOADER& loader);
+        // Deterministically load a pseudo-random value into the specified
+        // 'value' using the specified 'loader' object.
+
+    template <class VALUE_TYPE, class LOADER>
+    static VALUE_TYPE generate(LOADER& loader);
+        // Return a pseudo-random value of the specified 'VALUE_TYPE'
+        // using the specified 'loader' object.
+
+    template <class INTEGRAL_TYPE, class LOADER>
+    static INTEGRAL_TYPE generateModulo(LOADER& loader, INTEGRAL_TYPE base);
+        // Return a pseudo-random value of the specified 'INTEGRAL_TYPE' having
+        // a value with magnitude no greater than the specified 'base' using
+        // the specified 'loader'.  The program is ill-formed unless the
+        // 'INTEGRAL_TYPE' is a fundamental integral type.
+
+    template <class INTEGRAL_TYPE, class LOADER>
+    static INTEGRAL_TYPE generateInInterval(LOADER&       loader,
+                                            INTEGRAL_TYPE minimum,
+                                            INTEGRAL_TYPE maximum);
+        // Return a pseudo-random value of the specified 'INTEGRAL_TYPE' having
+        // a value no less than 'minimum' and no greater than 'maximum' using
+        // the specified 'loader'.  The program is ill-formed unless the
+        // 'INTEGRAL_TYPE' is a fundamental integral type.
+};
+
+                     // ===================================
+                     // customization point loadRandomValue
+                     // ===================================
+
+template <class LOADER>
+void loadRandomValue(bdldfp::Decimal64 *value, LOADER& loader);
+template <class LOADER>
+void loadRandomValue(bsl::string *value, LOADER& loader);
+template <class LOADER>
+void loadRandomValue(bdlt::Date *value, LOADER& loader);
+template <class LOADER>
+void loadRandomValue(bdlt::DateTz *value, LOADER& loader);
+template <class LOADER>
+void loadRandomValue(bdlt::Datetime *value, LOADER& loader);
+template <class LOADER>
+void loadRandomValue(bdlt::DatetimeTz *value, LOADER& loader);
+template <class LOADER>
+void loadRandomValue(bdlt::Time *value, LOADER& loader);
+template <class LOADER>
+void loadRandomValue(bdlt::TimeTz *value, LOADER& loader);
+template <class LOADER, class TYPE, class TYPETZ>
+void loadRandomValue(bdlb::Variant2<TYPE, TYPETZ> *value, LOADER& loader);
+    // Deterministically load a pseudo-random value into the specified 'value'
+    // using the specified 'loader'.  Note that the values are not guaranteed
+    // to be distributed according to any particular criteria.  Individual
+    // values considered uninteresting may be common and repeated.  This
+    // function is intended to be used to sample large numbers of values, such
+    // that potential low quality of the sample distribution is compensated by
+    // the large number of samples.
+
+                            // ===================
+                            // class ByteArrayUtil
+                            // ===================
+
+struct ByteArrayUtil {
+    // This utility 'struct' provides a suite of functions that provide
+    // non-primitive functionality on a "byte array" pseudo-type defined by a
+    // pair of 'begin' and 'end' pointers to a contiguous array of 'unsigned
+    // char' objects.
+
+    // CLASS METHODS
+    static void setTheUintAt(unsigned char *begin,
+                             unsigned char *end,
+                             bsl::size_t    index,
+                             unsigned int   value);
+        // Write the sequence of 4 bytes of the little-endian representation of
+        // the specified 'value' to the index in the '[begin, end)' byte array
+        // starting at the position 'index * 4'.  The behavior is undefined
+        // unless 'end - begin end > index * 4'.
+
+    static void setTheUint64At(unsigned char       *begin,
+                               unsigned char       *end,
+                               bsl::size_t          index,
+                               bsls::Types::Uint64  value);
+        // Write the sequence of 7 bytes of the little-endian representation of
+        // the specified 'value' to the index in the '[begin, end)' byte array
+        // starting at the position 'index * 8'.  The behavior is undefined
+        // unless 'end - begin > index * 8'.
+
+    static unsigned int theUintAt(const unsigned char *begin,
+                                  const unsigned char *end,
+                                  bsl::size_t          index);
+        // Returned the 'unsigned int' value synthesized by interpreting
+        // the 4 bytes in the range
+        // '[begin + index * 4, begin + (index + 1) * 4)' as a little-endian
+        // representation of an unsigned integer value.  The behavior is
+        // undefined unless 'end - begin > index * 4'.
+};
+
+                            // ====================
+                            // class Md5Fingerprint
+                            // ====================
+
+class Md5Fingerprint {
+    // This in-core value-semantic class represents an MD5 "fingerprint", or
+    // "digest", which is an ordered sequence of 128 bits.  This class provides
+    // modifiable access to this sequence through 'unsigned char' and
+    // 'unsigned int' values.  Many array-like operations are provided by this
+    // class, including the ability to access iterators to the underlying
+    // 'unsigned char' array.
+    //
+    // The underlying array of 16 'unsigned char' values the define the value
+    // of this class are referred to as its 'array' attribute.
+
+  private:
+    // DATA
+    unsigned char d_value[16];
+        // underlying array of 128 bits, represented using 'unsigned char's
+
+  public:
+    // PUBLIC CLASS DATA
+    enum {
+        k_SIZE = 16 // number of 'unsigned char' values in the underlying array
+    };
+
+    // CREATORS
+    Md5Fingerprint();
+        // Create a new 'Md5Fingerprint' object having the zero value for each
+        // 'unsigned char' element in its 'array' attribute.
+
+    Md5Fingerprint(const Md5Fingerprint& original);
+        // Create a new 'Md5Fingerprint' object having a copy of the value of
+        // the specified 'original' object.
+
+    // MANIPULATORS
+    Md5Fingerprint& operator=(const Md5Fingerprint& original);
+        // Assign to this object a copy of the value of the specified
+        // 'original' object and return a reference providing modifiable access
+        // to this object.
+
+    unsigned char& operator[](bsl::size_t index);
+        // Return a reference providing modifiable access to the 'unsigned char'
+        // element of the 'array' attribute of this object at the specified
+        // 'index'.  The behavior is undefined unless '16 > index'.
+
+    void setTheUintAt(bsl::size_t index, unsigned int value);
+        // Assign to the 4 'unsigned char' elements of the 'array' attribute of
+        // this object at the specified 'index * 4' index the little-endian
+        // representation of the specified 'value'.  The behavior is undefined
+        // unless '4 > index'.
+
+    unsigned char *data();
+        // Return a pointer providing access to the first 'unsigned char'
+        // element of the contiguous array of 'unsigned char' objects that make
+        // up the 'array' attribute of this object.
+
+    unsigned char *begin();
+        // Return a pointer to the first element of the 'array' attribute of
+        // this object.
+
+    unsigned char *end();
+        // Return a pointer to the "1-past-the-end" element of the 'array'
+        // attribute of this object.
+
+    // ACCESSORS
+    const unsigned char& operator[](bsl::size_t index) const;
+        // Return a reference providing non-modifiable access to the 'unsigned
+        // char' element of the 'array' attribute of this object at the
+        // specified 'index'.  The behavior is undefined unless '16 > index'.
+
+    unsigned int theUintAt(bsl::size_t index) const;
+        // Return the 'unsigned int' value that results from interpreting the 4
+        // 'unsigned char' objects of the 'array' attribute of this object in
+        // the range [index * 4, (index + 1) * 4)' as the little-endian
+        // representation of an 'unsigned int' value.
+
+    const unsigned char *data() const;
+        // Return a pointer providing non-modifiable access to the first
+        // 'unsigned char' element of the contiguous array of 'unsigned char'
+        // objects that make up the 'array' attribute of this object.
+
+    bsl::size_t size() const;
+        // Return the size of the 'array' attribute of this object.
+
+    const unsigned char *begin() const;
+        // Return a pointer providing non-modifiable access to the first
+        // element of the 'array' attribute of this object.
+
+    const unsigned char *end() const;
+        // Return a pointer providing non-modifiable access to the
+        // "1-past-the-end" element of the 'array' attribute of this object.
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format the referenced object to the specified output 'stream' at
+        // the (absolute value of) the optionally specified indentation
+        // 'level' and return a reference to 'stream'.  If 'level' is
+        // specified, optionally specify 'spacesPerLevel', the number of
+        // spaces per indentation level for this and all of its nested
+        // objects.  If 'level' is negative, suppress indentation of the first
+        // line.  If 'spacesPerLevel' is negative, format the entire output on
+        // one line.  If 'stream' is not valid on entry, this operation has no
+        // effect.  For scalars and arrays of scalars, this 'print' function
+        // delegates to the appropriate printing mechanism for referenced
+        // object -- the aggregate adds no additional text to the
+        // output.  (E.g., the result of printing an aggregate that references
+        // a string is indistinguishable from the result of printing the
+        // string directly.)  For list, row, choice, choice array item, table,
+        // and choice array, this print function prepend's each field with the
+        // name of the field.
+};
+
+// FREE FUNCTIONS
+bsl::ostream& operator<<(bsl::ostream& stream, const Md5Fingerprint& rhs);
+    // Format the specified 'rhs' in a human-readable form (same format as
+    // 'rhs.print(stream, 0, -1)') and return a reference providing modifiable
+    // access to the specified 'stream'.
+
+                          // ========================
+                          // class Md5FingerprintUtil
+                          // ========================
+
+struct Md5FingerprintUtil {
+    // This utility 'struct' provides a suite of functions that provide
+    // non-primitive functionality for 'Md5Fingerprint' objects.
+
+  private:
+    // PRIVATE CLASS DATA
+    enum {
+        k_A_SEED_VALUE = 0x67452301,
+        k_B_SEED_VALUE = 0xEFCDAB89,
+        k_C_SEED_VALUE = 0x98BADCFE,
+        k_D_SEED_VALUE = 0x10325476
+    };
+
+  public:
+    // CLASS METHODS
+    static Md5Fingerprint getSeedValue();
+        // Return an 'Md5Fingerprint' object having the initial value for
+        // the "MD5" algorithm.
+};
+
+                               // ==============
+                               // class Md5Block
+                               // ==============
+
+class Md5Block {
+    // This in-core value-semantic class provides a representation of a
+    // resizable array of 'unsigned char' values having a maximum size of '64'.
+
+  public:
+    // PUBLIC CLASS DATA
+    enum {
+        k_CAPACITY = 64
+    };
+
+  private:
+    // DATA
+    unsigned char d_bytes[k_CAPACITY]; // underlying byte array
+    unsigned char d_numBytes;          // number of occupied bytes
+
+  public:
+    // CREATORS
+    Md5Block();
+        // Create a new 'Md5Block' object having an 'array' attribute with size
+        // 0.
+
+    template <class INPUT_ITERATOR>
+    Md5Block(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+        // Create a new 'Md5Block' object having an 'array' attribute defined
+        // by the sequence of bytes specified by the range '[begin, end)'.  The
+        // program is ill-formed unless 'begin' and 'end' satisfy the
+        // 'InputIterator' concept having an 'unsigned char' 'value_type'.  The
+        // behavior is undefined unless the range '[begin, end)' has a size
+        // no greater than 64.
+
+    Md5Block(const Md5Block& original);
+        // Create a new 'Md5Block' object having a copy of the value of the
+        // specified 'original' object.
+
+    // MANIPULATORS
+    Md5Block& operator=(const Md5Block& original);
+        // Assign to this object a copy of the value of the specified
+        // 'original' object and return a reference providing modifiable access
+        // to this object.
+
+    unsigned char& operator[](bsl::size_t index);
+        // Return a reference providing modifiable access to the 'unsigned
+        // char' element of the 'array' attribute of this object at the
+        // specified 'index'.  The behavior is undefined unless
+        // 'size() > index'.
+
+    void setTheUintAt(bsl::size_t index, unsigned int value);
+        // Assign to the 4 'unsigned char' elements of the 'array' attribute of
+        // this object at the specified 'index * 4' index the little-endian
+        // representation of the specified 'value'.  The behavior is undefined
+        // unless '4 > index'.
+
+    unsigned char *begin();
+        // Return a pointer to the first element of the 'array' attribute of
+        // this object.
+
+    unsigned char *end();
+        // Return a pointer to the "1-past-the-end" element of the 'array'
+        // attribute of this object.
+
+    void clear();
+        // Reset this object to the empty value, having an 'array' attribute
+        // with size 0.
+
+    void resize(bsl::size_t newSize);
+        // Change the 'array' attribute to have the specified 'newSize' size.
+        // If 'newSize == size()', do nothing.  If 'newSize > size()' then
+        // append 'newSize() - size' 'unsigned char' elements having the value
+        // 0 to the end of the array attribute of this object.  Otherwise,
+        // remove the 'size() - newSize' elements from the end of the 'array'
+        // attribute of this object.  The behavior is undefined unless '64 >=
+        // newSize'.
+
+    // ACCESSORS
+    const unsigned char& operator[](bsl::size_t index) const;
+        // Return a reference providing non-modifiable access to the 'unsigned
+        // char' element of the 'array' attribute of this object at the
+        // specified 'index'.  The behavior is undefined unless '16 > index'.
+
+    unsigned int theUintAt(bsl::size_t index) const;
+        // Return the 'unsigned int' value that results from interpreting the 4
+        // 'unsigned char' objects of the 'array' attribute of this object in
+        // the range [index * 4, (index + 1) * 4)' as the little-endian
+        // representation of an 'unsigned int' value.
+
+    const unsigned char *begin() const;
+        // Return a pointer providing non-modifiable access to the first
+        // element of the 'array' attribute of this object.
+
+    const unsigned char *end() const;
+        // Return a pointer providing non-modifiable access to the
+        // "1-past-the-end" element of the 'array' attribute of this object.
+
+    bool empty() const;
+        // Return 'true' if '0 == size()', and return 'false' otherwise.
+
+    bool full() const;
+        // Return 'true' if '64 == size()', and return 'false' otherwise.
+
+    bsl::size_t size() const;
+        // Return the number of elements in the 'unsigned char' attribute of
+        // this object.
+};
+
+// FREE FUNCTIONS
+BSLA_MAYBE_UNUSED
+bool operator==(const Md5Block& lhs, const Md5Block& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  Two 'Md5Block' objects have the same value if and
+    // only if their 'array' attributes have the same value (including the same
+    // size.)
+
+BSLA_MAYBE_UNUSED
+bool operator!=(const Md5Block& lhs, const Md5Block& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have the different
+    // values, and 'false' otherwise.  Two 'Md5Block' objects have different
+    // values if and only if their 'array' attributes have different values,
+    // (which may or may not including having different sizes.)
+
+                            // ===================
+                            // struct Md5BlockUtil
+                            // ===================
+
+struct Md5BlockUtil {
+    // This utility 'struct' is a namespace for a suite of functions that
+    // provide non-primitive functionality for 'Md5Block' objects.
+
+    // TYPES
+    typedef bsl::pair<Md5Block, Md5Block> Md5BlockPair;
+        // Convenience alias for a pair of 'Md5Block' objects.
+
+    // CLASS METHODS
+    static void appendUint64(Md5Block *block, bsls::Types::Uint64 value);
+        // Append the 8 bytes making up the little-endian representation of the
+        // specified 'value' to the end of the specified 'block'.  The 'size'
+        // of the 'block' increases by 8.  The behavior is undefined unless
+        // '56 >= block->size()'.
+
+    static void concatenate(Md5Block *first, Md5Block *second);
+        // If the specified 'first' block is not full, append the lesser of
+        // '64 - first->size()' or 'second->size()' bytes from the front of
+        // the specified 'second' block to the 'first', and remove those bytes
+        // from the 'second' block.
+};
+
+                         // ===========================
+                         // class Md5BlockInputIterator
+                         // ===========================
+
+class Md5BlockInputIterator {
+    // This class provides read-only uni-directional access to a sequence of
+    // 'Md5Block' objects.  A pair of 'begin' and 'end' pointers that address a
+    // valid contiguous '[begin, end)' range of 'unsigned char' objects specify
+    // the sequence of 'Md5Block' objects accessed by a
+    // 'Md5BlockInputIterator'.  A 'Md5BlockInputIterator' iterates over groups
+    // of up to 64 elements of the underlying range to provide access to a
+    // 'Md5Block' consisting of those elements.  If less than 64 elements are
+    // available in the range, the size of the provided 'Md5Block' object will
+    // be equal to the number of elements available in the range.
+
+    // DATA
+    Md5Block             d_block;       // current block adapted from range
+    const unsigned char *d_iterator_p;  // pointer to first element of range
+    const unsigned char *d_end_p;       // pointer to last+1 element of range
+
+  public:
+    // CLASS METHODS
+    static bool areEqual(const Md5BlockInputIterator& lhs,
+                         const Md5BlockInputIterator& rhs);
+        // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+        // value, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
+        // objects have the same value if and only if they address the same
+        // first 'unsigned char' and have the same 'end'.
+
+    // CREATORS
+    Md5BlockInputIterator();
+        // Create a 'Md5BlockInputIterator' object that has the past-the-end
+        // value for an unspecified range.
+
+    Md5BlockInputIterator(const unsigned char *begin,
+                          const unsigned char *end);
+        // Create a 'Md5BlockInputIterator' object that addresses an 'Md5Block'
+        // consisting of the lesser of the first 64 bytes in the '[begin, end)'
+        // range or the size of the range.
+
+    Md5BlockInputIterator(const Md5BlockInputIterator& original);
+        // Create a 'Md5BlockInputIterator' object having the same value as the
+        // specified 'original' object.
+
+    // MANIPULATORS
+    Md5BlockInputIterator& operator=(const Md5BlockInputIterator& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // Return a reference providing modifiable access to this object.
+
+    Md5BlockInputIterator& operator++();
+        // Advance this object to the next position.  Return a reference
+        // providing modifiable access to this object.  The next position is 64
+        // elements past the current position in the '[begin, end)' range
+        // supplied on construction if there are at least 64 elements remaining
+        // in the range.  If there are less than 64 elements remaining, the
+        // next position includes all remaining elements.  Otherwise, the next
+        // position is the past-the-end position.  The behavior is undefined if
+        // this object is in the past-the-end position.
+
+    Md5BlockInputIterator operator++(int);
+        // Advance this object to the next position, and return, *by* *value*,
+        // an iterator referring to the original position (*before* the
+        // advancement).  The behavior is undefined if this object is in the
+        // past-the-end position.
+
+    // ACCESSORS
+    const Md5Block& operator*() const;
+        // Return a reference providing non-modifiable access to the 'Md5Block'
+        // at the position in the underlying sequence referred to by this
+        // object.  The behavior is undefined if this object is in the
+        // past-the-end position.
+
+    const Md5Block *operator->() const;
+        // Return an address providing non-modifiable access to the 'Md5Block'
+        // at the position in the underlying sequence referred to by this
+        // object.  The behavior is undefined if this object is in the
+        // past-the-end position.
+
+};
+
+// FREE FUNCTIONS
+BSLA_MAYBE_UNUSED
+bool operator==(const Md5BlockInputIterator& lhs,
+                const Md5BlockInputIterator& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
+    // objects have the same value if and only if they address the same first
+    // 'unsigned char' and have the same 'end'.
+
+BSLA_MAYBE_UNUSED
+bool operator!=(const Md5BlockInputIterator& lhs,
+                const Md5BlockInputIterator& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have different
+    // values, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
+    // objects have different values if and only if they address different
+    // first 'unsigned char' objects or have different 'end' values.
+
+                          // ========================
+                          // class Md5BlockInputRange
+                          // ========================
+
+class Md5BlockInputRange {
+    // This class provides an adapter from a '[begin, end)' contiguous range of
+    // 'unsigned char' values to a range of 'Md5Block' objects.  The value of
+    // each subsequent object in the adapted range is the 'Md5Block' value
+    // defined by the subsequence 64 elements of the underlying range.  When
+    // less than 64 elements are available (at the end of the range, or the
+    // beginning of a small range, for example), the value of the 'Md5Block'
+    // will consist of all remaining elements.
+
+    // DATA
+    Md5BlockInputIterator d_begin;  // iterator to first block
+    Md5BlockInputIterator d_end;    // iterator at the past-the-end position
+
+  public:
+    // CREATORS
+    Md5BlockInputRange(const unsigned char *begin,
+                       const unsigned char *end);
+        // Create a 'Md5BlockInputRange' that adapts the contiguous range of
+        // defined by '[begin, end)' to a range of 'Md5Block' objects.
+
+    // ACCESSORS
+    Md5BlockInputIterator begin() const;
+        // Return an iterator to the first 'Md5Block' of the range supplied
+        // to this object upon construction.
+
+    Md5BlockInputIterator end() const;
+        // Return the past-the-end iterator of the range supplied to this
+        // object upon construction.
+};
+
+                               // ==============
+                               // class Md5State
+                               // ==============
+
+class Md5State {
+    // This in-core value-semantic attribute class provides a representation
+    // of the 3 fields quantities maintained during the calculation of a
+    // MD5 fingerprint for a stream of data.
+
+    // DATA
+    Md5Fingerprint      d_fingerprint;       // current MD5 fingerprint
+    Md5Block            d_block;             // current incomplete block
+    bsls::Types::Uint64 d_numBlocksConsumed; // number of blocks consumed
+
+  public:
+    // CREATORS
+    Md5State();
+        // Create a 'Md5State' object having a zero fingerprint, an empty
+        // block, and having consumed no blocks.
+
+    explicit Md5State(const Md5Fingerprint& fingerprint);
+        // Create a 'Md5State' object having the specified 'fingerprint',
+        // an empty block, and having consumed no blocks.
+
+    Md5State(const Md5Fingerprint& fingerprint, const Md5Block& block);
+        // Create a 'Md5State' object having the specified 'fingerprint',
+        // the specified 'block', and having consumed no blocks.
+
+    Md5State(const Md5Fingerprint& fingerprint,
+             const Md5Block&       block,
+             bsls::Types::Uint64   numBlocksConsumed);
+        // Create a 'Md5State' object having the specified 'fingerprint',
+        // the specified 'block', and having consumed the specified
+        // 'numBlocksConsumed' number of blocks.
+
+    Md5State(const Md5State& original);
+        // Create a 'Md5State' object having the same value as the specified
+        // 'original' object.
+
+    // MANIPULATORS
+    Md5State& operator=(const Md5State& rhs);
+        // Assign to this object the same value as the specified 'rhs' object.
+        // Return a reference providing non-modifiable access to this object.
+
+    void setFingerprint(const Md5Fingerprint& value);
+        // Set the value of the 'fingerprint' attribute of this object to
+        // the specified 'value'.
+
+    void setBlock(const Md5Block& value);
+        // Set the 'block' attribute of this object to the specified 'value'.
+
+    void setNumBlocksConsumed(bsls::Types::Uint64 value);
+        // set the 'number of blocks consumed' attribute of this object to
+        // the specified 'value'.
+
+    // ACCESSORS
+    const Md5Fingerprint& fingerprint() const;
+        // Return a reference providing non-modifiable access to the
+        // 'fingerprint' attribute of this object.
+
+    const Md5Block& block() const;
+        // Return a reference providing non-modifiable access to the
+        // 'block' attribute of this object.
+
+    bsls::Types::Uint64 numBlocksConsumed() const;
+        // Return the value of the 'number of blocks consumed' attribute of
+        // this object.
+};
+
+                             // ===================
+                             // struct Md5StateUtil
+                             // ===================
+
+struct Md5StateUtil {
+    // This utility 'struct' is a namespace for a suite of functions that
+    // provide non-primitive functionality for 'Md5State' objects.
+
+    // CLASS METHODS
+    static Md5State getSeedValue();
+        // Return a 'Md5State' object having the initial value for the
+        // "MD5" algorithm.
+
+    static void loadSeedValue(Md5State *value);
+        // Load into the specified 'value' the initial value used for
+        // the "MD5" algorithm.
+
+    static void append(Md5State *state, const Md5Block& block);
+        // Append the specified 'block' to the end of the 'block' of the
+        // specified 'state'.  If, during the course of this operation,
+        // the 'size' of the 'block' of the 'state' reaches 64, first
+        // digest the 'state' (thereby updating its 'fingerprint') and
+        // then reset its 'block' before continuing to append the
+        // remainder of the contents of the specified 'block'.
+
+    static void append(Md5State            *state,
+                       const unsigned char *begin,
+                       const unsigned char *end);
+        // Append the bytes in the specified contiguous range '[begin, end)' to
+        // the end of the 'block' of the specified 'state'.  When, during the
+        // course of this operation, the 'size' of the 'block' of the 'state'
+        // reaches 64, first digest the 'state' (thereby updating its
+        // 'fingerprint') and then reset its 'block' before continuing to
+        // append the remainder of the content of the specified range.  Note
+        // that the digest operation may be performed more than once or not at
+        // all, depending on the size of the specified range.
+
+    static void appendPaddingAndLength(Md5State *state);
+        // Load into the 'fingerprint' of the specified 'state' the final MD5
+        // fingerprint of all of the data supplied to the 'state' so far.  If
+        // the 'block' of the state has a 'size() < 56', then append a single
+        // '0x80' byte to the block, followed by '63 - size()' zero bytes.  If
+        // the 'block' has a 'size() == 56', reset the 'block' to one '0x80'
+        // byte followed by 55 zero bytes.  Otherwise, reset the block to '56'
+        // zero bytes.
+
+    static void digest(Md5State *state);
+        // Load into the 'fingerprint' of the specified 'state' the next
+        // non-final MD5 fingerprint defined by the current 'fingerprint'
+        // and 'block' of the state.
+
+    static void digest(Md5Fingerprint *fingerprint, const Md5Block& block);
+        // Load into the 'fingerprint' the next non-final MD5 fingerprint
+        // defined by the current value of 'fingerprint' and the specified
+        // 'block'.
+
+    static Md5Fingerprint digest(const Md5State& state);
+        // Return the next non-final MD5 fingerprint of the specified 'state'
+        // defined by the current 'fingerprint' and 'block' of the state.
+
+    static Md5Fingerprint digest(const Md5Fingerprint& fingerprint,
+                                 const Md5Block&       block);
+        // Return the next non-final MD5 fingerprint defined by the specified
+        // 'fingerprint' and 'block'.
+};
+
+                        // ============================
+                        // struct Md5StateUtil_ImplUtil
+                        // ============================
+
+struct Md5StateUtil_ImplUtil {
+    // This utility 'struct' is a namespace for a suite of functions that
+    // provide non-primitive functionality on 'Md5State' objects.
+    // Note that many of the member names of this class are short and opaque.
+    // These names are meant to reflect the names used in the specification
+    // of the MD5 algorithm from the April 1992 revision of IETF RFC 1321.
+
+  private:
+    // CLASS INVARIANTS
+    BSLMF_ASSERT(4 == sizeof(int));
+
+    // PRIVATE CLASS METHODS
+    static unsigned int f(unsigned int x, unsigned int y, unsigned int z);
+        // Return 'xy | ~xz' where juxtaposition denotes binary conjunction,
+        // '|' binary disjunction, and '~' binary negation.
+
+    static unsigned int g(unsigned int x, unsigned int y, unsigned int z);
+        // Return 'xz | y(~z)' where juxtaposition denotes binary conjunction,
+        // '|' binary disjunction, and '~' binary negation.
+
+    static unsigned int h(unsigned int x, unsigned int y, unsigned int z);
+        // Return 'z XOR y XOR z'.
+
+    static unsigned int i(unsigned int x, unsigned int y, unsigned int z);
+        // Return 'y XOR (x | ~z)' where '|' denotes binary disjunction and
+        // '~' binary negation.
+
+    static unsigned int rotateLeft(unsigned int value, unsigned int numBits);
+        // Return the result of circularly rotating the bits of the specified
+        // 'value' to the left by the specified 'numBits' number of bits.
+
+  public:
+    // CLASS DATA
+    enum {
+        k_BYTES_PER_BLOCK = 64,
+        k_BLOCK_SIZE      = 16
+    };
+
+    static const unsigned int k_T_TABLE[64];
+        // Table of contents used as the values indexed by the values in the
+        // 'k_I_TABLE'.  This is used in the implementations of 'round1Op',
+        // 'round2Op', 'round3Op', and 'round4Op'.
+
+    static const unsigned int k_I_TABLE[4][16];
+        // Table of constants used as the argument for the 'i' parameter in
+        // 'round1Op', 'round2Op', 'round3Op', and 'round4Op' when digesting
+        // an Md5Block as part of computing an MD5 fingerprint.  This table
+        // is first indexed by round number and then by the index of the
+        // operation in that round.
+
+    static const unsigned int k_K_TABLE[4][16];
+        // Table of constants used as the argument for the 'k' parameter in
+        // 'round1Op', 'round2Op', 'round3Op', and 'round4Op' when digesting
+        // an Md5Block as part of computing an MD5 fingerprint.  This table
+        // is first indexed by round number and then by the index of the
+        // operation in that round.
+
+    static const unsigned int k_S_TABLE[4][16];
+        // Table of constants used as the argument for the 's' parameter in
+        // 'round1Op', 'round2Op', 'round3Op', and 'round4Op' when digesting
+        // an Md5Block as part of computing an MD5 fingerprint.  This table
+        // is first indexed by round number and then by the index of the
+        // operation in that round.
+
+    // CLASS METHODS
+    static void round1Op(unsigned int    *a,
+                         unsigned int    *b,
+                         unsigned int    *c,
+                         unsigned int    *d,
+                         const Md5Block&  x,
+                         unsigned int     i,
+                         unsigned int     k,
+                         unsigned int     s);
+        // Load into the specified 'a', 'b', 'c', and 'd' a value
+        // deterministically determined from the specified 'x', 'i', 'k', and
+        // 's'.   The essential behavior of this function is equivalent to the
+        // first round operation for updating the MD5 state as specified in the
+        // April 1992 revision of IETF RFC 1321.
+
+    static void round2Op(unsigned int    *a,
+                         unsigned int    *b,
+                         unsigned int    *c,
+                         unsigned int    *d,
+                         const Md5Block&  x,
+                         unsigned int     i,
+                         unsigned int     k,
+                         unsigned int     s);
+        // Load into the specified 'a', 'b', 'c', and 'd' a value
+        // deterministically determined from the specified 'x', 'i', 'k', and
+        // 's'.   The essential behavior of this function is equivalent to the
+        // second round operation for updating the MD5 state as specified in the
+        // April 1992 revision of IETF RFC 1321.
+
+    static void round3Op(unsigned int    *a,
+                         unsigned int    *b,
+                         unsigned int    *c,
+                         unsigned int    *d,
+                         const Md5Block&  x,
+                         unsigned int     i,
+                         unsigned int     k,
+                         unsigned int     s);
+        // Load into the specified 'a', 'b', 'c', and 'd' a value
+        // deterministically determined from the specified 'x', 'i', 'k', and
+        // 's'.   The essential behavior of this function is equivalent to the
+        // third round operation for updating the MD5 state as specified in the
+        // April 1992 revision of IETF RFC 1321.
+
+    static void round4Op(unsigned int    *a,
+                         unsigned int    *b,
+                         unsigned int    *c,
+                         unsigned int    *d,
+                         const Md5Block&  x,
+                         unsigned int     i,
+                         unsigned int     k,
+                         unsigned int     s);
+        // Load into the specified 'a', 'b', 'c', and 'd' a value
+        // deterministically determined from the specified 'x', 'i', 'k', and
+        // 's'.   The essential behavior of this function is equivalent to the
+        // fourth round operation for updating the MD5 state as specified in
+        // the April 1992 revision of IETF RFC 1321.
+};
+
+                               // ==============
+                               // struct Md5Util
+                               // ==============
+
+struct Md5Util {
+    // This utility 'struct' is a namespace for a suite of top-level functions
+    // pertaining to computing the MD5 fingerprint of a sequence of data.
+
+    // CLASS METHODS
+    static Md5Fingerprint getFingerprint(const unsigned char *begin,
+                                         const unsigned char *end);
+        // Return the MD5 fingerprint of the data in the contiguous range
+        // '[begin, end)'.
+};
+
+                         // ==========================
+                         // class Md5ChecksumAlgorithm
+                         // ==========================
+
+class Md5ChecksumAlgorithm {
+    // This function-object class provides an implementation of the
+    // requirements for a hashing algorithm as specified in the 'bslh_hash'
+    // component.  It is suitable for use as a message digest.  Note that
+    // the 'result_type' of this function object is not convertible to
+    // 'bsl::size_t', and so this class cannot be used as the hashing
+    // algorithm for a 'bslh::Hash' object.
+
+    // DATA
+    Md5State d_state; // current MD5 state
+
+    // NOT IMPLEMENTED
+    Md5ChecksumAlgorithm(const Md5ChecksumAlgorithm&) BSLS_KEYWORD_DELETED;
+    Md5ChecksumAlgorithm& operator=(const Md5ChecksumAlgorithm)
+            BSLS_KEYWORD_DELETED;
+
+  public:
+    // TYPES
+    typedef Md5Fingerprint result_type;
+        // 'result_type' is an alias to the value type returned by this hash
+        // algorithm.
+
+    // CREATORS
+    Md5ChecksumAlgorithm();
+        // Create a 'Md5ChecksumAlgorithm' object.
+
+    // MANIPULATORS
+    void operator()(const void *data, bsl::size_t numBytes);
+        // Incorporate the specified 'data', of at least the specified
+        // 'numBytes' length, into the internal state of this hashing
+        // algorithm.  Every bit of data incorporated into the internal state
+        // of the algorithm will contribute to the final hash produced by
+        // 'computeHash()'.  The same hash value will be produced regardless of
+        // whether a sequence of bytes is passed in all at once or through
+        // multiple calls to this member function.  Input where 'numBytes' is 0
+        // will have no affect on the internal state of the algorithm.  The
+        // behavior is undefined unless 'data' addresses a contiguous array of
+        // at least 'numBytes' initialized memory.
+
+    result_type computeChecksum();
+        // Return the finalized version of the hash that has been accumulated
+        // and make an unspecified change to the internal state of the
+        // algorithm.  Note that calling 'computeHash' multiple times in a row
+        // will return different results, and only the first result returned
+        // will match the expected result of the algorithm.
+};
+
+                               // ==============
+                               // class Checksum
+                               // ==============
+
+template <class CHECKSUM_ALGORITHM>
+class Checksum {
+    // This function-object class provides a wrapper around the specified
+    // 'HASH_ALGORITHM' capable of computing a checksum, or "fingerprint" of
+    // objects.  This class template is structured similarly to 'bslh::Hash',
+    // but has the ability to return the 'result_type' of the 'HASH_ALGORITHM',
+    // rather than 'bsl::size_t'.  The program is ill-formed unless the
+    // 'HASH_ALGORITHM' class meets the requirements of a 'HashAlgorithm'
+    // specified in the 'bslh_hash' component.
+
+  public:
+    // TYPES
+    typedef CHECKSUM_ALGORITHM ChecksumAlgorithm;
+        // 'ChecksumAlgorithm' is an alias to the specified
+        // 'CHECKSUM_ALGORITHM'.
+
+    typedef typename ChecksumAlgorithm::result_type result_type;
+        // 'result_type' is an alias to the value type returned by the
+        // function-call operator of objects of 'HASH_ALGORITHM' type, as well
+        // as the function-call operator of this class.
+
+    // ACCESSORS
+    template <class TYPE>
+    result_type operator()(const TYPE& object) const;
+        // Return a hash value generated by the 'HASH_ALGORITHM' for the
+        // specified 'object'.
+};
+
+                             // ===================
+                             // struct ChecksumUtil
+                             // ===================
+
+struct ChecksumUtil {
+    // This utility 'struct' is a namespace for a suite of functions that
+    // compute a checksum for an object.
+
+    // CLASS METHODS
+    template <class OBJECT_TYPE>
+    static Md5Fingerprint getMd5(const OBJECT_TYPE& object);
+        // Return the MD5 fingerprint of the specified 'object' as specified by
+        // applying the MD5 Message-Digest algorithm to the sequence of bytes
+        // supplied to the 'HASH_ALG' of the overload of 'hashAppend' provided
+        // for the specified 'object'.  The behavior is undefined unless a
+        // well-formed overload of 'hashAppend' for the specified 'object' is
+        // reachable.
+};
+
+                         // =========================
+                         // class PutValueFingerprint
+                         // =========================
+
+class PutValueFingerprint {
+    // This in-core value-semantic attribute type provides a set of
+    // configuration parameters that determine an equivalence class of
+    // partially-applied 'balber::BerUtil::putValue' functions.  The
+    // 'hashAppend' overload provided by this class appends the hash values of
+    // the output for a large, deterministically and pseudo-randomly generated
+    // set of input for 'balber::BerUtil::putValue'.  The attributes of this
+    // class constitute the partially-applied parameters, are not
+    // pseudo-randomly generated during the calculation of the hash of this
+    // object, and instead are fixed to the value of the attribute.
+
+    // DATA
+    int  d_seed;
+        // pseudo-random seed
+
+    int  d_numSamples;
+        // number of input-output pairs to generate
+
+    int  d_fractionalSecondPrecision;
+        // value to fix for the 'datetimeFractionalSecondPrecision'
+        // 'balber::BerEncoderOptions' attribute to supply to
+        // 'balber::BerUtil::putValue'
+
+    bool d_encodeDateAndTimeTypesAsBinary;
+        // value to fix for the 'encodeDateAndTimeTypesAsBinary'
+        // 'balber::BerEncoderOptions' attribute to supply to
+        // 'balber::BerUtil::putValue'
+
+  public:
+    // CREATORS
+    PutValueFingerprint();
+        // Create a 'PutValueFingerprint' object having a 0 'seed' attribute, a
+        // 0 'numSamples' attribute, a 0 'fractionalSecondPrecision' attribute,
+        // and a 'false' 'encodeDateAndTimeTypesAsBinary' attribute.
+
+    // MANIPULATORS
+    void setSeed(int value);
+        // Assign the specified 'value' to the 'seed' attribute of this
+        // object.
+
+    void setNumSamples(int value);
+        // Assign the specified 'value' to the 'numSamples' attribute of this
+        // object.
+
+    void setFractionalSecondPrecision(int value);
+        // Assign the specified 'value' to the 'fractionalSecondPrecision'
+        // attribute of this object.
+
+    void setEncodeDateAndTimeTypesAsBinary(bool value);
+        // Assign the specified 'value' to the 'encodeDateAndTimeTypesAsBinary'
+        // attribute of this object.
+
+    // ACCESSORS
+    int seed() const;
+        // Return the value of the 'seed' attribute of this object.
+
+    int numSamples() const;
+        // Return the value of the 'numSamples' attribute of this object.
+
+    int fractionalSecondPrecision() const;
+        // Return the value of the 'fractionalSecondPrecision' attribute of
+        // this object.
+
+    bool encodeDateAndTimeTypesAsBinary() const;
+        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute
+        // of this object.
+};
+
+// FREE FUNCTIONS
+template <class ALGORITHM>
+void checksumAppend(ALGORITHM& algorithm, const PutValueFingerprint& object);
+    // Deterministically and pseudo-randomly generate 'object.numSamples()'
+    // number of inputs for 'balber::BerUtil::putValue' using 'object.seed()'
+    // as a pseudo-random seed.  Supply a 'balber::BerEncoderOptions' object
+    // having the default value except for the attributes
+    // 'datetimeFractionalSecondPrecision' and
+    // 'encodeDateAndTimeTypesAsBinary', which have the value
+    // 'object.fractionalSecondPrecision()' and
+    // 'object.encodeDateAndTimeTypesAsBinary()' respectively, instead.  Supply
+    // all of the output of invoking 'balber::BerUtil::putValue' with the
+    // encoding options and generated input to the specified checksum
+    // 'algorithm'.
+
+                     // ===================================
+                     // struct PutValueFingerprint_ImplUtil
+                     // ===================================
+
+struct PutValueFingerprint_ImplUtil {
+    // This utility 'struct' is a namespace for a suite of functions used in
+    // the implementation of the 'PutValueFingerprint' class.
+
+    // CLASS METHODS
+    template <class VALUE, class LOADER>
+    static void putRandomValue(bsl::streambuf                   *streamBuf,
+                               LOADER&                           loader,
+                               const balber::BerEncoderOptions&  options);
+        // Encode a pseudo-random value loaded by the specified 'loader' into
+        // the specified 'streamBuf' using the encoding provided by invoking
+        // 'balber::BerUtil::putValue' with the pseudo-random value and the
+        // specified 'options'.
+};
+
+                          // =========================
+                          // class GetValueFingerprint
+                          // =========================
+
+class GetValueFingerprint {
+    // This in-core value-semantic attribute type provides a set of
+    // configuration parameters that determine an equivalence class of
+    // partially-applied 'balber::BerUtil::getValue' functions.  The
+    // 'hashAppend' overload provided by this class appends the hash values of
+    // the output of a large, deterministically, and pseudo-randomly generated
+    // set of input for 'balber::BerUtil::getValue'.  The attributes of this
+    // class constitute the partially-applied parameters, are not
+    // pseudo-randomly generated during the calculation of the hash value of
+    // this object, and instead are fixed to the value of the attribute.
+
+    // DATA
+    int  d_seed;
+        // pseudo-random seed
+
+    int  d_numSamples;
+        // number of input-output pairs to generate
+
+    int  d_fractionalSecondPrecision;
+        // value to fix for the 'datetimeFractionalSecondPrecision'
+        // 'balber::BerEncoderOptions' attribute to supply to
+        // 'balber::BerUtil::putValue'
+
+    bool d_encodeDateAndTimeTypesAsBinary;
+        // value to fix for the 'encodeDateAndTimeTypesAsBinary'
+        // 'balber::BerEncoderOptions' attribute to supply to
+        // 'balber::BerUtil::putValue'
+
+  public:
+    // CREATORS
+    GetValueFingerprint();
+        // Create a 'GetValueFingerprint' object having a 0 'seed' attribute, a
+        // 0 'numSamples' attribute, a 0 'fractionalSecondPrecision' attribute,
+        // and a 'false' 'encodeDateAndTimeTypesAsBinary' attribute.
+
+    // MANIPULATORS
+    void setSeed(int value);
+        // Assign the specified 'value' to the 'seed' attribute of this
+        // object.
+
+    void setNumSamples(int value);
+        // Assign the specified 'value' to the 'numSamples' attribute of this
+        // object.
+
+    void setFractionalSecondPrecision(int value);
+        // Assign the specified 'value' to the 'fractionalSecondPrecision'
+        // attribute of this object.
+
+    void setEncodeDateAndTimeTypesAsBinary(bool value);
+        // Assign the specified 'value' to the 'encodeDateAndTimeTypesAsBinary'
+        // attribute of this object.
+
+    // ACCESSORS
+    int seed() const;
+        // Return the value of the 'seed' attribute of this object.
+
+    int numSamples() const;
+        // Return the value of the 'numSamples' attribute of this object.
+
+    int fractionalSecondPrecision() const;
+        // Return the value of the 'fractionalSecondPrecision' attribute of
+        // this object.
+
+    bool encodeDateAndTimeTypesAsBinary() const;
+        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute
+        // of this object.
+};
+
+// FREE FUNCTIONS
+template <class ALGORITHM>
+void checksumAppend(ALGORITHM& algorithm, const GetValueFingerprint& object);
+    // Deterministically and pseudo-randomly generate 'object.numSamples()'
+    // number of inputs for 'balber::BerUtil::getValue' using 'object.seed()'
+    // as a pseudo-random seed.  Provide input to 'balber::BerUtil::getValue'
+    // using an invocation of 'balber::BerUtil::putValue' supplied with a
+    // 'balber::BerEncoderOptions' object having the default value except for
+    // the attributes 'datetimeFractionalSecondPrecision' and
+    // 'encodeDateAndTimeTypesAsBinary', which have the value
+    // 'object.fractionalSecondPrecision()' and
+    // 'object.encodeDateAndTimeTypesAsBinary()' respectively, instead.  Supply
+    // all of the output of invoking 'balber::BerUtil::getValue' with the
+    // encoding options and generated input to the specified checksum
+    // 'algorithm'.
+
+                     // ===================================
+                     // struct GetValueFingerprint_ImplUtil
+                     // ===================================
+
+struct GetValueFingerprint_ImplUtil {
+    // This utility 'struct' is a namespace for a suite of functions used in
+    // the implementation of the 'GetValueFingerprint' class.
+
+    // CLASS METHODS
+    template <class VALUE, class VALUETZ, class LOADER>
+    static void getRandomValue(
+                       bdlb::Variant2<VALUE, VALUETZ>   *value,
+                       int                              *accumNumBytesConsumed,
+                       LOADER&                           loader,
+                       const balber::BerEncoderOptions&  options);
+    template <class VALUE, class LOADER>
+    static void getRandomValue(
+                       VALUE                            *value,
+                       int                              *accumNumBytesConsumed,
+                       LOADER&                           loader,
+                       const balber::BerEncoderOptions&  options);
+        // Decode a pseudo-random value loaded by the specified 'loader' and
+        // encoded by supplied the value and the specified 'options' to
+        // 'balber::BerUtil::putValue'.  Load the value of the decoded object
+        // into the specified 'value', and the number of bytes decoded to
+        // produce the value into the specified 'accumNumBytesConsumed'.
+};
+
+                     // ==================================
+                     // customization point checksumAppend
+                     // ==================================
+
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, char value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, signed char value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, int value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           bsls::Types::Int64  value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned int value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           bsls::Types::Uint64  value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
+                           const bdldfp::Decimal64& value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bsl::string&  value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::Date&   value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::DateTz& value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM&   checksum,
+                           const bdlt::Datetime& value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM&     checksum,
+                           const bdlt::DatetimeTz& value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::Time&   value);
+template <class CHECKSUM_ALGORITHM>
+static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
+                           const bdlt::TimeTz& value);
+template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
+static void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
+                           const bdlb::Variant2<VALUE_1, VALUE_2>& value);
+    // Pass the specified 'value' into the specified 'checksum', which combines
+    // the value into the internal state of the algorithm.  The internal state
+    // of the algorithm is used to produce the resulting checksum value.
+
+                            // ===================
+                            // struct TestDataUtil
+                            // ===================
+
+struct TestDataUtil {
+    // This utility 'struct' is a namespace for a set of static,
+    // constant-initialized data used in the implementation of some cases of
+    // this test driver.
+
+    // CLASS DATA
+    static const char s_RANDOM_LOREM_IPSUM[];
+        // 5 paragraphs of randomly-generated "lorem ipsum" placeholder text.
+
+    static const unsigned char s_RANDOM_GARBAGE_1K[1024];
+        // 1024 bytes sampled from '/dev/urandom'.
+};
+
+// ===========================================================================
+//                INLINE DEFINITIONS FOR ENTITIES FOR TESTING
+// ===========================================================================
+
+                          // -------------------------
+                          // class RandomInputIterator
+                          // -------------------------
+
+// PRIVATE CLASS METHODS
+unsigned char RandomInputIterator::generateValue(int *seed)
+{
+    ///Implementation Note
+    ///-------------------
+    // The following function implements a 15-bit linear congruential generator
+    // based on the implementation of 'bdlb::Random::generate15' from BDE
+    // 3.44.0.  This function implements its own LCG and not use
+    // 'bdlb::Random::generate15' to ensure that randomly generated data in
+    // this test driver does not change if 'bdlb::Random' were to change
+    // behavior.  It is modified from its original form to fit the API
+    // requirement of yielding 'unsigned char' values, rather than 'int'
+    // values.
+
+    unsigned int unsignedSeed = *seed;
+    unsignedSeed *= 1103515245;
+    unsignedSeed += 12345;
+
+    *seed = unsignedSeed;
+
+    unsigned char hiByte = (unsignedSeed >> 24) & 0x7F;
+    unsigned char loByte = (unsignedSeed >> 16) & 0xFF;
+
+    return hiByte ^ loByte;
+}
+
+// CLASS METHODS
+bool RandomInputIterator::areEqual(const RandomInputIterator& lhs,
+                                   const RandomInputIterator& rhs)
+{
+    BSLS_ASSERT(lhs.d_seed  == rhs.d_seed  ? lhs.d_value == rhs.d_value
+                                           : true);
+    BSLS_ASSERT(lhs.d_value != rhs.d_value ? lhs.d_seed != rhs.d_seed
+                                           : true);
+    return lhs.d_seed == rhs.d_seed;
+}
+
+// CREATORS
+RandomInputIterator::RandomInputIterator()
+: d_seed(0)
+, d_value(generateValue(&d_seed))
+{
+}
+
+RandomInputIterator::RandomInputIterator(int seed)
+: d_seed(seed)
+, d_value(generateValue(&d_seed))
+{
+}
+
+RandomInputIterator::RandomInputIterator(const RandomInputIterator& original)
+: d_seed(original.d_seed)
+, d_value(original.d_value)
+{
+}
+
+// MANIPULATORS
+RandomInputIterator& RandomInputIterator::operator=(
+                                           const RandomInputIterator& original)
+{
+    d_seed = original.d_seed;
+    d_value = original.d_value;
+
+    return *this;
+}
+
+RandomInputIterator& RandomInputIterator::operator++()
+{
+    d_value = generateValue(&d_seed);
+
+    return *this;
+}
+
+RandomInputIterator RandomInputIterator::operator++(int)
+{
+    RandomInputIterator copy = *this;
+
+    this->operator++();
+
+    return copy;
+}
+
+// ACCESSORS
+const unsigned char& RandomInputIterator::operator*() const
+{
+    return d_value;
+}
+
+const unsigned char *RandomInputIterator::operator->() const
+{
+    return &d_value;
+}
+
+                        // ----------------------------
+                        // class BasicRandomValueLoader
+                        // ----------------------------
+
+// CREATORS
+template <class INPUT_ITERATOR>
+BasicRandomValueLoader<INPUT_ITERATOR>::BasicRandomValueLoader()
+: d_iterator()
+{
+}
+
+template <class INPUT_ITERATOR>
+BasicRandomValueLoader<INPUT_ITERATOR>::BasicRandomValueLoader(
+                                                    InputIteratorType iterator)
+: d_iterator(iterator)
+{
+}
+
+template <class INPUT_ITERATOR>
+BasicRandomValueLoader<INPUT_ITERATOR>::BasicRandomValueLoader(
+                                        const BasicRandomValueLoader& original)
+: d_iterator(original.d_iterator)
+{
+}
+
+// MANIPULATORS
+template <class INPUT_ITERATOR>
+BasicRandomValueLoader<INPUT_ITERATOR>&
+BasicRandomValueLoader<INPUT_ITERATOR>::operator=(
+                                        const BasicRandomValueLoader& original)
+{
+    d_iterator = original.d_iterator;
+
+    return *this;
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(bool *value)
+{
+    *value = static_cast<bool>(*d_iterator++ % 2);
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(char *value)
+{
+    *value = static_cast<char>(*d_iterator++);
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(unsigned char *value)
+{
+    *value = *d_iterator++;
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(signed char *value)
+{
+    *value = static_cast<signed char>(*d_iterator++);
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(unsigned *value)
+{
+    BSLMF_ASSERT(4 == sizeof(unsigned));
+
+    const unsigned int byte0 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 0);
+    const unsigned int byte1 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 1);
+    const unsigned int byte2 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 2);
+    const unsigned int byte3 =
+            static_cast<unsigned int>(*d_iterator++) << (8 * 3);
+
+    *value = byte0 + byte1 + byte2 + byte3;
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(int *value)
+{
+    BSLMF_ASSERT(4 == sizeof(int));
+
+    unsigned unsignedValue;
+    this->operator()(&unsignedValue);
+
+    *value = static_cast<int>(unsignedValue);
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(
+                                                     unsigned long long *value)
+{
+    BSLMF_ASSERT(8 == sizeof(unsigned long long));
+
+    const unsigned long long byte0 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 0);
+    const unsigned long long byte1 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 1);
+    const unsigned long long byte2 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 2);
+    const unsigned long long byte3 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 3);
+    const unsigned long long byte4 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 4);
+    const unsigned long long byte5 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 5);
+    const unsigned long long byte6 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 6);
+    const unsigned long long byte7 =
+            static_cast<unsigned long long>(*d_iterator++) << (8 * 7);
+
+    *value = byte0 + byte1 + byte2 + byte3 + byte4 + byte5 + byte6 + byte7;
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(long long *value)
+{
+    BSLMF_ASSERT(8 == sizeof(long long));
+
+    unsigned long long unsignedValue;
+    this->operator()(&unsignedValue);
+
+    *value = static_cast<long long>(unsignedValue);
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(float *value)
+{
+    enum ValueCategories {
+        e_NEGATIVE_INFINITY,
+        e_NEGATIVE_ZERO,
+        e_POSITIVE_ZERO,
+        e_POSITIVE_INFINITY,
+        e_SNAN,
+        e_QNAN,
+        e_SUBNORMAL,
+        e_NORMAL,
+
+        k_NUM_VALUE_CATEGORIES
+    };
+
+    switch (*d_iterator++ % k_NUM_VALUE_CATEGORIES) {
+      case e_NEGATIVE_INFINITY: {
+          *value = -bsl::numeric_limits<float>::infinity();
+          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+      } break;
+      case e_NEGATIVE_ZERO: {
+          *value = 0.f * -1.f;
+          BSLS_ASSERT(bdlb::Float::isZero(*value));
+          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+      } break;
+      case e_POSITIVE_ZERO: {
+          *value = 0.f;
+          BSLS_ASSERT(bdlb::Float::isZero(*value));
+          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+      } break;
+      case e_POSITIVE_INFINITY: {
+          *value = bsl::numeric_limits<float>::infinity();
+          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+      } break;
+      case e_SNAN: {
+          BSLMF_ASSERT(bsl::numeric_limits<float>::has_signaling_NaN);
+          *value = bsl::numeric_limits<float>::signaling_NaN();
+          // Some platforms do not support signaling NaN values and may
+          // implicitly convert such values to non-signaling NaN values.
+          //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
+      } break;
+      case e_QNAN: {
+          BSLMF_ASSERT(bsl::numeric_limits<float>::has_quiet_NaN);
+          *value = bsl::numeric_limits<float>::quiet_NaN();
+          BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
+      } break;
+      case e_SUBNORMAL: {
+          static const float minSubnormal = 1.4012984E-45f;
+
+          int mantissa;
+          this->operator()(&mantissa);
+          mantissa %= 1 << 22;
+
+          *value = static_cast<float>(mantissa) * minSubnormal;
+          BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
+      } break;
+      case e_NORMAL: {
+          int mantissa;
+          this->operator()(&mantissa);
+          mantissa %= 1 << 23;
+
+          int mantissaExponent;
+          float floatMantissa = bsl::frexp(static_cast<float>(mantissa),
+                                           &mantissaExponent);
+          BSLS_ASSERT(floatMantissa >= 0
+                      ?  0.5f <= floatMantissa
+                      : -0.5f >= floatMantissa);
+          BSLS_ASSERT(floatMantissa >= 0
+                      ?  1.0f >= floatMantissa
+                      : -1.0f <= floatMantissa);
+
+          unsigned char exponent;
+          this->operator()(&exponent);
+
+          const int integerExponent = static_cast<int>(exponent % 253) - 125;
+          BSLS_ASSERT(-125 <= integerExponent);
+          BSLS_ASSERT( 127 >= integerExponent);
+
+          *value = bsl::ldexp(floatMantissa, integerExponent);
+
+          BSLS_ASSERT(bdlb::Float::isNormal(*value));
+      } break;
+    }
+}
+
+template <class INPUT_ITERATOR>
+void BasicRandomValueLoader<INPUT_ITERATOR>::operator()(double *value)
+{
+    enum ValueCategories {
+        e_NEGATIVE_INFINITY,
+        e_NEGATIVE_ZERO,
+        e_POSITIVE_ZERO,
+        e_POSITIVE_INFINITY,
+        e_SNAN,
+        e_QNAN,
+        e_SUBNORMAL,
+        e_NORMAL,
+
+        k_NUM_VALUE_CATEGORIES
+    };
+
+    switch (*d_iterator++ % k_NUM_VALUE_CATEGORIES) {
+      case e_NEGATIVE_INFINITY: {
+          *value = -bsl::numeric_limits<double>::infinity();
+          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+      } break;
+      case e_NEGATIVE_ZERO: {
+          *value = 0.0 * -1.0;
+          BSLS_ASSERT(bdlb::Float::isZero(*value));
+          BSLS_ASSERT(1 == bdlb::Float::signBit(*value));
+      } break;
+      case e_POSITIVE_ZERO: {
+          *value = 0.0;
+          BSLS_ASSERT(bdlb::Float::isZero(*value));
+          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+      } break;
+      case e_POSITIVE_INFINITY: {
+          *value = bsl::numeric_limits<double>::infinity();
+          BSLS_ASSERT(bdlb::Float::isInfinite(*value));
+          BSLS_ASSERT(0 == bdlb::Float::signBit(*value));
+      } break;
+      case e_SNAN: {
+          BSLMF_ASSERT(bsl::numeric_limits<double>::has_signaling_NaN);
+          *value = bsl::numeric_limits<double>::signaling_NaN();
+          // Some platforms do not support signaling NaN values and may
+          // implicitly convert such values to non-signaling NaN values.
+          //BSLS_ASSERT(bdlb::Float::isSignalingNan(*value));
+      } break;
+      case e_QNAN: {
+          BSLMF_ASSERT(bsl::numeric_limits<double>::has_quiet_NaN);
+          *value = bsl::numeric_limits<double>::quiet_NaN();
+          BSLS_ASSERT(bdlb::Float::isQuietNan(*value));
+      } break;
+      case e_SUBNORMAL: {
+          static const double minSubnormal = 4.950656458412E-324;
+
+          bsls::Types::Int64 mantissa;
+          this->operator()(&mantissa);
+          mantissa %= 1ll << 52;
+
+          *value = static_cast<double>(mantissa) * minSubnormal;
+          BSLS_ASSERT(bdlb::Float::isSubnormal(*value));
+      } break;
+      case e_NORMAL: {
+          bsls::Types::Int64 mantissa;
+          this->operator()(&mantissa);
+          mantissa %= 1ll << 53;
+
+          int mantissaExponent;
+          double doubleMantissa = bsl::frexp(static_cast<double>(mantissa),
+                                             &mantissaExponent);
+          BSLS_ASSERT(doubleMantissa >= 0
+                      ?  0.5 <= doubleMantissa
+                      : -0.5 >= doubleMantissa);
+          BSLS_ASSERT(doubleMantissa >= 0
+                      ?  1.0 >= doubleMantissa
+                      : -1.0 <= doubleMantissa);
+
+          unsigned int exponent;
+          this->operator()(&exponent);
+
+          const int integerExponent = static_cast<int>(exponent % 2045) - 1021;
+          BSLS_ASSERT(-1022 <= integerExponent);
+          BSLS_ASSERT( 1023 >= integerExponent);
+
+          *value = bsl::ldexp(doubleMantissa, integerExponent);
+
+          BSLS_ASSERT(bdlb::Float::isNormal(*value));
+      } break;
+    }
+}
+
+                       // ------------------------------
+                       // namespace RandomValueFunctions
+                       // ------------------------------
+
+namespace RandomValueFunctions {
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class LOADER>
+void loadRandomValue(VALUE_TYPE *value, LOADER& loader)
+{
+    return loader(value);
+}
+
+}  // close RandomValueFunctions namespace
+
+                           // ----------------------
+                           // struct RandomValueUtil
+                           // ----------------------
+
+// CLASS METHODS
+template <class VALUE_TYPE, class LOADER>
+void RandomValueUtil::load(VALUE_TYPE *value, LOADER& loader)
+{
+    using namespace RandomValueFunctions;
+    loadRandomValue(value, loader);
+}
+
+template <class VALUE_TYPE, class LOADER>
+VALUE_TYPE RandomValueUtil::generate(LOADER& loader)
+{
+    VALUE_TYPE result;
+    load(&result, loader);
+    return result;
+}
+
+template <class INTEGRAL_TYPE, class LOADER>
+INTEGRAL_TYPE RandomValueUtil::generateModulo(LOADER& loader,
+                                              INTEGRAL_TYPE base)
+{
+    BSLS_ASSERT(base >= 0);
+    return generate<INTEGRAL_TYPE>(loader) % base;
+}
+
+template <class INTEGRAL_TYPE, class LOADER>
+INTEGRAL_TYPE RandomValueUtil::generateInInterval(LOADER& loader,
+                                                  INTEGRAL_TYPE minimum,
+                                                  INTEGRAL_TYPE maximum)
+{
+    BSLS_ASSERT(maximum >= minimum);
+
+    const INTEGRAL_TYPE offset = generateModulo(loader, maximum - minimum + 1);
+    return offset >= 0 ? minimum + offset : maximum + offset;
+}
+
+                     // -----------------------------------
+                     // customization point loadRandomValue
+                     // -----------------------------------
+
+template <class LOADER>
+void loadRandomValue(bdldfp::Decimal64 *value, LOADER& loader)
+{
+    static const bsls::Types::Int64 minSignificand = -9999999999999999ll;
+    static const bsls::Types::Int64 maxSignificand =  9999999999999999ll;
+    static const int minExponent = -398;
+    static const int maxExponent = 369;
+
+    const bsls::Types::Int64 significand = RandomValueUtil::generateInInterval(
+                                                               loader         ,
+                                                               minSignificand ,
+                                                               maxSignificand);
+    const int exponent = RandomValueUtil::generateInInterval(loader,
+                                                             minExponent,
+                                                             maxExponent);
+
+    *value = bdldfp::DecimalUtil::makeDecimalRaw64(significand, exponent);
+}
+
+template <class LOADER>
+void loadRandomValue(bsl::string *value, LOADER& loader)
+{
+    static const char *k_WORDS[] = {
+        "lorem",
+        "ipsum",
+        "dolor",
+        "sit",
+        "amet",
+        "consectiteur",
+    };
+
+    enum {
+        k_NUM_WORDS = sizeof k_WORDS / sizeof k_WORDS[0],
+        k_MAX_WORDS = 10
+    };
+
+    bdlsb::MemOutStreamBuf valueStreamBuf;
+    bsl::ostream           valueStream(&valueStreamBuf);
+
+    const int numWords =
+        RandomValueUtil::generateInInterval<int>(loader, 0, k_MAX_WORDS);
+
+    for (int i = 0; i != numWords; ++i) {
+        if (0 != i) {
+            valueStream << " ";
+        }
+
+        const int wordIdx = RandomValueUtil::generateInInterval<int>(
+            loader, 0, k_NUM_WORDS - 1);
+
+        const char *word = k_WORDS[wordIdx];
+
+        valueStream << bslstl::StringRef(word);
+    }
+
+    *value = bslstl::StringRef(valueStreamBuf.data(),
+                               valueStreamBuf.length());
+}
+
+template <class LOADER>
+void loadRandomValue(bdlt::Date *value, LOADER& loader)
+{
+    enum {
+        k_MAX_SERIAL_DATE = 3652059
+    };
+
+    const int serialDate = RandomValueUtil::generateInInterval(
+        loader, 1, static_cast<int>(k_MAX_SERIAL_DATE));
+
+    BSLS_ASSERT(bdlt::ProlepticDateImpUtil::isValidSerial(serialDate));
+
+    int year;
+    int month;
+    int day;
+    bdlt::ProlepticDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
+
+    value->setYearMonthDay(year, month, day);
+}
+
+template <class LOADER>
+void loadRandomValue(bdlt::DateTz *value, LOADER& loader)
+{
+    enum {
+        k_MIN_TIMEZONE_OFFSET = -1439,
+        k_MAX_TIMEZONE_OFFSET =  1439
+    };
+
+    const int offset = RandomValueUtil::generateInInterval(
+        loader,
+        static_cast<int>(k_MIN_TIMEZONE_OFFSET),
+        static_cast<int>(k_MAX_TIMEZONE_OFFSET));
+
+    bdlt::Date localDate;
+    RandomValueUtil::load(&localDate, loader);
+
+    BSLS_ASSERT(bdlt::DateTz::isValid(localDate, offset));
+
+    value->setDateTz(localDate, offset);
+}
+
+template <class LOADER>
+void loadRandomValue(bdlt::Datetime *value, LOADER& loader)
+{
+    bdlt::Date date;
+    RandomValueUtil::load(&date, loader);
+
+    bdlt::Time time;
+    RandomValueUtil::load(&time, loader);
+
+    BSLS_ASSERT(bdlt::Datetime::isValid(date.year(),
+                                        date.month(),
+                                        date.day(),
+                                        time.hour(),
+                                        time.minute(),
+                                        time.second(),
+                                        time.millisecond(),
+                                        time.microsecond()));
+
+    value->setDatetime(date, time);
+}
+
+template <class LOADER>
+void loadRandomValue(bdlt::DatetimeTz *value, LOADER& loader)
+{
+    enum {
+        k_MIN_TIMEZONE_OFFSET = -1439,
+        k_MAX_TIMEZONE_OFFSET =  1439
+    };
+
+    const int offset = RandomValueUtil::generateInInterval(
+        loader,
+        static_cast<int>(k_MIN_TIMEZONE_OFFSET),
+        static_cast<int>(k_MAX_TIMEZONE_OFFSET));
+
+    bdlt::Datetime localDatetime;
+    RandomValueUtil::load(&localDatetime, loader);
+
+    BSLS_ASSERT(bdlt::DatetimeTz::isValid(localDatetime, offset));
+
+    value->setDatetimeTz(localDatetime, offset);
+}
+
+template <class LOADER>
+void loadRandomValue(bdlt::Time *value, LOADER& loader)
+{
+    typedef bdlt::TimeUnitRatio Ratio;
+
+    const bsls::Types::Uint64 numMicroseconds =
+        RandomValueUtil::generateInInterval<bsls::Types::Uint64>(
+            loader, 0, Ratio::k_MICROSECONDS_PER_DAY);
+
+    const unsigned hour = static_cast<unsigned>(
+        numMicroseconds /
+        static_cast<bsls::Types::Uint64>(Ratio::k_MICROSECONDS_PER_HOUR));
+
+    const unsigned hourRemainder = static_cast<unsigned>(
+        numMicroseconds %
+        static_cast<bsls::Types::Uint64>(Ratio::k_MICROSECONDS_PER_HOUR));
+
+    const unsigned minute = hourRemainder / Ratio::k_MICROSECONDS_PER_MINUTE;
+    const unsigned minuteRemainder =
+        hourRemainder % Ratio::k_MICROSECONDS_PER_MINUTE;
+
+    const unsigned second = minuteRemainder / Ratio::k_MICROSECONDS_PER_SECOND;
+    const unsigned secondRemainder =
+        minuteRemainder % Ratio::k_MICROSECONDS_PER_SECOND;
+
+    const unsigned millisecond =
+        secondRemainder / Ratio::k_MICROSECONDS_PER_MILLISECOND;
+    const unsigned millisecondRemainder =
+        secondRemainder % Ratio::k_MICROSECONDS_PER_MILLISECOND;
+
+    const unsigned microsecond = millisecondRemainder;
+
+    BSLS_ASSERT(
+           bdlt::Time::isValid(hour, minute, second, millisecond, microsecond));
+
+    value->setTime(hour, minute, second, millisecond, microsecond);
+}
+
+template <class LOADER>
+void loadRandomValue(bdlt::TimeTz *value, LOADER& loader)
+{
+    enum {
+        k_MIN_TIMEZONE_OFFSET = -1439,
+        k_MAX_TIMEZONE_OFFSET =  1439
+    };
+
+    const int offset = RandomValueUtil::generateInInterval(
+        loader,
+        static_cast<int>(k_MIN_TIMEZONE_OFFSET),
+        static_cast<int>(k_MAX_TIMEZONE_OFFSET));
+
+    bdlt::Time time;
+    RandomValueUtil::load(&time, loader);
+
+    BSLS_ASSERT(bdlt::TimeTz::isValid(time, offset));
+
+    value->setTimeTz(time, offset);
+}
+
+template <class LOADER, class TYPE, class TYPETZ>
+void loadRandomValue(bdlb::Variant2<TYPE, TYPETZ> *value, LOADER& loader)
+{
+    enum {
+        e_TYPE   = 0,
+        e_TYPETZ = 1
+    };
+
+    switch (RandomValueUtil::generate<bool>(loader)) {
+      case e_TYPE: {
+          value->template createInPlace<TYPE>();
+          RandomValueUtil::load(&value->template the<TYPE>(),
+                                loader);
+      } break;
+      case e_TYPETZ: {
+          value->template createInPlace<TYPETZ>();
+          RandomValueUtil::load(&value->template the<TYPETZ>(),
+                                loader);
+      } break;
+    }
+}
+
+                            // --------------------
+                            // struct ByteArrayUtil
+                            // --------------------
+
+// CLASS METHODS
+void ByteArrayUtil::setTheUintAt(unsigned char *begin,
+                                 unsigned char *end,
+                                 bsl::size_t    index,
+                                 unsigned int   value)
+{
+    BSLS_ASSERT(begin <= end);
+    BSLS_ASSERT(static_cast<bsl::size_t>((end - begin) /
+                                         sizeof(unsigned int)) > index);
+    static_cast<void>(end);
+
+    begin += index * sizeof(unsigned int);
+
+    *begin++ = static_cast<unsigned char>((value >> (8 * 0)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 1)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 2)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 3)) & 0xFF);
+}
+
+void ByteArrayUtil::setTheUint64At(unsigned char       *begin,
+                                   unsigned char       *end,
+                                   bsl::size_t          index,
+                                   bsls::Types::Uint64  value)
+{
+    BSLS_ASSERT(begin <= end);
+    BSLS_ASSERT(static_cast<bsl::size_t>((end - begin) /
+                                         sizeof(bsls::Types::Uint64)) > index);
+    static_cast<void>(end);
+
+    begin += index * sizeof(unsigned int);
+
+    *begin++ = static_cast<unsigned char>((value >> (8 * 0)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 1)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 2)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 3)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 4)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 5)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 6)) & 0xFF);
+    *begin++ = static_cast<unsigned char>((value >> (8 * 7)) & 0xFF);
+}
+
+unsigned int ByteArrayUtil::theUintAt(const unsigned char *begin,
+                                      const unsigned char *end,
+                                      bsl::size_t          index)
+{
+    BSLS_ASSERT(begin <= end);
+    BSLS_ASSERT(static_cast<bsl::size_t>((end - begin) /
+                                         sizeof(unsigned int)) > index);
+    static_cast<void>(end);
+
+    begin += index * sizeof(unsigned int);
+
+    const unsigned int byte0 = static_cast<unsigned char>(*begin++);
+    const unsigned int byte1 = static_cast<unsigned char>(*begin++);
+    const unsigned int byte2 = static_cast<unsigned char>(*begin++);
+    const unsigned int byte3 = static_cast<unsigned char>(*begin++);
+
+    return (byte0 << (8 * 0)) + (byte1 << (8 * 1)) + (byte2 << (8 * 2)) +
+           (byte3 << (8 * 3));
+}
+
+                            // --------------------
+                            // class Md5Fingerprint
+                            // --------------------
+
+// CREATORS
+Md5Fingerprint::Md5Fingerprint()
+: d_value()
+{
+}
+
+Md5Fingerprint::Md5Fingerprint(const Md5Fingerprint& original)
+: d_value()
+{
+    bsl::copy(original.d_value,
+              original.d_value + sizeof(original.d_value),
+              d_value);
+}
+
+// MANIPULATORS
+Md5Fingerprint& Md5Fingerprint::operator=(const Md5Fingerprint& original)
+{
+    bsl::copy(original.d_value,
+              original.d_value + sizeof(original.d_value),
+              d_value);
+
+    return *this;
+}
+
+unsigned char& Md5Fingerprint::operator[](bsl::size_t index)
+{
+    BSLS_ASSERT(k_SIZE > index);
+
+    return d_value[index];
+}
+
+void Md5Fingerprint::setTheUintAt(bsl::size_t index, unsigned int value)
+{
+    ByteArrayUtil::setTheUintAt(d_value, d_value + k_SIZE, index, value);
+}
+
+unsigned char *Md5Fingerprint::data()
+{
+    return d_value;
+}
+
+unsigned char *Md5Fingerprint::begin()
+{
+    return d_value;
+}
+
+unsigned char *Md5Fingerprint::end()
+{
+    return d_value + k_SIZE;
+}
+
+// ACCESSORS
+const unsigned char& Md5Fingerprint::operator[](bsl::size_t index) const
+{
+    BSLS_ASSERT(k_SIZE > index);
+
+    return d_value[index];
+}
+
+unsigned int Md5Fingerprint::theUintAt(bsl::size_t index) const
+{
+    return ByteArrayUtil::theUintAt(d_value, d_value + k_SIZE, index);
+}
+
+bsl::size_t Md5Fingerprint::size() const
+{
+    return k_SIZE;
+}
+
+const unsigned char *Md5Fingerprint::begin() const
+{
+    return d_value;
+}
+
+const unsigned char *Md5Fingerprint::end() const
+{
+    return d_value + k_SIZE;
+}
+
+bsl::ostream& Md5Fingerprint::print(bsl::ostream& stream,
+                                    int           level,
+                                    int           spacesPerLevel) const
+{
+    bsl::string leadingWhitespace(level * spacesPerLevel, ' ');
+    stream << leadingWhitespace;
+
+    static const char nibbleCharacters[16] = {
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'f'
+    };
+
+    for (const unsigned char *it = d_value; it != d_value + k_SIZE; ++it) {
+        const unsigned char value = *it;
+        const unsigned char hiNibble = (value >> 4) & 0x0F;
+        const unsigned char loNibble = (value >> 0) & 0x0F;
+
+        const char hiNibbleChar = nibbleCharacters[hiNibble];
+        const char loNibbleChar = nibbleCharacters[loNibble];
+
+        stream << hiNibbleChar << loNibbleChar;
+    }
+
+    return stream;
+}
+
+// FREE FUNCTIONS
+bsl::ostream& operator<<(bsl::ostream& stream, const Md5Fingerprint& object)
+{
+    return object.print(stream);
+}
+
+                          // -------------------------
+                          // struct Md5FingerprintUtil
+                          // -------------------------
+
+// CLASS METHODS
+Md5Fingerprint Md5FingerprintUtil::getSeedValue()
+{
+    Md5Fingerprint result;
+
+    result.setTheUintAt(0, k_A_SEED_VALUE);
+    result.setTheUintAt(1, k_B_SEED_VALUE);
+    result.setTheUintAt(2, k_C_SEED_VALUE);
+    result.setTheUintAt(3, k_D_SEED_VALUE);
+
+    return result;
+}
+
+                               // --------------
+                               // class Md5Block
+                               // --------------
+
+// CREATORS
+Md5Block::Md5Block()
+: d_bytes()
+, d_numBytes(0)
+{
+}
+
+template <class INPUT_ITERATOR>
+Md5Block::Md5Block(INPUT_ITERATOR begin, INPUT_ITERATOR end)
+: d_bytes()
+, d_numBytes(static_cast<unsigned char>(end - begin))
+{
+    if (begin == end) {
+        return;                                                       // RETURN
+    }
+
+    BSLS_ASSERT(begin != end);
+
+    for (unsigned char i = 0; begin != end && i != k_CAPACITY; ++i, ++begin) {
+        d_bytes[i] = *begin;
+    }
+
+    BSLS_ASSERT(begin == end);
+}
+
+Md5Block::Md5Block(const Md5Block& original)
+: d_bytes()
+, d_numBytes(original.d_numBytes)
+{
+    BSLS_ASSERT(0 <= original.d_numBytes);
+    BSLS_ASSERT(k_CAPACITY >= original.d_numBytes);
+
+    bsl::copy(original.d_bytes,
+              original.d_bytes + original.d_numBytes,
+              d_bytes);
+}
+
+// MANIPULATORS
+Md5Block& Md5Block::operator=(const Md5Block& original)
+{
+    BSLS_ASSERT(0 <= original.d_numBytes);
+    BSLS_ASSERT(k_CAPACITY >= original.d_numBytes);
+
+    bsl::copy(original.d_bytes,
+              original.d_bytes + original.d_numBytes,
+              d_bytes);
+
+    d_numBytes = original.d_numBytes;
+
+    return *this;
+}
+
+unsigned char &Md5Block::operator[](bsl::size_t index)
+{
+    BSLS_ASSERT(d_numBytes > index);
+
+    return d_bytes[index];
+}
+
+void Md5Block::setTheUintAt(bsl::size_t index, unsigned int value)
+{
+    ByteArrayUtil::setTheUintAt(d_bytes, d_bytes + d_numBytes, index, value);
+}
+
+unsigned char *Md5Block::begin()
+{
+    return d_bytes;
+}
+
+unsigned char *Md5Block::end()
+{
+    return d_bytes + d_numBytes;
+}
+
+void Md5Block::clear()
+{
+    bsl::fill(d_bytes, d_bytes + d_numBytes, 0);
+    d_numBytes = 0;
+}
+
+void Md5Block::resize(bsl::size_t newSize)
+{
+    BSLS_ASSERT(k_CAPACITY >= newSize);
+
+    unsigned char *const clearBegin =
+        d_bytes + bsl::min(static_cast<bsl::size_t>(d_numBytes), newSize);
+    unsigned char *const clearEnd =
+        d_bytes + bsl::max(static_cast<bsl::size_t>(d_numBytes), newSize);
+
+    bsl::fill(clearBegin, clearEnd, 0);
+
+    d_numBytes = static_cast<unsigned char>(newSize);
+}
+
+// ACCESSORS
+const unsigned char& Md5Block::operator[](bsl::size_t index) const
+{
+    BSLS_ASSERT(d_numBytes > index);
+
+    return d_bytes[index];
+}
+
+unsigned int Md5Block::theUintAt(bsl::size_t index) const
+{
+    return ByteArrayUtil::theUintAt(d_bytes, d_bytes + d_numBytes, index);
+}
+
+const unsigned char *Md5Block::begin() const
+{
+    return d_bytes;
+}
+
+const unsigned char *Md5Block::end() const
+{
+    return d_bytes + d_numBytes;
+}
+
+bool Md5Block::full() const
+{
+    return k_CAPACITY == d_numBytes;
+}
+
+bool Md5Block::empty() const
+{
+    return 0 == d_numBytes;
+}
+
+bsl::size_t Md5Block::size() const
+{
+    return d_numBytes;
+}
+
+// FREE FUNCTIONS
+bool operator==(const Md5Block& lhs, const Md5Block& rhs)
+{
+    return lhs.size() == rhs.size() &&
+           bsl::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+bool operator!=(const Md5Block& lhs, const Md5Block& rhs)
+{
+    return lhs.size() != rhs.size() ||
+           !bsl::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+                             // -------------------
+                             // struct Md5BlockUtil
+                             // -------------------
+
+// CLASS METHODS
+void Md5BlockUtil::appendUint64(Md5Block *block, bsls::Types::Uint64 value)
+{
+    BSLS_ASSERT(block->size() <=
+                Md5Block::k_CAPACITY - sizeof(bsls::Types::Uint64));
+
+    block->resize(block->size() + sizeof(bsls::Types::Uint64));
+
+    unsigned char *const begin = block->end() - sizeof(bsls::Types::Uint64);
+    unsigned char *const end   = block->end();
+
+    ByteArrayUtil::setTheUint64At(begin, end, 0, value);
+}
+
+void Md5BlockUtil::concatenate(Md5Block *first, Md5Block *second)
+{
+    const bsl::size_t totalSize = first->size() + second->size();
+
+    const bsl::size_t newFirstSize =
+        bsl::min(totalSize, static_cast<bsl::size_t>(Md5Block::k_CAPACITY));
+    const bsl::size_t newSecondSize = totalSize - newFirstSize;
+
+    const bsl::size_t sliceIndex =
+        bsl::min(second->size(), Md5Block::k_CAPACITY - first->size());
+
+    BSLS_ASSERT_SAFE(Md5Block::k_CAPACITY >= newFirstSize);
+    BSLS_ASSERT_SAFE(Md5Block::k_CAPACITY != newFirstSize
+                         ? 0 == newSecondSize
+                         : true);
+    BSLS_ASSERT_SAFE(newFirstSize + newSecondSize == totalSize);
+
+    BSLS_ASSERT_SAFE(newFirstSize >= first->size());
+    const bsl::size_t oldFirstSize = first->size();
+    first->resize(newFirstSize);
+    unsigned char *const firstInsertionPoint = first->begin() + oldFirstSize;
+
+    BSLS_ASSERT_SAFE(Md5Block::k_CAPACITY >= oldFirstSize + sliceIndex);
+    bsl::copy(
+        second->begin(), second->begin() + sliceIndex, firstInsertionPoint);
+
+    bsl::rotate(second->begin(), second->begin() + sliceIndex, second->end());
+    BSLS_ASSERT_SAFE(newSecondSize <= second->size());
+    second->resize(newSecondSize);
+}
+
+                         // ---------------------------
+                         // class Md5BlockInputIterator
+                         // ---------------------------
+
+// CLASS METHODS
+bool Md5BlockInputIterator::areEqual(const Md5BlockInputIterator& lhs,
+                                     const Md5BlockInputIterator& rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.d_iterator_p == rhs.d_iterator_p &&
+                             lhs.d_end_p == rhs.d_end_p
+                         ? lhs.d_block == rhs.d_block
+                         : true);
+    BSLS_ASSERT_SAFE(lhs.d_block != rhs.d_block
+                         ? lhs.d_iterator_p != rhs.d_iterator_p ||
+                               lhs.d_end_p != rhs.d_end_p
+                         : true);
+
+    return lhs.d_iterator_p == rhs.d_iterator_p && lhs.d_end_p == rhs.d_end_p;
+}
+
+// CREATORS
+Md5BlockInputIterator::Md5BlockInputIterator()
+: d_block()
+, d_iterator_p(0)
+, d_end_p(0)
+{
+}
+
+Md5BlockInputIterator::Md5BlockInputIterator(const unsigned char *begin,
+                                             const unsigned char *end)
+: d_block()
+, d_iterator_p(begin)
+, d_end_p(end)
+{
+    if (begin < end) {
+        const bsl::size_t firstBlockSize =
+            bsl::min(static_cast<bsl::size_t>(Md5Block::k_CAPACITY),
+                     static_cast<bsl::size_t>(end - begin));
+
+        BSLS_ASSERT_SAFE(Md5Block::k_CAPACITY >= firstBlockSize);
+
+        d_block.resize(firstBlockSize);
+        bsl::copy(begin, begin + firstBlockSize, d_block.begin());
+    }
+}
+
+Md5BlockInputIterator::Md5BlockInputIterator(
+                                         const Md5BlockInputIterator& original)
+: d_block(original.d_block)
+, d_iterator_p(original.d_iterator_p)
+, d_end_p(original.d_end_p)
+{
+}
+
+// MANIPULATORS
+Md5BlockInputIterator& Md5BlockInputIterator::operator=(
+                                         const Md5BlockInputIterator& original)
+{
+    d_block      = original.d_block;
+    d_iterator_p = original.d_iterator_p;
+    d_end_p      = original.d_end_p;
+
+    return *this;
+}
+
+Md5BlockInputIterator& Md5BlockInputIterator::operator++()
+{
+    d_iterator_p += Md5Block::k_CAPACITY;
+
+    if (d_iterator_p < d_end_p) {
+        const bsl::size_t blockSize =
+            bsl::min(static_cast<bsl::size_t>(Md5Block::k_CAPACITY),
+                     static_cast<bsl::size_t>(d_end_p - d_iterator_p));
+
+        BSLS_ASSERT_SAFE(Md5Block::k_CAPACITY >= blockSize);
+
+        d_block.resize(blockSize);
+        bsl::copy(d_iterator_p, d_iterator_p + blockSize, d_block.begin());
+    }
+    else {
+        d_block.clear();
+    }
+
+    return *this;
+}
+
+Md5BlockInputIterator Md5BlockInputIterator::operator++(int)
+{
+    Md5BlockInputIterator result = *this;
+    this->operator++();
+    return result;
+}
+
+// ACCESSORS
+const Md5Block& Md5BlockInputIterator::operator*() const
+{
+    return d_block;
+}
+
+const Md5Block *Md5BlockInputIterator::operator->() const
+{
+    return &d_block;
+}
+
+// FREE FUNCTIONS
+bool operator==(const Md5BlockInputIterator& lhs,
+                const Md5BlockInputIterator& rhs)
+{
+    return Md5BlockInputIterator::areEqual(lhs, rhs);
+}
+
+bool operator!=(const Md5BlockInputIterator& lhs,
+                const Md5BlockInputIterator& rhs)
+{
+    return !Md5BlockInputIterator::areEqual(lhs, rhs);
+}
+
+                          // ------------------------
+                          // class Md5BlockInputRange
+                          // ------------------------
+
+// CREATORS
+Md5BlockInputRange::Md5BlockInputRange(const unsigned char *begin,
+                                       const unsigned char *end)
+: d_begin(begin, end)
+, d_end(end + (Md5Block::k_CAPACITY - ((end - begin) % Md5Block::k_CAPACITY)),
+        end)
+{
+    BSLS_ASSERT(begin <= end);
+}
+
+// ACCESSORS
+Md5BlockInputIterator Md5BlockInputRange::begin() const
+{
+    return d_begin;
+}
+
+Md5BlockInputIterator Md5BlockInputRange::end() const
+{
+    return d_end;
+}
+
+                               // --------------
+                               // class Md5State
+                               // --------------
+
+// CREATORS
+Md5State::Md5State()
+: d_fingerprint()
+, d_block()
+, d_numBlocksConsumed(0)
+{
+}
+
+Md5State::Md5State(const Md5Fingerprint& fingerprint)
+: d_fingerprint(fingerprint)
+, d_block()
+, d_numBlocksConsumed(0)
+{
+}
+
+Md5State::Md5State(const Md5Fingerprint& fingerprint, const Md5Block& block)
+: d_fingerprint(fingerprint)
+, d_block(block)
+, d_numBlocksConsumed(0)
+{
+}
+
+Md5State::Md5State(const Md5Fingerprint& fingerprint,
+                   const Md5Block&       block,
+                   bsls::Types::Uint64   numBlocksConsumed)
+: d_fingerprint(fingerprint)
+, d_block(block)
+, d_numBlocksConsumed(numBlocksConsumed)
+{
+}
+
+Md5State::Md5State(const Md5State& original)
+: d_fingerprint(original.d_fingerprint)
+, d_block(original.d_block)
+, d_numBlocksConsumed(original.d_numBlocksConsumed)
+{
+}
+
+// MANIPULATORS
+Md5State& Md5State::operator=(const Md5State& original)
+{
+    d_fingerprint       = original.d_fingerprint;
+    d_block             = original.d_block;
+    d_numBlocksConsumed = original.d_numBlocksConsumed;
+
+    return *this;
+}
+
+void Md5State::setFingerprint(const Md5Fingerprint& value)
+{
+    d_fingerprint = value;
+}
+
+void Md5State::setBlock(const Md5Block& value)
+{
+    d_block = value;
+}
+
+void Md5State::setNumBlocksConsumed(bsls::Types::Uint64 value)
+{
+    d_numBlocksConsumed = value;
+}
+
+// ACCESSORS
+const Md5Fingerprint& Md5State::fingerprint() const
+{
+    return d_fingerprint;
+}
+
+const Md5Block& Md5State::block() const
+{
+    return d_block;
+}
+
+bsls::Types::Uint64 Md5State::numBlocksConsumed() const
+{
+    return d_numBlocksConsumed;
+}
+
+                             // -------------------
+                             // struct Md5StateUtil
+                             // -------------------
+
+// CLASS METHODS
+Md5State Md5StateUtil::getSeedValue()
+{
+    Md5State result;
+    loadSeedValue(&result);
+    return result;
+}
+
+void Md5StateUtil::loadSeedValue(Md5State *value)
+{
+    value->setFingerprint(Md5FingerprintUtil::getSeedValue());
+    value->setBlock(Md5Block());
+    value->setNumBlocksConsumed(0);
+}
+
+void Md5StateUtil::append(Md5State *state, const Md5Block& block)
+{
+    Md5Block block0 = state->block();
+    Md5Block block1 = block;
+    Md5BlockUtil::concatenate(&block0, &block1);
+
+    if (!block0.full()) {
+        BSLS_ASSERT(block1.empty());
+
+        state->setBlock(block0);
+        return;                                                       // RETURN
+    }
+
+    BSLS_ASSERT(block0.full());
+    state->setFingerprint(digest(state->fingerprint(), block0));
+    state->setBlock(block1);
+    state->setNumBlocksConsumed(state->numBlocksConsumed() + 1);
+}
+
+void Md5StateUtil::appendPaddingAndLength(Md5State *state)
+{
+    enum {
+        k_PADDED_SIZE = 56
+    };
+
+    const bsl::size_t paddingSize =
+            state->block().size() < k_PADDED_SIZE
+          ? k_PADDED_SIZE - state->block().size()
+          : k_PADDED_SIZE + Md5Block::k_CAPACITY - state->block().size();
+
+    BSLS_ASSERT(0 != paddingSize);
+    BSLS_ASSERT(Md5Block::k_CAPACITY >= paddingSize);
+
+    static const unsigned char paddingBuffer[Md5Block::k_CAPACITY] = {0x80};
+    const unsigned char *const beginPadding = paddingBuffer;
+    const unsigned char *const endPadding   = paddingBuffer + paddingSize;
+
+    Md5Block paddedBlock0 = state->block();
+    Md5Block paddedBlock1(beginPadding, endPadding);
+    Md5BlockUtil::concatenate(&paddedBlock0, &paddedBlock1);
+
+    Md5Fingerprint       fingerprint        = state->fingerprint();
+    Md5Block            *finalBlockPtr      = &paddedBlock0;
+    bsls::Types::Uint64  numBlocksToConsume = 1;
+
+    if (!paddedBlock1.empty()) {
+        BSLS_ASSERT(Md5Block::k_CAPACITY == paddedBlock0.size());
+        BSLS_ASSERT(k_PADDED_SIZE == paddedBlock1.size());
+
+        digest(&fingerprint, paddedBlock0);
+        finalBlockPtr      = &paddedBlock1;
+        numBlocksToConsume = 2;
+    }
+
+    BSLS_ASSERT(k_PADDED_SIZE == finalBlockPtr->size());
+
+    const bsls::Types::Uint64 numBitsConsumed =
+            8 * (state->numBlocksConsumed() * Md5Block::k_CAPACITY +
+                 state->block().size());
+    Md5BlockUtil::appendUint64(finalBlockPtr, numBitsConsumed);
+
+    BSLS_ASSERT(Md5Block::k_CAPACITY == finalBlockPtr->size());
+
+    digest(&fingerprint, *finalBlockPtr);
+
+    state->setFingerprint(fingerprint);
+    state->setBlock(Md5Block());
+    state->setNumBlocksConsumed(state->numBlocksConsumed() +
+                                numBlocksToConsume);
+}
+
+void Md5StateUtil::digest(Md5Fingerprint *fingerprint, const Md5Block& block)
+{
+    BSLS_ASSERT(block.full());
+
+    unsigned int a = fingerprint->theUintAt(0);
+    unsigned int b = fingerprint->theUintAt(1);
+    unsigned int c = fingerprint->theUintAt(2);
+    unsigned int d = fingerprint->theUintAt(3);
+
+    // Create a concise alias for 'block'.
+    const Md5Block& x = block;
+
+    // Save 'a' as 'aa', 'b' as 'bb', 'c' as 'cc', and 'd' as 'dd'.
+    unsigned int aa = a;
+    unsigned int bb = b;
+    unsigned int cc = c;
+    unsigned int dd = d;
+
+    // Create a local alias to the implementation utility.
+    typedef Md5StateUtil_ImplUtil ImplUtil;
+
+    // Create local aliases for the tables used to provide constants
+    // to the bit manipulation operations.
+    const unsigned int (&i)[4][16] = ImplUtil::k_I_TABLE;
+    const unsigned int (&k)[4][16] = ImplUtil::k_K_TABLE;
+    const unsigned int (&s)[4][16] = ImplUtil::k_S_TABLE;
+
+    // Round 1: Do the following 16 operations,
+    ImplUtil::round1Op(&a, &b, &c, &d, x, i[0][ 0], k[0][ 0], s[0][ 0]);
+    ImplUtil::round1Op(&d, &a, &b, &c, x, i[0][ 1], k[0][ 1], s[0][ 1]);
+    ImplUtil::round1Op(&c, &d, &a, &b, x, i[0][ 2], k[0][ 2], s[0][ 2]);
+    ImplUtil::round1Op(&b, &c, &d, &a, x, i[0][ 3], k[0][ 3], s[0][ 3]);
+
+    ImplUtil::round1Op(&a, &b, &c, &d, x, i[0][ 4], k[0][ 4], s[0][ 4]);
+    ImplUtil::round1Op(&d, &a, &b, &c, x, i[0][ 5], k[0][ 5], s[0][ 5]);
+    ImplUtil::round1Op(&c, &d, &a, &b, x, i[0][ 6], k[0][ 6], s[0][ 6]);
+    ImplUtil::round1Op(&b, &c, &d, &a, x, i[0][ 7], k[0][ 7], s[0][ 7]);
+
+    ImplUtil::round1Op(&a, &b, &c, &d, x, i[0][ 8], k[0][ 8], s[0][ 8]);
+    ImplUtil::round1Op(&d, &a, &b, &c, x, i[0][ 9], k[0][ 9], s[0][ 9]);
+    ImplUtil::round1Op(&c, &d, &a, &b, x, i[0][10], k[0][10], s[0][10]);
+    ImplUtil::round1Op(&b, &c, &d, &a, x, i[0][11], k[0][11], s[0][11]);
+
+    ImplUtil::round1Op(&a, &b, &c, &d, x, i[0][12], k[0][12], s[0][12]);
+    ImplUtil::round1Op(&d, &a, &b, &c, x, i[0][13], k[0][13], s[0][13]);
+    ImplUtil::round1Op(&c, &d, &a, &b, x, i[0][14], k[0][14], s[0][14]);
+    ImplUtil::round1Op(&b, &c, &d, &a, x, i[0][15], k[0][15], s[0][15]);
+
+    // Round 2: Do the following 16 operations,
+    ImplUtil::round2Op(&a, &b, &c, &d, x, i[1][ 0], k[1][ 0], s[1][ 0]);
+    ImplUtil::round2Op(&d, &a, &b, &c, x, i[1][ 1], k[1][ 1], s[1][ 1]);
+    ImplUtil::round2Op(&c, &d, &a, &b, x, i[1][ 2], k[1][ 2], s[1][ 2]);
+    ImplUtil::round2Op(&b, &c, &d, &a, x, i[1][ 3], k[1][ 3], s[1][ 3]);
+
+    ImplUtil::round2Op(&a, &b, &c, &d, x, i[1][ 4], k[1][ 4], s[1][ 4]);
+    ImplUtil::round2Op(&d, &a, &b, &c, x, i[1][ 5], k[1][ 5], s[1][ 5]);
+    ImplUtil::round2Op(&c, &d, &a, &b, x, i[1][ 6], k[1][ 6], s[1][ 6]);
+    ImplUtil::round2Op(&b, &c, &d, &a, x, i[1][ 7], k[1][ 7], s[1][ 7]);
+
+    ImplUtil::round2Op(&a, &b, &c, &d, x, i[1][ 8], k[1][ 8], s[1][ 8]);
+    ImplUtil::round2Op(&d, &a, &b, &c, x, i[1][ 9], k[1][ 9], s[1][ 9]);
+    ImplUtil::round2Op(&c, &d, &a, &b, x, i[1][10], k[1][10], s[1][10]);
+    ImplUtil::round2Op(&b, &c, &d, &a, x, i[1][11], k[1][11], s[1][11]);
+
+    ImplUtil::round2Op(&a, &b, &c, &d, x, i[1][12], k[1][12], s[1][12]);
+    ImplUtil::round2Op(&d, &a, &b, &c, x, i[1][13], k[1][13], s[1][13]);
+    ImplUtil::round2Op(&c, &d, &a, &b, x, i[1][14], k[1][14], s[1][14]);
+    ImplUtil::round2Op(&b, &c, &d, &a, x, i[1][15], k[1][15], s[1][15]);
+
+    // Round 3: Do the following 16 operations,
+    ImplUtil::round3Op(&a, &b, &c, &d, x, i[2][ 0], k[2][ 0], s[2][ 0]);
+    ImplUtil::round3Op(&d, &a, &b, &c, x, i[2][ 1], k[2][ 1], s[2][ 1]);
+    ImplUtil::round3Op(&c, &d, &a, &b, x, i[2][ 2], k[2][ 2], s[2][ 2]);
+    ImplUtil::round3Op(&b, &c, &d, &a, x, i[2][ 3], k[2][ 3], s[2][ 3]);
+
+    ImplUtil::round3Op(&a, &b, &c, &d, x, i[2][ 4], k[2][ 4], s[2][ 4]);
+    ImplUtil::round3Op(&d, &a, &b, &c, x, i[2][ 5], k[2][ 5], s[2][ 5]);
+    ImplUtil::round3Op(&c, &d, &a, &b, x, i[2][ 6], k[2][ 6], s[2][ 6]);
+    ImplUtil::round3Op(&b, &c, &d, &a, x, i[2][ 7], k[2][ 7], s[2][ 7]);
+
+    ImplUtil::round3Op(&a, &b, &c, &d, x, i[2][ 8], k[2][ 8], s[2][ 8]);
+    ImplUtil::round3Op(&d, &a, &b, &c, x, i[2][ 9], k[2][ 9], s[2][ 9]);
+    ImplUtil::round3Op(&c, &d, &a, &b, x, i[2][10], k[2][10], s[2][10]);
+    ImplUtil::round3Op(&b, &c, &d, &a, x, i[2][11], k[2][11], s[2][11]);
+
+    ImplUtil::round3Op(&a, &b, &c, &d, x, i[2][12], k[2][12], s[2][12]);
+    ImplUtil::round3Op(&d, &a, &b, &c, x, i[2][13], k[2][13], s[2][13]);
+    ImplUtil::round3Op(&c, &d, &a, &b, x, i[2][14], k[2][14], s[2][14]);
+    ImplUtil::round3Op(&b, &c, &d, &a, x, i[2][15], k[2][15], s[2][15]);
+
+    // Round 4: Do the following 16 operations,
+    ImplUtil::round4Op(&a, &b, &c, &d, x, i[3][ 0], k[3][ 0], s[3][ 0]);
+    ImplUtil::round4Op(&d, &a, &b, &c, x, i[3][ 1], k[3][ 1], s[3][ 1]);
+    ImplUtil::round4Op(&c, &d, &a, &b, x, i[3][ 2], k[3][ 2], s[3][ 2]);
+    ImplUtil::round4Op(&b, &c, &d, &a, x, i[3][ 3], k[3][ 3], s[3][ 3]);
+
+    ImplUtil::round4Op(&a, &b, &c, &d, x, i[3][ 4], k[3][ 4], s[3][ 4]);
+    ImplUtil::round4Op(&d, &a, &b, &c, x, i[3][ 5], k[3][ 5], s[3][ 5]);
+    ImplUtil::round4Op(&c, &d, &a, &b, x, i[3][ 6], k[3][ 6], s[3][ 6]);
+    ImplUtil::round4Op(&b, &c, &d, &a, x, i[3][ 7], k[3][ 7], s[3][ 7]);
+
+    ImplUtil::round4Op(&a, &b, &c, &d, x, i[3][ 8], k[3][ 8], s[3][ 8]);
+    ImplUtil::round4Op(&d, &a, &b, &c, x, i[3][ 9], k[3][ 9], s[3][ 9]);
+    ImplUtil::round4Op(&c, &d, &a, &b, x, i[3][10], k[3][10], s[3][10]);
+    ImplUtil::round4Op(&b, &c, &d, &a, x, i[3][11], k[3][11], s[3][11]);
+
+    ImplUtil::round4Op(&a, &b, &c, &d, x, i[3][12], k[3][12], s[3][12]);
+    ImplUtil::round4Op(&d, &a, &b, &c, x, i[3][13], k[3][13], s[3][13]);
+    ImplUtil::round4Op(&c, &d, &a, &b, x, i[3][14], k[3][14], s[3][14]);
+    ImplUtil::round4Op(&b, &c, &d, &a, x, i[3][15], k[3][15], s[3][15]);
+
+    fingerprint->setTheUintAt(0, a + aa);
+    fingerprint->setTheUintAt(1, b + bb);
+    fingerprint->setTheUintAt(2, c + cc);
+    fingerprint->setTheUintAt(3, d + dd);
+}
+
+Md5Fingerprint Md5StateUtil::digest(const Md5State& state)
+{
+    return digest(state.fingerprint(), state.block());
+}
+
+Md5Fingerprint Md5StateUtil::digest(const Md5Fingerprint& fingerprint,
+                                    const Md5Block&       block)
+{
+    Md5Fingerprint result = fingerprint;
+    digest(&result, block);
+    return result;
+}
+
+                        // ----------------------------
+                        // struct Md5StateUtil_ImplUtil
+                        // ----------------------------
+
+// CLASS DATA
+const unsigned int Md5StateUtil_ImplUtil::k_T_TABLE[64] = {
+    // Round 1
+    0xD76AA478, //  1
+    0xE8C7B756, //  2
+    0x242070DB, //  3
+    0xC1BDCEEE, //  4
+    0xF57C0FAF, //  5
+    0x4787C62A, //  6
+    0xA8304613, //  7
+    0xFD469501, //  8
+    0x698098D8, //  9
+    0x8B44F7AF, // 10
+    0xFFFF5BB1, // 11
+    0x895CD7BE, // 12
+    0x6B901122, // 13
+    0xFD987193, // 14
+    0xA679438E, // 15
+    0x49B40821, // 16
+
+    // Round 2
+    0xF61E2562, // 17
+    0xC040B340, // 18
+    0x265E5A51, // 19
+    0xE9B6C7AA, // 20
+    0xD62F105D, // 21
+    0x02441453, // 22
+    0xD8a1E681, // 23
+    0xE7D3FBC8, // 24
+    0x21E1CDE6, // 25
+    0xC33707D6, // 26
+    0xF4D50D87, // 27
+    0x455A14ED, // 28
+    0xA9E3E905, // 29
+    0xFCEFA3F8, // 30
+    0x676F02D9, // 31
+    0x8D2A4C8A, // 32
+
+    // Round 3
+    0xFFFA3942, // 33
+    0x8771F681, // 34
+    0x6D9D6122, // 35
+    0xFDE5380C, // 36
+    0xA4BEEA44, // 37
+    0x4BDECFA9, // 38
+    0xF6BB4B60, // 39
+    0xBEBFBC70, // 40
+    0x289B7EC6, // 41
+    0xEAA127FA, // 42
+    0xD4EF3085, // 43
+    0x04881D05, // 44
+    0xD9D4D039, // 45
+    0xE6DB99E5, // 46
+    0x1FA27CF8, // 47
+    0xC4AC5665, // 48
+
+    // Round 4
+    0xF4292244, // 49
+    0x432AFF97, // 50
+    0xAB9423A7, // 51
+    0xFC93A039, // 52
+    0x655B59C3, // 53
+    0x8F0CCC92, // 54
+    0xFFEFF47D, // 55
+    0x85845DD1, // 56
+    0x6FA87E4F, // 57
+    0xFE2CE6E0, // 58
+    0xA3014314, // 59
+    0x4E0811A1, // 60
+    0xF7537E82, // 61
+    0xBD3AF235, // 62
+    0x2AD7D2BB, // 63
+    0xEB86D391  // 64
+};
+
+const unsigned int Md5StateUtil_ImplUtil::k_I_TABLE[4][16] = {
+    {
+        // Round 1
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+    },
+    {
+        // Round 2
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+    },
+    {
+        // Round 3
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+    },
+    {
+        // Round 4
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+    }
+};
+
+const unsigned int Md5StateUtil_ImplUtil::k_K_TABLE[4][16] = {
+    {
+        // Round 1
+        0,
+        1,
+        2,
+        3,
+
+        4,
+        5,
+        6,
+        7,
+
+        8,
+        9,
+        10,
+        11,
+
+        12,
+        13,
+        14,
+        15
+    },
+    {
+        // Round 2
+        1,
+        6,
+        11,
+        0,
+
+        5,
+        10,
+        15,
+        4,
+
+        9,
+        14,
+        3,
+        8,
+
+        13,
+        2,
+        7,
+        12
+    },
+    {
+        // Round 3
+        5,
+        8,
+        11,
+        14,
+
+        1,
+        4,
+        7,
+        10,
+
+        13,
+        0,
+        3,
+        6,
+
+        9,
+        12,
+        15,
+        2
+    },
+    {
+        // Round 4
+        0,
+        7,
+        14,
+        5,
+
+        12,
+        3,
+        10,
+        1,
+
+        8,
+        15,
+        6,
+        13,
+
+        4,
+        11,
+        2,
+        9
+    },
+};
+
+const unsigned int Md5StateUtil_ImplUtil::k_S_TABLE[4][16] = {
+    {
+        // Round 1
+        7,
+        12,
+        17,
+        22,
+
+        7,
+        12,
+        17,
+        22,
+
+        7,
+        12,
+        17,
+        22,
+
+        7,
+        12,
+        17,
+        22
+    },
+    {
+        // Round 2
+        5,
+        9,
+        14,
+        20,
+
+        5,
+        9,
+        14,
+        20,
+
+        5,
+        9,
+        14,
+        20,
+
+        5,
+        9,
+        14,
+        20
+    },
+    {
+        // Round 3
+        4,
+        11,
+        16,
+        23,
+
+        4,
+        11,
+        16,
+        23,
+
+        4,
+        11,
+        16,
+        23,
+
+        4,
+        11,
+        16,
+        23
+    },
+    {
+        // Round 4
+        6,
+        10,
+        15,
+        21,
+
+        6,
+        10,
+        15,
+        21,
+
+        6,
+        10,
+        15,
+        21,
+
+        6,
+        10,
+        15,
+        21
+    },
+};
+
+// PRIVATE CLASS METHODS
+unsigned int Md5StateUtil_ImplUtil::f(unsigned int x,
+                                      unsigned int y,
+                                      unsigned int z)
+{
+    return (x & y) | (~x & z);
+}
+
+unsigned int Md5StateUtil_ImplUtil::g(unsigned int x,
+                                      unsigned int y,
+                                      unsigned int z)
+{
+    return (x & z) | (y & ~z);
+}
+
+unsigned int Md5StateUtil_ImplUtil::h(unsigned int x,
+                                      unsigned int y,
+                                      unsigned int z)
+{
+    return (x ^ y) ^ z;
+}
+
+unsigned int Md5StateUtil_ImplUtil::i(unsigned int x,
+                                      unsigned int y,
+                                      unsigned int z)
+{
+    return y ^ (x | ~z);
+}
+
+inline
+unsigned int Md5StateUtil_ImplUtil::rotateLeft(unsigned int value,
+                                               unsigned int numBits)
+{
+    BSLMF_ASSERT(4 == sizeof(unsigned int));
+
+    return (value << (numBits % 32)) | (value >> (32 - (numBits % 32)));
+}
+
+// CLASS METHODS
+void Md5StateUtil_ImplUtil::round1Op(unsigned int    *aPtr,
+                                     unsigned int    *bPtr,
+                                     unsigned int    *cPtr,
+                                     unsigned int    *dPtr,
+                                     const Md5Block&  x,
+                                     unsigned int     i,
+                                     unsigned int     k,
+                                     unsigned int     s)
+{
+    unsigned int& a = *aPtr;
+    unsigned int& b = *bPtr;
+    unsigned int& c = *cPtr;
+    unsigned int& d = *dPtr;
+
+    const unsigned int (&t)[64] = k_T_TABLE;
+
+    a = b + rotateLeft(a + f(b,c,d) + x.theUintAt(k) + t[i], s);
+}
+
+void Md5StateUtil_ImplUtil::round2Op(unsigned int    *aPtr,
+                                     unsigned int    *bPtr,
+                                     unsigned int    *cPtr,
+                                     unsigned int    *dPtr,
+                                     const Md5Block&  x,
+                                     unsigned int     i,
+                                     unsigned int     k,
+                                     unsigned int     s)
+{
+    unsigned int& a = *aPtr;
+    unsigned int& b = *bPtr;
+    unsigned int& c = *cPtr;
+    unsigned int& d = *dPtr;
+
+    const unsigned int (&t)[64] = k_T_TABLE;
+
+    a = b + rotateLeft(a + g(b,c,d) + x.theUintAt(k) + t[i], s);
+}
+
+void Md5StateUtil_ImplUtil::round3Op(unsigned int    *aPtr,
+                                     unsigned int    *bPtr,
+                                     unsigned int    *cPtr,
+                                     unsigned int    *dPtr,
+                                     const Md5Block&  x,
+                                     unsigned int     i,
+                                     unsigned int     k,
+                                     unsigned int     s)
+{
+    unsigned int& a = *aPtr;
+    unsigned int& b = *bPtr;
+    unsigned int& c = *cPtr;
+    unsigned int& d = *dPtr;
+
+    const unsigned int (&t)[64] = k_T_TABLE;
+
+    a = b + rotateLeft(a + h(b,c,d) + x.theUintAt(k) + t[i], s);
+}
+
+void Md5StateUtil_ImplUtil::round4Op(unsigned int    *aPtr,
+                                     unsigned int    *bPtr,
+                                     unsigned int    *cPtr,
+                                     unsigned int    *dPtr,
+                                     const Md5Block&  x,
+                                     unsigned int     iIdx,
+                                     unsigned int     k,
+                                     unsigned int     s)
+{
+    unsigned int& a = *aPtr;
+    unsigned int& b = *bPtr;
+    unsigned int& c = *cPtr;
+    unsigned int& d = *dPtr;
+
+    const unsigned int (&t)[64] = k_T_TABLE;
+
+    a = b + rotateLeft(a + i(b,c,d) + x.theUintAt(k) + t[iIdx], s);
+}
+
+                               // --------------
+                               // struct Md5Util
+                               // --------------
+
+// CLASS METHODS
+Md5Fingerprint Md5Util::getFingerprint(const unsigned char *begin,
+                                       const unsigned char *end)
+{
+    const Md5BlockInputRange range(begin, end);
+
+    Md5State state;
+    Md5StateUtil::loadSeedValue(&state);
+
+    for (Md5BlockInputIterator it  = range.begin();
+                               it != range.end();
+                             ++it) {
+        Md5StateUtil::append(&state, *it);
+    }
+
+    Md5StateUtil::appendPaddingAndLength(&state);
+
+    return state.fingerprint();
+}
+
+                         // --------------------------
+                         // class Md5ChecksumAlgorithm
+                         // --------------------------
+
+
+// CREATORS
+Md5ChecksumAlgorithm::Md5ChecksumAlgorithm()
+: d_state(Md5StateUtil::getSeedValue())
+{
+}
+
+// MANIPULATORS
+void Md5ChecksumAlgorithm::operator()(const void *data, bsl::size_t numBytes)
+{
+    const Md5BlockInputRange range(static_cast<const unsigned char *>(data),
+                                   static_cast<const unsigned char *>(data) +
+                                       numBytes);
+
+    for (Md5BlockInputIterator it  = range.begin();
+                               it != range.end();
+                             ++it) {
+        Md5StateUtil::append(&d_state, *it);
+    }
+}
+
+Md5ChecksumAlgorithm::result_type Md5ChecksumAlgorithm::computeChecksum()
+{
+    Md5StateUtil::appendPaddingAndLength(&d_state);
+    return d_state.fingerprint();
+}
+
+                            // ---------------------
+                            // class FingerprintHash
+                            // ---------------------
+
+// ACCESSORS
+template <class CHECKSUM_ALGORITHM>
+template <class TYPE>
+typename Checksum<CHECKSUM_ALGORITHM>::result_type
+Checksum<CHECKSUM_ALGORITHM>::operator()(const TYPE& object) const
+{
+    CHECKSUM_ALGORITHM algorithm;
+
+    checksumAppend(algorithm, object);
+
+    return static_cast<result_type>(algorithm.computeChecksum());
+}
+
+                             // -------------------
+                             // struct ChecksumUtil
+                             // -------------------
+
+// CLASS METHODS
+template <class OBJECT_TYPE>
+Md5Fingerprint ChecksumUtil::getMd5(const OBJECT_TYPE& object)
+{
+    Checksum<Md5ChecksumAlgorithm> hash;
+    return hash(object);
+}
+
+                          // -------------------------
+                          // class PutValueFingerprint
+                          // -------------------------
+
+// CREATORS
+PutValueFingerprint::PutValueFingerprint()
+: d_seed(0)
+, d_numSamples(0)
+, d_fractionalSecondPrecision(0)
+, d_encodeDateAndTimeTypesAsBinary(false)
+{
+}
+
+// MANIPULATORS
+void PutValueFingerprint::setSeed(int value)
+{
+    d_seed = value;
+}
+
+void PutValueFingerprint::setNumSamples(int value)
+{
+    d_numSamples = value;
+}
+
+void PutValueFingerprint::setFractionalSecondPrecision(int value)
+{
+    d_fractionalSecondPrecision = value;
+}
+
+void PutValueFingerprint::setEncodeDateAndTimeTypesAsBinary(bool value)
+{
+    d_encodeDateAndTimeTypesAsBinary = value;
+}
+
+// ACCESSORS
+int PutValueFingerprint::seed() const
+{
+    return d_seed;
+}
+
+int PutValueFingerprint::numSamples() const
+{
+    return d_numSamples;
+}
+
+int PutValueFingerprint::fractionalSecondPrecision() const
+{
+    return d_fractionalSecondPrecision;
+}
+
+bool PutValueFingerprint::encodeDateAndTimeTypesAsBinary() const
+{
+    return d_encodeDateAndTimeTypesAsBinary;
+}
+
+// FREE FUNCTIONS
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM&        checksumAlg,
+                    const PutValueFingerprint& object)
+{
+    balber::BerEncoderOptions encoderOptions;
+    encoderOptions.setDatetimeFractionalSecondPrecision(
+        object.fractionalSecondPrecision());
+    encoderOptions.setEncodeDateAndTimeTypesAsBinary(
+        object.encodeDateAndTimeTypesAsBinary());
+
+    enum SupportedTypes {
+        e_BOOL,
+        e_CHAR,
+        e_SIGNED_CHAR,
+        e_UNSIGNED_CHAR,
+        e_INT,
+        e_INT64,
+        e_UINT,
+        e_UINT64,
+        e_FLOAT,
+        e_DOUBLE,
+        e_DECIMAL64,
+        e_STRING,
+        e_DATE,
+        e_DATETZ,
+        e_DATETIME,
+        e_DATETIMETZ,
+        e_TIME,
+        e_TIMETZ,
+
+        k_NUM_SUPPORTED_TYPES
+    };
+
+    for (int i = 0; i != object.numSamples(); ++i) {
+        const int sampleSeed = object.seed() + i;
+
+        typedef BasicRandomValueLoader<RandomInputIterator> RandomValueLoader;
+        RandomInputIterator randomIt(sampleSeed);
+        RandomValueLoader   randomValueLoader(randomIt);
+
+        typedef PutValueFingerprint_ImplUtil ImplUtil;
+        bdlsb::MemOutStreamBuf               streamBuf;
+
+        switch (RandomValueUtil::generateInInterval<int>(
+            randomValueLoader, 0, k_NUM_SUPPORTED_TYPES - 1)) {
+          case e_BOOL: {
+            ImplUtil::putRandomValue<bool>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_CHAR: {
+            ImplUtil::putRandomValue<char>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_SIGNED_CHAR: {
+            ImplUtil::putRandomValue<signed char>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_UNSIGNED_CHAR: {
+            ImplUtil::putRandomValue<unsigned char>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_INT: {
+            ImplUtil::putRandomValue<int>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_INT64: {
+            ImplUtil::putRandomValue<bsls::Types::Int64>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_UINT: {
+            ImplUtil::putRandomValue<unsigned int>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_UINT64: {
+            ImplUtil::putRandomValue<bsls::Types::Uint64>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_FLOAT: {
+            ImplUtil::putRandomValue<float>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_DOUBLE: {
+            ImplUtil::putRandomValue<double>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_DECIMAL64: {
+            ImplUtil::putRandomValue<bdldfp::Decimal64>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_STRING: {
+            ImplUtil::putRandomValue<bsl::string>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_DATE: {
+            ImplUtil::putRandomValue<bdlt::Date>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_DATETZ: {
+            ImplUtil::putRandomValue<bdlt::DateTz>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_DATETIME: {
+            ImplUtil::putRandomValue<bdlt::Datetime>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_DATETIMETZ: {
+            ImplUtil::putRandomValue<bdlt::DatetimeTz>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_TIME: {
+            ImplUtil::putRandomValue<bdlt::Time>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          case e_TIMETZ: {
+            ImplUtil::putRandomValue<bdlt::TimeTz>(
+                &streamBuf, randomValueLoader, encoderOptions);
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(!"Unreachable");
+            return;                                                   // RETURN
+          } break;
+        }
+
+        checksumAlg(streamBuf.data(), streamBuf.length());
+    }
+}
+
+                     // -----------------------------------
+                     // struct PutValueFingerprint_ImplUtil
+                     // -----------------------------------
+
+template <class VALUE, class LOADER>
+void PutValueFingerprint_ImplUtil::putRandomValue(
+                                   bsl::streambuf                   *streamBuf,
+                                   LOADER&                           loader,
+                                   const balber::BerEncoderOptions&  options)
+{
+    VALUE value;
+    RandomValueUtil::load(&value, loader);
+
+    int rc = balber::BerUtil::putValue(streamBuf, value, &options);
+    BSLS_ASSERT(0 == rc);
+}
+
+                          // -------------------------
+                          // class GetValueFingerprint
+                          // -------------------------
+
+// CREATORS
+GetValueFingerprint::GetValueFingerprint()
+: d_seed(0)
+, d_numSamples(0)
+, d_fractionalSecondPrecision(0)
+, d_encodeDateAndTimeTypesAsBinary(false)
+{
+}
+
+// MANIPULATORS
+void GetValueFingerprint::setSeed(int value)
+{
+    d_seed = value;
+}
+
+void GetValueFingerprint::setNumSamples(int value)
+{
+    d_numSamples = value;
+}
+
+void GetValueFingerprint::setFractionalSecondPrecision(int value)
+{
+    d_fractionalSecondPrecision = value;
+}
+
+void GetValueFingerprint::setEncodeDateAndTimeTypesAsBinary(bool value)
+{
+    d_encodeDateAndTimeTypesAsBinary = value;
+}
+
+// ACCESSORS
+int GetValueFingerprint::seed() const
+{
+    return d_seed;
+}
+
+int GetValueFingerprint::numSamples() const
+{
+    return d_numSamples;
+}
+
+int GetValueFingerprint::fractionalSecondPrecision() const
+{
+    return d_fractionalSecondPrecision;
+}
+
+bool GetValueFingerprint::encodeDateAndTimeTypesAsBinary() const
+{
+    return d_encodeDateAndTimeTypesAsBinary;
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
+{
+    balber::BerEncoderOptions encoderOptions;
+    encoderOptions.setDatetimeFractionalSecondPrecision(
+        object.fractionalSecondPrecision());
+    encoderOptions.setEncodeDateAndTimeTypesAsBinary(
+        object.encodeDateAndTimeTypesAsBinary());
+
+    enum SupportedTypes {
+        e_BOOL,
+        e_CHAR,
+        e_SIGNED_CHAR,
+        e_UNSIGNED_CHAR,
+        e_INT,
+        e_INT64,
+        e_UINT,
+        e_UINT64,
+        e_FLOAT,
+        e_DOUBLE,
+        e_DECIMAL64,
+        e_STRING,
+        e_DATE,
+        e_DATETZ,
+        e_DATE_VARIANT,
+        e_DATETIME,
+        e_DATETIMETZ,
+        e_DATETIME_VARIANT,
+        e_TIME,
+        e_TIMETZ,
+        e_TIME_VARIANT,
+
+        k_NUM_SUPPORTED_TYPES
+    };
+
+    for (int i = 0; i != object.numSamples(); ++i) {
+        const int sampleSeed = object.seed() + i;
+
+        typedef BasicRandomValueLoader<RandomInputIterator> RandomValueLoader;
+        RandomInputIterator randomIt(sampleSeed);
+        RandomValueLoader   randomValueLoader(randomIt);
+
+        typedef GetValueFingerprint_ImplUtil ImplUtil;
+
+        if (veryVeryVerbose) {
+            bsl::cout << "[GetValueFingerprint ";
+        }
+
+        switch (RandomValueUtil::generateInInterval<int>(
+            randomValueLoader, 0, k_NUM_SUPPORTED_TYPES - 1)) {
+          case e_BOOL: {
+            bool value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "bool value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_CHAR: {
+            char value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "char value: " << static_cast<int>(value)
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_SIGNED_CHAR: {
+            signed char value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "signed char value: " << static_cast<int>(value)
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_UNSIGNED_CHAR: {
+            unsigned char value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "unsigned char value: " << static_cast<int>(value)
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_INT: {
+            int value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "int value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_INT64: {
+            bsls::Types::Int64 value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "int64 value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_UINT: {
+            unsigned int value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "unsigned int value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_UINT64: {
+            bsls::Types::Uint64 value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "unsigned int64 value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_FLOAT: {
+            float value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::ostream::fmtflags oldFlags     = bsl::cout.flags();
+                bsl::streamsize        oldPrecision = bsl::cout.precision();
+
+                static const int floatMaxDigits10 = 9;
+
+                bsl::cout.flags(bsl::ostream::scientific);
+                bsl::cout.precision(floatMaxDigits10);
+
+                bsl::cout << "float value: " << value
+                          << " num bytes: " << numBytes;
+
+                bsl::cout.flags(oldFlags);
+                bsl::cout.precision(oldPrecision);
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DOUBLE: {
+            double value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::ostream::fmtflags oldFlags     = bsl::cout.flags();
+                bsl::streamsize        oldPrecision = bsl::cout.precision();
+
+                static const int doubleMaxDigits10 = 17;
+
+                bsl::cout.flags(bsl::ostream::scientific);
+                bsl::cout.precision(doubleMaxDigits10);
+
+                bsl::cout << "double value: " << value
+                          << " num bytes: " << numBytes;
+
+                bsl::cout.flags(oldFlags);
+                bsl::cout.precision(oldPrecision);
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DECIMAL64: {
+            bdldfp::Decimal64 value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "decimal64 value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_STRING: {
+            bsl::string value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "string value: \"" << value
+                          << "\" num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DATE: {
+            bdlt::Date value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "date value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DATETZ: {
+            bdlt::DateTz value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "datetz value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DATE_VARIANT: {
+            bdlb::Variant2<bdlt::Date, bdlt::DateTz> value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose && value.is<bdlt::Date>()) {
+                bsl::cout << "date variant date value: "
+                          << value.the<bdlt::Date>()
+                          << " num bytes: " << numBytes;
+            }
+            else if (veryVeryVerbose && value.is<bdlt::DateTz>()) {
+                bsl::cout << "date variant datetz value: "
+                          << value.the<bdlt::DateTz>()
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DATETIME: {
+            bdlt::Datetime value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "datetime value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DATETIMETZ: {
+            bdlt::DatetimeTz value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "datetimetz value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_DATETIME_VARIANT: {
+            bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose && value.is<bdlt::Datetime>()) {
+                bsl::cout << "datetime variant datetime value: "
+                          << value.the<bdlt::Datetime>()
+                          << " num bytes: " << numBytes;
+            }
+            else if (veryVeryVerbose && value.is<bdlt::DatetimeTz>()) {
+                bsl::cout << "datetime variant datetimetz value: "
+                          << value.the<bdlt::DatetimeTz>()
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_TIME: {
+            bdlt::Time value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "time value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_TIMETZ: {
+            bdlt::TimeTz value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose) {
+                bsl::cout << "timetz value: " << value
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          case e_TIME_VARIANT: {
+            bdlb::Variant2<bdlt::Time, bdlt::TimeTz> value;
+            int numBytes = 0;
+            ImplUtil::getRandomValue(
+                &value, &numBytes, randomValueLoader, encoderOptions);
+
+            if (veryVeryVerbose && value.is<bdlt::Time>()) {
+                bsl::cout << "time variant time value: "
+                          << value.the<bdlt::Time>()
+                          << " num bytes: " << numBytes;
+            }
+            else if (veryVeryVerbose && value.is<bdlt::TimeTz>()) {
+                bsl::cout << "time variant timetz value: "
+                          << value.the<bdlt::TimeTz>()
+                          << " num bytes: " << numBytes;
+            }
+
+            checksumAppend(hashAlg, value);
+            checksumAppend(hashAlg, numBytes);
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(!"Unreachable");
+            return;                                                   // RETURN
+          } break;
+        }
+
+        if (veryVeryVerbose) {
+            bsl::cout << "]" << bsl::endl;
+        }
+    }
+}
+
+                     // -----------------------------------
+                     // struct GetValueFingerprint_ImplUtil
+                     // -----------------------------------
+
+// CLASS METHODS
+template <class VALUE, class VALUETZ, class LOADER>
+void GetValueFingerprint_ImplUtil::getRandomValue(
+                       bdlb::Variant2<VALUE, VALUETZ>   *value,
+                       int                              *accumNumBytesConsumed,
+                       LOADER&                           loader,
+                       const balber::BerEncoderOptions&  options)
+{
+    bdlsb::MemOutStreamBuf outStreamBuf;
+
+    if (RandomValueUtil::generate<bool>(loader)) {
+        VALUE originalValue;
+        RandomValueUtil::load(&originalValue, loader);
+
+        int rc =
+            balber::BerUtil::putValue(&outStreamBuf, originalValue, &options);
+        BSLS_ASSERT(0 == rc);
+    }
+    else {
+        VALUETZ originalValue;
+        RandomValueUtil::load(&originalValue, loader);
+
+        int rc =
+            balber::BerUtil::putValue(&outStreamBuf, originalValue, &options);
+        BSLS_ASSERT(0 == rc);
+    }
+
+    bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                           outStreamBuf.length());
+
+    int rc =
+        balber::BerUtil::getValue(&inStreamBuf, value, accumNumBytesConsumed);
+    BSLS_ASSERT(0 == rc);
+}
+
+template <class VALUE, class LOADER>
+void GetValueFingerprint_ImplUtil::getRandomValue(
+                       VALUE                            *value,
+                       int                              *accumNumBytesConsumed,
+                       LOADER&                           loader,
+                       const balber::BerEncoderOptions&  options)
+{
+    VALUE originalValue;
+    RandomValueUtil::load(&originalValue, loader);
+
+    bdlsb::MemOutStreamBuf outStreamBuf;
+    int rc = balber::BerUtil::putValue(&outStreamBuf, originalValue, &options);
+    BSLS_ASSERT(0 == rc);
+
+    bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                           outStreamBuf.length());
+
+    rc = balber::BerUtil::getValue(&inStreamBuf, value, accumNumBytesConsumed);
+    BSLS_ASSERT(0 == rc);
+}
+
+                     // ----------------------------------
+                     // customization point checksumAppend
+                     // ----------------------------------
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value)
+{
+    const char normalizedValue = value;
+    BSLMF_ASSERT(1 == sizeof(normalizedValue));
+    checksum(&normalizedValue, sizeof(normalizedValue));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, char value)
+{
+    BSLMF_ASSERT(1 == sizeof(value));
+    checksum(&value, sizeof(value));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, signed char value)
+{
+    BSLMF_ASSERT(1 == sizeof(value));
+    checksum(&value, sizeof(value));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned char value)
+{
+    BSLMF_ASSERT(1 == sizeof(value));
+    checksum(&value, sizeof(value));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, int value)
+{
+    BSLMF_ASSERT(4 == sizeof(value));
+
+    const signed char byte0 = (value >> (0 * 8)) & 0xFF;
+    const signed char byte1 = (value >> (1 * 8)) & 0xFF;
+    const signed char byte2 = (value >> (2 * 8)) & 0xFF;
+    const signed char byte3 = (value >> (3 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Int64 value)
+{
+    BSLMF_ASSERT(8 == sizeof(bsls::Types::Int64));
+
+    const signed char byte0 = (value >> (0 * 8)) & 0xFF;
+    const signed char byte1 = (value >> (1 * 8)) & 0xFF;
+    const signed char byte2 = (value >> (2 * 8)) & 0xFF;
+    const signed char byte3 = (value >> (3 * 8)) & 0xFF;
+    const signed char byte4 = (value >> (4 * 8)) & 0xFF;
+    const signed char byte5 = (value >> (5 * 8)) & 0xFF;
+    const signed char byte6 = (value >> (6 * 8)) & 0xFF;
+    const signed char byte7 = (value >> (7 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
+    checksumAppend(checksum, byte4);
+    checksumAppend(checksum, byte5);
+    checksumAppend(checksum, byte6);
+    checksumAppend(checksum, byte7);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned int value)
+{
+    BSLMF_ASSERT(4 == sizeof(unsigned int));
+
+    const unsigned char byte0 = (value >> (0 * 8)) & 0xFF;
+    const unsigned char byte1 = (value >> (1 * 8)) & 0xFF;
+    const unsigned char byte2 = (value >> (2 * 8)) & 0xFF;
+    const unsigned char byte3 = (value >> (3 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Uint64 value)
+{
+    BSLMF_ASSERT(8 == sizeof(bsls::Types::Uint64));
+
+    const unsigned char byte0 = (value >> (0 * 8)) & 0xFF;
+    const unsigned char byte1 = (value >> (1 * 8)) & 0xFF;
+    const unsigned char byte2 = (value >> (2 * 8)) & 0xFF;
+    const unsigned char byte3 = (value >> (3 * 8)) & 0xFF;
+    const unsigned char byte4 = (value >> (4 * 8)) & 0xFF;
+    const unsigned char byte5 = (value >> (5 * 8)) & 0xFF;
+    const unsigned char byte6 = (value >> (6 * 8)) & 0xFF;
+    const unsigned char byte7 = (value >> (7 * 8)) & 0xFF;
+
+    checksumAppend(checksum, byte0);
+    checksumAppend(checksum, byte1);
+    checksumAppend(checksum, byte2);
+    checksumAppend(checksum, byte3);
+    checksumAppend(checksum, byte4);
+    checksumAppend(checksum, byte5);
+    checksumAppend(checksum, byte6);
+    checksumAppend(checksum, byte7);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
+{
+    // Note that the implementation of this operation requires that the
+    // platform represents 'float' values using the 32 bit IEEE 754 binary
+    // floating point format.
+
+    BSLMF_ASSERT(4 == sizeof(value));
+
+
+    if (bdlb::Float::isNan(value)) {
+        checksumAppend(checksum, 0);
+        return;                                                       // RETURN
+    }
+
+    unsigned char bytes[sizeof(value)];
+    bsl::memcpy(&bytes, &value, sizeof(value));
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsl::reverse(bytes, bytes + sizeof(bytes));
+#endif
+
+    checksum(bytes, sizeof(bytes));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value)
+{
+    // Note that the implementation of this operation requires that the
+    // platform represents 'float' values using the 32 bit IEEE 754 binary
+    // floating point format.
+
+    BSLMF_ASSERT(8 == sizeof(value));
+
+    if (bdlb::Float::isNan(value)) {
+        checksumAppend(checksum, 0);
+        return;                                                       // RETURN
+    }
+
+    unsigned char bytes[sizeof(value)];
+    bsl::memcpy(&bytes, &value, sizeof(value));
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsl::reverse(bytes, bytes + sizeof(bytes));
+#endif
+
+    checksum(bytes, sizeof(bytes));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
+                    const bdldfp::Decimal64& value)
+{
+    int                 sign;
+    bsls::Types::Uint64 significand;
+    int                 exponent;
+    int                 classification;
+    switch (bdldfp::DecimalUtil::decompose(
+        &sign, &significand, &exponent, value)) {
+      case FP_NAN: {
+          classification = 0;
+      } break;
+      case FP_INFINITE: {
+          classification = 1;
+      } break;
+      case FP_SUBNORMAL: {
+          classification = 2;
+      } break;
+      case FP_ZERO: {
+          classification = 3;
+      } break;
+      case FP_NORMAL: {
+          classification = 4;
+      } break;
+      default: {
+          BSLS_ASSERT(!"Unreachable");
+          return;
+      } break;
+    }
+
+    checksumAppend(checksum, sign);
+    checksumAppend(checksum, significand);
+    checksumAppend(checksum, exponent);
+    checksumAppend(checksum, classification);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bsl::string& value)
+{
+    checksum(value.data(), static_cast<int>(value.size()));
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::Date& value)
+{
+    int year;
+    int month;
+    int day;
+
+    value.getYearMonthDay(&year, &month, &day);
+
+    checksumAppend(checksum, year);
+    checksumAppend(checksum, month);
+    checksumAppend(checksum, day);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::DateTz& value)
+{
+    checksumAppend(checksum, value.localDate());
+    checksumAppend(checksum, value.offset());
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::Datetime& value)
+{
+    checksumAppend(checksum, value.date());
+    checksumAppend(checksum, value.time());
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM&     checksum,
+                    const bdlt::DatetimeTz& value)
+{
+    checksumAppend(checksum, value.localDatetime());
+    checksumAppend(checksum, value.offset());
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::Time& value)
+{
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+    int microsecond;
+
+    value.getTime(&hour, &minute, &second, &millisecond, &microsecond);
+
+    checksumAppend(checksum, hour);
+    checksumAppend(checksum, minute);
+    checksumAppend(checksum, second);
+    checksumAppend(checksum, millisecond);
+    checksumAppend(checksum, microsecond);
+}
+
+template <class CHECKSUM_ALGORITHM>
+void checksumAppend(CHECKSUM_ALGORITHM& checksum, const bdlt::TimeTz& value)
+{
+    checksumAppend(checksum, value.localTime());
+    checksumAppend(checksum, value.offset());
+}
+
+template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
+void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
+                    const bdlb::Variant2<VALUE_1, VALUE_2>& value)
+{
+    const int typeIndex = value.typeIndex();
+    checksumAppend(checksum, typeIndex);
+
+    switch (typeIndex) {
+      case 1: {
+          checksumAppend(checksum, value.template the<VALUE_1>());
+      } break;
+      case 2: {
+          checksumAppend(checksum, value.template the<VALUE_2>());
+      } break;
+      default: {
+          BSLS_ASSERT(0 == typeIndex);
+      } break;
+    }
+}
+
+                            // -------------------
+                            // struct TestDataUtil
+                            // -------------------
+
+// CLASS DATA
+#define NL "\n"
+
+const char TestDataUtil::s_RANDOM_LOREM_IPSUM[] =
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc rutrum enim" NL
+"ante, ac fermentum augue vulputate vitae. Vestibulum scelerisque, lacus" NL
+"nec volutpat posuere, lectus ante congue augue, a consequat elit urna in" NL
+"diam.  Vestibulum vestibulum placerat varius. Aliquam viverra blandit" NL
+"blandit.  Nullam volutpat orci orci, a euismod ligula tristique vel." NL
+"Phasellus sollicitudin interdum luctus. In justo leo, accumsan sed" NL
+"aliquet sit amet, porta vel nulla. Vivamus at purus vitae nunc rutrum" NL
+"posuere ut eu libero.  Fusce porttitor dui quis orci pretium, vel rutrum" NL
+"quam interdum. Suspendisse rutrum lacus nec nisl venenatis, in ornare" NL
+"diam molestie. Pellentesque quis odio non massa semper porttitor ac vel" NL
+"nulla. Aliquam a blandit mauris. Duis id condimentum arcu, semper" NL
+"consequat magna. Praesent sollicitudin elit quis aliquam volutpat." NL
+"" NL
+"Donec commodo nibh quis massa fringilla pellentesque. Vivamus faucibus" NL
+"metus turpis, ac vehicula est efficitur eu. Fusce at iaculis neque, eget" NL
+"lacinia nunc. Aliquam a pretium tortor. Nunc a justo a nisl vestibulum" NL
+"tempus et ut magna. Pellentesque molestie nisl vitae lacus efficitur, ac" NL
+"blandit mi consequat. Etiam non quam fringilla, mattis enim nec, porta" NL
+"massa. Quisque volutpat quis quam eu consequat. Pellentesque maximus" NL
+"aliquet nisl, eu pretium massa pellentesque ut. Etiam leo mauris, pretium" NL
+"sed turpis auctor, cursus lacinia sapien. Donec sit amet sodales nisl, in" NL
+"rhoncus enim.  Curabitur maximus varius nisl. Pellentesque lobortis" NL
+"vestibulum ante sit amet auctor. Sed molestie erat ornare lacus fermentum" NL
+"luctus. Nam rutrum vitae orci sed luctus." NL
+"" NL
+"Class aptent taciti sociosqu ad litora torquent per conubia nostra, per" NL
+"inceptos himenaeos. Fusce vel sapien non tellus mattis gravida vel ac" NL
+"lorem.  Nam ligula metus, cursus vel diam id, sagittis pellentesque" NL
+"risus. Maecenas a purus vulputate, luctus mi eu, ullamcorper lectus." NL
+"Donec tincidunt quis odio ut hendrerit. Cras at aliquam elit, at" NL
+"pellentesque tellus. Pellentesque luctus sapien a dolor egestas porta." NL
+"Aliquam a semper ipsum, eget auctor urna.  Vestibulum at lectus nisl." NL
+"Cras maximus pharetra lobortis. Fusce condimentum efficitur diam in" NL
+"porttitor." NL
+"" NL
+"Nullam ut fringilla orci. Quisque urna lacus, dictum a dolor id, mattis" NL
+"placerat nulla. Phasellus facilisis dapibus magna id scelerisque." NL
+"Phasellus vel velit massa. Nam pulvinar quis enim sit amet accumsan. Cras" NL
+"efficitur ipsum quis mattis maximus. Donec placerat diam sem, nec lacinia" NL
+"nisl ullamcorper eget. Sed dapibus mi sit amet metus vehicula porttitor." NL
+"Quisque eget nunc ante.  Aenean libero leo, sodales a odio nec, auctor" NL
+"efficitur risus. Pellentesque ut tortor vitae mauris tempor auctor." NL
+"" NL
+"Suspendisse in rutrum sapien. Ut posuere est sed dui malesuada egestas." NL
+"Sed eu consectetur quam. Quisque rutrum nisi velit, quis rutrum lacus" NL
+"sagittis ac. Ut sit amet ligula turpis. In volutpat, sapien sit amet" NL
+"eleifend faucibus, lacus ligula faucibus justo, ut ultricies nisl enim eu" NL
+"dui.  Vestibulum non nulla sed turpis tincidunt egestas sit amet tempus" NL
+"nulla.  Phasellus arcu nibh, maximus ultricies pulvinar a, egestas id ex." NL
+"Etiam at erat sed tellus tincidunt fermentum nec ut orci. Phasellus sed" NL
+"turpis congue, finibus ligula a, porttitor ipsum. Integer dapibus cursus" NL
+"elit id mollis.  Mauris quis purus sit amet justo dapibus cursus." NL
+;
+
+#undef NL
+
+const unsigned char TestDataUtil::s_RANDOM_GARBAGE_1K[1024] = {
+  0xef, 0x0f, 0x6b, 0x44, 0xd5, 0x3a, 0xcd, 0x43, 0x5c, 0x38, 0xc6, 0x27,
+  0xe7, 0x02, 0xbd, 0xb6, 0x42, 0xcf, 0xff, 0xd9, 0x68, 0x01, 0x3f, 0xba,
+  0x5e, 0x91, 0xf7, 0x41, 0xaa, 0xa3, 0xa9, 0xcc, 0x05, 0x5d, 0xa9, 0xb5,
+  0xb0, 0x24, 0xf8, 0xe8, 0x2a, 0xb4, 0x83, 0x58, 0x50, 0xfe, 0x76, 0x54,
+  0x15, 0xad, 0x2c, 0xbe, 0xf5, 0x60, 0xd7, 0x8d, 0x8d, 0x6d, 0xbe, 0xe3,
+  0x3b, 0x0b, 0x0d, 0x74, 0x3f, 0xa3, 0x95, 0x00, 0x49, 0x9a, 0x05, 0xf6,
+  0xa4, 0x67, 0xac, 0x5e, 0x29, 0xd5, 0x7e, 0x76, 0x1d, 0xa0, 0x88, 0x80,
+  0xf5, 0x5a, 0x8f, 0x33, 0xc1, 0xd5, 0x72, 0xd1, 0xd3, 0x65, 0xe1, 0x98,
+  0x57, 0xee, 0xd0, 0x94, 0x24, 0xd8, 0xac, 0x1d, 0x7a, 0x67, 0x51, 0xca,
+  0x57, 0x84, 0x36, 0x36, 0x05, 0x97, 0x9d, 0xaf, 0xfa, 0x88, 0xae, 0x3e,
+  0xdb, 0x68, 0x64, 0xf1, 0x5f, 0x2e, 0x3a, 0x90, 0x02, 0xea, 0x44, 0xa0,
+  0xcd, 0x4b, 0xe0, 0xbd, 0xc8, 0xbe, 0x74, 0xd2, 0xb5, 0x43, 0x7a, 0xea,
+  0xa0, 0x99, 0x00, 0xf4, 0x77, 0x7d, 0x6b, 0xbb, 0x3b, 0x70, 0x9b, 0xdd,
+  0x63, 0x89, 0x90, 0x5a, 0x7d, 0x9c, 0x72, 0x37, 0x48, 0xd4, 0xa5, 0xf5,
+  0x6a, 0xc4, 0x9a, 0x26, 0x3b, 0xee, 0x01, 0x6f, 0xb5, 0xef, 0x40, 0xf8,
+  0x98, 0x4c, 0x28, 0x0d, 0x55, 0xb3, 0x65, 0xcc, 0x16, 0x5e, 0x2c, 0xcd,
+  0x56, 0x03, 0x02, 0x16, 0x19, 0xdb, 0x48, 0x24, 0x82, 0x57, 0x6e, 0xcd,
+  0xbd, 0x56, 0xbc, 0xf3, 0x59, 0x9a, 0x14, 0x20, 0x97, 0x09, 0x3f, 0x34,
+  0x60, 0x8a, 0xcb, 0x5b, 0xd7, 0x46, 0x17, 0x61, 0x32, 0xb6, 0x3a, 0x04,
+  0x8f, 0x1c, 0x59, 0x29, 0x85, 0x9a, 0x3a, 0x9d, 0x41, 0x46, 0xf6, 0x5a,
+  0x64, 0x7a, 0x2c, 0xfa, 0x8e, 0xd6, 0xab, 0x28, 0xd9, 0xe5, 0xe2, 0x61,
+  0x53, 0x93, 0x33, 0x3b, 0xad, 0x72, 0x18, 0x7e, 0xce, 0x3a, 0xbc, 0xf1,
+  0x31, 0xf0, 0x41, 0x91, 0x56, 0x4c, 0x80, 0x70, 0x6f, 0x0c, 0xd7, 0x60,
+  0xb8, 0x84, 0xdc, 0x4d, 0x1d, 0xf1, 0x1c, 0xed, 0x2e, 0xc4, 0x72, 0xe4,
+  0x4a, 0x22, 0x5d, 0x63, 0xc1, 0x64, 0x4e, 0xda, 0x92, 0x6c, 0xc3, 0x38,
+  0xe3, 0xfd, 0xff, 0x1d, 0x03, 0xee, 0x1b, 0x3d, 0xae, 0x4a, 0xb3, 0x15,
+  0xd0, 0xa8, 0x1a, 0x5c, 0x46, 0x88, 0x96, 0xa0, 0x13, 0x26, 0xae, 0x05,
+  0x08, 0xee, 0xde, 0x9c, 0xa8, 0x5b, 0x9e, 0xfc, 0xf3, 0x61, 0xa6, 0x97,
+  0x76, 0xdc, 0xfa, 0x00, 0xc1, 0xf0, 0x3c, 0xc2, 0xec, 0x41, 0xaa, 0x10,
+  0x48, 0x18, 0xaf, 0x4d, 0x68, 0x34, 0xe5, 0xe0, 0x77, 0x5d, 0xc3, 0x92,
+  0xac, 0xc7, 0x81, 0x7a, 0x46, 0xb1, 0x74, 0xd7, 0x26, 0x76, 0xeb, 0x58,
+  0x85, 0x6d, 0x71, 0xb6, 0x2d, 0x0c, 0xdb, 0xcb, 0xc9, 0x56, 0xc4, 0x4c,
+  0x03, 0x7f, 0xf7, 0x6e, 0xbd, 0x6a, 0x62, 0xb2, 0x7d, 0x9a, 0xf0, 0xb7,
+  0x36, 0x91, 0x38, 0xbf, 0xb9, 0x6d, 0x68, 0xa3, 0xf9, 0xb3, 0x64, 0xc7,
+  0x8e, 0xda, 0xd9, 0xaa, 0x23, 0xff, 0xfc, 0x19, 0x5b, 0xa2, 0xfe, 0x62,
+  0xf4, 0xf9, 0xec, 0x09, 0xbd, 0x3d, 0x45, 0x74, 0xe7, 0x2b, 0x2a, 0xae,
+  0x15, 0xac, 0xff, 0xdc, 0x9a, 0x2a, 0x77, 0x17, 0x09, 0x2b, 0x88, 0x22,
+  0xc8, 0x16, 0x42, 0x0a, 0xc7, 0xac, 0x45, 0xf8, 0x5d, 0xd8, 0xeb, 0x2d,
+  0x9d, 0xff, 0xc8, 0xfc, 0x5d, 0xb0, 0x9d, 0xa1, 0x20, 0xc9, 0x14, 0x0b,
+  0x53, 0x5d, 0x33, 0x10, 0x72, 0x1a, 0x03, 0x3d, 0x06, 0x44, 0x8d, 0x3a,
+  0x7a, 0x9a, 0x64, 0x6c, 0x17, 0x70, 0x4a, 0x11, 0x95, 0x9d, 0x03, 0x92,
+  0x2c, 0xf4, 0xeb, 0xab, 0xbd, 0x6e, 0x39, 0x70, 0x7d, 0x6d, 0x49, 0xb2,
+  0x72, 0xa1, 0x12, 0xaa, 0x3e, 0xab, 0xcf, 0x86, 0x08, 0x80, 0x36, 0xf0,
+  0xe8, 0x5f, 0xc3, 0x11, 0x56, 0x90, 0x87, 0x07, 0x1f, 0xc9, 0xf7, 0xb4,
+  0xeb, 0x76, 0x2f, 0x48, 0x8d, 0x9c, 0xa5, 0xd5, 0x62, 0x5e, 0xd8, 0xe6,
+  0x3e, 0x4f, 0x28, 0x05, 0xba, 0x68, 0x64, 0x23, 0x93, 0x4d, 0xa0, 0x29,
+  0x19, 0x4d, 0x87, 0x18, 0x36, 0x90, 0xc8, 0x36, 0x20, 0xb5, 0x5d, 0x57,
+  0x00, 0x32, 0xcb, 0x38, 0xe4, 0x6e, 0xb2, 0xfb, 0xf6, 0xa2, 0xcf, 0x51,
+  0x8f, 0x74, 0x25, 0xa2, 0x7d, 0x4c, 0xd5, 0xa8, 0x61, 0x80, 0x2d, 0x38,
+  0x11, 0x24, 0x64, 0xd0, 0x18, 0x83, 0xb7, 0x70, 0x2e, 0xde, 0x94, 0x4b,
+  0x7a, 0x35, 0x69, 0x32, 0x22, 0x9a, 0xe4, 0x2e, 0x45, 0x76, 0x21, 0xe6,
+  0x96, 0x11, 0x18, 0xb7, 0x22, 0x72, 0x5e, 0x62, 0xc4, 0xa5, 0xc5, 0x07,
+  0x04, 0x4e, 0x75, 0x2e, 0xa9, 0xa2, 0x20, 0xa5, 0xa4, 0x96, 0x06, 0x71,
+  0xe8, 0x98, 0x05, 0x1b, 0x0c, 0xfc, 0xe5, 0x95, 0x4d, 0x81, 0x34, 0x0d,
+  0x1f, 0xde, 0x98, 0x2f, 0x34, 0xea, 0x74, 0xb9, 0x75, 0x4f, 0x90, 0x75,
+  0x03, 0xd7, 0x8e, 0x66, 0x53, 0x57, 0x0b, 0xc7, 0xc6, 0x65, 0x67, 0x75,
+  0xc2, 0xfd, 0xdb, 0x0e, 0xe0, 0xd6, 0x38, 0x4d, 0x77, 0xfe, 0x96, 0x00,
+  0x92, 0xa6, 0x08, 0x5f, 0xfc, 0xb0, 0x09, 0x1c, 0x24, 0x8d, 0x22, 0x0c,
+  0xdd, 0x88, 0x30, 0x79, 0xe3, 0x6d, 0x8e, 0x50, 0x67, 0xc6, 0xf2, 0x11,
+  0x60, 0xe8, 0xb3, 0xad, 0x21, 0x6e, 0xd3, 0xd3, 0x2e, 0x4a, 0x02, 0x64,
+  0xc6, 0x09, 0x24, 0xc7, 0xdd, 0x02, 0x33, 0xc6, 0xf7, 0x8e, 0x66, 0xef,
+  0x65, 0xca, 0xc9, 0x5a, 0xf2, 0x36, 0x26, 0xfe, 0x02, 0x65, 0x57, 0xa1,
+  0xc4, 0x12, 0x4e, 0xdf, 0x60, 0x8f, 0x34, 0x01, 0x41, 0x09, 0xe9, 0xc6,
+  0xb2, 0xc9, 0xba, 0xb0, 0x54, 0xd3, 0x31, 0x15, 0x12, 0x9f, 0x34, 0x93,
+  0x57, 0x81, 0x3e, 0x69, 0xc7, 0xad, 0x7a, 0xdb, 0x94, 0x98, 0x7c, 0x9f,
+  0xd9, 0x0d, 0xf7, 0xbe, 0xe5, 0x8b, 0xb8, 0x28, 0x6e, 0x4b, 0xe7, 0x4e,
+  0x2f, 0x32, 0x81, 0x95, 0x6a, 0xa9, 0x64, 0xdf, 0x9f, 0xeb, 0x18, 0x71,
+  0xe1, 0xa1, 0x68, 0xb2, 0xb7, 0x8f, 0xd9, 0x30, 0x45, 0xc9, 0xbc, 0x07,
+  0x82, 0x46, 0x45, 0x45, 0xfc, 0x3d, 0x9c, 0xcf, 0xe3, 0x96, 0x49, 0x28,
+  0xb3, 0x40, 0x79, 0x0e, 0xdc, 0x99, 0x81, 0x81, 0x35, 0xeb, 0x5e, 0xdc,
+  0x0d, 0x23, 0xc1, 0x4a, 0x95, 0xa1, 0xad, 0x60, 0xa3, 0xed, 0x19, 0x50,
+  0xfe, 0x5a, 0x74, 0x5e, 0xe3, 0x39, 0xfc, 0xe2, 0x5c, 0x87, 0xa7, 0xa4,
+  0x5c, 0x73, 0x8a, 0x92, 0x5e, 0x56, 0xa1, 0x18, 0xd4, 0x50, 0x47, 0x72,
+  0x02, 0xaf, 0x2c, 0xad, 0x71, 0x36, 0xcf, 0x0e, 0x80, 0xed, 0x9e, 0xf7,
+  0xc2, 0x53, 0x18, 0xc8, 0x2f, 0x66, 0xd6, 0x52, 0x93, 0x55, 0xc9, 0x54,
+  0xae, 0xbf, 0x56, 0xc1, 0xd9, 0x97, 0x66, 0xfc, 0x3b, 0xd2, 0x46, 0x40,
+  0xbf, 0x76, 0x8d, 0x2f, 0x0f, 0x85, 0x0e, 0x5b, 0x61, 0x02, 0x7f, 0xa0,
+  0xed, 0x98, 0x47, 0x65, 0xb6, 0xe6, 0x0b, 0xa6, 0x19, 0x43, 0xbf, 0xf3,
+  0x22, 0xfa, 0x27, 0xa1, 0xf9, 0x8b, 0xd1, 0xdf, 0x97, 0x4a, 0xa4, 0xd6,
+  0x70, 0xb5, 0x70, 0x52, 0x68, 0x5b, 0xc3, 0x7c, 0x1f, 0xd9, 0xab, 0x43,
+  0xd6, 0xb2, 0xa4, 0x9d, 0x2b, 0x23, 0xfe, 0x0f, 0x17, 0x14, 0xd6, 0xc4,
+  0x1a, 0x7b, 0xbf, 0x3e, 0xef, 0x09, 0x8b, 0x76, 0x20, 0xe0, 0x9c, 0x77,
+  0xb6, 0x58, 0x98, 0x5e, 0x55, 0x77, 0xc2, 0xae, 0x2f, 0xb4, 0x35, 0x21,
+  0x25, 0x81, 0x69, 0x65, 0x80, 0xfc, 0x4f, 0x96, 0x74, 0xa4, 0xf0, 0x09,
+  0x70, 0xef, 0xbb, 0xc8, 0x24, 0xfd, 0xfe, 0x36, 0xe2, 0x9e, 0x83, 0x2c,
+  0x75, 0x6d, 0x88, 0xac
+};
+
+}  // close u namespace
+}  // close unnamed namespace
+
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -210,10 +4889,10 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+            verbose = argc > 2;
+        veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
@@ -221,7 +4900,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -302,6 +4981,789 @@ int main(int argc, char *argv[])
 //..
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+        case 26: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' BEHAVIORAL FINGERPRINT
+        //   This case tests that the values decoded by
+        //   'balber::BerUtil::getValue' for a large, deterministically and
+        //   pseudo-randomly generated set of inputs, are *likely* equivalent to
+        //   the values it decodes as of BDE 3.44.0.  This case tests the
+        //   decoded values for too many encodings to explicitly enumerate.
+        //   Instead, the encodings are generated during the execution of the
+        //   test, and the results of each invocation of 'getValue' are
+        //   concatenated and the resulting information "fingerprinted" using
+        //   an implementation of the MD5 Message-Digest Algorithm, which
+        //   removes the need to explicitly enumerate said results.  This
+        //   "fingerprint" is compared against the known fingerprint of the
+        //   function applied to the same input as of BDE 3.44.0.
+        //
+        //   This case provides a regression test for the input-output space of
+        //   'balber::BerUtil::getValue' from BDE release 3.44.0.  If the
+        //   behavior of 'getValue' changes in any way, this test provides a
+        //   high likelihood of failing.  Intentional behavioral modifications
+        //   should update the behavioral fingerprints in this test case
+        //   accordingly.
+        //
+        //   Note that this test merely indicates a *high* *probability* of
+        //   expected behavior, not *certainty*.  The entire input-output space
+        //   of the operation cannot be enumerated, because it is infinite.
+        //   Additionally, because the "fingerprint" is only 128 bits, there is
+        //   a chance that two different output sets have the same fingerprint.
+        //   Note however, that this probability is astronomically small.
+        //
+        // Concerns:
+        //: 1 The sampled input-output space does not have incidental patterns
+        //:   arising from the use of an underlying linear congruential
+        //:   generator supplied with a single seed.
+        //:
+        //: 2 The fingerprint of 'getValue' does not change when the
+        //:   encoding is configured to use binary date and time values and
+        //:   the fractional second precision is varied between 3 and 6.
+        //
+        // Plan:
+        //: 1 Using 3 different random seeds, and taking 50,000 samples with
+        //:   each seed, test the fingerprint of 'getValue' using a default
+        //:   'balber::BerEncoderOptions' except for the following options, the
+        //:   for which all combinations of the values mentioned should be
+        //:   permuted:
+        //:
+        //:   1 'encodeDateAndTimeTypesAsBinary', which may take values
+        //:      'true' and 'false'.
+        //:
+        //:   2 'datetimeFractionalSecondPrecision', which may take values
+        //:      3 and 6.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'getValue' BEHAVIORAL FINGERPRINT"
+                      << bsl::endl
+                      << "========================================="
+                      << bsl::endl;
+
+        enum {
+            SEED_0 = 0,          // a sensible default seed
+            SEED_1 = -24036583,  // a decently large, negated mersenne prime
+            SEED_2 = 32582657    // a decently large mersenne prime
+        };
+
+        static const struct {
+            int         d_line;             // line number
+            int         d_randomSeed;       // seed to generate random input
+            int         d_numSamples;       // number of input-output samples
+            int         d_secondPrecision;  // an encoding option parameter
+            bool        d_encodeDateAndTimeTypesAsBinary;
+                // an encoding option parameter
+            const char *d_md5;  // md5 fingerprint of all sampled output
+        } DATA[] = {
+            //               RANDOM SEED TO GENERATE INPUT FOR BEHAVIORS
+            //              .-------------------------------------------
+            //             /      NUMBER OF SAMPLE BEHAVIORS IN FINGERPRINT
+            //            /      .-----------------------------------------
+            //           /      /    FRACTIONAL SECOND PRECISION PARAM
+            //          /      /    .---------------------------------
+            //   LINE  /      /    /    BINARY DATE AND TIME ENCODING PARAM
+            //  .---- /      /    /    .-----------------------------------
+            // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
+            //-- ------- ------ -- ------ ------------------------------------
+            { L_, SEED_0, 50000, 3, false, "a4f4796fce831c62afed26b178c63715" },
+            { L_, SEED_0, 50000, 3, true , "a9e9d0fbbc1487449bf928907792f211" },
+            { L_, SEED_0, 50000, 6, false, "0bab0341289bddcd8c66fd607b0b76dc" },
+            { L_, SEED_0, 50000, 6, true , "a9e9d0fbbc1487449bf928907792f211" },
+            { L_, SEED_1, 50000, 3, false, "53229ec3841b3815e8efb6cc8e64a098" },
+            { L_, SEED_1, 50000, 3, true , "1c7ceb60dbd74c17be929311f86ab185" },
+            { L_, SEED_1, 50000, 6, false, "4f884d423a3fbb65b531c5f4fe1ec0ed" },
+            { L_, SEED_1, 50000, 6, true , "1c7ceb60dbd74c17be929311f86ab185" },
+            { L_, SEED_2, 50000, 3, false, "01defb86e00fc10ca4c4a5dc802f9c54" },
+            { L_, SEED_2, 50000, 3, true , "de75fb921b25090f0f6975b6e4bf8bd3" },
+            { L_, SEED_2, 50000, 6, false, "af150f3a022e5fd55ccb5b400bfbc487" },
+            { L_, SEED_2, 50000, 6, true , "de75fb921b25090f0f6975b6e4bf8bd3" },
+        };
+
+        static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int  LINE             = DATA[i].d_line;
+            const int  RANDOM_SEED      = DATA[i].d_randomSeed;
+            const int  NUM_SAMPLES      = DATA[i].d_numSamples;
+            const int  SECOND_PRECISION = DATA[i].d_secondPrecision;
+            const bool ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
+                DATA[i].d_encodeDateAndTimeTypesAsBinary;
+            const bslstl::StringRef MD5 = DATA[i].d_md5;
+
+            u::GetValueFingerprint getValueFingerprint;
+            getValueFingerprint.setSeed(RANDOM_SEED);
+            getValueFingerprint.setNumSamples(NUM_SAMPLES);
+            getValueFingerprint.setFractionalSecondPrecision(SECOND_PRECISION);
+            getValueFingerprint.setEncodeDateAndTimeTypesAsBinary(
+                                          ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
+
+            const u::Md5Fingerprint md5Fingerprint =
+                u::ChecksumUtil::getMd5(getValueFingerprint);
+
+            bdlsb::MemOutStreamBuf md5FingerprintStreamBuf;
+            bsl::ostream md5FingerprintStream(&md5FingerprintStreamBuf);
+            md5FingerprintStream << md5Fingerprint;
+
+            const bslstl::StringRef md5FingerprintString(
+                md5FingerprintStreamBuf.data(),
+                md5FingerprintStreamBuf.length());
+
+            LOOP1_ASSERT_EQ(LINE, md5FingerprintString, MD5);
+        }
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING 'putValue' BEHAVIORAL FINGERPRINT
+        //   This case tests that the encodings provided by
+        //   'balber::BerUtil::putValue' for a large, deterministically and
+        //   pseudo-randomly generated set of inputs, is *likely* equivalent to
+        //   the encodings it provides as of BDE 3.44.0.  This case tests the
+        //   encodings for too many inputs to explicitly enumerate.  Instead,
+        //   the input is generated during the execution of the test, and the
+        //   result of invoking 'putValue' on all of the input is collated
+        //   and "fingerprinted" using an implementation of the MD5
+        //   Message-Digest Algorithm, which removes the need to explicitly
+        //   enumerate said results.  This "fingerprint" is compared against
+        //   the known fingerprint of the function applied to the same input as
+        //   of BDE 3.44.0.
+        //
+        //   This case provides a regression test for the input-output space of
+        //   'balber::BerUtil::putValue' from BDE release 3.44.0.  If the
+        //   behavior of 'putValue' changes in any way, this test provides a
+        //   high likelihood of failing.  Intentional behavioral modifications
+        //   should update the behavioral fingerprints in this test case
+        //   accordingly.
+        //
+        //   Note that this test merely indicates a *high* *probability* of
+        //   expected behavior, not *certainty*.  The entire input-output space
+        //   of the operation cannot be enumerated, because it is infinite.
+        //   Additionally, because the "fingerprint" is only 128 bits, there is
+        //   a chance that two different output sets have the same fingerprint.
+        //   Note however, that this probability is astronomically small.
+        //
+        // Concerns:
+        //: 1 The sampled input-output space of 'putValue' does not have
+        //:   incidental patterns arising from the use of an underlying
+        //:   linear congruential generator supplied with a single seed.
+        //:
+        //: 2 The fingerprint of 'putValue' does not change when the
+        //:   encoding is configured to use binary date and time values and
+        //:   the fractional second precision is varied between 3 and 6.
+        //
+        // Test Plan:
+        //: 1 Using 3 different random seeds, and taking 50,000 samples with
+        //:   each seed, test the fingerprint of 'putValue' using a default
+        //:   'balber::BerEncoderOptions' except for the following options, the
+        //:   for which all combinations of the values mentioned should be
+        //:   permuted:
+        //:
+        //:   1 'encodeDateAndTimeTypesAsBinary', which may take values
+        //:     'true' and 'false'.
+        //:
+        //:   2 'datetimeFractionalSecondPrecision', which may take values
+        //:     3 and 6.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'putValue' BEHAVIORAL FINGERPRINT"
+                      << bsl::endl
+                      << "========================================="
+                      << bsl::endl;
+
+        enum {
+            SEED_0 = 0,          // a sensible default seed
+            SEED_1 = -24036583,  // a decently large, negated mersenne prime
+            SEED_2 = 32582657    // a decently large mersenne prime
+        };
+
+        static const struct {
+            int         d_line;             // line number
+            int         d_randomSeed;       // seed to generate random input
+            int         d_numSamples;       // number of input-output samples
+            int         d_secondPrecision;  // an encoding option parameter
+            bool        d_encodeDateAndTimeTypesAsBinary;
+                // an encoding option parameter
+            const char *d_md5;  // md5 fingerprint of all sampled output
+        } DATA[] = {
+            //               RANDOM SEED TO GENERATE INPUT FOR BEHAVIORS
+            //              .-------------------------------------------
+            //             /      NUMBER OF SAMPLE BEHAVIORS IN FINGERPRINT
+            //            /      .-----------------------------------------
+            //           /      /    FRACTIONAL SECOND PRECISION
+            //          /      /    .---------------------------
+            //   LINE  /      /    /    USE BINARY DATE AND TIME ENCODING
+            //  .---- /      /    /    .---------------------------------
+            // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
+            //-- ------- ------ -- ------ ------------------------------------
+            { L_, SEED_0, 50000, 3, false, "a893e5c4643b5b40b45aa8d93c90a097" },
+            { L_, SEED_0, 50000, 3, true , "7166428b5ca3e18a0953877091f37ce7" },
+            { L_, SEED_0, 50000, 6, false, "95acf3bfe61bed5bf29c686c61ff6269" },
+            { L_, SEED_0, 50000, 6, true , "7166428b5ca3e18a0953877091f37ce7" },
+            { L_, SEED_1, 50000, 3, false, "37ce54c6d2f92fd9a822080aeda006e2" },
+            { L_, SEED_1, 50000, 3, true , "d0a8c8d46f37a89f15e71dae0c64d492" },
+            { L_, SEED_1, 50000, 6, false, "9d3d66bd3b64fc76d51ba638c2d88531" },
+            { L_, SEED_1, 50000, 6, true , "d0a8c8d46f37a89f15e71dae0c64d492" },
+            { L_, SEED_2, 50000, 3, false, "06c17b7af732eaa78f2fb8a03351d0fc" },
+            { L_, SEED_2, 50000, 3, true , "2689b7bf2a0a5002170e1c631fdf29ef" },
+            { L_, SEED_2, 50000, 6, false, "b3bf9ce8ffa3a8601e8edf915b8c418a" },
+            { L_, SEED_2, 50000, 6, true , "2689b7bf2a0a5002170e1c631fdf29ef" },
+        };
+
+        static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int  LINE             = DATA[i].d_line;
+            const int  RANDOM_SEED      = DATA[i].d_randomSeed;
+            const int  NUM_SAMPLES      = DATA[i].d_numSamples;
+            const int  SECOND_PRECISION = DATA[i].d_secondPrecision;
+            const bool ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
+                DATA[i].d_encodeDateAndTimeTypesAsBinary;
+            const bslstl::StringRef MD5 = DATA[i].d_md5;
+
+            u::PutValueFingerprint putValueFingerprint;
+            putValueFingerprint.setSeed(RANDOM_SEED);
+            putValueFingerprint.setNumSamples(NUM_SAMPLES);
+            putValueFingerprint.setFractionalSecondPrecision(SECOND_PRECISION);
+            putValueFingerprint.setEncodeDateAndTimeTypesAsBinary(
+                                          ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
+
+            const u::Md5Fingerprint md5Fingerprint =
+                u::ChecksumUtil::getMd5(putValueFingerprint);
+
+            bdlsb::MemOutStreamBuf md5FingerprintStreamBuf;
+            bsl::ostream md5FingerprintStream(&md5FingerprintStreamBuf);
+            md5FingerprintStream << md5Fingerprint;
+
+            const bslstl::StringRef md5FingerprintString(
+                md5FingerprintStreamBuf.data(),
+                md5FingerprintStreamBuf.length());
+
+            LOOP1_ASSERT_EQ(LINE, md5FingerprintString, MD5);
+        }
+
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING MD5 Test Apparatus
+        //   This case tests that the testing apparatus for computing the MD5
+        //   fingerprint of a string of bits is a correct implementation of the
+        //   MD5 Message-Digest Algorithm.  The specification for this
+        //   algorithm comes from the April 1992 revision of IETF RFC 1321.  In
+        //   this test case, the data provided to the algorithm will be
+        //   referred to as the "message", which is structured as an ordered
+        //   sequence of bytes.  A "chunk" refers to a sub-sequence of the
+        //   bytes of a message.  The "chunking" of a message refers to the
+        //   sequence of variably-sized chunks used to provide a message to the
+        //   algorithm.  Each message has one or more possible valid chunkings,
+        //   all of which have the same fingerprint (or "digest").  The sample
+        //   implementation in IETF RFC 1321 Appendix A will be referred to as
+        //   the "reference implementation".
+        //
+        // Concerns:
+        //: 1 The MD5 apparatus produces the same fingerprints as the
+        //:   reference implementation for the messages specified in the
+        //:   'MDTestSuite' function in the April 1992 revision of IETF RFC
+        //:   1321 Appendix A.
+        //:
+        //: 2 Fingerprints do not depend on the chunking of a message.
+        //:
+        //: 3 That MD5 is demonstrably a high-quality message digest algorithm,
+        //:   where quality is defined as a measure of the probability that two
+        //:   randomly-selected and near identical messages have different
+        //:   fingerprints, and where message similarity can be measured by
+        //:   minimum edit distance.  Stated another way, it is a measure
+        //:   of the risk that two similar messages will have a checksum
+        //:   collision.
+        //
+        // Plan:
+        //: 1 Verify that the MD5 apparatus produces the same fingerprints
+        //:   as the reference implementation for the messages specified
+        //:   in the 'MDTestSuite' function in the April 1992 revision of
+        //:   IETF RFC 1321 Appendix A.
+        //:
+        //: 2 Verify that the apparatus produces the same fingerprint
+        //:   regardless of the chunking of a message.
+        //:
+        //: 3 Verify that the quality of MD5 is at least 99% for a reasonable
+        //:   sample set of messages.
+        //
+        // Testing:
+        //   u::Md5Fingerprint
+        //   u::Md5FingerprintUtil
+        //   u::Md5Block
+        //   u::Md5BlockUtil
+        //   u::Md5BlockInputIterator
+        //   u::Md5BlockInputRange
+        //   u::Md5State
+        //   u::Md5StateUtil
+        //   u::Md5Util
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING MD5 Test Apparatus" << bsl::endl
+                      << "==========================" << bsl::endl;
+
+        // Verify that the apparatus produces the same fingerprints as the
+        // reference implementation.
+        {
+            static const struct {
+                int         d_line;
+                const char *d_string;
+                const char *d_fingerprint;
+            } DATA[] = {
+                //  LINE
+                //  ----
+                // /      MESSAGE              MESSAGE FINGERPRINT
+                //-- ----------------- ------------------------------------
+                { L_, ""              , "d41d8cd98f00b204e9800998ecf8427e" },
+                    // Verify that the MD5 apparatus calculates the correct
+                    // fingerprint for the empty message, as provided in the
+                    // 'MDTestSuite' from Appendix A of the specification.
+
+                { L_, "a"             , "0cc175b9c0f1b6a831c399e269772661" },
+                { L_, "abc"           , "900150983cd24fb0d6963f7d28e17f72" },
+                { L_, "message digest", "f96b697d7cb7938d525a2f31aaf161d0" },
+                { L_, "abcdefghijklmn"
+                      "opqrstuvwxyz"  , "c3fcd3d76192e4007dfb496cca67e13b" },
+                { L_, "ABCDEFGHIJKLMN"
+                      "OPQRSTUVWXYZ"
+                      "abcdefghijklmn"
+                      "opqrstuvwxyz"
+                      "0123456789"    , "d174ab98d277d9f5a5611c2c9f419d9f" },
+                { L_, "1234567890"
+                      "1234567890"
+                      "1234567890"
+                      "1234567890"
+                      "1234567890"
+                      "1234567890"
+                      "1234567890"
+                      "1234567890"    , "57edf4a22be3c955ac49da2e2107b67a" },
+                    // Verify that the MD5 apparatus passes the 'MDTestSuite'
+                    // from Appendix A of the specification.
+
+                { L_, u::TestDataUtil::s_RANDOM_LOREM_IPSUM
+                                      , "c6ee2c717ffcedd951e082e8194f408f" }
+                    // Verify that the fingerprint is calculated correctly
+                    // for large messages.
+            };
+
+            static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const char *const STRING      = DATA[i].d_string;
+                const char *const FINGERPRINT = DATA[i].d_fingerprint;
+
+                const bslstl::StringRef STRING_REF(STRING);
+                const bslstl::StringRef FINGERPRINT_REF(FINGERPRINT);
+
+                bsl::vector<unsigned char> data(STRING_REF.begin(),
+                                                STRING_REF.end());
+
+                u::Md5Fingerprint fingerprint =
+                    u::Md5Util::getFingerprint(data.begin(), data.end());
+
+                bdlsb::MemOutStreamBuf fingerprintStreamBuf;
+                bsl::ostream fingerprintStream(&fingerprintStreamBuf);
+                fingerprintStream << fingerprint;
+
+                const bslstl::StringRef fingerprintRef(
+                    fingerprintStreamBuf.data(),
+                    fingerprintStreamBuf.length());
+
+                LOOP1_ASSERT_EQ(LINE, fingerprintRef, FINGERPRINT_REF);
+            }
+        }
+
+        // Verify that the apparatus produces the same fingerprint regardless
+        // of the chunking of a message.
+        {
+            enum {
+                k_NUM_CHUNK_SIZES = 10 // num chunk sizes per data row
+            };
+
+            static const unsigned char *k_DATA_BEGIN =
+                u::TestDataUtil::s_RANDOM_GARBAGE_1K;
+                // A pointer to the first byte of
+                // 'u::TestDataUtil::s_RANDOM_GARBAGE_1K', which acts as an
+                // iterator to that byte.
+
+            static const char k_EXPECTED_FINGERPRINT[] =
+                "044d5905fa983dd9845075cb302dbe76";
+                // The expected fingerprint for
+                // 'u::TestDataUtil::s_RANDOM_GARBAGE_1K'.  Note that this
+                // fingerprint was computed using a third party implementation
+                // that is assumed to be correct.
+
+            static const struct {
+                int d_line;                           // line number
+                int d_chunkSizes[k_NUM_CHUNK_SIZES];  // seq of chunk sizes
+            } DATA[] = {
+                //  LINE
+                //  ----
+                // /                      CHUNK SIZES
+                //--, -----------------------------------------------------
+                { L_, { 1024,   0,   0,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {  512, 512,   0,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {  256, 256, 256, 256,   0,   0,   0,   0,   0,   0 } },
+                { L_, {  128, 128, 128, 128, 128, 128, 128, 128,   0,   0 } },
+                    // Verify the fingerprint is correct for all possible
+                    // chunkings of the message where the chunk sizes are
+                    // all equal and no more than 10 chunks are used.
+
+                { L_, {    1,   2,   4,   8,  16,  32,  64, 128, 256, 513 } },
+                { L_, {    2,   4,   8,  16,  32,  64, 128, 256, 512,   2 } },
+                { L_, {    4,   8,  16,  32,  64, 128, 256, 512,   1,   3 } },
+                { L_, {    8,  16,  32,  64, 128, 256, 512,   1,   2,   5 } },
+                { L_, {   16,  32,  64, 128, 256, 512,   1,   2,   4,   9 } },
+                { L_, {   32,  64, 128, 256, 512,   1,   2,   4,   8,  17 } },
+                { L_, {   64, 128, 256, 512,   1,   2,   4,   8,  16,  33 } },
+                { L_, {  128, 256, 512,   1,   2,   4,   8,  16,  32,  65 } },
+                { L_, {  256, 512,   1,   2,   4,   8,  16,  32,  64, 129 } },
+                { L_, {  512,   1,   2,   4,   8,  16,  32,  64, 128, 257 } },
+                    // Verify the fingerprint is correct for chunkings using
+                    // rotated orders of exponentially increasing chunk sizes.
+
+                { L_, {  512, 256, 128,  64,  32,  16,   8,   4,   2,   2 } },
+                { L_, {  256, 128,  64,  32,  16,   8,   4,   2,   1, 513 } },
+                { L_, {  128,  64,  32,  16,   8,   4,   2,   1, 512, 257 } },
+                { L_, {   64,  32,  16,   8,   4,   2,   1, 512, 256, 129 } },
+                { L_, {   32,  16,   8,   4,   2,   1, 512, 256, 128,  65 } },
+                { L_, {   16,   8,   4,   2,   1, 512, 256, 128,  64,  33 } },
+                { L_, {    8,   4,   2,   1, 512, 256, 128,  64,  32,  17 } },
+                { L_, {    4,   2,   1, 512, 256, 128,  64,  32,  16,   9 } },
+                { L_, {    2,   1, 512, 256, 128,  64,  32,  16,   8,   5 } },
+                { L_, {    1, 512, 256, 128,  64,  32,  16,   8,   4,   3 } },
+                    // Verify the fingerprint is correct for chunkings using
+                    // rotated orders of exponentially decreasing chunk sizes.
+
+                { L_, {    0,   0,1024,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {    0,  55, 969,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {    0,  56, 968,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {    0,  57, 967,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {    0,  63, 961,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {    0,  64, 960,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {    0,  65, 959,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   55,  55, 914,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   55,  56, 913,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   55,  57, 912,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   55,  63, 906,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   55,  64, 905,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   55,  65, 904,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   56,  55, 913,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   56,  56, 912,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   56,  57, 911,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   56,  63, 905,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   56,  64, 904,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   56,  65, 903,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   57,  55, 912,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   57,  56, 911,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   57,  57, 910,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   57,  63, 904,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   57,  64, 903,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   57,  65, 902,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   63,  55, 906,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   63,  56, 905,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   63,  57, 904,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   63,  63, 898,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   63,  64, 897,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   63,  65, 896,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   64,  55, 905,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   64,  56, 904,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   64,  57, 903,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   64,  63, 897,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   64,  64, 896,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   64,  65, 895,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   65,  55, 904,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   65,  56, 903,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   65,  57, 902,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   65,  63, 896,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   65,  64, 895,   0,   0,   0,   0,   0,   0,   0 } },
+                { L_, {   65,  65, 894,   0,   0,   0,   0,   0,   0,   0 } },
+                    // Verify the fingerprint is correct for chunkings making
+                    // use of chunk sizes that create edge cases in the
+                    // algorithm, such as '56', '64'.  Note that '56' is the
+                    // size that the final 'u::Md5Block' needs to be padded to
+                    // reach, and '64' is the capacity of a  'u::Md5Block'.
+            };
+
+            static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE              = DATA[i].d_line;
+                const int(&CHUNK_SIZES)[10] = DATA[i].d_chunkSizes;
+
+                u::Md5State state;
+                u::Md5StateUtil::loadSeedValue(&state);
+
+                const unsigned char *dataIt  = k_DATA_BEGIN;
+                const unsigned char *dataEnd = k_DATA_BEGIN;
+                for (const int *it  = CHUNK_SIZES;
+                                it != CHUNK_SIZES + k_NUM_CHUNK_SIZES;
+                              ++it) {
+                    const int chunkSize = *it;
+
+                    dataIt   = dataEnd;
+                    dataEnd += chunkSize;
+
+                    u::Md5BlockInputRange dataRange(dataIt, dataEnd);
+                    for (u::Md5BlockInputIterator blockIt  = dataRange.begin();
+                                                  blockIt != dataRange.end();
+                                                ++blockIt) {
+                        u::Md5StateUtil::append(&state, *blockIt);
+                    }
+                }
+
+                u::Md5StateUtil::appendPaddingAndLength(&state);
+                const u::Md5Fingerprint fingerprint = state.fingerprint();
+
+                bdlsb::MemOutStreamBuf fingerprintStreamBuf;
+                bsl::ostream fingerprintStream(&fingerprintStreamBuf);
+                fingerprintStream << fingerprint;
+
+                const bslstl::StringRef fingerprintString(
+                    fingerprintStreamBuf.data(),
+                    fingerprintStreamBuf.length());
+
+                LOOP1_ASSERT_EQ(LINE                   ,
+                                fingerprintString      ,
+                                k_EXPECTED_FINGERPRINT);
+            }
+        }
+
+        // Verify that MD5 is a high-quality message-digest algorithm by
+        // verifying that modifying any individual bit in a sample message of
+        // 8192 bits produces a different fingerprint.  Note that different
+        // checksums are not guaranteed, it just so happens that no collisions
+        // occur with any 1-bit perturbation of this sample message.
+        {
+            const unsigned char (&k_RANDOM_GARBAGE)[1024] =
+                    u::TestDataUtil::s_RANDOM_GARBAGE_1K;
+
+            static const char k_FINGERPRINT[] =
+                "044d5905fa983dd9845075cb302dbe76";
+                // The expected fingerprint for
+                // 'u::TestDataUtil::s_RANDOM_GARBAGE_1K'.  Note that this
+                // fingerprint was computed using a third party implementation
+                // that is assumed to be correct.
+
+            for (int i = 0; i != 8 * sizeof(k_RANDOM_GARBAGE); ++i) {
+                bsl::vector<unsigned char> randomGarbageCopy(
+                    k_RANDOM_GARBAGE,
+                    k_RANDOM_GARBAGE + sizeof(k_RANDOM_GARBAGE));
+                // A copy of the value of 'RANDOM_GARBAGE' for which to change
+                // a single bit.
+
+                const unsigned char byteAtIdx = randomGarbageCopy[i / 8];
+
+                // Create 2 masks.  One for a single bit in the byte at the
+                // current index, the other for all but that one bit.
+                const unsigned char bitMask =
+                    static_cast<unsigned char>(0x01 << (i % 8));
+                const unsigned char byteMask = ~bitMask;
+
+                // Use the single-bit mask to get a byte having all bits 0,
+                // except for the masked bit from the byte at the current
+                // index (which may be 0 or 1).
+                const unsigned char bitAtIdx = byteAtIdx & bitMask;
+
+                // Calculate the unsigned char value having the same value
+                // as 'byteAtIdx' except for having exactly 1 of its 8 bits
+                // flipped.
+                const unsigned char newByteAtIdx = (byteAtIdx & byteMask) |
+                                                   (~bitAtIdx & bitMask);
+
+                // Replace the byte at the specified index with the above
+                // calculated value, thereby flipping a single bit in the
+                // message.
+                randomGarbageCopy[i / 8] = newByteAtIdx;
+
+                // Verify that this changes the fingerprint of the message.
+                u::Md5Fingerprint fingerprint =
+                        u::Md5Util::getFingerprint(randomGarbageCopy.begin(),
+                                                   randomGarbageCopy.end());
+
+                bdlsb::MemOutStreamBuf fingerprintStreamBuf;
+                bsl::ostream fingerprintStream(&fingerprintStreamBuf);
+                fingerprintStream << fingerprint;
+
+                const bslstl::StringRef fingerprintRef(
+                    fingerprintStreamBuf.data(),
+                    fingerprintStreamBuf.length());
+
+                LOOP1_ASSERT_NE(i, fingerprintRef, k_FINGERPRINT);
+            }
+        }
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for textual time values of differing lengths
+        //   This case tests whether, for differing lengths, decoding date/time
+        //   values into a variant are considered to have their timezone
+        //   information or not.
+        //
+        // Concerns:
+        //: 1 Sample some ISO 8601-encoded time values for which decoding into
+        //:   a date/time value that optionally includes a time zone either
+        //:   erroneously drops the time zone information, or erroneously
+        //:   treats non-time zone information as a time zone.
+        //
+        // Plan:
+        //: 1 Enumerate some of the aforementioned values and verify the
+        //:   defective behavior.
+        //
+        // Testing:
+        //  int getValue(bsl::streambuf *, TYPE *, int length, const Options&);
+        // --------------------------------------------------------------------
+
+        enum Type {
+            TIME,
+            TIMETZ
+        };
+
+        enum {
+            NA = 0 // "Not applicable" used in a test row to indicate that
+                   // the value will not be used
+        };
+
+        // 'getValue' currently possesses some defects with regards to whether
+        // it interprets encoded date and time values of varying lengths as
+        // having timezone information or not.  For backwards-compatibility
+        // purposes, some of these defects are checked below.  Lines in the
+        // test table marked with a [1] or [2] indicate a behavior that can
+        // be considered defective.
+        //
+        // [1] below indicates that variant does not have the expected
+        //     selection, but the encoding needed to witness this defect is not
+        //     supported.
+        //
+        // [2] below indicates that the variant does not have the expected
+        //     selection, and that the encoding needed to witness this defect
+        //     is supported.
+
+        static const struct {
+            int         d_lineNum;     // line number
+            const char *d_exp;         // ISO 8601 date/time expression
+            Type        d_type;        // either TIME or TIMETZ
+            int         d_hour;        // decoded hour value
+            int         d_minute;      // decoded minute value
+            int         d_second;      // decoded second value
+            int         d_millisecond; // decoded millisecond value
+            int         d_offset;      // decoded timezone offset
+        } DATA[] = {
+        //                                          MINUTES
+        //                                  HOURS  .-------
+        //   LINE                           ----- /   SECONDS
+        //  .----                           |    /   .-------
+        // /    ISO 8601 TIME       TYPE    |   /   /   MSECS  TZ OFFSET
+        //-- --------------------- ------- --- --- --- ------- ---------
+        { L_, "00:00:01"          , TIME  , 00, 00, 01, 000000, NA   },
+        { L_, "00:00:01.0"        , TIME  , 00, 00, 01, 000000, NA   },
+        { L_, "00:00:01.00"       , TIME  , 00, 00, 01, 000000, NA   },
+        { L_, "00:00:01.000"      , TIME  , 00, 00, 01, 000000, NA   },
+        { L_, "00:00:01.0000"     , TIME  , 00, 00, 01, 000000, NA   },
+        { L_, "00:00:01.00000"    , TIME  , 00, 00, 01, 000000, NA   },
+        { L_, "00:00:01.000000"   , TIME  , 00, 00, 01, 000000, NA   },
+        { L_, "00:00:01.0000000"  , TIMETZ, 00, 00, 01, 000000, 0000 }, // [1]
+        { L_, "00:00:01.00000000" , TIMETZ, 00, 00, 01, 000000, 0000 }, // [1]
+        { L_, "00:00:01.000000000", TIMETZ, 00, 00, 01, 000000, 0000 }, // [1]
+
+        { L_, "00:00:01Z"         , TIME  , 00, 00, 01, 000000, NA   }, // [2]
+        { L_, "00:00:01+0000"     , TIME  , 00, 00, 01, 000000, NA   }, // [2]
+        { L_, "00:00:01+0001"     , TIME  , 23, 59, 01, 000000, NA   }, // [2]
+        { L_, "00:00:01.0+0000"   , TIME  , 00, 00, 01, 000000, NA   }, // [2]
+        { L_, "00:00:01.00+0000"  , TIMETZ, 00, 00, 01, 000000, 0000 },
+        { L_, "00:00:01.000+0000" , TIMETZ, 00, 00, 01, 000000, 0000 },
+
+        { L_, "00:00:01+00:00"    , TIME  , 00, 00, 01, 000000, NA   }, // [2]
+        { L_, "00:00:01+00:01"    , TIME  , 23, 59, 01, 000000, NA   }, // [2]
+        { L_, "00:00:01.0+00:01"  , TIMETZ, 00, 00, 01, 000000, 0001 },
+        { L_, "00:00:01.00+00:01" , TIMETZ, 00, 00, 01, 000000, 0001 },
+        { L_, "00:00:01.000+00:01", TIMETZ, 00, 00, 01, 000000, 0001 },
+        };
+
+        static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int   LINE        = DATA[i].d_lineNum;
+            const char *EXP         = DATA[i].d_exp;
+            const Type  TYPE        = DATA[i].d_type;
+            const int   HOUR        = DATA[i].d_hour;
+            const int   MINUTE      = DATA[i].d_minute;
+            const int   SECOND      = DATA[i].d_second;
+            const int   MILLISECOND = DATA[i].d_millisecond;
+            const int   OFFSET      = DATA[i].d_offset;
+
+            bdlsb::FixedMemInStreamBuf streamBuf(EXP, bsl::strlen(EXP));
+            bdlb::Variant2<bdlt::Time, bdlt::TimeTz> value;
+            const int length = static_cast<int>(bsl::strlen(EXP));
+
+            int rc = balber::BerUtil::getValue(&streamBuf, &value, length);
+            LOOP1_ASSERT_EQ(LINE, 0, rc);
+            if (0 != rc) continue;                                  // CONTINUE
+
+            switch (TYPE) {
+              case TIME: {
+                  LOOP1_ASSERT(LINE,  value.is<bdlt::Time>());
+                  LOOP1_ASSERT(LINE, !value.is<bdlt::TimeTz>());
+
+                  if (value.is<bdlt::TimeTz>()) {
+                      const bdlt::TimeTz& error = value.the<bdlt::TimeTz>();
+                      const bdlt::Time&   errorLocalTime = error.localTime();
+                      const int           errorOffset    = error.offset();
+
+                      LOOP1_ASSERT_NE(LINE, HOUR, errorLocalTime.hour());
+                      LOOP1_ASSERT_NE(LINE, MINUTE, errorLocalTime.minute());
+                      LOOP1_ASSERT_NE(LINE, SECOND, errorLocalTime.second());
+                      LOOP1_ASSERT_NE(
+                          LINE, MILLISECOND, errorLocalTime.millisecond());
+                      LOOP1_ASSERT_NE(LINE, OFFSET, errorOffset);
+                  }
+
+                  if (!value.is<bdlt::Time>()) continue;            // CONTINUE
+
+                  const bdlt::Time& time = value.the<bdlt::Time>();
+
+                  LOOP1_ASSERT_EQ(LINE, HOUR, time.hour());
+                  LOOP1_ASSERT_EQ(LINE, MINUTE, time.minute());
+                  LOOP1_ASSERT_EQ(LINE, SECOND, time.second());
+                  LOOP1_ASSERT_EQ(LINE, MILLISECOND, time.millisecond());
+              } break;
+              case TIMETZ: {
+                  LOOP1_ASSERT(LINE, !value.is<bdlt::Time>());
+                  LOOP1_ASSERT(LINE,  value.is<bdlt::TimeTz>());
+
+                  if (value.is<bdlt::Time>()) {
+                      const bdlt::Time& error = value.the<bdlt::Time>();
+
+                      LOOP1_ASSERT_EQ(LINE, HOUR, error.hour());
+                      LOOP1_ASSERT_EQ(LINE, MINUTE, error.minute());
+                      LOOP1_ASSERT_NE(LINE, SECOND, error.second());
+                      LOOP1_ASSERT_NE(LINE, MILLISECOND, error.millisecond());
+                  }
+
+                  if (!value.is<bdlt::TimeTz>()) continue;          // CONTINUE
+
+                  const bdlt::TimeTz& timeTz = value.the<bdlt::TimeTz>();
+
+                  LOOP1_ASSERT_EQ(LINE, HOUR, timeTz.localTime().hour());
+                  LOOP1_ASSERT_EQ(LINE, MINUTE, timeTz.localTime().minute());
+                  LOOP1_ASSERT_EQ(LINE, SECOND, timeTz.localTime().second());
+                  LOOP1_ASSERT_EQ(
+                      LINE, MILLISECOND, timeTz.localTime().millisecond());
+                  LOOP1_ASSERT_EQ(LINE, OFFSET, timeTz.offset());
+              } break;
+            }
+        }
+
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -586,7 +6048,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -607,7 +6069,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -648,7 +6110,7 @@ int main(int argc, char *argv[])
                 if (OFF) {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -669,7 +6131,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -711,7 +6173,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -732,7 +6194,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -775,7 +6237,7 @@ int main(int argc, char *argv[])
                 if (OFF) {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -796,7 +6258,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -842,7 +6304,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (LENGTH > 6) {
                         // Datetime objects having length greater that 6 bytes
@@ -871,7 +6333,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -919,7 +6381,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -940,7 +6402,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -1427,7 +6889,7 @@ int main(int argc, char *argv[])
   {   L_,    23,  59,  59, 999,   0, "0C 32333A35 393A3539 2E393939"         },
 
   {   L_,    24,   0,   0,   0,   1, "01 00"                                 },
-// TBD: Current doesnt work
+// TBD: Currently doesn't work
 // {  L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"         },
   //------------v
             };
@@ -1603,7 +7065,7 @@ int main(int argc, char *argv[])
                                "12 32333A35 393A3539 2E393939 2D32333A 3539" },
 
   {   L_,    24,   0,   0,   0,     0,  1, "01 00"                           },
-// TBD: Current doesnt work
+// TBD: Current doesn't work
 //{   L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"         },
   //------------v
             };
@@ -2794,7 +8256,7 @@ int main(int argc, char *argv[])
                     {
                         bdlsb::MemOutStreamBuf osb;
                         ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                        const int LENGTH = osb.length();
+                        const int LENGTH = static_cast<int>(osb.length());
 
                         if (veryVerbose) {
                             cout << "Output Buffer:";
@@ -2815,7 +8277,7 @@ int main(int argc, char *argv[])
                     {
                         bdlsb::MemOutStreamBuf osb;
                         ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                        const int LENGTH = osb.length();
+                        const int LENGTH = static_cast<int>(osb.length());
 
                         if (veryVerbose) {
                             cout << "Output Buffer:";
@@ -2837,13 +8299,13 @@ int main(int argc, char *argv[])
                         bdlsb::MemOutStreamBuf osb1, osb2, osb3;
 
                         ASSERT(0 == Util::putValue(&osb1, VALUE1, &options));
-                        const int LENGTH1 = osb1.length();
+                        const int LENGTH1 = static_cast<int>(osb1.length());
 
                         ASSERT(0 == Util::putValue(&osb2, VALUE2, &options));
-                        const int LENGTH2 = osb2.length();
+                        const int LENGTH2 = static_cast<int>(osb2.length());
 
                         ASSERT(0 == Util::putValue(&osb3, VALUE3, &options));
-                        const int LENGTH3 = osb3.length();
+                        const int LENGTH3 = static_cast<int>(osb3.length());
 
                         if (veryVerbose) {
                             cout << "Output Buffer:";
@@ -2884,13 +8346,13 @@ int main(int argc, char *argv[])
                         bdlsb::MemOutStreamBuf osb1, osb2, osb3;
 
                         ASSERT(0 == Util::putValue(&osb1, VALUE1, &DEFOPTS));
-                        const int LENGTH1 = osb1.length();
+                        const int LENGTH1 = static_cast<int>(osb1.length());
 
                         ASSERT(0 == Util::putValue(&osb2, VALUE2, &DEFOPTS));
-                        const int LENGTH2 = osb2.length();
+                        const int LENGTH2 = static_cast<int>(osb2.length());
 
                         ASSERT(0 == Util::putValue(&osb3, VALUE3, &DEFOPTS));
-                        const int LENGTH3 = osb3.length();
+                        const int LENGTH3 = static_cast<int>(osb3.length());
 
                         if (veryVerbose) {
                             cout << "Output Buffer:";
@@ -2968,7 +8430,7 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb,
                                                        VALUE,
                                                        &options));
-                            const int LENGTH = osb.length();
+                            const int LENGTH = static_cast<int>(osb.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -2995,7 +8457,7 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb,
                                                        VALUE,
                                                        &options));
-                            const int LENGTH = osb.length();
+                            const int LENGTH = static_cast<int>(osb.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3019,17 +8481,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &options));
-                            const int LENGTH1 = osb1.length();
+                            const int LENGTH1 = static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &options));
-                            const int LENGTH2 = osb2.length();
+                            const int LENGTH2 = static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &options));
-                            const int LENGTH3 = osb3.length();
+                            const int LENGTH3 = static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3075,7 +8537,7 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb,
                                                        VALUE,
                                                        &DEFOPTS));
-                            const int LENGTH = osb.length();
+                            const int LENGTH = static_cast<int>(osb.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3102,7 +8564,7 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb,
                                                        VALUE,
                                                        &DEFOPTS));
-                            const int LENGTH = osb.length();
+                            const int LENGTH = static_cast<int>(osb.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3126,17 +8588,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &DEFOPTS));
-                            const int LENGTH1 = osb1.length();
+                            const int LENGTH1 = static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &DEFOPTS));
-                            const int LENGTH2 = osb2.length();
+                            const int LENGTH2 = static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &DEFOPTS));
-                            const int LENGTH3 = osb3.length();
+                            const int LENGTH3 = static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3255,7 +8717,7 @@ int main(int argc, char *argv[])
                         {
                             bdlsb::MemOutStreamBuf osb;
                             ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                            const int LENGTH = osb.length();
+                            const int LENGTH = static_cast<int>(osb.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3279,17 +8741,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &options));
-                            const int LENGTH1 = osb1.length();
+                            const int LENGTH1 = static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &options));
-                            const int LENGTH2 = osb2.length();
+                            const int LENGTH2 = static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &options));
-                            const int LENGTH3 = osb3.length();
+                            const int LENGTH3 = static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3329,7 +8791,7 @@ int main(int argc, char *argv[])
                         {
                             bdlsb::MemOutStreamBuf osb;
                             ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                            const int LENGTH = osb.length();
+                            const int LENGTH = static_cast<int>(osb.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3353,17 +8815,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &DEFOPTS));
-                            const int LENGTH1 = osb1.length();
+                            const int LENGTH1 = static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &DEFOPTS));
-                            const int LENGTH2 = osb2.length();
+                            const int LENGTH2 = static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &DEFOPTS));
-                            const int LENGTH3 = osb3.length();
+                            const int LENGTH3 = static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -3618,7 +9080,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3637,7 +9099,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3695,7 +9157,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3714,7 +9176,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3781,7 +9243,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3800,7 +9262,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3835,7 +9297,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3854,7 +9316,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3891,7 +9353,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3910,7 +9372,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3969,7 +9431,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -3988,7 +9450,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
-                    const int LENGTH = osb.length();
+                    const int LENGTH = static_cast<int>(osb.length());
 
                     if (veryVerbose) {
                         cout << "Output Buffer:";
@@ -6253,7 +11715,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for unsigned char
+        // TESTING 'putValue' & 'getValue' for unsigned char values
         //
         // Concerns:
         //

@@ -10,6 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS
+//  BSLS_COMPILERFEATURES_CPLUSPLUS: Portable version of '__cplusplus'
 //  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: compiler bug
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'
@@ -18,7 +19,8 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: '[[fallthrough]]'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: '[[maybe_unused]]'
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
-//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED: C++14 'constexpr' spec.
+//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: C++14 'constexpr' spec.
+//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: C++17 'constexpr' spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
 //  BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: for function templates
 //  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: explicit '= default'
@@ -64,15 +66,26 @@ BSLS_IDENT("$Id: $")
 // The following are the macros provided by this component.  Note that they are
 // not defined for all platform/compiler combinations.
 //
-//:'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS':
-//: The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS' macro is
-//: defined for implementations that leak temporary objects constructed trying
-//: to initialize a 'std::initializer_list' object in the event that one of the
-//: elements of the list throws from its constructor.  This is known to affect
-//: gcc as recently as the 8.x series, and the Sun CC compiler in C++11 mode.
-//: This would often reveal itself as a spurious memory leak in
-//: exception-safety tests for 'initializer_list' constructors, so rises to the
-//: level of a generally supported defect-detection macro.
+//: 'BSLS_COMPILERFEATURES_CPLUSPLUS':
+//:     This macro provides a portable way to determine the version of the C++
+//:     standard mode that is being used.  In general, this has the same value
+//:     as the stanard '__cplusplus' macro, but on some compilers with some
+//:     settings the standard macro does not get assigned the correct value.
+//:     The values generally set (as defined in the C++ standard) are the year
+//:     and month when the standard was completed, and the value of this macro
+//:     should be compared with the appropriate constants -- '199711L',
+//:     '201103L', '201402L', '201703L', etc.
+//:
+//: 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS':
+//:     The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS' macro
+//:     is defined for implementations that leak temporary objects constructed
+//:     trying to initialize a 'std::initializer_list' object in the event that
+//:     one of the elements of the list throws from its constructor.  This is
+//:     known to affect gcc as recently as the 8.x series, and the Sun CC
+//:     compiler in C++11 mode. This would often reveal itself as a spurious
+//:     memory leak in exception-safety tests for 'initializer_list'
+//:     constructors, so rises to the level of a generally supported
+//:     defect-detection macro.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES':
 //:     This macro is defined if alias templates are supported by the current
@@ -102,12 +115,17 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'constexpr' is supported by the current
 //:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED':
+//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14':
 //:     This macro is defined if 'constexpr' with C++14 semantics is supported
 //:     by the current compiler settings for this platform.  In particular,
 //:     this allows multiple statements in a 'constexpr' function; changing
 //:     state of local variables within the function; and making 'non-const'
 //:     member functions 'constexpr'.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17':
+//:     This macro is defined if 'constexpr' with C++17 semantics is supported
+//:     by the current compiler settings for this platform.  In particular,
+//:     this allows lambda functions to be defined in a 'constexpr' function.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE':
 //:     This macro is defined if 'decltype' is supported by the current
@@ -273,7 +291,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.7
 //:   o Clang 3.0
-//:   o MSVC 2013
+//:   o Visual Studio 2013 version 12.0 (_MSC_VER 1800)
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
@@ -307,7 +325,7 @@ BSLS_IDENT("$Id: $")
 // attribute syntax.
 //
 //: o Compiler support:
-//:   o MSVC 19.11
+//:   o Visual Studio 2017 version 15.3 (_MSC_VER 1911)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -317,7 +335,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 7.3
 //:   o Clang 3.3
-//:   o MSVC 19.10
+//:   o Visual Studio 2017 version 15.0 (_MSC_VER 1910)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -327,7 +345,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.8
 //:   o Clang 3.3
-//:   o MSVC 19.11
+//:   o Visual Studio 2017 version 15.3 (_MSC_VER 1911)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -340,7 +358,7 @@ BSLS_IDENT("$Id: $")
 //:   o IBM xlC 13
 //:   o Oracle CC 12.4
 //
-///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED'
+///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined in the compiler supports the 'constexpr' reserved
 // keyword with C++14 semantics.
@@ -348,7 +366,17 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o gcc 5
 //:   o clang 3.4
-//:   o MSVC 19.10
+//:   o Visual Studio 2017 version 15.0 (_MSC_VER 1910)
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined in the compiler supports the 'constexpr' reserved
+// keyword with C++17 semantics.
+//
+//: o Compiler support:
+//:   o gcc 7.3
+//:   o clang 5
+//:   o Visual Studio 2017 version 15.0 (_MSC_VER 1910)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
 /// - - - - - - - - - - - - - - - - - - - -
@@ -357,7 +385,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.3
 //:   o Clang 3.3
-//:   o MSVC 2010
+//:   o Visual Studio 2010 version 10.0 (_MSC_VER 1600)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -369,7 +397,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.3
 //:   o Clang 2.9
-//:   o MSVC 2013
+//:   o Visual Studio 2013 version 12.0 (_MSC_VER 1800)
 //:   o IBM xlC not supported?
 //:   o Oracle CC 12.4
 //
@@ -381,7 +409,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.4
 //:   o Clang 2.9
-//:   o MSVC 2013
+//:   o Visual Studio 2013 version 12.0 (_MSC_VER 1800)
 //:   o IBM xlC 13.1
 //:   o Oracle CC 12.4
 //
@@ -393,7 +421,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.4
 //:   o Clang 2.9
-//:   o MSVC 2013
+//:   o Visual Studio 2013 version 12.0 (_MSC_VER 1800)
 //:   o IBM xlC 13.1
 //:   o Oracle CC 12.4
 //
@@ -406,7 +434,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 3.3
 //:   o Clang (any)
-//:   o MSVC 2010
+//:   o Visual Studio 2010 version 10.0 (_MSC_VER 1600)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -420,7 +448,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.7
 //:   o Clang 3.0
-//:   o MSVC 2012
+//:   o Visual Studio 2012 version 11.0 (_MSC_VER 1700)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -431,7 +459,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.4
 //:   o Clang 3.1
-//:   o MSVC 2013
+//:   o Visual Studio 2013 version 12.0 (_MSC_VER 1800)
 //:   o IBM xlC not supported
 //:   o Oracle CC 13
 //
@@ -444,7 +472,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 5.0
 //:   o clang (any)
-//:   o MSVC 19.10 (Visual Studio 2017 15.3)
+//:   o Visual Studio 2017 version 15.3 (_MSC_VER 1911)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -466,7 +494,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.4
 //:   o Clang 2.9
-//:   o MSVC 2015
+//:   o Visual Studio 2015 version 14.0 (_MSC_VER 1900)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -478,7 +506,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 7.0
 //:   o Clang 3.9
-//:   o MSVC 2017 v.15.5
+//:   o Visual Studio 2017 version 15.5 (_MSC_VER 1912)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
 /// - - - - - - - - - - - - - - - - - - - -
@@ -496,7 +524,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.6
 //:   o Clang 3.0
-//:   o MSVC 2010
+//:   o Visual Studio 2010 version 10.0 (_MSC_VER 1600)
 //:   o IBM xlC 13.1
 //:   o Oracle CC 12.4
 //
@@ -509,7 +537,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.5
 //:   o Clang 3.0
-//:   o MSVC 2013
+//:   o Visual Studio 2013 version 12.0 (_MSC_VER 1800)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -522,7 +550,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.7
 //:   o Clang 3.0
-//:   o MSVC 2012
+//:   o Visual Studio 2012 version 11.0 (_MSC_VER 1700)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -534,7 +562,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.5
 //:   o Clang 3.3
-//:   o MSVC 2013
+//:   o Visual Studio 2013 version 12.0 (_MSC_VER 1800)
 //:   o xlC 13.1.3 (Not yet supported by this component)
 //:   o Oracle CC 12.4
 //
@@ -549,7 +577,7 @@ BSLS_IDENT("$Id: $")
 //:   o gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3 is
 //:     not correct with respect to final spec (v3.0))
 //:   o clang 2.9
-//:   o MSVC 2015
+//:   o Visual Studio 2015 version 14.0 (_MSC_VER 1900)
 //:   o xlC 12.1
 //:   o Oracle CC 12.4
 //
@@ -563,7 +591,7 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 4.5 (rvalue references v2.1; original draft support in GCC 4.3 is
 //:     not correct with respect to final spec (v3.0))
 //:   o Clang 2.9
-//:   o MSVC 2010
+//:   o Visual Studio 2010 version 10.0 (_MSC_VER 1600)
 //:   o IBM xlC 12.1
 //:   o Oracle CC 12.4
 //
@@ -575,7 +603,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.3
 //:   o Clang 2.9
-//:   o MSVC 2010
+//:   o Visual Studio 2010 version 10.0 (_MSC_VER 1600)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -588,7 +616,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 4.3
 //:   o Clang 2.9
-//:   o MSVC 2015
+//:   o Visual Studio 2015 version 14.0 (_MSC_VER 1900)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
 //
@@ -600,7 +628,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o gcc 5.0
 //:   o clang 3.4
-//:   o MSVC 2015
+//:   o Visual Studio 2015 version 14.0 (_MSC_VER 1900)
 //:   o Oracle CC 12.4
 
 #include <bsls_platform.h>
@@ -713,7 +741,7 @@ BSLS_IDENT("$Id: $")
 #  endif
 # endif
 # if __cplusplus >= 201402L
-#    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+#    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 #    define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 # endif
 # if __cplusplus >= 201500
@@ -722,6 +750,7 @@ BSLS_IDENT("$Id: $")
 #  if BSLS_PLATFORM_CMP_VERSION >= 70000
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+#    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 #    define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 #    undef  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 #  endif
@@ -784,7 +813,7 @@ BSLS_IDENT("$Id: $")
 #endif
 // clang 3.4
 #if __has_feature(cxx_relaxed_constexpr)
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 #endif
 #if __has_feature(cxx_explicit_conversions)
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -827,6 +856,7 @@ BSLS_IDENT("$Id: $")
 #endif
 // work only with --std=c++1z
 #if __cplusplus >= 201703L  // C++17
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 #define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 #endif
@@ -912,9 +942,10 @@ BSLS_IDENT("$Id: $")
 
 # if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 #   if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #     define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+#     define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 #   endif
 # endif
 // (not yet supported in MSVC)
@@ -994,7 +1025,8 @@ BSLS_IDENT("$Id: $")
 #endif
 // (not yet supported in xlC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+//#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+//#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 //#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
 // Not yet tested for support
@@ -1090,7 +1122,8 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
 # endif
 
-    // # define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+    // # define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+    // # define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
     // # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
 // No C++14 features are available by default.  To use any C++14 features, you

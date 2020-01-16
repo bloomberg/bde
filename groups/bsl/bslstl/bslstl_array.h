@@ -119,15 +119,16 @@ BSLS_IDENT("$Id: $")
 // Create a bsl::array object containing three values set to the specified
 // 'f1', 'f2', 'f3'.
 //..
-//  void usageExample(){
+//  void usageExample()
+//  {
 //      Point p1 = createPoint(1.0, 1.0, 1.0);
 //      Point p2 = createPoint(2.0, 2.0, 2.0);
 //      Point p3 = createPoint(3.0, 3.0, 3.0);
 //
 //      bsl::array<Point, 3> points = {p1, p2, p3};
 //
-//      for(size_t i = 0; i < points.size(); ++i){
-//          for(size_t j = 0; j < points[i].size(); ++j){
+//      for(size_t i = 0; i < points.size(); ++i) {
+//          for(size_t j = 0; j < points[i].size(); ++j) {
 //              points[i][j] *= 2.0f;
 //          }
 //      }
@@ -136,7 +137,7 @@ BSLS_IDENT("$Id: $")
 // Use the createPoint function to generate three arrays of floats.  The arrays
 // are returned by copy and the 'size()' member function is used to access the
 // size of the arrays that could not be done with a raw array.
-//..
+
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -179,7 +180,7 @@ BSLS_IDENT("$Id: $")
 
 // DEFECT DETECTION MACROS
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)            \
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)                    \
  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 60000
 // gcc 5.4 (and earlier) does not allow non-'constexpr' code in a relaxed
 // 'constexpr' function, such as a 'BSLS_ASSERT' macro.  As use of such code in
@@ -323,8 +324,8 @@ struct array {
     const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
-        // last element in this array, and the past-the-end reverse iterator
-        // if this array has size 0.
+        // last element in this array, and the past-the-end reverse iterator if
+        // this array has size 0.
 
     const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
     const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
@@ -338,23 +339,23 @@ struct array {
     BSLS_KEYWORD_CONSTEXPR size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of elements in this array.
 
-    BSLS_KEYWORD_CONSTEXPR_RELAXED
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     const_reference operator[](size_type position) const;
         // Return a reference providing non-modifiable access to the element at
         // the specified 'position' in this array.  The behavior is undefined
         // unless 'position < size()'.
 
-    BSLS_KEYWORD_CONSTEXPR_RELAXED
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     const_reference at(size_type position) const;
         // Return a reference providing non-modifiable access to the element at
         // the specified 'position' in this array.  Throw an 'out_of_range'
         // exception if 'position >= size()'.
 
-    BSLS_KEYWORD_CONSTEXPR_RELAXED const_reference front() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP14 const_reference front() const;
         // Return a reference providing non-modifiable access to the first
         // element in this array.  The behavior is undefined unless 'SIZE > 0'.
 
-    BSLS_KEYWORD_CONSTEXPR_RELAXED const_reference back() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP14 const_reference back() const;
         // Return a reference providing non-modifiable access to the last
         // element in this array.  Behavior is undefined unless 'SIZE > 0'.
 
@@ -377,7 +378,7 @@ bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
                 const array<VALUE_TYPE, SIZE>& rhs);
     // Return 'true' if the specified 'lhs' does not have the same value as the
     // specified 'rhs'; return false otherwise.  Two arrays do not have the
-    // same value if  some element in the ordered sequence of elements of 'lhs'
+    // same value if some element in the ordered sequence of elements of 'lhs'
     // does not have the same value as the corresponding element in the ordered
     // sequence of elements of 'rhs'.
 
@@ -416,7 +417,7 @@ void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
     // corresponding element in the specified 'rhs'.
 
 template<size_t INDEX, class TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 TYPE& get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference providing modifiable access to the element of the
     // specified 'a', having the ordinal number specified by the (template
@@ -431,7 +432,7 @@ const TYPE& get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<size_t INDEX, class TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 TYPE&& get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
     // Return an rvalue reference providing modifiable access to the element of
     // the specified 'a', having the ordinal number specified by the (template
@@ -467,9 +468,9 @@ namespace std {
     // as system headers, which implicitly silences all warnings.
 #endif
 
-                             // ====================
-                             // struct tuple_element
-                             // ====================
+                            // ====================
+                            // struct tuple_element
+                            // ====================
 
 template<size_t INDEX, class TYPE, size_t SIZE>
 struct tuple_element<INDEX, bsl::array<TYPE, SIZE> >
@@ -484,9 +485,9 @@ struct tuple_element<INDEX, bsl::array<TYPE, SIZE> >
     typedef TYPE type;
 };
 
-                              // =================
-                              // struct tuple_size
-                              // =================
+                             // =================
+                             // struct tuple_size
+                             // =================
 
 template<class TYPE, size_t SIZE>
 struct tuple_size<bsl::array<TYPE, SIZE> > : integral_constant<size_t, SIZE>
@@ -646,7 +647,7 @@ array<VALUE_TYPE, SIZE>::operator[](size_type position)
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::operator[](size_type position) const
 {
@@ -669,7 +670,7 @@ typename array<VALUE_TYPE, SIZE>::reference array<VALUE_TYPE, SIZE>::at(
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::at(size_type position) const
 {
@@ -689,7 +690,7 @@ array<VALUE_TYPE, SIZE>::front()
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::front() const
 {
@@ -709,7 +710,7 @@ array<VALUE_TYPE, SIZE>::back()
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::back() const
 {
@@ -810,7 +811,7 @@ void bsl::swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
 }
 
 template<size_t INDEX, class TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 TYPE& bsl::get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
 {
     return a.d_data[INDEX];
@@ -825,7 +826,7 @@ const TYPE& bsl::get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<size_t INDEX, class TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_RELAXED
+BSLS_KEYWORD_CONSTEXPR_CPP14
 TYPE&& bsl::get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
 {
     return BloombergLP::bslmf::MovableRefUtil::move(a.d_data[INDEX]);

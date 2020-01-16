@@ -512,10 +512,11 @@ int main(int argc, char *argv[])
             mX.emplace_front("This string cannot be a short string either!");
             mX.emplace_front("One final test string that must not be short.");
 
-#if !defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC) || _HAS_ITERATOR_DEBUGGING == 0
             const long long EXPECTED_ALLOCATIONS = 6;
 #else
-            // Microsoft allocate an extra sentinel node.
+            // Microsoft allocate an extra sentinel node when iterator
+            // debugging is enabled.
             const long long EXPECTED_ALLOCATIONS = 7;
 #endif
 

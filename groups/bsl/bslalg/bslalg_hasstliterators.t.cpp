@@ -2,11 +2,7 @@
 
 #include <bslalg_hasstliterators.h>
 
-#include <bslmf_integralconstant.h>
-#include <bslmf_nestedtraitdeclaration.h>
-
 #include <bsls_bsltestutil.h>
-#include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -68,81 +64,23 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  COMPILER DEFECT MACROS TO GUIDE TESTING
-//-----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-# define BSLALG_HASSTLITERATORS_ABOMINABLE_FUNCTION_MATCH_CONST 1
-// The Solaris CC compiler matches 'const' qualified abominable functions as
-// 'const'-qualified template parameters, but does not strip the 'const'
-// qualifier when passing that template parameter onto the next instantiation.
-// Therefore, 'HasStlIteratorTraits<void() const>' requests infinite template
-// recursion.  We opt to not try a workaround in the header for this platform,
-// where we delegate to the same implementation as the primary template, as
-// that would leave an awkward difference in behavior between for 'const'
-// qualified class types between using a nested trait and directly specializing
-// the trait.
-#endif
-
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900)   \
- || defined(BSLALG_HASSTLITERATORS_ABOMINABLE_FUNCTION_MATCH_CONST)
-# define BSLALG_HASSTLITERATORS_NO_ABOMINABLE_FUNCTIONS  1
-// Older MSVC compilers do not parse abominable function types, so it does not
-// matter whether trait would support them or not, we can simply disable such
-// tests on this platform.
-#endif
-
-//=============================================================================
-//                  MACROS TO CONFIGURE TESTING
-//-----------------------------------------------------------------------------
-
-//#define BSLALG_HASSTLITERATORS_TEST_INCOMPLETE_TYPES 1
-// Define this macro to enable test coverage of incomplete class types, which
-// should produce a compile-error.  Testing with this macro must be enabled
-// outside the regular nightly regression cycle, as by its existence, it would
-// cause the test driver to fail.
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 template <class TYPE>
-struct HasStlIteratorsTrait : bslalg::HasStlIterators<TYPE>::type {
-    // This class template has the 'HasStlIterators' trait, which is registered
-    // using the deprecated 'bslalg' scheme for associating nested traits.
+struct HasStlIteratorsTrait : bslalg::HasStlIterators<TYPE>::type
+{
 };
 
-class Incomplete;
-    // This incomplete class is supplied for testing trait support of
-    // incomplete types.
-
-struct RequiresStlIteratorsType {
-    // This class template has the 'HasStlIterators' trait, which is registered
-    // using the preferred 'bslmf' scheme for associating nested traits.  This
-    // class tests interoperability of the old scheme with the new.
-
+struct RequiresStlIteratorsType
+{
     BSLMF_NESTED_TRAIT_DECLARATION(RequiresStlIteratorsType,
                                    bslalg::HasStlIterators);
 };
 
-struct DoesNotRequireStlIteratorsType {
-    // This class explicitly does NOT have the 'HasStlIterators' trait.
+struct DoesNotRequireStlIteratorsType
+{
 };
-
-struct SpecializedForStlIteratorsType {
-    // This class template has the 'HasStlIterators' trait, which is registered
-    // by explicit template specialization of the trait for this type.  This
-    // class tests interoperability of the old scheme with the new.
-};
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <>
-struct HasStlIterators<SpecializedForStlIteratorsType> : bsl::true_type {};
-
-}  // close package namespace
-}  // close enterprise namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -188,66 +126,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        ASSERT( HasStlIteratorsTrait<RequiresStlIteratorsType>::value);
-        ASSERT( HasStlIteratorsTrait<const RequiresStlIteratorsType>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                                    volatile RequiresStlIteratorsType>::value);
-        ASSERT(!HasStlIteratorsTrait
-                             <const volatile RequiresStlIteratorsType>::value);
+        ASSERT((HasStlIteratorsTrait<RequiresStlIteratorsType>::value));
+        ASSERT((false ==
+                HasStlIteratorsTrait<DoesNotRequireStlIteratorsType>::value ));
 
-        ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType&>::value);
-        ASSERT(!HasStlIteratorsTrait<const RequiresStlIteratorsType&>::value);
-
-        ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType *>::value);
-        ASSERT(!HasStlIteratorsTrait<const RequiresStlIteratorsType *>::value);
-
-        ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType[]>::value);
-        ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType()>::value);
-#if !defined(BSLALG_HASSTLITERATORS_NO_ABOMINABLE_FUNCTIONS)
-        ASSERT(!HasStlIteratorsTrait<RequiresStlIteratorsType() const>::value);
-#endif
-
-        ASSERT( HasStlIteratorsTrait<SpecializedForStlIteratorsType>::value);
-        ASSERT( HasStlIteratorsTrait<
-                                 const SpecializedForStlIteratorsType>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                              volatile SpecializedForStlIteratorsType>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                        const volatile SpecializedForStlIteratorsType>::value);
-
-        ASSERT(!HasStlIteratorsTrait<SpecializedForStlIteratorsType&>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                                const SpecializedForStlIteratorsType&>::value);
-
-        ASSERT(!HasStlIteratorsTrait<SpecializedForStlIteratorsType *>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                               const SpecializedForStlIteratorsType *>::value);
-
-
-        ASSERT(!HasStlIteratorsTrait<DoesNotRequireStlIteratorsType>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                                 const DoesNotRequireStlIteratorsType>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                              volatile DoesNotRequireStlIteratorsType>::value);
-        ASSERT(!HasStlIteratorsTrait<
-                        const volatile DoesNotRequireStlIteratorsType>::value);
-
-#if defined(BSLALG_HASSTLITERATORS_TEST_INCOMPLETE_TYPES)
-        ASSERT(!HasStlIteratorsTrait<Incomplete>::value);
-        ASSERT(!HasStlIteratorsTrait<const Incomplete>::value);
-        ASSERT(!HasStlIteratorsTrait<volatile Incomplete>::value);
-        ASSERT(!HasStlIteratorsTrait<const volatile Incomplete>::value);
-#endif
-
-        ASSERT(!HasStlIteratorsTrait<Incomplete *>::value);
-        ASSERT(!HasStlIteratorsTrait<const Incomplete *>::value);
-        ASSERT(!HasStlIteratorsTrait<volatile Incomplete *>::value);
-        ASSERT(!HasStlIteratorsTrait<const volatile Incomplete *>::value);
-
-        ASSERT(!HasStlIteratorsTrait<Incomplete &>::value);
-        ASSERT(!HasStlIteratorsTrait<const Incomplete &>::value);
-        ASSERT(!HasStlIteratorsTrait<volatile Incomplete &>::value);
-        ASSERT(!HasStlIteratorsTrait<const volatile Incomplete &>::value);
       } break;
 
       default: {
@@ -264,7 +146,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

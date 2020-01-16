@@ -6,9 +6,6 @@
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
-#include <bslmf_isenum.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_ismemberpointer.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -46,8 +43,9 @@ using namespace BloombergLP;
 // [ 1] bsl::is_copy_constructible::value
 // [ 1] bsl::is_copy_constructible_v
 // ----------------------------------------------------------------------------
-// [ 2] EXTENDING 'bsl::is_copy_constructible'
 // [  ] USAGE EXAMPLE
+// [ 3] TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+// [ 2] EXTENDING 'bsl::is_copy_constructible'
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -248,6 +246,50 @@ struct is_copy_constructible<UserDefinedNcTestType2> : false_type {};
 
 }  // close namespace bsl
 
+namespace {
+
+struct StructWithCtor {
+    // This user-defined type with constructors with side-effects is used to
+    // guarantee that the type is detected as NOT 'is_trivially_copyable' even
+    // by the native implementation.
+    StructWithCtor()
+    {
+        printf("default StructWithCtor\n");
+    }
+
+    StructWithCtor(const StructWithCtor&)
+    {
+        printf("copy StructWithCtor\n");
+    }
+};
+
+struct NamedStructWithNonPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' non-copyable type.
+    StructWithCtor x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' non-copyable type (checking to make sure we're not
+    // encountering AIX bug {DRQS 153975424}).
+    StructWithCtor x;
+} TypedefedStructWithNonPodMember;
+
+struct NamedStructWithPodMember {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'well-behaved' copyable type.
+    int x;
+};
+
+typedef struct {
+    // This user-defined type is used to check the expected behaviour for a
+    // 'typedef struct' copyable type (checking to make sure we're not
+    // encountering AIX bug {DRQS 153975424}).
+    int x;
+} TypedefedStructWithPodMember;
+
+}  // close unnamed namespace
 
 int main(int argc, char *argv[])
 {
@@ -264,6 +306,58 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //   Ensure unnamed structs are handled correctly.
+        //
+        // Concerns:
+        //: 1 Ensure that named 'struct's and 'typedef'd anonymous 'struct's
+        //    are handled identically.
+        //
+        // Plan:
+        //: 1 Verify 'bsl::is_copy_constructible<StructWithCtor>' is 'false'.
+        //:
+        //: 2 Verify 'bsl::is_copy_constructible<NSWNPM>' is 'false'.
+        //:
+        //: 3 Verify 'bsl::is_copy_constructible<TSWNPM>' is 'false'.
+        //:
+        //: 4 Verify 'bsl::is_copy_constructible<NSWPM>' is as expected.
+        //:
+        //: 5 Verify 'bsl::is_copy_constructible<TSWPM>' is as expected (C-1).
+        //
+        // Testing:
+        //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+              "\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
+              "153975424})\n"
+              "\n====================================================="
+              "===========\n");
+
+        // P-1
+        ASSERTV(bsl::is_copy_constructible<StructWithCtor>::value,
+                bsl::is_copy_constructible<StructWithCtor>::value);
+        // P-2
+        ASSERTV(
+            bsl::is_copy_constructible<NamedStructWithNonPodMember>::value,
+            bsl::is_copy_constructible<NamedStructWithNonPodMember>::value);
+        // P-3
+        ASSERTV(
+           bsl::is_copy_constructible<TypedefedStructWithNonPodMember>::value,
+           bsl::is_copy_constructible<TypedefedStructWithNonPodMember>::value);
+
+        // P-4
+        ASSERTV(bsl::is_copy_constructible<NamedStructWithPodMember>::value,
+                bsl::is_copy_constructible<NamedStructWithPodMember>::value);
+        // P-5
+        ASSERTV(
+              bsl::is_copy_constructible<TypedefedStructWithPodMember>::value,
+              bsl::is_copy_constructible<TypedefedStructWithPodMember>::value);
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // EXTENDING 'bsl::is_copy_constructible'
@@ -428,7 +522,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

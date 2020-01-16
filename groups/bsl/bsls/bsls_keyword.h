@@ -11,7 +11,9 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_KEYWORD_CONSTEXPR: C++11 'constexpr' keyword
-//  BSLS_KEYWORD_CONSTEXPR_RELAXED: C++14 'constexpr' keyword
+//  BSLS_KEYWORD_CONSTEXPR_RELAXED: C++14 'constexpr' keyword (Deprecated)
+//  BSLS_KEYWORD_CONSTEXPR_CPP14: C++14 'constexpr' keyword
+//  BSLS_KEYWORD_CONSTEXPR_CPP17: C++17 'constexpr' keyword
 //  BSLS_KEYWORD_DELETED: C++11 '= delete' function definition
 //  BSLS_KEYWORD_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_KEYWORD_FINAL: C++11 'final' keyword
@@ -20,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_KEYWORD_NOEXCEPT: C++11 'noexcept' keyword
 //  BSLS_KEYWORD_NOEXCEPT_AVAILABLE: 'C++11' 'noexcept' flag
 //  BSLS_KEYWORD_NOEXCEPT_OPERATOR(expr): C++11 'noexcept' operation
-//  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): C++11 noexcept function qualfier
+//  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): C++11 noexcept function qualifier
 //  BSLS_KEYWORD_OVERRIDE: C++11 'override' keyword
 //
 //@DESCRIPTION: This component provides a suite of macros that simplify the use
@@ -47,10 +49,21 @@ BSLS_IDENT("$Id: $")
 //:     mode.  This macro is intended to support declaring static data members.
 //:
 //: 'BSLS_KEYWORD_CONSTEXPR_RELAXED':
+//:     !DEPRECATED! Use 'BSLS_KEYWORD_CONSTEXPR_CPP14' instead.  This macro
+//:     inserts the keyword 'constexpr' when compiling with C++14 or later mode
+//:     and inserts nothing when compiling with C++03/C++11 mode.
+//:
+//: 'BSLS_KEYWORD_CONSTEXPR_CPP14':
 //:     This macro inserts the keyword 'constexpr' when compiling with C++14
 //:     or later mode and inserts nothing when compiling with C++03/C++11 mode.
 //:     See Example 2 below for a better description of the differences between
-//:     C++11 and C++14 (relaxed) 'constexpr'.
+//:     'constexpr' between C++11, C++14, and C++17.
+//:
+//: 'BSLS_KEYWORD_CONSTEXPR_CPP17':
+//:     This macro inserts the keyword 'constexpr' when compiling with C++17
+//:     or later mode and inserts nothing when compiling with C++03/C++11/C++14
+//:     mode.  See Example 2 below for a better description of the differences
+//:     between 'constexpr' between C++11, C++14, and C++17.
 //:
 //: 'BSLS_KEYWORD_DELETED':
 //:     This macro inserts the text '= delete' when compiling with C++11
@@ -105,8 +118,8 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Preparing C++03 Code for C++11 Features
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // To use these macros, simply insert them where the corresponding C++11
-// keyword would go. When compiling with C++03 mode there will be no effect but
-// when compiling with C++11 mode additional restrictions will apply. When
+// keyword would go.  When compiling with C++03 mode there will be no effect
+// but when compiling with C++11 mode additional restrictions will apply.  When
 // compiling with C++11 mode the restriction will be checked providing some
 // additional checking over what is done with C++11.
 //
@@ -118,35 +131,45 @@ BSLS_IDENT("$Id: $")
 // 'explicit' keyword with conversion operators to avoid its use for implicit
 // conversions.  The macro 'BSLS_KEYWORD_EXPLICIT' can be used to mark
 // conversions as explicit conversions which will be checked when compiling
-// with C++11 mode. For example, an 'Optional' type may have an explicit
+// with C++11 mode.  For example, an 'Optional' type may have an explicit
 // conversion to 'bool' to indicate that the value is set (note the conversion
 // operator):
 //..
-// template <class TYPE>
-// class Optional
-// {
-//     TYPE* d_value_p;
-// public:
-//     Optional(): d_value_p() {}
-//     explicit Optional(const TYPE& value): d_value_p(new TYPE(value)) {}
-//     ~Optional() { delete d_value_p; }
-//     // ...
+//  template <class TYPE>
+//  class Optional
+//  {
+//      TYPE* d_value_p;
+//  public:
+//      Optional(): d_value_p() {}
+//      explicit Optional(const TYPE& value): d_value_p(new TYPE(value)) {}
+//      ~Optional() { delete d_value_p; }
+//      // ...
 //
-//     BSLS_KEYWORD_EXPLICIT operator bool() const { return d_value_p; }
-// };
+//      BSLS_KEYWORD_EXPLICIT operator bool() const { return d_value_p; }
+//  };
 //..
 // When using an object of the 'Optional' class in a condition it is desirable
 // that it converts to a 'bool':
 //..
-// Optional<int> value;
-// if (value) { /*... */ }
+//  void testFunction() {
+//      Optional<int> value;
+//      if (value) { /*... */ }
 //..
 // In places where an implicit conversion takes place it is not desirable that
 // the conversion is used.  When compiling with C++11 mode the conversion
 // operator will not be used, e.g., the following code will result in an error:
 //..
-// bool flag = value;
+//  #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+//      bool flag = value;
+//  #endif
+//  }
 //..
+// The code will compile successfully when using C++03 mode; without the macro,
+// when using C++11 or greater mode we get an error like this:
+//..
+//     error: cannot convert 'Optional<int>' to 'bool' in initialization
+//..
+//
 // When defining conversion operators to 'bool' for code which needs to compile
 // with C++03 mode the conversion operator should convert to a member pointer
 // type instead: doing so has a similar effect to making the conversion
@@ -155,32 +178,39 @@ BSLS_IDENT("$Id: $")
 // Some classes are not intended for use as a base class.  To clearly label
 // these classes and enforce that they can't be derived from C++11 allows using
 // the 'final' keyword after the class name in the class definition to label
-// classes which are not intended to be derived from. The macro
+// classes which are not intended to be derived from.  The macro
 // 'BSLS_KEYWORD_FINAL' is replaced by 'final' when compiling with C++11
 // causing the compiler to enforce that a class can't be further derived.  The
 // code below defines a class which can't be derived from:
 //..
-// class FinalClass BSLS_KEYWORD_FINAL
-// {
-//     int d_value;
-//   public:
-//     explicit FinalClass(int value = 0): d_value(value) {}
-//     int value() const { return d_value; }
-// };
+//  class FinalClass BSLS_KEYWORD_FINAL
+//  {
+//      int d_value;
+//  public:
+//      explicit FinalClass(int value = 0): d_value(value) {}
+//      int value() const { return d_value; }
+//  };
 //..
 // An attempt to derive from this class will fail when compiling with C++11
 // mode:
 //..
-// class FinalClassDerived: public FinalClass {
-//     int d_anotherValue;
-// public:
-//     explicit FinalClassDerived(int value)
-//         : d_anotherValue(2 * value) {
-//     }
-//     int anotherValue() const { return d_anotherValue; }
-// };
+//  #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+//  class FinalClassDerived : public FinalClass {
+//      int d_anotherValue;
+//  public:
+//      explicit FinalClassDerived(int value)
+//      : d_anotherValue(2 * value) {
+//      }
+//      int anotherValue() const { return d_anotherValue; }
+//  };
+//  #endif
 //..
-// The code will compile successfully when using C++03 mode.
+// The code will compile successfully when using C++03 mode; without the macro,
+// when using C++11 or greater mode we get an error like this:
+//..
+//    error: cannot derive from 'final' base 'FinalClass' in derived type
+//    'FinalClassDerived'
+//..
 //
 // Sometime it is useful to declare that an overriding function is the final
 // overriding function and further derived classes won't be allowed to further
@@ -192,29 +222,36 @@ BSLS_IDENT("$Id: $")
 // demonstrate the use of this keyword first a base class with a 'virtual'
 // function is defined:
 //..
-// struct FinalFunctionBase
-// {
-//     virtual int f() { return 0; }
-// };
+//  struct FinalFunctionBase
+//  {
+//      virtual int f() { return 0; }
+//  };
 //..
 // When defining a derived class this function 'f' can be marked as the final
 // overrider using 'BSLS_KEYWORD_FINAL':
 //..
-// struct FinalFunctionDerived: FinalFunctionBase
-// {
-//     int f() BSLS_KEYWORD_FINAL { return 1; }
-// };
+//  struct FinalFunctionDerived: FinalFunctionBase
+//  {
+//      int f() BSLS_KEYWORD_FINAL { return 1; }
+//  };
 //..
 // The semantics of the overriding function aren't changed but a further
-// derived class can't override the function 'f', i.e., the following code
-// will result in an error when compiling with C++11 mode:
+// derived class can't override the function 'f', i.e., the following code will
+// result in an error when compiling with C++11 mode:
 //..
-// struct FinalFunctionFailure: FinalFunctionDerived
-// {
-//     int f() { return 2; }
-// };
+//  #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+//  struct FinalFunctionFailure: FinalFunctionDerived
+//  {
+//      int f() { return 2; }
+//  };
+//  #endif
 //..
-// With C++03 mode the code will successfully compile.
+// The code will compile successfully when using C++03 mode; without the macro,
+// when using C++11 or greater mode we get an error like this:
+//..
+//     error: virtual function 'virtual int FinalFunctionFailure::f()'
+//     error: overriding final function 'virtual int FinalFunctionDerived::f()'
+//..
 //
 // The C++11 keyword 'override' is used to identify functions overriding a
 // 'virtual' function from a base class.  If a function identified as
@@ -226,29 +263,38 @@ BSLS_IDENT("$Id: $")
 // demonstrate the use of the 'BSLS_KEYWORD_OVERRIDE' macro first a base class
 // is defined:
 //..
-// struct OverrideBase
-// {
-//     virtual int f() const { return 0; }
-// };
+//  struct OverrideBase
+//  {
+//      virtual int f() const { return 0; }
+//  };
 //..
 // When overriding 'OverrideBase::f' in a derived class the
 // 'BSLS_KEYWORD_OVERRIDE' macro should be used to ascertain that the function
 // in the derived class is indeed overriding a 'virtual' function:
 //..
-// struct OverrideSuccess: OverrideBase
-// {
-//     int f() const BSLS_KEYWORD_OVERRIDE { return 1; }
-// };
+//  struct OverrideSuccess: OverrideBase
+//  {
+//      int f() const BSLS_KEYWORD_OVERRIDE { return 1; }
+//  };
 //..
 // The above code compiles successfully with both C++03 mode and C++11.  When
 // the function meant to be an override actually isn't overriding any function
 // the compilation will fail when using C++11 mode as is demonstrated by the
 // following example (note the missing 'const' in the function declaration):
 //..
-// struct OverrideFailure: OverrideBase
-// {
-//     int f() BSLS_KEYWORD_OVERRIDE { return 2; }
-// };
+//  #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+//  struct OverrideFailure: OverrideBase
+//  {
+//      int f() BSLS_KEYWORD_OVERRIDE { return 2; }
+//  };
+//  #endif
+//..
+// The code will compile successfully when using C++03 mode (though it might
+// produce a warning); without the macro, when using C++11 or greater mode we
+// get an error like this:
+//..
+//    error: 'int OverrideFailure::f()' marked 'override', but does not
+//    override
 //..
 //
 ///Example 2: Creating an extended 'constexpr' function
@@ -263,28 +309,73 @@ BSLS_IDENT("$Id: $")
 // may be evaluated compile-time if all its input is known compile time.  C++14
 // allows more complex functions to be 'constexpr'.  Also, in C++14,
 // 'constexpr' member functions are not implicitly 'const' as in C++11.
-// Thefore we have a separate macro 'BSLS_KEYWORD_CONSTEXPR_RELAXED' that can
-// be used to mark functions 'constexpr' when compiling with C++14 mode:
+// Thefore we have a separate macro 'BSLS_KEYWORD_CONSTEXPR_CPP14' that can be
+// used to mark functions 'constexpr' when compiling with C++14 mode:
 //..
-// BSLS_KEYWORD_CONSTEXPR_RELAXED
-// int complexConstexprFunc(bool b)
-// {
-//     if (b) {
-//         return 42;                                                 // RETURN
-//     }
-//     else {
-//         return 0;                                                  // RETURN
-//     }
-// }
+//  BSLS_KEYWORD_CONSTEXPR_CPP14
+//  int complexConstexprFunc(bool b)
+//  {
+//      if (b) {
+//          return 42;                                                // RETURN
+//      }
+//      else {
+//          return 17;                                                // RETURN
+//      }
+//  }
 //..
 // When compiling with C++14 'constexpr' support it is possible to use the
 // result of 'complexConstexprFunc' in compile-time constants:
 //..
-// #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-// constexpr
-// #endif
-// int result = complexConstexprFunc(true);
-// assert(42 == result);
+//  void useComplexConstexprFunc()
+//  {
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+//      constexpr
+//  #endif
+//      int result = complexConstexprFunc(true);
+//      ASSERT(42 == result);
+//..
+// The macro 'BSLS_KEYWORD_CONSTEXPR_CPP14' can also be used on variables to
+// achieve an identical result:
+//..
+//      BSLS_KEYWORD_CONSTEXPR_CPP14 int result2 = complexConstexprFunc(true);
+//      ASSERT(42 == result2);
+//  }
+//..
+// C++17 made small but significant changes to what is allowed in a 'constexpr'
+// function.  Notably, a lambda can now be defined in such a function (and, if
+// not called at compile time, does not itself need to be 'constexpr').  To
+// take advantage of this there is a separate macro
+// 'BSLS_KEYWORD_CONSTEXPR_CPP14' that can be used to mark functions
+// 'constexpr' when compiling with C++17 mode:
+//..
+//  BSLS_KEYWORD_CONSTEXPR_CPP17
+//  int moreComplexConstexprFunc(bool b)
+//  {
+//      if (b) {
+//          return 42;                                                // RETURN
+//      }
+//      else {
+//  #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+//          return []{
+//                     static int b = 17;
+//                     return b;
+//                 }();                                               // RETURN
+//  #else
+//          return 17;
+//  #endif
+//      }
+//  }
+//..
+// Then, just like 'useComplexConstexprFunc', we can invoke
+// 'moreComplexConstexprFunc' to populate a compile-time constant when it is
+// suported:
+//..
+//  void useMoreComplexConstexprFunc()
+//  {
+//      BSLS_KEYWORD_CONSTEXPR_CPP17 int result
+//                                            = moreComplexConstexprFunc(true);
+//      ASSERT(42 == result);
+//  }
 //..
 
 #include <bsls_compilerfeatures.h>
@@ -297,10 +388,18 @@ BSLS_IDENT("$Id: $")
 # define BSLS_KEYWORD_CONSTEXPR_MEMBER const
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-# define BSLS_KEYWORD_CONSTEXPR_RELAXED constexpr
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+# define BSLS_KEYWORD_CONSTEXPR_CPP14 constexpr
 #else
-# define BSLS_KEYWORD_CONSTEXPR_RELAXED
+# define BSLS_KEYWORD_CONSTEXPR_CPP14
+#endif
+
+# define BSLS_KEYWORD_CONSTEXPR_RELAXED BSLS_KEYWORD_CONSTEXPR_CPP14
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+# define BSLS_KEYWORD_CONSTEXPR_CPP17 constexpr
+#else
+# define BSLS_KEYWORD_CONSTEXPR_CPP17
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS

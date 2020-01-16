@@ -17,16 +17,15 @@ BSLS_IDENT("$Id: $")
 // from 'bsl::true_type' to indicate that a type has pointer semantics, and
 // from 'bsl::false_type' otherwise.  A type has pointer-like semantics must
 // define (at a minimum) 'operator*' and 'operator->'.  All pointer types have
-// pointer semantics; other types must explicitly add this trait, either with
-// the macro 'BSLMF_NESTED_TRAIT_DECLARATION', or by explicit template
-// specialization.  Note that all pointer types, including 'void *' and
-// function pointers, have pointer semantics, whether or not they can be
-// dereferenced or perform pointer arithmetic.
+// pointer semantics; other types must explicitly add this trait, either
+// with the macro 'BSLMF_NESTED_TRAIT_DECLARATION', or by explicit template
+// specialization.
 
 #include <bslscm_version.h>
 
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_ispointer.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_ispointer.h>
@@ -37,26 +36,11 @@ namespace bslmf {
 
 template <class TYPE>
 struct HasPointerSemantics
-    : DetectNestedTrait<TYPE, HasPointerSemantics>::type {
-};
-
-template <class TYPE>
-struct HasPointerSemantics<TYPE *> : bsl::true_type {
-    // Partial specialization for actual pointer types, avoiding the need to
-    // also instantiate 'bslmf::DetectNestedTrait' for the common positive
-    // case.
-};
-
-template <class TYPE>
-struct HasPointerSemantics<TYPE const> : HasPointerSemantics<TYPE>::type {};
-template <class TYPE>
-struct HasPointerSemantics<TYPE volatile> : HasPointerSemantics<TYPE>::type {};
-template <class TYPE>
-struct HasPointerSemantics<TYPE const volatile>
-    : HasPointerSemantics<TYPE>::type {};
-    // Partial specializations for cv-qualified types, to ensure that
-    // specializations of the primary trait for user defined 'TYPE's also apply
-    // to cv-qualified variations of that same 'TYPE'.
+    : bsl::integral_constant<bool,
+                             bsl::is_pointer<TYPE>::value
+                             || DetectNestedTrait<TYPE,
+                                                  HasPointerSemantics>::value>
+{};
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -64,7 +48,7 @@ struct HasPointerSemantics<TYPE const volatile>
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
