@@ -1,0 +1,113 @@
+ balcl.txt
+
+@PURPOSE: Provide facility to parse process command-line arguments.
+
+@MNEMONIC: Basic Application Library Command Line (balcl)
+
+@DESCRIPTION: The 'balcl' package provides a set of components that enable
+ users to access information from the process's command line via a
+ value-semantic class, 'balcl::CommandLine'.  An {Overview} is provided below.
+ Full details can be found in the documentation of {'balcl_commandline'} and
+ the other components of this package.
+
+/Overview
+/--------
+ There are several steps to using 'balcl::CommandLine':
+
+: 1 Specify the set of command-line options (and their attributes) that are
+:   allowed on the command line by creation of a table of 'balcl::OptionInfo'
+:   or 'balcl::Option' objects.  See {Option Attributes} below.
+:
+: 2 Create a 'balcl::CommandLine' object from the command-line-option
+:   specification table.
+:
+: 3 Pass command-line information (i.e., 'argv') to the 'parse' method of the
+:   'balcl::CommandLine' object.
+:
+: 4 If the 'parse' method is successful, use 'balcl::CommandLine' accessors or
+:   the accessors of a returned 'balcl::CommandLineOptionsHandle' object.  Note
+:   that options that were defined by the user but did not appear in the
+:   command line (i.e., the input to 'parse') are left in a "null" state unless
+:   the user also defined a default value for the option (see {Option
+:   Attributes}).
+
+/Option Attributes
+/-----------------
+ This package provides a rich set of features for users to define their
+ allowed options.  These include:
+
+: o The names by which the option can be specified on the command line (a long
+:   tag name and, optionally, a short tag name) as well as a separate name by
+:   which, after a successful parse, the value of the option can be
+:   programmatically accessed.
+:
+: o A description that is later used by the 'printUsage' method.
+:
+: o Whether or not the option must appear on the command line for a successful
+:   parse.
+:
+: o Whether or not the option description will be included in the output
+:   of the 'printUsage' method.
+:
+: o Is the option a simple "flag" (a boolean option, either present on the
+:   command line or not) or does the option have a value?
+:
+: o If the option has a value, the user can specify:
+:   o The type of the option value.
+:   o Whether the option value is scalar or an array.
+:   o Optionally: A default value for the option.
+:   o Optionally: A user-supplied functor (a "constraint") to validate the
+:     value.
+:
+: o Optionally, the user can supply the address of a variable that is "linked"
+:   to the option.  If so, after a successful parse, the option value can be
+:   obtained from the variable (an alternative to using the
+:   'balcl::CommandLine' accessors).
+
+/Hierarchical Synopsis
+/---------------------
+ The 'balcl' package currently has 8 components having 6 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  6. balcl_commandline
+
+  5. balcl_option
+
+  4. balcl_optioninfo
+
+  3. balcl_occurrenceinfo
+     balcl_typeinfo
+
+  2. balcl_optionvalue
+
+  1. balcl_constraint
+     balcl_optiontype
+..
+
+/Component Synopsis
+/------------------
+: 'balcl_commandline':
+:      Provide command line parsing, validation, and access.
+:
+: 'balcl_constraint':
+:      Define constraint function signatures for supported value types.
+:
+: 'balcl_occurrenceinfo':
+:      Provide a type describing requirement and default value of option.
+:
+: 'balcl_option':
+:      Provide an allocator-aware command-line-option descriptor class.
+:
+: 'balcl_optioninfo':
+:      Provide a POD command-line-option descriptor 'struct'.
+:
+: 'balcl_optiontype':
+:      Enumerate the types supported for command-line-option values.
+:
+: 'balcl_optionvalue':
+:      Provide a variant type for command-line-option values.
+:
+: 'balcl_typeinfo':
+:      Provide a class describing an option's type and other attributes.
