@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bal' package group currently has 9 packages having 3 levels of physical
+ The 'bal' package group currently has 10 packages having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
@@ -21,6 +21,7 @@
 
   2. balb
      balber
+     balcl
      balm
      balst
      baltzo
@@ -36,6 +37,9 @@
 :
 : 'balber':
 :      Provide encoding/decoding of data per the (binary) BER rules.
+:
+: 'balcl':
+:      Provide facility to parse process command-line arguments.
 :
 : 'baljsn':
 :      Provide components for encoding/decoding in the JSON format.
