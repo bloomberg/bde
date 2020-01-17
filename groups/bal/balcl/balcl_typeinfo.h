@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balcl_commandline, balcl_optiontype
 //
-// @DESCRIPTION; This component provides a single attribute class,
+//@DESCRIPTION: This component provides a single attribute class,
 // 'balcl::TypeInfo', that is used to describe several features of a
 // command-line option.  Specifically:
 //: o The type of an option's value (see {'balcl_optiontype'}).
