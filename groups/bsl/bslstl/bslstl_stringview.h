@@ -206,6 +206,7 @@ BSLS_IDENT("$Id: $")
 #include <string>      // for 'native_std::char_traits'
 #include <functional>  // for 'native_std::less', 'native_std::greater_equal'
 
+#ifndef BDE_DISABLE_CPP17_ABI
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #include <string_view>
@@ -229,6 +230,7 @@ using native_std::operator>=;
 #define BSLSTL_STRING_VIEW_IS_ALIASED
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BDE_DISABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
