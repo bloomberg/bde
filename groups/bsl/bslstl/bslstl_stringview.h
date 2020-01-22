@@ -312,9 +312,8 @@ class basic_string_view {
     basic_string_view() BSLS_KEYWORD_NOEXCEPT;
         // Create an empty view.
 
-    //! BSLS_KEYWORD_CONSTEXPR
-    //! basic_string_view(const basic_string_view& original)
-    //!                                        BSLS_KEYWORD_NOEXCEPT = default;
+    BSLS_KEYWORD_CONSTEXPR
+    basic_string_view(const basic_string_view& original) BSLS_KEYWORD_NOEXCEPT;
         // Create a view that has the same value as the specified 'original'
         // object.
 
@@ -1159,6 +1158,16 @@ basic_string_view<CHAR_TYPE,CHAR_TRAITS>::basic_string_view()
 : d_start_p(0)
 , d_length(0)
 {}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+inline
+BSLS_KEYWORD_CONSTEXPR
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+                       const basic_string_view& original) BSLS_KEYWORD_NOEXCEPT
+: d_start_p(original.d_start_p)
+, d_length(original.d_length)
+{
+}
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
