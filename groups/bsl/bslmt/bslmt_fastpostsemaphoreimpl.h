@@ -553,12 +553,14 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::disable()
     }
 
     // When threads blocked on 'd_waitCondition' are signalled, they must
-    // prefer using available resources - over returning 'e_DISABLED' - since
-    // users of 'getValue' expect this behavior.  To ensure a post method
-    // issued after a disablement (e.g., from a single thread) does not provide
-    // a resource to a signalled thread, 'disable' must wait until no threads
-    // will block before returning.  Note that the semaphore may be re-enabled
-    // (and re-disabled) during this wait.
+    // prefer consuming available resources and returning success over
+    // returning 'e_DISABLED'.  Otherwise, the return value of 'wait*' and
+    // 'getValue' may be unexpected as per operation ordering arguments (see
+    // DRQS 153332608).  To ensure a post method issued after a disablement
+    // (e.g., from a single thread) does not provide a resource to a signalled
+    // thread, 'disable' must wait until no threads will block before
+    // returning.  Note that the semaphore may be re-enabled (and re-disabled)
+    // during this wait.
 
     while (isDisabled(state) && willHaveBlockedThread(state)) {
         THREADUTIL::yield();
