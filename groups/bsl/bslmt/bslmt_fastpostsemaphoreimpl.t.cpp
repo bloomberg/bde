@@ -238,13 +238,28 @@ struct ExhaustiveCondition : public ExhaustiveWaitable {
         // to create a scheduling point for the test aparatus.
 };
 
+                       // ===========================
+                       // struct ExhaustiveThreadUtil
+                       // ===========================
+
+struct ExhaustiveThreadUtil {
+    // Simulates 'bslmt::ThreadUtil'.
+
+    // CLASS METHODS
+    static void yield();
+        // Simulate 'bslmt::ThreadUtil::yield'.  Invoke
+        // 'ExhaustiveTest::next()' to create a scheduling point for the test
+        // aparatus.
+};
+
                           // =====================
                           // typedef ExhaustiveObj
                           // =====================
 
 typedef bslmt::FastPostSemaphoreImpl<ExhaustiveAtomicOps,
                                      ExhaustiveMutex,
-                                     ExhaustiveCondition> ExhaustiveObj;
+                                     ExhaustiveCondition,
+                                     ExhaustiveThreadUtil> ExhaustiveObj;
 
                            // ====================
                            // class ExhaustiveTest
@@ -316,9 +331,10 @@ class ExhaustiveTest {
     static void finish();
         // Mark the invoking thread as having completed.
 
-    static void next();
-        // Schedule the next thread to make progress using 's_schedule', and
-        // wait to be scheduled.
+    static void next(bool allowRepeat = true);
+        // Schedule the next thread to make progress using 's_schedule',
+        // preventing this thread from being scheduled next if the specified
+        // 'allowRepeat' is 'true', and wait to be scheduled.
 
     static void next(bsls::Types::Uint64 id);
         // Schedule the thread having the specified 'id' to make progress, and
@@ -470,6 +486,19 @@ int ExhaustiveCondition::wait(ExhaustiveMutex *mutex)
     return 0;
 }
 
+                       // ---------------------------
+                       // struct ExhaustiveThreadUtil
+                       // ---------------------------
+
+// CLASS METHODS
+void ExhaustiveThreadUtil::yield()
+{
+    // Note that this implementation does not provide a full exhaustive test.
+    // However, it allows for handling spin-loops in a reasonable mannor.
+
+    ExhaustiveTest::next(false);
+}
+
                            // --------------------
                            // class ExhaustiveTest
                            // --------------------
@@ -550,7 +579,7 @@ void ExhaustiveTest::finish()
     s_scheduledId.storeRelease(s_doneId);
 }
 
-void ExhaustiveTest::next()
+void ExhaustiveTest::next(bool allowRepeat)
 {
     bsls::Types::Uint64 id = s_doneId;
 
@@ -562,19 +591,32 @@ void ExhaustiveTest::next()
             done &= s_data[i].d_done;
         }
         if (!done) {
-            bsl::size_t i    = 0;
-            bool        acon = true;
+            bsl::size_t i         = 0;
+            bool        acon      = true;
+            bool        mayRepeat = false;
             while (acon) {
                 if (   !s_data[i].d_done
                     && (   0 == s_data[i].d_wait
                         || s_data[i].d_wait->d_signalCount)) {
-                    s_schedule[s_scheduleIndex] = i;
-                    ++s_scheduleSize;
-                    acon = false;
+                    if (   allowRepeat
+                        || s_scheduleIndex == 0
+                        || s_schedule[s_scheduleIndex - 1] != i) {
+                        s_schedule[s_scheduleIndex] = i;
+                        ++s_scheduleSize;
+                        acon = false;
+                    }
+                    else {
+                        mayRepeat = true;
+                    }
                 }
-                else {
+                if (acon) {
                     ++i;
                     if (i == s_dataSize) {
+                        if (mayRepeat) {
+                            i = s_schedule[s_scheduleIndex - 1];
+                            s_schedule[s_scheduleIndex] = i;
+                            ++s_scheduleSize;
+                        }
                         acon = false;
                     }
                 }
@@ -598,7 +640,10 @@ void ExhaustiveTest::next()
             while (acon) {
                 if (   !s_data[i].d_done
                     && (   0 == s_data[i].d_wait
-                        || s_data[i].d_wait->d_signalCount)) {
+                        || s_data[i].d_wait->d_signalCount)
+                    && (   allowRepeat
+                        || s_scheduleIndex == 0
+                        || s_schedule[s_scheduleIndex - 1] != i)) {
                     s_scheduleNextIndex = s_scheduleIndex;
                     s_scheduleNextId    = i;
                     acon = false;
@@ -847,7 +892,8 @@ struct TestAtomicOperations {
     {
         typedef bslmt::FastPostSemaphoreImpl<bsls::AtomicOperations,
                                              bslmt::Mutex,
-                                             bslmt::Condition> Obj;
+                                             bslmt::Condition,
+                                             bslmt::ThreadUtil> Obj;
 
         s_override.push_back(  Obj::k_AVAILABLE_INC    * available
                              + Obj::k_DISABLED_GEN_INC * disabled
@@ -900,11 +946,13 @@ int TestCondition::s_signalCount = 0;
 
 typedef bslmt::FastPostSemaphoreImpl<bsls::AtomicOperations,
                                      bslmt::Mutex,
-                                     bslmt::Condition> Obj;
+                                     bslmt::Condition,
+                                     bslmt::ThreadUtil> Obj;
 
 typedef bslmt::FastPostSemaphoreImpl<TestAtomicOperations,
                                      bslmt::Mutex,
-                                     TestCondition> TestObj;
+                                     TestCondition,
+                                     bslmt::ThreadUtil> TestObj;
 
 const int k_DECISECOND = 100 * 1000;  // number of microseconds in 0.1 seconds
 
@@ -940,7 +988,7 @@ extern "C" void *watchdog(void *arg)
 extern "C" void *timedWaitExpectDisabled(void *arg)
     // Invoke 'timedWait' with a one second timeout on the specified 'arg' and
     // verify the result value is 'e_DISABLED'.  The behavior is undefined
-    // unless 'arg' is a point to a valid instance of 'Obj'.
+    // unless 'arg' is a pointer to a valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -953,7 +1001,7 @@ extern "C" void *timedWaitExpectDisabled(void *arg)
 extern "C" void *timedWaitExpectSuccess(void *arg)
     // Invoke 'timedWait' with a one second timeout on the specified 'arg' and
     // verify the result value is 'e_SUCCESS'.  The behavior is undefined
-    // unless 'arg' is a point to a valid instance of 'Obj'.
+    // unless 'arg' is a pointer to a valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -965,7 +1013,7 @@ extern "C" void *timedWaitExpectSuccess(void *arg)
 
 extern "C" void *waitExpectDisabled(void *arg)
     // Invoke 'wait' on the specified 'arg' and verify the result value is
-    // 'e_DISABLED'.  The behavior is undefined unless 'arg' is a point to a
+    // 'e_DISABLED'.  The behavior is undefined unless 'arg' is a pointer to a
     // valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
@@ -977,7 +1025,7 @@ extern "C" void *waitExpectDisabled(void *arg)
 
 extern "C" void *waitExpectSuccess(void *arg)
     // Invoke 'wait' on the specified 'arg' and verify the result value is
-    // 'e_SUCCESS'.  The behavior is undefined unless 'arg' is a point to a
+    // 'e_SUCCESS'.  The behavior is undefined unless 'arg' is a pointer to a
     // valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
@@ -1314,6 +1362,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 Disablement of the queue releases blocked threads and results
         //:   in the correct semaphore count.
+        //:
+        //: 5 Sequences of operations with a guaranteed result (e.g., one
+        //:   thread invoking 'wait' while another does 'disable' and then
+        //:   'post') operate as expected.
         //
         // Plan:
         //: 1 Create semaphores with varying initial count, invoke a
@@ -1328,13 +1380,17 @@ int main(int argc, char *argv[])
         //:
         //: 3 Directly verify the timeout functionality of 'timedWait', the
         //:   return value of the method, and use 'tryWait' to verify the
-        //:   semaphore count.
+        //:   semaphore count.  (C-3)
         //:
         //: 4 Create semaphores with zero initial count, use 'timedWait' (with
         //:   a very long timeout) and 'wait' to block created threads on the
         //:   semaphore, execute the 'disable' method, verify the return value
         //:   and then join the created threads to verify they were released.
-        //:   Use a watchdog to detect unreleased threads.  (C-2)
+        //:   Use a watchdog to detect unreleased threads.  (C-4)
+        //:
+        //: 5 Perform sequences of operations with a guaranteed result and
+        //:   verify the expected outcome.  Note that the untested method
+        //:   'getValue' is used.  (C-5)
         //
         // Testing:
         //   void post();
@@ -1598,6 +1654,64 @@ int main(int argc, char *argv[])
             s_continue = 0;
 
             bslmt::ThreadUtil::join(watchdogHandle);
+        }
+
+        if (verbose) cout << "\nVerify guaranteed outcomes." << endl;
+        for (int i = 0; i < 1000; ++i) {
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle, waitExpectDisabled, &mX);
+
+                mX.disable();
+                mX.post();
+
+                bslmt::ThreadUtil::join(handle);
+            }
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle,
+                                          timedWaitExpectDisabled,
+                                          &mX);
+
+                mX.disable();
+                mX.post();
+
+                bslmt::ThreadUtil::join(handle);
+            }
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle, waitExpectSuccess, &mX);
+
+                mX.post();
+                while (mX.getValue()) {
+                    bslmt::ThreadUtil::yield();
+                }
+                mX.disable();
+
+                bslmt::ThreadUtil::join(handle);
+            }
+            {
+
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                bslmt::ThreadUtil::create(&handle,
+                                          timedWaitExpectSuccess,
+                                          &mX);
+
+                mX.post();
+                while (mX.getValue()) {
+                    bslmt::ThreadUtil::yield();
+                }
+                mX.disable();
+
+                bslmt::ThreadUtil::join(handle);
+            }
         }
       } break;
       case 5: {
@@ -2247,7 +2361,7 @@ cout << endl
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

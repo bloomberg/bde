@@ -98,7 +98,7 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 2] CONCERN: 0 == e_SUCCESS
@@ -106,6 +106,7 @@ using namespace bsl;
 // [ 9] CONCERN: 'popFront' and 'tryPopFront' honor move-semantics
 // [10] CONCERN: template requirements
 // [11] CONCERN: ordering guarantee
+// [12] DRQS 153332608: 'waitUntilEmpty' RACE WITH 'popFront'
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -735,6 +736,21 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
     bslmt::ThreadUtil::join(watchdogHandle);
 }
 
+extern "C" void *pushWaitDisable(void *arg)
+{
+    Obj& mX = *static_cast<Obj *>(arg);
+
+    Obj::value_type value;
+
+    mX.pushBack(value);
+
+    mX.waitUntilEmpty();
+
+    mX.disablePopFront();
+
+    return 0;
+}
+
 // ============================================================================
 //               GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
 // ----------------------------------------------------------------------------
@@ -955,7 +971,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -992,6 +1008,41 @@ int main(int argc, char *argv[])
         s_continue = 0;
 
         bslmt::ThreadUtil::join(watchdogHandle);
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // DRQS 153332608: 'waitUntilEmpty' RACE WITH 'popFront'
+        //
+        // Concerns:
+        //: 1 The method 'waitUntilEmpty' can not return before the 'popFront'
+        //:   which makes the queue empty is guaranteed to complete the pop.
+        //
+        // Plan:
+        //: 1 Create a thread that will push an element onto the queue,
+        //:   'waitUntilEmpty', and then 'disablePopFront' while the main
+        //:   thread executes 'popFront'.  Verify the pop was successful
+        //:   (i.e., did not return due to disablement).  (C-1)
+        //
+        // Testing:
+        //   DRQS 153332608: 'waitUntilEmpty' RACE WITH 'popFront'
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 153332608: 'waitUntilEmpty' RACE WITH 'popFront'\n"
+                 << "=====================================================\n";
+        }
+
+        bslmt::ThreadUtil::Handle              handle;
+
+        Obj mX(128);
+
+        bslmt::ThreadUtil::create(&handle, pushWaitDisable, &mX);
+
+        Obj::value_type value;
+
+        ASSERT(0 == mX.popFront(&value));
+
+        bslmt::ThreadUtil::join(handle);
       } break;
       case 11: {
         // ---------------------------------------------------------
