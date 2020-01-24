@@ -97,6 +97,9 @@ using namespace bsl;  // automatically added by script
 // [10] int find(int, TYPE *) const;
 // [10] int length() const;
 // [15] bslma::Allocator *allocator() const;
+// [15] bool isMember(const TYPE&) const;
+// [15] const TYPE& value(int) const;
+// [15] int find(int) const;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 9] bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog<TYPE>&);
@@ -969,7 +972,7 @@ struct GetMoved;
 template <class ELEMENT>
 struct GetMoved<ELEMENT, 0> {
 
-    // ClASS METHODS
+    // CLASS METHODS
     static
     MoveState::Enum from(const ELEMENT&)
     {
@@ -986,7 +989,7 @@ struct GetMoved<ELEMENT, 0> {
 template <class ELEMENT>
 struct GetMoved<ELEMENT, 1> {
 
-    // ClASS METHODS
+    // CLASS METHODS
     static
     MoveState::Enum from(const ELEMENT& object)
     {
@@ -1029,13 +1032,31 @@ class TestDriver {
     typedef bslmf::MovableRefUtil               MUtil;
 
     enum { k_IS_MOVE_AWARE =
-           bsl::is_same<ELEMENT, u::WellBehavedMoveOnlyAllocTestType>::value ||
+               bsl::is_same<ELEMENT,
+                                 u::WellBehavedMoveOnlyAllocTestType>::value ||
                   bsl::is_same<ELEMENT, bsltf::MoveOnlyAllocTestType>::value ||
                    bsl::is_same<ELEMENT, bsltf::MovableAllocTestType>::value ||
-                        bsl::is_same<ELEMENT, bsltf::MovableTestType>::value };
+                        bsl::is_same<ELEMENT, bsltf::MovableTestType>::value,
+           k_IS_MOVABLE =
+               bsl::is_same<ELEMENT,
+                                 u::WellBehavedMoveOnlyAllocTestType>::value ||
+                  bsl::is_same<ELEMENT, bsltf::MoveOnlyAllocTestType>::value ||
+                   bsl::is_same<ELEMENT, bsltf::MovableAllocTestType>::value ||
+                        bsl::is_same<ELEMENT, bsltf::MovableTestType>::value,
+           k_IS_ALLOCATING = bslma::UsesBslmaAllocator<ELEMENT>::value
+    };
 
-    static const bool s_isAllocating =
-                                     bslma::UsesBslmaAllocator<ELEMENT>::value;
+    static const MoveState::Enum s_expMoved = k_IS_MOVE_AWARE
+                                            ? bsltf::MoveState::e_MOVED
+                                            : bsltf::MoveState::e_UNKNOWN;
+        // Compare this to a move state of an object that we expect to have
+        // been moved.
+
+    static const MoveState::Enum s_expNotMoved = k_IS_MOVE_AWARE
+                                               ? bsltf::MoveState::e_NOT_MOVED
+                                               : bsltf::MoveState::e_UNKNOWN;
+        // Compare this to a move state of an object that we expect to have not
+        // been moved.
 
     // PRIVATE CLASS METHODS
     static ELEMENT *ampersand(ELEMENT& expression)
@@ -1058,16 +1079,17 @@ class TestDriver {
 
     static bslma::Allocator *getAllocatorImpl(const ELEMENT& value,
                                               bsl::true_type)
-        // 'true_type' indicates that 'ELEMENT' uses bslma allocators, return
-        // a ptr to the allocator used by the specified 'value'.
+        // Return the address of the allocator used by the specified value.
+        // Note that 'bsl::true' type indicates that the 'ELEMENT' type uses
+        // 'bslma' allocators.
     {
         return value.allocator();
     }
 
     static bslma::Allocator *getAllocatorImpl(const ELEMENT&,
                                               bsl::false_type)
-        // 'false_type' indicates that 'ELEMENT' is not allocating, return a
-        // a null 'bslma::Allocator' ptr.
+        // Return 0.  Note that 'bsl::false_type' indicates that the 'ELEMENT'
+        // type does not use 'bslma' allocators.
     {
         return 0;
     }
@@ -1083,8 +1105,8 @@ class TestDriver {
         return !valueAllocator || valueAllocator == allocator;
     }
 
-    static bool checkSpec(const Obj&  container,
-                          const char *spec);
+    static bool hasSpecElements(const Obj&  container,
+                                const char *spec);
         // Return 'true' if the specified 'container' contains elements
         // corresponding to those described by the specified 'spec', but not
         // necessarily in the same order, and 'false' otherwise.
@@ -1116,21 +1138,22 @@ class TestDriver {
 
     static void testCaseManipulatorsCopyOrMovable();
         // Test all the manipulators and accessors assuming that the test type
-        // is either copyable or movable.
+        // is copyable, copyable and movable, or move-only.
 
     static void testCaseApparatus();
         // Test the 'gg' function and 'u::isMember'.
 
     static void testCaseBreathingCopyOrMovable();
-        // Run test case 1 with types that are movable or copyable.
+        // Run test case 1 with types that are copyable, copyable and movable,
+        // or move-only.
 
     static void testCaseBreathingCopyable();
         // Run test case 1 with types that are copyable.
 };
 
 template <class ELEMENT>
-bool TestDriver<ELEMENT>::checkSpec(const Obj&  container,
-                                    const char *spec)
+bool TestDriver<ELEMENT>::hasSpecElements(const Obj&  container,
+                                          const char *spec)
 {
     char c = 0;
     bsl::string tmpSpecBuffer(spec);
@@ -1185,10 +1208,12 @@ void TestDriver<ELEMENT>::gg(Obj              *object,
 template <class ELEMENT>
 void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
 {
+    const char *tName = bsls::NameOf<ELEMENT>().name();
+
     bslma::TestAllocator ta(veryVeryVerbose);
     bslma::TestAllocator tb(veryVeryVerbose);
 
-    if (verbose) P(bsls::NameOf<ELEMENT>());
+    if (verbose) P(tName);
 
     Obj mX(&ta);    const Obj& X = mX;
     bsl::vector<int> handles(&ta);
@@ -1210,9 +1235,8 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     for (int ii = 0; ii < X.length(); ++ii) {
         ASSERT(spec[ii] == getData(X.value(handles[ii])));
         if (k_IS_MOVE_AWARE) {
-            MoveState::Enum m = getMovedInto(X.value(handles[ii]));
-            ASSERTV(bsls::NameOf<ELEMENT>(), m,
-                                               bsltf::MoveState::e_MOVED == m);
+            MoveState::Enum movedInto = getMovedInto(X.value(handles[ii]));
+            ASSERTV(tName, s_expMoved, movedInto, s_expMoved == movedInto);
         }
     }
 
@@ -1227,89 +1251,82 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
 
     const int H0 = mX.add(MUtil::move(vs[0]));
     ASSERT(0 != H0);
-    if (k_IS_MOVE_AWARE) {
-        MoveState::Enum m = getMovedFrom(VS[0]);
-        ASSERTV(bsls::NameOf<ELEMENT>(), m, bsltf::MoveState::e_MOVED == m);
-        m = getMovedInto(X.value(H0));
-        ASSERTV(bsls::NameOf<ELEMENT>(), m, bsltf::MoveState::e_MOVED == m);
+
+    MoveState::Enum movedFrom = getMovedFrom(VS[0]);
+    ASSERTV(tName, movedFrom, s_expMoved == movedFrom);
+    MoveState::Enum movedInto = getMovedInto(X.value(H0));
+    ASSERTV(tName, movedInto, s_expMoved == movedInto);
+    if (k_IS_MOVABLE) {
+        setData(ampersand(vs[0]), '0');
     }
-    setData(ampersand(vs[0]), '0');
     ASSERT(VS[0] == X.value(H0));
     ASSERT(7 == X.length());
 
     spec = "ABCDEF0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     mX.remove(HC, ampersand(vs[1]));
-    if (k_IS_MOVE_AWARE) {
-        ASSERT(bsltf::MoveState::e_MOVED == getMovedInto(VS[1]));
-    }
+    ASSERTV(s_expMoved == getMovedInto(VS[1]));
     ASSERT(getData(VS[1]) == 'C');
     setData(ampersand(vs[1]), '1');
 
     spec = "ABDEF0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     int rc = mX.remove(HD);
     ASSERT(0 == rc);
 
     spec = "ABEF0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     rc = mX.remove(HD);
     ASSERT(0 != rc);
 
     rc = mX.remove(HF, ampersand(vs[3]));
-    if (k_IS_MOVE_AWARE) {
-        MoveState::Enum m = getMovedInto(VS[3]);
-        ASSERTV(bsls::NameOf<ELEMENT>(), m, bsltf::MoveState::e_MOVED == m);
-    }
+    movedInto = getMovedInto(VS[3]);
+    ASSERTV(tName, movedInto, s_expMoved, s_expMoved == movedInto);
     ASSERT(0 == rc);
     ASSERT('F' == getData(VS[3]));
     setData(ampersand(vs[3]), '3');
 
     spec = "ABE0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     rc = mX.replace(HE, MUtil::move(vs[1]));
-    if (k_IS_MOVE_AWARE) {
-        ASSERT(bsltf::MoveState::e_MOVED == getMovedFrom(VS[1]));
-        ASSERT(bsltf::MoveState::e_MOVED == getMovedInto(X.value(HE)));
-    }
+    movedFrom = getMovedFrom(VS[1]);
+    ASSERTV(tName, movedFrom, s_expMoved == movedFrom);
+    movedInto = getMovedInto(X.value(HE));
+    ASSERTV(tName, movedInto, s_expMoved == movedInto);
+
     ASSERT(0 == rc);
     setData(ampersand(vs[1]), '1');
     ASSERT(X.isMember(VS[1]));
 
     rc = mX.replace(HD, MUtil::move(vs[2]));
     ASSERT(0 != rc);
-    if (k_IS_MOVE_AWARE) {
-        MoveState::Enum m = getMovedFrom(VS[2]);
-        ASSERTV(bsls::NameOf<ELEMENT>(), m,
-                                           bsltf::MoveState::e_NOT_MOVED == m);
-    }
+    movedFrom = getMovedFrom(VS[2]);
+    ASSERTV(tName, s_expNotMoved, movedFrom, s_expNotMoved == movedFrom);
+
     ASSERT('2' == getData(VS[2]));
     ASSERT(!X.isMember(VS[2]));
 
     spec = "AB10";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     mX.removeAll();
     ASSERT(0 == X.length());
-    ASSERT(checkSpec(X, ""));
+    ASSERT(hasSpecElements(X, ""));
 
     spec = "ABCDEF";
     gg(&mX, spec, &handles);
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
     ASSERT(6 == X.length());
 
     for (int ii = 0; ii < X.length(); ++ii) {
         const ELEMENT& E = X.value(handles[ii]);
         const int val = getData(E);
-        if (k_IS_MOVE_AWARE) {
-            MoveState::Enum m = getMovedInto(E);
-            ASSERTV(bsls::NameOf<ELEMENT>(), m,
-                                               bsltf::MoveState::e_MOVED == m);
-        }
+        movedInto = getMovedInto(E);
+        ASSERTV(tName, s_expMoved, movedInto, s_expMoved == movedInto);
         ASSERT('A' <= val && val <= 'F');
         ASSERT(spec[ii] == val);
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
@@ -1321,11 +1338,8 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     for (Iter it(X); it; ++it, ++numItems) {
         const int h = it.handle();
         const ELEMENT& E = it.value();
-        if (k_IS_MOVE_AWARE) {
-            MoveState::Enum m = getMovedInto(E);
-            ASSERTV(bsls::NameOf<ELEMENT>(), m,
-                                               bsltf::MoveState::e_MOVED == m);
-        }
+        movedInto = getMovedInto(E);
+        ASSERTV(tName, s_expMoved, movedInto, s_expMoved == movedInto);
         const int val = getData(E);
         ASSERT('A' <= val && val <= 'F');
         ASSERT(usesAllocatorOrNoAllocator(E, &ta));
@@ -1385,10 +1399,10 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     ASSERT(7 == X.length());
 
     spec = "ABCDEF0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
     ASSERT(0 == X.find(HD, ampersand(vs[1])));
     ASSERT(getData(VS[1]) == 'D');
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     setData(ampersand(vs[1]), '1');
     mX.remove(HC, ampersand(vs[1]));
@@ -1396,13 +1410,13 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     setData(ampersand(vs[1]), '1');
 
     spec = "ABDEF0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     int rc = mX.remove(HD);
     ASSERT(0 == rc);
 
     spec = "ABEF0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     rc = mX.remove(HD);
     ASSERT(0 != rc);
@@ -1413,7 +1427,7 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     setData(ampersand(vs[3]), '3');
 
     spec = "ABE0";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     rc = mX.replace(HE, VS[1]);
     ASSERT(0 == rc);
@@ -1424,15 +1438,15 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     ASSERT(!X.isMember(VS[2]));
 
     spec = "AB10";
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
 
     mX.removeAll();
     ASSERT(0 == X.length());
-    ASSERT(checkSpec(X, ""));
+    ASSERT(hasSpecElements(X, ""));
 
     spec = "ABCDEF";
     gg(&mX, spec, &handles);
-    ASSERT(checkSpec(X, spec));
+    ASSERT(hasSpecElements(X, spec));
     ASSERT(6 == X.length());
 
     for (int ii = 0; ii < X.length(); ++ii) {
@@ -1522,17 +1536,17 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         ASSERT(!X.isMember(V));
         ASSERT(!u::isMemberValue(X, '5'));
 
-        ASSERT(checkSpec(X, SPEC));
+        ASSERT(hasSpecElements(X, SPEC));
 
         {
-            // Verify that 'checkSpec' doesn't care about the order of the
-            // items in the catalog.
+            // Verify that 'hasSpecElements' doesn't care about the order of
+            // the items in the catalog.
 
             bsl::string permuteSpec(SPEC, &tb);
             int numPermutations = 0;
             bsl::sort(permuteSpec.begin(), permuteSpec.end());
             do {
-                ASSERT(checkSpec(X, permuteSpec.c_str()));
+                ASSERT(hasSpecElements(X, permuteSpec.c_str()));
             } while (numPermutations++ < 10 &&
                                      bsl::next_permutation(permuteSpec.begin(),
                                                            permuteSpec.end()));
@@ -1583,20 +1597,20 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         ASSERT(!X.isMember(V));
         ASSERT(!u::isMemberValue(X, '5'));
 
-        ASSERT(checkSpec(X, SPEC));
+        ASSERT(hasSpecElements(X, SPEC));
         bsl::string newSpec(SPEC);
         newSpec += '7';
-        ASSERT(!checkSpec(X, newSpec.c_str()));
+        ASSERT(!hasSpecElements(X, newSpec.c_str()));
         if (0 != LENGTH) {
-            ASSERT(!checkSpec(X, ""));
+            ASSERT(!hasSpecElements(X, ""));
 
             newSpec = SPEC;
             newSpec.resize(newSpec.size() - 1);
-            ASSERT(!checkSpec(X, newSpec.c_str()));
+            ASSERT(!hasSpecElements(X, newSpec.c_str()));
 
             newSpec = SPEC;
             newSpec += SPEC[0];
-            ASSERT(!checkSpec(X, newSpec.c_str()));
+            ASSERT(!hasSpecElements(X, newSpec.c_str()));
         }
 
         for (int jj = 0; jj < LENGTH; ++jj) {
@@ -1671,7 +1685,7 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyOrMovable()
     ASSERTV(name, getData(VA), 'A' == getData(VA));
 
     ASSERT( usesAllocatorOrNoAllocator(VA, &ta));
-    ASSERT(!usesAllocatorOrNoAllocator(VA, &tb) || !s_isAllocating);
+    ASSERT(!usesAllocatorOrNoAllocator(VA, &tb) || !k_IS_ALLOCATING);
 
     Obj x1(&ta);                const Obj &X1=x1;
 
@@ -1812,7 +1826,7 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyable()
     ASSERTV(getData(VA), 'A' == getData(VA));
 
     ASSERT( usesAllocatorOrNoAllocator(VA, &ta));
-    ASSERT(!usesAllocatorOrNoAllocator(VA, &tb) || !s_isAllocating);
+    ASSERT(!usesAllocatorOrNoAllocator(VA, &tb) || !k_IS_ALLOCATING);
 
     Obj x1(&ta);                const Obj &X1=x1;
     ELEMENT vbuffer;
@@ -3577,7 +3591,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   TD::gg(Obj *, const char *, bsl::vector<int> * = 0);
-        //   TD::checkSpec(const Obj&, const char *);
+        //   TD::hasSpecElements(const Obj&, const char *);
         //   bool Obj::isMember(const TYPE&);
         //   bool u::isMemberValue(const Obj&, int);
         //   int Obj::find(int);
