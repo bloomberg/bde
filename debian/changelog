@@ -1,5 +1,13 @@
-bsl-internal (3.47.0.0) unstable; urgency=low
+bsl-internal (3.48.0.0) unstable; urgency=low
 
+  * d4038d2ec Bumped version to 3.48.0.0
+  * 2f7f16c25 Merge pull request #2665 from jmendelsohn4/drqs-153332608/bdlcc_boundedqueue-race-waitUntilEmpty-4
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 26 Jan 2020 08:18:41 -0500
+
+bsl-internal (3.47.0.0) git; urgency=low
+
+  * a0a4e1c8c Changelog for version 3.47.0.0
   * 18f8e138c Bumped version to 3.47.0.0
   * c3e61e15c Merge pull request #2672 from rkhlebnikov/drqs-154432480-fix-stringview-merge-issue
   * 3a59e6444 Merge pull request #2662 from hrosen4/string-view-17
@@ -20,7 +28,7 @@ bsl-internal (3.47.0.0) unstable; urgency=low
   * 5ee436111 Merge pull request #2606 from glaptev1/fix_decimalnumput_ctor-drqs-152009641
   * e8a1522ff Merge pull request #2634 from dsokolov7/review/bde-protocol-test-error-drqs-152975423
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 17 Jan 2020 16:14:17 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 17 Jan 2020 16:18:16 -0500
 
 bsl-internal (3.46.0.1) git; urgency=low
 
