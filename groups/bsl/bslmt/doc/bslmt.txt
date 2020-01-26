@@ -59,8 +59,7 @@
       bslmt_semaphoreimpl_win32                                       !PRIVATE!
       bslmt_timedsemaphoreimpl_win32                                  !PRIVATE!
 
-   7. bslmt_fastpostsemaphoreimpl
-      bslmt_mutex
+   7. bslmt_mutex
       bslmt_recursivemutex
       bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
       bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
@@ -76,7 +75,8 @@
    3. bslmt_configuration
       bslmt_recursivemuteximpl_win32                                  !PRIVATE!
 
-   2. bslmt_muteximpl_pthread                                         !PRIVATE!
+   2. bslmt_fastpostsemaphoreimpl
+      bslmt_muteximpl_pthread                                         !PRIVATE!
       bslmt_muteximpl_win32                                           !PRIVATE!
       bslmt_recursivemuteximpl_pthread                                !PRIVATE!
       bslmt_saturatedtimeconversionimputil
