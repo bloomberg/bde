@@ -385,6 +385,8 @@ class MultiQueueThreadPool_Queue {
 
     RunState                   d_runState;       // maintains run state
 
+    int                        d_batchSize;      // execution batch size
+
     mutable bslmt::Mutex       d_lock;           // protect queue and
                                                  // informational members
 
@@ -431,6 +433,10 @@ class MultiQueueThreadPool_Queue {
         // Destroy this queue.
 
     // MANIPULATORS
+    void assignBatchSize(int batchSize);
+        // Assign the execution batch size of this queue to the specified
+        // 'batchSize'.  The behavior is undefined unless '1 <= batchSize'.
+
     int enable();
         // Enable enqueuing to this queue.  Return 0 on success, and a non-zero
         // value otherwise.  This method will fail (with an error) if
@@ -474,8 +480,8 @@ class MultiQueueThreadPool_Queue {
         // success, and a non-zero value if the queue is already paused or is
         // being paused or deleted by another thread.  The behavior is
         // undefined unless, after a successful invocation of 'initiatePause',
-        // 'waitWhilePausing' is invoked (to complete the pause operation
-        // and allow the queue to, potentially, be deleted).
+        // 'waitWhilePausing' is invoked (to complete the pause operation and
+        // allow the queue to, potentially, be deleted).
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -506,6 +512,10 @@ class MultiQueueThreadPool_Queue {
         // 'initiatePause' invocation.
 
     // ACCESSORS
+    int batchSize() const;
+        // Return an instantaneous snapshot of the execution batch size of
+        // this queue.
+
     bool isDrained() const;
         // Report whether all jobs in this queue are finished.
 
@@ -659,6 +669,11 @@ class MultiQueueThreadPool {
         // currently queued jobs is unspecified unless the queue is currently
         // paused.
 
+    int assignBatchSize(int id, int batchSize);
+        // Assign the execution batch size of the queue specified by 'id' to
+        // the specified 'batchSize'.  Return 0 on success, and a non-zero
+        // value otherwise.  The behavior is undefined unless '1 <= batchSize'.
+
     int createQueue();
         // Create a queue with unlimited capacity and a default number of
         // initial elements.  Return a non-zero queue ID.  The queue ID can be
@@ -770,6 +785,11 @@ class MultiQueueThreadPool {
         // if the thread pool is owned by this object.
 
     // ACCESSORS
+    int batchSize(int id) const;
+        // Return an instantaneous snapshot of the execution batch size of
+        // the queue associated with the specified 'id', or -1 if 'id' is not a
+        // valid queue id.
+
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
         // currently paused, or 'false' otherwise (including if 'id' is not a
@@ -816,6 +836,14 @@ class MultiQueueThreadPool {
                      // --------------------------------
 
 // ACCESSORS
+inline
+int MultiQueueThreadPool_Queue::batchSize() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    return d_batchSize;
+}
+
 inline
 bool MultiQueueThreadPool_Queue::isDrained() const
 {
@@ -895,6 +923,24 @@ int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 }
 
 inline
+int MultiQueueThreadPool::assignBatchSize(int id, int batchSize)
+{
+    BSLS_ASSERT_SAFE(1 <= batchSize);
+
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    MultiQueueThreadPool_Queue *queue;
+
+    if (findIfUsable(id, &queue)) {
+        return 1;                                                     // RETURN
+    }
+
+    queue->assignBatchSize(batchSize);
+
+    return 0;
+}
+
+inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
@@ -933,6 +979,20 @@ void MultiQueueThreadPool::numProcessedReset(int *numExecuted,
 }
 
 // ACCESSORS
+inline
+int MultiQueueThreadPool::batchSize(int id) const
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    QueueRegistry::const_iterator iter = d_queueRegistry.find(id);
+
+    if (d_queueRegistry.end() != iter) {
+        return iter->second->batchSize();                             // RETURN
+    }
+
+    return -1;
+}
+
 inline
 bool MultiQueueThreadPool::isEnabled(int id) const
 {
@@ -1018,7 +1078,7 @@ const ThreadPool& MultiQueueThreadPool::threadPool() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
