@@ -112,7 +112,7 @@ class BitwiseCopyableTestType {
         // Create a 'BitwiseCopyableTestType' object having the same value
         // as the specified 'original' object.
 
-    // ~BitwiseCopyableTestType() = default;
+    ~BitwiseCopyableTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -162,6 +162,12 @@ inline
 BitwiseCopyableTestType::BitwiseCopyableTestType(int data)
 : d_data(data)
 {
+}
+
+inline
+BitwiseCopyableTestType::~BitwiseCopyableTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

@@ -67,7 +67,7 @@ class NonDefaultConstructibleTestType {
         // Create a 'NonDefaultConstructibleTestType' object having the same
         // value as the specified 'original' object.
 
-    // ~NonDefaultConstructibleTestType() = default;
+    ~NonDefaultConstructibleTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -111,6 +111,12 @@ inline
 NonDefaultConstructibleTestType::NonDefaultConstructibleTestType(int data)
 : d_data(data)
 {
+}
+
+inline
+NonDefaultConstructibleTestType::~NonDefaultConstructibleTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

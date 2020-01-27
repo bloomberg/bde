@@ -192,7 +192,8 @@ namespace {
 
     template <class... Args>
     inline
-    void forwardData(Args&&... arguments) {
+    void forwardData(Args&&... arguments)
+    {
         delegateFunction(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
     }
 

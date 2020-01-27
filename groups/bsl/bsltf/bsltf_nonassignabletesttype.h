@@ -85,7 +85,7 @@ class NonAssignableTestType {
         // Create a 'SimpleTestType' object having the same value as the
         // specified 'original' object.
 
-    // ~NonAssignableTestType() = default;
+    ~NonAssignableTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -130,6 +130,12 @@ inline
 NonAssignableTestType::NonAssignableTestType(int data)
 : d_data(data)
 {
+}
+
+inline
+NonAssignableTestType::~NonAssignableTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

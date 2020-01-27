@@ -231,7 +231,9 @@ StdAllocTestType<ALLOC>::~StdAllocTestType()
     if (d_data_p) {
         bsl::allocator_traits<ALLOC>::destroy(d_allocator, d_data_p);
         bsl::allocator_traits<ALLOC>::deallocate(d_allocator, d_data_p, 1);
+        d_data_p = 0;
     }
+
     BSLS_ASSERT_OPT(this == d_self_p);
 }
 
