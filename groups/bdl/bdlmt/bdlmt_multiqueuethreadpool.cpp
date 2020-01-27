@@ -85,6 +85,7 @@ MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
 , d_list(basicAllocator)
 , d_enqueueState(e_ENQUEUING_ENABLED)
 , d_runState(e_NOT_SCHEDULED)
+, d_batchSize(1)
 , d_lock()
 , d_pauseCondition()
 , d_pauseCount(0)
@@ -100,6 +101,15 @@ MultiQueueThreadPool_Queue::~MultiQueueThreadPool_Queue()
 }
 
 // MANIPULATORS
+void MultiQueueThreadPool_Queue::assignBatchSize(int batchSize)
+{
+    BSLS_ASSERT(1 <= batchSize);
+
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    d_batchSize = batchSize;
+}
+
 int MultiQueueThreadPool_Queue::enable()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
@@ -158,7 +168,8 @@ void MultiQueueThreadPool_Queue::drainWaitWhilePausing()
 
 void MultiQueueThreadPool_Queue::executeFront()
 {
-    Job functor;
+    bsl::vector<Job> functor;
+
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
@@ -174,12 +185,27 @@ void MultiQueueThreadPool_Queue::executeFront()
         // 'deleteQueueCb' and is not counted in 'd_numEnqueued' so must not be
         // counted in 'd_numExecuted'.
 
+        bsl::size_t count;
+
         if (e_DELETING != d_enqueueState) {
-            ++d_multiQueueThreadPool_p->d_numExecuted;
+            count = d_batchSize;
+            if (count > d_list.size()) {
+                count = d_list.size();
+            }
+
+            d_multiQueueThreadPool_p->d_numExecuted += static_cast<int>(count);
+        }
+        else {
+            count = 1;
         }
 
-        functor = d_list.front();
-        d_list.pop_front();
+        functor.reserve(count);
+
+        for (bsl::size_t i = 0; i < count; ++i) {
+            functor.emplace_back(d_list.front());
+            d_list.pop_front();
+        }
+
         d_processor = bslmt::ThreadUtil::self();
     }
 
@@ -190,7 +216,9 @@ void MultiQueueThreadPool_Queue::executeFront()
     // creating a new state to reflect this situation while the 'functor' is
     // executing, we leave 'd_runState' as 'e_SCHEDULED'.
 
-    functor();
+    for (bsl::size_t i = 0; i < functor.size(); ++i) {
+        functor[i]();
+    }
 
     // Note that 'pause' might be called while executing the functor since no
     // lock is held.
@@ -372,7 +400,7 @@ int MultiQueueThreadPool_Queue::resume()
         if (d_pauseCount) {
             d_pauseCondition.broadcast();
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     if (e_PAUSED != d_runState) {
@@ -384,7 +412,7 @@ int MultiQueueThreadPool_Queue::resume()
                                                     enqueueJob(d_processingCb);
 
         if (0 != status) {
-            return 1;
+            return 1;                                                 // RETURN
         }
 
         d_runState = e_SCHEDULED;
@@ -405,7 +433,7 @@ void MultiQueueThreadPool_Queue::waitWhilePausing()
     BSLS_ASSERT(0 < d_pauseCount);
 
     // do not block if the invoking thread is processing the "currently
-    // executing job" or of there is nothing running on this queue (e.g., to
+    // executing job" or if there is nothing running on this queue (e.g., to
     // avoid deadlock when the threadpool has only one thread and that thread
     // is the one invoking this method)
 
@@ -817,7 +845,7 @@ void MultiQueueThreadPool::shutdown()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
