@@ -78,9 +78,9 @@ using namespace BloombergLP;
 // [ 2] ~bdlmt::MultiQueueThreadPool();
 //
 // MANIPULATORS
+// [33] void assignBatchSize(int batchSize);
 // [ 2] int createQueue();
-// [ 2] int deleteQueue(int id, const bsl::function<void()>&
-//                                                             cleanupFunctor);
+// [ 2] int deleteQueue(int id, const bsl::function<void()>& cleanupFunctor);
 // [ 2] int enqueueJob(int id, const bsl::function<void()>& functor);
 // [ 6] int enableQueue(int id);
 // [ 6] int disableQueue(int id);
@@ -90,6 +90,7 @@ using namespace BloombergLP;
 // [13] void numProcessedReset(int *, int *, int * = 0);
 //
 // ACCESSORS
+// [33] int batchSize() const;
 // [13] void numProcessed(int *, int *, int * = 0) const;
 // [ 4] int numQueues() const;
 // [13] int numElements() const;
@@ -118,7 +119,7 @@ using namespace BloombergLP;
 // [30] DRQS 140150365: resume fails immediately after pause
 // [31] DRQS 140403279: pause can deadlock with delete and create
 // [32] DRQS 143578129: 'numElements' stress test
-// [33] USAGE EXAMPLE 1
+// [34] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -1470,7 +1471,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1550,6 +1551,10 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 33: {
+// [33] void assignBatchSize(int batchSize);
+// [33] int batchSize() const;
       }  break;
       case 32: {
         // --------------------------------------------------------------------
