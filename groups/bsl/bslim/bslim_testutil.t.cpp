@@ -1660,9 +1660,18 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
-                BSLIM_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
-                                            idx > NUM_ITERATIONS);
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+                // inserted in the 'BSLIM_TESTUTIL_LOOP5_ASSERT' macro to the
+                // first line of the call statement, even if the statement is
+                // split over multiple lines.  To make all versions of gcc
+                // preprocessors expand '__LINE__' to the same value, we define
+                // a new macro with shorter name ('LOOP5_ASSERT') to fit a
+                // single line.
+
+                const int LINE = __LINE__ + 1;
+                LOOP5_ASSERT(I, J, K, L, M, idx > NUM_ITERATIONS);
+#undef LOOP5_ASSERT
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
@@ -1756,9 +1765,18 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
-                BSLIM_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
-                                            idx > NUM_ITERATIONS);
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+                // inserted in the 'BSLIM_TESTUTIL_LOOP6_ASSERT' macro to the
+                // first line of the call statement, even if the statement is
+                // split over multiple lines.  To make all versions of gcc
+                // preprocessors expand '__LINE__' to the same value, we define
+                // a new macro with shorter name ('LOOP6_ASSERT') to fit a
+                // single line.
+
+                const int LINE = __LINE__ + 1;
+                LOOP6_ASSERT(I, J, K, L, M, N, idx > NUM_ITERATIONS);
+#undef LOOP6_ASSERT
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
