@@ -42,6 +42,8 @@ BSLS_IDENT("$Id: $")
 // life time of an iterator, the object catalog can't be modified (however
 // multiple threads can still concurrently read the object catalog).
 //
+// Note that an object catalog has a maximum capacity of 2^23 items.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -275,10 +277,12 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -293,9 +297,12 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-template <class TYPE> class ObjectCatalog_AutoCleanup;
-template <class TYPE> class ObjectCatalogIter;
-template <class TYPE> class ObjectCatalog;
+template <class TYPE>
+class ObjectCatalog_AutoCleanup;
+template <class TYPE>
+class ObjectCatalogIter;
+template <class TYPE>
+class ObjectCatalog;
 
                    // =====================================
                    // local class ObjectCatalog_AutoCleanup
@@ -313,11 +320,14 @@ class ObjectCatalog_AutoCleanup {
                         *d_node_p;          // temporarily managed node
     bool                 d_deallocateFlag;  // how to return the managed node
 
+  private:
     // NOT IMPLEMENTED
-    ObjectCatalog_AutoCleanup(const ObjectCatalog_AutoCleanup&);
-    ObjectCatalog_AutoCleanup& operator=(const ObjectCatalog_AutoCleanup&);
+    ObjectCatalog_AutoCleanup(const ObjectCatalog_AutoCleanup&)
+                                                          BSLS_KEYWORD_DELETED;
+    ObjectCatalog_AutoCleanup& operator=(const ObjectCatalog_AutoCleanup&)
+                                                          BSLS_KEYWORD_DELETED;
 
-    public:
+  public:
     // CREATORS
     explicit ObjectCatalog_AutoCleanup(ObjectCatalog<TYPE> *catalog);
         // Create a proctor to manage the specified 'catalog'.
@@ -357,6 +367,8 @@ class ObjectCatalog {
     // state.  In no event is memory leaked or a mutex left in a locked state.
 
     // PRIVATE TYPES
+    typedef ObjectCatalogIter<TYPE> Iter;
+
     enum {
         // Masks used for breaking up a handle.  Note: a handle (of type int)
         // is always 4 bytes, even on 64 bit modes.
@@ -381,11 +393,16 @@ class ObjectCatalog {
     };
 
     // DATA
-    bsl::vector<Node*>      d_nodes;
+    bsl::vector<Node *>     d_nodes;
     bdlma::Pool             d_nodePool;
     Node                   *d_nextFreeNode_p;
     volatile int            d_length;
     mutable bslmt::RWMutex  d_lock;
+
+  private:
+    // NOT IMPLEMENTED
+    ObjectCatalog(const ObjectCatalog&) BSLS_KEYWORD_DELETED;
+    ObjectCatalog& operator=(const ObjectCatalog&) BSLS_KEYWORD_DELETED;
 
     // FRIENDS
     friend class ObjectCatalog_AutoCleanup<TYPE>;
@@ -416,6 +433,7 @@ class ObjectCatalog {
     BSLMF_NESTED_TRAIT_DECLARATION(ObjectCatalog, bslma::UsesBslmaAllocator);
 
     // CREATORS
+    explicit
     ObjectCatalog(bslma::Allocator *allocator = 0);
         // Create an empty object catalog, using the optionally specified
         // 'allocator' to supply any memory.
@@ -427,7 +445,14 @@ class ObjectCatalog {
     int add(TYPE const& object);
         // Add the value of the specified 'object' to this catalog and return a
         // non-zero integer handle that may be used to refer to the object in
-        // future calls to this catalog.
+        // future calls to this catalog.  The behavior is undefined if the
+        // catalog was full.
+
+    int add(bslmf::MovableRef<TYPE> object);
+        // Add the value of the specified 'object' to this catalog and return a
+        // non-zero integer handle that may be used to refer to the object in
+        // future calls to this catalog, leaving 'object' in an unspecified but
+        // valid state.  The behavior is undefined if the catalog was full.
 
     int remove(int handle, TYPE *valueBuffer = 0);
         // Optionally load into the optionally specified 'valueBuffer' the
@@ -446,19 +471,41 @@ class ObjectCatalog {
         // 'newObject'.  Return 0 on success, and a non-zero value if the
         // handle is not contained in this catalog.
 
+    int replace(int handle, bslmf::MovableRef<TYPE> newObject);
+        // Replace the object having the specified 'handle' with the specified
+        // 'newObject', leaving 'newObject' in an unspecified but valid state.
+        // Return 0 on success, and a non-zero value if the handle is not
+        // contained in this catalog.
+
     // ACCESSORS
-    int find(int handle, TYPE *valueBuffer = 0) const;
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object.
+
+    int find(int handle) const;
+    int find(int handle, TYPE *valueBuffer) const;
         // Locate the object having the specified 'handle' and optionally load
         // its value into the optionally specified 'valueBuffer'.  Return zero
         // on success, and a non-zero value if the 'handle' is not contained in
         // this catalog.  Note that 'valueBuffer' is assigned into, and thus
-        // must point to a valid 'TYPE' instance.
+        // must point to a valid 'TYPE' instance.  Note that the overload with
+        // 'valueBuffer' passed is not supported unless 'TYPE' has a copy
+        // constructor.
+
+    bool isMember(const TYPE& object) const;
+        // Return 'true' if the catalog contains an item that compares equal to
+        // the specified 'object' and 'false' otherwise.
 
     int length() const;
         // Return a "snapshot" of the number of items currently contained in
         // this catalog.
 
+    const TYPE& value(int handle) const;
+        // Return a 'const' reference to the object having the specified
+        // 'handle'.  The behavior is undefined unless 'handle' is contained in
+        // this catalog.
+
     // FOR TESTING PURPOSES ONLY
+
     void verifyState() const;
         // Verify that this catalog is in a consistent state.  This function is
         // introduced for testing purposes only.
@@ -481,19 +528,21 @@ class ObjectCatalogIter {
     // concurrently read the object catalog).
 
     const ObjectCatalog<TYPE> *d_catalog_p;
-    int                             d_index;
+    int                        d_index;
 
+  private:
     // NOT IMPLEMENTED
-    ObjectCatalogIter(const ObjectCatalogIter& original);
-    ObjectCatalogIter& operator=(const ObjectCatalogIter& rhs);
-
-    bool operator==(const ObjectCatalogIter&) const;
-    bool operator!=(const ObjectCatalogIter&) const;
-
+    ObjectCatalogIter(const ObjectCatalogIter&) BSLS_KEYWORD_DELETED;
+    ObjectCatalogIter& operator=(const ObjectCatalogIter&)
+                                                          BSLS_KEYWORD_DELETED;
+    bool operator==(const ObjectCatalogIter&) const BSLS_KEYWORD_DELETED;
+    bool operator!=(const ObjectCatalogIter&) const BSLS_KEYWORD_DELETED;
     template<class OTHER>
-    bool operator==(const ObjectCatalogIter<OTHER>&) const;
+    bool operator==(const ObjectCatalogIter<OTHER>&) const
+                                                          BSLS_KEYWORD_DELETED;
     template<class OTHER>
-    bool operator!=(const ObjectCatalogIter<OTHER>&) const;
+    bool operator!=(const ObjectCatalogIter<OTHER>&) const
+                                                          BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
@@ -523,6 +572,14 @@ class ObjectCatalogIter {
         // pair) and the object (as the second element of the pair) associated
         // with this iterator.  The behavior is undefined unless the iterator
         // is *valid*.
+
+    int handle() const;
+        // Return the handle referred to by the iterator.  The behavior is
+        // undefined unless the iterator is *valid*.
+
+    const TYPE& value() const;
+        // Return a 'const' reference to the value referred to by the iterator.
+        // The behavior is undefined unless the iterator is *valid*.
 };
 
 // ----------------------------------------------------------------------------
@@ -602,10 +659,12 @@ template <class TYPE>
 inline
 void ObjectCatalog<TYPE>::freeNode(typename ObjectCatalog<TYPE>::Node *node)
 {
+    BSLS_ASSERT(node->d_handle & k_BUSY_INDICATOR);
+
     node->d_handle += k_GENERATION_INC;
     node->d_handle &= ~k_BUSY_INDICATOR;
 
-    node->d_payload.d_next_p   = d_nextFreeNode_p;
+    node->d_payload.d_next_p = d_nextFreeNode_p;
     d_nextFreeNode_p = node;
 }
 
@@ -626,7 +685,7 @@ ObjectCatalog<TYPE>::findNode(int handle) const
 
     Node *node = d_nodes[index];
 
-    return (node->d_handle == handle) ? node : 0;
+    return node->d_handle == handle ? node : 0;
 }
 
 // CREATORS
@@ -668,7 +727,7 @@ int ObjectCatalog<TYPE>::add(const TYPE& object)
 
         BSLS_REVIEW_OPT(d_nodes.size() < k_BUSY_INDICATOR);
 
-        node = (Node *)d_nodePool.allocate();
+        node = static_cast<Node *>(d_nodePool.allocate());
         proctor.manageNode(node, true);
         // Destruction of this proctor will deallocate node.
 
@@ -683,11 +742,63 @@ int ObjectCatalog<TYPE>::add(const TYPE& object)
     handle = node->d_handle;
 
     // We need to use the copyConstruct logic to pass the allocator through.
+
     bslalg::ScalarPrimitives::copyConstruct(
               getNodeValue(node), object, d_nodes.get_allocator().mechanism());
 
     // If the copy constructor throws, the proctor will properly put the node
     // back onto the free list.  Otherwise, the proctor should do nothing.
+
+    proctor.release();
+
+    ++d_length;
+    return handle;
+}
+
+template <class TYPE>
+int ObjectCatalog<TYPE>::add(bslmf::MovableRef<TYPE> object)
+{
+    TYPE& local = object;
+
+    int handle;
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
+    ObjectCatalog_AutoCleanup<TYPE> proctor(this);
+    Node *node;
+
+    if (d_nextFreeNode_p) {
+        node = d_nextFreeNode_p;
+        d_nextFreeNode_p = node->d_payload.d_next_p;
+
+        proctor.manageNode(node, false);
+        // Destruction of this proctor will put node back onto the free list.
+    } else {
+        // If 'd_nodes' grows as big as the flags used to indicate BUSY and
+        // generations, then the handle will be all mixed up!
+
+        BSLS_REVIEW_OPT(d_nodes.size() < k_BUSY_INDICATOR);
+
+        node = static_cast<Node *>(d_nodePool.allocate());
+        proctor.manageNode(node, true);
+        // Destruction of this proctor will deallocate node.
+
+        d_nodes.push_back(node);
+        node->d_handle = static_cast<int>(d_nodes.size()) - 1;
+        proctor.manageNode(node, false);
+        // Destruction of this proctor will put node back onto the free list,
+        // which is now OK since the 'push_back' succeeded without throwing.
+    }
+
+    node->d_handle |= k_BUSY_INDICATOR;
+    handle = node->d_handle;
+
+    // We need to use the moveConstruct logic to pass the allocator through.
+
+    bslalg::ScalarPrimitives::moveConstruct(
+               getNodeValue(node), local, d_nodes.get_allocator().mechanism());
+
+    // If the copy constructor throws, the proctor will properly put the node
+    // back onto the free list.  Otherwise, the proctor should do nothing.
+
     proctor.release();
 
     ++d_length;
@@ -709,7 +820,7 @@ int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
     TYPE *value = getNodeValue(node);
 
     if (valueBuffer) {
-        *valueBuffer = *value;
+        *valueBuffer = bslmf::MovableRefUtil::move(*value);
     }
 
     value->~TYPE();
@@ -722,23 +833,26 @@ int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
 template <class TYPE>
 void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
+    typedef typename bsl::vector<Node *>::iterator VIt;
+
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
-    for (typename bsl::vector<Node*>::iterator it = d_nodes.begin();
-         it != d_nodes.end();++it) {
+    for (VIt it = d_nodes.begin(); it != d_nodes.end(); ++it) {
         if ((*it)->d_handle & k_BUSY_INDICATOR) {
             TYPE *value = getNodeValue(*it);
 
             if (buffer) {
-                buffer->push_back(*value);
+                buffer->push_back(bslmf::MovableRefUtil::move(*value));
             }
             value->~TYPE();
         }
     }
-    // Even though we get rid of the container of 'Node*' without returning the
-    // nodes to the pool prior, the release of the pool immediately after will
-    // properly (and efficiently) dispose of those nodes without leaking
+
+    // Even though we get rid of the container of 'Node *' without returning
+    // the nodes to the pool prior, the release of the pool immediately after
+    // will properly (and efficiently) dispose of those nodes without leaking
     // memory.
+
     d_nodes.clear();
     d_nodePool.release();
     d_nextFreeNode_p = 0;
@@ -759,14 +873,57 @@ int ObjectCatalog<TYPE>::replace(int handle, const TYPE& newObject)
     TYPE *value = getNodeValue(node);
 
     value->~TYPE();
+
     // We need to use the copyConstruct logic to pass the allocator through.
+
     bslalg::ScalarPrimitives::copyConstruct(
                         value, newObject, d_nodes.get_allocator().mechanism());
 
     return 0;
 }
 
+template <class TYPE>
+int ObjectCatalog<TYPE>::replace(int handle, bslmf::MovableRef<TYPE> newObject)
+{
+    TYPE& local = newObject;
+
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
+
+    Node *node = findNode(handle);
+
+    if (!node) {
+        return -1;                                                    // RETURN
+    }
+
+    TYPE *value = getNodeValue(node);
+
+    value->~TYPE();
+
+    // We need to use the moveConstruct logic to pass the allocator through.
+
+    bslalg::ScalarPrimitives::moveConstruct(
+                            value, local, d_nodes.get_allocator().mechanism());
+
+    return 0;
+}
+
 // ACCESSORS
+template <class TYPE>
+inline
+bslma::Allocator *ObjectCatalog<TYPE>::allocator() const
+{
+    return d_nodePool.allocator();
+}
+
+template <class TYPE>
+inline
+int ObjectCatalog<TYPE>::find(int handle) const
+{
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
+
+    return 0 == findNode(handle) ? -1 : 0;
+}
+
 template <class TYPE>
 inline
 int ObjectCatalog<TYPE>::find(int handle, TYPE *valueBuffer) const
@@ -779,10 +936,21 @@ int ObjectCatalog<TYPE>::find(int handle, TYPE *valueBuffer) const
         return -1;                                                    // RETURN
     }
 
-    if (valueBuffer) {
-        *valueBuffer = *getNodeValue(node);
-    }
+    *valueBuffer = *getNodeValue(node);
+
     return 0;
+}
+
+template <class TYPE>
+bool ObjectCatalog<TYPE>::isMember(const TYPE& object) const
+{
+    for (Iter it(*this); it; ++it) {
+        if (it.value() == object) {
+            return true;                                              // RETURN
+        }
+    }
+
+    return false;
 }
 
 template <class TYPE>
@@ -793,28 +961,40 @@ int ObjectCatalog<TYPE>::length() const
 }
 
 template <class TYPE>
+inline
+const TYPE& ObjectCatalog<TYPE>::value(int handle) const
+{
+    Node *node = findNode(handle);
+
+    BSLS_ASSERT(node);
+
+    return *getNodeValue(node);
+}
+
+template <class TYPE>
 void ObjectCatalog<TYPE>::verifyState() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
 
-    BSLS_ASSERT((int)d_nodes.size() >= d_length);
-    BSLS_ASSERT(d_length >= 0);
+    BSLS_ASSERT(0 <= d_length);
+    const unsigned uLength = d_length;
+    BSLS_ASSERT(d_nodes.size() >= uLength);
 
-    int nBusy = 0;
-    for (int i = 0; i < (int)d_nodes.size(); i++) {
-        BSLS_ASSERT((d_nodes[i]->d_handle & k_INDEX_MASK) == (unsigned)i);
-        if (d_nodes[i]->d_handle & k_BUSY_INDICATOR) {
-            nBusy++;
-        }
+    unsigned numBusy = 0, numFree = 0;
+    for (unsigned ii = 0; ii < d_nodes.size(); ++ii) {
+        const int handle = d_nodes[ii]->d_handle;
+        BSLS_ASSERT((handle & k_INDEX_MASK) == ii);
+        handle & k_BUSY_INDICATOR ? ++numBusy
+                                  : ++numFree;
     }
-    BSLS_ASSERT(d_length == nBusy);
+    BSLS_ASSERT(uLength == numBusy);
+    BSLS_ASSERT(numFree + numBusy == d_nodes.size());
 
-    int nFree = 0;
-    for (Node *p = d_nextFreeNode_p; p; p = p->d_payload.d_next_p) {
-        nFree++;
+    for (const Node *p = d_nextFreeNode_p; p; p = p->d_payload.d_next_p) {
+        BSLS_ASSERT(!(p->d_handle & k_BUSY_INDICATOR));
+        --numFree;
     }
-
-    BSLS_ASSERT(nFree+nBusy == (int)d_nodes.size());
+    BSLS_ASSERT(0 == numFree);
 }
 
                             // -----------------
@@ -850,6 +1030,25 @@ void ObjectCatalogIter<TYPE>::operator++()
         ++d_index;
     }
 }
+
+template <class TYPE>
+inline
+int ObjectCatalogIter<TYPE>::handle() const
+{
+    BSLS_ASSERT(static_cast<unsigned>(d_index) < d_catalog_p->d_nodes.size());
+
+    return d_catalog_p->d_nodes[d_index]->d_handle;
+}
+
+template <class TYPE>
+inline
+const TYPE& ObjectCatalogIter<TYPE>::value() const
+{
+    BSLS_ASSERT(static_cast<unsigned>(d_index) < d_catalog_p->d_nodes.size());
+
+    return *ObjectCatalog<TYPE>::getNodeValue(d_catalog_p->d_nodes[d_index]);
+}
+
 }  // close package namespace
 
 // ACCESSORS
@@ -857,9 +1056,9 @@ template <class TYPE>
 inline
 bdlcc::ObjectCatalogIter<TYPE>::operator const void *() const
 {
-    return (void *)(((unsigned)d_index < d_catalog_p->d_nodes.size())
-            ? const_cast<bdlcc::ObjectCatalogIter<TYPE> *>(this)
-            : 0);
+    return static_cast<unsigned>(d_index) < d_catalog_p->d_nodes.size()
+         ? this
+         : 0;
 }
 
 namespace bdlcc {
