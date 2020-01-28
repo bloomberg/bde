@@ -549,7 +549,7 @@ int main(int argc, char* argv[])
                 // distinct from to 'DEFAULT' string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
-                const bsl::string EXPECTED("1.234567e+0", pa);
+                const bsl::string EXPECTED("1.234567e+00", pa);
                 const Config CONFIG(6, Config::e_SCIENTIFIC);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
@@ -614,7 +614,7 @@ int main(int argc, char* argv[])
                 // distinct from 'DEFAULT' string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
-                const bsl::string EXPECTED("1.234567890123456e+0", pa);
+                const bsl::string EXPECTED("1.234567890123456e+00", pa);
                 const Config CONFIG(15, Config::e_SCIENTIFIC);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
@@ -684,7 +684,7 @@ int main(int argc, char* argv[])
                 // distinct from the one provided by default configuration
                 // object.
                 const bsl::string EXPECTED(
-                                 "1.234567890123456789012345678901234e+0", pa);
+                                "1.234567890123456789012345678901234e+00", pa);
                 const Config CONFIG(33, Config::e_SCIENTIFIC);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,

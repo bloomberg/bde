@@ -37,6 +37,8 @@ using bsl::atoi;
 //: o 'setSNan'
 //: o 'setDecimalPoint'
 //: o 'setExponent'
+//: o 'setShowpoint'
+//: o 'setExpWidth'
 //
 // Basic Accessors:
 //: o 'precision'
@@ -47,6 +49,8 @@ using bsl::atoi;
 //: o 'sNan'
 //: o 'decimalPoint'
 //: o 'exponent'
+//: o 'showpoint'
+//: o 'expWidth'
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
@@ -65,7 +69,7 @@ using bsl::atoi;
 // CREATORS
 // [2] bdldfp::DecimalFormatConfig();
 // [7] bdldfp::DecimalFormatConfig(const DecimalFormatConfig&);
-// [3] bdldfp::DecimalFormatConfig(int, Style, Sign, str, str, str, char,char);
+// [3] bdldfp::DecimalFormatConfig(int,Style,Sign,s,s,s,c,c,bool,int);
 // [2] ~bdldfp::DecimalFormatConfig();
 //
 // MANIPULATORS
@@ -78,6 +82,8 @@ using bsl::atoi;
 // [3] setSNan(const char *);
 // [3] decimalPoint(char);
 // [3] exponent(char);
+// [3] setShowpoint(bool);
+// [3] setExpWidth(int);
 //
 // ACCESSORS
 // [4] int precision() const;
@@ -88,6 +94,8 @@ using bsl::atoi;
 // [4] const char *sNan() const;
 // [4] char decimalPoint() const;
 // [4] char exponent() const;
+// [4] bool showpoint() const;
+// [4] int expWidth() const;
 //
 // FREE OPERATORS
 // [6] bool operator==(const bdldfp::DecimalFormatConfig& lhs, rhs);
@@ -953,6 +961,8 @@ int main(int argc, char* argv[])
         typedef const char* T6;   // 'snan'
         typedef char        T7;   // 'point'
         typedef char        T8;   // 'exponent
+        typedef bool        T9;   // 'showpoint'
+        typedef int         T10;  // 'expwidth'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -960,27 +970,31 @@ int main(int argc, char* argv[])
           // 'D' values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const int         D1 = 0;                     // 'precision'
-        const Obj::Style  D2 = Obj::e_NATURAL;        // 'style'
-        const Obj::Sign   D3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *D4 = "inf";                 // 'infinity'
-        const char       *D5 = "nan";                 // 'nan'
-        const char       *D6 = "snan";                // 'snan'
-        const char        D7 = '.';                   // 'point'
-        const char        D8 = 'e';                   // 'exponent
+        const int         D1  = 0;                     // 'precision'
+        const Obj::Style  D2  = Obj::e_NATURAL;        // 'style'
+        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
+        const char       *D4  = "inf";                 // 'infinity'
+        const char       *D5  = "nan";                 // 'nan'
+        const char       *D6  = "snan";                // 'snan'
+        const char        D7  = '.';                   // 'point'
+        const char        D8  = 'e';                   // 'exponent
+        const bool        D9  = false;                 // 'showpoint'
+        const int         D10 = 2;                     // 'expwidth'
 
-                       // ----------------------------
-                       // 'A' values: Boundary values.
-                       // ----------------------------
+                        // ----------------------------
+                        // 'A' values: Boundary values.
+                        // ----------------------------
 
-        const int         A1 = INT_MAX;               // 'precision'
-        const Obj::Style  A2 = Obj::e_SCIENTIFIC;     // 'style'
-        const Obj::Sign   A3 = Obj::e_ALWAYS;         // 'sign'
-        const char       *A4 = "";                    // 'infinity'
-        const char       *A5 = "";                    // 'nan'
-        const char       *A6 = "";                    // 'snan'
-        const char        A7 = ',';                   // 'point'
-        const char        A8 = 'E';                   // 'exponent
+        const int         A1  = INT_MAX;            // 'precision'
+        const Obj::Style  A2  = Obj::e_SCIENTIFIC;  // 'style'
+        const Obj::Sign   A3  = Obj::e_ALWAYS;      // 'sign'
+        const char       *A4  = "";                 // 'infinity'
+        const char       *A5  = "";                 // 'nan'
+        const char       *A6  = "";                 // 'snan'
+        const char        A7  = ',';                // 'point'
+        const char        A8  = 'E';                // 'exponent
+        const bool        A9  = false;              // 'showpoint'
+        const int         A10 = 4;                  // 'expwidth'
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1012,6 +1026,12 @@ int main(int argc, char* argv[])
 
             const T8& exponent = X.exponent();
             LOOP2_ASSERT(D8, exponent, D8 == exponent);
+
+            const T9& showpoint = X.showpoint();
+            LOOP2_ASSERT(D9, showpoint, D9 == showpoint);
+
+            const T10& expWidth = X.expWidth();
+            LOOP2_ASSERT(D10, expWidth, D10 == expWidth);
         }
 
         if (verbose) cout <<
@@ -1080,6 +1100,22 @@ int main(int argc, char* argv[])
             const T8& exponent = X.exponent();
             LOOP2_ASSERT(A8, exponent, A8 == exponent);
         }
+
+        if (veryVerbose) { T_ Q(showpoint) }
+        {
+            mX.setShowpoint(A9);
+
+            const T9& showpoint = X.showpoint();
+            LOOP2_ASSERT(A9, showpoint, A9 == showpoint);
+        }
+
+        if (veryVerbose) { T_ Q(expwidth) }
+        {
+            mX.setExpWidth(A10);
+
+            const T10& expWidth = X.expWidth();
+            LOOP2_ASSERT(A10, expWidth, A10 == expWidth);
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1123,6 +1159,7 @@ int main(int argc, char* argv[])
         //:   (C-4)
         //
         // Testing:
+        //   bdldfp::DecimalFormatConfig(int,Style,Sign,s,s,s,c,c,bool,int);
         //   setPrecision(int value);
         //   setStyle(int value);
         //   setSign(Style value);
@@ -1131,6 +1168,8 @@ int main(int argc, char* argv[])
         //   setSNan(bool value);
         //   setDecimalPoint(int value);
         //   setExponent(int value);
+        //   setShowpoint(bool value);
+        //   setExpWidth(int value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1140,44 +1179,49 @@ int main(int argc, char* argv[])
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
         // 'D' values: These are the default-constructed values.
+        const int         D1  = 0;                     // 'precision'
+        const Obj::Style  D2  = Obj::e_NATURAL;        // 'style'
+        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
+        const char       *D4  = "inf";                 // 'infinity'
+        const char       *D5  = "nan";                 // 'nan'
+        const char       *D6  = "snan";                // 'snan'
+        const char        D7  = '.';                   // 'point'
+        const char        D8  = 'e';                   // 'exponent'
+        const bool        D9  = false;                 // 'showpoint'
+        const int         D10 = 2;                     // 'expwidth'
 
-        const int         D1 = 0;                     // 'precision'
-        const Obj::Style  D2 = Obj::e_NATURAL;        // 'style'
-        const Obj::Sign   D3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *D4 = "inf";                 // 'infinity'
-        const char       *D5 = "nan";                 // 'nan'
-        const char       *D6 = "snan";                // 'snan'
-        const char        D7 = '.';                   // 'point'
-        const char        D8 = 'e';                   // 'exponent
         // 'A' values.
+        const int         A1  = 15;             // 'precision'
+        const Obj::Style  A2  = Obj::e_FIXED;   // 'style'
+        const Obj::Sign   A3  = Obj::e_ALWAYS;  // 'sign'
+        const char       *A4  = "";             // 'infinity'
+        const char       *A5  = "";             // 'nan'
+        const char       *A6  = "";             // 'snan'
+        const char        A7  = ',';            // 'point'
+        const char        A8  = 'E';            // 'exponent
+        const bool        A9  = true;           // 'showpoint'
+        const int         A10 = 1;              // 'expwidth'
 
-        const int         A1 = 15;                     // 'precision'
-        const Obj::Style  A2 = Obj::e_FIXED;          // 'style'
-        const Obj::Sign   A3 = Obj::e_ALWAYS;         // 'sign'
-        const char       *A4 = "";                    // 'infinity'
-        const char       *A5 = "";                    // 'nan'
-        const char       *A6 = "";                    // 'snan'
-        const char        A7 = ',';                   // 'point'
-        const char        A8 = 'E';                   // 'exponent
         // 'B' values.
+        const int         B1  = INT_MAX;               // 'precision'
+        const Obj::Style  B2  = Obj::e_SCIENTIFIC;     // 'style'
+        const Obj::Sign   B3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
+        const char       *B4  = "Inf";                 // 'infinity'
+        const char       *B5  = "NaN";                 // 'nan'
+        const char       *B6  = "sNaN";                // 'snan'
+        const char        B7  = ' ';                   // 'point'
+        const char        B8  = '^';                   // 'exponent'
+        const bool        B9  = true;                  // 'showpoint'
+        const int         B10 = 3;                     // 'expwidth'
 
-        const int         B1 = INT_MAX;               // 'precision'
-        const Obj::Style  B2 = Obj::e_SCIENTIFIC;     // 'style'
-        const Obj::Sign   B3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *B4 = "Inf";                 // 'infinity'
-        const char       *B5 = "NaN";                 // 'nan'
-        const char       *B6 = "sNaN";                // 'snan'
-        const char        B7 = ' ';                   // 'point'
-        const char        B8 = '^';                   // 'exponent
-
-        Obj mX(D1, D2, D3, D4, D5, D6, D7, D8);  const Obj& X = mX;
+        Obj mX(D1, D2, D3, D4, D5, D6, D7, D8, D9, D10);  const Obj& X = mX;
 
         if (verbose) cout <<
                "Verify that each attribute is independently settable." << endl;
 
-        // ----------
-        // 'precsion'
-        // ----------
+        // -----------
+        // 'precision'
+        // -----------
         {
             mX.setPrecision(A1);
             ASSERT(A1 == X.precision());
@@ -1188,6 +1232,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setPrecision(B1);
             ASSERT(B1 == X.precision());
@@ -1198,6 +1244,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setPrecision(D1);
             ASSERT(D1 == X.precision());
@@ -1208,6 +1256,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         // -------
@@ -1223,6 +1273,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setStyle(B2);
             ASSERT(D1 == X.precision());
@@ -1233,6 +1285,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setStyle(D2);
             ASSERT(D1 == X.precision());
@@ -1243,6 +1297,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         // ------
@@ -1258,6 +1314,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setSign(B3);
             ASSERT(D1 == X.precision());
@@ -1268,6 +1326,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setSign(D3);
             ASSERT(D1 == X.precision());
@@ -1278,6 +1338,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         // ----------
@@ -1293,6 +1355,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setInfinity(B4);
             ASSERT(D1 == X.precision());
@@ -1303,6 +1367,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setInfinity(D4);
             ASSERT(D1 == X.precision());
@@ -1313,6 +1379,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         // -----
@@ -1328,6 +1396,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setNan(B5);
             ASSERT(D1 == X.precision());
@@ -1338,6 +1408,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setNan(D5);
             ASSERT(D1 == X.precision());
@@ -1348,6 +1420,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         // ------
@@ -1363,6 +1437,8 @@ int main(int argc, char* argv[])
             ASSERT(A6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setSNan(B6);
             ASSERT(D1 == X.precision());
@@ -1373,6 +1449,8 @@ int main(int argc, char* argv[])
             ASSERT(B6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setSNan(D6);
             ASSERT(D1 == X.precision());
@@ -1383,6 +1461,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         // -------
@@ -1398,6 +1478,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setDecimalPoint(B7);
             ASSERT(D1 == X.precision());
@@ -1408,6 +1490,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(B7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setDecimalPoint(D7);
             ASSERT(D1 == X.precision());
@@ -1418,6 +1502,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         // ----------
@@ -1433,6 +1519,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setExponent(B8);
             ASSERT(D1 == X.precision());
@@ -1443,6 +1531,8 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(B8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
 
             mX.setExponent(D8);
             ASSERT(D1 == X.precision());
@@ -1453,6 +1543,90 @@ int main(int argc, char* argv[])
             ASSERT(D6 == X.sNan());
             ASSERT(D7 == X.decimalPoint());
             ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
+        }
+
+        // -----------
+        // 'showpoint'
+        // -----------
+        {
+            mX.setShowpoint(A9);
+            ASSERT(D1 == X.precision());
+            ASSERT(D2 == X.style());
+            ASSERT(D3 == X.sign());
+            ASSERT(D4 == X.infinity());
+            ASSERT(D5 == X.nan());
+            ASSERT(D6 == X.sNan());
+            ASSERT(D7 == X.decimalPoint());
+            ASSERT(D8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
+
+            mX.setShowpoint(B9);
+            ASSERT(D1 == X.precision());
+            ASSERT(D2 == X.style());
+            ASSERT(D3 == X.sign());
+            ASSERT(D4 == X.infinity());
+            ASSERT(D5 == X.nan());
+            ASSERT(D6 == X.sNan());
+            ASSERT(D7 == X.decimalPoint());
+            ASSERT(D8 == X.exponent());
+            ASSERT(B9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
+
+            mX.setShowpoint(D9);
+            ASSERT(D1 == X.precision());
+            ASSERT(D2 == X.style());
+            ASSERT(D3 == X.sign());
+            ASSERT(D4 == X.infinity());
+            ASSERT(D5 == X.nan());
+            ASSERT(D6 == X.sNan());
+            ASSERT(D7 == X.decimalPoint());
+            ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
+        }
+
+        // ----------
+        // 'expwidth'
+        // ----------
+        {
+            mX.setExpWidth(A10);
+            ASSERT(D1 == X.precision());
+            ASSERT(D2 == X.style());
+            ASSERT(D3 == X.sign());
+            ASSERT(D4 == X.infinity());
+            ASSERT(D5 == X.nan());
+            ASSERT(D6 == X.sNan());
+            ASSERT(D7 == X.decimalPoint());
+            ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
+
+            mX.setExpWidth(B10);
+            ASSERT(D1 == X.precision());
+            ASSERT(D2 == X.style());
+            ASSERT(D3 == X.sign());
+            ASSERT(D4 == X.infinity());
+            ASSERT(D5 == X.nan());
+            ASSERT(D6 == X.sNan());
+            ASSERT(D7 == X.decimalPoint());
+            ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(B10 == X.expWidth());
+
+            mX.setExpWidth(D10);
+            ASSERT(D1 == X.precision());
+            ASSERT(D2 == X.style());
+            ASSERT(D3 == X.sign());
+            ASSERT(D4 == X.infinity());
+            ASSERT(D5 == X.nan());
+            ASSERT(D6 == X.sNan());
+            ASSERT(D7 == X.decimalPoint());
+            ASSERT(D8 == X.exponent());
+            ASSERT(D9 == X.showpoint());
+            ASSERT(D10 == X.expWidth());
         }
 
         if (verbose) cout << "Corroborate attribute independence." << endl;
@@ -1468,6 +1642,8 @@ int main(int argc, char* argv[])
             mX.setSNan(A6);
             mX.setDecimalPoint(A7);
             mX.setExponent(A8);
+            mX.setShowpoint(A9);
+            mX.setExpWidth(A10);
 
             ASSERT(A1 == X.precision());
             ASSERT(A2 == X.style());
@@ -1477,6 +1653,8 @@ int main(int argc, char* argv[])
             ASSERT(A6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
               // ---------------------------------------
               // Set all attributes to their 'B' values.
@@ -1492,6 +1670,8 @@ int main(int argc, char* argv[])
             ASSERT(A6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
             mX.setStyle(B2);
 
@@ -1503,6 +1683,8 @@ int main(int argc, char* argv[])
             ASSERT(A6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
             mX.setSign(B3);
 
@@ -1514,6 +1696,8 @@ int main(int argc, char* argv[])
             ASSERT(A6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
             mX.setInfinity(B4);
 
@@ -1525,6 +1709,8 @@ int main(int argc, char* argv[])
             ASSERT(A6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
             mX.setNan(B5);
 
@@ -1536,6 +1722,8 @@ int main(int argc, char* argv[])
             ASSERT(A6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
             mX.setSNan(B6);
 
@@ -1547,6 +1735,8 @@ int main(int argc, char* argv[])
             ASSERT(B6 == X.sNan());
             ASSERT(A7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
             mX.setDecimalPoint(B7);
 
@@ -1558,6 +1748,8 @@ int main(int argc, char* argv[])
             ASSERT(B6 == X.sNan());
             ASSERT(B7 == X.decimalPoint());
             ASSERT(A8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
 
             mX.setExponent(B8);
 
@@ -1569,6 +1761,34 @@ int main(int argc, char* argv[])
             ASSERT(B6 == X.sNan());
             ASSERT(B7 == X.decimalPoint());
             ASSERT(B8 == X.exponent());
+            ASSERT(A9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
+
+            mX.setShowpoint(B9);
+
+            ASSERT(B1 == X.precision());
+            ASSERT(B2 == X.style());
+            ASSERT(B3 == X.sign());
+            ASSERT(B4 == X.infinity());
+            ASSERT(B5 == X.nan());
+            ASSERT(B6 == X.sNan());
+            ASSERT(B7 == X.decimalPoint());
+            ASSERT(B8 == X.exponent());
+            ASSERT(B9 == X.showpoint());
+            ASSERT(A10 == X.expWidth());
+
+            mX.setExpWidth(B10);
+
+            ASSERT(B1 == X.precision());
+            ASSERT(B2 == X.style());
+            ASSERT(B3 == X.sign());
+            ASSERT(B4 == X.infinity());
+            ASSERT(B5 == X.nan());
+            ASSERT(B6 == X.sNan());
+            ASSERT(B7 == X.decimalPoint());
+            ASSERT(B8 == X.exponent());
+            ASSERT(B9 == X.showpoint());
+            ASSERT(B10 == X.expWidth());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1581,6 +1801,46 @@ int main(int argc, char* argv[])
             {
                 ASSERT_FAIL(obj.setPrecision(-1));
                 ASSERT_PASS(obj.setPrecision(0));
+            }
+
+            if (veryVerbose) cout << "\tInfinity" << endl;
+            {
+                ASSERT_FAIL(obj.setInfinity(0));
+                ASSERT_PASS(obj.setInfinity("lots"));
+            }
+
+            if (veryVerbose) cout << "\tNan" << endl;
+            {
+                ASSERT_FAIL(obj.setNan(0));
+                ASSERT_PASS(obj.setNan("nut"));
+            }
+
+            if (veryVerbose) cout << "\tSNan" << endl;
+            {
+                ASSERT_FAIL(obj.setSNan(0));
+                ASSERT_PASS(obj.setSNan("nuts"));
+            }
+
+            if (veryVerbose) cout << "\tExpWidth" << endl;
+            {
+                ASSERT_FAIL(obj.setExpWidth(-1));
+                ASSERT_FAIL(obj.setExpWidth(0));
+                ASSERT_PASS(obj.setExpWidth(1));
+                ASSERT_PASS(obj.setExpWidth(2));
+                ASSERT_PASS(obj.setExpWidth(3));
+                ASSERT_PASS(obj.setExpWidth(4));
+                ASSERT_FAIL(obj.setExpWidth(5));
+            }
+
+            if (veryVerbose) cout << "\tConstructor" << endl;
+            {
+                ASSERT_PASS(Obj(D1, D2, D3, D4, D5, D6, D7, D8, D9, D10));
+                ASSERT_FAIL(Obj(-1, D2, D3, D4, D5, D6, D7, D8, D9, D10));
+                ASSERT_FAIL(Obj(D1, D2, D3,  0, D5, D6, D7, D8, D9, D10));
+                ASSERT_FAIL(Obj(D1, D2, D3, D4,  0, D6, D7, D8, D9, D10));
+                ASSERT_FAIL(Obj(D1, D2, D3, D4, D5,  0, D7, D8, D9, D10));
+                ASSERT_FAIL(Obj(D1, D2, D3, D4, D5, D6, D7, D8, D9,   0));
+                ASSERT_FAIL(Obj(D1, D2, D3, D4, D5, D6, D7, D8, D9,   5));
             }
         }
       } break;
@@ -1611,14 +1871,16 @@ int main(int argc, char* argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const int         D1 = 0;                     // 'precision'
-        const Obj::Style  D2 = Obj::e_NATURAL;        // 'style'
-        const Obj::Sign   D3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *D4 = "inf";                 // 'infinity'
-        const char       *D5 = "nan";                 // 'nan'
-        const char       *D6 = "snan";                // 'snan'
-        const char        D7 = '.';                   // 'point'
-        const char        D8 = 'e';                   // 'exponent
+        const int         D1  = 0;                     // 'precision'
+        const Obj::Style  D2  = Obj::e_NATURAL;        // 'style'
+        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
+        const char       *D4  = "inf";                 // 'infinity'
+        const char       *D5  = "nan";                 // 'nan'
+        const char       *D6  = "snan";                // 'snan'
+        const char        D7  = '.';                   // 'point'
+        const char        D8  = 'e';                   // 'exponent'
+        const bool        D9  = false;                 // 'showpoint'
+        const int         D10 = 2;                     // 'expwidth'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1637,8 +1899,10 @@ int main(int argc, char* argv[])
         LOOP2_ASSERT(D4, X.infinity(),     strcmp(D4, X.infinity()) == 0);
         LOOP2_ASSERT(D5, X.nan(),          strcmp(D5, X.nan()) == 0);
         LOOP2_ASSERT(D6, X.sNan(),         strcmp(D6, X.sNan()) == 0);
-        LOOP2_ASSERT(D7, X.decimalPoint(), D2 == X.style());
-        LOOP2_ASSERT(D8, X.exponent(),     D2 == X.style());
+        LOOP2_ASSERT(D7, X.decimalPoint(), D7 == X.decimalPoint());
+        LOOP2_ASSERT(D8, X.exponent(),     D8 == X.exponent());
+        LOOP2_ASSERT(D9, X.showpoint(),    D9 == X.showpoint());
+        LOOP2_ASSERT(D10, X.expWidth(),    D10 == X.expWidth());
 
       } break;
       case 1: {
@@ -1670,6 +1934,8 @@ int main(int argc, char* argv[])
         const char       *SNAN      = "snan";
         const char        POINT     = '.';
         const char        EXPONENT  = 'e';
+        const bool        SHOWPOINT = false;
+        const int         EXPWIDTH  = 2;
 
         Obj mX; const Obj& X = mX;
 
@@ -1681,6 +1947,8 @@ int main(int argc, char* argv[])
         ASSERT(0 == strcmp(SNAN, X.sNan()));
         ASSERT(POINT     == X.decimalPoint());
         ASSERT(EXPONENT  == X.exponent());
+        ASSERT(SHOWPOINT == X.showpoint());
+        ASSERT(EXPWIDTH == X.expWidth());
 
       } break;
 

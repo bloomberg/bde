@@ -572,6 +572,8 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         cfg.setSign(DecimalFormatConfig::e_ALWAYS);
     }
 
+    cfg.setShowpoint(format.flags() & bsl::ios::showpoint);
+
     if (format.flags() & bsl::ios_base::uppercase) {
         cfg.setInfinity("INF");
         cfg.setNan     ("NAN");

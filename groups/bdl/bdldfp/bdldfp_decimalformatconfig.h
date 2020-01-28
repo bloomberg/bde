@@ -1,4 +1,4 @@
-// bdldfp_decimalformatconfig.h                                      -*-C++-*-
+// bdldfp_decimalformatconfig.h                                       -*-C++-*-
 #ifndef INCLUDED_BDLDFP_DECIMALFORMATCONFIG
 #define INCLUDED_BDLDFP_DECIMALFORMATCONFIG
 
@@ -8,7 +8,7 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide an attribute class to configure decimal formatting.
 //
 //@CLASSES:
-//  bdltdfp::DecimalFormatConfig: configuration for formatting functions
+//  bdldfp::DecimalFormatConfig: configuration for formatting functions
 //
 //@SEE_ALSO: bdldfp_decimalutil
 //
@@ -29,6 +29,8 @@ BSLS_IDENT("$Id$")
 //  snan        string    "snan"           none
 //  point       char      '.'              none
 //  exponent    char      'e'              none
+//  showpoint   bool      false            none
+//  expwidth    int       2                >= 1, <= 4
 //..
 //: o 'style': control how the decimal number is written.  If 'style' is
 //:   'e_SCIENTIFIC', the number is written as its sign, then a single digit,
@@ -40,7 +42,8 @@ BSLS_IDENT("$Id$")
 //:   'precision' digits and the decimal point are not written.  If 'style' is
 //:   'e_NATURAL', the number is written according to the description of
 //:   'to-scientific-string' found in
-//:   http://speleotrove.com/decimal/decarith.pdf.
+//:   http://speleotrove.com/decimal/decarith.pdf (and no other specified
+//:   formatting values are used, including precision).
 //:
 //: o 'precision': control how many digits are written after the decimal point
 //:   if the decimal number is rendered in 'e_FIXED' and 'e_SCIENTIFIC'
@@ -62,6 +65,11 @@ BSLS_IDENT("$Id$")
 //:
 //: o 'exponent': specify the character to use for exponent when 'style' is
 //:   'e_SCIENTIFIC' or 'e_NATURAL'.
+//:
+//: o 'showpoint': specify whether a decimal point is always displayed.
+//:
+//: o 'expwidth': control the minimum number of digits used to write the
+//:   exponent.
 
 #include <bsl_cstring.h>
 
@@ -75,8 +83,8 @@ namespace bdldfp {
                         // =========================
 
 class DecimalFormatConfig {
-    // This attribute class characterizes how to configure certain behavior
-    // of 'bdldfp::DecimalUtil::format' functions.
+    // This attribute class characterizes how to configure certain behavior of
+    // 'bdldfp::DecimalUtil::format' functions.
 
   public:
     // TYPES
@@ -103,6 +111,8 @@ class DecimalFormatConfig {
     const char *d_sNanText;      // signaling NaN representation
     char        d_decimalPoint;  // decimal point character
     char        d_exponent;      // exponent character
+    bool        d_showpoint;     // always show decimal
+    int         d_expWidth;      // minimum digits in exponent
 
     // FRIENDS
     friend bool operator==(const DecimalFormatConfig&,
@@ -124,6 +134,8 @@ class DecimalFormatConfig {
         //  snan      == "snan"
         //  point     == '.'
         //  exponent  == 'e'
+        //  expwidth  == 2
+        //  showpoint == false
         //..
 
     explicit
@@ -134,24 +146,31 @@ class DecimalFormatConfig {
                         const char *nan       = "nan",
                         const char *snan      = "snan",
                         char        point     = '.',
-                        char        exponent  = 'e');
-        // Create an object of this class havig the specified 'precision' to
+                        char        exponent  = 'e',
+                        bool        showpoint = false,
+                        int         expWidth  = 2);
+        // Create an object of this class having the specified 'precision' to
         // control how many digits are written after a decimal point.  The
         // behavior is undefined if 'precision' is negative.  Optionally
         // specify 'style' to control how the number is written.  If it is not
         // specified, 'e_NATURAL' is used.  Optionally specify 'sign' to
         // control how the sign is output.  If is not specified,
-        // 'e_NEGATIVE_ONLY' is used.  Optionally specify 'inf' as a string to
-        // output infinity value.  If it is not specified, "inf" is used.
-        // Optionally specify 'nan' as a string to output NaN value.  If it is
-        // not specified, "nan" is used.  Optionally specify 'snan' as a string
-        // to output signaling NaN value.  If it is not specified, "snan" is
-        // used.  The behavior is undefined unless the pointers to 'infinity',
-        // 'nan' and 'snan' remain valid for the lifetime of this object.
-        // Optionally specify 'point' as the character to use for decimal
-        // points.  If it is not specified, '.' is used.  Optionally specify
-        // 'exponent' as the character to use for exponent.  If it is not
-        // specified, 'e' is used.  See the Attributes section under
+        // 'e_NEGATIVE_ONLY' is used.  Optionally specify 'infinity' as a
+        // string to output infinity value.  If it is not specified, "inf" is
+        // used.  Optionally specify 'nan' as a string to output NaN value.  If
+        // it is not specified, "nan" is used.  Optionally specify 'snan' as a
+        // string to output signaling NaN value.  If it is not specified,
+        // "snan" is used.  The behavior is undefined unless the pointers to
+        // 'infinity', 'nan' and 'snan' remain valid for the lifetime of this
+        // object.  Optionally specify 'point' as the character to use for
+        // decimal points.  If it is not specified, '.' is used.  Optionally
+        // specify 'exponent' as the character to use for exponent.  If it is
+        // not specified, 'e' is used.  Optionally specify 'showpoint' to force
+        // a decimal point to always be written.  Optionally specify 'expWidth'
+        // to force at least that many digits to be written for an exponent, up
+        // to the number of digits in the largest supported exponent.  If it is
+        // not specified, 2 is used.  The behavior is undefined unless
+        // 'expWidth' is 1, 2, 3, or 4.  See the Attributes section under
         // @DESCRIPTION in the component-level documentation for information on
         // the class attributes.
 
@@ -188,6 +207,14 @@ class DecimalFormatConfig {
         // Set the 'exponent' attribute of this object to the specified
         // 'value'.
 
+    void setShowpoint(bool value);
+        // Set the 'showpoint' attribute of this object to the specified
+        // 'value'.
+
+    void setExpWidth(int value);
+        // Set the 'expwidth' attribute of this object to the specified
+        // 'value'.  The behavior is undefined unless 'value' is 1, 2, 3, or 4.
+
     // ACCESSORS
     int precision() const;
         // Return the number of digits of precision in the outputs.
@@ -212,6 +239,12 @@ class DecimalFormatConfig {
 
     char exponent() const;
         // Return exponent character.
+
+    bool showpoint() const;
+        // Return the 'showpoint' attribute.
+
+    int expWidth() const;
+        // Return the minimum exponent width.
 };
 
 // FREE OPERATORS
@@ -251,6 +284,8 @@ DecimalFormatConfig::DecimalFormatConfig()
     , d_sNanText("snan")
     , d_decimalPoint('.')
     , d_exponent('e')
+    , d_showpoint(false)
+    , d_expWidth(2)
 {
 }
 
@@ -262,7 +297,9 @@ DecimalFormatConfig::DecimalFormatConfig(int         precision,
                                          const char *nan,
                                          const char *snan,
                                          char        point,
-                                         char        exponent)
+                                         char        exponent,
+                                         bool        showpoint,
+                                         int         expWidth)
     : d_precision(precision)
     , d_style(style)
     , d_sign(sign)
@@ -271,8 +308,15 @@ DecimalFormatConfig::DecimalFormatConfig(int         precision,
     , d_sNanText(snan)
     , d_decimalPoint(point)
     , d_exponent(exponent)
+    , d_showpoint(showpoint)
+    , d_expWidth(expWidth)
 {
     BSLS_ASSERT(precision >= 0);
+    BSLS_ASSERT(infinity);
+    BSLS_ASSERT(nan);
+    BSLS_ASSERT(snan);
+    BSLS_ASSERT(expWidth >= 1);
+    BSLS_ASSERT(expWidth <= 4);
 }
 
 // MANIPULATORS
@@ -328,6 +372,22 @@ void DecimalFormatConfig::setExponent(char value)
     d_exponent = value;
 }
 
+inline
+void DecimalFormatConfig::setShowpoint(bool value)
+{
+    d_showpoint = value;
+}
+
+
+inline
+void DecimalFormatConfig::setExpWidth(int value)
+{
+    BSLS_ASSERT(value >= 1);
+    BSLS_ASSERT(value <= 4);
+
+    d_expWidth = value;
+}
+
 // ACCESSORS
 inline
 int DecimalFormatConfig::precision() const
@@ -376,6 +436,18 @@ char DecimalFormatConfig::exponent() const
 {
     return d_exponent;
 }
+
+inline
+bool DecimalFormatConfig::showpoint() const
+{
+    return d_showpoint;
+}
+
+inline
+int DecimalFormatConfig::expWidth() const
+{
+    return d_expWidth;
+}
 }  // close package namespace
 
 // FREE OPERATORS
@@ -390,7 +462,9 @@ bool bdldfp::operator==(const DecimalFormatConfig& lhs,
            bsl::strcmp(lhs.d_nanText,      rhs.d_nanText)      == 0 &&
            bsl::strcmp(lhs.d_sNanText,     rhs.d_sNanText)     == 0 &&
            lhs.d_decimalPoint           == rhs.d_decimalPoint       &&
-           lhs.d_exponent               == rhs.d_exponent;
+           lhs.d_exponent               == rhs.d_exponent           &&
+           lhs.d_showpoint              == rhs.d_showpoint          &&
+           lhs.d_expWidth               == rhs.d_expWidth;
 }
 
 inline
@@ -404,7 +478,9 @@ bool bdldfp::operator!=(const DecimalFormatConfig& lhs,
            bsl::strcmp(lhs.d_nanText,      rhs.d_nanText)      ||
            bsl::strcmp(lhs.d_sNanText,     rhs.d_sNanText)     ||
            lhs.d_decimalPoint           != rhs.d_decimalPoint  ||
-           lhs.d_exponent               != rhs.d_exponent;
+           lhs.d_exponent               != rhs.d_exponent      ||
+           lhs.d_showpoint              != rhs.d_showpoint     ||
+           lhs.d_expWidth               != rhs.d_expWidth;
 }
 
 }  // close enterprise namespace
