@@ -3354,9 +3354,8 @@ int main(int argc, char *argv[]) {
         // Plan:
         //   Instantiate a modifiable 'bdlmt::MultiQueueThreadPool' object, and
         //   create two queues, identified as 'id1', and 'id2'.  Delete 'id1'
-        //   using a cleanup callback which enqueues a job to 'id2'.
-        //   Re-create queue 'id1', and delete it with a callback that deletes
-        //   'id2'.
+        //   using a cleanup callback which enqueues a job to 'id2'.  Create
+        //   queue 'id3', and delete it with a callback that deletes 'id2'.
         //
         // Testing:
         //   Concern: cleanup callback does not deadlock.
