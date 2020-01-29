@@ -3354,9 +3354,8 @@ int main(int argc, char *argv[]) {
         // Plan:
         //   Instantiate a modifiable 'bdlmt::MultiQueueThreadPool' object, and
         //   create two queues, identified as 'id1', and 'id2'.  Delete 'id1'
-        //   using a cleanup callback which enqueues a job to 'id2'.
-        //   Re-create queue 'id1', and delete it with a callback that deletes
-        //   'id2'.
+        //   using a cleanup callback which enqueues a job to 'id2'.  Create
+        //   queue 'id3', and delete it with a callback that deletes 'id2'.
         //
         // Testing:
         //   Concern: cleanup callback does not deadlock.
@@ -3415,6 +3414,20 @@ int main(int argc, char *argv[]) {
             }
             ASSERT(0 == mX.deleteQueue(id1, cleanupCb));
             barrier.wait();
+
+            // The 'barrier.wait()' is insufficient to verify 'count' has
+            // completed since 'deleteQueue' does not wait for the queue to be
+            // actually deleted (and 'count' invoked).  Hence, if the
+            // increment of 'counter' is not verified, the deletion of the
+            // queue associated with 'id2' (below) may occur before the 'count'
+            // callback executes and the counter will not be incremented as
+            // expected.
+
+            for (int i = 0; i < 10 && 1 != counter; ++i) {  // SPIN
+                bslmt::ThreadUtil::microSleep(100000);
+            }
+            ASSERT(1 == counter);
+
             ASSERT(1 == X.numQueues());  // id2 is still active
 
             int id3 = mX.createQueue();  ASSERT(0 != id3);  ASSERT(id2 != id3);
@@ -3438,10 +3451,11 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.deleteQueue(id3, cleanupCb));
             barrier.wait();
 
-            while (2 != counter) {         // SPIN
-                bslmt::ThreadUtil::microSleep(250000); // trigger thread switch
-                bslmt::ThreadUtil::yield();
+            for (int i = 0; i < 10 && 2 != counter; ++i) {  // SPIN
+                bslmt::ThreadUtil::microSleep(100000);
             }
+            ASSERT(2 == counter);
+
             ASSERT(0 == mX.numQueues());
         }
         ASSERT(0 <  ta.numAllocations());
