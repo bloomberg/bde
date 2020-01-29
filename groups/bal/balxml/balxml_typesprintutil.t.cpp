@@ -1755,8 +1755,8 @@ int main(int argc, char *argv[])
 { L_,  Limits::signaling_NaN(),     'F',     0,   "NaN",                   },
 { L_,  Limits::quiet_NaN(),         'F',     0,   "NaN",                   },
 
-{ L_,  DFP(0.1),                    'S',     0,  "1e-1"                    },
-{ L_,  DFP(15.13),                  'S',     3,  "1.513e+1",               },
+{ L_,  DFP(0.1),                    'S',     0,  "1e-01"                   },
+{ L_,  DFP(15.13),                  'S',     3,  "1.513e+01",              },
 { L_,  DFP(-9.876543210987654e307), 'S',    11,  "-9.87654321099e+307"     },
 { L_,  Limits::infinity(),          'S',     0,   "INF",                   },
 { L_, -Limits::infinity(),          'S',     0,  "-INF",                   },
