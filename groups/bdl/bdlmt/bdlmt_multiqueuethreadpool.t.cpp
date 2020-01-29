@@ -3415,6 +3415,18 @@ int main(int argc, char *argv[]) {
             }
             ASSERT(0 == mX.deleteQueue(id1, cleanupCb));
             barrier.wait();
+
+            // The 'barrier.wait()' is insufficient to verify the 'cleanupCb'
+            // has completed since 'deleteQueue' does not wait for the queue
+            // to be actually deleted.  Hence, the deletion of the queue
+            // associated with 'id2' (below) may occur before the callback
+            // executes and the counter will not be incremented as expected.
+
+            for (int i = 0; i < 10 && 1 != counter; ++i) {  // SPIN
+                bslmt::ThreadUtil::microSleep(100000);
+            }
+            ASSERT(1 == counter);
+
             ASSERT(1 == X.numQueues());  // id2 is still active
 
             int id3 = mX.createQueue();  ASSERT(0 != id3);  ASSERT(id2 != id3);
@@ -3442,6 +3454,7 @@ int main(int argc, char *argv[]) {
                 bslmt::ThreadUtil::microSleep(100000);
             }
             ASSERT(2 == counter);
+
             ASSERT(0 == mX.numQueues());
         }
         ASSERT(0 <  ta.numAllocations());
