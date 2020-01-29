@@ -3438,10 +3438,10 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.deleteQueue(id3, cleanupCb));
             barrier.wait();
 
-            while (2 != counter) {         // SPIN
-                bslmt::ThreadUtil::microSleep(250000); // trigger thread switch
-                bslmt::ThreadUtil::yield();
+            for (int i = 0; i < 10 && 2 != counter; ++i) {  // SPIN
+                bslmt::ThreadUtil::microSleep(100000);
             }
+            ASSERT(2 == counter);
             ASSERT(0 == mX.numQueues());
         }
         ASSERT(0 <  ta.numAllocations());
