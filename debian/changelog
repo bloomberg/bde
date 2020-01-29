@@ -1,9 +1,16 @@
-bsl-internal (3.48.0.0) unstable; urgency=low
+bsl-internal (3.48.0.1) unstable; urgency=low
 
+  * 2508fe180 Merge pull request #2681 from mgiroux/pr/2677-rebased-releases/3.48.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Jan 2020 11:21:13 -0500
+
+bsl-internal (3.48.0.0) git; urgency=low
+
+  * 6ddc6633f Changelog for version 3.48.0.0
   * d4038d2ec Bumped version to 3.48.0.0
   * 2f7f16c25 Merge pull request #2665 from jmendelsohn4/drqs-153332608/bdlcc_boundedqueue-race-waitUntilEmpty-4
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 26 Jan 2020 08:18:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 26 Jan 2020 08:18:57 -0500
 
 bsl-internal (3.47.0.0) git; urgency=low
 
