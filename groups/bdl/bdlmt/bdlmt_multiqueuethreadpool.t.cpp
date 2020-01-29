@@ -3417,9 +3417,10 @@ int main(int argc, char *argv[]) {
 
             // The 'barrier.wait()' is insufficient to verify the 'cleanupCb'
             // has completed since 'deleteQueue' does not wait for the queue
-            // to be actually deleted.  Hence, the deletion of the queue
-            // associated with 'id2' (below) may occur before the callback
-            // executes and the counter will not be incremented as expected.
+            // to be actually deleted.  Hence, if the increment of 'counter' is
+            // not verified, the deletion of the queue associated with 'id2'
+            // (below) may occur before the 'count' callback executes and the
+            // counter will not be incremented as expected.
 
             for (int i = 0; i < 10 && 1 != counter; ++i) {  // SPIN
                 bslmt::ThreadUtil::microSleep(100000);
