@@ -600,6 +600,51 @@ BSLS_IDENT("$Id: $")
 // defined in the utility 'struct' 'balcl::Constraint'.  Note that when passing
 // a function as a constraint, the *address* of the function must be passed.
 //
+///Valid 'balcl::OptionInfo' Specifications
+///----------------------------------------
+// The 'balcl::CommandLine' class has a complex set of preconditions on the
+// option specification table (array of 'balcl::OptionInfo' objects) passed to
+// each of its constructors.  There are requirements on individual elements, on
+// elements relative to each other, and on the entire set of elements.  If
+// these preconditions are not met, the behavior of the constructor is
+// undefined.
+//
+// The preconditions (some previously mentioned) are given in their entirety
+// below.  Moreover, an overloaded class method,
+// 'balcl::CommandLine::isValidOptionSpecification', is provided to allow
+// programmatic checking without risk of incurring undefined behavior.
+//
+///Tag/Name/Description Fields
+///- - - - - - - - - - - - - -
+// The tag, name, and description fields must pass the 'isTagValid',
+// 'isNameValid, and 'isDescriptionValid' methods of 'balcl::Option',
+// respectively.
+//
+//: o The tag field:
+//:   o If empty (a non-option argument), the option must not be a flag.
+//:   o If non-empty, see {Tag Field} above for details.
+//: o The name field must be non-empty.
+//: o The description field must be non-empty.
+//
+// Collectively, each non-empty short tag, each long tag, and each name must be
+// unique in the specification.
+//
+///Default Values
+/// - - - - - - -
+//: o Default values are disallowed for flags.
+//: o The type of a default value must match the type of its option.
+//: o The default value must satisfy the user-defined constraint on the option
+//:   value, if any.
+//
+///Non-Option Arguments
+/// - - - - - - - - - -
+//: o Cannot be a flag (see {Tag/Name/Description Fields}).
+//: o Cannot be a hidden option.
+//: o Only the last non-option argument can be multi-valued (i.e., an array
+//:   type).
+//: o If a non-option argument has a default value, all subsequent non-option
+//:   arguments must also have default values.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -799,6 +844,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>    // 'bsl::size_t'
 #include <bsl_cstring.h>    // 'bsl::strcmp'
 #include <bsl_iosfwd.h>
+#include <bsl_sstream.h>    // 'bsl::ostringstream'
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -1024,6 +1070,42 @@ class CommandLine {
                                    bslma::UsesBslmaAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(CommandLine,
                                    bdlb::HasPrintMethod);
+
+    // CLASS METHODS
+    template <int LENGTH>
+    static bool isValidOptionSpecificationTable(
+                                        const OptionInfo (&specTable)[LENGTH]);
+    template <int LENGTH>
+    static bool isValidOptionSpecificationTable(
+                                              OptionInfo (&specTable)[LENGTH]);
+    template <int LENGTH>
+    static bool isValidOptionSpecificationTable(
+                                         const OptionInfo (&specTable)[LENGTH],
+                                         bsl::ostream&      stream);
+    template <int LENGTH>
+    static bool isValidOptionSpecificationTable(
+                                            OptionInfo    (&specTable)[LENGTH],
+                                            bsl::ostream&   stream);
+        // Return 'true' if the specified (statically-initialized) 'specTable'
+        // of the specified 'LENGTH' has a valid set of command-line option
+        // specifications, and 'false' otherwise.  Optionally specify 'stream'
+        // to which error messages are written.  If no 'stream' is specified,
+        // this method produces no output.  See {Valid 'balcl::OptionInfo'
+        // Specifications} for a description of the validity requirements.
+
+    static bool isValidOptionSpecificationTable(const OptionInfo *specTable,
+                                                int               length);
+    static bool isValidOptionSpecificationTable(const OptionInfo *specTable,
+                                                int               length,
+                                                bsl::ostream&     stream);
+        // Return 'true' if the specified 'specTable' of the specified 'length'
+        // has a valid set of command-line option specifications, and 'false'
+        // otherwise.  Optionally specify 'stream' to which error messages are
+        // written.  If no 'stream' is specified, this method produces not
+        // output.  See {Valid 'balcl::OptionInfo' Specifications} for a
+        // description of the validity requirements.  The behavior is undefined
+        // unless '0 <= length'.  Note that 'specTable' need not be statically
+        // initialized.
 
     // CREATORS
     template <int LENGTH>
@@ -1553,6 +1635,52 @@ namespace balcl {
                         // -----------------
                         // class CommandLine
                         // -----------------
+
+// CLASS METHODS
+template <int LENGTH>
+inline
+bool CommandLine::isValidOptionSpecificationTable(
+                                         const OptionInfo (&specTable)[LENGTH])
+{
+    return isValidOptionSpecificationTable(specTable, LENGTH);
+}
+
+template <int LENGTH>
+inline
+bool CommandLine::isValidOptionSpecificationTable(
+                                               OptionInfo (&specTable)[LENGTH])
+{
+    return isValidOptionSpecificationTable(specTable, LENGTH);
+}
+
+template <int LENGTH>
+inline
+bool CommandLine::isValidOptionSpecificationTable(
+                                         const OptionInfo (&specTable)[LENGTH],
+                                         bsl::ostream&      stream)
+{
+    return isValidOptionSpecificationTable(specTable, LENGTH, stream);
+}
+
+template <int LENGTH>
+inline
+bool CommandLine::isValidOptionSpecificationTable(
+                                            OptionInfo    (&specTable)[LENGTH],
+                                            bsl::ostream&   stream)
+{
+    return isValidOptionSpecificationTable(specTable, LENGTH, stream);
+}
+
+inline
+bool CommandLine::isValidOptionSpecificationTable(const OptionInfo *specTable,
+                                                  int               length)
+{
+    BSLS_ASSERT(specTable);
+    BSLS_ASSERT(0 <= length);
+
+    bsl::ostringstream oss;
+    return isValidOptionSpecificationTable(specTable, length, oss);
+}
 
 // CREATORS
 template <int LENGTH>

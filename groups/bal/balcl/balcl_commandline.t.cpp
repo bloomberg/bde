@@ -1,5 +1,4 @@
 // balcl_commandline.t.cpp                                            -*-C++-*-
-
 #include <balcl_commandline.h>
 
 #include <balcl_constraint.h>
@@ -780,7 +779,6 @@ static int generateArgument(bsl::string       *argString,
 
     ASSERT(OccurrenceInfo::e_REQUIRED != occurrenceInfo.occurrenceType()
                                                        || !argString->empty());
-
     return 0;
 }
 
@@ -1769,32 +1767,28 @@ int main(int argc, const char *argv[])  {
                 "r|reverse",
                 "isReverse",
                 "sort in reverse order",
-                balcl::TypeInfo(
-                                     balcl::OptionType::k_BOOL),
+                balcl::TypeInfo(balcl::OptionType::k_BOOL),
                 balcl::OccurrenceInfo()
               },
               {
                 "i|insensitivetocase",
                 "isCaseInsensitive",
                 "be case insensitive while sorting",
-                balcl::TypeInfo(
-                                     balcl::OptionType::k_BOOL),
+                balcl::TypeInfo(balcl::OptionType::k_BOOL),
                 balcl::OccurrenceInfo()
               },
               {
                 "u|uniq",
                 "isUniq",
                 "discard duplicate lines",
-                balcl::TypeInfo(
-                                     balcl::OptionType::k_BOOL),
+                balcl::TypeInfo(balcl::OptionType::k_BOOL),
                 balcl::OccurrenceInfo()
               },
               {
                 "a|algorithm",
                 "sortAlgo",
                 "sorting algorithm",
-                balcl::TypeInfo(
-                                   balcl::OptionType::k_STRING),
+                balcl::TypeInfo(balcl::OptionType::k_STRING),
                 balcl::OccurrenceInfo(bsl::string("quickSort"))
               },
               {
@@ -1802,16 +1796,14 @@ int main(int argc, const char *argv[])  {
                 "outputFile",
                 "output file with a very long option description so we can "
                 "see the line wrapping behavior",
-                balcl::TypeInfo(
-                                   balcl::OptionType::k_STRING),
+                balcl::TypeInfo(balcl::OptionType::k_STRING),
                 balcl::OccurrenceInfo::e_REQUIRED
               },
               {
                 "",
                 "fileList",
                 "files to be sorted",
-                balcl::TypeInfo(
-                             balcl::OptionType::k_STRING_ARRAY),
+                balcl::TypeInfo(balcl::OptionType::k_STRING_ARRAY),
                 balcl::OccurrenceInfo::e_REQUIRED
               }
             };
@@ -3259,6 +3251,16 @@ int main(int argc, const char *argv[])  {
 
             if (veryVerbose) { T_ T_ P_(LINE) P_(IS_VALID) P(TAG) }
 
+            bsl::stringstream ossValidate; ossValidate << endl; // match 'oss'
+
+            ASSERT(IS_VALID == Obj::isValidOptionSpecificationTable(
+                                                                 SPEC,
+                                                                 1,
+                                                                 ossValidate));
+            ASSERT(IS_VALID == Obj::isValidOptionSpecificationTable(
+                                                                 SPEC,
+                                                                 1));
+
             try {
                 Obj mX(SPEC, 1, oss);
             }
@@ -3267,7 +3269,8 @@ int main(int argc, const char *argv[])  {
                 exceptionCaught = true;
             }
 
-            LOOP_ASSERT(LINE, !IS_VALID == exceptionCaught);
+            LOOP_ASSERT(LINE, !IS_VALID         == exceptionCaught);
+            LOOP_ASSERT(LINE, ossValidate.str() == oss.str());
         }
 
         if (verbose) cout << "\n\tTesting invalid specs." << endl;
@@ -3431,6 +3434,14 @@ int main(int argc, const char *argv[])  {
             bsl::stringstream oss; oss << endl; // for cleaner presentation
             bool              exceptionCaught = false;
 
+            bsl::stringstream ossValidate; ossValidate << endl; // match 'oss'
+
+            ASSERT(false == Obj::isValidOptionSpecificationTable(SPEC,
+                                                                 NUM_SPEC,
+                                                                 ossValidate));
+            ASSERT(false == Obj::isValidOptionSpecificationTable(SPEC,
+                                                                 NUM_SPEC));
+
             try {
                 Obj mX(SPEC, NUM_SPEC, oss);
             }
@@ -3440,6 +3451,7 @@ int main(int argc, const char *argv[])  {
             }
 
             LOOP_ASSERT(LINE, exceptionCaught);
+            LOOP_ASSERT(LINE, ossValidate.str() == oss.str());
         }
 #else
         if (verbose) cout << endl
@@ -3590,29 +3602,31 @@ int main(int argc, const char *argv[])  {
 // BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
         for (int i = 0; i < 4;                          ++i) {
-        for (int l = 0; l < NUM_OPTION_TYPEINFO;        ++l) {
+        for (int t = 0; t < NUM_OPTION_TYPEINFO;        ++t) {
         for (int m = 0; m < NUM_OPTION_OCCURRENCES - 1; ++m) {
 
-            if (veryVerbose) { T_ P_(i) P_(l) P(m) }
+            if (veryVerbose) { T_ P_(i) P_(t) P(m) }
 
-            const int n = l % NUM_OPTION_DEFAULT_VALUES;
+            const int n = t % NUM_OPTION_DEFAULT_VALUES;
                 // Instead of:
                 //..
                 //  for (int n = 0; n < NUM_OPTION_DEFAULT_VALUES; ++n)
                 //..
                 // Valid only because of the way we organized the table data:
                 //..
-                   ASSERT(OPTION_TYPEINFO[l].d_type ==
+                   ASSERT(OPTION_TYPEINFO[t].d_type ==
                                               OPTION_DEFAULT_VALUES[n].d_type);
                 //..
             const char     *TAG        = OPTION_TAGS[i].d_tag_p;
             const char     *NAME       = "SOME UNIQUE NAME";
             const char     *DESC       = "SOME VERY LONG DESCRIPTION...";
-            const ElemType  TYPE       = OPTION_TYPEINFO[l].d_type;
-            void           *VARIABLE   = OPTION_TYPEINFO[l].d_linkedVariable_p;
-            void           *CONSTRAINT = OPTION_TYPEINFO[l].d_constraint_p;
+            const ElemType  TYPE       = OPTION_TYPEINFO[t].d_type;
+            void           *VARIABLE   = OPTION_TYPEINFO[t].d_linkedVariable_p;
+            void           *CONSTRAINT = OPTION_TYPEINFO[t].d_constraint_p;
 
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[l].d_type;
+            const OccurrenceType OTYPE = OPTION_OCCURRENCES[
+                                                    t % NUM_OPTION_OCCURRENCES]
+                                                                       .d_type;
 
             const void  *DEFAULT_VALUE = OPTION_DEFAULT_VALUES[n].d_value_p;
 
@@ -3633,16 +3647,14 @@ int main(int argc, const char *argv[])  {
                 OCCURRENCE_INFO
             };
 
-            if (Ot::e_BOOL == TYPE_INFO.type()
-             && OPTION_INFO.d_tag.empty()) {
+            if (Ot::e_BOOL == TYPE_INFO.type() && OPTION_INFO.d_tag.empty()) {
                 // Flags cannot have an empty tag, or in other words
                 // non-options cannot be of type 'bool'.  Skip this.
 
                 continue;
             }
 
-            if (OccurrenceInfo::e_HIDDEN ==
-                                               OCCURRENCE_INFO.occurrenceType()
+            if (OccurrenceInfo::e_HIDDEN == OCCURRENCE_INFO.occurrenceType()
              && OPTION_INFO.d_tag.empty()) {
                 // A non-option argument cannot be hidden.  Skip this.
 
@@ -3676,7 +3688,7 @@ int main(int argc, const char *argv[])  {
         if (verbose) cout << "\n\tBuilt " << NUM_OPTIONS << " options."
                           << endl;
 
-        int  limit;
+        int  limit            = 0;
         bool arrayNonOption   = false;
         bool defaultNonOption = false;
 
@@ -3685,17 +3697,17 @@ int main(int argc, const char *argv[])  {
         for (int i = 0; i < NUM_OPTIONS; ++i) {
             if (veryVerbose) { T_ P(i) }
             limit = 0;
-            arrayNonOption = options[i].d_tag.empty() &&
-                                 Ot::isArrayType(options[i].d_typeInfo.type());
-            defaultNonOption = options[i].d_tag.empty() &&
-                                    options[i].d_defaultInfo.hasDefaultValue();
+              arrayNonOption = options[i].d_tag.empty()
+                             && Ot::isArrayType(options[i].d_typeInfo.type());
+            defaultNonOption =  options[i].d_tag.empty()
+                             && options[i].d_defaultInfo.hasDefaultValue();
 
             int j = ((i + 37) * (i + 101)) % NUM_OPTIONS;
-            while ((options[i].d_tag[0] == options[j].d_tag[0] &&
-                                                     !options[j].d_tag.empty())
-                || (arrayNonOption && options[j].d_tag.empty())
-                || (defaultNonOption && options[j].d_tag.empty() &&
-                                !options[j].d_defaultInfo.hasDefaultValue())) {
+            while ((options[i].d_tag[0] == options[j].d_tag[0]
+                                       && !options[j].d_tag.empty())
+                || (  arrayNonOption && options[j].d_tag.empty())
+                || (defaultNonOption && options[j].d_tag.empty()
+                 && !options[j].d_defaultInfo.hasDefaultValue())) {
                 // Tags (long and short, if not empty) must be distinct; if
                 // there is a previous non-option argument of array type then
                 // this cannot be a non-option; and if a previous non-option
@@ -3712,7 +3724,7 @@ int main(int argc, const char *argv[])  {
             if (limit == NUM_OPTIONS) {
                 break;
             }
-            options.push_back(options[j]);
+              options.push_back(  options[j]);
             arguments.push_back(arguments[j]);
         }
         if (limit == NUM_OPTIONS) {
@@ -3723,30 +3735,36 @@ int main(int argc, const char *argv[])  {
         if (verbose) cout << "\tAdded another (shuffled) "
                           << NUM_OPTIONS << " options." << endl;
 
+        ASSERT(static_cast<bsl::size_t>(2 * NUM_OPTIONS) ==   options.size());
+        ASSERT(static_cast<bsl::size_t>(2 * NUM_OPTIONS) == arguments.size());
+
         // Add third layer (for 3-option specs).
 
         for (int i = 0, j = NUM_OPTIONS; i < NUM_OPTIONS; ++i, ++j) {
             if (veryVerbose) { T_ P(i) }
             limit = 0;
-            arrayNonOption = (options[i].d_tag.empty() &&
-                                Ot::isArrayType(options[i].d_typeInfo.type()))
-                          || (options[j].d_tag.empty() &&
-                                Ot::isArrayType(options[j].d_typeInfo.type()));
-            defaultNonOption = (options[i].d_tag.empty() &&
-                                   options[i].d_defaultInfo.hasDefaultValue())
-                            || (options[j].d_tag.empty() &&
-                                   options[j].d_defaultInfo.hasDefaultValue());
+              arrayNonOption = (options[i].d_tag.empty()
+                             && Ot::isArrayType(options[i].d_typeInfo.type()))
+                            || (options[j].d_tag.empty()
+                             && Ot::isArrayType(options[j].d_typeInfo.type()));
+
+            defaultNonOption = (options[i].d_tag.empty()
+                             && options[i].d_defaultInfo.hasDefaultValue())
+                            || (options[j].d_tag.empty()
+                             && options[j].d_defaultInfo.hasDefaultValue());
 
             int k = ((i + 107) * (i + 293)) % NUM_OPTIONS;
-            while (options[i].d_name == options[k].d_name
-                || options[j].d_name == options[k].d_name
-                || (options[i].d_tag[0] == options[k].d_tag[0] &&
-                                                     !options[k].d_tag.empty())
-                || (options[j].d_tag[0] == options[k].d_tag[0] &&
-                                                     !options[k].d_tag.empty())
-                || (arrayNonOption && options[k].d_tag.empty())
-                || (defaultNonOption && options[k].d_tag.empty() &&
-                                !options[k].d_defaultInfo.hasDefaultValue())) {
+
+            while (  options[i].d_name == options[k].d_name
+                ||   options[j].d_name == options[k].d_name
+                || ( options[i].d_tag[0] == options[k].d_tag[0]
+                 && !options[k].d_tag.empty())
+                || ( options[j].d_tag[0] == options[k].d_tag[0]
+                 && !options[k].d_tag.empty())
+                || (   arrayNonOption && options[k].d_tag.empty())
+                || ( defaultNonOption && options[k].d_tag.empty()
+                 && !options[k].d_defaultInfo.hasDefaultValue())) {
+
                 // Names and tags must be distinct, if there is a previous
                 // non-option argument of array type then this cannot be a
                 // non-option argument, and if a previous non-option argument
@@ -3763,7 +3781,7 @@ int main(int argc, const char *argv[])  {
             if (limit == NUM_OPTIONS) {
                 break;
             }
-            options.push_back(options[k]);
+              options.push_back(  options[k]);
             arguments.push_back(arguments[k]);
         }
         if (limit == NUM_OPTIONS) {
@@ -3773,6 +3791,11 @@ int main(int argc, const char *argv[])  {
 
         if (verbose) cout << "\tAdded another (shuffled) "
                           << NUM_OPTIONS << " options." << endl;
+
+        ASSERT(static_cast<bsl::size_t>(3 * NUM_OPTIONS) ==   options.size());
+        ASSERT(static_cast<bsl::size_t>(3 * NUM_OPTIONS) == arguments.size());
+
+        const int MAX_OPTIONS = static_cast<int>(options.size());
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // CASE 2 OF VALUE-SEMANTIC TEST DRIVER
@@ -3785,6 +3808,7 @@ int main(int argc, const char *argv[])  {
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
         for (int n = 0; n < 4;                         ++n) {
         for (int i = 0; i < (n ? NUM_OPTIONS - n : 1); ++i) {
+
             OptionInfo        specTable[4];
             const OptionInfo *SPEC_TABLE = specTable;
 
@@ -3798,14 +3822,19 @@ int main(int argc, const char *argv[])  {
             argPtrs.push_back(&(argStrings.back()[0]));
 
             for (int j = 0; j < n; ++j) {
-                specTable[j] = OPTIONS[i + j * NUM_OPTIONS];
+                int index = i + j * NUM_OPTIONS;
 
-                if (!ARGUMENTS[i + j * NUM_OPTIONS].empty()) {
+                ASSERTV(index, MAX_OPTIONS, 0     <= index);
+                ASSERTV(index, MAX_OPTIONS, index <  MAX_OPTIONS);
+
+                specTable[j] = OPTIONS[index];
+
+                if (!ARGUMENTS[index].empty()) {
                     const int   MAX_ARGC = 16;
                     const char *argv[MAX_ARGC];
 
                     int argc = -1;
-                    argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
+                    argStrings.push_back(ARGUMENTS[index]);
                     ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
                                                  argc,
                                                  argv,
@@ -3831,6 +3860,8 @@ int main(int argc, const char *argv[])  {
                     T_ T_ T_ P_(k) P(argPtrs[k])
                 }
             }
+
+            ASSERT(Obj::isValidOptionSpecificationTable(SPEC_TABLE, n));
 
             Obj mX(SPEC_TABLE, n);  const Obj& X = mX;  // TEST HERE
 
@@ -3995,8 +4026,8 @@ int main(int argc, const char *argv[])  {
 
             }  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            ASSERT(0 == testAllocator.numMismatches());
-            ASSERT(0 == testAllocator.numBytesInUse());
+            ASSERT(0 ==    testAllocator.numBytesInUse());
+            ASSERT(0 ==    testAllocator.numMismatches());
             ASSERT(0 == defaultAllocator.numMismatches());
         }
 
@@ -5177,26 +5208,40 @@ int main(int argc, const char *argv[])  {
 
         if (verbose) cout << "\n\tTesting additional constructors." << endl;
 
+        const int INDEX0 = NUM_OPTIONS * 0;
+        const int INDEX1 = NUM_OPTIONS * 1;
+        const int INDEX2 = NUM_OPTIONS * 2;
+
+        const char *ARGS[] = { "E"                 // OPTIONS[INDEX0]
+                             , "--bb"              // OPTIONS[INDEX1]
+                             , "987654321"         // "             "
+                             , "--bb"              // "             "
+                             , "192837465"         // "             "
+                             , "--cdefghijklmab"   // OPTIONS[INDEX2]
+                             };
+
         if (veryVerbose) cout << "\tLength 1" << endl;
         {
             bsl::ostringstream ossX, ossY;
 
-            OptionInfo       mTable[] = { OPTIONS[0] };
-            const OptionInfo  Table[] = { OPTIONS[0] };
+            OptionInfo       mTable[] = { OPTIONS[INDEX0] };
+            const OptionInfo  Table[] = { OPTIONS[INDEX0] };
 
             int NUM_OPTIONS = sizeof Table / sizeof *Table;
+
+            ASSERT(Obj::isValidOptionSpecificationTable(mTable));
+            ASSERT(Obj::isValidOptionSpecificationTable( Table));
 
             Obj mX(mTable, ossX);         const Obj& X = mX;
             Obj mY( Table, ossY);         const Obj& Y = mY;
             Obj mZ( Table, NUM_OPTIONS);  const Obj& Z = mZ;
-
 
             ASSERT("" == ossX.str());
             ASSERT("" == ossY.str());
 
             // Selected to satisfy 'OPTIONS[0]'.
             const char *Argv[] = { "aProgramName"
-                                 , "A"
+                                 , ARGS[0]
                                  };
 
             const bsl::size_t Argc = sizeof Argv / sizeof *Argv;
@@ -5217,14 +5262,17 @@ int main(int argc, const char *argv[])  {
         {
             bsl::ostringstream ossX, ossY;
 
-            OptionInfo       mTable[] = { OPTIONS[0]
-                                        , OPTIONS[1]
+            OptionInfo       mTable[] = { OPTIONS[INDEX0]
+                                        , OPTIONS[INDEX1]
                                         };
-            const OptionInfo  Table[] = { OPTIONS[0]
-                                        , OPTIONS[1]
+            const OptionInfo  Table[] = { OPTIONS[INDEX0]
+                                        , OPTIONS[INDEX1]
                                         };
 
             int NUM_OPTIONS = sizeof Table / sizeof *Table;
+
+            ASSERT(Obj::isValidOptionSpecificationTable(mTable));
+            ASSERT(Obj::isValidOptionSpecificationTable( Table));
 
             Obj mX(mTable, ossX);         const Obj& X = mX;
             Obj mY( Table, ossY);         const Obj& Y = mY;
@@ -5235,7 +5283,11 @@ int main(int argc, const char *argv[])  {
 
             // Selected to satisfy 'OPTIONS[1]'.
             const char *Argv[] = { "anotherProgramName"
-                                 , "Z"
+                                 , ARGS[0]
+                                 , ARGS[1]
+                                 , ARGS[2]
+                                 , ARGS[3]
+                                 , ARGS[4]
                                  };
 
             const bsl::size_t Argc = sizeof Argv / sizeof *Argv;
@@ -5254,24 +5306,21 @@ int main(int argc, const char *argv[])  {
 
         if (veryVerbose) cout << "\tLength 3" << endl;
         {
-#if  defined(BSLS_PLATFORM_CPU_64_BIT) || defined(BSLS_PLATFORM_CMP_MSVC)
-            if (veryVerbose) cout << "\t\tSkipped for 64-bit platforms or MSVC"
-	                          << endl;
-#else
             bsl::ostringstream ossX, ossY;
 
-            OptionInfo       mTable[] = { OPTIONS[0]
-                                        , OPTIONS[1]
-                                        , OPTIONS[4]
+            OptionInfo       mTable[] = { OPTIONS[INDEX0]
+                                        , OPTIONS[INDEX1]
+                                        , OPTIONS[INDEX2]
                                         };
-            const OptionInfo  Table[] = { OPTIONS[0]
-                                        , OPTIONS[1]
-                                        , OPTIONS[4]
+            const OptionInfo  Table[] = { OPTIONS[INDEX0]
+                                        , OPTIONS[INDEX1]
+                                        , OPTIONS[INDEX2]
                                         };
-                // Note that 'OPTIONS' 2 and 3' (both required non-options) are
-                // incompatible with 'OPTIONS' 0 and 1.
 
             int  NUM_OPTIONS = sizeof Table / sizeof *Table;
+
+            ASSERT(Obj::isValidOptionSpecificationTable(mTable));
+            ASSERT(Obj::isValidOptionSpecificationTable( Table));
 
             Obj mX(mTable, ossX);         const Obj& X = mX;
             Obj mY( Table, ossY);         const Obj& Y = mY;
@@ -5280,9 +5329,13 @@ int main(int argc, const char *argv[])  {
             ASSERT("" == ossX.str());
             ASSERT("" == ossY.str());
 
-            // Selected to satisfy 'OPTIONS[4]'.
             const char *Argv[] = { "yetAnotherProgramName"
-                                 , "3.14"
+                                 , ARGS[0]
+                                 , ARGS[1]
+                                 , ARGS[2]
+                                 , ARGS[3]
+                                 , ARGS[4]
+                                 , ARGS[5]
                                  };
 
             const bsl::size_t Argc = sizeof Argv / sizeof *Argv;
@@ -5297,7 +5350,6 @@ int main(int argc, const char *argv[])  {
 
             ASSERT(X == Y);
             ASSERT(Y == Z);
-#endif // 'BSLS_PLATFORM_CPU_64_BIT'
         }
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

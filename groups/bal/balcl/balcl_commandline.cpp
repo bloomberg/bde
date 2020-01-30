@@ -269,6 +269,237 @@ void CommandLine_OptionValueUtil::setValue(void               *dst,
     }
 }
 
+                        // ===========================================
+                        // local function privateValidateAndInitialize
+                        // ===========================================
+
+int privateValidateAndInitialize(
+                              bsl::vector<OptionValue>       *data,
+                              bsl::vector<bsl::vector<int> > *positions,
+                              bsl::vector<int>               *nonOptionIndices,
+                              const bsl::vector<Option>&      options,
+                              bsl::ostream&                   stream)
+    // Validate the specified 'options' against the constraints described in
+    // {Valid 'balcl::OptionInfo' Specifications} in the component-level
+    // documentation and initialize the specified 'data', 'positions', and
+    // 'nonOptionIndices' as described below.  Return 0 if 'options' are valid
+    // and a non-zero value otherwise.  If 'options' is invalid, a descriptive
+    // message is written to the specified 'stream'.
+    //
+    // The initializations are:
+    //
+    //: o 'data' is initialized with 'option.size()' elements, each in the
+    //:   "null" state, and each having the same type as the corresponding
+    //:   option element in 'options'.
+    //:
+    //: o 'positions' is initialized with 'options.size()' empty vectors of
+    //:   'int'.
+    //:
+    //: o 'nonOptionIndices' is initialized with the indices in 'options', in
+    //:   ascending order, where non-option arguments are found, if any.
+    //
+    // The behavior is undefined unless 'data', 'positions, and
+    // 'nonOptionIndices' are empty.  Note that there is no guarantee that
+    // 'data', 'positions', and 'nonOptionIndices' remain empty if a non-zero
+    // value is returned.
+
+{
+    BSLS_ASSERT(data);              BSLS_ASSERT(            data->empty());
+    BSLS_ASSERT(positions);         BSLS_ASSERT(       positions->empty());
+    BSLS_ASSERT(nonOptionIndices);  BSLS_ASSERT(nonOptionIndices->empty());
+
+    data->reserve(options.size());
+
+    int status = 0;
+
+    for (unsigned int i = 0; i < options.size(); ++i) {
+        const Option& thisOption = options[i];
+
+        // Start with basic validity checks.  Try to do as many checks at a
+        // time, in order to maximize the feedback to the user.
+
+        if (!thisOption.isTagValid(stream)) {
+            stream << "The error occurred while validating the "
+                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << bsl::flush;
+
+            status = 1;
+        }
+
+        if (!thisOption.isNameValid(stream)) {
+            stream << "The error occurred while validating the "
+                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << bsl::flush;
+
+            status = 2;
+        }
+
+        if (!thisOption.isDescriptionValid(stream)) {
+            stream << "The error occurred while validating the "
+                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << bsl::flush;
+
+            status = 3;
+        }
+
+        if (OptionInfo::e_FLAG == thisOption.argType()
+         && thisOption.occurrenceInfo().hasDefaultValue())
+        {
+            stream << "No default value is allowed for the flag." << '\n'
+                   << "The error occurred while validating the "
+                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << bsl::flush;
+
+            status = 4;
+        }
+
+        if (thisOption.occurrenceInfo().hasDefaultValue()
+         && thisOption.occurrenceInfo().defaultValue().type() !=
+                                              thisOption.typeInfo().type()) {
+            stream << "The type of default value does not "
+                      "match the type specified for the option." << '\n'
+                   << "The error occurred while validating the "
+                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << bsl::flush;
+
+            status = 5;
+        }
+
+        // Tags and names must be unique.
+
+        for (unsigned int j = 0; j < i; ++j) {
+            if (thisOption.name() == options[j].name()) {
+                stream << "Error: The names for the "
+                       << CommandLine_Ordinal(i) << " and "
+                       << CommandLine_Ordinal(j) << " options are equal."
+                       << '\n' << bsl::flush;
+
+                status = 6;
+            }
+        }
+
+        if (thisOption.argType() != OptionInfo::e_NON_OPTION) {
+            for (unsigned int j = 0; j < i; ++j) {
+                if (options[j].argType() == OptionInfo::e_NON_OPTION) {
+                    continue;
+                }
+
+                if (thisOption.shortTag()
+                 && thisOption.shortTag() == options[j].shortTag()) {
+                    stream << "Error: short tags for the "
+                           << CommandLine_Ordinal(i) << " and "
+                           << CommandLine_Ordinal(j) << " options are equal."
+                           << '\n' << bsl::flush;
+
+                    status = 7;
+                }
+
+                if (!bsl::strcmp(thisOption.longTag(),
+                                 options[j].longTag())) {
+                    stream << "Error: long tags for the "
+                           << CommandLine_Ordinal(i) << " and "
+                           << CommandLine_Ordinal(j) << " options are equal."
+                           << '\n' << bsl::flush;
+
+                    status = 8;
+                }
+            }
+        }
+
+        // Additional checks for non-option arguments.
+
+        if (OptionInfo::e_NON_OPTION == thisOption.argType()) {
+            // Non-option arguments cannot be hidden.
+
+            if (thisOption.occurrenceInfo().isHidden()) {
+                stream << "Error: A non-option argument cannot be hidden.\n"
+                          "The error occurred while validating the "
+                       << CommandLine_Ordinal(i) << " option.\n"
+                       << bsl::flush;
+
+                status = 9;
+            }
+        }
+    }
+
+    if (0 != status) {
+        return status;                                                // RETURN
+    }
+
+    for (unsigned int i = 0; i < options.size(); ++i) {
+        const Option& thisOption = options[i];
+
+        // Initialize 'positions' and 'data' for this option.
+
+        bsl::vector<int> v;
+        positions->push_back(v);
+
+        balcl::OptionValue nullElement(thisOption.typeInfo().type());
+        nullElement.setNull();
+
+        data->push_back(nullElement);
+
+        // Validate and initialize with the default values.
+
+        if (thisOption.occurrenceInfo().hasDefaultValue()) {
+            if (!TypeInfoUtil::satisfiesConstraint(
+                                    thisOption.occurrenceInfo().defaultValue(),
+                                    thisOption.typeInfo(),
+                                    stream)) {
+                stream << "The error occurred while validating the "
+                       << CommandLine_Ordinal(i) << " option." << '\n'
+                       << bsl::flush;
+
+                return status;                                        // RETURN
+            }
+        }
+
+        // Additional checks for non-option arguments.
+
+        if (OptionInfo::e_NON_OPTION == thisOption.argType()) {
+            // Only last non-option argument can be multi-valued.
+
+            if (!nonOptionIndices->empty()
+             && options[nonOptionIndices->back()].isArray()) {
+                stream << "Error: A multi-valued non-option argument was "
+                          "already specified as the "
+                       << CommandLine_Ordinal(nonOptionIndices->back())
+                       << " option." << '\n'
+                       << "The error occurred while validating the "
+                       << CommandLine_Ordinal(i) << " option." << '\n'
+                       << bsl::flush;
+
+                return status;                                        // RETURN
+            }
+
+            // Once default value is provided, must *always* be provided for
+            // subsequent non-option arguments.
+
+            if (!thisOption.occurrenceInfo().hasDefaultValue()
+             && !nonOptionIndices->empty()
+             && options[nonOptionIndices->back()].
+                                          occurrenceInfo().hasDefaultValue()) {
+                stream << "Error: A default value was provided "
+                          "for the previous non-option argument, "
+                          "specified as\nthe "
+                       << CommandLine_Ordinal(nonOptionIndices->back())
+                       << " option, but not for this non-option." << '\n'
+                       << "The error occurred while validating the "
+                       << CommandLine_Ordinal(i) << " option." << '\n'
+                       << bsl::flush;
+
+                return status;                                        // RETURN
+            }
+
+            // Set 'nonOptionIndices' for this option.
+
+            nonOptionIndices->push_back(i);
+        }
+    }
+
+    return status;
+}
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -450,12 +681,11 @@ int CommandLine::parse(bsl::ostream& stream)
             // Only now, compute string holding argument value.
 
             const Option&  thisOption = d_options[index];
-            const char               *str;  // string for parsing value
+            const char    *str;  // string for parsing value
             if ('=' == *s) {
                 str = s + 1;
             } else {
-                if (thisOption.argType() !=
-                                       OptionInfo::e_FLAG) {
+                if (thisOption.argType() != OptionInfo::e_FLAG) {
                     if (i == d_arguments.size() - 1) {
                         stream << "Error: No value has been provided "
                                   "for the option \""
@@ -626,8 +856,7 @@ int CommandLine::postParse(bsl::ostream& stream)
     for (unsigned int i = 0; i < d_options.size(); ++i) {
         const Option&         thisOption  = d_options[i];
         const TypeInfo&       info        = thisOption.typeInfo();
-        const OccurrenceInfo& defaultInfo =
-                                                   thisOption.occurrenceInfo();
+        const OccurrenceInfo& defaultInfo = thisOption.occurrenceInfo();
 
         CommandLine_SchemaData item = {info.type(), thisOption.name().c_str()};
         d_schema.push_back(item);
@@ -679,192 +908,13 @@ void CommandLine::validateAndInitialize()
 
 void CommandLine::validateAndInitialize(bsl::ostream& stream)
 {
-    int status = 0;
-
-    for (unsigned int i = 0; i < d_options.size(); ++i) {
-        const Option& thisOption = d_options[i];
-
-        // Start with basic validity checks.  Try to do as many checks at a
-        // time, in order to maximize the feedback to the user.
-
-        if (!thisOption.isTagValid(stream)) {
-            stream << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
-                   << bsl::flush;
-
-            status = 1;
-        }
-
-        if (!thisOption.isNameValid(stream)) {
-            stream << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
-                   << bsl::flush;
-
-            status = 2;
-        }
-
-        if (!thisOption.isDescriptionValid(stream)) {
-            stream << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
-                   << bsl::flush;
-
-            status = 3;
-        }
-
-        if (OptionInfo::e_FLAG == thisOption.argType()
-         && thisOption.occurrenceInfo().hasDefaultValue())
-        {
-            stream << "No default value is allowed for the flag." << '\n'
-                   << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
-                   << bsl::flush;
-
-            status = 4;
-        }
-
-        if (thisOption.occurrenceInfo().hasDefaultValue()
-         && thisOption.occurrenceInfo().defaultValue().type() !=
-                                              thisOption.typeInfo().type()) {
-            stream << "The type of default value does not "
-                      "match the type specified for the option." << '\n'
-                   << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
-                   << bsl::flush;
-
-            status = 5;
-        }
-
-        // Tags and names must be unique.
-
-        for (unsigned int j = 0; j < i; ++j) {
-            if (thisOption.name() == d_options[j].name()) {
-                stream << "Error: The names for the "
-                       << CommandLine_Ordinal(i) << " and "
-                       << CommandLine_Ordinal(j) << " options are equal."
-                       << '\n' << bsl::flush;
-
-                status = 6;
-            }
-        }
-
-        if (thisOption.argType() != OptionInfo::e_NON_OPTION) {
-            for (unsigned int j = 0; j < i; ++j) {
-                if (d_options[j].argType() ==
-                                    OptionInfo::e_NON_OPTION) {
-                    continue;
-                }
-
-                if (thisOption.shortTag()
-                 && thisOption.shortTag() == d_options[j].shortTag()) {
-                    stream << "Error: short tags for the "
-                           << CommandLine_Ordinal(i) << " and "
-                           << CommandLine_Ordinal(j) << " options are equal."
-                           << '\n' << bsl::flush;
-
-                    status = 7;
-                }
-
-                if (!bsl::strcmp(thisOption.longTag(),
-                                 d_options[j].longTag())) {
-                    stream << "Error: long tags for the "
-                           << CommandLine_Ordinal(i) << " and "
-                           << CommandLine_Ordinal(j) << " options are equal."
-                           << '\n' << bsl::flush;
-
-                    status = 8;
-                }
-            }
-        }
-
-        // Additional checks for non-option arguments.
-
-        if (OptionInfo::e_NON_OPTION == thisOption.argType()) {
-            // Non-option arguments cannot be hidden.
-
-            if (thisOption.occurrenceInfo().isHidden()) {
-                stream << "Error: A non-option argument cannot be hidden.\n"
-                          "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option.\n"
-                       << bsl::flush;
-
-                status = 9;
-            }
-        }
-    }
-
+    int status = privateValidateAndInitialize(&d_data,
+                                              &d_positions,
+                                              &d_nonOptionIndices,
+                                              d_options,
+                                              stream);
     if (0 != status) {
         EXIT_IF_FALSE(k_INVALID_COMMAND_LINE_SPEC);
-    }
-
-    for (unsigned int i = 0; i < d_options.size(); ++i) {
-        const Option& thisOption = d_options[i];
-
-        // Initialize 'd_positions' and 'd_data' for this option.
-
-        bsl::vector<int> v;
-        d_positions.push_back(v);
-
-        balcl::OptionValue nullElement(thisOption.typeInfo().type());
-        nullElement.setNull();
-
-        d_data.push_back(nullElement);
-
-        // Validate and initialize with the default values.
-
-        if (thisOption.occurrenceInfo().hasDefaultValue()) {
-            if (!TypeInfoUtil::satisfiesConstraint(
-                                    thisOption.occurrenceInfo().defaultValue(),
-                                    thisOption.typeInfo(),
-                                    stream)) {
-                stream << "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option." << '\n'
-                       << bsl::flush;
-
-                EXIT_IF_FALSE(k_INVALID_COMMAND_LINE_SPEC);
-            }
-        }
-
-        // Additional checks for non-option arguments.
-
-        if (OptionInfo::e_NON_OPTION == thisOption.argType()) {
-            // Only last non-option argument can be multi-valued.
-
-            if (!d_nonOptionIndices.empty()
-             && d_options[d_nonOptionIndices.back()].isArray()) {
-                stream << "Error: A multi-valued non-option argument was "
-                          "already specified as the "
-                       << CommandLine_Ordinal(d_nonOptionIndices.back())
-                       << " option." << '\n'
-                       << "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option." << '\n'
-                       << bsl::flush;
-
-                EXIT_IF_FALSE(k_INVALID_COMMAND_LINE_SPEC);
-            }
-
-            // Once default value is provided, must *always* be provided for
-            // subsequent non-option arguments.
-
-            if (!thisOption.occurrenceInfo().hasDefaultValue()
-             && !d_nonOptionIndices.empty()
-             && d_options[d_nonOptionIndices.back()].
-                                          occurrenceInfo().hasDefaultValue()) {
-                stream << "Error: A default value was provided "
-                          "for the previous non-option argument, "
-                          "specified as\nthe "
-                       << CommandLine_Ordinal(d_nonOptionIndices.back())
-                       << " option, but not for this non-option." << '\n'
-                       << "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option." << '\n'
-                       << bsl::flush;
-
-                EXIT_IF_FALSE(k_INVALID_COMMAND_LINE_SPEC);
-            }
-
-            // Set 'd_nonOptionIndices' for this option.
-
-            d_nonOptionIndices.push_back(i);
-        }
     }
 }
 
@@ -965,6 +1015,32 @@ int CommandLine::missing(bool checkAlsoNonOptions) const
         }
     }
     return -1;
+}
+
+// CLASS METHODS
+bool CommandLine::isValidOptionSpecificationTable(const OptionInfo *specTable,
+                                                  int               length,
+                                                  bsl::ostream&     stream)
+{
+    BSLS_ASSERT(specTable);
+    BSLS_ASSERT(0 <= length);
+
+    bsl::vector<Option> options;  options.reserve(length);
+
+    for (int i = 0; i < length; ++i) {
+        options.push_back(Option(specTable[i]));
+    }
+
+    bsl::vector<OptionValue>       data;
+    bsl::vector<bsl::vector<int> > positions;
+    bsl::vector<int>               nonOptionIndices;
+
+    int status = privateValidateAndInitialize(&data,
+                                              &positions,
+                                              &nonOptionIndices,
+                                              options,
+                                              stream);
+    return 0 == status;
 }
 
 // CREATORS
