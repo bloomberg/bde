@@ -329,6 +329,14 @@ static void waitPauseWait(bslmt::Barrier *barrier, Obj *pool, int queueId)
     barrier->wait();
 }
 
+static void waitWait(bslmt::Barrier *barrier)
+{
+    // Wait on the specified 'barrier' twice.
+
+    barrier->wait();
+    barrier->wait();
+}
+
 static void waitWaitCreate(bslmt::Barrier *barrier, Obj *pool)
 {
     // Wait on the specified 'barrier' twice, then create a queue in the
@@ -1618,6 +1626,58 @@ int main(int argc, char *argv[]) {
             mX.assignBatchSize(queueId, 1);
 
             ASSERT(1 == X.batchSize(queueId));
+        }
+
+        if (verbose) cout << "\nTesting 'assignBatchSize'." << endl;
+        {
+            const int k_ENQUEUE = 5;
+
+            int count[k_ENQUEUE + 1];
+
+            for (int batchSize = 1; batchSize <= 4; ++batchSize) {
+                for (int i = 0; i <= k_ENQUEUE; ++i) {
+                    count[i] = 0;
+                }
+
+                for (int i = 0; i < 100; ++i) {
+                    Obj        mX(bslmt::ThreadAttributes(), 1, 1, 30);
+                    const Obj& X = mX;
+
+                    mX.start();
+                    int queueId = mX.createQueue();
+
+                    mX.assignBatchSize(queueId, batchSize);
+
+                    bslmt::Barrier barrier(2);
+
+                    Func job = bdlf::BindUtil::bind(&waitWait, &barrier);
+
+                    mX.enqueueJob(queueId, job);
+                    for (int j = 1; j < k_ENQUEUE; ++j) {
+                        mX.enqueueJob(queueId, noop);
+                    }
+
+                    barrier.wait();
+                    mX.deleteQueue(queueId, noop);  // must not wait
+                    barrier.wait();
+
+                    int doneJobs;
+                    int enqueuedJobs;
+
+                    X.numProcessed(&doneJobs, &enqueuedJobs);
+
+                    ASSERT(k_ENQUEUE == enqueuedJobs);
+
+                    ++count[doneJobs];
+                }
+
+                ASSERT(80 <= count[batchSize]);
+
+                ASSERT(0 == count[0]);
+                for (int i = batchSize + 1; i <= k_ENQUEUE; ++i) {
+                    ASSERT(0 == count[i]);
+                }
+            }
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
