@@ -78,7 +78,7 @@ using namespace BloombergLP;
 // [ 2] ~bdlmt::MultiQueueThreadPool();
 //
 // MANIPULATORS
-// [33] void assignBatchSize(int batchSize);
+// [33] void assignBatchSize(int id, int batchSize);
 // [ 2] int createQueue();
 // [ 2] int deleteQueue(int id, const bsl::function<void()>& cleanupFunctor);
 // [ 2] int enqueueJob(int id, const bsl::function<void()>& functor);
@@ -90,7 +90,7 @@ using namespace BloombergLP;
 // [13] void numProcessedReset(int *, int *, int * = 0);
 //
 // ACCESSORS
-// [33] int batchSize() const;
+// [33] int batchSize(int id) const;
 // [13] void numProcessed(int *, int *, int * = 0) const;
 // [ 4] int numQueues() const;
 // [13] int numElements() const;
@@ -171,10 +171,19 @@ void aSsErT(bool condition, const char *message, int line)
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
-#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
-#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
@@ -1553,8 +1562,78 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == ta.numBytesInUse());
       }  break;
       case 33: {
-// [33] void assignBatchSize(int batchSize);
-// [33] int batchSize() const;
+        // --------------------------------------------------------------------
+        // TESTING BATCH SIZE
+        //
+        // Concerns:
+        //: 1 The value returned by 'batchSize' matches the value assigned by
+        //:   'assignBatchSize'.
+        //:
+        //: 2 The value assigned by 'assignBatchSize' is the batching size.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Use 'assignBatchSize' to set the batching size and directly
+        //:   verify the result of 'batchSize'.  (C-1)
+        //:
+        //: 2 From the main thread, use 'assignBatchSize' to set the batching
+        //:   size and submit at least this number of jobs to the queue with
+        //:   the first job using a barrier to sync the thread pool thread with
+        //:   the main thread twice.  After the first synchronization, the main
+        //:   thread will delete the queue containing the jobs.  After the
+        //:   second synchronization, the main thread will verify the number
+        //:   of executed jobs is frequently the batch size using
+        //:   'numProcessed'.  Note that the number of executed jobs will not
+        //:   always match the batch size since the timing of when the thread
+        //:   from the thread pool will take jobs can not be guaranteed.
+        //:
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        //
+        // Testing:
+        //   void assignBatchSize(int id, int batchSize);
+        //   int batchSize(int id) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING BATCH SIZE\n"
+                          << "===================\n";
+
+        if (verbose) cout << "\nTesting 'batchSize'." << endl;
+        {
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            ASSERT(1 == X.batchSize(queueId));
+
+            mX.assignBatchSize(queueId, 2);
+
+            ASSERT(2 == X.batchSize(queueId));
+
+            mX.assignBatchSize(queueId, 3);
+
+            ASSERT(3 == X.batchSize(queueId));
+
+            mX.assignBatchSize(queueId, 1);
+
+            ASSERT(1 == X.batchSize(queueId));
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            ASSERT_SAFE_PASS(mX.assignBatchSize(queueId,  1));
+            ASSERT_SAFE_PASS(mX.assignBatchSize(queueId,  2));
+            ASSERT_SAFE_FAIL(mX.assignBatchSize(queueId,  0));
+            ASSERT_SAFE_FAIL(mX.assignBatchSize(queueId, -1));
+        }
       }  break;
       case 32: {
         // --------------------------------------------------------------------
