@@ -1,9 +1,21 @@
-bsl-internal (3.48.0.0) unstable; urgency=low
+bsl-internal (3.48.1.0) unstable; urgency=low
 
+  * a3ac77bde Bumped version to 3.48.1.0
+  * c110a114e Merge pull request #2684 from hrosen4/dfp-format_drqs-154919352
+  * 858a954b2 Merge pull request #2682 from hrosen4/dfp-format_drqs-154874861
+  * c5754e515 Merge pull request #2677 from bde/review/force-disable-cpp17-abi
+  * d1448a48f Merge pull request #2679 from jmendelsohn4/drqs-154832051/bdlmt_multiqueuethreadpool-case-12
+  * d93945ed6 Merge pull request #2548 from bchapman/bdlcc_objectcatalog-move-semantics-drqs-149082155
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 31 Jan 2020 16:12:09 -0500
+
+bsl-internal (3.48.0.0) git; urgency=low
+
+  * 6ddc6633f Changelog for version 3.48.0.0
   * d4038d2ec Bumped version to 3.48.0.0
   * 2f7f16c25 Merge pull request #2665 from jmendelsohn4/drqs-153332608/bdlcc_boundedqueue-race-waitUntilEmpty-4
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 26 Jan 2020 08:18:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 26 Jan 2020 08:18:57 -0500
 
 bsl-internal (3.47.0.0) git; urgency=low
 
