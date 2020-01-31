@@ -112,8 +112,15 @@ typedef balxml::TypesPrintUtil Util;
 
 class MyStringRef : public bslstl::StringRef {
   public:
-    MyStringRef(const char *data) : bslstl::StringRef(data) {}
-    MyStringRef(const bsl::string& string) : bslstl::StringRef(string) {}
+    // CREATORS
+    MyStringRef(const char *data)                                   // IMPLICIT
+    : bslstl::StringRef(data)
+    {}
+
+    MyStringRef(const bsl::string& string)                          // IMPLICIT
+    : bslstl::StringRef(string)
+    {}
+
     MyStringRef(const char *from, const char *to)
                                                : bslstl::StringRef(from, to) {}
 };
@@ -136,13 +143,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, TestEnum::Value rhs)
 {
     switch (rhs) {
       case TestEnum::VALUE1:
-        return stream << "VALUE1";
+        return stream << "VALUE1";                                    // RETURN
       case TestEnum::VALUE2:
-        return stream << "VALUE2";
+        return stream << "VALUE2";                                    // RETURN
       case TestEnum::VALUE3:
-        return stream << "VALUE3";
+        return stream << "VALUE3";                                    // RETURN
       default:
-        return stream << "(* UNKNOWN *)";
+        return stream << "(* UNKNOWN *)";                             // RETURN
     }
 }
 
@@ -426,8 +433,8 @@ class CustomizedInt {
     int d_value;  // stored value
 
     // FRIENDS
-    friend bool operator==(const CustomizedInt& lhs, const CustomizedInt& rhs);
-    friend bool operator!=(const CustomizedInt& lhs, const CustomizedInt& rhs);
+    friend bool operator==(const CustomizedInt&, const CustomizedInt&);
+    friend bool operator!=(const CustomizedInt&, const CustomizedInt&);
 
   public:
     // TYPES
@@ -664,10 +671,10 @@ class CustomizedString {
     bsl::string d_value;  // stored value
 
     // FRIENDS
-    friend bool operator==(const CustomizedString& lhs,
-                           const CustomizedString& rhs);
-    friend bool operator!=(const CustomizedString& lhs,
-                           const CustomizedString& rhs);
+    friend bool operator==(const CustomizedString&,
+                           const CustomizedString&);
+    friend bool operator!=(const CustomizedString&,
+                           const CustomizedString&);
 
   public:
     // TYPES
@@ -1742,6 +1749,10 @@ int main(int argc, char *argv[])
 { L_,  DFP(0.0),                    'N',     0,  "0.0",                    },
 { L_,  DFP(15.13),                  'N',     0,  "15.13",                  },
 { L_,  DFP(-9.876543210987654e307), 'N',     0,  "-9.876543210987654e+307" },
+{ L_,  Limits::max(),               'N',     0,  "9.999999999999999e+384"  },
+{ L_,  -Limits::max(),              'N',     0,  "-9.999999999999999e+384" },
+{ L_,  Limits::min(),               'N',     0,  "1e-383"                  },
+{ L_,  -Limits::min(),              'N',     0,  "-1e-383"                 },
 { L_,  Limits::infinity(),          'N',     0,   "INF",                   },
 { L_, -Limits::infinity(),          'N',     0,  "-INF",                   },
 { L_,  Limits::signaling_NaN(),     'N',     0,   "NaN",                   },
@@ -1750,6 +1761,8 @@ int main(int argc, char *argv[])
 { L_,  DFP(0.0),                    'F',     2,  "0.00",                   },
 { L_,  DFP(15.13),                  'F',     2,  "15.13",                  },
 { L_,  DFP(-9876543210987654.0),    'F',     0,  "-9876543210987654"       },
+{ L_,  Limits::min(),               'F',     0,  "0"                       },
+{ L_, -Limits::min(),               'F',     0,  "-0"                      },
 { L_,  Limits::infinity(),          'F',     0,   "INF",                   },
 { L_, -Limits::infinity(),          'F',     0,  "-INF",                   },
 { L_,  Limits::signaling_NaN(),     'F',     0,   "NaN",                   },
@@ -1758,6 +1771,10 @@ int main(int argc, char *argv[])
 { L_,  DFP(0.1),                    'S',     0,  "1e-01"                   },
 { L_,  DFP(15.13),                  'S',     3,  "1.513e+01",              },
 { L_,  DFP(-9.876543210987654e307), 'S',    11,  "-9.87654321099e+307"     },
+{ L_,  Limits::max(),               'S',     0,  "1e+385"                  },
+{ L_, -Limits::max(),               'S',     0,  "-1e+385"                 },
+{ L_,  Limits::min(),               'S',     0,  "1e-383"                  },
+{ L_, -Limits::min(),               'S',     0,  "-1e-383"                 },
 { L_,  Limits::infinity(),          'S',     0,   "INF",                   },
 { L_, -Limits::infinity(),          'S',     0,  "-INF",                   },
 { L_,  Limits::signaling_NaN(),     'S',     0,   "NaN",                   },
@@ -1766,7 +1783,9 @@ int main(int argc, char *argv[])
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const int   i         = ti % NUM_DATA;
+                const bool  DECIMAL   = NUM_DATA <= ti;
                 const int   LINE      = DATA[i].d_lineNum;
                 const Type  INPUT     = DATA[i].d_input;
                 const char  STYLE     = DATA[i].d_style;
@@ -1775,12 +1794,13 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
                 ss.precision(PRECISION);
-                if ('F' == STYLE) { ss << bsl::fixed;      }
-                if ('S' == STYLE) { ss << bsl::scientific; }
+                if ('F' == STYLE) ss << bsl::fixed;
+                if ('S' == STYLE) ss << bsl::scientific;
 
-                Util::printDefault(ss, INPUT);
+                DECIMAL ? Util::printDecimal(ss, INPUT)
+                        : Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), DECIMAL, RESULT == ss.str());
             }
 #undef DFP
         }

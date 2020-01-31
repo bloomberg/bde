@@ -421,13 +421,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, TestEnum::Value rhs)
 {
     switch (rhs) {
       case TestEnum::VALUE1:
-        return stream << "VALUE1";
+        return stream << "VALUE1";                                    // RETURN
       case TestEnum::VALUE2:
-        return stream << "VALUE2";
+        return stream << "VALUE2";                                    // RETURN
       case TestEnum::VALUE3:
-        return stream << "VALUE3";
+        return stream << "VALUE3";                                    // RETURN
       default:
-        return stream << "(* UNKNOWN *)";
+        return stream << "(* UNKNOWN *)";                             // RETURN
     }
 }
 
@@ -726,8 +726,8 @@ class CustomizedInt {
     int d_value;  // stored value
 
     // FRIENDS
-    friend bool operator==(const CustomizedInt& lhs, const CustomizedInt& rhs);
-    friend bool operator!=(const CustomizedInt& lhs, const CustomizedInt& rhs);
+    friend bool operator==(const CustomizedInt&, const CustomizedInt&);
+    friend bool operator!=(const CustomizedInt&, const CustomizedInt&);
 
   public:
     // TYPES
@@ -964,10 +964,10 @@ class CustomizedString {
     bsl::string d_value;  // stored value
 
     // FRIENDS
-    friend bool operator==(const CustomizedString& lhs,
-                           const CustomizedString& rhs);
-    friend bool operator!=(const CustomizedString& lhs,
-                           const CustomizedString& rhs);
+    friend bool operator==(const CustomizedString&,
+                           const CustomizedString&);
+    friend bool operator!=(const CustomizedString&,
+                           const CustomizedString&);
 
   public:
     // TYPES
@@ -2010,16 +2010,20 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE            = DATA[i].d_lineNum;
-                const char *INPUT           = DATA[i].d_input;
+            for (int ii = 0; ii < 2 * NUM_DATA; ++ii) {
+                const int   ti              = ii % NUM_DATA;
+                const bool  DECIMAL         = NUM_DATA <= ii;
+                const int   LINE            = DATA[ti].d_lineNum;
+                const char *INPUT           = DATA[ti].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
-                const Type  EXPECTED_RESULT = DATA[i].d_result;
+                const Type  EXPECTED_RESULT = DATA[ti].d_result;
 
                 Type mX;  const Type& X = mX;
 
-                int retCode = Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
+                int retCode = DECIMAL
+                            ? Util::parseDecimal(&mX, INPUT, INPUT_LENGTH)
+                            : Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
 
                 LOOP2_ASSERT(LINE, retCode, 0 == retCode);
 
@@ -4012,8 +4016,10 @@ int main(int argc, char *argv[])
             T_ P(blah);
         }
         bsl::string str = "VALUE1";
-        balxml::TypesParserUtil::parse(&blah, str.data(), str.length(),
-                                      bdlat_FormattingMode::e_DEFAULT);
+        balxml::TypesParserUtil::parse(&blah,
+                                       str.data(),
+                                       static_cast<int>(str.length()),
+                                       bdlat_FormattingMode::e_DEFAULT);
 
         if (veryVerbose) {
             T_ P(blah);
@@ -4023,8 +4029,8 @@ int main(int argc, char *argv[])
             bsl::string str = "2";
             float floatVal = 123.0f;
             balxml::TypesParserUtil::parse(&floatVal, str.data(),
-                                          str.length(),
-                                          bdlat_FormattingMode::e_DEFAULT);
+                                           static_cast<int>(str.length()),
+                                           bdlat_FormattingMode::e_DEFAULT);
             if (veryVerbose) {
               T_ P(floatVal);
             }
@@ -4037,8 +4043,8 @@ int main(int argc, char *argv[])
             bsl::string str = "2";
             double doubleVal = 123.0;
             balxml::TypesParserUtil::parse(&doubleVal, str.data(),
-                                          str.length(),
-                                          bdlat_FormattingMode::e_DEFAULT);
+                                           static_cast<int>(str.length()),
+                                           bdlat_FormattingMode::e_DEFAULT);
             if (veryVerbose) {
                 T_ P(doubleVal);
             }
@@ -4054,7 +4060,7 @@ int main(int argc, char *argv[])
             int ret = balxml::TypesParserUtil::parse(
                                               &dateTime,
                                               str.data(),
-                                              str.length(),
+                                              static_cast<int>(str.length()),
                                               bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {
@@ -4068,7 +4074,7 @@ int main(int argc, char *argv[])
             int ret = balxml::TypesParserUtil::parse(
                                               &timeValue,
                                               str.data(),
-                                              str.length(),
+                                              static_cast<int>(str.length()),
                                               bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {
@@ -4082,7 +4088,7 @@ int main(int argc, char *argv[])
             int ret = balxml::TypesParserUtil::parse(
                                               &dateValue,
                                               str.data(),
-                                              str.length(),
+                                              static_cast<int>(str.length()),
                                               bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {

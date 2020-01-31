@@ -16,7 +16,7 @@ BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 #include <bdlde_base64encoder.h>
 #include <bdldfp_decimalutil.h>
 
-#include <bsls_annotation.h>
+#include <bsla_fallthrough.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -387,7 +387,7 @@ const char *printTextReplacingXMLEscapes(
                 stream.write(runBegin, data - runBegin);
                 return 0;                                             // RETURN
             }
-          } BSLS_ANNOTATION_FALLTHROUGH;
+          } BSLA_FALLTHROUGH;
 
           case CONTROL_CHARACTER: {
             // Control characters, although allowed in XML 1.1, are discouraged
@@ -408,7 +408,7 @@ const char *printTextReplacingXMLEscapes(
             stream.write(runBegin, data - runBegin);
             stream.setstate(bsl::ios_base::failbit);
             return data;  // error position                           // RETURN
-          }
+          } break;
 
           case AMPERSAND: {
             stream.write(runBegin, data - runBegin);
@@ -592,8 +592,9 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
       case bdlb::Float::k_SNAN: {
         stream.setstate(bsl::ios_base::failbit);
         return stream;                                                // RETURN
-      }
+      } break;
       default: {
+        ;  // do nothing
       } break;
     }
 
@@ -657,8 +658,9 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
       case bdlb::Float::k_QNAN:
       case bdlb::Float::k_SNAN: {
         stream.setstate(bsl::ios_base::failbit);
+
         return stream;                                                // RETURN
-      }
+      } break;
       default: {
       } break;
     }
@@ -999,7 +1001,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
     return stream;
 }
 
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
+bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                              bsl::ostream&              stream,
                                              const bdldfp::Decimal64&   object,
                                              const EncoderOptions       *,

@@ -96,33 +96,34 @@ int parseDoubleImpl(double *result, const char *input, bool formatDecimal)
     }
 
     switch (input[0]) {
-      case 'N':
+      case 'N': {
         if (bsl::strcmp(input + 1, "aN") == 0) {
             *result = bsl::numeric_limits<double>::quiet_NaN();
             return BAEXML_SUCCESS;                                    // RETURN
         }
-        break;
-      case 'I':
+      } break;
+      case 'I': {
         if (bsl::strcmp(input + 1, "NF") == 0) {
             *result = bsl::numeric_limits<double>::infinity();
             return BAEXML_SUCCESS;                                    // RETURN
         }
-        break;
-      case '+':
+      } break;
+      case '+': {
         if (bsl::strcmp(input + 1, "INF") == 0) {
             *result = bsl::numeric_limits<double>::infinity();
             return BAEXML_SUCCESS;                                    // RETURN
         }
-        break;
-      case '-':
+      } break;
+      case '-': {
         if (bsl::strcmp(input + 1, "INF") == 0) {
             *result = -bsl::numeric_limits<double>::infinity();
             return BAEXML_SUCCESS;                                    // RETURN
         }
-        break;
+      } break;
 
-      default:
-        break;
+      default: {
+        ;  // do nothing
+      } break;
     } // End switch
 
     char *end = 0;
@@ -315,7 +316,7 @@ int parseDecimal64Impl(bdldfp::Decimal64  *result, const char *input)
     bdldfp::Decimal64 d;
     int rc = bdldfp::DecimalUtil::parseDecimal64(&d, input);
     if (rc != 0) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
     *result = d;
 
@@ -544,13 +545,13 @@ int TypesParserUtil_Imp::parseDefault(double                     *result,
     return parseDouble(result, input, inputLength, false);
 }
 
-int TypesParserUtil_Imp::parseDefault(bdldfp::Decimal64          *result,
+int TypesParserUtil_Imp::parseDecimal(bdldfp::Decimal64          *result,
                                       const char                 *input,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
     if (inputLength == 0) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (inputLength < BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE) {
@@ -558,12 +559,14 @@ int TypesParserUtil_Imp::parseDefault(bdldfp::Decimal64          *result,
         char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
         bsl::memcpy(buffer, input, inputLength);
         buffer[inputLength] = '\0';
-        return parseDecimal64Impl(result, buffer);
+
+        return parseDecimal64Impl(result, buffer);                    // RETURN
     }
     else {
         // Use a string for dynamic allocation.
         bsl::string tmp(input, inputLength);
-        return parseDecimal64Impl(result, tmp.c_str());
+
+        return parseDecimal64Impl(result, tmp.c_str());               // RETURN
     }
 }
 
