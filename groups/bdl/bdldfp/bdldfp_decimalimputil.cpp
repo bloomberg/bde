@@ -283,13 +283,14 @@ int formatScientific(char                      *buffer,
         if (maxDigit - 1 > cfg.precision()) {
             // round to the specified precision after point in scientific
             // format
-            int roundExp = -exponent - maxDigit + 1 + cfg.precision();
+            int roundExp = cfg.precision() - maxDigit + 1;
 
-            value = DecimalImpUtil::scaleB(value, roundExp);
-            value = DecimalImpUtil::round(value);
-            value = DecimalImpUtil::scaleB(value, -roundExp);
+            value = DecimalImpUtil::scaleB(value, -exponent);
+            value = DecimalImpUtil::round(value, roundExp);
 
-            cls = DecimalImpUtil::decompose(&sign, &s, &exponent, value);
+            cls = DecimalImpUtil::decompose(&sign, &s, &roundExp, value);
+            exponent += roundExp;
+
             BSLS_ASSERT(cls == FP_ZERO   ||
                         cls == FP_NORMAL ||
                         cls == FP_SUBNORMAL);
