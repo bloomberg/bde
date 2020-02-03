@@ -6156,24 +6156,52 @@ int main(int argc, char *argv[])
         //   DRQS 155023497: 'erase' MEMORY CORRUPTION
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            cout << "DRQS 155023497: 'erase' MEMORY CORRUPTION\n"
-                 << "=========================================\n";
+        if (verbose) cout << "DRQS 155023497: 'erase' MEMORY CORRUPTION\n"
+                          << "=========================================\n";
+
+        bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+
+        bsls::Types::Int64 numBytesInUse;
+
+        numBytesInUse = supplied.numBytesInUse();
+        {
+            bdlcc::StripedUnorderedMap<int, bsl::string> mX(1, 4, &supplied);
+
+            mX.disableRehash();
+
+            for (int i = 0; i < 100; ++i) {
+                mX.setValue(i, "test");
+            }
+
+            for (int i = 90; i < 100; ++i) {
+                mX.erase(i);
+            }
+
+            mX.setValue(101, "test");
         }
+        ASSERT(numBytesInUse == supplied.numBytesInUse());
 
-        bdlcc::StripedUnorderedMap<int, bsl::string> mX(1);
+        numBytesInUse = supplied.numBytesInUse();
+        {
+            bdlcc::StripedUnorderedMap<int, bsl::string> mX(1, 4, &supplied);
 
-        mX.disableRehash();
+            mX.disableRehash();
 
-        for (int i = 0; i < 100; ++i) {
-            mX.setValue(i, "test");
+            for (int i = 0; i < 100; ++i) {
+                mX.setValue(i, "test");
+            }
+
+            bsl::vector<int> toErase;
+            for (int i = 90; i < 100; ++i) {
+                toErase.push_back(i);
+            }
+            bsl::size_t numErased = mX.eraseBulk(toErase.begin(),
+                                                 toErase.end());
+            ASSERTV(numErased, 10 == numErased);
+
+            mX.setValue(101, "test");
         }
-
-        for (int i = 90; i < 100; ++i) {
-            mX.erase(i);
-        }
-
-        mX.setValue(101, "test");
+        ASSERT(numBytesInUse == supplied.numBytesInUse());
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
       case 18: {
