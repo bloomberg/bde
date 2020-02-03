@@ -148,9 +148,10 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [20] USAGE EXAMPLE
 // [15] TYPE TRAITS
 // [18] MULTI-THREADED STRESS TEST
-// [19] USAGE EXAMPLE
+// [19] DRQS 155023497: 'erase' MEMORY CORRUPTION
 // [-1] PERFORMANCE TEST INT->STRING
 // [-2] PERFORMANCE TEST STRING->INT64
 // [-4] READ WRITE PERFORMANCE
@@ -6115,7 +6116,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6137,6 +6138,42 @@ int main(int argc, char *argv[])
         usage::example2();
         usage::example3();
 
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // DRQS 155023497: 'erase' MEMORY CORRUPTION
+        //
+        // Concerns:
+        //: 1 The method 'erase' must not leak or corrupt memory.  This test
+        //:   case has reported leaked memory when running normally and an
+        //:   invalid write when running with 'valgrind'.
+        //
+        // Plan:
+        //: 1 Verify memory is not leaked and, manually, that 'valgrind' does
+        //:   not report any issues.  (C-1)
+        //
+        // Testing:
+        //   DRQS 155023497: 'erase' MEMORY CORRUPTION
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 155023497: 'erase' MEMORY CORRUPTION\n"
+                 << "=========================================\n";
+        }
+
+        bdlcc::StripedUnorderedMap<int, bsl::string> mX(1);
+
+        mX.disableRehash();
+
+        for (int i = 0; i < 100; ++i) {
+            mX.setValue(i, "test");
+        }
+
+        for (int i = 90; i < 100; ++i) {
+            mX.erase(i);
+        }
+
+        mX.setValue(101, "test");
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
       case 18: {
@@ -6817,7 +6854,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
