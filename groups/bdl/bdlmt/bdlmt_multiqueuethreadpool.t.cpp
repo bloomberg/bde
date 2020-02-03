@@ -1587,7 +1587,7 @@ int main(int argc, char *argv[]) {
         //:
         //: 2 From the main thread, use 'assignBatchSize' to set the batching
         //:   size and submit at least this number of jobs to the queue with
-        //:   the first job using a barrier to sync the thread pool thread with
+        //:   the first job using a barrier to sync the thread-pool thread with
         //:   the main thread twice.  After the first synchronization, the main
         //:   thread will delete the queue containing the jobs.  After the
         //:   second synchronization, the main thread will verify the number
@@ -1611,21 +1611,28 @@ int main(int argc, char *argv[]) {
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
 
             mX.start();
+
+            ASSERT(-1 == X.batchSize(0));
+
+            ASSERT( 0 != mX.assignBatchSize(0, 2));
+
             int queueId = mX.createQueue();
 
-            ASSERT(1 == X.batchSize(queueId));
+            ASSERT( 1 == X.batchSize(queueId));
+            ASSERT(-1 == X.batchSize(queueId + 1));
 
-            mX.assignBatchSize(queueId, 2);
+            ASSERT( 0 == mX.assignBatchSize(queueId, 2));
+            ASSERT( 0 != mX.assignBatchSize(queueId + 1, 2));
 
-            ASSERT(2 == X.batchSize(queueId));
+            ASSERT( 2 == X.batchSize(queueId));
 
-            mX.assignBatchSize(queueId, 3);
+            ASSERT( 0 == mX.assignBatchSize(queueId, 3));
 
-            ASSERT(3 == X.batchSize(queueId));
+            ASSERT( 3 == X.batchSize(queueId));
 
-            mX.assignBatchSize(queueId, 1);
+            ASSERT( 0 == mX.assignBatchSize(queueId, 1));
 
-            ASSERT(1 == X.batchSize(queueId));
+            ASSERT( 1 == X.batchSize(queueId));
         }
 
         if (verbose) cout << "\nTesting 'assignBatchSize'." << endl;
