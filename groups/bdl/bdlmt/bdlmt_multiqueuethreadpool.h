@@ -786,8 +786,8 @@ class MultiQueueThreadPool {
 
     // ACCESSORS
     int batchSize(int id) const;
-        // Return an instantaneous snapshot of the execution batch size of
-        // the queue associated with the specified 'id', or -1 if 'id' is not a
+        // Return an instantaneous snapshot of the execution batch size of the
+        // queue associated with the specified 'id', or -1 if 'id' is not a
         // valid queue id.
 
     bool isPaused(int id) const;

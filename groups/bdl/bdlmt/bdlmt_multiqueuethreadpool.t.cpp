@@ -59,13 +59,6 @@ using namespace BloombergLP;
 //                                  Overview
 //                                  --------
 // ----------------------------------------------------------------------------
-// 'bdlmt_multiqueuethreadpool' private interface
-// MANIPULATORS
-// [ 2] void deleteQueueCb(int id, const bsl::function<void()>&
-//                                                             cleanupFunctor);
-// [ 2] void processQueueCb(int id);
-//
-// 'bdlmt_multiqueuethreadpool' public interface
 // CREATORS
 // [ 2] bdlmt::MultiQueueThreadPool(
 //                         const bslmt::ThreadAttributes&  threadAttributes,
@@ -80,7 +73,7 @@ using namespace BloombergLP;
 // MANIPULATORS
 // [33] void assignBatchSize(int id, int batchSize);
 // [ 2] int createQueue();
-// [ 2] int deleteQueue(int id, const bsl::function<void()>& cleanupFunctor);
+// [ 2] int deleteQueue(int id, const bsl::function<void()>& cleanupFunc);
 // [ 2] int enqueueJob(int id, const bsl::function<void()>& functor);
 // [ 6] int enableQueue(int id);
 // [ 6] int disableQueue(int id);
@@ -4590,8 +4583,7 @@ int main(int argc, char *argv[]) {
         //                 bslma::Allocator               *basicAllocator = 0);
         //   ~bdlmt::MultiQueueThreadPool();
         //   int createQueue();
-        //   int deleteQueue(int id, const bsl::function<void()>&
-        //                                                     cleanupFunctor);
+        //   int deleteQueue(int id, const bsl::function<void()>& cleanupFunc);
         //   int enqueueJob(int id, const bsl::function<void()>& functor);
         //   void start();
         //   void stop();
