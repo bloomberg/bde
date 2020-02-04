@@ -5288,7 +5288,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                               << "Test 'eraseBulk' First" << endl;
 
         const TestValues     VALUES; // contains 52 distinct increasing values
-        const bsl::size_t    MAX_LENGTH = 2;
+        const bsl::size_t    MAX_LENGTH = 15;
         bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
         // Try to erase from an empty hash map, 'e_FIRST'.
@@ -5305,6 +5305,81 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                                                   eraseKeys.cend());
             ASSERTV(0 == count);
             ASSERTV(0 == X.size());
+        }
+
+        // Verify the tail pointer is maintained correctly.
+        {
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            sam.reset();
+            {
+                Obj mX(1, 1, &supplied);
+
+                mX.disableRehash();
+
+                for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
+                    mX.insertUnique(VALUES[v].first, VALUES[v].second);
+                }
+
+                bsl::vector<KEY> eraseKeys;
+                for (bsl::size_t v = MAX_LENGTH / 2; v < MAX_LENGTH; ++v) {
+                    eraseKeys.push_back(VALUES[v].first);
+                }
+                ASSERT(eraseKeys.size() == mX.eraseBulkFirst(
+                                                            eraseKeys.cbegin(),
+                                                            eraseKeys.cend()));
+
+                mX.insertUnique(VALUES[MAX_LENGTH - 1].first,
+                                VALUES[MAX_LENGTH - 1].second);
+            }
+            ASSERT(sam.isInUseSame());
+
+            sam.reset();
+            {
+                Obj mX(1, 1, &supplied);
+
+                mX.disableRehash();
+
+                for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
+                    mX.insertUnique(VALUES[v].first, VALUES[v].second);
+                }
+
+                bsl::vector<KEY> eraseKeys;
+                for (bsl::size_t v = MAX_LENGTH / 2; v < MAX_LENGTH; ++v) {
+                    eraseKeys.push_back(VALUES[v].first);
+                }
+                ASSERT(eraseKeys.size() == mX.eraseBulkAll(eraseKeys.cbegin(),
+                                                           eraseKeys.cend()));
+
+                mX.insertUnique(VALUES[MAX_LENGTH - 1].first,
+                                VALUES[MAX_LENGTH - 1].second);
+            }
+            ASSERT(sam.isInUseSame());
+
+            sam.reset();
+            {
+                Obj mX(1, 1, &supplied);
+
+                mX.disableRehash();
+
+                for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
+                    mX.insertAlways(VALUES[v].first, VALUES[v].second);
+                    mX.insertAlways(VALUES[v].first, VALUES[v].second);
+                    mX.insertAlways(VALUES[v].first, VALUES[v].second);
+                }
+
+                bsl::vector<KEY> eraseKeys;
+                for (bsl::size_t v = MAX_LENGTH / 2; v < MAX_LENGTH; ++v) {
+                    eraseKeys.push_back(VALUES[v].first);
+                }
+                ASSERT(3 * eraseKeys.size() == mX.eraseBulkAll(
+                                                            eraseKeys.cbegin(),
+                                                            eraseKeys.cend()));
+
+                mX.insertAlways(VALUES[MAX_LENGTH - 1].first,
+                                VALUES[MAX_LENGTH - 1].second);
+            }
+            ASSERT(sam.isInUseSame());
         }
 
         // Test unique keys, 'eraseBulkFirst'.
@@ -5812,6 +5887,70 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
 
             rc = mX.eraseAll(VALUES[0].first);
             ASSERTV(rc == 0);
+        }
+
+        // Verify the tail pointer is maintained correctly.
+        {
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            sam.reset();
+            {
+                Obj mX(1, 1, &supplied);
+
+                mX.disableRehash();
+
+                for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
+                    mX.insertUnique(VALUES[v].first, VALUES[v].second);
+                }
+
+                for (bsl::size_t v = MAX_LENGTH / 2; v < MAX_LENGTH; ++v) {
+                    ASSERT(1 == mX.eraseFirst(VALUES[v].first));
+                }
+
+                mX.insertUnique(VALUES[MAX_LENGTH - 1].first,
+                                VALUES[MAX_LENGTH - 1].second);
+            }
+            ASSERT(sam.isInUseSame());
+
+            sam.reset();
+            {
+                Obj mX(1, 1, &supplied);
+
+                mX.disableRehash();
+
+                for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
+                    mX.insertUnique(VALUES[v].first, VALUES[v].second);
+                }
+
+                for (bsl::size_t v = MAX_LENGTH / 2; v < MAX_LENGTH; ++v) {
+                    ASSERT(1 == mX.eraseAll(VALUES[v].first));
+                }
+
+                mX.insertUnique(VALUES[MAX_LENGTH - 1].first,
+                                VALUES[MAX_LENGTH - 1].second);
+            }
+            ASSERT(sam.isInUseSame());
+
+            sam.reset();
+            {
+                Obj mX(1, 1, &supplied);
+
+                mX.disableRehash();
+
+                for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
+                    mX.insertAlways(VALUES[v].first, VALUES[v].second);
+                    mX.insertAlways(VALUES[v].first, VALUES[v].second);
+                    mX.insertAlways(VALUES[v].first, VALUES[v].second);
+                }
+
+                for (bsl::size_t v = MAX_LENGTH / 2; v < MAX_LENGTH; ++v) {
+                    ASSERT(3 == mX.eraseAll(VALUES[v].first));
+                }
+
+                mX.insertAlways(VALUES[MAX_LENGTH - 1].first,
+                                VALUES[MAX_LENGTH - 1].second);
+            }
+            ASSERT(sam.isInUseSame());
         }
 
         // This is for unique keys.
