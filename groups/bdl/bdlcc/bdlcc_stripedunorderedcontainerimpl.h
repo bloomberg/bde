@@ -1714,12 +1714,9 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::erase(
     while (*prevNodeAddress) {
         Node *node = *prevNodeAddress;
         if (d_comparator((*prevNodeAddress)->key(), key)) {
-            if (bucket.tail() != node) {
-                *prevNodeAddress = node->next();
-            }
-            else {
+            *prevNodeAddress = node->next();
+            if (bucket.tail() == node) {
                 bucket.setTail(prevNode);
-                *prevNodeAddress = NULL;
             }
             d_allocator_p->deleteObject(node);
             bucket.incrementSize(-1);
@@ -1789,12 +1786,9 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
             while (*prevNodeAddress) {
                 Node *node = *prevNodeAddress;
                 if (d_comparator((*prevNodeAddress)->key(), key)) {
-                    if (bucket.tail() != node) {
-                        *prevNodeAddress = node->next();
-                    }
-                    else {
+                    *prevNodeAddress = node->next();
+                    if (bucket.tail() == node) {
                         bucket.setTail(prevNode);
-                        *prevNodeAddress = NULL;
                     }
                     d_allocator_p->deleteObject(node);
                     bucket.incrementSize(-1);
