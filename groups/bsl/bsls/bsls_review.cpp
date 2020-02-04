@@ -159,6 +159,7 @@ void Review::failByAbort(const ReviewViolation& violation)
 }
 
 #define IS_POWER_OF_TWO(X) (0 == ((X) & ((X) - 1)))
+#define MAX_STACK_SIZE 1024
 
 void Review::failByLog(const ReviewViolation& violation)
 {
@@ -168,9 +169,13 @@ void Review::failByLog(const ReviewViolation& violation)
 
         int skipped = count - (count >> 1) - 1;
 
-        char stack[1024];
-        bsls::StackAddressUtil::formatCheapStack(stack,1024);
-
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+        const char *stack = "";
+#else
+        char stack[MAX_STACK_SIZE + 1] = { ' ', 0 };        
+        bsls::StackAddressUtil::formatCheapStack(&stack[1],MAX_STACK_SIZE);
+#endif
+        
         const char *comment = violation.comment();
         if (!comment) {
             comment = "(* Unspecified Comment Text *)";
@@ -200,7 +205,7 @@ void Review::failByLog(const ReviewViolation& violation)
                                      file,
                                      violation.lineNumber(),
                                      "BSLS_REVIEW failure: (level:%s"
-                                     " skipped:%d) '%s' %s ",
+                                     " skipped:%d) '%s'%s",
                                      level,
                                      skipped,
                                      comment,
@@ -210,7 +215,7 @@ void Review::failByLog(const ReviewViolation& violation)
             Log::logFormattedMessage(LogSeverity::e_ERROR,
                                      file,
                                      violation.lineNumber(),
-                                     "BSLS_REVIEW failure: (level:%s) '%s' %s",
+                                     "BSLS_REVIEW failure: (level:%s) '%s'%s",
                                      level,
                                      comment,
                                      stack);
