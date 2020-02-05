@@ -1710,10 +1710,14 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::erase(
     bsl::size_t count = 0;
 
     Node **prevNodeAddress = bucket.headAddress();
+    Node  *prevNode        = NULL;
     while (*prevNodeAddress) {
-        if (d_comparator((*prevNodeAddress)->key(), key)) {
-            Node *node = *prevNodeAddress;
+        Node *node = *prevNodeAddress;
+        if (d_comparator(node->key(), key)) {
             *prevNodeAddress = node->next();
+            if (bucket.tail() == node) {
+                bucket.setTail(prevNode);
+            }
             d_allocator_p->deleteObject(node);
             bucket.incrementSize(-1);
             d_numElements.addRelaxed(-1);
@@ -1723,7 +1727,8 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::erase(
             }
         }
         else {
-            prevNodeAddress = (*prevNodeAddress)->nextAddress();
+            prevNode        = node;
+            prevNodeAddress = node->nextAddress();
         }
     }
     return count;
@@ -1767,54 +1772,35 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
         for (; j < dataSize && sortIdxs[j].d_stripeIdx == curStripeIdx; ++j) {
             int          dataIdx   = sortIdxs[j].d_dataIdx;
             bsl::size_t  bucketIdx =
-                bslalg::HashTableImpUtil::computeBucketIndex(
+                                  bslalg::HashTableImpUtil::computeBucketIndex(
                                                          sortIdxs[j].d_hashVal,
                                                          d_numBuckets);
 
             StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
                                                           d_buckets[bucketIdx];
-            if (bucket.head() == NULL) {
-                continue;
-            }
 
-            const KEY&   key   = first[dataIdx];
+            const KEY& key  = first[dataIdx];
 
-            bool continueFlag = false;
-            while (d_comparator(bucket.head()->key(), key)) {
-                StripedUnorderedContainerImpl_Node<KEY, VALUE> *nextNode =
-                                                         bucket.head()->next();
-                d_allocator_p->deleteObject(bucket.head());
-                bucket.setHead(nextNode);
-                bucket.incrementSize(-1);
-                ++count;
-                d_numElements.addRelaxed(-1);
-                if (false == eraseAll || bucket.head() == NULL) {
-                    continueFlag = true;
-                    break;
-                }
-            }
-            if (continueFlag) {
-                continue;
-            }
-            // Loop on the elements in the list
-            StripedUnorderedContainerImpl_Node<KEY, VALUE> *prevNode =
-                                                                 bucket.head();
-            StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode =
-                                                         bucket.head()->next();
-            if (curNode == NULL) {
-                continue;
-            }
-            for (; curNode->next() != NULL;
-                               prevNode = curNode, curNode = curNode->next()) {
-                if (d_comparator(curNode->key(), key)) {
-                    prevNode->setNext(curNode->next());
-                    d_allocator_p->deleteObject(curNode);
+            Node **prevNodeAddress = bucket.headAddress();
+            Node  *prevNode        = NULL;
+            while (*prevNodeAddress) {
+                Node *node = *prevNodeAddress;
+                if (d_comparator(node->key(), key)) {
+                    *prevNodeAddress = node->next();
+                    if (bucket.tail() == node) {
+                        bucket.setTail(prevNode);
+                    }
+                    d_allocator_p->deleteObject(node);
                     bucket.incrementSize(-1);
-                    ++count;
                     d_numElements.addRelaxed(-1);
-                    if (false == eraseAll) {
+                    ++count;
+                    if (!eraseAll) {
                         break;
                     }
+                }
+                else {
+                    prevNode        = node;
+                    prevNodeAddress = node->nextAddress();
                 }
             }
         }
@@ -2797,7 +2783,7 @@ struct UsesBslmaAllocator<bdlcc::StripedUnorderedContainerImpl<KEY,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
 // use this file except in compliance with the License.  You may obtain a copy
