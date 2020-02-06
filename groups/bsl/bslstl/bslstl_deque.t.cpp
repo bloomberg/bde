@@ -1850,14 +1850,6 @@ struct TestDriver {
                         ? e_ADAPTOR
                         : e_STATEFUL;
 
-    static
-    const bool s_keyIsMoveEnabled =
-                     bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
-                     bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
-                     bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value ||
-                     bsl::is_same<TYPE,
-                               bsltf::WellBehavedMoveOnlyAllocTestType>::value;
-
     // CLASS METHODS
     static
     const char *allocCategoryAsStr()
