@@ -1736,61 +1736,65 @@ int main(int argc, char *argv[])
 
 #define DFP(X) BDLDFP_DECIMAL_DD(X)
 
-            const struct {
+            const struct Data {
                 int         d_lineNum;
                 Type        d_input;
                 char        d_style;
                 int         d_precision;
                 const char *d_result;
+                bool        d_weird;
             } DATA[] = {
 //---------------------------------------------------------------------------
-// LN |           VALUE           | STYLE | PRS |          RESULT
+// LN  VALUE                        STYLE     RESULT
+//                                        PRS                            WEIRD
 //---------------------------------------------------------------------------
-{ L_,  DFP(0.0),                    'N',     0,  "0.0",                    },
-{ L_,  DFP(15.13),                  'N',     0,  "15.13",                  },
-{ L_,  DFP(-9.876543210987654e307), 'N',     0,  "-9.876543210987654e+307" },
-{ L_,  Limits::max(),               'N',     0,  "9.999999999999999e+384"  },
-{ L_,  -Limits::max(),              'N',     0,  "-9.999999999999999e+384" },
-{ L_,  Limits::min(),               'N',     0,  "1e-383"                  },
-{ L_,  -Limits::min(),              'N',     0,  "-1e-383"                 },
-{ L_,  Limits::infinity(),          'N',     0,   "INF",                   },
-{ L_, -Limits::infinity(),          'N',     0,  "-INF",                   },
-{ L_,  Limits::signaling_NaN(),     'N',     0,   "NaN",                   },
-{ L_,  Limits::quiet_NaN(),         'N',     0,   "NaN",                   },
+{ L_,  DFP(0.0),                    'N',  0,  "0.0",                     0 },
+{ L_,  DFP(15.13),                  'N',  0,  "15.13",                   0 },
+{ L_,  DFP(-9.876543210987654e307), 'N',  0,  "-9.876543210987654e+307", 0 },
+{ L_,  Limits::max(),               'N',  0,  "9.999999999999999e+384",  0 },
+{ L_,  -Limits::max(),              'N',  0,  "-9.999999999999999e+384", 0 },
+{ L_,  Limits::min(),               'N',  0,  "1e-383",                  0 },
+{ L_,  -Limits::min(),              'N',  0,  "-1e-383",                 0 },
+{ L_,  Limits::infinity(),          'N',  0,   "INF",                    1 },
+{ L_, -Limits::infinity(),          'N',  0,  "-INF",                    1 },
+{ L_,  Limits::signaling_NaN(),     'N',  0,   "NaN",                    1 },
+{ L_,  Limits::quiet_NaN(),         'N',  0,   "NaN",                    1 },
 
-{ L_,  DFP(0.0),                    'F',     2,  "0.00",                   },
-{ L_,  DFP(15.13),                  'F',     2,  "15.13",                  },
-{ L_,  DFP(-9876543210987654.0),    'F',     0,  "-9876543210987654"       },
-{ L_,  Limits::min(),               'F',     0,  "0"                       },
-{ L_, -Limits::min(),               'F',     0,  "-0"                      },
-{ L_,  Limits::infinity(),          'F',     0,   "INF",                   },
-{ L_, -Limits::infinity(),          'F',     0,  "-INF",                   },
-{ L_,  Limits::signaling_NaN(),     'F',     0,   "NaN",                   },
-{ L_,  Limits::quiet_NaN(),         'F',     0,   "NaN",                   },
+{ L_,  DFP(0.0),                    'F',  2,  "0.00",                    0 },
+{ L_,  DFP(15.13),                  'F',  2,  "15.13",                   0 },
+{ L_,  DFP(-9876543210987654.0),    'F',  0,  "-9876543210987654",       0 },
+{ L_,  Limits::min(),               'F',  0,  "0",                       0 },
+{ L_, -Limits::min(),               'F',  0,  "-0",                      0 },
+{ L_,  Limits::infinity(),          'F',  0,   "INF",                    1 },
+{ L_, -Limits::infinity(),          'F',  0,  "-INF",                    1 },
+{ L_,  Limits::signaling_NaN(),     'F',  0,   "NaN",                    1 },
+{ L_,  Limits::quiet_NaN(),         'F',  0,   "NaN",                    1 },
 
-{ L_,  DFP(0.1),                    'S',     0,  "1e-01"                   },
-{ L_,  DFP(15.13),                  'S',     3,  "1.513e+01",              },
-{ L_,  DFP(-9.876543210987654e307), 'S',    11,  "-9.87654321099e+307"     },
-{ L_,  Limits::max(),               'S',     0,  "1e+385"                  },
-{ L_, -Limits::max(),               'S',     0,  "-1e+385"                 },
-{ L_,  Limits::min(),               'S',     0,  "1e-383"                  },
-{ L_, -Limits::min(),               'S',     0,  "-1e-383"                 },
-{ L_,  Limits::infinity(),          'S',     0,   "INF",                   },
-{ L_, -Limits::infinity(),          'S',     0,  "-INF",                   },
-{ L_,  Limits::signaling_NaN(),     'S',     0,   "NaN",                   },
-{ L_,  Limits::quiet_NaN(),         'S',     0,   "NaN",                   },
+{ L_,  DFP(0.1),                    'S',  0,  "1e-01",                   0 },
+{ L_,  DFP(15.13),                  'S',  3,  "1.513e+01",               0 },
+{ L_,  DFP(-9.876543210987654e307), 'S', 11,  "-9.87654321099e+307",     0 },
+{ L_,  Limits::max(),               'S',  0,  "1e+385",                  0 },
+{ L_, -Limits::max(),               'S',  0,  "-1e+385",                 0 },
+{ L_,  Limits::min(),               'S',  0,  "1e-383",                  0 },
+{ L_, -Limits::min(),               'S',  0,  "-1e-383",                 0 },
+{ L_,  Limits::infinity(),          'S',  0,   "INF",                    1 },
+{ L_, -Limits::infinity(),          'S',  0,  "-INF",                    1 },
+{ L_,  Limits::signaling_NaN(),     'S',  0,   "NaN",                    1 },
+{ L_,  Limits::quiet_NaN(),         'S',  0,   "NaN",                    1 },
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
-                const int   i         = ti % NUM_DATA;
-                const bool  DECIMAL   = NUM_DATA <= ti;
-                const int   LINE      = DATA[i].d_lineNum;
-                const Type  INPUT     = DATA[i].d_input;
-                const char  STYLE     = DATA[i].d_style;
-                const char *RESULT    = DATA[i].d_result;
-                const int   PRECISION = DATA[i].d_precision;
+                const bool  DECIMAL   = ti % 2;
+                const Data& data      = DATA[ti / 2];
+                const int   LINE      = data.d_lineNum;
+                const Type  INPUT     = data.d_input;
+                const char  STYLE     = data.d_style;
+                const char *RESULT    = data.d_result;
+                const int   PRECISION = data.d_precision;
+                const bool  WEIRD     = data.d_weird;
+                const bool  SUCCESS   = !DECIMAL || !WEIRD;
 
                 bsl::stringstream ss;
                 ss.precision(PRECISION);
@@ -1800,7 +1804,10 @@ int main(int argc, char *argv[])
                 DECIMAL ? Util::printDecimal(ss, INPUT)
                         : Util::printDefault(ss, INPUT);
 
-                ASSERTV(LINE, ss.str(), DECIMAL, RESULT == ss.str());
+                ASSERTV(LINE, SUCCESS, ss.fail(), !SUCCESS == ss.fail());
+
+                ASSERTV(LINE, SUCCESS, ss.str(), DECIMAL,
+                                          (SUCCESS ? RESULT : "") == ss.str());
             }
 #undef DFP
         }

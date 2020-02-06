@@ -1986,52 +1986,57 @@ int main(int argc, char *argv[])
         {
             typedef bdldfp::Decimal64 Type;
 
-            Type posInf = bsl::numeric_limits<Type>::infinity();
-            Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
+            const Type posInf = bsl::numeric_limits<Type>::infinity();
+            const Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
+            const Type qNull  = BDLDFP_DECIMAL_DD(-2.3e5);
 
-            static const struct {
+            static const struct Data {
                 int         d_lineNum;
                 const char *d_input;
                 Type        d_result;
+                bool        d_weird;
             } DATA[] = {
-                //line    input        result
-                //----    -----        ------
-                { L_,     "-1X",       BDLDFP_DECIMAL_DD(-1.0),     },
-                { L_,     "-0.1X",     BDLDFP_DECIMAL_DD(-0.1),     },
-                { L_,     "0X",        BDLDFP_DECIMAL_DD(0.0),      },
-                { L_,     "0.1X",      BDLDFP_DECIMAL_DD(0.1),      },
-                { L_,     "1X",        BDLDFP_DECIMAL_DD(1.0),      },
-                { L_,     "123.4X",    BDLDFP_DECIMAL_DD(123.4),    },
-                { L_,     "0.005X",    BDLDFP_DECIMAL_DD(0.005),    },
-                { L_,     "9.99E306X", BDLDFP_DECIMAL_DD(9.99E306), },
-                { L_,     "+INFX",     posInf,                      },
-                { L_,     "-INFX",     -posInf,                     },
-                { L_,     "NaNX",      qNaN                         },
+                //line    input        result                       weird
+                //----    -----        ------                       -----
+                { L_,     "-1X",       BDLDFP_DECIMAL_DD(-1.0),     0 },
+                { L_,     "-0.1X",     BDLDFP_DECIMAL_DD(-0.1),     0 },
+                { L_,     "0X",        BDLDFP_DECIMAL_DD(0.0),      0 },
+                { L_,     "0.1X",      BDLDFP_DECIMAL_DD(0.1),      0 },
+                { L_,     "1X",        BDLDFP_DECIMAL_DD(1.0),      0 },
+                { L_,     "123.4X",    BDLDFP_DECIMAL_DD(123.4),    0 },
+                { L_,     "0.005X",    BDLDFP_DECIMAL_DD(0.005),    0 },
+                { L_,     "9.99E306X", BDLDFP_DECIMAL_DD(9.99E306), 0 },
+                { L_,     "+INFX",     posInf,                      1 },
+                { L_,     "-INFX",     -posInf,                     1 },
+                { L_,     "NaNX",      qNaN,                        1 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int ii = 0; ii < 2 * NUM_DATA; ++ii) {
-                const int   ti              = ii % NUM_DATA;
-                const bool  DECIMAL         = NUM_DATA <= ii;
-                const int   LINE            = DATA[ti].d_lineNum;
-                const char *INPUT           = DATA[ti].d_input;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const bool  DECIMAL         = ti % 2;
+                const Data& data            = DATA[ti / 2];
+                const int   LINE            = data.d_lineNum;
+                const char *INPUT           = data.d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
-                const Type  EXPECTED_RESULT = DATA[ti].d_result;
+                const Type  EXPECTED_RESULT = data.d_result;
+                const bool  WEIRD           = data.d_weird;
+                const bool  SUCCESS         = !DECIMAL || !WEIRD;
 
-                Type mX;  const Type& X = mX;
+                Type mX(qNull);  const Type& X = mX;
 
-                int retCode = DECIMAL
-                            ? Util::parseDecimal(&mX, INPUT, INPUT_LENGTH)
-                            : Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
+                int rc = DECIMAL
+                         ? Util::parseDecimal(&mX, INPUT, INPUT_LENGTH)
+                         : Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+                ASSERTV(LINE, rc, SUCCESS, SUCCESS == (0 == rc));
 
-                if (bdldfp::DecimalUtil::isNan(EXPECTED_RESULT)) {
-                    LOOP2_ASSERT(LINE, X, bdldfp::DecimalUtil::isNan(X));
+                if (SUCCESS && bdldfp::DecimalUtil::isNan(EXPECTED_RESULT)) {
+                    ASSERTV(LINE, X, bdldfp::DecimalUtil::isNan(X));
                 }
                 else {
-                    LOOP2_ASSERT(LINE, X, EXPECTED_RESULT == X);
+                    ASSERTV(LINE, X, EXPECTED_RESULT, SUCCESS,
+                                     (SUCCESS ? EXPECTED_RESULT : qNull) == X);
                 }
             }
         }

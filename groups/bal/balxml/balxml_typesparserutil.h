@@ -1151,15 +1151,6 @@ int TypesParserUtil_Imp::parseDefault(bsls::Types::Uint64        *result,
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bdldfp::Decimal64          *result,
-                                      const char                 *input,
-                                      int                         inputLength,
-                                      bdlat_TypeCategory::Simple  simple)
-{
-    return parseDecimal(result, input, inputLength, simple);
-}
-
-inline
 int TypesParserUtil_Imp::parseDefault(bsl::string                *result,
                                       const char                 *input,
                                       int                         inputLength,

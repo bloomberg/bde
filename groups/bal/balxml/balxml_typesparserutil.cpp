@@ -21,6 +21,8 @@ BSLS_IDENT_RCSID(balxml_typesparserutil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_decimalutil.h>
 
+#include <bsla_fallthrough.h>
+
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -33,6 +35,7 @@ BSLS_IDENT_RCSID(balxml_typesparserutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace {
+namespace u {
 
 // HELPER FUNCTIONS
 
@@ -179,13 +182,13 @@ int parseDouble(double     *result,
         bsl::memcpy(buffer, input, inputLength);
         buffer[inputLength] = '\0';
 
-        return parseDoubleImpl(result, buffer, formatDecimal);        // RETURN
+        return u::parseDoubleImpl(result, buffer, formatDecimal);     // RETURN
 
     }
     else {
         // Use a string for dynamic allocation.
         bsl::string tmp(input, inputLength);
-        return parseDoubleImpl(result, tmp.c_str(), formatDecimal);   // RETURN
+        return u::parseDoubleImpl(result, tmp.c_str(), formatDecimal);// RETURN
     }
 }
 
@@ -306,7 +309,9 @@ int parseUnsignedDecimal(INT_TYPE *result, const char *input, int inputLength)
     return BAEXML_SUCCESS;
 }
 
-int parseDecimal64Impl(bdldfp::Decimal64  *result, const char *input)
+int parseDecimal64Impl(bdldfp::Decimal64  *result,
+                       const char         *input,
+                       bool                decimalMode)
     // Load, into the specificed 'result', the 'Decimal64' value represented by
     // the specified 'input' string.  Return 0 on success and non-zero
     // otherwise.
@@ -318,11 +323,20 @@ int parseDecimal64Impl(bdldfp::Decimal64  *result, const char *input)
     if (rc != 0) {
         return BAEXML_FAILURE;                                        // RETURN
     }
+
+    if (decimalMode) {
+        const int classify = bdldfp::DecimalUtil::classify(d);
+        if (FP_NAN == classify || FP_INFINITE == classify) {
+            return BAEXML_FAILURE;                                    // RETURN
+        }
+    }
+
     *result = d;
 
     return BAEXML_SUCCESS;
 }
 
+}  // close namespace u
 }  // close unnamed namespace
 
 namespace balxml {
@@ -379,7 +393,7 @@ int TypesParserUtil_Imp::parseDecimal(bool                       *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseBoolean(result, input, inputLength);
+    return u::parseBoolean(result, input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseDecimal(char                       *result,
@@ -387,8 +401,8 @@ int TypesParserUtil_Imp::parseDecimal(char                       *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseSignedDecimal((signed char*) result,
-                              input, inputLength);
+    return u::parseSignedDecimal((signed char*) result,
+                                 input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseDecimal(short                      *result,
@@ -396,7 +410,7 @@ int TypesParserUtil_Imp::parseDecimal(short                      *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseSignedDecimal(result, input, inputLength);
+    return u::parseSignedDecimal(result, input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseDecimal(int                        *result,
@@ -404,7 +418,7 @@ int TypesParserUtil_Imp::parseDecimal(int                        *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseSignedDecimal(result, input, inputLength);
+    return u::parseSignedDecimal(result, input, inputLength);
 }
 
 int
@@ -445,7 +459,7 @@ int TypesParserUtil_Imp::parseDecimal(unsigned char              *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseUnsignedDecimal(result, input, inputLength);
+    return u::parseUnsignedDecimal(result, input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseDecimal(unsigned short             *result,
@@ -453,7 +467,7 @@ int TypesParserUtil_Imp::parseDecimal(unsigned short             *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseUnsignedDecimal(result, input, inputLength);
+    return u::parseUnsignedDecimal(result, input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseDecimal(unsigned int               *result,
@@ -461,7 +475,7 @@ int TypesParserUtil_Imp::parseDecimal(unsigned int               *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseUnsignedDecimal(result, input, inputLength);
+    return u::parseUnsignedDecimal(result, input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseDecimal(bsls::Types::Uint64        *result,
@@ -499,7 +513,7 @@ int TypesParserUtil_Imp::parseDecimal(float                      *result,
                                       bdlat_TypeCategory::Simple)
 {
     double tmpResult;
-    int rc = parseDouble(&tmpResult, input, inputLength, true);
+    int rc = u::parseDouble(&tmpResult, input, inputLength, true);
     if (rc == 0) {
         *result = static_cast<float>(tmpResult);  // May overflow to +/- INF.
     }
@@ -511,7 +525,7 @@ int TypesParserUtil_Imp::parseDecimal(double                     *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseDouble(result, input, inputLength, true);
+    return u::parseDouble(result, input, inputLength, true);
 }
 
 // DEFAULT FUNCTIONS
@@ -521,7 +535,7 @@ int TypesParserUtil_Imp::parseDefault(bool                       *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseBoolean(result, input, inputLength);
+    return u::parseBoolean(result, input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseDefault(float                      *result,
@@ -530,9 +544,9 @@ int TypesParserUtil_Imp::parseDefault(float                      *result,
                                       bdlat_TypeCategory::Simple)
 {
     double tmpResult;
-    int rc = parseDouble(&tmpResult, input, inputLength, false);
+    int rc = u::parseDouble(&tmpResult, input, inputLength, false);
     if (rc == 0) {
-        *result = static_cast<float>(tmpResult);  // May overflow to +/- INF.
+        *result = static_cast<float>(tmpResult);    // May overflow to +/- INF.
     }
     return rc;
 }
@@ -542,7 +556,7 @@ int TypesParserUtil_Imp::parseDefault(double                     *result,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)
 {
-    return parseDouble(result, input, inputLength, false);
+    return u::parseDouble(result, input, inputLength, false);
 }
 
 int TypesParserUtil_Imp::parseDecimal(bdldfp::Decimal64          *result,
@@ -556,17 +570,46 @@ int TypesParserUtil_Imp::parseDecimal(bdldfp::Decimal64          *result,
 
     if (inputLength < BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE) {
         // Use a fixed-length buffer for efficiency.
+
         char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
         bsl::memcpy(buffer, input, inputLength);
         buffer[inputLength] = '\0';
 
-        return parseDecimal64Impl(result, buffer);                    // RETURN
+        return u::parseDecimal64Impl(result, buffer, true);           // RETURN
     }
     else {
         // Use a string for dynamic allocation.
+
         bsl::string tmp(input, inputLength);
 
-        return parseDecimal64Impl(result, tmp.c_str());               // RETURN
+        return u::parseDecimal64Impl(result, tmp.c_str(), true);      // RETURN
+    }
+}
+
+int TypesParserUtil_Imp::parseDefault(bdldfp::Decimal64          *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple  simple)
+{
+    if (inputLength == 0) {
+        return -1;                                                    // RETURN
+    }
+
+    if (inputLength < BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE) {
+        // Use a fixed-length buffer for efficiency.
+
+        char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        bsl::memcpy(buffer, input, inputLength);
+        buffer[inputLength] = '\0';
+
+        return u::parseDecimal64Impl(result, buffer, false);          // RETURN
+    }
+    else {
+        // Use a string for dynamic allocation.
+
+        bsl::string tmp(input, inputLength);
+
+        return u::parseDecimal64Impl(result, tmp.c_str(), false);     // RETURN
     }
 }
 
@@ -619,7 +662,7 @@ int TypesParserUtil_Imp::parseText(bool                       *result,
                                    int                         inputLength,
                                    bdlat_TypeCategory::Simple)
 {
-    return parseBoolean(result, input, inputLength);
+    return u::parseBoolean(result, input, inputLength);
 }
 
 int TypesParserUtil_Imp::parseText(char                       *result,

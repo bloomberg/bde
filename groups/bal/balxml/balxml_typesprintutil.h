@@ -1610,19 +1610,6 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                     bsl::ostream&               stream,
-                                    const bdldfp::Decimal64&    object,
-                                    const EncoderOptions       *encoderOptions,
-                                    bdlat_TypeCategory::Simple)
-{
-    return printDecimal(stream,
-                        object,
-                        encoderOptions,
-                        bdlat_TypeCategory::Simple());
-}
-
-inline
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                    bsl::ostream&               stream,
                                     const char                 *object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple)
