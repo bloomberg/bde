@@ -19,20 +19,24 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <windows.h> // 'GetStdHandle'
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(va_copy)
-# define va_copy(dest, src) (dest = src)
-// Because VS doesn't define 'va_copy' until VS2013, we must define it
-// ourselves, knowing how variadic arguments are implemented on Windows.  In
-// both the x86 and x64 cases, 'va_list' is implemented as a simple pointer,
-// meaning that 'va_copy' can simply be replaced with an assignment.
-#elif defined(BSLS_PLATFORM_CMP_GNU) && !defined(va_copy)
-// On GNU, 'va_copy' is not defined until C++11, but '__va_copy' is always
-// defined, and they're equivalent.
-# if defined(__va_copy)
-#   define va_copy __va_copy
-# else
-#   define va_copy(dest, src) (dest = src)
-# endif
+#if !defined(va_copy)
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Because VS doesn't define 'va_copy' until VS2013, we must define it
+    // ourselves, knowing how variadic arguments are implemented on Windows.
+    // In both the x86 and x64 cases, 'va_list' is implemented as a simple
+    // pointer, meaning that 'va_copy' can simply be replaced with an
+    // assignment.
+    #define va_copy(dest, src) (dest = src)
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+    // va_copy was defined in the C99, but not in C++ standards before C++11.
+    // When you compile C++ with an explicit --std=c++98, gcc and clang do not
+    // define va_copy and you have to use the internal version (__va_copy).
+    #define va_copy(d, s) __va_copy(d, s)
+#else
+    #error "va_copy() not defined"
+#endif
+
 #endif
 
 namespace BloombergLP {
