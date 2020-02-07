@@ -31,6 +31,10 @@ namespace bsl {
     using native_std::wistream;
     using native_std::ws;
 
+    // This file transitively includes standard <exception> header, so the
+    // following symbol needs to be added into bsl namespace.
+    using native_std::exception;
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Export additional names, leaked to support transitive dependencies in
     // higher level (non BDE) Bloomberg code.
@@ -47,7 +51,6 @@ namespace bsl {
     using native_std::ctype_byname;
     using native_std::endl;
     using native_std::ends;
-    using native_std::exception;
     using native_std::flush;
     using native_std::forward_iterator_tag;
     using native_std::input_iterator_tag;

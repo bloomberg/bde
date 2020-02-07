@@ -38,6 +38,7 @@ namespace bsl {
 
     using native_std::boolalpha;
     using native_std::dec;
+    using native_std::exception;
     using native_std::fixed;
     using native_std::hex;
     using native_std::internal;
@@ -81,7 +82,6 @@ namespace bsl {
     using native_std::ctype;
     using native_std::ctype_base;
     using native_std::ctype_byname;
-    using native_std::exception;
     using native_std::forward_iterator_tag;
     using native_std::input_iterator_tag;
     using native_std::istreambuf_iterator;
