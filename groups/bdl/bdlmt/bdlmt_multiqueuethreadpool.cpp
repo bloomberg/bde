@@ -21,6 +21,7 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_memory.h>
 #include <bsl_vector.h>
 
@@ -101,7 +102,7 @@ MultiQueueThreadPool_Queue::~MultiQueueThreadPool_Queue()
 }
 
 // MANIPULATORS
-void MultiQueueThreadPool_Queue::assignBatchSize(int batchSize)
+void MultiQueueThreadPool_Queue::setBatchSize(int batchSize)
 {
     BSLS_ASSERT(1 <= batchSize);
 
@@ -188,10 +189,8 @@ void MultiQueueThreadPool_Queue::executeFront()
         bsl::size_t count;
 
         if (e_DELETING != d_enqueueState) {
-            count = d_batchSize;
-            if (count > d_list.size()) {
-                count = d_list.size();
-            }
+            count = bsl::min(static_cast<bsl::size_t>(d_batchSize),
+                             d_list.size());
 
             d_multiQueueThreadPool_p->d_numExecuted += static_cast<int>(count);
         }

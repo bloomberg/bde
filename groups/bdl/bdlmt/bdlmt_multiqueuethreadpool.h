@@ -433,9 +433,12 @@ class MultiQueueThreadPool_Queue {
         // Destroy this queue.
 
     // MANIPULATORS
-    void assignBatchSize(int batchSize);
-        // Assign the execution batch size of this queue to the specified
-        // 'batchSize'.  The behavior is undefined unless '1 <= batchSize'.
+    void setBatchSize(int batchSize);
+        // Assign the execution batch size, the maximum number of jobs a thread
+        // will take from this queue at one time for execution, of this queue
+        // to the specified 'batchSize'.  The behavior is undefined unless
+        // '1 <= batchSize'.  Note that the initial value for the execution
+        // batch size is 1 for all queues.
 
     int enable();
         // Enable enqueuing to this queue.  Return 0 on success, and a non-zero
@@ -513,8 +516,9 @@ class MultiQueueThreadPool_Queue {
 
     // ACCESSORS
     int batchSize() const;
-        // Return an instantaneous snapshot of the execution batch size of
-        // this queue.
+        // Return an instantaneous snapshot of the execution batch size, the
+        // maximum number of jobs a thread will take from this queue at one
+        // time for execution, of this queue.
 
     bool isDrained() const;
         // Report whether all jobs in this queue are finished.
@@ -669,10 +673,13 @@ class MultiQueueThreadPool {
         // currently queued jobs is unspecified unless the queue is currently
         // paused.
 
-    int assignBatchSize(int id, int batchSize);
-        // Assign the execution batch size of the queue specified by 'id' to
-        // the specified 'batchSize'.  Return 0 on success, and a non-zero
-        // value otherwise.  The behavior is undefined unless '1 <= batchSize'.
+    int setBatchSize(int id, int batchSize);
+        // Assign the execution batch size, the maximum number of jobs a thread
+        // will take from the indicated queue at one time for execution, of
+        // the queue specified by 'id' to the specified 'batchSize'.  Return 0
+        // on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless '1 <= batchSize'.  Note that the initial value for
+        // the execution batch size is 1 for all queues.
 
     int createQueue();
         // Create a queue with unlimited capacity and a default number of
@@ -786,9 +793,10 @@ class MultiQueueThreadPool {
 
     // ACCESSORS
     int batchSize(int id) const;
-        // Return an instantaneous snapshot of the execution batch size of the
-        // queue associated with the specified 'id', or -1 if 'id' is not a
-        // valid queue id.
+        // Return an instantaneous snapshot of the execution batch size, the
+        // maximum number of jobs a thread will take from the indicated queue
+        // at one time for execution, of the queue associated with the
+        // specified 'id', or -1 if 'id' is not a valid queue id.
 
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
@@ -923,7 +931,7 @@ int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 }
 
 inline
-int MultiQueueThreadPool::assignBatchSize(int id, int batchSize)
+int MultiQueueThreadPool::setBatchSize(int id, int batchSize)
 {
     BSLS_ASSERT_SAFE(1 <= batchSize);
 
@@ -935,7 +943,7 @@ int MultiQueueThreadPool::assignBatchSize(int id, int batchSize)
         return 1;                                                     // RETURN
     }
 
-    queue->assignBatchSize(batchSize);
+    queue->setBatchSize(batchSize);
 
     return 0;
 }

@@ -71,7 +71,7 @@ using namespace BloombergLP;
 // [ 2] ~bdlmt::MultiQueueThreadPool();
 //
 // MANIPULATORS
-// [33] void assignBatchSize(int id, int batchSize);
+// [33] void setBatchSize(int id, int batchSize);
 // [ 2] int createQueue();
 // [ 2] int deleteQueue(int id, const bsl::function<void()>& cleanupFunc);
 // [ 2] int enqueueJob(int id, const bsl::function<void()>& functor);
@@ -1568,31 +1568,38 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 The value returned by 'batchSize' matches the value assigned by
-        //:   'assignBatchSize'.
+        //:   'setBatchSize'.
         //:
-        //: 2 The value assigned by 'assignBatchSize' is the batching size.
+        //: 2 The value assigned by 'setBatchSize' is the batching size.
         //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //: 3 The 'deleteQueue' method operates properly (since a job is
+        //:   enqueued for handling deletion).
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use 'assignBatchSize' to set the batching size and directly
-        //:   verify the result of 'batchSize'.  (C-1)
+        //: 1 Use 'setBatchSize' to set the batching size and directly verify
+        //:   the result of 'batchSize'.  (C-1)
         //:
-        //: 2 From the main thread, use 'assignBatchSize' to set the batching
-        //:   size and submit at least this number of jobs to the queue with
-        //:   the first job using a barrier to sync the thread-pool thread with
-        //:   the main thread twice.  After the first synchronization, the main
+        //: 2 From the main thread, use 'setBatchSize' to set the batching size
+        //:   and submit at least this number of jobs to the queue with the
+        //:   first job using a barrier to sync the thread-pool thread with the
+        //:   main thread twice.  After the first synchronization, the main
         //:   thread will delete the queue containing the jobs.  After the
         //:   second synchronization, the main thread will verify the number
         //:   of executed jobs is frequently the batch size using
         //:   'numProcessed'.  Note that the number of executed jobs will not
         //:   always match the batch size since the timing of when the thread
-        //:   from the thread pool will take jobs can not be guaranteed.
+        //:   from the thread pool will take jobs can not be guaranteed.  (C-2)
         //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        //: 3 Verify the number of enqueued, processed, and deleted jobs in
+        //:   P-2 to ensure no jobs were lost.  Use 'numQueues' and
+        //:   'numElements' to verify the the queue no longer exists.  (C-3)
+        //:
+        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   void assignBatchSize(int id, int batchSize);
+        //   void setBatchSize(int id, int batchSize);
         //   int batchSize(int id) const;
         // --------------------------------------------------------------------
 
@@ -1607,28 +1614,28 @@ int main(int argc, char *argv[]) {
 
             ASSERT(-1 == X.batchSize(0));
 
-            ASSERT( 0 != mX.assignBatchSize(0, 2));
+            ASSERT( 0 != mX.setBatchSize(0, 2));
 
             int queueId = mX.createQueue();
 
             ASSERT( 1 == X.batchSize(queueId));
             ASSERT(-1 == X.batchSize(queueId + 1));
 
-            ASSERT( 0 == mX.assignBatchSize(queueId, 2));
-            ASSERT( 0 != mX.assignBatchSize(queueId + 1, 2));
+            ASSERT( 0 == mX.setBatchSize(queueId, 2));
+            ASSERT( 0 != mX.setBatchSize(queueId + 1, 2));
 
             ASSERT( 2 == X.batchSize(queueId));
 
-            ASSERT( 0 == mX.assignBatchSize(queueId, 3));
+            ASSERT( 0 == mX.setBatchSize(queueId, 3));
 
             ASSERT( 3 == X.batchSize(queueId));
 
-            ASSERT( 0 == mX.assignBatchSize(queueId, 1));
+            ASSERT( 0 == mX.setBatchSize(queueId, 1));
 
             ASSERT( 1 == X.batchSize(queueId));
         }
 
-        if (verbose) cout << "\nTesting 'assignBatchSize'." << endl;
+        if (verbose) cout << "\nTesting 'setBatchSize'." << endl;
         {
             const int k_ENQUEUE = 5;
 
@@ -1646,7 +1653,7 @@ int main(int argc, char *argv[]) {
                     mX.start();
                     int queueId = mX.createQueue();
 
-                    mX.assignBatchSize(queueId, batchSize);
+                    mX.setBatchSize(queueId, batchSize);
 
                     bslmt::Barrier barrier(2);
 
@@ -1661,12 +1668,17 @@ int main(int argc, char *argv[]) {
                     mX.deleteQueue(queueId, noop);  // must not wait
                     barrier.wait();
 
+                    ASSERT( 0 == X.numQueues());
+                    ASSERT(-1 == X.numElements(queueId));
+
                     int doneJobs;
                     int enqueuedJobs;
+                    int deletedJobs;
 
-                    X.numProcessed(&doneJobs, &enqueuedJobs);
+                    X.numProcessed(&doneJobs, &enqueuedJobs, &deletedJobs);
 
                     ASSERT(k_ENQUEUE == enqueuedJobs);
+                    ASSERT(k_ENQUEUE == doneJobs + deletedJobs);
 
                     ++count[doneJobs];
                 }
@@ -1689,10 +1701,10 @@ int main(int argc, char *argv[]) {
             mX.start();
             int queueId = mX.createQueue();
 
-            ASSERT_SAFE_PASS(mX.assignBatchSize(queueId,  1));
-            ASSERT_SAFE_PASS(mX.assignBatchSize(queueId,  2));
-            ASSERT_SAFE_FAIL(mX.assignBatchSize(queueId,  0));
-            ASSERT_SAFE_FAIL(mX.assignBatchSize(queueId, -1));
+            ASSERT_SAFE_PASS(mX.setBatchSize(queueId,  1));
+            ASSERT_SAFE_PASS(mX.setBatchSize(queueId,  2));
+            ASSERT_SAFE_FAIL(mX.setBatchSize(queueId,  0));
+            ASSERT_SAFE_FAIL(mX.setBatchSize(queueId, -1));
         }
       }  break;
       case 32: {
