@@ -790,6 +790,10 @@ class NullableValue_WithAllocator {
     // FRIENDS
     friend class NullableValue<TYPE>;
 
+    template <class FRIEND_TYPE>
+    friend void swap(NullableValue_WithAllocator<FRIEND_TYPE>&,
+                     NullableValue_WithAllocator<FRIEND_TYPE>&);
+
   private:
     // PRIVATE MANIPULATORS
     template <class BDE_OTHER_TYPE>
