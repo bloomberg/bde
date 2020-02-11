@@ -1,6 +1,7 @@
 balxml_base64parser
 balxml_configschema
 balxml_decoder
+balxml_decoder_test
 balxml_decoderoptions
 balxml_elementattribute
 balxml_encoder
