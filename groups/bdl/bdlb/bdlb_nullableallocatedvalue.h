@@ -172,10 +172,8 @@ class NullableAllocatedValue {
     void swap(NullableAllocatedValue& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if the template parameter 'TYPE' provides
-        // that guarantee and the result of the 'isNull' method for the two
-        // objects being swapped is the same.  The behavior is undefined unless
-        // this object was created with the same allocator as 'other'.
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
 
     TYPE& makeValue(const TYPE& value);
         // Assign to this object the specified 'value', and return a reference
@@ -241,6 +239,11 @@ class NullableAllocatedValue {
         // information on BDEX streaming of container types.)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
+                              // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
@@ -296,11 +299,9 @@ bsl::ostream& operator<<(bsl::ostream&                       stream,
 template <class TYPE>
 void swap(NullableAllocatedValue<TYPE>& a,
           NullableAllocatedValue<TYPE>& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This method provides the no-throw exception-safety guarantee if the
-    // template parameter 'TYPE' provides that guarantee and the result of
-    // the 'isNull' method for 'a' and 'b' is the same.  The behavior is
-    // undefined unless both objects were created with the same allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -378,9 +379,9 @@ TYPE& NullableAllocatedValue<TYPE>::operator=(const TYPE& rhs)
 template <class TYPE>
 void NullableAllocatedValue<TYPE>::swap(NullableAllocatedValue& other)
 {
-    // 'swap' is undefined for non-equal allocators.
+    // Member 'swap' is undefined for non-equal allocators.
 
-    BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+    BSLS_ASSERT(allocator() == other.allocator());
 
     // Nothing to do if both objects are null.
 
@@ -529,6 +530,15 @@ int NullableAllocatedValue<TYPE>::maxSupportedBdexVersion() const
 }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
+                                  // Aspects
+
+template <class TYPE>
+inline
+bslma::Allocator *NullableAllocatedValue<TYPE>::allocator() const
+{
+    return d_allocator_p;
+}
+
 template <class TYPE>
 inline
 bsl::ostream& NullableAllocatedValue<TYPE>::print(
@@ -601,11 +611,20 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&                       stream,
 
 // FREE FUNCTIONS
 template <class TYPE>
-inline
 void bdlb::swap(NullableAllocatedValue<TYPE>& a,
                 NullableAllocatedValue<TYPE>& b)
 {
-    a.swap(b);
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    NullableAllocatedValue<TYPE> futureA(b, a.allocator());
+    NullableAllocatedValue<TYPE> futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 }  // close enterprise namespace

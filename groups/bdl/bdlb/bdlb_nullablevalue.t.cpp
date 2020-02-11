@@ -2489,7 +2489,7 @@ void swap(Swappable& a, Swappable& b)
 {
     ++Swappable::s_swapCalled;
 
-    bsl::swap(a.d_value, b.d_value);
+    bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
 }
 
 void dummyFunction()
@@ -6405,7 +6405,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING SWAP METHOD"
                              "\n===================" << endl;
 
-        using bsl::swap;
         {
             Swappable obj1(1);
             Swappable obj2(2);

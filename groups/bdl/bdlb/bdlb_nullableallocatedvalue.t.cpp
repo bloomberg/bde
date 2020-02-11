@@ -237,7 +237,7 @@ void swap(Swappable& a, Swappable& b)
 {
     Swappable::s_swapCalledFlag = true;
 
-    bsl::swap(a.d_value, b.d_value);
+    bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
 }
 
 //=============================================================================
@@ -431,7 +431,6 @@ int main(int argc, char *argv[])
             ASSERT(nullObj1.isNull());
             ASSERT(nullObj2.isNull());
 
-            using bsl::swap;
             swap(nullObj1, nullObj2);
 
             ASSERT(nullObj1.isNull());
@@ -459,7 +458,6 @@ int main(int argc, char *argv[])
 
             const int numObjects = Swappable::numObjectsCreated();
 
-            using bsl::swap;
             swap(nonNullObj, nullObj);
 
             ASSERT( nonNullObj.isNull());
@@ -495,7 +493,6 @@ int main(int argc, char *argv[])
 
             const int numObjects = Swappable::numObjectsCreated();
 
-            using bsl::swap;
             swap(obj1, obj2);
 
             ASSERT(!obj1.isNull());
