@@ -23,7 +23,7 @@
 #include <bslx_testoutstream.h>
 
 #include <bsl_algorithm.h>  // 'swap'
-#include <bsl_cstdlib.h>    // 'atoi'
+#include <bsl_cstdlib.h>    // 'atoi', 'abs'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -104,6 +104,24 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -180,7 +198,7 @@ class Swappable {
 
   private:
     // NOT IMPLEMENTED
-    Swappable();
+    void swap(Swappable&);
 
   public:
     // CLASS METHODS
@@ -201,7 +219,7 @@ class Swappable {
     }
 
     // CREATORS
-    Swappable(int v)
+    explicit Swappable(int v)
     : d_value(v)
     {
         ++Swappable::s_numObjectsCreated;
@@ -212,6 +230,9 @@ class Swappable {
     {
         ++Swappable::s_numObjectsCreated;
     }
+
+    // MANIPULATORS
+    // Swappable& operator=(const Swappable&);  // default
 
     // ACCESSORS
     int value() const
@@ -240,6 +261,139 @@ void swap(Swappable& a, Swappable& b)
     Swappable::s_swapCalledFlag = true;
 
     bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
+}
+
+class SwappableWithAllocator {
+    // 'SwappableWithAllocator', used for testing 'swap', takes an allocator.
+
+    // CLASS DATA
+    static bool s_swapCalledFlag;     // 'true' if 'swap' free function called
+                                      // since last reset; 'false' otherwise
+
+    static int  s_numObjectsCreated;  // number of 'SwappableWithAllocator'
+                                      // objects created since last reset
+
+    // DATA
+    int               d_value;
+    bsl::string       d_string;
+    bslma::Allocator *d_allocator_p;  // held, not owned
+
+    // FRIENDS
+    friend void swap(SwappableWithAllocator&, SwappableWithAllocator&);
+
+  private:
+    // NOT IMPLEMENTED
+    void swap(SwappableWithAllocator&);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(SwappableWithAllocator,
+                                   bslma::UsesBslmaAllocator);
+
+    // CLASS METHODS
+    static int numObjectsCreated()
+    {
+        return s_numObjectsCreated;
+    }
+
+    static void reset()
+    {
+        s_swapCalledFlag    = false;
+        s_numObjectsCreated = 0;
+    }
+
+    static bool swapCalled()
+    {
+        return s_swapCalledFlag;
+    }
+
+    // CREATORS
+    explicit
+    SwappableWithAllocator(int v, bslma::Allocator *basicAllocator = 0)
+    : d_value(v)
+    , d_string(bsl::abs(v), 'x', basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        ++SwappableWithAllocator::s_numObjectsCreated;
+    }
+
+    SwappableWithAllocator(const SwappableWithAllocator&  original,
+                           bslma::Allocator              *basicAllocator = 0)
+    : d_value(original.d_value)
+    , d_string(original.d_string, basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        ++SwappableWithAllocator::s_numObjectsCreated;
+    }
+
+    ~SwappableWithAllocator()
+    {
+        BSLS_ASSERT_OPT(allocator() == d_string.get_allocator().mechanism());
+    }
+
+    // MANIPULATORS
+    SwappableWithAllocator& operator=(const SwappableWithAllocator& rhs)
+    {
+        d_value  = rhs.d_value;
+        d_string = rhs.d_string;
+
+        return *this;
+    }
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const
+    {
+        return d_allocator_p;
+    }
+
+    int value() const
+    {
+        return d_value;
+    }
+
+    const bsl::string& string() const
+    {
+        return d_string;
+    }
+};
+
+// FREE OPERATORS
+bool operator==(const SwappableWithAllocator& lhs,
+                const SwappableWithAllocator& rhs)
+{
+    return lhs.value() == rhs.value() && lhs.string() == rhs.string();
+}
+
+bool operator!=(const SwappableWithAllocator& lhs,
+                const SwappableWithAllocator& rhs)
+{
+    return !(lhs == rhs);
+}
+
+// CLASS DATA
+bool SwappableWithAllocator::s_swapCalledFlag    = false;
+int  SwappableWithAllocator::s_numObjectsCreated = 0;
+
+void swap(SwappableWithAllocator& a, SwappableWithAllocator& b)
+{
+    SwappableWithAllocator::s_swapCalledFlag = true;
+
+    if (a.allocator() == b.allocator()) {
+        bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
+
+        a.d_string.swap(b.d_string);
+
+        return;                                                       // RETURN
+    }
+
+    SwappableWithAllocator futureA(b, a.allocator());
+    SwappableWithAllocator futureB(a, b.allocator());
+
+    bslalg::SwapUtil::swap(&a.d_value, &futureA.d_value);
+    bslalg::SwapUtil::swap(&b.d_value, &futureB.d_value);
+
+    a.d_string.swap(futureA.d_string);
+    b.d_string.swap(futureB.d_string);
 }
 
 //=============================================================================
@@ -517,18 +671,17 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
 
-            if (verbose) cout << "\t'swap' member function" << endl;
+            typedef bdlb::NullableAllocatedValue<SwappableWithAllocator> Obj;
+
             {
                 bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
                 bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
-#if 0
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
 
                 ASSERT_PASS(mA.swap(mB));
                 ASSERT_FAIL(mA.swap(mZ));
-#endif
             }
         }
 

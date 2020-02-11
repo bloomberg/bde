@@ -37,7 +37,7 @@
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
 
-#include <bsl_cstdlib.h>    // 'atoi'
+#include <bsl_cstdlib.h>    // 'atoi', 'abs'
 #include <bsl_exception.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -2465,6 +2465,10 @@ class Swappable {
     // FRIENDS
     friend void swap(Swappable&, Swappable&);
 
+  private:
+    // NOT IMPLEMENTED
+    void swap(Swappable&); 
+
   public:
     // CLASS METHODS
     static void reset()
@@ -2488,6 +2492,9 @@ class Swappable {
     {
     }
 
+    // MANIPULATORS
+    // Swappable& operator=(const Swappable&);  // default
+
     // ACCESSORS
     int value() const
     {
@@ -2501,6 +2508,11 @@ bool operator==(const Swappable& lhs, const Swappable& rhs)
     return lhs.value() == rhs.value();
 }
 
+bool operator!=(const Swappable& lhs, const Swappable& rhs)
+{
+    return !(lhs == rhs);
+}
+
 // CLASS DATA
 bool Swappable::s_swapCalledFlag = false;
 
@@ -2509,6 +2521,127 @@ void swap(Swappable& a, Swappable& b)
     Swappable::s_swapCalledFlag = true;
 
     bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
+}
+
+class SwappableWithAllocator {
+    // 'SwappableWithAllocator', used for testing 'swap', takes an allocator.
+
+    // CLASS DATA
+    static bool s_swapCalledFlag;  // 'true' if 'swap' free function called
+                                   // since last 'reset'; 'false' otherwise
+
+    // DATA
+    int               d_value;
+    bsl::string       d_string;
+    bslma::Allocator *d_allocator_p;  // held, not owned
+
+    // FRIENDS
+    friend void swap(SwappableWithAllocator&, SwappableWithAllocator&);
+
+  private:
+    // NOT IMPLEMENTED
+    void swap(SwappableWithAllocator&); 
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(SwappableWithAllocator,
+                                   bslma::UsesBslmaAllocator);
+
+    // CLASS METHODS
+    static void reset()
+    {
+        s_swapCalledFlag = false;
+    }
+
+    static bool swapCalled()
+    {
+        return s_swapCalledFlag;
+    }
+
+    // CREATORS
+    explicit
+    SwappableWithAllocator(int v, bslma::Allocator *basicAllocator = 0)
+    : d_value(v)
+    , d_string(bsl::abs(v), 'x', basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    SwappableWithAllocator(const SwappableWithAllocator&  original,
+                           bslma::Allocator              *basicAllocator = 0)
+    : d_value(original.d_value)
+    , d_string(original.d_string, basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    ~SwappableWithAllocator()
+    {
+        BSLS_ASSERT_OPT(allocator() == d_string.get_allocator().mechanism());
+    }
+
+    // MANIPULATORS
+    SwappableWithAllocator& operator=(const SwappableWithAllocator& rhs)
+    {
+        d_value  = rhs.d_value;
+        d_string = rhs.d_string;
+
+        return *this;
+    }
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const
+    {
+        return d_allocator_p;
+    }
+
+    int value() const
+    {
+        return d_value;
+    }
+
+    const bsl::string& string() const
+    {
+        return d_string;
+    }
+};
+
+// FREE OPERATORS
+bool operator==(const SwappableWithAllocator& lhs,
+                const SwappableWithAllocator& rhs)
+{
+    return lhs.value() == rhs.value() && lhs.string() == rhs.string();
+}
+
+bool operator!=(const SwappableWithAllocator& lhs,
+                const SwappableWithAllocator& rhs)
+{
+    return !(lhs == rhs);
+}
+
+// CLASS DATA
+bool SwappableWithAllocator::s_swapCalledFlag = false;
+
+void swap(SwappableWithAllocator& a, SwappableWithAllocator& b)
+{
+    SwappableWithAllocator::s_swapCalledFlag = true;
+
+    if (a.allocator() == b.allocator()) {
+        bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
+
+        a.d_string.swap(b.d_string);
+
+        return;                                                       // RETURN
+    }
+
+    SwappableWithAllocator futureA(b, a.allocator());
+    SwappableWithAllocator futureB(a, b.allocator());
+
+    bslalg::SwapUtil::swap(&a.d_value, &futureA.d_value);
+    bslalg::SwapUtil::swap(&b.d_value, &futureB.d_value);
+
+    a.d_string.swap(futureA.d_string);
+    b.d_string.swap(futureB.d_string);
 }
 
 void dummyFunction()
@@ -6594,18 +6727,17 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
 
-            if (verbose) cout << "\t'swap' member function" << endl;
+            typedef bdlb::NullableValue<SwappableWithAllocator> Obj;
+
             {
                 bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
                 bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
-#if 0
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
 
                 ASSERT_PASS(mA.swap(mB));
                 ASSERT_FAIL(mA.swap(mZ));
-#endif
             }
         }
 
