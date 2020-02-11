@@ -7771,8 +7771,8 @@ int main(int argc, char *argv[])
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- test case
-                   // needs copy c'tor.
+                      // 'bsltf::MoveOnlyAllocTestType' test disabled as
+                      // copy-assign is needed
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -8327,8 +8327,8 @@ int main(int argc, char *argv[])
                       testCase12_copy,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)
-                   // test disabled as copy-assign is needed
+                      // 'bsltf::MoveOnlyAllocTestType' test disabled as
+                      // copy-assign is needed
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -8389,8 +8389,8 @@ int main(int argc, char *argv[])
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-        // Cannot do 'BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)'
-        // -- would need a copy constructor.
+                      // 'bsltf::MoveOnlyAllocTestType' test disabled as
+                      // copy-assign is needed
       } break;
       case 10: {
         // --------------------------------------------------------------------
