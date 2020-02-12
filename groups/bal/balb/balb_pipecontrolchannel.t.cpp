@@ -69,6 +69,7 @@ using namespace bsl;  // automatically added by script
 //
 // MANIPULATORS
 // [ 2] int start(const bsl::string& pipeName);
+// [12] int start(const bsl::string&, const bslmt::ThreadAttributes&);
 // [ 2] void shutdown();
 // [ 2] void stop();
 //
@@ -279,6 +280,35 @@ void myCallback(bslmt::Condition         *condition,
     bslmt::ThreadUtil::sleep(bsls::TimeInterval(0, 200000000));  // 0.2 seconds
 }
 
+void attributesTestCallback(bsl::string              *threadName,
+                            bsl::string              *messageStorage,
+                            const bslstl::StringRef&  message,
+                            bslmt::Barrier           *barrier)
+    // Store the specified 'message' into the specified 'messageStorage' and
+    // the current tread name into the specified 'threadName' on invocation
+    // using the specified 'barrier' for synchronisation.  This function is
+    // passed as a callback function to the pipe control mechanism on creation
+    // and used to test the ability of adjustment of background processing
+    // thread of 'balb::PipeControlChannel' object.  The overload of the
+    // 'balb::PipeControlChannel::start' method accepts the desired
+    // configuration of such thread.  But public interface of the
+    // 'balb::PipeControlChannel' class does not grant access to appropriate
+    // private field.  However, the callback function passed to the pipe
+    // control mechanism on creation should be called in the context of this
+    // thread.  To check that attributes are passed correctly,
+    // 'attributesTestCallback' stores the name of the current thread on
+    // invocation.  As all atributes are arranged in a single object we need to
+    // check just one field's value to be sure that the whole object is passed
+    // correctly.  Note that this approach may not work for Windows, since it's
+    // early versions don't support thread names.
+{
+    bslmt::ThreadUtil::getThreadName(threadName);
+    *messageStorage = message;
+
+    // Wait for the main thread.
+    barrier->wait();
+}
+
 void sendHello(const char *pipeName)
 {
     // Allow time for the condition.wait() to be reached (see 'main')
@@ -320,6 +350,85 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING THREAD ATTRIBUTES PASSING
+        //
+        // Concerns:
+        //: 1 The 'start' method correctly passes required thread attributes to
+        //:   the appropriate thread creation function.
+        //
+        // Plan:
+        //: 1 Using the special callback function (see 'attributesTestCallback'
+        //:   documentation) create and start a pipe control mechanism, passing
+        //:   the desired thread configuration.  Pass some messages using that
+        //:   mechanism and verify, that created tread has the expected
+        //:   attributes.
+        //
+        // Testing
+        //   int start(const bsl::string&, const bslmt::ThreadAttributes&);
+        //---------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING THREAD ATTRIBUTES PASSING" << endl
+                 << "=================================" << endl;
+        }
+
+        bsl::string pipeName;
+
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(
+                                                     &pipeName,
+                                                     "ctrl.attributestest12"));
+
+        const bsl::string EXPECTED_THREAD_NAME("ctrl.attrtest12"         );
+        const bsl::string MSG                 ("this is the test message");
+        bsl::string       threadName;
+        bsl::string       message;
+        bslmt::Barrier    barrier(2);
+
+        balb::PipeControlChannel pipeChannel(
+                                  bdlf::BindUtil::bind(&attributesTestCallback,
+                                                      &threadName,
+                                                      &message,
+                                                      bdlf::PlaceHolders::_1,
+                                                      &barrier));
+
+        bslmt::ThreadAttributes attributes;
+        attributes.setThreadName(EXPECTED_THREAD_NAME);
+
+        int rc = pipeChannel.start(pipeName, attributes);
+
+        if (0 == rc) {
+            rc = bdls::PipeUtil::send(pipeName, MSG + "\n");
+            ASSERTV(rc, 0 == rc);
+        }
+
+        // Wait for background processing thread.
+        barrier.wait();
+
+        pipeChannel.shutdown();
+        pipeChannel.stop();
+
+        ASSERTV(message, MSG == message);
+
+#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||  \
+      defined(BSLS_PLATFORM_OS_SOLARIS)
+        ASSERTV(threadName, EXPECTED_THREAD_NAME == threadName);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+        // The threadname will only be visible if we're running on Windows 10,
+        // version 1607 or later, otherwise it will be empty.  It breaks the
+        // test strategy, since we can not to rely on the thread name value.
+        // But since the behavior being tested is common for all platforms, we
+        // dare to say that it is correct on Windows if the tests pass
+        // successfully for other platforms.
+
+        ASSERTV(threadName, EXPECTED_THREAD_NAME == threadName
+                         || true                 == threadName.empty());
+#else
+        // Thread names are not supported for other platforms.
+        ASSERTV(threadName, true                 == threadName.empty());
+#endif
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // 'shutdown' DOES NOT DEADLOCK ON WINDOWS

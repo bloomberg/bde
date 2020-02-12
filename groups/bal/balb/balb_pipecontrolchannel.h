@@ -180,12 +180,12 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
-
-#include <bsl_functional.h>
 
 #include <bsls_atomic.h>
 
+#include <bsl_functional.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -292,13 +292,17 @@ class PipeControlChannel {
         // clean up any associated system resources.
 
     // MANIPULATORS
-    int start(const bsl::string& pipeName);
+    int start(const bsl::string&             pipeName);
+    int start(const bsl::string&             pipeName,
+              const bslmt::ThreadAttributes& attributes);
         // Open a named pipe having the specified 'pipeName', and start a
         // thread to read messages and dispatch them to the callback specified
-        // at construction.  Return 0 on success, and a non-zero value
-        // otherwise.  In particular, return a non-zero value if the pipe
-        // cannot be opened or if it is detected that another process is
-        // reading from the pipe.
+        // at construction.  Optionally specify 'attributes' of the background
+        // processing thread.  If 'attributes' is not supplied, a default
+        // constructed 'ThreadAttributes' object will be used.  Return 0 on
+        // success, and a non-zero value otherwise.  In particular, return a
+        // non-zero value if the pipe cannot be opened or if it is detected
+        // that another process is reading from the pipe.
 
     void shutdown();
         // Stop reading from the pipe and dispatching messages.  Note that this

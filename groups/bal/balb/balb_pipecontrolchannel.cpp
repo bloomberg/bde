@@ -502,6 +502,13 @@ void PipeControlChannel::backgroundProcessor()
 
 int PipeControlChannel::start(const bsl::string& pipeName)
 {
+    bslmt::ThreadAttributes attributes;
+    return start(pipeName, attributes);
+}
+
+int PipeControlChannel::start(const bsl::string&             pipeName,
+                              const bslmt::ThreadAttributes& attributes)
+{
 
 // BSLS_ASSERT(!d_isRunningFlag); // TBD: DOES createNamedPipe FAIL???
     if (d_backgroundState == e_RUNNING) {
@@ -527,6 +534,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
 
     int rc = bslmt::ThreadUtil::create(
          &d_thread,
+         attributes,
          bdlf::BindUtil::bind(&PipeControlChannel::backgroundProcessor, this));
     if (rc != 0) {
         BSLS_LOG_ERROR("Cannot create processing thread, rc = %d", rc);
