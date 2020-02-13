@@ -21298,7 +21298,7 @@ class TestDynamicType {
     }
 
     void nullableValueMakeValue()
-        // Assign to the the underlying value of this object the default value
+        // Assign to the underlying value of this object the default value
         // the contained type.
     {
         BSLS_ASSERT(valueHasCategory(e_NULLABLE_VALUE));

@@ -1009,7 +1009,7 @@ class BoyerMooreHorspoolSearcher {
 
     BoyerMooreHorspoolSearcher(const BoyerMooreHorspoolSearcher& original);
         // Create a 'BoyerMooreHorspoolSearcher' object having same state --
-        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal()' -- as the
         // specified 'original' object, and that uses the currently installed
         // default allocator to supply memory.
 
@@ -1017,7 +1017,7 @@ class BoyerMooreHorspoolSearcher {
            BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
         // Create a 'BoyerMooreHorspoolSearcher' object having same state --
-        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal()' -- as the
         // specified 'original' object by moving (in constant time) the state
         // of 'original' to the new searcher.  The allocator of 'original' is
         // propagated for use in the newly created searcher.  The 'original'
@@ -1027,7 +1027,7 @@ class BoyerMooreHorspoolSearcher {
                             const BoyerMooreHorspoolSearcher&  original,
                             BloombergLP::bslma::Allocator     *basicAllocator);
         // Create a 'BoyerMooreHorspoolSearcher' object having same state --
-        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal()' -- as the
         // specified 'original' object.  Optionally specify a  'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
@@ -1037,7 +1037,7 @@ class BoyerMooreHorspoolSearcher {
                                                                original,
                      BloombergLP::bslma::Allocator            *basicAllocator);
         // Create a 'BoyerMooreHorspoolSearcher' object having same state --
-        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal() -- as the
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal()' -- as the
         // specified 'original' object.  The specified 'basicAllocator' is used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The state of 'original' is moved (in
@@ -1059,9 +1059,9 @@ class BoyerMooreHorspoolSearcher {
     BoyerMooreHorspoolSearcher& operator=(
                BloombergLP::bslmf::MovableRef<BoyerMooreHorspoolSearcher> rhs);
         // Assign to this object the state of the specified 'rhs' object --
-        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal" -- and return
-        // a non-'const' reference to this searcher.  The 'rhs' is left in an
-        // unspecified (valid) state.
+        // 'needleFirst()', 'needleLast()', 'hash()', and 'equal()' -- and
+        // return a non-'const' reference to this searcher.  The 'rhs' is left
+        // in an unspecified (valid) state.
 
     // ACCESSORS
     template<class RNDACC_ITR_HAYSTACK>
