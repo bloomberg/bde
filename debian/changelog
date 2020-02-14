@@ -1,5 +1,14 @@
-bsl-internal (3.48.1.0) unstable; urgency=low
+bsl-internal (3.49.0.0) unstable; urgency=low
 
+  * 3dd06cc37 Bumped version to 3.49.0.0
+  * 9b6aa35f8 Merge pull request #2689 from jmendelsohn4/drqs-155023497/bdlcc_stripedunorderedmap-erase
+  * b2bca2de4 Merge pull request #2690 from jberne4/review_windows_nostack
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Feb 2020 12:30:12 -0500
+
+bsl-internal (3.48.1.0) git; urgency=low
+
+  * b40f8fea5 Changelog for version 3.48.1.0
   * a3ac77bde Bumped version to 3.48.1.0
   * c110a114e Merge pull request #2684 from hrosen4/dfp-format_drqs-154919352
   * 858a954b2 Merge pull request #2682 from hrosen4/dfp-format_drqs-154874861
@@ -7,7 +16,7 @@ bsl-internal (3.48.1.0) unstable; urgency=low
   * d1448a48f Merge pull request #2679 from jmendelsohn4/drqs-154832051/bdlmt_multiqueuethreadpool-case-12
   * d93945ed6 Merge pull request #2548 from bchapman/bdlcc_objectcatalog-move-semantics-drqs-149082155
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 31 Jan 2020 16:12:09 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 31 Jan 2020 16:14:28 -0500
 
 bsl-internal (3.48.0.0) git; urgency=low
 
