@@ -54,6 +54,7 @@ enum {
 // ============================================================================
 
 namespace {
+namespace u {
                         // =============================
                         // local functions format(. . .)
                         // =============================
@@ -128,33 +129,40 @@ void format(bsl::size_t   start,
     format(start, end, strings, stream, col);
 }
 
-                            // ================================
-                            // local struct CommandLine_Ordinal
-                            // ================================
+                            // ==============
+                            // struct Ordinal
+                            // ==============
 
-struct CommandLine_Ordinal {
+struct Ordinal {
     // This 'struct' assists in printing numbers as ordinals (1st, 2nd, etc.).
 
     bsl::size_t d_rank;  // rank (starting at 0)
 
     // CREATORS
-    explicit CommandLine_Ordinal(bsl::size_t n);
+    explicit Ordinal(bsl::size_t n);
         // Create an ordinal for the specified position 'n' (starting at 0).
 };
 
-// CREATORS
-CommandLine_Ordinal::CommandLine_Ordinal(bsl::size_t n)
-: d_rank(n)
-{
-}
-
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream& stream, CommandLine_Ordinal position);
+bsl::ostream& operator<<(bsl::ostream& stream, Ordinal position);
     // Output the specified 'position' (starting at 0) to the specified
     // 'stream' as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4 to
     // "4th", etc. following correct English usage.
 
-bsl::ostream& operator<<(bsl::ostream& stream, CommandLine_Ordinal position)
+                            // --------------
+                            // struct Ordinal
+                            // --------------
+
+// CREATORS
+Ordinal::Ordinal(bsl::size_t n)
+: d_rank(n)
+{
+}
+
+}  // close namespace u
+
+// FREE OPERATORS
+bsl::ostream& u::operator<<(bsl::ostream& stream, Ordinal position)
 {
     // ranks start at 0, but are displayed as 1st, 2nd, etc.
     int n = static_cast<int>(position.d_rank + 1);
@@ -187,11 +195,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, CommandLine_Ordinal position)
     return stream;
 }
 
-                        // =================================
-                        // class CommandLine_OptionValueUtil
-                        // =================================
+namespace u {
 
-struct CommandLine_OptionValueUtil {
+                        // =====================
+                        // class OptionValueUtil
+                        // =====================
+
+struct OptionValueUtil {
     static void setValue(void *dst, const OptionValue& src);
         // Assign to the object at the specified 'dst' the value of the
         // specified 'src'.  The behavior is undefined unless
@@ -199,12 +209,12 @@ struct CommandLine_OptionValueUtil {
         // pointer to an object of 'OptionType::EnumToType<src.type()>::type'.
 };
 
-                        // ---------------------------------
-                        // class CommandLine_OptionValueUtil
-                        // ---------------------------------
+                        // ---------------------
+                        // class OptionValueUtil
+                        // ---------------------
 
-void CommandLine_OptionValueUtil::setValue(void               *dst,
-                                           const OptionValue&  src)
+void OptionValueUtil::setValue(void               *dst,
+                               const OptionValue&  src)
 {
     BSLS_ASSERT(dst);
 
@@ -269,50 +279,17 @@ void CommandLine_OptionValueUtil::setValue(void               *dst,
     }
 }
 
-                        // ===========================================
-                        // local function privateValidateAndInitialize
-                        // ===========================================
-
-int privateValidateAndInitialize(
-                              bsl::vector<OptionValue>       *data,
-                              bsl::vector<bsl::vector<int> > *positions,
-                              bsl::vector<int>               *nonOptionIndices,
-                              const bsl::vector<Option>&      options,
-                              bsl::ostream&                   stream)
+int validate(const bsl::vector<Option>& options,
+             bsl::ostream&              stream)
     // Validate the specified 'options' against the constraints described in
     // {Valid 'balcl::OptionInfo' Specifications} in the component-level
-    // documentation and initialize the specified 'data', 'positions', and
-    // 'nonOptionIndices' as described below.  Return 0 if 'options' are valid
-    // and a non-zero value otherwise.  If 'options' is invalid, a descriptive
-    // message is written to the specified 'stream'.
-    //
-    // The initializations are:
-    //
-    //: o 'data' is initialized with 'option.size()' elements, each in the
-    //:   "null" state, and each having the same type as the corresponding
-    //:   option element in 'options'.
-    //:
-    //: o 'positions' is initialized with 'options.size()' empty vectors of
-    //:   'int'.
-    //:
-    //: o 'nonOptionIndices' is initialized with the indices in 'options', in
-    //:   ascending order, where non-option arguments are found, if any.
-    //
-    // The behavior is undefined unless 'data', 'positions, and
-    // 'nonOptionIndices' are empty.  Note that there is no guarantee that
-    // 'data', 'positions', and 'nonOptionIndices' remain empty if a non-zero
-    // value is returned.
-
+    // documentation.  Return 0 if 'options' are valid, and a non-zero value
+    // otherwise.  If 'options' is invalid, a descriptive message is written to
+    // the specified 'stream'.
 {
-    BSLS_ASSERT(data);              BSLS_ASSERT(            data->empty());
-    BSLS_ASSERT(positions);         BSLS_ASSERT(       positions->empty());
-    BSLS_ASSERT(nonOptionIndices);  BSLS_ASSERT(nonOptionIndices->empty());
-
-    data->reserve(options.size());
-
     int status = 0;
 
-    for (unsigned int i = 0; i < options.size(); ++i) {
+    for (bsl::size_t i = 0; i < options.size(); ++i) {
         const Option& thisOption = options[i];
 
         // Start with basic validity checks.  Try to do as many checks at a
@@ -320,7 +297,7 @@ int privateValidateAndInitialize(
 
         if (!thisOption.isTagValid(stream)) {
             stream << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << u::Ordinal(i) << " option." << '\n'
                    << bsl::flush;
 
             status = 1;
@@ -328,7 +305,7 @@ int privateValidateAndInitialize(
 
         if (!thisOption.isNameValid(stream)) {
             stream << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << u::Ordinal(i) << " option." << '\n'
                    << bsl::flush;
 
             status = 2;
@@ -336,7 +313,7 @@ int privateValidateAndInitialize(
 
         if (!thisOption.isDescriptionValid(stream)) {
             stream << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << u::Ordinal(i) << " option." << '\n'
                    << bsl::flush;
 
             status = 3;
@@ -347,7 +324,7 @@ int privateValidateAndInitialize(
         {
             stream << "No default value is allowed for the flag." << '\n'
                    << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << u::Ordinal(i) << " option." << '\n'
                    << bsl::flush;
 
             status = 4;
@@ -359,7 +336,7 @@ int privateValidateAndInitialize(
             stream << "The type of default value does not "
                       "match the type specified for the option." << '\n'
                    << "The error occurred while validating the "
-                   << CommandLine_Ordinal(i) << " option." << '\n'
+                   << u::Ordinal(i) << " option." << '\n'
                    << bsl::flush;
 
             status = 5;
@@ -367,11 +344,11 @@ int privateValidateAndInitialize(
 
         // Tags and names must be unique.
 
-        for (unsigned int j = 0; j < i; ++j) {
+        for (bsl::size_t j = 0; j < i; ++j) {
             if (thisOption.name() == options[j].name()) {
                 stream << "Error: The names for the "
-                       << CommandLine_Ordinal(i) << " and "
-                       << CommandLine_Ordinal(j) << " options are equal."
+                       << u::Ordinal(i) << " and "
+                       << u::Ordinal(j) << " options are equal."
                        << '\n' << bsl::flush;
 
                 status = 6;
@@ -379,7 +356,7 @@ int privateValidateAndInitialize(
         }
 
         if (thisOption.argType() != OptionInfo::e_NON_OPTION) {
-            for (unsigned int j = 0; j < i; ++j) {
+            for (bsl::size_t j = 0; j < i; ++j) {
                 if (options[j].argType() == OptionInfo::e_NON_OPTION) {
                     continue;
                 }
@@ -387,8 +364,8 @@ int privateValidateAndInitialize(
                 if (thisOption.shortTag()
                  && thisOption.shortTag() == options[j].shortTag()) {
                     stream << "Error: short tags for the "
-                           << CommandLine_Ordinal(i) << " and "
-                           << CommandLine_Ordinal(j) << " options are equal."
+                           << u::Ordinal(i) << " and "
+                           << u::Ordinal(j) << " options are equal."
                            << '\n' << bsl::flush;
 
                     status = 7;
@@ -397,8 +374,8 @@ int privateValidateAndInitialize(
                 if (!bsl::strcmp(thisOption.longTag(),
                                  options[j].longTag())) {
                     stream << "Error: long tags for the "
-                           << CommandLine_Ordinal(i) << " and "
-                           << CommandLine_Ordinal(j) << " options are equal."
+                           << u::Ordinal(i) << " and "
+                           << u::Ordinal(j) << " options are equal."
                            << '\n' << bsl::flush;
 
                     status = 8;
@@ -414,7 +391,7 @@ int privateValidateAndInitialize(
             if (thisOption.occurrenceInfo().isHidden()) {
                 stream << "Error: A non-option argument cannot be hidden.\n"
                           "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option.\n"
+                       << u::Ordinal(i) << " option.\n"
                        << bsl::flush;
 
                 status = 9;
@@ -426,18 +403,11 @@ int privateValidateAndInitialize(
         return status;                                                // RETURN
     }
 
-    for (unsigned int i = 0; i < options.size(); ++i) {
+    bool seenNonOption      = false;
+    int  lastNonOptionIndex = -1;
+
+    for (bsl::size_t i = 0; i < options.size(); ++i) {
         const Option& thisOption = options[i];
-
-        // Initialize 'positions' and 'data' for this option.
-
-        bsl::vector<int> v;
-        positions->push_back(v);
-
-        balcl::OptionValue nullElement(thisOption.typeInfo().type());
-        nullElement.setNull();
-
-        data->push_back(nullElement);
 
         // Validate and initialize with the default values.
 
@@ -447,7 +417,7 @@ int privateValidateAndInitialize(
                                     thisOption.typeInfo(),
                                     stream)) {
                 stream << "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option." << '\n'
+                       << u::Ordinal(i) << " option." << '\n'
                        << bsl::flush;
 
                 return status;                                        // RETURN
@@ -459,14 +429,13 @@ int privateValidateAndInitialize(
         if (OptionInfo::e_NON_OPTION == thisOption.argType()) {
             // Only last non-option argument can be multi-valued.
 
-            if (!nonOptionIndices->empty()
-             && options[nonOptionIndices->back()].isArray()) {
+            if (seenNonOption && options[lastNonOptionIndex].isArray()) {
                 stream << "Error: A multi-valued non-option argument was "
                           "already specified as the "
-                       << CommandLine_Ordinal(nonOptionIndices->back())
+                       << u::Ordinal(lastNonOptionIndex)
                        << " option." << '\n'
                        << "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option." << '\n'
+                       << u::Ordinal(i) << " option." << '\n'
                        << bsl::flush;
 
                 return status;                                        // RETURN
@@ -476,30 +445,77 @@ int privateValidateAndInitialize(
             // subsequent non-option arguments.
 
             if (!thisOption.occurrenceInfo().hasDefaultValue()
-             && !nonOptionIndices->empty()
-             && options[nonOptionIndices->back()].
-                                          occurrenceInfo().hasDefaultValue()) {
+             && seenNonOption
+             && options[lastNonOptionIndex].occurrenceInfo().hasDefaultValue())
+                                                                              {
                 stream << "Error: A default value was provided "
                           "for the previous non-option argument, "
                           "specified as\nthe "
-                       << CommandLine_Ordinal(nonOptionIndices->back())
+                       << u::Ordinal(lastNonOptionIndex)
                        << " option, but not for this non-option." << '\n'
                        << "The error occurred while validating the "
-                       << CommandLine_Ordinal(i) << " option." << '\n'
+                       << u::Ordinal(i) << " option." << '\n'
                        << bsl::flush;
 
                 return status;                                        // RETURN
             }
 
-            // Set 'nonOptionIndices' for this option.
-
-            nonOptionIndices->push_back(i);
+            seenNonOption      = true;
+            lastNonOptionIndex = static_cast<int>(i);
         }
     }
 
     return status;
 }
 
+void initialize(bsl::vector<OptionValue>       *data,
+                bsl::vector<bsl::vector<int> > *positions,
+                bsl::vector<int>               *nonOptionIndices,
+                const bsl::vector<Option>&      options)
+    // Initialize the specified 'data', 'positions', and 'nonOptionIndices'
+    // according to the specified 'options'.  The initializations are:
+    //
+    //: o 'data' is initialized with 'option.size()' elements, each in the
+    //:   "null" state, and each having the same type as the corresponding
+    //:   option element in 'options'.
+    //:
+    //: o 'positions' is initialized with 'options.size()' empty vectors of
+    //:   'int'.
+    //:
+    //: o 'nonOptionIndices' is initialized with the indices in 'options', in
+    //:   ascending order, where non-option arguments are found, if any.
+    //
+    // The behavior is undefined unless 'data', 'positions, and
+    // 'nonOptionIndices' are empty, and unless 'options' are valid according
+    // to the 'validate' function.  Note that there is no guarantee that
+    // 'data', 'positions', and 'nonOptionIndices' remain empty if a non-zero
+    // value is returned.
+{
+    BSLS_ASSERT(data);
+    BSLS_ASSERT(positions);
+    BSLS_ASSERT(nonOptionIndices);
+
+    bsl::ostringstream oss;  (void)oss;
+    BSLS_ASSERT_SAFE(0 == validate(options, oss));
+
+    for (bsl::size_t i = 0; i < options.size(); ++i) {
+        const Option& thisOption = options[i];
+
+        bsl::vector<int> v;
+        positions->push_back(v);
+
+        balcl::OptionValue nullElement(thisOption.typeInfo().type());
+        nullElement.setNull();
+
+        data->push_back(nullElement);
+
+        if (OptionInfo::e_NON_OPTION == thisOption.argType()) {
+            nonOptionIndices->push_back(static_cast<int>(i));
+        }
+    }
+}
+
+}  // close namespace u
 }  // close unnamed namespace
 
 // ============================================================================
@@ -864,8 +880,7 @@ int CommandLine::postParse(bsl::ostream& stream)
         if (!d_data[i].isNull()) {
 
             if (info.linkedVariable()) {
-                CommandLine_OptionValueUtil::setValue(info.linkedVariable(),
-                                                      d_data[i]);
+                u::OptionValueUtil::setValue(info.linkedVariable(), d_data[i]);
             }
 
             d_data1.push_back(d_data[i]);
@@ -877,9 +892,8 @@ int CommandLine::postParse(bsl::ostream& stream)
             // 'validateAndInitialize'.  But to be safe...
 
             if (info.linkedVariable()) {
-                CommandLine_OptionValueUtil::setValue(
-                                                   info.linkedVariable(),
-                                                   defaultInfo.defaultValue());
+                u::OptionValueUtil::setValue(info.linkedVariable(),
+                                             defaultInfo.defaultValue());
             }
 
             d_data1.push_back(defaultInfo.defaultValue());
@@ -908,14 +922,13 @@ void CommandLine::validateAndInitialize()
 
 void CommandLine::validateAndInitialize(bsl::ostream& stream)
 {
-    int status = privateValidateAndInitialize(&d_data,
-                                              &d_positions,
-                                              &d_nonOptionIndices,
-                                              d_options,
-                                              stream);
+    int status = u::validate(d_options, stream);
+
     if (0 != status) {
         EXIT_IF_FALSE(k_INVALID_COMMAND_LINE_SPEC);
     }
+
+    u::initialize(&d_data, &d_positions, &d_nonOptionIndices, d_options);
 }
 
 // PRIVATE ACCESSORS
@@ -959,18 +972,18 @@ void CommandLine::location(bsl::ostream& stream,
 {
     if (end != -1) {
         stream << "The error occurred while parsing the "
-               << CommandLine_Ordinal(start) << " to "
-               << CommandLine_Ordinal(end) << " characters of the "
-               << CommandLine_Ordinal(index - 1) << " argument." << '\n';
+               << u::Ordinal(start) << " to "
+               << u::Ordinal(end) << " characters of the "
+               << u::Ordinal(index - 1) << " argument." << '\n';
     }
     else if (start != -1) {
         stream << "The error occurred while parsing the "
-               << CommandLine_Ordinal(start) << " character of the "
-               << CommandLine_Ordinal(index - 1) << " argument." << '\n';
+               << u::Ordinal(start) << " character of the "
+               << u::Ordinal(index - 1) << " argument." << '\n';
     }
     else {
         stream << "The error occurred while parsing the "
-               << CommandLine_Ordinal(index - 1) << " argument." << '\n';
+               << u::Ordinal(index - 1) << " argument." << '\n';
     }
     stream << bsl::flush;
 }
@@ -1031,15 +1044,8 @@ bool CommandLine::isValidOptionSpecificationTable(const OptionInfo *specTable,
         options.push_back(Option(specTable[i]));
     }
 
-    bsl::vector<OptionValue>       data;
-    bsl::vector<bsl::vector<int> > positions;
-    bsl::vector<int>               nonOptionIndices;
+    int status = u::validate(options, stream);
 
-    int status = privateValidateAndInitialize(&data,
-                                              &positions,
-                                              &nonOptionIndices,
-                                              options,
-                                              stream);
     return 0 == status;
 }
 
@@ -1201,7 +1207,6 @@ bool CommandLine::isValid() const
 {
     return e_PARSED == d_state;
 }
-
 
 int CommandLine::numSpecified(const bsl::string& name) const
 {
@@ -1479,11 +1484,11 @@ void CommandLine::printUsage(bsl::ostream& stream) const
     int end   = 80;
     stream << '\n';
     stream << usage;
-    format(static_cast<int>(usage.size()),
-           end,
-           options,
-           stream,
-           static_cast<int>(usage.size()));
+    u::format(static_cast<int>(usage.size()),
+              end,
+              options,
+              stream,
+              static_cast<int>(usage.size()));
 
     stream << "\nWhere:\n";
 
@@ -1546,13 +1551,13 @@ void CommandLine::printUsage(bsl::ostream& stream) const
                 str += " (default: " + oss.str() + ')';
             }
             if (k_DESCRIPTION_NEW_LINE) {
-                format(k_NEW_LINE_INDENTATION, end, str, stream);
+                u::format(k_NEW_LINE_INDENTATION, end, str, stream);
             } else {
-                format(k_DESCRIPTION_START_POSITION,
-                       end,
-                       str,
-                       stream,
-                       k_DESCRIPTION_START_POSITION);
+                u::format(k_DESCRIPTION_START_POSITION,
+                          end,
+                          str,
+                          stream,
+                          k_DESCRIPTION_START_POSITION);
             }
             stream << '\n' << bsl::flush;
         }
@@ -1589,13 +1594,13 @@ void CommandLine::printUsage(bsl::ostream& stream) const
                 str += " (default: " + oss.str() + ')';
             }
             if (k_DESCRIPTION_NEW_LINE) {
-                format(k_NEW_LINE_INDENTATION, end, str, stream);
+                u::format(k_NEW_LINE_INDENTATION, end, str, stream);
             } else {
-                format(k_DESCRIPTION_START_POSITION,
-                       end,
-                       str,
-                       stream,
-                       k_DESCRIPTION_START_POSITION);
+                u::format(k_DESCRIPTION_START_POSITION,
+                          end,
+                          str,
+                          stream,
+                          k_DESCRIPTION_START_POSITION);
             }
             stream << '\n' << bsl::flush;
         }

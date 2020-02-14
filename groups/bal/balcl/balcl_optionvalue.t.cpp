@@ -46,12 +46,12 @@ using namespace bsl;
 //: o Can be in an unspecified (null) state.
 //: o Can be in a unset state.
 //
-// By design, the contained type of an object can be changed only via the
-// 'setType' method that is implemented by 'reset'ing the object to its unset
-// state.  Although this feature is less than optimum for a class of general
-// use, the behavior suffices for its use in 'balcl_commandline' and saves us
-// the need to explore the large cross product of supported types for each
-// operation.
+// By design, the type of these (type variant) objects can be changed by using
+// a method, 'setType', that is implemented by 'reset'ing the object to its
+// unset state.  Although this feature is less than optimal for a class of
+// general use, the behavior suffices for its use in 'balcl_commandline' and
+// saves us the need to explore the large cross product of supported types for
+// each operation.
 //
 // The class under test is based on two other classes 'bdlb::Variant' and
 // 'bdlb::NullableValue' that are "configured" and wrapped in a manner suitable
@@ -135,7 +135,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLES
-// [ 2] CONCERN: HELPER 'perturbType'
+// [ 2] CONCERN: HELPER 'u::shiftType'
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -401,78 +401,190 @@ Ot::TimeArray     ValueB<Ot::TimeArray>    ::s_value =
                                                     ValueB<Ot::Time>::s_value);
 
 #define DEFINE_OBJECT_TEST_SET                                                \
-        const Obj Unset;                                                      \
+  const Obj Unset;                                                            \
                                                                               \
-        Obj mNullBool       (Ot::e_BOOL);         mNullBool       .setNull(); \
-        Obj mNullChar       (Ot::e_CHAR);         mNullChar       .setNull(); \
-        Obj mNullString     (Ot::e_STRING);       mNullString     .setNull(); \
-        Obj mNullStringArray(Ot::e_STRING_ARRAY); mNullStringArray.setNull(); \
+  Obj mNullBool         (Ot::e_BOOL          ); mNullBool         .setNull(); \
+  Obj mNullChar         (Ot::e_CHAR          ); mNullChar         .setNull(); \
+  Obj mNullInt          (Ot::e_INT           ); mNullInt          .setNull(); \
+  Obj mNullInt64        (Ot::e_INT64         ); mNullInt64        .setNull(); \
+  Obj mNullDouble       (Ot::e_DOUBLE        ); mNullDouble       .setNull(); \
+  Obj mNullString       (Ot::e_STRING        ); mNullString       .setNull(); \
+  Obj mNullDatetime     (Ot::e_DATETIME      ); mNullDatetime     .setNull(); \
+  Obj mNullDate         (Ot::e_DATE          ); mNullDate         .setNull(); \
+  Obj mNullTime         (Ot::e_TIME          ); mNullTime         .setNull(); \
+  Obj mNullCharArray    (Ot::e_CHAR_ARRAY    ); mNullCharArray    .setNull(); \
+  Obj mNullIntArray     (Ot::e_INT_ARRAY     ); mNullIntArray     .setNull(); \
+  Obj mNullInt64Array   (Ot::e_INT64_ARRAY   ); mNullInt64Array   .setNull(); \
+  Obj mNullDoubleArray  (Ot::e_DOUBLE_ARRAY  ); mNullDoubleArray  .setNull(); \
+  Obj mNullStringArray  (Ot::e_STRING_ARRAY  ); mNullStringArray  .setNull(); \
+  Obj mNullDatetimeArray(Ot::e_DATETIME_ARRAY); mNullDatetimeArray.setNull(); \
+  Obj mNullDateArray    (Ot::e_DATE_ARRAY    ); mNullDateArray    .setNull(); \
+  Obj mNullTimeArray    (Ot::e_TIME_ARRAY    ); mNullTimeArray    .setNull(); \
                                                                               \
-        const Obj& NullBool        = mNullBool;        (void)NullBool;        \
-        const Obj& NullChar        = mNullChar;        (void)NullChar;        \
-        const Obj& NullString      = mNullString;      (void)NullString;      \
-        const Obj& NullStringArray = mNullStringArray; (void)NullStringArray; \
+  const Obj& NullBool          = mNullBool;          (void)NullBool;          \
+  const Obj& NullChar          = mNullChar;          (void)NullChar;          \
+  const Obj& NullInt           = mNullInt;           (void)NullInt;           \
+  const Obj& NullInt64         = mNullInt64;         (void)NullInt64;         \
+  const Obj& NullDouble        = mNullDouble;        (void)NullDouble;        \
+  const Obj& NullString        = mNullString;        (void)NullString;        \
+  const Obj& NullDatetime      = mNullDatetime;      (void)NullDatetime;      \
+  const Obj& NullDate          = mNullDate;          (void)NullDate;          \
+  const Obj& NullTime          = mNullTime;          (void)NullTime;          \
+  const Obj& NullCharArray     = mNullCharArray;     (void)NullCharArray;     \
+  const Obj& NullIntArray      = mNullIntArray;      (void)NullIntArray;      \
+  const Obj& NullInt64Array    = mNullInt64Array;    (void)NullInt64Array;    \
+  const Obj& NullDoubleArray   = mNullDoubleArray;   (void)NullDoubleArray;   \
+  const Obj& NullStringArray   = mNullStringArray;   (void)NullStringArray;   \
+  const Obj& NullDatetimeArray = mNullDatetimeArray; (void)NullDatetimeArray; \
+  const Obj& NullDateArray     = mNullDateArray;     (void)NullDateArray;     \
+  const Obj& NullTimeArray     = mNullTimeArray;     (void)NullTimeArray;     \
                                                                               \
-        Obj mDfltBool       (Ot::e_BOOL);                                     \
-        Obj mDfltChar       (Ot::e_CHAR);                                     \
-        Obj mDfltString     (Ot::e_STRING);                                   \
-        Obj mDfltStringArray(Ot::e_STRING_ARRAY);                             \
+  Obj mDfltBool         (Ot::e_BOOL          );                               \
+  Obj mDfltChar         (Ot::e_CHAR          );                               \
+  Obj mDfltInt          (Ot::e_INT           );                               \
+  Obj mDfltInt64        (Ot::e_INT64         );                               \
+  Obj mDfltDouble       (Ot::e_DOUBLE        );                               \
+  Obj mDfltString       (Ot::e_STRING        );                               \
+  Obj mDfltDatetime     (Ot::e_DATETIME      );                               \
+  Obj mDfltDate         (Ot::e_DATE          );                               \
+  Obj mDfltTime         (Ot::e_TIME          );                               \
+  Obj mDfltCharArray    (Ot::e_CHAR_ARRAY    );                               \
+  Obj mDfltIntArray     (Ot::e_INT_ARRAY     );                               \
+  Obj mDfltInt64Array   (Ot::e_INT64_ARRAY   );                               \
+  Obj mDfltDoubleArray  (Ot::e_DOUBLE_ARRAY  );                               \
+  Obj mDfltStringArray  (Ot::e_STRING_ARRAY  );                               \
+  Obj mDfltDatetimeArray(Ot::e_DATETIME_ARRAY);                               \
+  Obj mDfltDateArray    (Ot::e_DATE_ARRAY    );                               \
+  Obj mDfltTimeArray    (Ot::e_TIME_ARRAY    );                               \
                                                                               \
-        const Obj& DfltBool        = mDfltBool;        (void)DfltBool;        \
-        const Obj& DfltChar        = mDfltChar;        (void)DfltChar;        \
-        const Obj& DfltString      = mDfltString;      (void)DfltString;      \
-        const Obj& DfltStringArray = mDfltStringArray; (void)DfltStringArray; \
+  const Obj& DfltBool          = mDfltBool;          (void)DfltBool;          \
+  const Obj& DfltChar          = mDfltChar;          (void)DfltChar;          \
+  const Obj& DfltInt           = mDfltInt;           (void)DfltInt;           \
+  const Obj& DfltInt64         = mDfltInt64;         (void)DfltInt64;         \
+  const Obj& DfltDouble        = mDfltDouble;        (void)DfltDouble;        \
+  const Obj& DfltString        = mDfltString;        (void)DfltString;        \
+  const Obj& DfltDatetime      = mDfltDatetime;      (void)DfltDatetime;      \
+  const Obj& DfltDate          = mDfltDate;          (void)DfltDate;          \
+  const Obj& DfltTime          = mDfltTime;          (void)DfltTime;          \
+  const Obj& DfltCharArray     = mDfltCharArray;     (void)DfltCharArray;     \
+  const Obj& DfltIntArray      = mDfltIntArray;      (void)DfltIntArray;      \
+  const Obj& DfltInt64Array    = mDfltInt64Array;    (void)DfltInt64Array;    \
+  const Obj& DfltDoubleArray   = mDfltDoubleArray;   (void)DfltDoubleArray;   \
+  const Obj& DfltStringArray   = mDfltStringArray;   (void)DfltStringArray;   \
+  const Obj& DfltDatetimeArray = mDfltDatetimeArray; (void)DfltDatetimeArray; \
+  const Obj& DfltDateArray     = mDfltDateArray;     (void)DfltDateArray;     \
+  const Obj& DfltTimeArray     = mDfltTimeArray;     (void)DfltTimeArray;     \
                                                                               \
-        Obj mVal1Bool       (ValueA<Ot::Bool>       ::s_value);               \
-        Obj mVal1Char       (ValueA<Ot::Char>       ::s_value);               \
-        Obj mVal1String     (ValueA<Ot::String>     ::s_value);               \
-        Obj mVal1StringArray(ValueA<Ot::StringArray>::s_value);               \
+  Obj mVal1Bool              (ValueA<Ot::Bool         >::s_value);            \
+  Obj mVal1Char              (ValueA<Ot::Char         >::s_value);            \
+  Obj mVal1Int               (ValueA<Ot::Int          >::s_value);            \
+  Obj mVal1Int64             (ValueA<Ot::Int64        >::s_value);            \
+  Obj mVal1Double            (ValueA<Ot::Double       >::s_value);            \
+  Obj mVal1String            (ValueA<Ot::String       >::s_value);            \
+  Obj mVal1Datetime          (ValueA<Ot::Datetime     >::s_value);            \
+  Obj mVal1Date              (ValueA<Ot::Date         >::s_value);            \
+  Obj mVal1Time              (ValueA<Ot::Time         >::s_value);            \
+  Obj mVal1CharArray         (ValueA<Ot::CharArray    >::s_value);            \
+  Obj mVal1IntArray          (ValueA<Ot::IntArray     >::s_value);            \
+  Obj mVal1Int64Array        (ValueA<Ot::Int64Array   >::s_value);            \
+  Obj mVal1DoubleArray       (ValueA<Ot::DoubleArray  >::s_value);            \
+  Obj mVal1StringArray       (ValueA<Ot::StringArray  >::s_value);            \
+  Obj mVal1DatetimeArray     (ValueA<Ot::DatetimeArray>::s_value);            \
+  Obj mVal1DateArray         (ValueA<Ot::DateArray    >::s_value);            \
+  Obj mVal1TimeArray         (ValueA<Ot::TimeArray    >::s_value);            \
                                                                               \
-        const Obj& Val1Bool        = mVal1Bool;        (void)Val1Bool;        \
-        const Obj& Val1Char        = mVal1Char;        (void)Val1Char;        \
-        const Obj& Val1String      = mVal1String;      (void)Val1String;      \
-        const Obj& Val1StringArray = mVal1StringArray; (void)Val1StringArray; \
+  const Obj& Val1Bool          = mVal1Bool;          (void)Val1Bool;          \
+  const Obj& Val1Char          = mVal1Char;          (void)Val1Char;          \
+  const Obj& Val1Int           = mVal1Int;           (void)Val1Int;           \
+  const Obj& Val1Int64         = mVal1Int64;         (void)Val1Int64;         \
+  const Obj& Val1Double        = mVal1Double;        (void)Val1Double;        \
+  const Obj& Val1String        = mVal1String;        (void)Val1String;        \
+  const Obj& Val1Datetime      = mVal1Datetime;      (void)Val1Datetime;      \
+  const Obj& Val1Date          = mVal1Date;          (void)Val1Date;          \
+  const Obj& Val1Time          = mVal1Time;          (void)Val1Time;          \
+  const Obj& Val1CharArray     = mVal1CharArray;     (void)Val1CharArray;     \
+  const Obj& Val1IntArray      = mVal1IntArray;      (void)Val1IntArray;      \
+  const Obj& Val1Int64Array    = mVal1Int64Array;    (void)Val1Int64Array;    \
+  const Obj& Val1DoubleArray   = mVal1DoubleArray;   (void)Val1DoubleArray;   \
+  const Obj& Val1StringArray   = mVal1StringArray;   (void)Val1StringArray;   \
+  const Obj& Val1DatetimeArray = mVal1DatetimeArray; (void)Val1DatetimeArray; \
+  const Obj& Val1DateArray     = mVal1DateArray;     (void)Val1DateArray;     \
+  const Obj& Val1TimeArray     = mVal1TimeArray;     (void)Val1TimeArray;     \
                                                                               \
-        Obj mVal2Bool       (ValueB<Ot::Bool>       ::s_value);               \
-        Obj mVal2Char       (ValueB<Ot::Char>       ::s_value);               \
-        Obj mVal2String     (ValueB<Ot::String>     ::s_value);               \
-        Obj mVal2StringArray(ValueB<Ot::StringArray>::s_value);               \
+  Obj mVal2Bool              (ValueB<Ot::Bool         >::s_value);            \
+  Obj mVal2Char              (ValueB<Ot::Char         >::s_value);            \
+  Obj mVal2Int               (ValueB<Ot::Int          >::s_value);            \
+  Obj mVal2Int64             (ValueB<Ot::Int64        >::s_value);            \
+  Obj mVal2Double            (ValueB<Ot::Double       >::s_value);            \
+  Obj mVal2String            (ValueB<Ot::String       >::s_value);            \
+  Obj mVal2Datetime          (ValueB<Ot::Datetime     >::s_value);            \
+  Obj mVal2Date              (ValueB<Ot::Date         >::s_value);            \
+  Obj mVal2Time              (ValueB<Ot::Time         >::s_value);            \
+  Obj mVal2CharArray         (ValueB<Ot::CharArray    >::s_value);            \
+  Obj mVal2IntArray          (ValueB<Ot::IntArray     >::s_value);            \
+  Obj mVal2Int64Array        (ValueB<Ot::Int64Array   >::s_value);            \
+  Obj mVal2DoubleArray       (ValueB<Ot::DoubleArray  >::s_value);            \
+  Obj mVal2StringArray       (ValueB<Ot::StringArray  >::s_value);            \
+  Obj mVal2DatetimeArray     (ValueB<Ot::DatetimeArray>::s_value);            \
+  Obj mVal2DateArray         (ValueB<Ot::DateArray    >::s_value);            \
+  Obj mVal2TimeArray         (ValueB<Ot::TimeArray    >::s_value);            \
                                                                               \
-        const Obj& Val2Bool        = mVal2Bool;        (void)Val2Bool;        \
-        const Obj& Val2Char        = mVal2Char;        (void)Val2Char;        \
-        const Obj& Val2String      = mVal2String;      (void)Val2String;      \
-        const Obj& Val2StringArray = mVal2StringArray; (void)Val2StringArray; \
+  const Obj& Val2Bool          = mVal2Bool;          (void)Val2Bool;          \
+  const Obj& Val2Char          = mVal2Char;          (void)Val2Char;          \
+  const Obj& Val2Int           = mVal2Int;           (void)Val2Int;           \
+  const Obj& Val2Int64         = mVal2Int64;         (void)Val2Int64;         \
+  const Obj& Val2Double        = mVal2Double;        (void)Val2Double;        \
+  const Obj& Val2String        = mVal2String;        (void)Val2String;        \
+  const Obj& Val2Datetime      = mVal2Datetime;      (void)Val2Datetime;      \
+  const Obj& Val2Date          = mVal2Date;          (void)Val2Date;          \
+  const Obj& Val2Time          = mVal2Time;          (void)Val2Time;          \
+  const Obj& Val2CharArray     = mVal2CharArray;     (void)Val2CharArray;     \
+  const Obj& Val2IntArray      = mVal2IntArray;      (void)Val2IntArray;      \
+  const Obj& Val2Int64Array    = mVal2Int64Array;    (void)Val2Int64Array;    \
+  const Obj& Val2DoubleArray   = mVal2DoubleArray;   (void)Val2DoubleArray;   \
+  const Obj& Val2StringArray   = mVal2StringArray;   (void)Val2StringArray;   \
+  const Obj& Val2DatetimeArray = mVal2DatetimeArray; (void)Val2DatetimeArray; \
+  const Obj& Val2DateArray     = mVal2DateArray;     (void)Val2DateArray;     \
+  const Obj& Val2TimeArray     = mVal2TimeArray;     (void)Val2TimeArray;     \
 
 // ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+namespace {
+namespace u {
 
-static Ot::Enum perturbType(Ot::Enum type, int perturbation)
-    // Return the enumerated value that is the specified 'perturbation'
-    // advanced from the specified 'type' in the sequence
-    // '[Ot::e_BOOL .. Ot::e_TIME_ARRAY]'.  Perturbations that go past the end
-    // of the sequence wrap around to 'Ot::e_BOOL'.  The behavior is undefined
-    // if 'Ot::e_VOID == type'.  Note that 'perturbation' can be negative.
-    // Also note that 'Ot::e_VOID' is *not* part of the sequence.
+Ot::Enum shiftType(Ot::Enum type, int offset)
+    // Return the enumerated value that is the specified 'offset' advanced from
+    // the specified 'type' in the sequence '[Ot::e_BOOL .. Ot::e_TIME_ARRAY]'.
+    // Offsets that go past the end of the sequence wrap around to
+    // 'Ot::e_BOOL'.  The behavior is undefined if 'Ot::e_VOID == type'.  Note
+    // that 'offset' can be negative.  Also note that 'Ot::e_VOID' is *not*
+    // part of the sequence.
 {
-    BSLS_ASSERT(Ot::e_VOID != type);
+    ///Implementation Note
+    ///-------------------
+    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // guarantee that there are no misleading exceptions thrown when this
+    // function is used in negative tests.
+
+    ASSERT(Ot::e_VOID != type || 0 == offset);
 
     int typeAsInt  = static_cast<int>(type);
     int numOptions = static_cast<int>(Ot::e_TIME_ARRAY) + 1;
 
-    BSLS_ASSERT(18 == numOptions);
+    ASSERT(18 == numOptions);
 
     // Map range from [1 .. 17] to [0 .. 16].
     --typeAsInt;
     --numOptions;
-      perturbation %= numOptions;
+      offset %= numOptions;
 
-      // Apply perturbation.
-    if (0 < perturbation) {
-        typeAsInt += perturbation;
+      // Apply offset.
+    if (0 < offset) {
+        typeAsInt += offset;
     } else {
-        typeAsInt += (numOptions + perturbation);
+        typeAsInt += (numOptions + offset);
     }
 
     typeAsInt %= numOptions;   // Map to   [0 .. 16].
@@ -481,29 +593,36 @@ static Ot::Enum perturbType(Ot::Enum type, int perturbation)
     return static_cast<Ot::Enum>(typeAsInt);
 }
 
-static void setValueDAB(Obj *objPtr, char cfg, int perturbation = 0)
+void setValueDAB(Obj *objPtr, char cfg, int offset = 0)
     // Set the value of the object at the specified 'objPtr' to one of three
-    // values as indicated by the specified 'cfg'.  Optionally specify a
-    // 'perturbation' of the type of the value set relative to the type of the
-    // value contained by of '*objPtr'.  The three allowed values for 'cfg'
-    // are:
-    //: 'D': The default value of the contained type.
-    //: 'A': The 'ValueA' corresponding to the contained type.
-    //: 'B': The 'ValueB' corresponding to the contained type.
-    // The behavior is undefined if 'Ot::e_VOID == objPtr->type()' or if 'cfg'
-    // has a value other that 'D', 'A', or 'B'.
+    // values as indicated by the specified 'cfg'.  Optionally specify an
+    // 'offset' from 'objPtr->type()' for the type of the value being set.  The
+    // three allowed values for 'cfg' are:
+    //
+    //: 'D': The default value for 'objPtr->type()'.
+    //: 'A': The 'ValueA'      for 'objPtr->type()'.
+    //: 'B': The 'ValueB'      for 'objPtr->type()'.
+    //
+    // The behavior is undefined if 'cfg' has a value other that 'D', 'A', or
+    // 'B', or if 'Ot::e_VOID == objPtr->type()' when '0 != offset'.
 {
-    BSLS_ASSERT(objPtr);
-    BSLS_ASSERT(Ot::e_VOID != objPtr->type());
-    BSLS_ASSERT('D' == cfg
-             || 'A' == cfg
-             || 'B' == cfg);
+    ///Implementation Note
+    ///-------------------
+    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // guarantee that there are no misleading exceptions thrown when this
+    // function is used in negative tests.
 
-    Ot::Enum type = perturbType(objPtr->type(), perturbation);
+    ASSERT(objPtr);
+    ASSERT(Ot::e_VOID != objPtr->type() || 0 == offset);
+    ASSERT('D' == cfg
+        || 'A' == cfg
+        || 'B' == cfg);
+
+    Ot::Enum type = shiftType(objPtr->type(), offset);
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"Reached");
+        ASSERT(!"Reached");
       } break;
       case Ot::e_BOOL: {
         switch (cfg) {
@@ -729,27 +848,96 @@ static void setValueDAB(Obj *objPtr, char cfg, int perturbation = 0)
     }
 }
 
-static bool hasValueDAB(const Obj& obj, char cfg, int perturbation = 0)
-    // Return 'true' if the specified 'obj' has a value corresponding to the
-    // value associated with the specified 'cfg'.  Optionally specify a
-    // 'perturbation' of the type of the value checked relative to the type of
-    // the value contained by 'obj'.  The three reference values are:
-    //: 'D': The default value of the contained type.
-    //: 'A': The 'ValueA' corresponding to the contained type.
-    //: 'B': The 'ValueB' corresponding to the contained type.
-    // The behavior is undefined if 'Ot::e_VOID == objPtr->type()' or if 'cfg'
-    // has a value other that 'D', 'A', or 'B'.
+template <class TYPE>
+bool checkValueDAB()
+    // Return 'true' if the three values for the template parameter 'TYPE':
+    //: o 'TYPE()
+    //: o 'ValueA<TYPE>::s_value'
+    //: o 'ValueB<TYPE>::s_value'
+    // are distinct from each other, and 'false' otherwise.  The classes
+    // 'ValueA<TYPE>' and 'ValueB<TYPE>' are defined at file scope.
 {
-    BSLS_ASSERT(Ot::e_VOID != obj.type());
-    BSLS_ASSERT('D' == cfg
-             || 'A' == cfg
-             || 'B' == cfg);
+    const TYPE D = TYPE();
+    const TYPE A(ValueA<TYPE>::s_value);
+    const TYPE B(ValueB<TYPE>::s_value);
 
-    Ot::Enum type = perturbType(obj.type(), perturbation);
+    return D != A
+        && D != B
+        && A != B;
+}
+
+template <>
+bool checkValueDAB<bool>()
+    // Return 'true' if the two values:
+    //: o 'ValueA<bool>::s_value'
+    //: o 'ValueB<bool>::s_value'
+    // are distinct from each other and 'bool() == ValueB<bool>::s_value', and
+    // 'false' otherwise.  The classes 'ValueA<bool>' and 'ValueB<bool>' are
+    // defined at file scope.
+{
+    const bool D = bool();
+    const bool A(ValueA<bool>::s_value);
+    const bool B(ValueB<bool>::s_value);
+
+    return D != A
+        && D == B   // only two distinct values of 'bool'
+        && A != B;
+}
+
+bool checkAllValuesDAB()
+    // Return 'true' if the function template 'checkValueDAB' returns 'true'
+    // for every option type specified in 'balcl::OptionType', and 'false'
+    // otherwise.
+{
+    return checkValueDAB<Ot::Bool>()
+        && checkValueDAB<Ot::Char>()
+        && checkValueDAB<Ot::Int>()
+        && checkValueDAB<Ot::Int64>()
+        && checkValueDAB<Ot::Double>()
+        && checkValueDAB<Ot::String>()
+        && checkValueDAB<Ot::Datetime>()
+        && checkValueDAB<Ot::Date>()
+        && checkValueDAB<Ot::Time>()
+        && checkValueDAB<Ot::CharArray>()
+        && checkValueDAB<Ot::IntArray>()
+        && checkValueDAB<Ot::Int64Array>()
+        && checkValueDAB<Ot::DoubleArray>()
+        && checkValueDAB<Ot::StringArray>()
+        && checkValueDAB<Ot::DatetimeArray>()
+        && checkValueDAB<Ot::DateArray>()
+        && checkValueDAB<Ot::TimeArray>();
+}
+
+bool hasValueDAB(const Obj& obj, char cfg, int offset = 0)
+
+    // Return 'true' if the specified 'obj' has a value corresponding to the
+    // value associated with the specified 'cfg', and 'false' otherwise.
+    // Optionally specify an 'offset' from 'obj.type()' for the type of the
+    // value sought from 'obj'.  The three allowed values for 'cfg' are:
+    //
+    //: 'D': The default value for 'objPtr->type()'.
+    //: 'A': The 'ValueA'      for 'objPtr->type()'.
+    //: 'B': The 'ValueB'      for 'objPtr->type()'.
+    //
+    // The behavior is undefined if 'cfg' has a value other that 'D', 'A', or
+    // 'B', or if 'Ot::e_VOID == obj.type()' when '0 != offset'.
+{
+    ///Implementation Note
+    ///-------------------
+    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // guarantee that there are no misleading exceptions thrown when this
+    // function is used in negative tests.
+
+    ASSERT(Ot::e_VOID != obj.type() || 0 == offset);
+    ASSERT('D' == cfg
+        || 'A' == cfg
+        || 'B' == cfg);
+
+    Ot::Enum type = shiftType(obj.type(), offset);
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"Reached");
+        ASSERT(!"Reached");
       } break;
       case Ot::e_BOOL: {
         switch (cfg) {
@@ -1005,15 +1193,14 @@ static bool hasValueDAB(const Obj& obj, char cfg, int perturbation = 0)
       } break;
     }
 
-    BSLS_ASSERT(!"Reached");
+    ASSERT(!"Reached");
     return false; // Suppress warning.
 }
 
-static bslma::Allocator *getContainedAllocator(const Obj& obj)
-    // Return the allocator of the contained value of the specified 'obj'.  The
-    // behavior is undefined unless the type of the contained value is an
-    // allocating type.
-
+bslma::Allocator *getContainedAllocator(const Obj& obj)
+    // Return the allocator of the the specified 'obj'.  The behavior is
+    // undefined unless 'OptionType::EnumToType<ENUM>::type' is an allocating
+    // type where 'ENUM' matches 'obj.type()'.
 {
     BSLS_ASSERT(Ot::e_VOID     != obj.type()
              && Ot::e_BOOL     != obj.type()
@@ -1087,45 +1274,19 @@ static bslma::Allocator *getContainedAllocator(const Obj& obj)
     return 0; // Suppress warning.
 }
 
-static bool checkStringArrayElementAllocators(
-                                           const Obj&        obj,
-                                           bslma::Allocator *expectedAllocator)
-    // Return 'true' if every element of the specified 'obj' uses the specified
-    // 'expectedAllocator', and 'false' otherwise.  The behavior is undefined
-    // unless 'obj' is an "array" type of elements that are allocating types.
-{
-    BSLS_ASSERT(Ot::e_STRING_ARRAY == obj.type());
-
-    for (Ot::StringArray::const_iterator cur = obj.the<Ot::StringArray>()
-                                                  .cbegin(),
-                                         end = obj.the<Ot::StringArray>()
-                                                  .cend();
-                                         end != cur; ++cur) {
-        if (expectedAllocator != cur->get_allocator().mechanism()) {
-            return false;                                             // RETURN
-        }
-    }
-
-    return true;
-}
-
-static bool checkAllocator(const Obj&        obj,
-                           bool              isAllocatingType,
-                           bslma::Allocator *expectedAllocator)
-    // Return 'true' if the specified 'obj' that contains a value that is an
-    // allocating type (or not) according the specified 'isAllocatingType' has
-    // the specified 'expectedAllocator' installed wherever required.  There
-    // are three concerns:
+bool checkAllocator(const Obj&        obj,
+                    bool              isAllocatingType,
+                    bslma::Allocator *expectedAllocator)
+    // Return 'true' if the specified 'expectedAllocator' is properly
+    // "installed" in the specified 'obj' according to the specified
+    // 'isAllocatingType', and 'false' otherwise.  There are two requirements
+    // for correctly "installed":
     //
-    //: 1 The 'obj' should use 'expectedAllocator'.
-    //
-    //: 2 If the value (if any) contained by 'obj' 'isAllocatingType' (i.e.,
-    //:   'Ot::e_STRING' and any of the array types) then 'value' should use
+    //: 1 The 'obj' should use 'expectedAllocator' (unconditionally).
+    //:
+    //: 2 If 'obj' has a value and the value's type 'isAllocatingType' (i.e.,
+    //:   'Ot::e_STRING' and any of the array types) then that value must use
     //:   the 'expectedAllocator'.
-    //
-    //: 3 If contained value is an array of elements that are allocating types
-    //:   (i.e., 'Ot::e_STRING_ARRAY'), each of those elements should use the
-    //:   'expectedAllocator'.
 {
     if (expectedAllocator != obj.allocator()) {
         return false;                                                 // RETURN
@@ -1135,19 +1296,13 @@ static bool checkAllocator(const Obj&        obj,
 
         if (expectedAllocator != getContainedAllocator(obj)) {
             return false;                                             // RETURN
-
-            if (Ot::e_STRING_ARRAY == obj.type()) {
-                return checkStringArrayElementAllocators(obj,
-                                                         expectedAllocator);
-                                                                      // RETURN
-            }
         }
     }
 
     return true;
 }
 
-static int checkPrint(const Obj& obj)
+int checkPrint(const Obj& obj)
     // Return 0 if streaming the specified 'obj' seems correct, and a non-zero
     // value otherwise.  Correctness is decided based on several heuristics
     // that vary according to the state (unset or not), type, and null stater
@@ -1157,7 +1312,7 @@ static int checkPrint(const Obj& obj)
 
     bsl::ostringstream ossStream;
 
-    ossStream << obj;
+    ASSERT(&ossStream == &(ossStream << obj));  // ACTION
 
     if (veryVeryVerbose) {
         cout << "STREAM:"       << endl
@@ -1175,7 +1330,7 @@ static int checkPrint(const Obj& obj)
         }
     } else if (Ot::e_STRING == type
             && false        == obj.isNull()
-            && true         == hasValueDAB(obj, 'D')) {
+            && true         == u::hasValueDAB(obj, 'D')) {
         if (0 < streamLength) {
             return 2;                                                 // RETURN
         }
@@ -1204,6 +1359,9 @@ static int checkPrint(const Obj& obj)
 
     return 0;
 }
+
+}  // close namespace u
+}  // close unnamed namespace
 
 // ============================================================================
 //                              TEMPLATE TEST FACILITY
@@ -1261,7 +1419,6 @@ struct TestDriver {
                         // struct TestDriver
                         // -----------------
 
-
 template <class TYPE>
 void TestDriver<TYPE>::testCase9()
 {
@@ -1284,25 +1441,24 @@ void TestDriver<TYPE>::testCase9()
     ASSERT(true  == X.hasNonVoidType());
     ASSERT(type  == X.type());
     ASSERT(false == X.isNull());
-    ASSERT(true  == hasValueDAB(X, 'A'));
-    ASSERT(true  == checkAllocator(X, isAllocatingType, &sa));
+    ASSERT(true  == u::hasValueDAB(X, 'A'));
+    ASSERT(true  == u::checkAllocator(X, isAllocatingType, &sa));
 
     mX.the<TYPE>() = ValueB<TYPE>::s_value;  // ACTION
 
     ASSERT(true  == X.hasNonVoidType());
     ASSERT(type  == X.type());
     ASSERT(false == X.isNull());
-    ASSERT(true  == hasValueDAB(X, 'B'));
-    ASSERT(true  == checkAllocator(X, isAllocatingType, &sa));
+    ASSERT(true  == u::hasValueDAB(X, 'B'));
+    ASSERT(true  == u::checkAllocator(X, isAllocatingType, &sa));
 
     mX.the<TYPE>() = TYPE();               // ACTION
 
     ASSERT(true  == X.hasNonVoidType());
     ASSERT(type  == X.type());
     ASSERT(false == X.isNull());
-    ASSERT(true  == hasValueDAB(X, 'D'));
-    ASSERT(true  == checkAllocator(X, isAllocatingType, &sa));
-
+    ASSERT(true  == u::hasValueDAB(X, 'D'));
+    ASSERT(true  == u::checkAllocator(X, isAllocatingType, &sa));
 
     if (verbose) cout << endl << "Negative Testing." << endl;
     {
@@ -1312,13 +1468,13 @@ void TestDriver<TYPE>::testCase9()
             Obj mZ;  // unset state
             ASSERT_FAIL(mZ.the<TYPE>() = ValueA<TYPE>::s_value);
 
-            mZ.setType(perturbType(type, -1));
+            mZ.setType(u::shiftType(type, -1));
             ASSERT_FAIL(mZ.the<TYPE>() = ValueA<TYPE>::s_value);
 
-            mZ.setType(perturbType(type,  0));
+            mZ.setType(u::shiftType(type,  0));
             ASSERT_PASS(mZ.the<TYPE>() = ValueA<TYPE>::s_value);
 
-            mZ.setType(perturbType(type,  1));
+            mZ.setType(u::shiftType(type,  1));
             ASSERT_FAIL(mZ.the<TYPE>() = ValueA<TYPE>::s_value);
 
             mZ.setNull();
@@ -1422,8 +1578,8 @@ void TestDriver<TYPE>::testCase4()
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, LETTER));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(true  == u::hasValueDAB(X, LETTER));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
 
             fa.deleteObject(objPtr);
         }
@@ -1484,7 +1640,7 @@ void TestDriver<TYPE>::testCase3()
 
         ASSERT(false      == X.hasNonVoidType());
         ASSERT(Ot::e_VOID == X.type());
-        ASSERT(0          == checkPrint(X));
+        ASSERT(0          == u::checkPrint(X));
 
         if (veryVeryVerbose) {
             cout << "\t\t" "setType" << ": "     << type
@@ -1496,51 +1652,51 @@ void TestDriver<TYPE>::testCase3()
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, 'D'));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
-            ASSERT(0     == checkPrint(X));
+            ASSERT(true  == u::hasValueDAB(X, 'D'));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(0     == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
             cout << "\t\t" "setValue: A" << endl;
         }
         {
-            setValueDAB(&mX, 'A');
+            u::setValueDAB(&mX, 'A');
 
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, 'A'));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
-            ASSERT(0     == checkPrint(X));
+            ASSERT(true  == u::hasValueDAB(X, 'A'));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(0     == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
             cout << "\t\t" "setValue: B" << endl;
         }
         {
-            setValueDAB(&mX, 'B');
+            u::setValueDAB(&mX, 'B');
 
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, 'B'));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
-            ASSERT(0     == checkPrint(X));
+            ASSERT(true  == u::hasValueDAB(X, 'B'));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(0     == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
             cout << "\t\t" "setValue: D" << endl;
         }
         {
-            setValueDAB(&mX, 'D');
+            u::setValueDAB(&mX, 'D');
 
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, 'D'));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
-            ASSERT(0     == checkPrint(X));
+            ASSERT(true  == u::hasValueDAB(X, 'D'));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(0     == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
@@ -1552,7 +1708,7 @@ void TestDriver<TYPE>::testCase3()
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(true  == X.isNull());
-            ASSERT(0     == checkPrint(X));
+            ASSERT(0     == u::checkPrint(X));
                 // That is all we can check without a value.
         }
 
@@ -1560,14 +1716,14 @@ void TestDriver<TYPE>::testCase3()
             cout << "\t\t" "setValue: A (second time)" << endl;
         }
         {
-            setValueDAB(&mX, 'A');
+            u::setValueDAB(&mX, 'A');
 
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, 'A'));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
-            ASSERT(0     == checkPrint(X));
+            ASSERT(true  == u::hasValueDAB(X, 'A'));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(0     == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
@@ -1579,7 +1735,7 @@ void TestDriver<TYPE>::testCase3()
 
             ASSERT(false       == X.hasNonVoidType());
             ASSERT(Ot::e_VOID  == X.type());
-            ASSERT(0           == checkPrint(X));
+            ASSERT(0           == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
@@ -1593,9 +1749,9 @@ void TestDriver<TYPE>::testCase3()
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, 'D'));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
-            ASSERT(0     == checkPrint(X));
+            ASSERT(true  == u::hasValueDAB(X, 'D'));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(0     == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
@@ -1603,14 +1759,14 @@ void TestDriver<TYPE>::testCase3()
         }
 
         {
-            setValueDAB(&mX, 'B');
+            u::setValueDAB(&mX, 'B');
 
             ASSERT(true  == X.hasNonVoidType());
             ASSERT(type  == X.type());
             ASSERT(false == X.isNull());
-            ASSERT(true  == hasValueDAB(X, 'B'));
-            ASSERT(true  == checkAllocator(X, isAllocatingType, &oa));
-            ASSERT(0     == checkPrint(X));
+            ASSERT(true  == u::hasValueDAB(X, 'B'));
+            ASSERT(true  == u::checkAllocator(X, isAllocatingType, &oa));
+            ASSERT(0     == u::checkPrint(X));
         }
 
         if (veryVeryVerbose) {
@@ -1621,7 +1777,7 @@ void TestDriver<TYPE>::testCase3()
 
         ASSERT(false      == X.hasNonVoidType());
         ASSERT(Ot::e_VOID == X.type());
-        ASSERT(0          == checkPrint(X));
+        ASSERT(0          == u::checkPrint(X));
 
         if (veryVeryVerbose) {
             cout << "\t\t" "delete" << endl;
@@ -1651,31 +1807,31 @@ void TestDriver<TYPE>::testCase3()
         {
             Obj mX;
 
-            ASSERT_FAIL(setValueDAB(&mX, 'A',  0));
+            ASSERT_FAIL(u::setValueDAB(&mX, 'A',  0));
 
             mX.setType(type);
 
-            ASSERT_FAIL(setValueDAB(&mX, 'A', -1));
-            ASSERT_PASS(setValueDAB(&mX, 'A',  0));
-            ASSERT_FAIL(setValueDAB(&mX, 'A',  1));
+            ASSERT_FAIL(u::setValueDAB(&mX, 'A', -1));
+            ASSERT_PASS(u::setValueDAB(&mX, 'A',  0));
+            ASSERT_FAIL(u::setValueDAB(&mX, 'A',  1));
         }
 
         if (veryVerbose) cout << endl << "The 'the' methods." << endl;
         {
             Obj mX; const Obj& X = mX;
 
-            ASSERT_FAIL(hasValueDAB(X, 'A',  0));
+            ASSERT_FAIL(u::hasValueDAB(X, 'A',  0));
 
             mX.setType(type);
-            setValueDAB(&mX, 'B');
+            u::setValueDAB(&mX, 'B');
 
-            ASSERT_FAIL(hasValueDAB(X, 'B', -1));
-            ASSERT_PASS(hasValueDAB(X, 'B',  0));
-            ASSERT_FAIL(hasValueDAB(X, 'B',  1));
+            ASSERT_FAIL(u::hasValueDAB(X, 'B', -1));
+            ASSERT_PASS(u::hasValueDAB(X, 'B',  0));
+            ASSERT_FAIL(u::hasValueDAB(X, 'B',  1));
 
             mX.setNull();
 
-            ASSERT_FAIL(hasValueDAB(X, 'B',  0));
+            ASSERT_FAIL(u::hasValueDAB(X, 'B',  0));
         }
     }
 }
@@ -1878,7 +2034,6 @@ void TestDriver<TYPE>::testCase1()
 // BDE_VERIFY pragma: -FABC01  // not in alphabetic order
 // BDE_VERIFY pragma: -FD01:   // Function declaration requires contract
 
-
 namespace example1 {
 int main() {
 // Do not show line above in header.
@@ -1957,7 +2112,6 @@ static void setVerbosityLevel(int)
 static void setCaseInsensitivityFlag(bool)
 {
 }
-
 
 typedef struct MyOptionDescription {
     int d_arbitraryData;
@@ -2145,7 +2299,6 @@ bsl::size_t MyCommandLineParser::numOptions() const
 // BDE_VERIFY pragma: +FD01:   // Function declaration requires contract
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
 
-
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -2194,16 +2347,16 @@ int main(int argc, const char *argv[])  {
         // MODIFIABLE ACCESS
         //
         // Concerns:
-        //: 1 The 'the' manipulator provides non-'const' access to to the value
-        //:   of for each supported type.
+        //: 1 The 'the' manipulator provides non-'const' access to the value
+        //:   for each supported type.
         //:
         //: 2 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each supported (contained) type, create an object having a
-        //:   value of that type and use the 'the' manipulator to access and
-        //:   change that value to several other distinct values.  Confirm the
-        //:   changes using equality comparison.
+        //: 1 For each supported option type, create an object having a value
+        //:   of that type and use the 'the' manipulator to access and change
+        //:   that value to several other distinct values.  Confirm the changes
+        //:   using equality comparison.
         //:
         //: 2 Use negative testing to confirm the precondition checks that
         //:   disallow access to objects that do not hold a value (i.e., unset
@@ -2272,20 +2425,72 @@ int main(int argc, const char *argv[])  {
         const Obj ARRAY[] = { Unset
                             , NullBool
                             , NullChar
+                            , NullInt
+                            , NullInt64
+                            , NullDouble
                             , NullString
+                            , NullDatetime
+                            , NullDate
+                            , NullTime
+                            , NullCharArray
+                            , NullIntArray
+                            , NullInt64Array
+                            , NullDoubleArray
                             , NullStringArray
+                            , NullDatetimeArray
+                            , NullDateArray
+                            , NullTimeArray
                             , DfltBool
                             , DfltChar
+                            , DfltInt
+                            , DfltInt64
+                            , DfltDouble
                             , DfltString
+                            , DfltDatetime
+                            , DfltDate
+                            , DfltTime
+                            , DfltCharArray
+                            , DfltIntArray
+                            , DfltInt64Array
+                            , DfltDoubleArray
                             , DfltStringArray
+                            , DfltDatetimeArray
+                            , DfltDateArray
+                            , DfltTimeArray
                             , Val1Bool
                             , Val1Char
+                            , Val1Int
+                            , Val1Int64
+                            , Val1Double
                             , Val1String
+                            , Val1Datetime
+                            , Val1Date
+                            , Val1Time
+                            , Val1CharArray
+                            , Val1IntArray
+                            , Val1Int64Array
+                            , Val1DoubleArray
                             , Val1StringArray
+                            , Val1DatetimeArray
+                            , Val1DateArray
+                            , Val1TimeArray
                             , Val2Bool
                             , Val2Char
+                            , Val2Int
+                            , Val2Int64
+                            , Val2Double
                             , Val2String
+                            , Val2Datetime
+                            , Val2Date
+                            , Val2Time
+                            , Val2CharArray
+                            , Val2IntArray
+                            , Val2Int64Array
+                            , Val2DoubleArray
                             , Val2StringArray
+                            , Val2DatetimeArray
+                            , Val2DateArray
+                            , Val2TimeArray
                             };
 
         const bsl::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
@@ -2295,18 +2500,20 @@ int main(int argc, const char *argv[])  {
             Obj mX = ARRAY[i]; const Obj& X = mX;
             Obj mY = ARRAY[i]; const Obj& Y = mY;
 
-            mX = mX;  // ACTION
+            ASSERT(&X == &(mX = X)); // ACTION
 
             ASSERT(X == Y);
 
             for (bsl::size_t j = 0; j < NUM_ELEMENTS; ++j) {
 
-                Obj lhs = ARRAY[i];   const Obj OrigLhs(lhs);
-                Obj rhs = ARRAY[j];   const Obj OrigRhs(rhs);
+                Obj lhs = ARRAY[i];  const Obj& Lhs = lhs;
+                Obj rhs = ARRAY[j];  const Obj& Rhs = rhs;
+                                     const Obj  OrigRhs(Rhs);
 
-                lhs = rhs;  // ACTION
+                ASSERT(&Lhs == &(lhs = Rhs));  // ACTION
 
-                ASSERT(lhs == rhs);
+                ASSERT(Lhs     == Rhs);
+                ASSERT(OrigRhs == Rhs);
             }
         }
 
@@ -2322,7 +2529,7 @@ int main(int argc, const char *argv[])  {
 
             const bool isAllocatingType = true;
 
-            ASSERT(true == checkAllocator(lhs, isAllocatingType, &saLhs));
+            ASSERT(true == u::checkAllocator(lhs, isAllocatingType, &saLhs));
         }
       } break;
       case 7: {
@@ -2442,7 +2649,7 @@ int main(int argc, const char *argv[])  {
         // COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The copy constructor duplicated the state/type/value of the
+        //: 1 The copy constructor duplicates the state/type/value of the
         //:   original object.
         //:
         //: 2 The allocator of the created object depends on its constructor
@@ -2491,7 +2698,7 @@ int main(int argc, const char *argv[])  {
 
             const bool isAllocatingType = true;
 
-            ASSERT(true == checkAllocator(Copy, isAllocatingType, &saCopy));
+            ASSERT(true == u::checkAllocator(Copy, isAllocatingType, &saCopy));
         }
       } break;
       case 5: {
@@ -2557,68 +2764,211 @@ int main(int argc, const char *argv[])  {
         DEFINE_OBJECT_TEST_SET
 
         // No match with 'Unset'
-        COMBO_NE(Unset          , NullBool);
-        COMBO_NE(Unset          , NullChar);
-        COMBO_NE(Unset          , NullString);
-        COMBO_NE(Unset          , NullStringArray);
+        COMBO_NE(Unset            , NullBool);
+        COMBO_NE(Unset            , NullChar);
+        COMBO_NE(Unset            , NullInt);
+        COMBO_NE(Unset            , NullInt64);
+        COMBO_NE(Unset            , NullDouble);
+        COMBO_NE(Unset            , NullString);
+        COMBO_NE(Unset            , NullDatetime);
+        COMBO_NE(Unset            , NullDate);
+        COMBO_NE(Unset            , NullTime);
+        COMBO_NE(Unset            , NullCharArray);
+        COMBO_NE(Unset            , NullIntArray);
+        COMBO_NE(Unset            , NullInt64Array);
+        COMBO_NE(Unset            , NullDoubleArray);
+        COMBO_NE(Unset            , NullStringArray);
+        COMBO_NE(Unset            , NullDatetimeArray);
+        COMBO_NE(Unset            , NullDateArray);
+        COMBO_NE(Unset            , NullTimeArray);
 
         // Identity
-        COMBO_EQ(NullBool       , NullBool);
-        COMBO_EQ(NullChar       , NullChar);
-        COMBO_EQ(NullString     , NullString);
-        COMBO_EQ(NullStringArray, NullStringArray);
+        COMBO_EQ(NullBool         , NullBool         );
+        COMBO_EQ(NullChar         , NullChar         );
+        COMBO_EQ(NullInt          , NullInt          );
+        COMBO_EQ(NullInt64        , NullInt64        );
+        COMBO_EQ(NullDouble       , NullDouble       );
+        COMBO_EQ(NullString       , NullString       );
+        COMBO_EQ(NullDatetime     , NullDatetime     );
+        COMBO_EQ(NullDate         , NullDate         );
+        COMBO_EQ(NullTime         , NullTime         );
+        COMBO_EQ(NullCharArray    , NullCharArray    );
+        COMBO_EQ(NullIntArray     , NullIntArray     );
+        COMBO_EQ(NullInt64Array   , NullInt64Array   );
+        COMBO_EQ(NullDoubleArray  , NullDoubleArray  );
+        COMBO_EQ(NullStringArray  , NullStringArray  );
+        COMBO_EQ(NullDatetimeArray, NullDatetimeArray);
+        COMBO_EQ(NullDateArray    , NullDateArray    );
+        COMBO_EQ(NullTimeArray    , NullTimeArray    );
 
         // Must match on type.
-        COMBO_NE(NullBool       , NullChar);
-        COMBO_NE(NullChar       , NullString);
-        COMBO_NE(NullString     , NullStringArray);
-        COMBO_NE(NullStringArray, NullBool);
+        COMBO_NE(NullBool         , NullChar          );
+        COMBO_NE(NullChar         , NullInt           );
+        COMBO_NE(NullInt          , NullInt64         );
+        COMBO_NE(NullInt64        , NullDouble        );
+        COMBO_NE(NullDouble       , NullString        );
+        COMBO_NE(NullString       , NullDatetime      );
+        COMBO_NE(NullDatetime     , NullDate          );
+        COMBO_NE(NullDate         , NullTime          );
+        COMBO_NE(NullTime         , NullCharArray     );
+        COMBO_NE(NullCharArray    , NullIntArray      );
+        COMBO_NE(NullIntArray     , NullInt64Array    );
+        COMBO_NE(NullInt64Array   , NullDoubleArray   );
+        COMBO_NE(NullDoubleArray  , NullStringArray   );
+        COMBO_NE(NullStringArray  , NullDatetimeArray );
+        COMBO_NE(NullDatetimeArray, NullDateArray     );
+        COMBO_NE(NullDateArray    , NullTimeArray     );
+        COMBO_NE(NullTimeArray    , NullBool          );
 
         // No match with 'Unset'
-        COMBO_NE(Unset          , DfltBool);
-        COMBO_NE(Unset          , DfltChar);
-        COMBO_NE(Unset          , DfltString);
-        COMBO_NE(Unset          , DfltStringArray);
+        COMBO_NE(Unset            , DfltBool         );
+        COMBO_NE(Unset            , DfltChar         );
+        COMBO_NE(Unset            , DfltInt          );
+        COMBO_NE(Unset            , DfltInt64        );
+        COMBO_NE(Unset            , DfltDouble       );
+        COMBO_NE(Unset            , DfltString       );
+        COMBO_NE(Unset            , DfltDatetime     );
+        COMBO_NE(Unset            , DfltDate         );
+        COMBO_NE(Unset            , DfltTime         );
+        COMBO_NE(Unset            , DfltCharArray    );
+        COMBO_NE(Unset            , DfltIntArray     );
+        COMBO_NE(Unset            , DfltInt64Array   );
+        COMBO_NE(Unset            , DfltDoubleArray  );
+        COMBO_NE(Unset            , DfltStringArray  );
+        COMBO_NE(Unset            , DfltDatetimeArray);
+        COMBO_NE(Unset            , DfltDateArray    );
+        COMBO_NE(Unset            , DfltTimeArray    );
 
         // No match with Null;
-        COMBO_NE(NullBool       , DfltBool);
-        COMBO_NE(NullChar       , DfltChar);
-        COMBO_NE(NullString     , DfltString);
-        COMBO_NE(NullStringArray, DfltStringArray);
+        COMBO_NE(NullBool         , DfltBool         );
+        COMBO_NE(NullChar         , DfltChar         );
+        COMBO_NE(NullInt          , DfltInt          );
+        COMBO_NE(NullInt64        , DfltInt64        );
+        COMBO_NE(NullDouble       , DfltDouble       );
+        COMBO_NE(NullString       , DfltString       );
+        COMBO_NE(NullDatetime     , DfltDatetime     );
+        COMBO_NE(NullDate         , DfltDate         );
+        COMBO_NE(NullTime         , DfltTime         );
+        COMBO_NE(NullCharArray    , DfltCharArray    );
+        COMBO_NE(NullIntArray     , DfltIntArray     );
+        COMBO_NE(NullInt64Array   , DfltInt64Array   );
+        COMBO_NE(NullDoubleArray  , DfltDoubleArray  );
+        COMBO_NE(NullStringArray  , DfltStringArray  );
+        COMBO_NE(NullDatetimeArray, DfltDatetimeArray);
+        COMBO_NE(NullDateArray    , DfltDateArray    );
+        COMBO_NE(NullTimeArray    , DfltTimeArray    );
 
         // Identity
-        COMBO_EQ(DfltBool       , DfltBool);
-        COMBO_EQ(DfltChar       , DfltChar);
-        COMBO_EQ(DfltString     , DfltString);
-        COMBO_EQ(DfltStringArray, DfltStringArray);
+        COMBO_EQ(DfltBool         , DfltBool         );
+        COMBO_EQ(DfltChar         , DfltChar         );
+        COMBO_EQ(DfltInt          , DfltInt          );
+        COMBO_EQ(DfltInt64        , DfltInt64        );
+        COMBO_EQ(DfltDouble       , DfltDouble       );
+        COMBO_EQ(DfltString       , DfltString       );
+        COMBO_EQ(DfltDatetime     , DfltDatetime     );
+        COMBO_EQ(DfltDate         , DfltDate         );
+        COMBO_EQ(DfltTime         , DfltTime         );
+        COMBO_EQ(DfltCharArray    , DfltCharArray    );
+        COMBO_EQ(DfltIntArray     , DfltIntArray     );
+        COMBO_EQ(DfltInt64Array   , DfltInt64Array   );
+        COMBO_EQ(DfltDoubleArray  , DfltDoubleArray  );
+        COMBO_EQ(DfltStringArray  , DfltStringArray  );
+        COMBO_EQ(DfltDatetimeArray, DfltDatetimeArray);
+        COMBO_EQ(DfltDateArray    , DfltDateArray    );
+        COMBO_EQ(DfltTimeArray    , DfltTimeArray    );
 
         // Must match on type.
-        COMBO_NE(DfltBool       , DfltChar);
-        COMBO_NE(DfltChar       , DfltString);
-        COMBO_NE(DfltString     , DfltStringArray);
-        COMBO_NE(DfltStringArray, DfltBool);
+        COMBO_NE(DfltBool         , DfltChar          );
+        COMBO_NE(DfltChar         , DfltInt           );
+        COMBO_NE(DfltInt          , DfltInt64         );
+        COMBO_NE(DfltInt64        , DfltDouble        );
+        COMBO_NE(DfltDouble       , DfltString        );
+        COMBO_NE(DfltString       , DfltDatetime      );
+        COMBO_NE(DfltDatetime     , DfltDate          );
+        COMBO_NE(DfltDate         , DfltTime          );
+        COMBO_NE(DfltTime         , DfltCharArray     );
+        COMBO_NE(DfltCharArray    , DfltIntArray      );
+        COMBO_NE(DfltIntArray     , DfltInt64Array    );
+        COMBO_NE(DfltInt64Array   , DfltDoubleArray   );
+        COMBO_NE(DfltDoubleArray  , DfltStringArray   );
+        COMBO_NE(DfltStringArray  , DfltDatetimeArray );
+        COMBO_NE(DfltDatetimeArray, DfltDateArray     );
+        COMBO_NE(DfltDateArray    , DfltTimeArray     );
+        COMBO_NE(DfltTimeArray    , DfltBool          );
 
         // No match with 'Unset'
-        COMBO_NE(Unset          , Val1Bool);
-        COMBO_NE(Unset          , Val1Char);
-        COMBO_NE(Unset          , Val1String);
-        COMBO_NE(Unset          , Val1StringArray);
+        COMBO_NE(Unset            , Val1Bool         );
+        COMBO_NE(Unset            , Val1Char         );
+        COMBO_NE(Unset            , Val1Int          );
+        COMBO_NE(Unset            , Val1Int64        );
+        COMBO_NE(Unset            , Val1Double       );
+        COMBO_NE(Unset            , Val1String       );
+        COMBO_NE(Unset            , Val1Datetime     );
+        COMBO_NE(Unset            , Val1Date         );
+        COMBO_NE(Unset            , Val1Time         );
+        COMBO_NE(Unset            , Val1CharArray    );
+        COMBO_NE(Unset            , Val1IntArray     );
+        COMBO_NE(Unset            , Val1Int64Array   );
+        COMBO_NE(Unset            , Val1DoubleArray  );
+        COMBO_NE(Unset            , Val1StringArray  );
+        COMBO_NE(Unset            , Val1DatetimeArray);
+        COMBO_NE(Unset            , Val1DateArray    );
+        COMBO_NE(Unset            , Val1TimeArray    );
 
-        COMBO_NE(Unset          , Val2Bool);
-        COMBO_NE(Unset          , Val2Char);
-        COMBO_NE(Unset          , Val2String);
-        COMBO_NE(Unset          , Val2StringArray);
+        COMBO_NE(Unset            , Val2Bool         );
+        COMBO_NE(Unset            , Val2Char         );
+        COMBO_NE(Unset            , Val2Int          );
+        COMBO_NE(Unset            , Val2Int64        );
+        COMBO_NE(Unset            , Val2Double       );
+        COMBO_NE(Unset            , Val2String       );
+        COMBO_NE(Unset            , Val2Datetime     );
+        COMBO_NE(Unset            , Val2Date         );
+        COMBO_NE(Unset            , Val2Time         );
+        COMBO_NE(Unset            , Val2CharArray    );
+        COMBO_NE(Unset            , Val2IntArray     );
+        COMBO_NE(Unset            , Val2Int64Array   );
+        COMBO_NE(Unset            , Val2DoubleArray  );
+        COMBO_NE(Unset            , Val2StringArray  );
+        COMBO_NE(Unset            , Val2DatetimeArray);
+        COMBO_NE(Unset            , Val2DateArray    );
+        COMBO_NE(Unset            , Val2TimeArray    );
 
         // No match with Null;
-        COMBO_NE(NullBool       , Val1Bool);
-        COMBO_NE(NullChar       , Val1Char);
-        COMBO_NE(NullString     , Val1String);
-        COMBO_NE(NullStringArray, Val1StringArray);
+        COMBO_NE(NullBool         , Val1Bool         );
+        COMBO_NE(NullChar         , Val1Char         );
+        COMBO_NE(NullInt          , Val1Int          );
+        COMBO_NE(NullInt64        , Val1Int64        );
+        COMBO_NE(NullDouble       , Val1Double       );
+        COMBO_NE(NullString       , Val1String       );
+        COMBO_NE(NullDatetime     , Val1Datetime     );
+        COMBO_NE(NullDate         , Val1Date         );
+        COMBO_NE(NullTime         , Val1Time         );
+        COMBO_NE(NullCharArray    , Val1CharArray    );
+        COMBO_NE(NullIntArray     , Val1IntArray     );
+        COMBO_NE(NullInt64Array   , Val1Int64Array   );
+        COMBO_NE(NullDoubleArray  , Val1DoubleArray  );
+        COMBO_NE(NullStringArray  , Val1StringArray  );
+        COMBO_NE(NullDatetimeArray, Val1DatetimeArray);
+        COMBO_NE(NullDateArray    , Val1DateArray    );
+        COMBO_NE(NullTimeArray    , Val1TimeArray    );
 
-        COMBO_NE(NullBool       , Val2Bool);
-        COMBO_NE(NullChar       , Val2Char);
-        COMBO_NE(NullString     , Val2String);
-        COMBO_NE(NullStringArray, Val2StringArray);
+        COMBO_NE(NullBool         , Val2Bool         );
+        COMBO_NE(NullChar         , Val2Char         );
+        COMBO_NE(NullInt          , Val2Int          );
+        COMBO_NE(NullInt64        , Val2Int64        );
+        COMBO_NE(NullDouble       , Val2Double       );
+        COMBO_NE(NullString       , Val2String       );
+        COMBO_NE(NullDatetime     , Val2Datetime     );
+        COMBO_NE(NullDate         , Val2Date         );
+        COMBO_NE(NullTime         , Val2Time         );
+        COMBO_NE(NullCharArray    , Val2CharArray    );
+        COMBO_NE(NullIntArray     , Val2IntArray     );
+        COMBO_NE(NullInt64Array   , Val2Int64Array   );
+        COMBO_NE(NullDoubleArray  , Val2DoubleArray  );
+        COMBO_NE(NullStringArray  , Val2StringArray  );
+        COMBO_NE(NullDatetimeArray, Val2DatetimeArray);
+        COMBO_NE(NullDateArray    , Val2DateArray    );
+        COMBO_NE(NullTimeArray    , Val2TimeArray    );
 
         // Identity
         COMBO_EQ(Val1Bool       , Val1Bool);
@@ -2631,11 +2981,60 @@ int main(int argc, const char *argv[])  {
         COMBO_EQ(Val2String     , Val2String);
         COMBO_EQ(Val2StringArray, Val2StringArray);
 
+        COMBO_EQ(Val1Bool         , Val1Bool         );
+        COMBO_EQ(Val1Char         , Val1Char         );
+        COMBO_EQ(Val1Int          , Val1Int          );
+        COMBO_EQ(Val1Int64        , Val1Int64        );
+        COMBO_EQ(Val1Double       , Val1Double       );
+        COMBO_EQ(Val1String       , Val1String       );
+        COMBO_EQ(Val1Datetime     , Val1Datetime     );
+        COMBO_EQ(Val1Date         , Val1Date         );
+        COMBO_EQ(Val1Time         , Val1Time         );
+        COMBO_EQ(Val1CharArray    , Val1CharArray    );
+        COMBO_EQ(Val1IntArray     , Val1IntArray     );
+        COMBO_EQ(Val1Int64Array   , Val1Int64Array   );
+        COMBO_EQ(Val1DoubleArray  , Val1DoubleArray  );
+        COMBO_EQ(Val1StringArray  , Val1StringArray  );
+        COMBO_EQ(Val1DatetimeArray, Val1DatetimeArray);
+        COMBO_EQ(Val1DateArray    , Val1DateArray    );
+        COMBO_EQ(Val1TimeArray    , Val1TimeArray    );
+
+        COMBO_EQ(Val2Bool         , Val2Bool         );
+        COMBO_EQ(Val2Char         , Val2Char         );
+        COMBO_EQ(Val2Int          , Val2Int          );
+        COMBO_EQ(Val2Int64        , Val2Int64        );
+        COMBO_EQ(Val2Double       , Val2Double       );
+        COMBO_EQ(Val2String       , Val2String       );
+        COMBO_EQ(Val2Datetime     , Val2Datetime     );
+        COMBO_EQ(Val2Date         , Val2Date         );
+        COMBO_EQ(Val2Time         , Val2Time         );
+        COMBO_EQ(Val2CharArray    , Val2CharArray    );
+        COMBO_EQ(Val2IntArray     , Val2IntArray     );
+        COMBO_EQ(Val2Int64Array   , Val2Int64Array   );
+        COMBO_EQ(Val2DoubleArray  , Val2DoubleArray  );
+        COMBO_EQ(Val2StringArray  , Val2StringArray  );
+        COMBO_EQ(Val2DatetimeArray, Val2DatetimeArray);
+        COMBO_EQ(Val2DateArray    , Val2DateArray    );
+        COMBO_EQ(Val2TimeArray    , Val2TimeArray    );
+
         // Must match on value.
-        COMBO_NE(Val1Bool       , Val2Char);
-        COMBO_NE(Val1Char       , Val2String);
-        COMBO_NE(Val1String     , Val2StringArray);
-        COMBO_NE(Val1StringArray, Val2Bool);
+        COMBO_NE(Val1Bool         , Val2Bool         );
+        COMBO_NE(Val1Char         , Val2Char         );
+        COMBO_NE(Val1Int          , Val2Int          );
+        COMBO_NE(Val1Int64        , Val2Int64        );
+        COMBO_NE(Val1Double       , Val2Double       );
+        COMBO_NE(Val1String       , Val2String       );
+        COMBO_NE(Val1Datetime     , Val2Datetime     );
+        COMBO_NE(Val1Date         , Val2Date         );
+        COMBO_NE(Val1Time         , Val2Time         );
+        COMBO_NE(Val1CharArray    , Val2CharArray    );
+        COMBO_NE(Val1IntArray     , Val2IntArray     );
+        COMBO_NE(Val1Int64Array   , Val2Int64Array   );
+        COMBO_NE(Val1DoubleArray  , Val2DoubleArray  );
+        COMBO_NE(Val1StringArray  , Val2StringArray  );
+        COMBO_NE(Val1DatetimeArray, Val2DatetimeArray);
+        COMBO_NE(Val1DateArray    , Val2DateArray    );
+        COMBO_NE(Val1TimeArray    , Val2TimeArray    );
 
 #undef COMBO_EQ
 #undef COMBO_NE
@@ -2695,61 +3094,66 @@ int main(int argc, const char *argv[])  {
         // DEFAULT CTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS, AND DTOR
         //
         // Concerns:
-        //: 1 We set both constructors that create unset objects and confirm
+        //: 1 The test values (defined at file scope) 'D, 'A', and 'B' are
+        //:   different from each other for every supported option type
+        //:   except 'bool' (which can have only two distinct values).
+        //:
+        //: 2 We test both constructors that create unset objects and confirm
         //:   that each receives the intended allocator.
         //:
-        //:   o We confirm that the allocator is propagated to the contained
-        //:     type and, in one case ('Ot::e_STRING_ARRAY', to elements of the
-        //:     contained type.
+        //:   o Note that we do not test the 'Obj(basicAllocator *)'
+        //:     constructor with a 0 value because, in that case, the compiler
+        //:     dispatches to the value constructor that accepts an 'int' (a
+        //:     better match, no conversion needed), not the intended
+        //:     allocator.
         //:
-        //:   o Note that we do not test 'Obj(*basicAllocator)' constructor
-        //:     with a 0 value because in that case the compiler invokes the
-        //:     value constructor that accepts an 'int' (a better match, no
-        //:     conversion needed), not the intended allocator.
+        //: 3 Use the primary manipulators to run the created object through
+        //:   various states: unset, typed with the default value (of the
+        //:   option type), typed but no specified value (the "null" state),
+        //:   and at least two different non-default values.
         //:
-        //: 2 Use the primary manipulators to run the created object through
-        //:   various states: unset, typed with default value (of
-        //:   the (contained) type, typed but no specified value (the "null"
-        //:   state), and at least to different non default values.
-        //:
-        //: 3 The basic accessors are in agreement with the expected state/
+        //: 4 The basic accessors are in agreement with the expected state/
         //:   value of the object.
         //:
-        //: 4 The print and 'operator<<' stream operators have the expected
+        //: 5 The print and 'operator<<' stream operators have the expected
         //:   signatures.  Also, the 'print' method has the expected default
         //:   values for 'level' and 'spacesPerLevel'.
         //:
-        //: 5 All accessors are 'const' qualified.
+        //: 6 All accessors are 'const' qualified.
         //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the "footprint" idiom to repeat each test for a test object
+        //: 1 Use the helper function 'u::checkAllValuesDAB' to confirm that
+        //:   'D', 'A', and 'B' have distinct values for all option types
+        //:   (except 'bool').
+        //
+        //: 2 Use the "footprint" idiom to repeat each test for a test object
         //:   created using each constructor and argument pattern of interest.
-        //:   (C-1)
+        //:   (C-2)
         //:
-        //: 2 The state of the object is changed using the primary manipulators
-        //:   'setType', 'reset', 'setValue', 'setNull'.  (C-2)
+        //: 3 The state of the object is changed using the primary manipulators
+        //:   'setType', 'reset', 'set', 'setNull'.  (C-3)
         //:
-        //:   o Note that 'setValue' is invoked via the 'setValueDAB' helper
+        //:   o Note that 'setValue' is invoked via the 'u::setValueDAB' helper
         //:     function.
         //:
-        //: 3 Use each of the listed basic accessors to confirm object state.
-        //:   (C-3)
+        //: 4 Use each of the listed basic accessors to confirm object state.
+        //:   (C-4)
         //:
         //:   o Note that the 'template const TYPE& the<TYPE>' accessor is
-        //:     invoked via the 'hasValueDAB' helper function.
+        //:     invoked via the 'u::hasValueDAB' helper function.
         //:
-        //: 4 Use the "pointer to member-function/operator" idiom.  Test the
+        //: 5 Use the "pointer to member-function/operator" idiom.  Test the
         //:   default values in an ad-hoc test.  Note that we are primarily
         //:   testing the correct delegation to the print methods of the
         //:   underlying classes.
         //:
-        //: 5 Always invoke accessors on 'const' qualified objects or
+        //: 6 Always invoke accessors on 'const' qualified objects or
         //:   'const'-references to objects.  (If the accessor were not
         //:   'const' qualified, compilation would fail.)
         //:
-        //: 6 Use 'BSLS_ASSERTTEST_*' facilities for negative testing.  (C-6)
+        //: 7 Use 'BSLS_ASSERTTEST_*' facilities for negative testing.  (C-7)
         //
         // Testing:
         //   OptionValue();
@@ -2772,6 +3176,12 @@ int main(int argc, const char *argv[])  {
     << "DEFAULT CTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS, AND DTOR" << endl
     << "=============================================================" << endl;
 
+        if (veryVerbose) cout << endl
+                              << "Check test values 'D', 'A', and 'B'"
+                              << endl;
+
+        ASSERT(u::checkAllValuesDAB());
+
         RUN_EACH_TYPE(TestDriver, testCase3, ALL_SUPPORTED_TYPES);
 
         if (veryVerbose) cout << endl
@@ -2789,6 +3199,17 @@ int main(int argc, const char *argv[])  {
 
             (void)printMember;  // quash potential compiler warnings
             (void)operatorOp;
+        }
+
+        if (veryVerbose) cout << endl << "Test return value of 'print'"
+                                      << endl;
+        {
+            bsl::ostringstream oss;
+
+            Obj mX(Ot::e_INT);  mX.setNull(); const Obj& X = mX;
+
+            ASSERT(&oss == &(X.print(oss)));  // ACTION
+
         }
 
         if (veryVerbose) cout << endl << "Test default values of 'print'"
@@ -2818,31 +3239,36 @@ int main(int argc, const char *argv[])  {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // HELPER: 'perturbType'
+        // HELPER: 'u::shiftType'
         //
         // Concerns:
-        //: 1 The returned value advanced in the sequence by the requested
-        //:   perturbation.
-        //: 2 The calculation wraps at the end of the sequence.
-        //: 3 The perturbation can be negative.
-        //: 4 The value 'OT:e_VOID' is ignored in the calculation.
+        //: 1 The returned (enumerator) value is offset by the given 'offset'
+        //:   from the given (enumerator) value when the enumerators are
+        //:   ordered in their sequence of definition.
+        //
+        //: 2 An offset that extends past 'Ot::e_TIME_ARRAY' continues with
+        //:   'Ot::e_BOOL' (and vice versa).
+        //:
+        //: 3 The offset can be negative.
+        //:
+        //: 4 The value 'Ot::e_VOID' is ignored in the calculation.
         //
         // Plan:
         //: 1 Using a table-driven test, compare calculated results with
         //:   expected results the extreme values of the sequence.
         //
         // Testing:
-        //   CONCERN: HELPER 'perturbType'
+        //   CONCERN: HELPER 'u::shiftType'
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "HELPER: 'perturbType'" << endl
-                          << "=====================" << endl;
+                          << "HELPER: 'u::shiftType'" << endl
+                          << "======================" << endl;
 
         static const struct {
             int      d_line;
             Ot::Enum d_input;
-            int      d_perturbation;
+            int      d_offset;
             Ot::Enum d_output;
         } DATA[] = {
            //LINE   INPUT            PERT  OUTPUT
@@ -2877,14 +3303,14 @@ int main(int argc, const char *argv[])  {
         for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int        LINE = DATA[ti].d_line;
             const Ot::Enum  INPUT = DATA[ti].d_input;
-            const int        PERT = DATA[ti].d_perturbation;
+            const int        PERT = DATA[ti].d_offset;
             const Ot::Enum OUTPUT = DATA[ti].d_output;
 
             if (veryVerbose) {
                 T_ P_(ti) P_(LINE) P_(INPUT) P_(PERT) P(OUTPUT)
             }
 
-            ASSERT(OUTPUT == perturbType(INPUT, PERT));
+            ASSERT(OUTPUT == u::shiftType(INPUT, PERT));
         }
 
       } break;

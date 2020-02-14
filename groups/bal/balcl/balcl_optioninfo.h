@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balcl::OptionInfo: POD 'struct' that describes a command-line option
 //
-//@SEE_ALSO:  balcl_option, balcl_commandline
+//@SEE_ALSO: balcl_option, balcl_commandline
 //
 //@DESCRIPTION: This component provides a 'struct', 'balcl::OptionInfo', that
 // describes a command-line option.  The 'balcl::OptionInfo' 'struct' is used
@@ -125,6 +125,36 @@ bsl::ostream& operator<<(bsl::ostream& stream, const OptionInfo& rhs);
     // character.
 
 }  // close package namespace
+
+// ============================================================================
+//                        INLINE DEFINITIONS
+// ============================================================================
+
+                     // -----------------
+                     // struct OptionInfo
+                     // -----------------
+
+// FREE OPERATORS
+inline
+bool balcl::operator==(const OptionInfo& lhs, const OptionInfo& rhs)
+{
+    return lhs.d_tag         == rhs.d_tag
+        && lhs.d_name        == rhs.d_name
+        && lhs.d_description == rhs.d_description
+        && lhs.d_typeInfo    == rhs.d_typeInfo
+        && lhs.d_defaultInfo == rhs.d_defaultInfo;
+}
+
+inline
+bool balcl::operator!=(const OptionInfo& lhs, const OptionInfo& rhs)
+{
+    return lhs.d_tag         != rhs.d_tag
+        || lhs.d_name        != rhs.d_name
+        || lhs.d_description != rhs.d_description
+        || lhs.d_typeInfo    != rhs.d_typeInfo
+        || lhs.d_defaultInfo != rhs.d_defaultInfo;
+}
+
 }  // close enterprise namespace
 
 #endif

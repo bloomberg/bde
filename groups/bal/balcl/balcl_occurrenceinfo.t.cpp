@@ -23,8 +23,6 @@
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bslalg_typetraits.h>
-
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>    // 'bsl::ostream<<'
 #include <bsl_string.h>     // 'bslstl::StringRef'
@@ -143,22 +141,22 @@ void aSsErT(bool condition, const char *message, int line)
 //                      GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
+typedef balcl::OccurrenceInfo    Obj;
 
-typedef balcl::OccurrenceInfo   OccurrenceInfo;
-typedef OccurrenceInfo::OccurrenceType     OccurrenceType;
-typedef balcl::OptionType       OT;
-typedef balcl::OptionType       OptionType;
-typedef balcl::OptionType::Enum ElemType;
-typedef balcl::OptionValue      OptionValue;
+typedef Obj::OccurrenceType      OccurType;
+typedef balcl::OptionType        Ot;
+typedef balcl::OptionType        OptionType;
+typedef balcl::OptionType::Enum  ElemType;
+typedef balcl::OptionValue       OptionValue;
 
-typedef bsls::Types::Int64              Int64;
+typedef bsls::Types::Int64       Int64;
 
 // ============================================================================
 //                                TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT(bslma::UsesBslmaAllocator<OccurrenceInfo>::value);
-BSLMF_ASSERT(bdlb::HasPrintMethod<OccurrenceInfo>::value);
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+BSLMF_ASSERT(bdlb::HasPrintMethod<Obj>::value);
 
 // ============================================================================
 //          GLOBAL CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
@@ -170,12 +168,12 @@ enum { k_DATETIME_FIELD_WIDTH = 25
 
 // ATTRIBUTES FOR 'balcl::OccurrenceInfo'
 static const struct {
-    int             d_line;  // line number
-    OccurrenceType  d_type;  // name attribute
+    int        d_line;  // line number
+    OccurType  d_type;  // name attribute
 } OPTION_OCCURRENCES[] = {
-    { L_, OccurrenceInfo::e_REQUIRED }
-  , { L_, OccurrenceInfo::e_OPTIONAL }
-  , { L_, OccurrenceInfo::e_HIDDEN   }
+    { L_, Obj::e_REQUIRED }
+  , { L_, Obj::e_OPTIONAL }
+  , { L_, Obj::e_HIDDEN   }
 };
 enum { NUM_OPTION_OCCURRENCES = sizeof  OPTION_OCCURRENCES
                               / sizeof *OPTION_OCCURRENCES };
@@ -207,23 +205,23 @@ static const struct {
     ElemType        d_type;   // option type
     const void     *d_value_p;  // default value attribute(s)
 } OPTION_DEFAULT_VALUES[] = {
-    { L_, OT::e_BOOL,            0                     }
-  , { L_, OT::e_CHAR,            &defaultChar          }
-  , { L_, OT::e_INT,             &defaultInt           }
-  , { L_, OT::e_INT64,           &defaultInt64         }
-  , { L_, OT::e_DOUBLE,          &defaultDouble        }
-  , { L_, OT::e_STRING,          &defaultString        }
-  , { L_, OT::e_DATETIME,        &defaultDatetime      }
-  , { L_, OT::e_DATE,            &defaultDate          }
-  , { L_, OT::e_TIME,            &defaultTime          }
-  , { L_, OT::e_CHAR_ARRAY,      &defaultCharArray     }
-  , { L_, OT::e_INT_ARRAY,       &defaultIntArray      }
-  , { L_, OT::e_INT64_ARRAY,     &defaultInt64Array    }
-  , { L_, OT::e_DOUBLE_ARRAY,    &defaultDoubleArray   }
-  , { L_, OT::e_STRING_ARRAY,    &defaultStringArray   }
-  , { L_, OT::e_DATETIME_ARRAY,  &defaultDatetimeArray }
-  , { L_, OT::e_DATE_ARRAY,      &defaultDateArray     }
-  , { L_, OT::e_TIME_ARRAY,      &defaultTimeArray     }
+    { L_, Ot::e_BOOL,            0                     }
+  , { L_, Ot::e_CHAR,            &defaultChar          }
+  , { L_, Ot::e_INT,             &defaultInt           }
+  , { L_, Ot::e_INT64,           &defaultInt64         }
+  , { L_, Ot::e_DOUBLE,          &defaultDouble        }
+  , { L_, Ot::e_STRING,          &defaultString        }
+  , { L_, Ot::e_DATETIME,        &defaultDatetime      }
+  , { L_, Ot::e_DATE,            &defaultDate          }
+  , { L_, Ot::e_TIME,            &defaultTime          }
+  , { L_, Ot::e_CHAR_ARRAY,      &defaultCharArray     }
+  , { L_, Ot::e_INT_ARRAY,       &defaultIntArray      }
+  , { L_, Ot::e_INT64_ARRAY,     &defaultInt64Array    }
+  , { L_, Ot::e_DOUBLE_ARRAY,    &defaultDoubleArray   }
+  , { L_, Ot::e_STRING_ARRAY,    &defaultStringArray   }
+  , { L_, Ot::e_DATETIME_ARRAY,  &defaultDatetimeArray }
+  , { L_, Ot::e_DATE_ARRAY,      &defaultDateArray     }
+  , { L_, Ot::e_TIME_ARRAY,      &defaultTimeArray     }
 };
 enum { NUM_OPTION_DEFAULT_VALUES = sizeof  OPTION_DEFAULT_VALUES
                                  / sizeof *OPTION_DEFAULT_VALUES };
@@ -233,8 +231,9 @@ enum { NUM_OPTION_DEFAULT_VALUES = sizeof  OPTION_DEFAULT_VALUES
 // ----------------------------------------------------------------------------
 
 namespace {
+namespace u {
 
-static int monthStrToInt(const char *input)
+int monthStrToInt(const char *input)
     // Return the integer month value ('[1 .. 12]') corresponding to the three
     // letter month representation found at the specified 'input'.  The
     // representation for each month matches that generated by the 'toAscii'
@@ -259,7 +258,7 @@ static int monthStrToInt(const char *input)
            /* error */                      -1 ;
 }
 
-static int parseDate(bdlt::Date *result, const bslstl::StringRef& input)
+int parseDate(bdlt::Date *result, const bslstl::StringRef& input)
     // Set the specified 'result' to the date value represented at the
     // specified 'input'.  The expected input format matches that of the
     // 'print' method of 'bdlt::Date' (e.g., '01JAN1970').
@@ -282,7 +281,7 @@ static int parseDate(bdlt::Date *result, const bslstl::StringRef& input)
     }
 }
 
-static int parseTime(bdlt::Time *result, const bslstl::StringRef& input)
+int parseTime(bdlt::Time *result, const bslstl::StringRef& input)
     // Set the specified 'result' to the time of day value represented at the
     // specified 'input'.  The expected input format matches that of the
     // 'print' method of 'bdlt::Time' (e.g., '12:34:56.123456').
@@ -319,8 +318,7 @@ static int parseTime(bdlt::Time *result, const bslstl::StringRef& input)
     }
 }
 
-static int parseDatetime(bdlt::Datetime           *result,
-                         const bslstl::StringRef&  input)
+int parseDatetime(bdlt::Datetime *result, const bslstl::StringRef& input)
     // Set the specified 'result' to the datetime value represented at the
     // specified 'input'.  The expected input format matches that of the
     // 'parseDate' and 'parseTime' methods described above, with the two values
@@ -349,11 +347,11 @@ static int parseDatetime(bdlt::Datetime           *result,
     return 0;
 }
 
-                            // ==========================
-                            // struct local_ParserImpUtil
-                            // ==========================
+                            // ====================
+                            // struct ParserImpUtil
+                            // ====================
 
-struct local_ParserImpUtil {
+struct ParserImpUtil {
 
     enum { LOCAL_SUCCESS = 0, LOCAL_FAILURE = 1 };
 
@@ -385,13 +383,13 @@ struct local_ParserImpUtil {
         //..
 };
 
-                            // --------------------------
-                            // struct local_ParserImpUtil
-                            // --------------------------
+                            // --------------------
+                            // struct ParserImpUtil
+                            // --------------------
 
-int local_ParserImpUtil::skipRequiredToken(const char **endPos,
-                                           const char  *inputString,
-                                           const char  *token)
+int ParserImpUtil::skipRequiredToken(const char **endPos,
+                                     const char  *inputString,
+                                     const char  *token)
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -406,8 +404,8 @@ int local_ParserImpUtil::skipRequiredToken(const char **endPos,
     return '\0' != *token;  // return "is null char"
 }
 
-int local_ParserImpUtil::skipWhiteSpace(const char **endPos,
-                                        const char  *inputString)
+int ParserImpUtil::skipWhiteSpace(const char **endPos,
+                                  const char  *inputString)
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -462,11 +460,11 @@ int local_ParserImpUtil::skipWhiteSpace(const char **endPos,
     }
 }
 
-                          // ========================
-                          // struct local_TypesParser
-                          // ========================
+                          // ==================
+                          // struct TypesParser
+                          // ==================
 
-struct local_TypesParser {
+struct TypesParser {
 
     enum { LOCAL_SUCCESS = 0, LOCAL_FAILURE = 1 };
 
@@ -497,14 +495,14 @@ struct local_TypesParser {
         // Return 0 on success and a non-zero value otherwise.
 };
 
-                          // ------------------------
-                          // struct local_TypesParser
-                          // ------------------------
+                          // ------------------
+                          // struct TypesParser
+                          // ------------------
 
 template <>
-int local_TypesParser::parse(int         *result,
-                             const char **endPos,
-                             const char  *inputString)
+int TypesParser::parse(int         *result,
+                       const char **endPos,
+                       const char  *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -519,9 +517,9 @@ int local_TypesParser::parse(int         *result,
 }
 
 template <>
-int local_TypesParser::parse(Int64       *result,
-                             const char **endPos,
-                             const char  *inputString)
+int TypesParser::parse(Int64       *result,
+                       const char **endPos,
+                       const char  *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -536,9 +534,9 @@ int local_TypesParser::parse(Int64       *result,
 }
 
 template <>
-int local_TypesParser::parse(double      *result,
-                             const char **endPos,
-                             const char  *inputString)
+int TypesParser::parse(double      *result,
+                       const char **endPos,
+                       const char  *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -556,9 +554,9 @@ int local_TypesParser::parse(double      *result,
 }
 
 template <>
-int local_TypesParser::parse(bsl::string  *result,
-                             const char  **endPos,
-                             const char   *inputString)
+int TypesParser::parse(bsl::string  *result,
+                       const char  **endPos,
+                       const char   *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -573,9 +571,9 @@ int local_TypesParser::parse(bsl::string  *result,
 }
 
 template <>
-int local_TypesParser::parse(bdlt::Datetime  *result,
-                             const char     **endPos,
-                             const char      *inputString)
+int TypesParser::parse(bdlt::Datetime  *result,
+                       const char     **endPos,
+                       const char      *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -596,9 +594,9 @@ int local_TypesParser::parse(bdlt::Datetime  *result,
 }
 
 template <>
-int local_TypesParser::parse(bdlt::Date  *result,
-                             const char **endPos,
-                             const char  *inputString)
+int TypesParser::parse(bdlt::Date  *result,
+                       const char **endPos,
+                       const char  *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -619,9 +617,9 @@ int local_TypesParser::parse(bdlt::Date  *result,
 }
 
 template <>
-int local_TypesParser::parse(bdlt::Time  *result,
-                             const char **endPos,
-                             const char  *inputString)
+int TypesParser::parse(bdlt::Time  *result,
+                       const char **endPos,
+                       const char  *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -641,9 +639,9 @@ int local_TypesParser::parse(bdlt::Time  *result,
     }
 }
 
-int local_TypesParser::parseQuotedString(bsl::string  *result,
-                                         const char  **endPos,
-                                         const char   *inputString)
+int TypesParser::parseQuotedString(bsl::string  *result,
+                                   const char  **endPos,
+                                   const char   *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -680,11 +678,11 @@ int local_TypesParser::parseQuotedString(bsl::string  *result,
     return 0;
 }
 
-                          // ===============================
-                          // struct local_ArrayParserImpUtil
-                          // ===============================
+                          // =========================
+                          // struct ArrayParserImpUtil
+                          // =========================
 
-struct local_ArrayParserImpUtil {
+struct ArrayParserImpUtil {
 
     enum { LOCAL_SUCCESS = 0, LOCAL_FAILURE = 1 };
 
@@ -700,14 +698,14 @@ struct local_ArrayParserImpUtil {
         // a non-zero value otherwise.
 };
 
-                          // -------------------------------
-                          // struct local_ArrayParserImpUtil
-                          // -------------------------------
+                          // -------------------------
+                          // struct ArrayParserImpUtil
+                          // -------------------------
 
 template <class TYPE>
-int local_ArrayParserImpUtil::parse(bsl::vector<TYPE>  *result,
-                                    const char        **endPos,
-                                    const char         *inputString)
+int ArrayParserImpUtil::parse(bsl::vector<TYPE>  *result,
+                              const char        **endPos,
+                              const char         *inputString)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(endPos);
@@ -721,16 +719,16 @@ int local_ArrayParserImpUtil::parse(bsl::vector<TYPE>  *result,
     }
     ++inputString;
 
-    local_ParserImpUtil::skipWhiteSpace(endPos, inputString);
+    ParserImpUtil::skipWhiteSpace(endPos, inputString);
 
     TYPE value;
     while (']' != **endPos) {
-        if (local_TypesParser::parse(&value, endPos, *endPos)) {
+        if (u::TypesParser::parse(&value, endPos, *endPos)) {
             return LOCAL_FAILURE;                                     // RETURN
         }
         result->push_back(value);
         inputString = *endPos;
-        local_ParserImpUtil::skipWhiteSpace(endPos, inputString);
+        ParserImpUtil::skipWhiteSpace(endPos, inputString);
         if (inputString == *endPos && ']' != **endPos) {
             return LOCAL_FAILURE;                                     // RETURN
         }
@@ -738,8 +736,6 @@ int local_ArrayParserImpUtil::parse(bsl::vector<TYPE>  *result,
     ++*endPos;
     return LOCAL_SUCCESS;
 }
-
-
 
                      // =================================
                      // function template checkOptionType
@@ -777,16 +773,16 @@ struct CheckOptionType {
     // 'ELEM_TYPE' matching the parameterized 'TYPE', and the other for the
     // corresponding array type.
 
-MATCH_OPTION_TYPE(OT::e_BOOL,     bool)
+MATCH_OPTION_TYPE(Ot::e_BOOL,     bool)
 
-MATCH_OPTION_TYPE_PAIR(OT::e_CHAR,     char)
-MATCH_OPTION_TYPE_PAIR(OT::e_INT,      int)
-MATCH_OPTION_TYPE_PAIR(OT::e_INT64,    bsls::Types::Int64)
-MATCH_OPTION_TYPE_PAIR(OT::e_DOUBLE,   double)
-MATCH_OPTION_TYPE_PAIR(OT::e_STRING,   bsl::string)
-MATCH_OPTION_TYPE_PAIR(OT::e_DATETIME, bdlt::Datetime)
-MATCH_OPTION_TYPE_PAIR(OT::e_DATE,     bdlt::Date)
-MATCH_OPTION_TYPE_PAIR(OT::e_TIME,     bdlt::Time)
+MATCH_OPTION_TYPE_PAIR(Ot::e_CHAR,     char)
+MATCH_OPTION_TYPE_PAIR(Ot::e_INT,      int)
+MATCH_OPTION_TYPE_PAIR(Ot::e_INT64,    bsls::Types::Int64)
+MATCH_OPTION_TYPE_PAIR(Ot::e_DOUBLE,   double)
+MATCH_OPTION_TYPE_PAIR(Ot::e_STRING,   bsl::string)
+MATCH_OPTION_TYPE_PAIR(Ot::e_DATETIME, bdlt::Datetime)
+MATCH_OPTION_TYPE_PAIR(Ot::e_DATE,     bdlt::Date)
+MATCH_OPTION_TYPE_PAIR(Ot::e_TIME,     bdlt::Time)
 
 #undef MATCH_OPTION_TYPE
 #undef MATCH_OPTION_TYPE_PAIR
@@ -816,63 +812,62 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
     BSLS_ASSERT(dst->type()        == type);
 
     switch (type) {
-      case OT::e_VOID: {
+      case Ot::e_VOID: {
         BSLS_ASSERT(!"Not reachable.");
       } break;
-      case OT::e_BOOL: {
-        dst->set(*(static_cast<const OT::Bool          *>(src)));
+      case Ot::e_BOOL: {
+        dst->set(*(static_cast<const Ot::Bool          *>(src)));
       } break;
-      case OT::e_CHAR: {
-        dst->set(*(static_cast<const OT::Char          *>(src)));
+      case Ot::e_CHAR: {
+        dst->set(*(static_cast<const Ot::Char          *>(src)));
       } break;
-      case OT::e_INT: {
-        dst->set(*(static_cast<const OT::Int           *>(src)));
+      case Ot::e_INT: {
+        dst->set(*(static_cast<const Ot::Int           *>(src)));
       } break;
-      case OT::e_INT64: {
-        dst->set(*(static_cast<const OT::Int64         *>(src)));
+      case Ot::e_INT64: {
+        dst->set(*(static_cast<const Ot::Int64         *>(src)));
       } break;
-      case OT::e_DOUBLE: {
-        dst->set(*(static_cast<const OT::Double        *>(src)));
+      case Ot::e_DOUBLE: {
+        dst->set(*(static_cast<const Ot::Double        *>(src)));
       } break;
-      case OT::e_STRING: {
-        dst->set(*(static_cast<const OT::String        *>(src)));
+      case Ot::e_STRING: {
+        dst->set(*(static_cast<const Ot::String        *>(src)));
       } break;
-      case OT::e_DATETIME: {
-        dst->set(*(static_cast<const OT::Datetime      *>(src)));
+      case Ot::e_DATETIME: {
+        dst->set(*(static_cast<const Ot::Datetime      *>(src)));
       } break;
-      case OT::e_DATE: {
-        dst->set(*(static_cast<const OT::Date          *>(src)));
+      case Ot::e_DATE: {
+        dst->set(*(static_cast<const Ot::Date          *>(src)));
       } break;
-      case OT::e_TIME: {
-        dst->set(*(static_cast<const OT::Time          *>(src)));
+      case Ot::e_TIME: {
+        dst->set(*(static_cast<const Ot::Time          *>(src)));
       } break;
-      case OT::e_CHAR_ARRAY: {
-        dst->set(*(static_cast<const OT::CharArray     *>(src)));
+      case Ot::e_CHAR_ARRAY: {
+        dst->set(*(static_cast<const Ot::CharArray     *>(src)));
       } break;
-      case OT::e_INT_ARRAY: {
-        dst->set(*(static_cast<const OT::IntArray      *>(src)));
+      case Ot::e_INT_ARRAY: {
+        dst->set(*(static_cast<const Ot::IntArray      *>(src)));
       } break;
-      case OT::e_INT64_ARRAY: {
-        dst->set(*(static_cast<const OT::Int64Array    *>(src)));
+      case Ot::e_INT64_ARRAY: {
+        dst->set(*(static_cast<const Ot::Int64Array    *>(src)));
       } break;
-      case OT::e_DOUBLE_ARRAY: {
-        dst->set(*(static_cast<const OT::DoubleArray   *>(src)));
+      case Ot::e_DOUBLE_ARRAY: {
+        dst->set(*(static_cast<const Ot::DoubleArray   *>(src)));
       } break;
-      case OT::e_STRING_ARRAY: {
-        dst->set(*(static_cast<const OT::StringArray   *>(src)));
+      case Ot::e_STRING_ARRAY: {
+        dst->set(*(static_cast<const Ot::StringArray   *>(src)));
       } break;
-      case OT::e_DATETIME_ARRAY: {
-        dst->set(*(static_cast<const OT::DatetimeArray *>(src)));
+      case Ot::e_DATETIME_ARRAY: {
+        dst->set(*(static_cast<const Ot::DatetimeArray *>(src)));
       } break;
-      case OT::e_DATE_ARRAY: {
-        dst->set(*(static_cast<const OT::DateArray     *>(src)));
+      case Ot::e_DATE_ARRAY: {
+        dst->set(*(static_cast<const Ot::DateArray     *>(src)));
       } break;
-      case OT::e_TIME_ARRAY: {
-        dst->set(*(static_cast<const OT::TimeArray     *>(src)));
+      case Ot::e_TIME_ARRAY: {
+        dst->set(*(static_cast<const Ot::TimeArray     *>(src)));
       } break;
     }
 }
-
 
 // BDE_VERIFY pragma: +AR01  // Type using allocator is returned by value
 
@@ -880,16 +875,17 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
                         // function parseOccurrenceInfo
                         // ============================
 
-int parseOccurrenceInfo(const char            **endpos,
-                        const OccurrenceInfo&   occurrenceInfo,
-                        const char             *input)
+int parseOccurrenceInfo(const char **endpos,
+                        const Obj&   occurrenceInfo,
+                        const char  *input)
     // Parse the specified 'input' for a value and verify that this value
     // matches the specified 'occurrenceInfo' and return 0 if parsing and
     // verification succeed.  Return a non-zero value if parsing fails or if
     // the value parsed does not match 'occurrenceInfo', and return in the
     // specified 'endpos' the first unsuccessful parsing position.
 {
-    typedef local_ParserImpUtil Parser;
+    typedef ParserImpUtil Parser;
+
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (Parser::skipWhiteSpace(&input, input)) {
@@ -897,21 +893,19 @@ int parseOccurrenceInfo(const char            **endpos,
         return FAILURE;                                               // RETURN
     }
     if (*input != '{') {
-        if (OccurrenceInfo::e_REQUIRED ==
-                                             occurrenceInfo.occurrenceType()) {
+        if (Obj::e_REQUIRED == occurrenceInfo.occurrenceType()) {
             if (Parser::skipRequiredToken(endpos, input, "REQUIRED")) {
                 return FAILURE;                                       // RETURN
             }
             return SUCCESS;                                           // RETURN
         }
-        if (OccurrenceInfo::e_OPTIONAL ==
-                                             occurrenceInfo.occurrenceType()) {
+        if (Obj::e_OPTIONAL == occurrenceInfo.occurrenceType()) {
             if (Parser::skipRequiredToken(endpos, input, "OPTIONAL")) {
                 return FAILURE;                                       // RETURN
             }
             return SUCCESS;                                           // RETURN
         }
-        if (OccurrenceInfo::e_HIDDEN == occurrenceInfo.occurrenceType()) {
+        if (Obj::e_HIDDEN == occurrenceInfo.occurrenceType()) {
             if (Parser::skipRequiredToken(endpos, input, "HIDDEN")) {
                 return FAILURE;                                       // RETURN
             }
@@ -921,8 +915,7 @@ int parseOccurrenceInfo(const char            **endpos,
         return FAILURE;                                               // RETURN
     } else {
         ++input; // Parser::skipRequiredToken(&input, input, "{");
-        if (OccurrenceInfo::e_OPTIONAL ==
-                                             occurrenceInfo.occurrenceType()) {
+        if (Obj::e_OPTIONAL == occurrenceInfo.occurrenceType()) {
             if (Parser::skipWhiteSpace(&input, input)
              || Parser::skipRequiredToken(&input, input, "OPTIONAL")) {
                 *endpos = input;
@@ -943,7 +936,7 @@ int parseOccurrenceInfo(const char            **endpos,
             }
             if (Parser::skipWhiteSpace(&input, input)
              || Parser::skipRequiredToken(&input, input,
-                          OT::toAscii(occurrenceInfo.defaultValue().type()))) {
+                          Ot::toAscii(occurrenceInfo.defaultValue().type()))) {
                 *endpos = input;
                 return FAILURE;                                       // RETURN
             }
@@ -954,51 +947,51 @@ int parseOccurrenceInfo(const char            **endpos,
                 return FAILURE;                                       // RETURN
             }
             switch (occurrenceInfo.defaultValue().type()) {
-              case OT::e_CHAR: {
+              case Ot::e_CHAR: {
                 char charValue = *input;
                 if (charValue !=
-                               occurrenceInfo.defaultValue().the<OT::Char>()) {
+                               occurrenceInfo.defaultValue().the<Ot::Char>()) {
                     return FAILURE;                                   // RETURN
                 }
                 *endpos = ++input;
               } break;
-              case OT::e_INT: {
+              case Ot::e_INT: {
                 int intValue;
-                if (local_TypesParser::parse(&intValue, endpos, input)
-                 || intValue != occurrenceInfo.defaultValue().the<OT::Int>()) {
+                if (u::TypesParser::parse(&intValue, endpos, input)
+                 || intValue != occurrenceInfo.defaultValue().the<Ot::Int>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
-              case OT::e_INT64: {
+              case Ot::e_INT64: {
                 Int64 int64Value;
-                if (local_TypesParser::parse(&int64Value, endpos, input)
+                if (u::TypesParser::parse(&int64Value, endpos, input)
                  || int64Value !=
-                              occurrenceInfo.defaultValue().the<OT::Int64>()) {
+                              occurrenceInfo.defaultValue().the<Ot::Int64>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
-              case OT::e_DOUBLE: {
+              case Ot::e_DOUBLE: {
                 double doubleValue;
-                if (local_TypesParser::parse(&doubleValue, endpos, input)
+                if (u::TypesParser::parse(&doubleValue, endpos, input)
                  || doubleValue !=
-                             occurrenceInfo.defaultValue().the<OT::Double>()) {
+                             occurrenceInfo.defaultValue().the<Ot::Double>()) {
                     // There is no guaranteed round-trip on floating point I/O.
                     // Return 'FAILURE'.
                 }
               } break;
-              case OT::e_STRING: {
+              case Ot::e_STRING: {
                 bsl::string stringValue;
-                if (local_TypesParser::parse(&stringValue, endpos, input)
+                if (u::TypesParser::parse(&stringValue, endpos, input)
                  || stringValue !=
-                             occurrenceInfo.defaultValue().the<OT::String>()) {
+                             occurrenceInfo.defaultValue().the<Ot::String>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
-              case OT::e_DATETIME: {
+              case Ot::e_DATETIME: {
                 bdlt::Datetime datetimeValue;
-                if (local_TypesParser::parse(&datetimeValue, endpos, input)
+                if (u::TypesParser::parse(&datetimeValue, endpos, input)
                  || datetimeValue !=
-                           occurrenceInfo.defaultValue().the<OT::Datetime>()) {
+                           occurrenceInfo.defaultValue().the<Ot::Datetime>()) {
                     // Incomprehensibly, 'DATETIME' isn't a round trip for I/O,
                     // because 'DATE' isn't either (see below).
                     if (0 == (*endpos = bsl::strchr(input, '}'))) {
@@ -1006,11 +999,11 @@ int parseOccurrenceInfo(const char            **endpos,
                     }
                 }
               } break;
-              case OT::e_DATE: {
+              case Ot::e_DATE: {
                 bdlt::Date dateValue;
-                if (local_TypesParser::parse(&dateValue, endpos, input)
+                if (u::TypesParser::parse(&dateValue, endpos, input)
                  || dateValue !=
-                               occurrenceInfo.defaultValue().the<OT::Date>()) {
+                               occurrenceInfo.defaultValue().the<Ot::Date>()) {
                     // Incomprehensibly, 'DATE' isn't a round trip for I/O, it
                     // prints as, e.g., 06APR1234, but wants to be parsed as
                     // 1234-04-06.  Go figure...
@@ -1019,17 +1012,17 @@ int parseOccurrenceInfo(const char            **endpos,
                     }
                 }
               } break;
-              case OT::e_TIME: {
+              case Ot::e_TIME: {
                 bdlt::Time timeValue;
-                if (local_TypesParser::parse(&timeValue, endpos, input)
+                if (u::TypesParser::parse(&timeValue, endpos, input)
                  || timeValue !=
-                               occurrenceInfo.defaultValue().the<OT::Time>()) {
+                               occurrenceInfo.defaultValue().the<Ot::Time>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
-              case OT::e_CHAR_ARRAY: {
+              case Ot::e_CHAR_ARRAY: {
                 bsl::string charArrayAsString;
-                if (local_TypesParser::parseQuotedString(
+                if (u::TypesParser::parseQuotedString(
                                           &charArrayAsString, endpos, input)) {
                     // 'CHAR_ARRAY' isn't round trip for I/O, in fact, printing
                     // a 'CHAR_ARRAY' amounts to printing a string delimited by
@@ -1041,56 +1034,49 @@ int parseOccurrenceInfo(const char            **endpos,
                 bsl::vector<char> charArrayValue(charArrayAsString.begin(),
                                                  charArrayAsString.end());
                 if (charArrayValue !=
-                          occurrenceInfo.defaultValue().the<OT::CharArray>()) {
+                          occurrenceInfo.defaultValue().the<Ot::CharArray>()) {
                     return FAILURE - 2;                               // RETURN
                 }
               } break;
-              case OT::e_INT_ARRAY: {
+              case Ot::e_INT_ARRAY: {
                 bsl::vector<int> intArrayValue;
-                if (local_ArrayParserImpUtil::parse(&intArrayValue,
-                                                    endpos,
-                                                    input)
+                if (ArrayParserImpUtil::parse(&intArrayValue, endpos, input)
                  || intArrayValue !=
-                           occurrenceInfo.defaultValue().the<OT::IntArray>()) {
+                           occurrenceInfo.defaultValue().the<Ot::IntArray>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
-              case OT::e_INT64_ARRAY: {
+              case Ot::e_INT64_ARRAY: {
                 bsl::vector<Int64> int64ArrayValue;
-                if (local_ArrayParserImpUtil::parse(&int64ArrayValue,
-                                                    endpos,
-                                                    input)
+                if (ArrayParserImpUtil::parse(&int64ArrayValue, endpos, input)
                  || int64ArrayValue !=
-                         occurrenceInfo.defaultValue().the<OT::Int64Array>()) {
+                         occurrenceInfo.defaultValue().the<Ot::Int64Array>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
-              case OT::e_DOUBLE_ARRAY: {
+              case Ot::e_DOUBLE_ARRAY: {
                 bsl::vector<double> doubleArrayValue;
-                if (local_ArrayParserImpUtil::parse(&doubleArrayValue,
-                                                    endpos,
-                                                    input)
+                if (ArrayParserImpUtil::parse(&doubleArrayValue, endpos, input)
                  || doubleArrayValue !=
-                        occurrenceInfo.defaultValue().the<OT::DoubleArray>()) {
+                        occurrenceInfo.defaultValue().the<Ot::DoubleArray>()) {
                     // There is no guaranteed round-trip on floating point I/O.
                 }
               } break;
-              case OT::e_STRING_ARRAY: {
+              case Ot::e_STRING_ARRAY: {
                 bsl::vector<bsl::string> stringArrayValue;
-                if (local_ArrayParserImpUtil::parse(&stringArrayValue,
-                                                    endpos,
-                                                    input)
+                if (ArrayParserImpUtil::parse(&stringArrayValue, endpos, input)
                  || stringArrayValue !=
-                        occurrenceInfo.defaultValue().the<OT::StringArray>()) {
+                        occurrenceInfo.defaultValue().the<Ot::StringArray>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
-              case OT::e_DATETIME_ARRAY: {
+              case Ot::e_DATETIME_ARRAY: {
                 bsl::vector<bdlt::Datetime> datetimeArrayValue;
-                if (local_ArrayParserImpUtil::parse(
-                                            &datetimeArrayValue, endpos, input)
+                if (ArrayParserImpUtil::parse(&datetimeArrayValue,
+                                              endpos,
+                                              input)
                  || datetimeArrayValue !=
-                      occurrenceInfo.defaultValue().the<OT::DatetimeArray>()) {
+                      occurrenceInfo.defaultValue().the<Ot::DatetimeArray>()) {
                     // Incomprehensibly, ... see 'DATETIME' above.
 
                     if ( 0 == (*endpos = bsl::strchr(input, '}'))) {
@@ -1098,12 +1084,11 @@ int parseOccurrenceInfo(const char            **endpos,
                     }
                 }
               } break;
-              case OT::e_DATE_ARRAY: {
+              case Ot::e_DATE_ARRAY: {
                 bsl::vector<bdlt::Date> dateArrayValue;
-                if (local_ArrayParserImpUtil::parse(
-                                                &dateArrayValue, endpos, input)
+                if (ArrayParserImpUtil::parse(&dateArrayValue, endpos, input)
                  || dateArrayValue !=
-                          occurrenceInfo.defaultValue().the<OT::DateArray>()) {
+                          occurrenceInfo.defaultValue().the<Ot::DateArray>()) {
                     // Incomprehensibly, ... see 'DATETIME' above.
 
                     if ( 0 == (*endpos = bsl::strchr(input, '}'))) {
@@ -1111,12 +1096,11 @@ int parseOccurrenceInfo(const char            **endpos,
                     }
                 }
               } break;
-              case OT::e_TIME_ARRAY: {
+              case Ot::e_TIME_ARRAY: {
                 bsl::vector<bdlt::Time> timeArrayValue;
-                if (local_ArrayParserImpUtil::parse(
-                                                &timeArrayValue, endpos, input)
+                if (ArrayParserImpUtil::parse(&timeArrayValue, endpos, input)
                  || timeArrayValue !=
-                          occurrenceInfo.defaultValue().the<OT::TimeArray>()) {
+                          occurrenceInfo.defaultValue().the<Ot::TimeArray>()) {
                     return FAILURE;                                   // RETURN
                 }
               } break;
@@ -1137,7 +1121,7 @@ int parseOccurrenceInfo(const char            **endpos,
     return SUCCESS;
 }
 
-
+}  // close namespace u
 }  // close unnamed namespace
 
 // ============================================================================
@@ -1233,8 +1217,6 @@ int main(int argc, const char *argv[])
                         << "TESTING 'balcl::OccurrenceInfo'" << endl
                         << "==============================-" << endl;
 
-        typedef OccurrenceInfo  Obj;
-
         bslma::TestAllocator    testAllocator("test", veryVeryVeryVerbose);
         bslma::TestAllocator defaultAllocator("dflt", veryVeryVeryVerbose);
         bslma::TestAllocator   inputAllocator("iput", veryVeryVeryVerbose);
@@ -1254,8 +1236,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1269,9 +1251,9 @@ int main(int argc, const char *argv[])
             LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
             LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);  // AND HERE
 
@@ -1292,7 +1274,7 @@ int main(int argc, const char *argv[])
                            << "\t\t\tWith no exceptions." << endl;
 
         const bool HAS_BSLMA_ALLOCATOR_TRAIT =
-             bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+                                         bslma::UsesBslmaAllocator<Obj>::value;
 
         ASSERT(HAS_BSLMA_ALLOCATOR_TRAIT);
 
@@ -1301,8 +1283,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1321,9 +1303,9 @@ int main(int argc, const char *argv[])
                 LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
                 LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
 
-                if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+                if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                     OptionValue DEFAULT_VALUE(ETYPE, &inputAllocator);
-                    setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                    u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                     mX.setDefaultValue(DEFAULT_VALUE);
 
@@ -1358,8 +1340,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1371,9 +1353,9 @@ int main(int argc, const char *argv[])
                 LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
                 LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
 
-                if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+                if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                     OptionValue DEFAULT_VALUE(ETYPE);
-                    setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                    u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                     mX.setDefaultValue(DEFAULT_VALUE);
 
@@ -1403,8 +1385,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1413,16 +1395,15 @@ int main(int argc, const char *argv[])
             Obj mX(OTYPE);  const Obj& X = mX;
 
             LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
-            LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
-            LOOP2_ASSERT(LINE1, LINE2,
-                   (OTYPE == OccurrenceInfo::e_HIDDEN)   == X.isHidden());
-            LOOP2_ASSERT(LINE1, LINE2,
-                   (OTYPE == OccurrenceInfo::e_REQUIRED) ==
+            LOOP2_ASSERT(LINE1, LINE2,  OTYPE == X.occurrenceType());
+            LOOP2_ASSERT(LINE1, LINE2, (OTYPE == Obj::e_HIDDEN) ==
+                                                                 X.isHidden());
+            LOOP2_ASSERT(LINE1, LINE2, (OTYPE == Obj::e_REQUIRED) ==
                                                                X.isRequired());
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
 
@@ -1434,8 +1415,7 @@ int main(int argc, const char *argv[])
 
                 mX.setHidden();  // TEST EXTRA MANIPULATOR
 
-                LOOP2_ASSERT(LINE1, LINE2,
-                             OccurrenceInfo::e_HIDDEN ==
+                LOOP2_ASSERT(LINE1, LINE2, Obj::e_HIDDEN ==
                                                            X.occurrenceType());
 
                 LOOP2_ASSERT(LINE1, LINE2, X.hasDefaultValue());
@@ -1460,16 +1440,16 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
             const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
@@ -1491,7 +1471,7 @@ int main(int argc, const char *argv[])
             }
 
             const char *output = ss1.c_str();
-            const int parseRet = parseOccurrenceInfo(&output, X, output);
+            const int parseRet = u::parseOccurrenceInfo(&output, X, output);
             LOOP2_ASSERT(parseRet, output, 0 == parseRet);
         }
         }
@@ -1511,8 +1491,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1  = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE1 = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1520,9 +1500,9 @@ int main(int argc, const char *argv[])
 
             Obj mX(OTYPE1);  const Obj& X = mX;
 
-            if (OTYPE1 != OccurrenceInfo::e_REQUIRED && ADDRESS1) {
+            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
                 OptionValue DEFAULT_VALUE1(ETYPE2);
-                setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
+                u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
 
                 mX.setDefaultValue(DEFAULT_VALUE1);
             }
@@ -1530,8 +1510,8 @@ int main(int argc, const char *argv[])
             for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
             for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
 
-                const int            LINE3  = OPTION_OCCURRENCES[k].d_line;
-                const OccurrenceType OTYPE3 = OPTION_OCCURRENCES[k].d_type;
+                const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
+                const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
 
                 const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
                 const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
@@ -1539,18 +1519,16 @@ int main(int argc, const char *argv[])
 
                 Obj mY(OTYPE3);  const Obj& Y = mY;
 
-                if (OTYPE3 != OccurrenceInfo::e_REQUIRED && ADDRESS2) {
+                if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
                     OptionValue DEFAULT_VALUE2(ETYPE4);
-                    setOptionValue(&DEFAULT_VALUE2,
-                                              ADDRESS2,
-                                              ETYPE4);
+                    u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
 
                     mY.setDefaultValue(DEFAULT_VALUE2);
                 }
 
                 bool isSame = (i == k);
-                if (OTYPE1 != OccurrenceInfo::e_REQUIRED
-                 && OTYPE3 != OccurrenceInfo::e_REQUIRED) {
+                if (OTYPE1 != Obj::e_REQUIRED
+                 && OTYPE3 != Obj::e_REQUIRED) {
                     isSame = (i == k) && (j == l);
                 }
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
@@ -1577,8 +1555,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1586,9 +1564,9 @@ int main(int argc, const char *argv[])
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
@@ -1609,8 +1587,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1618,9 +1596,9 @@ int main(int argc, const char *argv[])
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
@@ -1652,8 +1630,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1664,9 +1642,9 @@ int main(int argc, const char *argv[])
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
@@ -1700,8 +1678,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1  = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE1 = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1709,9 +1687,9 @@ int main(int argc, const char *argv[])
 
             Obj mX(OTYPE1);  const Obj& X = mX;
 
-            if (OTYPE1 != OccurrenceInfo::e_REQUIRED && ADDRESS1) {
+            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
                 OptionValue DEFAULT_VALUE1(ETYPE2);
-                setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
+                u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
 
                 mX.setDefaultValue(DEFAULT_VALUE1);
             }
@@ -1719,21 +1697,18 @@ int main(int argc, const char *argv[])
             for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
             for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
 
-                const int            LINE3  = OPTION_OCCURRENCES[k].d_line;
-                const OccurrenceType OTYPE3 = OPTION_OCCURRENCES[k].d_type;
+                const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
+                const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
 
-                const int      LINE4  = OPTION_DEFAULT_VALUES[l].d_line;
-                const ElemType ETYPE4 = OPTION_DEFAULT_VALUES[l].d_type;
-
-                const void *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
+                const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
+                const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
+                const void     *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
 
                 Obj mY(OTYPE3, &testAllocator);  const Obj& Y = mY;
 
-                if (OTYPE3 != OccurrenceInfo::e_REQUIRED && ADDRESS2) {
+                if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
                     OptionValue DEFAULT_VALUE2(ETYPE4);
-                    setOptionValue(&DEFAULT_VALUE2,
-                                              ADDRESS2,
-                                              ETYPE4);
+                    u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
 
                     mY.setDefaultValue(DEFAULT_VALUE2);
                 }
@@ -1757,8 +1732,8 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[i].d_line;
-            const OccurrenceType OTYPE = OPTION_OCCURRENCES[i].d_type;
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1766,9 +1741,9 @@ int main(int argc, const char *argv[])
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
@@ -1792,8 +1767,8 @@ int main(int argc, const char *argv[])
 
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
-            const int            LINE1 = OPTION_OCCURRENCES[1].d_line;
-            const OccurrenceType OTYPE = OccurrenceInfo::e_OPTIONAL;
+            const int       LINE1   = OPTION_OCCURRENCES[1].d_line;
+            const OccurType OTYPE   = Obj::e_OPTIONAL;
 
             const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
             const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
@@ -1803,9 +1778,9 @@ int main(int argc, const char *argv[])
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != OccurrenceInfo::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
                 OptionValue DEFAULT_VALUE(ETYPE);
-                setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
@@ -1813,103 +1788,103 @@ int main(int argc, const char *argv[])
             if (ADDRESS) {
                 switch (ETYPE) {
   //v-------------^
-    case OT::e_BOOL: {
+    case Ot::e_BOOL: {
       Obj        mY(*static_cast<const bool *>                       (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_CHAR: {
+    case Ot::e_CHAR: {
       Obj        mY(*static_cast<const char *>                       (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
      } break;
-    case OT::e_INT: {
+    case Ot::e_INT: {
       Obj        mY(*static_cast<const int *>                        (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_INT64: {
+    case Ot::e_INT64: {
       Obj        mY(*static_cast<const Int64 *>                      (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_DOUBLE: {
+    case Ot::e_DOUBLE: {
       Obj        mY(*static_cast<const double *>                     (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_STRING: {
+    case Ot::e_STRING: {
       Obj        mY(*static_cast<const bsl::string *>                (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_DATETIME: {
+    case Ot::e_DATETIME: {
       Obj        mY(*static_cast<const bdlt::Datetime *>             (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_DATE: {
+    case Ot::e_DATE: {
       Obj        mY(*static_cast<const bdlt::Date *>                 (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_TIME: {
+    case Ot::e_TIME: {
       Obj        mY(*static_cast<const bdlt::Time *>                 (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_CHAR_ARRAY: {
+    case Ot::e_CHAR_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<char> *>          (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_INT_ARRAY: {
+    case Ot::e_INT_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<int> *>           (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_INT64_ARRAY: {
+    case Ot::e_INT64_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<Int64> *>         (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_DOUBLE_ARRAY: {
+    case Ot::e_DOUBLE_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<double> *>        (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_STRING_ARRAY: {
+    case Ot::e_STRING_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<bsl::string> *>   (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_DATETIME_ARRAY: {
+    case Ot::e_DATETIME_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<bdlt::Datetime> *>(ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_DATE_ARRAY: {
+    case Ot::e_DATE_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<bdlt::Date> *>    (ADDRESS),
                    &testAllocator);
       const Obj& Y = mY;
       LOOP2_ASSERT(LINE1, LINE2, X == Y);
     } break;
-    case OT::e_TIME_ARRAY: {
+    case Ot::e_TIME_ARRAY: {
       Obj        mY(*static_cast<const bsl::vector<bdlt::Time> *>    (ADDRESS),
                     &testAllocator);
       const Obj& Y = mY;
@@ -1933,7 +1908,7 @@ int main(int argc, const char *argv[])
         ASSERT(false             == X.isRequired());
         ASSERT(false             == X.isHidden());
         ASSERT(false             == X.defaultValue().hasNonVoidType());
-        ASSERT(OT::e_VOID        == X.defaultValue().type());
+        ASSERT(Ot::e_VOID        == X.defaultValue().type());
         ASSERT(&defaultAllocator == X.defaultValue().allocator());
         ASSERT(&defaultAllocator == X.allocator());
 
@@ -1941,7 +1916,7 @@ int main(int argc, const char *argv[])
         ASSERT(false             == Y.isRequired());
         ASSERT(false             == Y.isHidden());
         ASSERT(false             == Y.defaultValue().hasNonVoidType());
-        ASSERT(OT::e_VOID        == Y.defaultValue().type());
+        ASSERT(Ot::e_VOID        == Y.defaultValue().type());
         ASSERT(&testAllocator    == Y.defaultValue().allocator());
         ASSERT(&testAllocator    == Y.allocator());
 

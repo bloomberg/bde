@@ -13,20 +13,20 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balcl_optiontype, balcl_commandline
 //
 //@DESCRIPTION: This component provides a value-semantic class,
-// 'balcl::OptionValue', that can contain a value of any of the types specified
-// by 'balcl::OptionType' -- i.e., any of the values that can be associated
-// with a command-line option by 'balcl::CommandLine'.  The
-// 'balcl::OptionValue' class has two related states:
+// 'balcl::OptionValue', that can have a value of any of the types specified by
+// 'balcl::OptionType' -- i.e., any of the values that can be associated with a
+// command-line option by 'balcl::CommandLine'.  The 'balcl::OptionValue' class
+// has two related states:
 //
 //: 1 A default-constructed 'balcl::OptionValue' object is in the "unset state"
-//:   -- meaning that no type has been defined for a contained value (its type
-//:   is 'void').  In this state, 'balcl::OptionType::e_VOID == type()' and
-//:   'false == hasNonVoidType()'.  To contain a value, a type must be
-//:   specified for the contained value by using the 'setType' method or using
-//:   one of the constructors that define an initial contained value.  {Example
-//:   1} shows how this state can be set and reset.
+//:   -- meaning that no type has been defined for a value (its type is
+//:   'void').  In this state, 'balcl::OptionType::e_VOID == type()' and
+//:   'false == hasNonVoidType()'.  To have a value, a type must be specified
+//:   for the value by using the 'setType' method or using one of the
+//:   constructors that define an initial value.  {Example 1} shows how this
+//:   state can be set and reset.
 //
-//: 2 If a 'balcl::OptionValue' object has a (non-'void') type it can contain a
+//: 2 If a 'balcl::OptionValue' object has a (non-'void') type it can have a
 //:   value of that type or be in a "null state".  Objects in the null state
 //:   can be used to represent the value of command-line options that were not
 //:   entered on the command line (assuming no default value was specified for
@@ -424,23 +424,24 @@ class OptionValue {
 
     void reset();
         // Reset this object to its default constructed (unset) state.  The
-        // contained value, if any, is destroyed.  Note that on return
+        // existing value, if any, is destroyed.  Note that on return
         // 'OptionType::e_VOID == type()'.
 
     template <class TYPE>
     void set(const TYPE& value);
-        // Set the contained value of this object to the specified 'value'.
-        // The behavior is undefined unless the type of the contained value is
-        // the same as 'TYPE'.
+        // Set the value of this object to the specified 'value'.  The behavior
+        // is undefined unless 'OptionType::TypeToEnum<TYPE>::value == type()'
+        // for the (template parameter) 'TYPE' and
+        // 'OptionType::e_VOID != type()'.
 
     void setNull();
-        // Set the contained value of this object, irrespective of that value's
-        // type, to its null state.  The behavior is undefined unless
+        // Set the value of this object, irrespective of that value's type, to
+        // its null state.  The behavior is undefined unless
         // 'true == hasNonVoidType()'.  Note that 'type()' is not changed.
 
     void setType(OptionType::Enum type);
-        // Set the type of the contained value of this object to the specified
-        // 'type' and the contained value to the default value of that type.
+        // Set the type of this object to the specified 'type' and the value to
+        // the default value of that type.
 
     template <class TYPE>
     TYPE& the();
@@ -539,7 +540,6 @@ void swap(OptionValue& a, OptionValue& b);
     // 'b.type()' and 'a' and 'b' were created with the same allocator, or
     // neither 'a.type()' nor 'b.type()' is a type that requires allocation;
     // otherwise, it provides the basic guarantee.
-
 
                         // ===============================
                         // class OptionValue_IsNullVisitor

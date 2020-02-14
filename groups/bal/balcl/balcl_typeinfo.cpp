@@ -81,34 +81,41 @@ TypeInfoConstraint::~TypeInfoConstraint()
 }
 
 namespace {
+namespace u {
 
-                            // =============================
-                            // local struct TypeInfo_Ordinal
-                            // =============================
+                            // ==============
+                            // struct Ordinal
+                            // ==============
 
-struct TypeInfo_Ordinal {
+struct Ordinal {
     // This 'struct' assists in printing numbers as ordinals (1st, 2nd, etc.).
 
     bsl::size_t d_rank;  // rank (starting at 0)
 
     // CREATORS
-    explicit TypeInfo_Ordinal(bsl::size_t n);
+    explicit Ordinal(bsl::size_t n);
         // Create an ordinal for the specified position 'n' (starting at 0).
 };
 
-// CREATORS
-TypeInfo_Ordinal::TypeInfo_Ordinal(bsl::size_t n)
-: d_rank(n)
-{
-}
-
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream& stream, TypeInfo_Ordinal position);
+bsl::ostream& operator<<(bsl::ostream& stream, Ordinal position);
     // Output the specified 'position' (starting at 0) to the specified
     // 'stream' as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4 to
     // "4th", etc. following correct English usage.
 
-bsl::ostream& operator<<(bsl::ostream& stream, TypeInfo_Ordinal position)
+                            // --------------
+                            // struct Ordinal
+                            // --------------
+
+// CREATORS
+Ordinal::Ordinal(bsl::size_t n)
+: d_rank(n)
+{
+}
+
+} // close namespace u
+
+bsl::ostream& u::operator<<(bsl::ostream& stream, Ordinal position)
 {
     // ranks start at 0, but are displayed as 1st, 2nd, etc.
     int n = static_cast<int>(position.d_rank + 1);
@@ -141,9 +148,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, TypeInfo_Ordinal position)
     return stream;
 }
 
-                         // =========================
-                         // local function parseValue
-                         // =========================
+ namespace u {
+
+                         // ===================
+                         // function parseValue
+                         // ===================
 
 bool parseValue(void             *value,
                 const char       *input,
@@ -207,9 +216,9 @@ bool parseValue(void             *value,
     }
     return result;
 }
-                         // ===============================
-                         // local function elemTypeToString
-                         // ===============================
+                         // =========================
+                         // function elemTypeToString
+                         // =========================
 
 const char *elemTypeToString(OptionType::Enum elemType)
     // Return the address of a string literal that describes the specified
@@ -251,10 +260,9 @@ const char *elemTypeToString(OptionType::Enum elemType)
     return typeString;
 }
 
-
-                         // ==========================
-                         // local class BoolConstraint
-                         // ==========================
+                         // ====================
+                         // class BoolConstraint
+                         // ====================
 
 class BoolConstraint : public TypeInfoConstraint {
     // This concrete implementation of the 'Constraint' protocol provides a
@@ -289,11 +297,15 @@ class BoolConstraint : public TypeInfoConstraint {
 
     bool validate(const OptionValue& element) const BSLS_KEYWORD_OVERRIDE;
     bool validate(const OptionValue& element,
-                  bsl::ostream&      stream) const  BSLS_KEYWORD_OVERRIDE;
+                  bsl::ostream&      stream)  const BSLS_KEYWORD_OVERRIDE;
         // Return 'true', and leave the optionally specified 'stream'
         // unchanged.  The behavior is undefined unless the specified 'element'
         // satisfies 'OptionType::e_BOOL == element->type()'.
 };
+
+                         // --------------------
+                         // class BoolConstraint
+                         // --------------------
 
 // CREATORS
 BoolConstraint::BoolConstraint(bslma::Allocator *)
@@ -349,9 +361,9 @@ bool BoolConstraint::validate(const OptionValue&, bsl::ostream&)
 
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
 
-                   // =================================
-                   // local class ScalarConstraint<...>
-                   // =================================
+                   // ===========================
+                   // class ScalarConstraint<...>
+                   // ===========================
 
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 class ScalarConstraint : public TypeInfoConstraint {
@@ -407,6 +419,10 @@ class ScalarConstraint : public TypeInfoConstraint {
         // 'type() == element->type()'.
 };
 
+                   // ---------------------------
+                   // class ScalarConstraint<...>
+                   // ---------------------------
+
 // CREATORS
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::ScalarConstraint(
@@ -428,11 +444,11 @@ template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 OptionType::Enum
 ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::type() const
 {
-    BSLMF_ASSERT(OptionType::e_VOID <=
-                          static_cast<OptionType::Enum>(ELEM_TYPE));
+    BSLMF_ASSERT(OptionType::e_VOID <= static_cast<OptionType::Enum>(
+                                                                   ELEM_TYPE));
 
     BSLMF_ASSERT(static_cast<OptionType::Enum>(ELEM_TYPE) <=
-                                          OptionType::e_TIME_ARRAY);
+                                                     OptionType::e_TIME_ARRAY);
 
     return static_cast<OptionType::Enum>(ELEM_TYPE);
 }
@@ -440,9 +456,9 @@ ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::type() const
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 bool
 ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
-                                           OptionValue        *element,
-                                           bsl::ostream&       stream,
-                                           const bsl::string&  input) const
+                                               OptionValue        *element,
+                                               bsl::ostream&       stream,
+                                               const bsl::string&  input) const
 {
     BSLS_ASSERT(element);
     BSLS_ASSERT(element->hasNonVoidType());
@@ -523,9 +539,9 @@ class ScalarConstraint<bdlt::Time,
                        OptionType::e_TIME>;
     // Explicit specializations (to force instantiation of all variants).
 
-                 // ================================
-                 // local class ArrayConstraint<...>
-                 // ================================
+                 // ==============================
+                 // class template ArrayConstraint
+                 // ==============================
 
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 class ArrayConstraint : public TypeInfoConstraint {
@@ -582,6 +598,10 @@ class ArrayConstraint : public TypeInfoConstraint {
         // 'type() == element->type()'.
 };
 
+                 // ------------------------------
+                 // class template ArrayConstraint
+                 // ------------------------------
+
 // CREATORS
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::ArrayConstraint(
@@ -636,7 +656,6 @@ ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
         return false;                                                 // RETURN
     }
 
-
 // BDE_VERIFY pragma: -ADC01  // Passing address of char 'value' where a
                               // null-terminated string may be expected
     if (d_constraint && !d_constraint(&value, stream)) {
@@ -679,7 +698,7 @@ ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::validate(
         for (size_type i = 0; i < vec.size(); ++i) {
             if (!d_constraint(&vec[i], stream)) {
                 stream << "The above error occurred while parsing the "
-                       << TypeInfo_Ordinal(i)
+                       << u::Ordinal(i)
                        << " element of the vector."
                        << '\n' << bsl::flush;
                 return false;                                         // RETURN
@@ -726,9 +745,9 @@ class ArrayConstraint<bdlt::Time,
                       OptionType::e_TIME_ARRAY>;
     // Explicit specializations (to force instantiation of all variants).
 
-                      // ==================================
-                      // local typedefs TYPEConstraint<...>
-                      // ==================================
+                      // ===============================
+                      // typedef template TYPEConstraint
+                      // ===============================
 
 // Note: for 'BoolConstraint', see non-'typedef' implementations.
 
@@ -781,9 +800,9 @@ typedef ScalarConstraint<bdlt::Time,
     // The type 'TimeConstraint' is an alias for a scalar constraint on type
     // 'bdlt::Time' using the 'Constraint::TimeConstraint' functor.
 
-                    // =======================================
-                    // local typedefs TYPEArrayConstraint<...>
-                    // =======================================
+                    // =================================
+                    // typedef templater ArrayConstraint
+                    // =================================
 
 typedef ArrayConstraint<char,
                         Constraint::CharConstraint,
@@ -838,11 +857,11 @@ typedef ArrayConstraint<bdlt::Time,
     // 'bsl::vector<bdlt::Time>' using the 'Constraint::TimeConstraint'
     // functor.
 
-                        // ==============================
-                        // class TypeInfo_OptionValueUtil
-                        // ==============================
+                        // ======================
+                        // struct OptionValueUtil
+                        // ======================
 
-struct TypeInfo_OptionValueUtil {
+struct OptionValueUtil {
     // This 'struct' provides a namespace for utility functions on
     // 'OptionValue' objects.
 
@@ -854,12 +873,12 @@ struct TypeInfo_OptionValueUtil {
         // 'OptionType::EnumToType<dst.type()>::type'.
 };
 
-                        // ------------------------------
-                        // class TypeInfo_OptionValueUtil
-                        // ------------------------------
+                        // ---------------------
+                        // class OptionValueUtil
+                        // ---------------------
 
 // CLASS METHODS
-void TypeInfo_OptionValueUtil::setValue(OptionValue *dst, const void  *src)
+void OptionValueUtil::setValue(OptionValue *dst, const void  *src)
 {
     BSLS_ASSERT(dst);
     BSLS_ASSERT(src);
@@ -926,6 +945,7 @@ void TypeInfo_OptionValueUtil::setValue(OptionValue *dst, const void  *src)
     }
 }
 
+}  // close namespace u
 }  // close unnamed namespace
 
                        // --------------
@@ -1289,57 +1309,57 @@ TypeInfo& TypeInfo::operator=(const TypeInfo& rhs)
 
 void TypeInfo::resetConstraint()
 {
-    bslma::Allocator *ga = bslma::Default::globalAllocator(0);
+    static bslma::Allocator *ga = bslma::Default::globalAllocator(0);
 
     // STATIC DATA
-    static BoolConstraint          defaultBoolConstraint(                  ga);
+    static u::BoolConstraint          defaultBoolConstraint(               ga);
 
-    static CharConstraint          defaultCharConstraint(
+    static u::CharConstraint          defaultCharConstraint(
                                          Constraint::CharConstraint(),     ga);
 
-    static IntConstraint           defaultIntConstraint(
+    static u::IntConstraint           defaultIntConstraint(
                                          Constraint::IntConstraint(),      ga);
 
-    static Int64Constraint         defaultInt64Constraint(
+    static u::Int64Constraint         defaultInt64Constraint(
                                          Constraint::Int64Constraint(),    ga);
 
-    static DoubleConstraint        defaultDoubleConstraint(
+    static u::DoubleConstraint        defaultDoubleConstraint(
                                          Constraint::DoubleConstraint(),   ga);
 
-    static StringConstraint        defaultStringConstraint(
+    static u::StringConstraint        defaultStringConstraint(
                                          Constraint::StringConstraint(),   ga);
 
-    static DatetimeConstraint      defaultDatetimeConstraint(
+    static u::DatetimeConstraint      defaultDatetimeConstraint(
                                          Constraint::DatetimeConstraint(), ga);
 
-    static DateConstraint          defaultDateConstraint(
+    static u::DateConstraint          defaultDateConstraint(
                                          Constraint::DateConstraint(),     ga);
 
-    static TimeConstraint          defaultTimeConstraint(
+    static u::TimeConstraint          defaultTimeConstraint(
                                          Constraint::TimeConstraint(),     ga);
 
-    static CharArrayConstraint     defaultCharArrayConstraint(
+    static u::CharArrayConstraint     defaultCharArrayConstraint(
                                          Constraint::CharConstraint(),     ga);
 
-    static IntArrayConstraint      defaultIntArrayConstraint(
+    static u::IntArrayConstraint      defaultIntArrayConstraint(
                                          Constraint::IntConstraint(),      ga);
 
-    static Int64ArrayConstraint    defaultInt64ArrayConstraint(
+    static u::Int64ArrayConstraint    defaultInt64ArrayConstraint(
                                          Constraint::Int64Constraint(),    ga);
 
-    static DoubleArrayConstraint   defaultDoubleArrayConstraint(
+    static u::DoubleArrayConstraint   defaultDoubleArrayConstraint(
                                          Constraint::DoubleConstraint(),   ga);
 
-    static StringArrayConstraint   defaultStringArrayConstraint(
+    static u::StringArrayConstraint   defaultStringArrayConstraint(
                                          Constraint::StringConstraint(),   ga);
 
-    static DatetimeArrayConstraint defaultDatetimeArrayConstraint(
+    static u::DatetimeArrayConstraint defaultDatetimeArrayConstraint(
                                          Constraint::DatetimeConstraint(), ga);
 
-    static DateArrayConstraint     defaultDateArrayConstraint(
+    static u::DateArrayConstraint     defaultDateArrayConstraint(
                                          Constraint::DateConstraint(),     ga);
 
-    static TimeArrayConstraint     defaultTimeArrayConstraint(
+    static u::TimeArrayConstraint     defaultTimeArrayConstraint(
                                          Constraint::TimeConstraint(),     ga);
         // These static variables, default-initialized, are shared among all
         // type information objects that do not have constraints.  Note that
@@ -1430,12 +1450,13 @@ void TypeInfo::resetLinkedVariableAndConstraint()
 void TypeInfo::setConstraint(const Constraint::CharConstraint& constraint)
 {
     if (OptionType::e_CHAR == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p) CharConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::CharConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_CHAR_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                            CharArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::CharArrayConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1446,12 +1467,13 @@ void TypeInfo::setConstraint(const Constraint::CharConstraint& constraint)
 void TypeInfo::setConstraint(const Constraint::IntConstraint& constraint)
 {
     if (OptionType::e_INT == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p) IntConstraint(constraint,
-                                                               d_allocator_p),
+        d_constraint_p.reset(new (*d_allocator_p) u::IntConstraint(
+                                                                constraint,
+                                                                d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_INT_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                             IntArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::IntArrayConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1462,13 +1484,13 @@ void TypeInfo::setConstraint(const Constraint::IntConstraint& constraint)
 void TypeInfo::setConstraint(const Constraint::Int64Constraint& constraint)
 {
     if (OptionType::e_INT64 == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                                Int64Constraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::Int64Constraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_INT64_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                           Int64ArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::Int64ArrayConstraint(
+                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1479,13 +1501,13 @@ void TypeInfo::setConstraint(const Constraint::Int64Constraint& constraint)
 void TypeInfo::setConstraint(const Constraint::DoubleConstraint& constraint)
 {
     if (OptionType::e_DOUBLE == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                               DoubleConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::DoubleConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_DOUBLE_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                          DoubleArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::DoubleArrayConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1496,13 +1518,13 @@ void TypeInfo::setConstraint(const Constraint::DoubleConstraint& constraint)
 void TypeInfo::setConstraint(const Constraint::StringConstraint& constraint)
 {
     if (OptionType::e_STRING == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                               StringConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::StringConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_STRING_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                          StringArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::StringArrayConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1513,13 +1535,13 @@ void TypeInfo::setConstraint(const Constraint::StringConstraint& constraint)
 void TypeInfo::setConstraint(const Constraint::DatetimeConstraint& constraint)
 {
     if (OptionType::e_DATETIME == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                             DatetimeConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::DatetimeConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_DATETIME_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                        DatetimeArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::DatetimeArrayConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1530,12 +1552,13 @@ void TypeInfo::setConstraint(const Constraint::DatetimeConstraint& constraint)
 void TypeInfo::setConstraint(const Constraint::DateConstraint& constraint)
 {
     if (OptionType::e_DATE == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p) DateConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::DateConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_DATE_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                            DateArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::DateArrayConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1546,13 +1569,13 @@ void TypeInfo::setConstraint(const Constraint::DateConstraint& constraint)
 void TypeInfo::setConstraint(const Constraint::TimeConstraint& constraint)
 {
     if (OptionType::e_TIME == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                                TimeConstraint(constraint,
-                                                               d_allocator_p),
+        d_constraint_p.reset(new (*d_allocator_p) u::TimeConstraint(
+                                                                constraint,
+                                                                d_allocator_p),
                              d_allocator_p);
     } else if (OptionType::e_TIME_ARRAY == d_elemType) {
-        d_constraint_p.reset(new(*d_allocator_p)
-                                            TimeArrayConstraint(constraint,
+        d_constraint_p.reset(new (*d_allocator_p) u::TimeArrayConstraint(
+                                                                constraint,
                                                                 d_allocator_p),
                              d_allocator_p);
     } else {
@@ -1691,55 +1714,10 @@ bsl::shared_ptr<TypeInfoConstraint> TypeInfo::constraint() const
     return d_constraint_p;
 }
 
-#if 0
-bool TypeInfo::satisfiesConstraint(const OptionValue& element) const
-{
-    BSLS_ASSERT(d_elemType == element.type());
-
-    return d_constraint_p->validate(element);
-}
-
-bool TypeInfo::satisfiesConstraint(const OptionValue& element,
-                                   bsl::ostream&      stream) const
-{
-    BSLS_ASSERT(d_elemType == element.type());
-
-    return d_constraint_p->validate(element, stream);
-}
-
-bool TypeInfo::satisfiesConstraint(const void *variable) const
-{
-    BSLS_ASSERT(variable);
-
-    OptionValue value(d_elemType);
-    TypeInfo_OptionValueUtil::setValue(&value, variable);
-    return d_constraint_p->validate(value);
-}
-
-bool TypeInfo::satisfiesConstraint(const void    *variable,
-                                   bsl::ostream&  stream) const
-{
-    BSLS_ASSERT(variable);
-
-    OptionValue value(d_elemType);
-    TypeInfo_OptionValueUtil::setValue(&value, variable);
-    return d_constraint_p->validate(value, stream);
-}
-#endif // 0
-
 void *TypeInfo::linkedVariable() const
 {
     return d_linkedVariable_p;
 }
-
-#if 0
-bool TypeInfo::parse(OptionValue        *element,
-                     bsl::ostream&       stream,
-                     const bsl::string&  input) const
-{
-    return d_constraint_p->parse(element, stream, input);
-}
-#endif // 0
 
 OptionType::Enum TypeInfo::type() const
 {
@@ -1753,10 +1731,9 @@ bslma::Allocator *TypeInfo::allocator() const
     return d_allocator_p;
 }
 
-bsl::ostream&
-TypeInfo::print(bsl::ostream& stream,
-                int           level,
-                int           spacesPerLevel) const
+bsl::ostream& TypeInfo::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
 {
     BSLS_ASSERT(0 <= spacesPerLevel);
 
@@ -1838,7 +1815,7 @@ bool TypeInfoUtil::satisfiesConstraint(const void      *variable,
     BSLS_ASSERT(variable);
 
     OptionValue value(typeInfo.type());
-    TypeInfo_OptionValueUtil::setValue(&value, variable);
+    u::OptionValueUtil::setValue(&value, variable);
     return typeInfo.constraint()->validate(value);
 }
 
@@ -1849,7 +1826,7 @@ bool TypeInfoUtil::satisfiesConstraint(const void      *variable,
     BSLS_ASSERT(variable);
 
     OptionValue value(typeInfo.type());
-    TypeInfo_OptionValueUtil::setValue(&value, variable);
+    u::OptionValueUtil::setValue(&value, variable);
     return typeInfo.constraint()->validate(value, stream);
 }
 
@@ -1859,6 +1836,7 @@ bool TypeInfoUtil::parseAndValidate(OptionValue        *element,
                                     bsl::ostream&       stream)
 {
     BSLS_ASSERT(element);
+    BSLS_ASSERT(element->type() == typeInfo.type());
 
     return typeInfo.constraint()->parse(element, stream, input);
 }

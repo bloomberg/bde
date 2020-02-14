@@ -26,8 +26,6 @@
 #include <bsls_platform.h>
 #include <bsls_types.h> // 'bsls::Types::Int64'
 
-#include <bslalg_typetraits.h>
-
 #include <bsl_algorithm.h>  // 'bsl::fill'
 #include <bsl_functional.h> // 'bsl::function'
 #include <bsl_iostream.h>
@@ -41,7 +39,6 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstddef.h> // 'bsl::size_t'
 #include <bsl_cstring.h> // 'bsl::strcmp'
-
 
 using namespace BloombergLP;
 using bsl::cerr;
@@ -173,7 +170,7 @@ using bsl::endl;
 // [ 3] bool operator!=(const CommandLineOptionsHandle& lhs, rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TESTING 'parseCommandLine' TESTING UTILITY
+// [ 2] TESTING 'u::parseCommandLine' TESTING UTILITY
 // [ 3] TESTING 'balcl::CommandLine'
 // [ 3] TESTING 'balcl::CommandLineOptionsHandle'
 // [ 4] TESTING INVALID OPTION SPECS
@@ -264,7 +261,6 @@ BSLMF_ASSERT(bdlb::HasPrintMethod<Obj>::value);
 enum { k_DATETIME_FIELD_WIDTH = 25
      ,     k_DATE_FIELD_WIDTH =  9
      ,     k_TIME_FIELD_WIDTH = 15 };
-
 
 // ATTRIBUTES FOR 'balcl::Option'
 static const struct {
@@ -648,8 +644,9 @@ enum { NUM_SPECS = sizeof SPECS / sizeof *SPECS };
 // ----------------------------------------------------------------------------
 
 namespace {
+namespace u {
 
-static int getArgc(const char * const *argv)
+int getArgc(const char * const *argv)
     // Return the number of arguments (non-null pointers) found starting at
     // the specified 'argv'.
 {
@@ -666,9 +663,9 @@ static int getArgc(const char * const *argv)
                          // function generateArgument
                          // =========================
 
-static int generateArgument(bsl::string       *argString,
-                            const OptionInfo&  optionInfo,
-                            int                seed = 0)
+int generateArgument(bsl::string       *argString,
+                     const OptionInfo&  optionInfo,
+                     int                seed = 0)
     // Generate into the specified 'argString' a command-line string suitable
     // to be parsed by a 'balcl::CommandLine' object having the specified
     // 'optionInfo'.  Optionally specified a 'seed' for changing the return
@@ -788,10 +785,10 @@ static int generateArgument(bsl::string       *argString,
 
 const int MAX_ARGS = 512;
 
-static int parseCommandLine(char       *cmdLine,
-                            int&        argc,
-                            const char *argv[],
-                            int         maxArgs = MAX_ARGS)
+int parseCommandLine(char       *cmdLine,
+                     int&        argc,
+                     const char *argv[],
+                     int         maxArgs = MAX_ARGS)
     // Parse the specified modifiable 'cmdLine' as would a Unix shell, by
     // replacing every space by a character '\0' and recording the beginning of
     // each field into an array that is loaded into the specified 'argv', and
@@ -1245,7 +1242,7 @@ void throwInvalidSpec(const char *text, const char *file, int line)
     errorMsg += "\nAn invalid 'balcl::OptionInfo' was encountered.";
     errorMsg += "\nThe following assertion failed: ";
     errorMsg += text;
-    throw InvalidSpec(errorMsg.c_str());
+    throw u::InvalidSpec(errorMsg.c_str());
 }
 
 #endif // BDE_BUILD_TARGET_EXC
@@ -1305,11 +1302,14 @@ bool isCompatibleOrdering(const char *const *argv1,
     }
     return true;
 }
+
+}  // close namespace u
 }  // close unnamed namespace
 
 // ============================================================================
 //                  USAGE EXAMPLE CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
+
 namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
 
 // BDE_VERIFY pragma: -FD01  // Avoid contract for 'main' below.
@@ -1564,8 +1564,8 @@ int main(int argc, const char *argv[])  {
             if (veryVerbose) { T_ P_(LINE) P(cmdLine) }
 
             int         argc;
-            const char *argv[MAX_ARGS];
-            parseCommandLine(cmdLine, argc, argv);
+            const char *argv[u::MAX_ARGS];
+            u::parseCommandLine(cmdLine, argc, argv);
 
             const int    ARGC = argc;
             const char **ARGV = argv;
@@ -2582,7 +2582,6 @@ int main(int argc, const char *argv[])  {
 
         }
 
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2654,7 +2653,7 @@ int main(int argc, const char *argv[])  {
             const int           LINE        = ARGS[i].d_line;
             const int           SPEC_IDX    = ARGS[i].d_specIdx;
             const char * const *ARGV        = ARGS[i].d_argv_p;
-            const int           ARGC        = getArgc(ARGV);
+            const int           ARGC        = u::getArgc(ARGV);
             const bsl::size_t   SIZE        = ARGS[i].d_sizeNonOption2;
 
             const int           NUM_SPEC    = SPECS[SPEC_IDX].d_numSpecTable;
@@ -2754,7 +2753,7 @@ int main(int argc, const char *argv[])  {
             const int          LINE        = ARGS[i].d_line;
             const int          SPEC_IDX    = ARGS[i].d_specIdx;
             const char *const *ARGV        = ARGS[i].d_argv_p;
-            const int          ARGC        = getArgc(ARGV);
+            const int          ARGC        = u::getArgc(ARGV);
             const char        *EXP         = ARGS[i].d_expLinkedString_p;
 
             const int          NUM_SPEC    = SPECS[SPEC_IDX].d_numSpecTable;
@@ -2799,7 +2798,7 @@ int main(int argc, const char *argv[])  {
         const int MAX_ARGC = 16;
 
         if (verbose)
-            cout << "\n\tTesting 'isCompatibleOrdering' helper." << endl;
+            cout << "\n\tTesting 'u::isCompatibleOrdering' helper." << endl;
 
         static const struct {
             int          d_line;
@@ -2830,13 +2829,13 @@ int main(int argc, const char *argv[])  {
         // Compare every line above to the first one.
 
         const char *const *ARGV_REFERENCE = DUMMY_ARGS[0].d_argv_p;
-        const int          ARGC_REFERENCE = getArgc(ARGV_REFERENCE);
+        const int          ARGC_REFERENCE = u::getArgc(ARGV_REFERENCE);
 
         for (int i = 0; i < NUM_DUMMY_ARGS; ++i) {
             const int          LINE          = DUMMY_ARGS[i].d_line;
             const bool          IS_COMPATIBLE = DUMMY_ARGS[i].d_isCompatible;
             const char *const *ARGV          = DUMMY_ARGS[i].d_argv_p;
-            const int          ARGC          = getArgc(ARGV);
+            const int          ARGC          = u::getArgc(ARGV);
 
             if (veryVerbose) {
                 T_ P_(LINE) P(IS_COMPATIBLE)
@@ -2856,9 +2855,9 @@ int main(int argc, const char *argv[])  {
 
             LOOP_ASSERT(LINE, ARGC_REFERENCE == ARGC);
             LOOP_ASSERT(LINE,
-                        IS_COMPATIBLE == isCompatibleOrdering(ARGV,
-                                                              ARGV_REFERENCE,
-                                                              ARGC));
+                        IS_COMPATIBLE == u::isCompatibleOrdering(ARGV,
+                                                                ARGV_REFERENCE,
+                                                                ARGC));
         }
 
         if (verbose) cout << "\n\tTesting order of arguments." << endl;
@@ -2891,7 +2890,7 @@ int main(int argc, const char *argv[])  {
             const int          LINE        = ARGS[i].d_line;
             const int          SPEC_IDX    = ARGS[i].d_specIdx;
             const char *const *ARGV        = ARGS[i].d_argv_p;
-            const int          ARGC        = getArgc(ARGV);
+            const int          ARGC        = u::getArgc(ARGV);
             const int          NUM_SPEC    = SPECS[SPEC_IDX].d_numSpecTable;
             const OptionInfo  *SPEC        = SPECS[SPEC_IDX].d_specTable;
 
@@ -2937,7 +2936,7 @@ int main(int argc, const char *argv[])  {
 
             int iterations = 0, compatibleIterations = 0;
             do {
-                if (isCompatibleOrdering(argv, ARGV, ARGC)) {
+                if (u::isCompatibleOrdering(argv, ARGV, ARGC)) {
                     bsl::ostringstream oss;
                     Obj                mY(SPEC, NUM_SPEC, oss);
                     const Obj&         Y = mY;
@@ -3197,7 +3196,7 @@ int main(int argc, const char *argv[])  {
                           << "TESTING INVALID OPTION SPECS" << endl
                           << "============================" << endl;
 
-        bsls::Assert::setFailureHandler(&throwInvalidSpec);
+        bsls::Assert::setFailureHandler(&u::throwInvalidSpec);
 
         if (verbose) cout << "\tTesting invalid tags." << endl;
 
@@ -3244,7 +3243,7 @@ int main(int argc, const char *argv[])  {
                 TAG,                 // non-option
                 "SomeValidName",     // name
                 "Some description",  // description
-                createTypeInfo(Ot::e_BOOL),
+                u::createTypeInfo(Ot::e_BOOL),
                 OccurrenceInfo::e_OPTIONAL
               }
             };
@@ -3264,7 +3263,7 @@ int main(int argc, const char *argv[])  {
             try {
                 Obj mX(SPEC, 1, oss);
             }
-            catch (const InvalidSpec& e) {
+            catch (const u::InvalidSpec& e) {
                 if (veryVerbose) { T_ T_ P(oss.str()) }
                 exceptionCaught = true;
             }
@@ -3285,7 +3284,7 @@ int main(int argc, const char *argv[])  {
                               "",                              // non-option
                               "",                              // name
                               "Some description.",             // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           }  // Invalid name
                       }
@@ -3295,7 +3294,7 @@ int main(int argc, const char *argv[])  {
                               "",                              // non-option
                               "SomeName",                      // name
                               "",                              // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           }  // Invalid description
                       }
@@ -3305,7 +3304,7 @@ int main(int argc, const char *argv[])  {
                               "",                              // non-option
                               "SomeName",                      // name
                               "Some description",              // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           }  // Non-options cannot be of type 'bool'.
                       }
@@ -3315,11 +3314,11 @@ int main(int argc, const char *argv[])  {
                               "",                                // non-option
                               "SomeName",                        // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_CHAR),
-                              createOccurrenceInfo(
-                                               OccurrenceInfo::e_OPTIONAL,
-                                                 Ot::e_INT,
-                                                 &defaultInt)
+                              u::createTypeInfo(Ot::e_CHAR),
+                              u::createOccurrenceInfo(
+                                                    OccurrenceInfo::e_OPTIONAL,
+                                                    Ot::e_INT,
+                                                    &defaultInt)
                           }  // Type of default value does not match type info.
                       }
             },
@@ -3328,14 +3327,14 @@ int main(int argc, const char *argv[])  {
                               "s|long1",                         // non-option
                               "SomeName",                        // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           },
                           {
                               "s|long2",                         // non-option
                               "SomeOtherName",                   // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           }
                       }  // Short tags must be unique.
@@ -3345,14 +3344,14 @@ int main(int argc, const char *argv[])  {
                               "a|long",                          // non-option
                               "SomeName",                        // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           },
                           {
                               "b|long",                          // non-option
                               "SomeOtherName",                   // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           }
                       }  // Long tags must be unique.
@@ -3362,14 +3361,14 @@ int main(int argc, const char *argv[])  {
                               "",                                // non-option
                               "SomeCommonName",                  // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           },
                           {
                               "",                                // non-option
                               "SomeCommonName",                  // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_BOOL),
+                              u::createTypeInfo(Ot::e_BOOL),
                               OccurrenceInfo::e_OPTIONAL
                           }
                       }  // Names must be unique.
@@ -3379,17 +3378,17 @@ int main(int argc, const char *argv[])  {
                               "",                                // non-option
                               "SomeCommonName",                  // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_INT),
-                              createOccurrenceInfo(
-                                               OccurrenceInfo::e_OPTIONAL,
-                                                 Ot::e_INT,
-                                                 &defaultInt)
+                              u::createTypeInfo(Ot::e_INT),
+                              u::createOccurrenceInfo(
+                                                    OccurrenceInfo::e_OPTIONAL,
+                                                    Ot::e_INT,
+                                                    &defaultInt)
                           },
                           {
                               "",                                // non-option
                               "SomeCommonName",                  // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_INT),
+                              u::createTypeInfo(Ot::e_INT),
                               OccurrenceInfo::e_REQUIRED
                           }
                       }  // Defaulted non-option argument cannot be followed by
@@ -3400,14 +3399,14 @@ int main(int argc, const char *argv[])  {
                               "",                                // non-option
                               "SomeCommonName",                  // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_INT_ARRAY),
+                              u::createTypeInfo(Ot::e_INT_ARRAY),
                               OccurrenceInfo::e_REQUIRED
                           },
                           {
                               "",                                // non-option
                               "SomeCommonName",                  // name
                               "Some description",                // description
-                              createTypeInfo(Ot::e_INT),
+                              u::createTypeInfo(Ot::e_INT),
                               OccurrenceInfo::e_REQUIRED
                           }
                       }  // Array non-options cannot be followed by other
@@ -3445,7 +3444,7 @@ int main(int argc, const char *argv[])  {
             try {
                 Obj mX(SPEC, NUM_SPEC, oss);
             }
-            catch (const InvalidSpec& e) {
+            catch (const u::InvalidSpec& e) {
                 if (veryVerbose) { T_ T_ P(oss.str()) }
                 exceptionCaught = true;
             }
@@ -3577,8 +3576,6 @@ int main(int argc, const char *argv[])  {
                           << "TESTING 'balcl::CommandLine'" << endl
                           << "===========================" << endl;
 
-        typedef balcl::CommandLine Obj;
-
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3634,10 +3631,14 @@ int main(int argc, const char *argv[])  {
                 continue;
             }
 
-            const TypeInfo       TYPE_INFO =
-                                    createTypeInfo(TYPE, VARIABLE, CONSTRAINT);
-            const OccurrenceInfo OCCURRENCE_INFO =
-                              createOccurrenceInfo(OTYPE, TYPE, DEFAULT_VALUE);
+            const TypeInfo       TYPE_INFO       = u::createTypeInfo(
+                                                                   TYPE,
+                                                                   VARIABLE,
+                                                                   CONSTRAINT);
+            const OccurrenceInfo OCCURRENCE_INFO = u::createOccurrenceInfo(
+                                                                OTYPE,
+                                                                TYPE,
+                                                                DEFAULT_VALUE);
 
             const balcl::OptionInfo OPTION_INFO = {
                 TAG,
@@ -3669,7 +3670,7 @@ int main(int argc, const char *argv[])  {
 
             bsl::string arg;  const bsl::string& ARG = arg;
 
-            generateArgument(&arg, OPTION_INFO, i);
+            u::generateArgument(&arg, OPTION_INFO, i);
             arguments.push_back(ARG);
 
             // Guarantee unique names.
@@ -3835,10 +3836,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[index]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argString += " ";
@@ -3890,7 +3891,8 @@ int main(int argc, const char *argv[])  {
                            << "\t\t\tWith no exceptions." << endl;
 
         const bool HAS_BSLMA_ALLOCATOR_TRAIT =
-             bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+                                         bslma::UsesBslmaAllocator<Obj>::value;
+
 
         ASSERT(HAS_BSLMA_ALLOCATOR_TRAIT);
 
@@ -3917,10 +3919,11 @@ int main(int argc, const char *argv[])  {
 
                         int argc = -1;
                         argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                        ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                     argc,
-                                                     argv,
-                                                     MAX_ARGC));
+                        ASSERT(0 == u::parseCommandLine(
+                                                       &(argStrings.back()[0]),
+                                                       argc,
+                                                       argv,
+                                                       MAX_ARGC));
 
                         for (int k = 0; k < argc; ++k) {
                             argString += " ";
@@ -3995,10 +3998,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argPtrs.push_back(argv[k]);
@@ -4058,10 +4061,11 @@ int main(int argc, const char *argv[])  {
 
                         int argc = -1;
                         argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                        ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                     argc,
-                                                     argv,
-                                                     MAX_ARGC));
+                        ASSERT(0 == u::parseCommandLine(
+                                                       &(argStrings.back()[0]),
+                                                       argc,
+                                                       argv,
+                                                       MAX_ARGC));
 
                         for (int k = 0; k < argc; ++k) {
                             argString += " ";
@@ -4127,10 +4131,11 @@ int main(int argc, const char *argv[])  {
 
                         int argc = -1;
                         argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                        ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                     argc,
-                                                     argv,
-                                                     MAX_ARGC));
+                        ASSERT(0 == u::parseCommandLine(
+                                                       &(argStrings.back()[0]),
+                                                       argc,
+                                                       argv,
+                                                       MAX_ARGC));
 
                         for (int k = 0; k < argc; ++k) {
                             argString += " ";
@@ -4200,10 +4205,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argString += " ";
@@ -4245,7 +4250,7 @@ int main(int argc, const char *argv[])  {
                             int argc = -1;
                             argStrings2.push_back(
                                                ARGUMENTS[h + j * NUM_OPTIONS]);
-                            ASSERT(0 == parseCommandLine(
+                            ASSERT(0 == u::parseCommandLine(
                                                       &(argStrings2.back()[0]),
                                                       argc,
                                                       argv,
@@ -4341,10 +4346,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argString += " ";
@@ -4413,10 +4418,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argString += " ";
@@ -4490,10 +4495,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argPtrs.push_back(argv[k]);
@@ -4577,10 +4582,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argString += " ";
@@ -4620,7 +4625,7 @@ int main(int argc, const char *argv[])  {
                             int argc = -1;
                             argStrings2.push_back(
                                                ARGUMENTS[h + j * NUM_OPTIONS]);
-                            ASSERT(0 == parseCommandLine(
+                            ASSERT(0 == u::parseCommandLine(
                                                       &(argStrings2.back()[0]),
                                                       argc,
                                                       argv,
@@ -4720,10 +4725,10 @@ int main(int argc, const char *argv[])  {
 
                     int argc = -1;
                     argStrings.push_back(ARGUMENTS[i + j * NUM_OPTIONS]);
-                    ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                 argc,
-                                                 argv,
-                                                 MAX_ARGC));
+                    ASSERT(0 == u::parseCommandLine(&(argStrings.back()[0]),
+                                                    argc,
+                                                    argv,
+                                                    MAX_ARGC));
 
                     for (int k = 0; k < argc; ++k) {
                         argString += " ";
@@ -4889,10 +4894,11 @@ int main(int argc, const char *argv[])  {
                         const char *argv[MAX_ARGC];
 
                         int argc = -1;
-                        ASSERT(0 == parseCommandLine(&(argStrings.back()[0]),
-                                                     argc,
-                                                     argv,
-                                                     MAX_ARGC));
+                        ASSERT(0 == u::parseCommandLine(
+                                                       &(argStrings.back()[0]),
+                                                       argc,
+                                                       argv,
+                                                       MAX_ARGC));
 
                         for (int k = 0; k < argc; ++k) {
                             argString += " ";
@@ -5356,12 +5362,12 @@ int main(int argc, const char *argv[])  {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'parseCommandLine' TESTING UTILITY
+        // TESTING 'u::parseCommandLine' TESTING UTILITY
         //   Exercise the basic functionality.
         //
         // Concerns:
-        //: 1 That the 'parseCommandLine' testing utility function separates a
-        //:   command line as needed into its argc and argv.
+        //: 1 That the 'u::parseCommandLine' testing utility function separates
+        //:   a command line as needed into its 'argc' and 'argv'.
         //
         // Plan:
         //: 1 It is enough to test with zero, one, or two arguments on the
@@ -5370,13 +5376,13 @@ int main(int argc, const char *argv[])  {
         //:   trailer or both.
         //
         // Testing:
-        //   TESTING 'parseCommandLine' TESTING UTILITY
+        //   TESTING 'u::parseCommandLine' TESTING UTILITY
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                       << endl
-                       << "TESTING 'parseCommandLine' TESTING UTILITY" << endl
-                       << "==========================================" << endl;
+                    << endl
+                    << "TESTING 'u::parseCommandLine' TESTING UTILITY" << endl
+                    << "=============================================" << endl;
 
         const char *ONECMD[] = { "oneCommand" };
         const char *TWOCMD[] = { "two", "commands" };
@@ -5426,8 +5432,8 @@ int main(int argc, const char *argv[])  {
                 if (veryVerbose) { T_ P_(LINE) P(cmdLine) }
 
                 int         argc;
-                const char *argv[MAX_ARGS];
-                const int   ret = parseCommandLine(cmdLine, argc, argv, 10);
+                const char *argv[u::MAX_ARGS];
+                const int   ret = u::parseCommandLine(cmdLine, argc, argv, 10);
 
                 LOOP_ASSERT(LINE, RET  == ret);
                 if (0 == ret) {
@@ -5447,8 +5453,8 @@ int main(int argc, const char *argv[])  {
                 if (veryVerbose) { T_ P_(LINE) P(cmdLine) }
 
                 int         argc;
-                const char *argv[MAX_ARGS];
-                const int   ret = parseCommandLine(cmdLine, argc, argv, 10);
+                const char *argv[u::MAX_ARGS];
+                const int   ret = u::parseCommandLine(cmdLine, argc, argv, 10);
 
                 LOOP_ASSERT(LINE, RET  == ret);
                 if (0 == ret) {
@@ -5468,8 +5474,8 @@ int main(int argc, const char *argv[])  {
                 if (veryVerbose) { T_ P_(LINE) P(cmdLine) }
 
                 int         argc;
-                const char *argv[MAX_ARGS];
-                const int   ret = parseCommandLine(cmdLine, argc, argv, 10);
+                const char *argv[u::MAX_ARGS];
+                const int   ret = u::parseCommandLine(cmdLine, argc, argv, 10);
 
                 LOOP_ASSERT(LINE, RET  == ret);
                 if (0 == ret) {
@@ -5490,9 +5496,9 @@ int main(int argc, const char *argv[])  {
                 if (veryVerbose) { T_ P_(LINE) P(cmdLine) }
 
                 int         argc;
-                const char *argv[MAX_ARGS];
+                const char *argv[u::MAX_ARGS];
 
-                const int ret = parseCommandLine(cmdLine, argc, argv, 10);
+                const int ret = u::parseCommandLine(cmdLine, argc, argv, 10);
                 LOOP_ASSERT(LINE, RET  == ret);
                 if (0 == ret) {
                     LOOP_ASSERT(LINE, ARGC == argc);

@@ -13,20 +13,6 @@ namespace BloombergLP {
                      // -----------------
 
 // FREE OPERATORS
-bool balcl::operator==(const OptionInfo& lhs, const OptionInfo& rhs)
-{
-    return lhs.d_tag         == rhs.d_tag
-        && lhs.d_name        == rhs.d_name
-        && lhs.d_description == rhs.d_description
-        && lhs.d_typeInfo    == rhs.d_typeInfo
-        && lhs.d_defaultInfo == rhs.d_defaultInfo;
-}
-
-bool balcl::operator!=(const OptionInfo& lhs, const OptionInfo& rhs)
-{
-    return !(lhs == rhs);
-}
-
 bsl::ostream& balcl::operator<<(bsl::ostream& stream, const OptionInfo& rhs)
 {
     stream << "{" << '\n';

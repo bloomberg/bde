@@ -121,8 +121,7 @@ class TypeInfo {
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option initially has no
-        // constraint.
+        // 'constraint' is not specified, the option has no constraint.
 
     explicit
     TypeInfo(int              *variable,
@@ -135,8 +134,7 @@ class TypeInfo {
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option initially has no
-        // constraint.
+        // 'constraint' is not specified, the option has no constraint.
 
     explicit
     TypeInfo(bsls::Types::Int64 *variable,
@@ -149,8 +147,8 @@ class TypeInfo {
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(double           *variable,
@@ -163,8 +161,7 @@ class TypeInfo {
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option initially has no
-        // constraint.
+        // 'constraint' is not specified, the option has no constraint.
 
     explicit
     TypeInfo(bsl::string      *variable,
@@ -177,8 +174,8 @@ class TypeInfo {
         // option.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option initially has
-        // no constraint.
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bdlt::Datetime   *variable,
@@ -191,8 +188,8 @@ class TypeInfo {
         // option.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option initially has
-        // no constraint.
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bdlt::Date       *variable,
@@ -205,8 +202,8 @@ class TypeInfo {
         // option.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option initially has
-        // no constraint.
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bdlt::Time       *variable,
@@ -219,8 +216,8 @@ class TypeInfo {
         // option.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option initially has
-        // no constraint.
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bsl::vector<char> *variable,
@@ -233,8 +230,8 @@ class TypeInfo {
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bsl::vector<int> *variable,
@@ -247,8 +244,8 @@ class TypeInfo {
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bsl::vector<bsls::Types::Int64> *variable,
@@ -262,7 +259,7 @@ class TypeInfo {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.  Optionally specify a
         // 'constraint' to put on the option.  If 'constraint' is not
-        // specified, the option initially has no constraint.
+        // specified, the option has no constraint.
 
     explicit
     TypeInfo(bsl::vector<double> *variable,
@@ -275,8 +272,8 @@ class TypeInfo {
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bsl::vector<bsl::string> *variable,
@@ -289,8 +286,8 @@ class TypeInfo {
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bsl::vector<bdlt::Datetime> *variable,
@@ -303,8 +300,8 @@ class TypeInfo {
         // link it with the option.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bsl::vector<bdlt::Date> *variable,
@@ -317,8 +314,8 @@ class TypeInfo {
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     explicit
     TypeInfo(bsl::vector<bdlt::Time> *variable,
@@ -331,8 +328,8 @@ class TypeInfo {
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option
-        // initially has no constraint.
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
 
     TypeInfo(const TypeInfo&   original,
              bslma::Allocator *basicAllocator = 0);
@@ -441,7 +438,10 @@ class TypeInfo {
         // this object.  If 'level' is negative, suppress indentation of the
         // first line.  If 'stream' is not valid on entry, this operation has
         // no effect.  The behavior is undefined if 'spacesPerLevel' is
-        // negative.
+        // negative.  Note that the precondition on 'spacesPerLevel' is
+        // atypical for the 'print' aspect; a negative 'spacesPerLevel'
+        // typically indicates that the entire output should be formatted on
+        // one line.
 };
 
 // FREE OPERATORS

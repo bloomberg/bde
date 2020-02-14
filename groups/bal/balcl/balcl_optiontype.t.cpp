@@ -1,20 +1,29 @@
 // balcl_optiontype.t.cpp                                             -*-C++-*-
 #include <balcl_optiontype.h>
 
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_time.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
-#include <bslmf_issame.h>    // 'bsl::is_same'
+#include <bslmf_issame.h>    // 'bsl::is_same' (see 'bsl_type_traits.h' below)
 
-#include <bsls_types.h>      // 'bsl::size_t'
+#include <bsls_platform.h>   // 'BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC'
+#include <bsls_types.h>      // 'bsls::Types::Int64'
 
+#include <bsl_cstddef.h>     // 'bsl::size_t'
 #include <bsl_cstdlib.h>     // 'bsl::atoi'
 #include <bsl_cstring.h>     // 'bsl::strcmp'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>     // 'operator<<'
 #include <bsl_sstream.h>
+#include <bsl_string.h>
+//#include <bsl_type_traits.h> // 'bsl::is_same' (disallowed pre-C++11)
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -24,13 +33,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test provides an enumeration that lists the months of
-// the year and assigns them sequential values that start at 1.  Additionally,
-// the component defines a constant to represent the number of months in a
-// year.
+// The class under test, 'balcl::OptionType', has several different kinds of
+// facilities.  It is a namespace for:
+//: o A set of 'typedef's.
+//: o An enumeration (that defines an enumerator for each 'typedef').
+//: o A statically-initialized null pointer for each of those types.
+//: o Utility functions.
 //
-// We will therefore follow our standard 3-step approach to testing enumeration
-// types.
+// We use standard test techniques for an enumeration, a utility, etc.,
+// respectively.
 //
 // Global Concerns:
 //: o No methods or free operators allocate memory.
@@ -51,6 +62,7 @@ using namespace bsl;
 // FREE OPERATORS
 // [ 3] operator<<(ostream& s, OptionType::Enum val);
 // ----------------------------------------------------------------------------
+// [ 6] CONCERN: Type aliases are defined as expected.
 // [ 6] CONCERN: 'OptionType::EnumToType' types
 // [ 6] CONCERN: 'OptionType::TypeToEnum' enumerators
 // [ 5] CONCERN: static data
@@ -140,7 +152,7 @@ struct CheckOptionType {
         bool operator()() const { return true; }                              \
     };                                                                        \
     // This macro defines a specialization of the 'CheckOptionType' class
-    // template whose boolean functor returns 'true', one for the parameterized
+    // template whose boolean functor returns 'true' for the parameterized
     // 'ELEM_TYPE' matching the parameterized 'TYPE'.
 
 #define MATCH_OPTION_TYPE_PAIR(ELEM_TYPE, TYPE)                               \
@@ -151,10 +163,10 @@ struct CheckOptionType {
     struct CheckOptionType<(int)ELEM_TYPE##_ARRAY, bsl::vector<TYPE> > {      \
         bool operator()() const { return true; }                              \
     };
-    // This macro defines two specializations of the 'CheckOptionType' class
-    // template whose boolean functor returns 'true', one for the parameterized
-    // 'ELEM_TYPE' matching the parameterized 'TYPE', and the other for the
-    // corresponding array type.
+    // This macro defines *two* specializations of the 'CheckOptionType' class
+    // template whose boolean functor returns 'true', the first for the
+    // parameterized 'ELEM_TYPE' matching the parameterized 'TYPE', and the
+    // second for the corresponding array type.
 
 MATCH_OPTION_TYPE(Obj::e_BOOL,     bool)
 
@@ -171,10 +183,12 @@ MATCH_OPTION_TYPE_PAIR(Obj::e_TIME,     bdlt::Time)
 #undef MATCH_OPTION_TYPE_PAIR
 
 template <int ELEM_TYPE, class TYPE>
-bool checkOptionType(TYPE *optionTypeValue)
-    // Return 'true' if the specified 'optionTypeValue' is a null pointer whose
-    // parameterized 'TYPE' matches the 'balcl::OptionType' described by the
-    // parameterized 'ELEM_TYPE' constant.
+bool checkOptionType(const TYPE *optionTypeValue)
+    // Return 'true' if the specified 'ELEM_TYPE' corresponds to the specified
+    // 'TYPE' (as defined by the 'MATCH_OPTION_TYPE_*' macro invocations above)
+    // and if the specified 'optionTypeValue' is a null pointer whose (template
+    // parameter) 'TYPE' matches the 'balcl::OptionType' described by the
+    // (template parameter) 'ELEM_TYPE' enumerator.
 {
     CheckOptionType<ELEM_TYPE, TYPE> checker;
     return checker() && (TYPE *)0 == optionTypeValue;
@@ -448,21 +462,52 @@ if (veryVerbose)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING ENUM TO TYPE MAPPINGS
+        // TESTING ALIASES AND ENUM-TO-TYPE MAPPINGS
         //
         // Concerns:
-        //: 1 The metafunctions produce the expected values.
+        //: 1 The type aliases are defined as expected.
+        //: 2 The metafunctions produce the expected values.
         //
         // Plan:
         //: 1 Individually test each case.
         //
         // Testing:
+        //   CONCERN: Type aliases are defined as expected.
         //   CONCERN: 'OptionType::EnumToType' types
         //   CONCERN: 'OptionType::TypeToEnum' enumerators
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING ENUM TO TYPE MAPPINGS" << endl
-                                  << "=============================" << endl;
+        if (verbose) cout
+                        << endl
+                        << "TESTING ALIASES AND ENUM-TO-TYPE MAPPINGS" << endl
+                        << "=========================================" << endl;
+
+#define IS_TDEF(TYPE_ALIAS, TYPE)                                       \
+   bsl::is_same<TYPE_ALIAS, TYPE>::value
+
+        if (veryVerbose) cout << "Type aliases are defined as expected."
+                              << endl;
+//v-----^
+  ASSERT((IS_TDEF(void              , void                           ))); //00
+  ASSERT((IS_TDEF(Obj::Bool         , bool                           ))); //01
+  ASSERT((IS_TDEF(Obj::Char         , char                           ))); //02
+  ASSERT((IS_TDEF(Obj::Int          , int                            ))); //03
+  ASSERT((IS_TDEF(Obj::Int64        , bsls::Types::Int64             ))); //04
+  ASSERT((IS_TDEF(Obj::Double       , double                         ))); //05
+  ASSERT((IS_TDEF(Obj::String       , bsl::string                    ))); //06
+  ASSERT((IS_TDEF(Obj::Datetime     , bdlt::Datetime                 ))); //07
+  ASSERT((IS_TDEF(Obj::Date         , bdlt::Date                     ))); //08
+  ASSERT((IS_TDEF(Obj::Time         , bdlt::Time                     ))); //09
+  ASSERT((IS_TDEF(Obj::CharArray    , bsl::vector<char>              ))); //10
+  ASSERT((IS_TDEF(Obj::IntArray     , bsl::vector<int>               ))); //11
+  ASSERT((IS_TDEF(Obj::Int64Array   , bsl::vector<bsls::Types::Int64>))); //12
+  ASSERT((IS_TDEF(Obj::DoubleArray  , bsl::vector<double>            ))); //13
+  ASSERT((IS_TDEF(Obj::StringArray  , bsl::vector<string>            ))); //14
+  ASSERT((IS_TDEF(Obj::DatetimeArray, bsl::vector<bdlt::Datetime>    ))); //15
+  ASSERT((IS_TDEF(Obj::DateArray    , bsl::vector<bdlt::Date>        ))); //16
+  ASSERT((IS_TDEF(Obj::TimeArray    , bsl::vector<bdlt::Time>        ))); //17
+//^-----v
+#undef IS_TDEF
 
         if (veryVerbose) cout <<  "Testing 'OptionType::TypeToEnum'" << endl;
 
@@ -542,7 +587,7 @@ if (veryVerbose)
         // TESTING STATIC DATA
         //
         // Concerns:
-        //: 1 The static data members (all pointers) are all 0 initialized.
+        //: 1 The static data members (all pointers) are all 0-initialized.
         //
         // Plan:
         //: 1 Examine each data member.
@@ -1050,7 +1095,6 @@ if (veryVerbose)
         //: 4 The string returned by 'toAscii' is non-modifiable.
         //:
         //: 5 The 'toAscii' method has the expected signature.
-        //:
         //
         // Plan:
         //: 1 Verify that the enumerator values are sequential, starting from
@@ -1065,7 +1109,6 @@ if (veryVerbose)
         //: 4 Take the address of the 'toAscii' (class) method and use the
         //:   result to initialize a variable of the appropriate type.
         //:   (C-4..5)
-        //:
         //
         // Testing:
         //   enum Enum { ... };
@@ -1159,8 +1202,8 @@ if (veryVerbose)
 
       } break;
       default: {
-          cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-          testStatus = -1;
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        testStatus = -1;
       }
     }
 
