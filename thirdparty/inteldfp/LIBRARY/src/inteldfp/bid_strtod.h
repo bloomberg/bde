@@ -123,7 +123,7 @@ wcstod_conversion (const wchar_t* RESTRICT ps_in, wchar_t** RESTRICT endptr)
 {
 wchar_t * ps0, *ps, *ptail;
 char* ps0_c;
-int i,k;
+size_t i,k;
 
    if(!ps_in)
    {
