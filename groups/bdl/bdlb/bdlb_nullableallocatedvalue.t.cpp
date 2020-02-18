@@ -346,14 +346,14 @@ class SwappableWithAllocator {
         return d_allocator_p;
     }
 
-    int value() const
-    {
-        return d_value;
-    }
-
     const bsl::string& string() const
     {
         return d_string;
+    }
+
+    int value() const
+    {
+        return d_value;
     }
 };
 

@@ -960,10 +960,10 @@ void swap(NullableValue_WithAllocator<TYPE>& a,
           NullableValue_WithAllocator<TYPE>& b);
     // Exchange the values of the specified 'a' and 'b' objects.  This function
     // provides the no-throw exception-safety guarantee if the (template
-    // parameter) 'TYPE' provides that guarantee, the two objects were
-    // created with the same allocator, and the result of the 'isNull'
-    // method for the two objects is the same; otherwise this function provides
-    // the basic guarantee.
+    // parameter) 'TYPE' provides that guarantee, the two objects were created
+    // with the same allocator, and the result of the 'isNull' method for the
+    // two objects is the same; otherwise this function provides the basic
+    // guarantee.
 
               // ==========================================
               // class NullableValue_WithoutAllocator<TYPE>
