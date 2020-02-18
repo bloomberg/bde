@@ -512,6 +512,7 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_simpletesttype.h>
 #include <bsltf_stdalloctesttype.h>
 #include <bsltf_uniontesttype.h>
+#include <bsltf_wellbehavedmoveonlyalloctesttype.h>
 
 #include <bslma_allocatortraits.h>
 #include <bslma_mallocfreeallocator.h>
@@ -796,6 +797,7 @@ void debugprint(const NonEqualComparableTestType& obj);
 void debugprint(const SimpleTestType& obj);
 template <class ALLOC> void debugprint(const StdAllocTestType<ALLOC>& obj);
 void debugprint(const UnionTestType& obj);
+void debugprint(const WellBehavedMoveOnlyAllocTestType& obj);
     // Print the value of the specified 'obj' to the console.  Note that this
     // free function is provided to allow 'bsls_bsltestutil' to support these
     // types intended for testing.  See the component-level documentation for
@@ -2142,6 +2144,15 @@ int TemplateTestFacility::getIdentifier<bsltf::AllocEmplacableTestType>(
          :                        14;
 }
 
+template <>
+inline
+int TemplateTestFacility::getIdentifier<
+                                      bsltf::WellBehavedMoveOnlyAllocTestType>(
+                         const bsltf::WellBehavedMoveOnlyAllocTestType& object)
+{
+    return object.data();
+}
+
 template <class TYPE>
 MoveState::Enum
 TemplateTestFacility::getMovedFromState(const TYPE& object)
@@ -2292,6 +2303,12 @@ void debugprint(const AllocEmplacableTestType& obj)
 
 inline
 void debugprint(const EmplacableTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const WellBehavedMoveOnlyAllocTestType& obj)
 {
     printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
 }

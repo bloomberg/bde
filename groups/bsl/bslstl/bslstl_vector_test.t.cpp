@@ -1794,7 +1794,9 @@ struct TestDriver {
         k_IS_MOVABLE =
                      bslmf::IsBitwiseMoveable<TYPE>::value ||
                     !bsl::is_copy_constructible<TYPE>::value ||
-                     bsl::is_nothrow_move_constructible<TYPE>::value
+                     bsl::is_nothrow_move_constructible<TYPE>::value,
+        k_IS_WELL_BEHAVED = bsl::is_same<TYPE,
+                                bsltf::WellBehavedMoveOnlyAllocTestType>::value
     };
 
     // TEST APPARATUS
@@ -1820,9 +1822,10 @@ struct TestDriver {
 
     static
     const bool s_typeIsMoveEnabled =
-                      bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
-                      bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
-                      bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value;
+            bsl::is_same<TYPE, bsltf::MovableTestType>::value ||
+            bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
+            bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value ||
+            bsl::is_same<TYPE, bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
 
     // CLASS METHODS
@@ -5305,8 +5308,15 @@ void TestDriver<TYPE, ALLOC>::testCase26()
 
                 if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P_(ELEMENT) P(X) }
 
-                ASSERTV(mState, MoveState::e_UNKNOWN == mState ||
-                                MoveState::e_MOVED == mState);
+                {
+                    const MoveState::Enum exp = !s_typeIsMoveEnabled
+                                              ? MoveState::e_UNKNOWN
+                                              : k_IS_WELL_BEHAVED && &oa != &sa
+                                              ? MoveState::e_NOT_MOVED
+                                              : MoveState::e_MOVED;
+
+                    ASSERTV(exp, mState, exp == mState);
+                }
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
                 const bsls::Types::Int64 A  = oa.numBlocksInUse();
@@ -5327,7 +5337,8 @@ void TestDriver<TYPE, ALLOC>::testCase26()
 
                 if (expectToAllocate(SIZE)) {
                     ASSERTV(SIZE, numMovedInto(X),
-                            !k_IS_MOVABLE || (SIZE + 1 == numMovedInto(X)));
+                          !k_IS_MOVABLE || (k_IS_WELL_BEHAVED && &oa != &sa) ||
+                                                (SIZE + 1 == numMovedInto(X)));
                     const bsls::Types::Int64 EXP = BB +  1      // realloc
                           +  TYPE_ALLOC                         // new element
                           +  TYPE_ALLOC * (SIZE * TYPE_COPY)    // SIZE copies
@@ -5949,8 +5960,15 @@ void TestDriver<TYPE, ALLOC>::testCase25()
 
                 if (veryVerbose) { T_ P_(LINE) P_(CONFIG) P_(ELEMENT) P(X) }
 
-                ASSERTV(mState, MoveState::e_UNKNOWN == mState ||
-                                MoveState::e_MOVED   == mState);
+                {
+                    const MoveState::Enum exp = !s_typeIsMoveEnabled
+                                              ? MoveState::e_UNKNOWN
+                                              : k_IS_WELL_BEHAVED && &oa != &sa
+                                              ? MoveState::e_NOT_MOVED
+                                              : MoveState::e_MOVED;
+
+                    ASSERTV(exp, mState, exp == mState);
+                }
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
                 const bsls::Types::Int64 A  = oa.numBlocksInUse();
@@ -5970,7 +5988,8 @@ void TestDriver<TYPE, ALLOC>::testCase25()
 
                 if (expectToAllocate(SIZE))  {
                     ASSERTV(SIZE, numMovedInto(X),
-                            !k_IS_MOVABLE || (SIZE + 1 == numMovedInto(X)));
+                          !k_IS_MOVABLE || (k_IS_WELL_BEHAVED && &oa != &sa) ||
+                                                (SIZE + 1 == numMovedInto(X)));
                     const bsls::Types::Int64 EXP = BB
                           +  1                                  // realloc
                           +  TYPE_ALLOC                         // new element
@@ -6358,8 +6377,11 @@ void TestDriver<TYPE, ALLOC>::testCase24_dispatch()
                 }
                 else {
                     // 1. each element in original move-inserted
-                    ASSERTV(SPEC1, SPEC2, X.end() ==
-                       TstMoveUtil::findFirstNotMovedInto(X.begin(), X.end()));
+                    if (!k_IS_WELL_BEHAVED) {
+                        ASSERTV(SPEC1, SPEC2, X.end() ==
+                                  TstMoveUtil::findFirstNotMovedInto(X.begin(),
+                                                                     X.end()));
+                    }
 
                     // 2. additional memory checks
                     ASSERTV(SPEC1, SPEC2, &xra == &xoa,
@@ -6673,10 +6695,12 @@ void TestDriver<TYPE, ALLOC>::testCase23()
                 }
                 else {
                     // 1. each element in original move-inserted
-                    ASSERTV(SPEC,
-                            X.end() == TstMoveUtil::findFirstNotMovedInto(
+                    if (!k_IS_WELL_BEHAVED) {
+                        ASSERTV(SPEC,
+                                X.end() == TstMoveUtil::findFirstNotMovedInto(
                                                                      X.begin(),
                                                                      X.end()));
+                    }
 
                     // 2. original object left with same size
                     ASSERTV(SPEC, CONFIG, xsa == xoa, Z, LENGTH == Z.size());
@@ -8419,6 +8443,10 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
                     const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
                     const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
+                    if (4 < LENGTH && NUM_DATA-1 != i && NUM_DATA-1 != ti) {
+                        continue;
+                    }
+
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                         const size_t POS = j;
 
@@ -8812,6 +8840,11 @@ void TestDriver<TYPE, ALLOC>::testCase17_push_back()
             const char        ELEMENT  = DATA[ti].d_element;
             const char *const EXPECTED = DATA[ti].d_results;
             const size_t      SIZE     = strlen(SPEC);
+
+            if (4 < SIZE && NUM_DATA-1 != ti) {
+                continue;
+            }
+
             for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
                 ALLOC                xoa(&oa);
@@ -9041,6 +9074,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
         { L_,   "HGFEDCBA",   7,  'Z',     "HGFEDCBZA" },
         { L_,   "HGFEDCBA",   8,  'Z',     "HGFEDCBAZ" }
     };
+
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
     if (verbose) printf("\tTesting 'insert' without exceptions.\n");
     {
@@ -9118,6 +9152,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
 
     // TBD: There is no strong exception guarantee when the copy constructor
     // throws during 'insert' of a single element...
+
     if (verbose) printf("\tTesting 'insert' with injected exceptions.\n");
     {
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
@@ -9127,6 +9162,11 @@ void TestDriver<TYPE, ALLOC>::testCase17_insert_constref()
             const char        ELEMENT  = DATA[ti].d_element;
             const char *const EXPECTED = DATA[ti].d_results;
             const size_t      SIZE     = strlen(SPEC);
+
+            if (4 < SIZE && NUM_DATA-1 != ti) {
+                continue;
+            }
+
             for (char cfg = 'a'; cfg <= 'a'; ++cfg) {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
                 ALLOC                xoa(&oa);
@@ -9445,6 +9485,10 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                     const size_t  NUM_ELEMENTS = strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
+                    if (4 < LENGTH && NUM_DATA-1 != i && NUM_U_DATA-1 != ti) {
+                        continue;
+                    }
+
                     Obj       mUA;      const Obj&       UA = gg(&mUA, SPEC);
                     CONTAINER mU(UA);   const CONTAINER& U  = mU;
 
@@ -9481,7 +9525,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Range(const CONTAINER&)
                             if ((size_t) -1 != CAP) {
                                 ASSERTV(INIT_LINE, LINE, i, j,
                                         CAP == X.capacity());
-                            }
+                           }
 
                             size_t k;
                             for (k = 0; k < POS; ++k) {
@@ -13228,6 +13272,7 @@ int main(int argc, char *argv[])
                      , testCase26
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
                      , bsltf::MoveOnlyAllocTestType
+                     , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
 
         RUN_EACH_TYPE( StdBslmaTestDriver
@@ -13235,6 +13280,7 @@ int main(int argc, char *argv[])
                      , bsltf::StdAllocTestType<bsl::allocator<int> >
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
                      , bsltf::MoveOnlyAllocTestType
+                     , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
 
 #if 0
@@ -13242,6 +13288,7 @@ int main(int argc, char *argv[])
                                     , testCase26Range
                                     , bsltf::NonDefaultConstructibleTestType
                                     , bsltf::MoveOnlyAllocTestType
+                                    , bsltf::WellBehavedMoveOnlyAllocTestType
                                     , NotAssignable
                                     , BitwiseNotAssignable
                                     );
@@ -13306,7 +13353,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver
                      , testCase25
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
-                     , bsltf::MoveOnlyAllocTestType
+                     , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
 
         RUN_EACH_TYPE(StdBslmaTestDriver
@@ -13314,6 +13361,7 @@ int main(int argc, char *argv[])
                      , bsltf::StdAllocTestType<bsl::allocator<int> >
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
                      , bsltf::MoveOnlyAllocTestType
+                     , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
       } break;
       case 24: {
@@ -13327,9 +13375,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(MetaTestDriver
                      , testCase24
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
-                     , bsltf::MovableTestType
-                     , bsltf::MovableAllocTestType
                      , bsltf::MoveOnlyAllocTestType
+                     , bsltf::WellBehavedMoveOnlyAllocTestType
                      );
 
         RUN_EACH_TYPE(TestDriver
@@ -13350,6 +13397,7 @@ int main(int argc, char *argv[])
                      , testCase23
                      , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
                      , bsltf::MoveOnlyAllocTestType
+                     , bsltf::WellBehavedMoveOnlyAllocTestType
                      , NotAssignable
                      , BitwiseNotAssignable
                      );

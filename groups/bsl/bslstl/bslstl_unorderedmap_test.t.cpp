@@ -525,6 +525,8 @@ TYPE& copyAssignTo(TYPE *dst, const TYPE& src)
     // return a reference for modifiable access to '*dst'.
 {
     BSLMF_ASSERT((!bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value));
+    BSLMF_ASSERT((!bsl::is_same<TYPE,
+                             bsltf::WellBehavedMoveOnlyAllocTestType>::value));
 
     return *dst = src;
 }
@@ -533,6 +535,16 @@ template <>
 bsltf::MoveOnlyAllocTestType&
 copyAssignTo(bsltf::MoveOnlyAllocTestType        *dst,
              const bsltf::MoveOnlyAllocTestType&  src)
+{
+    dst->setData(src.data());
+
+    return *dst;
+}
+
+template <>
+bsltf::WellBehavedMoveOnlyAllocTestType&
+copyAssignTo(bsltf::WellBehavedMoveOnlyAllocTestType        *dst,
+             const bsltf::WellBehavedMoveOnlyAllocTestType&  src)
 {
     dst->setData(src.data());
 
@@ -1327,15 +1339,24 @@ class TestDriver {
     enum { k_TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
                           bslma::UsesBslmaAllocator<VALUE>::value,
 
+           k_IS_KEY_WELL_BEHAVED =
+                   bsl::is_same<KEY,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value,
+
            k_IS_KEY_MOVE_AWARE =
                    bsl::is_same<KEY, bsltf::MovableTestType>::value ||
                    bsl::is_same<KEY, bsltf::MovableAllocTestType>::value ||
-                   bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value,
+                   bsl::is_same<KEY, bsltf::MoveOnlyAllocTestType>::value ||
+                   k_IS_KEY_WELL_BEHAVED,
 
+           k_IS_VALUE_WELL_BEHAVED =
+                   bsl::is_same<VALUE,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value,
            k_IS_VALUE_MOVE_AWARE =
                    bsl::is_same<VALUE, bsltf::MovableTestType>::value ||
                    bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value ||
-                   bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value,
+                   bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value ||
+                   k_IS_VALUE_WELL_BEHAVED,
 
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_WINDOWS)
            // Aix has a compiler bug where method pointers do not default
@@ -2855,8 +2876,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                 (void) iterations;    // suppress 'unused'
-                ASSERTV(NameOf<KEY>(), SPEC, mFromState,
-                     !k_IS_KEY_MOVE_AWARE || MoveState::e_MOVED == mFromState);
+
+                MoveState::Enum exp = k_IS_KEY_MOVE_AWARE
+                                      ? (k_IS_KEY_WELL_BEHAVED && &oa != &sa
+                                         ? MoveState::e_NOT_MOVED
+                                         : MoveState::e_MOVED)
+                                      : MoveState::e_UNKNOWN;
+
+                ASSERTV(NameOf<KEY>(), SPEC, mFromState, exp,
+                                                            exp == mFromState);
 #else
                 // TBD: See the TBD in the .h file in 'operator[key&&]' where
                 // it has been temporarily hobbled in C++03 (and this test
@@ -2877,8 +2905,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 
                 mIntoState = TTF::getMovedIntoState(mX.find(ZK)->first);
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-                ASSERTV(NameOf<KEY>(), SPEC, mIntoState,
-                     !k_IS_KEY_MOVE_AWARE || MoveState::e_MOVED == mIntoState);
+                ASSERTV(NameOf<KEY>(), SPEC, mIntoState, exp,
+                                                            exp == mIntoState);
 #else
                 (void) mIntoState;    // suppress 'unused'
                 if (1 == iterations++) {
@@ -4612,10 +4640,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                   }
                 }
 
-                ASSERTV(NameOf<VALUE>(), !IS_UNIQ ||
-                                                      MoveState::e_NOT_MOVED !=
-                                  bsltf::getMovedFrom(buffer.object().second));
-
                 if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                     // 'KEY' is a const type, so cannot be moved.
 
@@ -4626,10 +4650,16 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 }
 
                 if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
-                                  bsltf::getMovedFrom(buffer.object().second));
-                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
-                                  bsltf::getMovedInto(RESULT.first->second));
+                    const MoveState::Enum exp =
+                                          k_IS_VALUE_WELL_BEHAVED && &oa != &ba
+                                          ? MoveState::e_NOT_MOVED
+                                          : MoveState::e_MOVED;
+
+                    MoveState::Enum mState =
+                                   bsltf::getMovedFrom(buffer.object().second);
+                    ASSERTV(NameOf<VALUE>(), exp == mState);
+                    mState = bsltf::getMovedInto(RESULT.first->second);
+                    ASSERTV(NameOf<VALUE>(), exp == mState);
                 }
 
                 ASSERTV(SIZE + IS_UNIQ  == X.size());
@@ -4703,10 +4733,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                   }
                 }
 
-                ASSERTV(NameOf<VALUE>(), !IS_UNIQ ||
-                                                      MoveState::e_NOT_MOVED !=
-                                  bsltf::getMovedFrom(buffer.object().second));
-
                 if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                     // 'KEY' of 'TValueType' is a non-const type, so can be
                     // moved.
@@ -4718,10 +4744,18 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 }
 
                 if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
-                                  bsltf::getMovedFrom(buffer.object().second));
-                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
-                                  bsltf::getMovedInto(RESULT.first->second));
+                    const MoveState::Enum exp =
+                                          k_IS_VALUE_WELL_BEHAVED && &oa != &ba
+                                          ? MoveState::e_NOT_MOVED
+                                          : MoveState::e_MOVED;
+
+                    MoveState::Enum mState = 
+                                   bsltf::getMovedFrom(buffer.object().second);
+                    ASSERTV(NameOf<VALUE>(), exp, mState,
+                                                      exp == mState && "from");
+                    mState = bsltf::getMovedInto(RESULT.first->second);
+                    ASSERTV(NameOf<VALUE>(), exp, mState,
+                                                      exp == mState && "into");
                 }
 
                 ASSERTV(SIZE + IS_UNIQ  == X.size());
@@ -4811,10 +4845,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERTV(NameOf<VALUE>(), !IS_UNIQ ||
-                                                      MoveState::e_NOT_MOVED !=
-                                  bsltf::getMovedFrom(buffer.object().second));
-
                 if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                     // 'KEY' is a const type, so cannot be moved.
 
@@ -4825,10 +4855,18 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 }
 
                 if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
-                                  bsltf::getMovedFrom(buffer.object().second));
-                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
-                                  bsltf::getMovedInto(RESULT.first->second));
+                    const MoveState::Enum exp =
+                                          k_IS_VALUE_WELL_BEHAVED && &oa != &ba
+                                          ? MoveState::e_NOT_MOVED
+                                          : MoveState::e_MOVED;
+
+                    MoveState::Enum mState = 
+                                   bsltf::getMovedFrom(buffer.object().second);
+                    ASSERTV(NameOf<VALUE>(), exp, mState,
+                                                      exp == mState && "from");
+                    mState = bsltf::getMovedInto(RESULT.first->second);
+                    ASSERTV(NameOf<VALUE>(), exp, mState,
+                                                      exp == mState && "into");
                 }
 
                 ASSERTV(SPEC, tj, SIZE, !IS_UNIQ         == (X == Y));
@@ -4917,10 +4955,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                       }
                     }
 
-                    ASSERTV(NameOf<VALUE>(),
-                            !IS_UNIQ || MoveState::e_NOT_MOVED !=
-                                  bsltf::getMovedFrom(buffer.object().second));
-
                     if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                         ASSERTV(NameOf<KEY>(),
                                 bsltf::getMovedFrom(buffer.object().first),
@@ -4933,14 +4967,18 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                     }
 
                     if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                        ASSERTV(NameOf<VALUE>(),
-                                bsltf::getMovedFrom(buffer.object().second),
-                                MoveState::e_MOVED ==
-                                  bsltf::getMovedFrom(buffer.object().second));
-                        ASSERTV(NameOf<VALUE>(),
-                                bsltf::getMovedInto(RESULT.first->second),
-                                MoveState::e_MOVED ==
-                                  bsltf::getMovedInto(RESULT.first->second));
+                        const MoveState::Enum exp =
+                                          k_IS_VALUE_WELL_BEHAVED && &oa != &ba
+                                          ? MoveState::e_NOT_MOVED
+                                          : MoveState::e_MOVED;
+
+                        MoveState::Enum mState = 
+                                   bsltf::getMovedFrom(buffer.object().second);
+                        ASSERTV(NameOf<VALUE>(), exp, mState,
+                                                      exp == mState && "from");
+                        mState = bsltf::getMovedInto(RESULT.first->second);
+                        ASSERTV(NameOf<VALUE>(), exp, mState,
+                                                      exp == mState && "into");
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -5397,9 +5435,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                     }
 
                     if (k_IS_VALUE_MOVE_AWARE) {
-                        const MoveState::Enum exp = &oa == &sa
-                                                    ? MoveState::e_NOT_MOVED
-                                                    : MoveState::e_MOVED;
+                        const MoveState::Enum exp =
+                                          &oa == &sa || k_IS_VALUE_WELL_BEHAVED
+                                          ? MoveState::e_NOT_MOVED
+                                          : MoveState::e_MOVED;
 
                         for (CIter it = Z.cbegin(); Z.cend() != it; ++it) {
                             const MoveState::Enum movedFrom =
@@ -5500,6 +5539,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
             const char *const RESULT1 = DATA[ti].d_results_p;
             const size_t      LENGTH1 = strlen(RESULT1);
 
+            if (4 < LENGTH1 && NUM_DATA-1 != ti) {
+                continue;
+            }
+
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPEC1);
@@ -5511,6 +5554,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec_p;
                 const size_t      LENGTH2 = strlen(DATA[tj].d_results_p);
+
+                if (4 < LENGTH2 && NUM_DATA-1 != tj) {
+                    continue;
+                }
 
                 for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
                     const char CONFIG = cfg;  // how we specify the allocator
@@ -5610,7 +5657,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
     ASSERTV(0 == da.numAllocations());
 
     BSLMF_ASSERT(2 == DEFAULT_NUM_MAX_LENGTH);
-    ASSERTV(doneA, doneB, doneC, 4 == doneA && 2 == doneB && 4 == doneC);
+    ASSERTV(doneA, doneB, doneC, 4 == doneA && 2 == doneB && 1 == doneC);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -5866,7 +5913,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27()
                 }
 
                 if (k_IS_VALUE_MOVE_AWARE) {
-                    const MoveState::Enum exp = &oa == &sa
+                    const MoveState::Enum exp = &oa == &sa ||
+                                                        k_IS_VALUE_WELL_BEHAVED
                                                 ? MoveState::e_NOT_MOVED
                                                 : MoveState::e_MOVED;
 
@@ -8131,9 +8179,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase35,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         //            bsltf::MoveOnlyAllocTestType no copy
 
@@ -8147,15 +8193,13 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase34,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase34,
-                      bsltf::MoveOnlyAllocTestType);
-
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase34();
@@ -8168,9 +8212,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase33_inline,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         //            bsltf::MoveOnlyAllocTestType no copy
 
@@ -8179,9 +8221,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase33_outOfLine,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         //            bsltf::MoveOnlyAllocTestType no copy
 
@@ -8219,9 +8259,7 @@ int main(int argc, char *argv[])
                       testCase31,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         // Multiple arg, no hint.
 
@@ -8240,8 +8278,8 @@ int main(int argc, char *argv[])
 #if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase30,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase30,
@@ -8256,9 +8294,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase29,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase29();
 
@@ -8270,6 +8306,10 @@ int main(int argc, char *argv[])
                    bsltf::MoveOnlyAllocTestType>::testCase29();
         TestDriver<bsltf::MovableTestType,
                    bsltf::MoveOnlyAllocTestType>::testCase29();
+        TestDriver<signed char,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase29();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase29();
 #endif
       } break;
       case 28: {
@@ -8280,38 +8320,43 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         // Since 'KEY' is 'const', copy c'tor of 'KEY' must be used to insert
         // elements, so cannot have move-only 'KEY'.
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         TestDriver<signed char,
                    bsltf::MoveOnlyAllocTestType>::testCase28();
         TestDriver<bsltf::MovableTestType,
                    bsltf::MoveOnlyAllocTestType>::testCase28();
+        TestDriver<signed char,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase28();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase28();
 
         TestDriver<TestKeyType, TestValueType>::testCase28();
-#endif
 
         // 'propagate_on_container_move_assignment' testing
 
         RUN_EACH_TYPE(TestDriver,
                       testCase28_propagate_on_container_move_assignment,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
 // TBD get this working?
 #if 0
         TestDriver<signed char, bsltf::MoveOnlyAllocTestType>::
                            testCase28_propagate_on_container_move_assignment();
 
+        TestDriver<signed char, bsltf::WellBehavedMoveOnlyAllocTestType)>::
+                           testCase28_propagate_on_container_move_assignment();
+
         TestDriver<bsltf::MovableAllocTestType,
                    bsltf::MoveOnlyAllocTestType>::
+                           testCase28_propagate_on_container_move_assignment();
+
+        TestDriver<bsltf::MovableAllocTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::
                            testCase28_propagate_on_container_move_assignment();
 #endif
 
@@ -8326,9 +8371,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase27,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         // Since 'KEY' is 'const', copy c'tor of 'KEY' must be used to insert
         // elements, so cannot have move-only 'KEY'.
@@ -8338,6 +8381,11 @@ int main(int argc, char *argv[])
                    bsltf::MoveOnlyAllocTestType>::testCase27();
         TestDriver<bsltf::MovableTestType,
                    bsltf::MoveOnlyAllocTestType>::testCase27();
+
+        TestDriver<signed char,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase27();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase27();
 #endif
       } break;
       case 26: {
@@ -8348,9 +8396,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase26,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         // 'value_type' must be copy constructible.
       } break;
@@ -8370,9 +8416,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase24,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         // Key type must be copy constructible.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -8380,6 +8424,11 @@ int main(int argc, char *argv[])
                    bsltf::MoveOnlyAllocTestType>::testCase24();
         TestDriver<TestKeyType,
                    bsltf::MoveOnlyAllocTestType>::testCase24();
+
+        TestDriver<signed char,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase24();
+        TestDriver<TestKeyType,
+                   bsltf::WellBehavedMoveOnlyAllocTestType>::testCase24();
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase24();
@@ -8391,9 +8440,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase23,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         //            bsltf::MoveOnlyAllocTestType no copy
 
@@ -8406,9 +8453,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         //            bsltf::MoveOnlyAllocTestType no copy
 
@@ -8438,14 +8483,13 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase20();
@@ -8472,14 +8516,13 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase18();
@@ -8492,9 +8535,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase17,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         //            bsltf::MoveOnlyAllocTestType no copy
 
@@ -8513,9 +8554,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         //            bsltf::MoveOnlyAllocTestType no copy
 
@@ -8528,14 +8567,13 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase14();
@@ -8548,14 +8586,13 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase13,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase13();
@@ -8571,9 +8608,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      bsltf::NonOptionalAllocTestType);
 
         // 'bsltf::MoveOnlyAllocTestType' no copy construct.
 

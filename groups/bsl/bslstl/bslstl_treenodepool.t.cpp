@@ -1905,6 +1905,48 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(1 == oa.numBlocksInUse());
         }
+
+        {
+            typedef bslmf::MovableRefUtil                       MoveUtil;
+            typedef bsltf::TemplateTestFacility                 TstFacility;
+
+            typedef bsltf::WellBehavedMoveOnlyAllocTestType     TYPE;
+            typedef Wrapper<const TYPE>                         ValueType;
+            typedef bsl::allocator<ValueType>                   Alloc;
+
+            typedef TreeNodePool<ValueType, Alloc>              Obj;
+            typedef TreeNode<ValueType>                         Node;
+
+            const int TYPE_ALLOC = bslma::UsesBslmaAllocator<ValueType>::value;
+
+            bslma::TestAllocator         da;
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocatorMonitor  dam(&da);
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            Obj mX(&oa); // const Obj& X = mX;
+
+            {
+
+                TYPE m1(1, &oa);
+                Wrapper<TYPE> v(MoveUtil::move(m1), &oa);
+                Node *node = static_cast<Node *>(
+                                     mX.emplaceIntoNewNode(MoveUtil::move(v)));
+
+                ASSERT(node);
+                ASSERT(1 == TstFacility::getIdentifier(node->value().value()));
+
+                ASSERTV(TYPE_ALLOC, oa.numBlocksInUse(),
+                        1 + TYPE_ALLOC == oa.numBlocksInUse());
+
+                mX.deleteNode(node);
+            }
+
+            ASSERT(dam.isTotalSame());
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(1 == oa.numBlocksInUse());
+        }
       } break;
       case 12: {
         TestDriver<bsltf::AllocTestType>::testCase12();

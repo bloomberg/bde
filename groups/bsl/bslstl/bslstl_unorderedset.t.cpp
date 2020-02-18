@@ -5004,7 +5004,8 @@ if (verbose) {
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase6,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
@@ -5032,7 +5033,8 @@ if (verbose) {
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -5045,7 +5047,8 @@ if (verbose) {
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase3,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
@@ -5062,7 +5065,8 @@ if (verbose) {
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase2,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,

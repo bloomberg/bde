@@ -375,11 +375,15 @@ class AllocEmplacableTestType {
         // object.
 
     // MANIPULATORS
-    AllocEmplacableTestType& operator=(const AllocEmplacableTestType& rhs);
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+    AllocEmplacableTestType& operator=(
+                                 const AllocEmplacableTestType& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that this must be explicitly defaulted to silence compiler warnings
-        // on later versions of C++.
+        // return a reference providing modifiable access to this object.
+#else
+    //! AllocEmplacableTestType& operator=(
+    //                           const AllocEmplacableTestType& rhs) = default;
+#endif
 
     // ACCESSORS
     bslma::Allocator *allocator() const;

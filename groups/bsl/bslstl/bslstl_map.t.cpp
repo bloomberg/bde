@@ -1313,7 +1313,9 @@ struct IntToPairConverter {
         bslma::TestAllocator *pss = scratchSingleton();
         const bool useSingleton =
                      !bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value
-                  && !bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value;
+                  && !bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value
+                  && !bsl::is_same<VALUE,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
         // Note that 'allocator' and 'pss' are of different types, and
         // sometimes this function is called with 'ALLOC' being a type that has
@@ -1629,9 +1631,11 @@ class TestDriver {
 
     static
     const bool s_valueIsMoveEnabled =
-                     bsl::is_same<VALUE, bsltf::MovableTestType>::value ||
-                     bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value ||
-                     bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value;
+                    bsl::is_same<VALUE, bsltf::MovableTestType>::value ||
+                    bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value ||
+                    bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value ||
+                    bsl::is_same<VALUE,
+                               bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
     // CLASS METHODS
     static
@@ -1856,8 +1860,9 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::primaryManipulator(Obj   *container,
     // that allocator in the ggg function.
 
     ALLOC allocToUse =
-                     (bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value
-                   || bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value)
+          (bsl::is_same<VALUE, bsltf::MovableAllocTestType>::value
+        || bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value
+        || bsl::is_same<VALUE, bsltf::WellBehavedMoveOnlyAllocTestType>::value)
                    ? container->get_allocator()
                    : allocator;
 
@@ -4909,9 +4914,11 @@ int main(int argc, char *argv[])
         // container with a move-only 'KEY'.
 
         MetaTestDriver<int,
-                    bsltf::MoveOnlyAllocTestType>::testCase8();
+                       bsltf::MoveOnlyAllocTestType>::testCase8();
         MetaTestDriver<bsltf::MovableAllocTestType,
-                    bsltf::MoveOnlyAllocTestType>::testCase8();
+                       bsltf::MoveOnlyAllocTestType>::testCase8();
+        MetaTestDriver<int,
+                       bsltf::WellBehavedMoveOnlyAllocTestType>::testCase8();
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -4955,10 +4962,14 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
+                      bsltf::NonOptionalAllocTestType);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase6,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase6();
       } break;
@@ -4983,11 +4994,15 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase4,
                       bsltf::NonOptionalAllocTestType,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase4();
       } break;
@@ -5001,11 +5016,15 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase3,
                       bsltf::NonOptionalAllocTestType,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase3();
       } break;
@@ -5019,11 +5038,15 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase2,
                       bsltf::NonOptionalAllocTestType,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      bsltf::MoveOnlyAllocTestType,
+                      bsltf::WellBehavedMoveOnlyAllocTestType);
 
         TestDriver<TestKeyType, TestValueType>::testCase2();
       } break;

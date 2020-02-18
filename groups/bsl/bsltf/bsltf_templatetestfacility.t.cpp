@@ -656,8 +656,16 @@ void TestHelper<TYPE>::test7Helper()
 
     if (veryVerbose) printf("\n==TYPE: %s==\n", NameOf<TYPE>().name());
 
+    bslma::TestAllocator objectAllocator("objectAllocator",
+                                         veryVeryVeryVerbose);
+
+    bsls::ObjectBuffer<TYPE> buffer;
+    TYPE &mX = buffer.object();
+    const TYPE &X = mX;
+    TYPE *address = bsls::Util::addressOf(mX);
+
     for (int ti = 0; ti <= 127; ++ti) {
-        TYPE X = TemplateTestFacility::create<TYPE>(ti);
+        TemplateTestFacility::emplace(address, ti, &objectAllocator);
 
         if (!verbose) {
             redirect.enable();
@@ -671,6 +679,8 @@ void TestHelper<TYPE>::test7Helper()
         BSLS_BSLTESTUTIL_P(X);
 
         ASSERTV(X, true);
+
+        bslma::DestructionUtil::destroy(address);
     }
 }
 
@@ -791,6 +801,7 @@ int main(int argc, char *argv[])
         //   void debugprint(const NonTypicalOverloadsTestType& obj);
         //   void debugprint(const NonCopyConstructibleTestType& obj);
         //   void debugprint(const NonDefaultConstructibleTestType& obj);
+        //   void debugprint(const WellBehavedMoveOnlyAllocTestType& obj);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'debugprint' FREE FUNCTION"
@@ -802,15 +813,15 @@ int main(int argc, char *argv[])
                                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         // The following types are not in 'all' yet
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test7Helper,
                                     bsltf::MoveOnlyAllocTestType,
-//                                    bsltf::AllocEmplacableTestType,
-                                    bsltf::EmplacableTestType
+                                    bsltf::WellBehavedMoveOnlyAllocTestType
                                     );
-#elif !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) ||               \
+    !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test7Helper,
@@ -865,16 +876,15 @@ int main(int argc, char *argv[])
                                     test6Helper,
                                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-        // The following types are not in 'all' yet
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test6Helper,
                                     bsltf::MoveOnlyAllocTestType,
-//                                    bsltf::AllocEmplacableTestType,
-                                    bsltf::EmplacableTestType
-                                    );
-#elif !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
+                                    bsltf::WellBehavedMoveOnlyAllocTestType);
+
+        // The following types are not in 'all' yet
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) ||               \
+    !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test6Helper,

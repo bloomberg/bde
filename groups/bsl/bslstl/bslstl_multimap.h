@@ -2722,7 +2722,7 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::allocator_type
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::get_allocator() const
-                                                            BSLS_KEYWORD_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return nodeFactory().allocator();
 }
