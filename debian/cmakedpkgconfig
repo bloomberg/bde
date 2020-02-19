@@ -15,9 +15,6 @@
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-headers", "bdl-meta",
                             "bdl-release-symlink", "bdl-pkgconfig" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-headers", "bos-meta",
-                            "bos-release-symlink", "bos-pkgconfig" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-headers", "bsl-meta",
                             "bsl-release-symlink", "bsl-pkgconfig" ],
@@ -44,9 +41,6 @@
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-release-symlink", "bdl-pkgconfig",
                             "bdl-pic-symlink-hack" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-release-symlink", "bos-pkgconfig",
-                            "bos-pic-symlink-hack" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-release-symlink", "bsl-pkgconfig",
                             "bsl-pic-symlink-hack" ],
@@ -67,7 +61,6 @@
             "libbal-dev": [ "bal", "bal-symlinks" ],
             "libbbl-dev": [ "bbl", "bbl-symlinks" ],
             "libbdl-dev": [ "bdl", "bdl-symlinks" ],
-            "libbos-dev": [ "bos", "bos-symlinks" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks" ]
         }
     },
@@ -81,8 +74,6 @@
                             "bbl-pic-symlink-hack" ],
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-pic-symlink-hack" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-pic-symlink-hack" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-pic-symlink-hack" ]
         }
@@ -126,9 +117,6 @@
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-headers", "bdl-meta",
                             "bdl-release-symlink", "bdl-pkgconfig" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-headers", "bos-meta",
-                            "bos-release-symlink", "bos-pkgconfig" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-headers", "bsl-meta",
                             "bsl-release-symlink", "bsl-pkgconfig" ],
@@ -155,9 +143,6 @@
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-release-symlink", "bdl-pkgconfig",
                             "bdl-pic-symlink-hack" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-release-symlink", "bos-pkgconfig",
-                            "bos-pic-symlink-hack" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-release-symlink", "bsl-pkgconfig",
                             "bsl-pic-symlink-hack" ],
@@ -178,7 +163,6 @@
             "libbal-dev": [ "bal", "bal-symlinks" ],
             "libbbl-dev": [ "bbl", "bbl-symlinks" ],
             "libbdl-dev": [ "bdl", "bdl-symlinks" ],
-            "libbos-dev": [ "bos", "bos-symlinks" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks" ]
         }
     },
@@ -192,8 +176,6 @@
                             "bbl-pic-symlink-hack" ],
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-pic-symlink-hack" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-pic-symlink-hack" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-pic-symlink-hack" ]
         }
@@ -237,9 +219,6 @@
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-headers", "bdl-meta",
                             "bdl-release-symlink", "bdl-pkgconfig" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-headers", "bos-meta",
-                            "bos-release-symlink", "bos-pkgconfig" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-headers", "bsl-meta",
                             "bsl-release-symlink", "bsl-pkgconfig" ],
@@ -266,9 +245,6 @@
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-release-symlink", "bdl-pkgconfig",
                             "bdl-pic-symlink-hack" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-release-symlink", "bos-pkgconfig",
-                            "bos-pic-symlink-hack" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-release-symlink", "bsl-pkgconfig",
                             "bsl-pic-symlink-hack" ],
@@ -289,7 +265,6 @@
             "libbal-dev": [ "bal", "bal-symlinks" ],
             "libbbl-dev": [ "bbl", "bbl-symlinks" ],
             "libbdl-dev": [ "bdl", "bdl-symlinks" ],
-            "libbos-dev": [ "bos", "bos-symlinks" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks" ]
         }
     },
@@ -303,8 +278,6 @@
                             "bbl-pic-symlink-hack" ],
             "libbdl-dev": [ "bdl", "bdl-symlinks",
                             "bdl-pic-symlink-hack" ],
-            "libbos-dev": [ "bos", "bos-symlinks",
-                            "bos-pic-symlink-hack" ],
             "libbsl-dev": [ "bsl", "bsl-symlinks",
                             "bsl-pic-symlink-hack" ]
         }
