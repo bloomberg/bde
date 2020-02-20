@@ -12,12 +12,12 @@ BSLS_IDENT("$: $")
 //  SpinLockGuard: Automatic locking-unlocking of SpinLock
 //
 //@DESCRIPTION: This component provides a "busy wait" mutual exclusion lock
-// primitive ("mutex"). A 'SpinLock' is small and statically-initializable, but
-// because it "spins" in a tight loop rather than using system operations to
-// block the thread of execution, it is unsuited for use cases involving high
-// contention or long critical regions.  Additionally, this component does not
-// provide any guarantee of fairness when multiple threads are contending for
-// the same lock.  Use 'SpinLockGuard' for automatic locking-unlocking in a
+// primitive ("mutex").  A 'SpinLock' is small and statically-initializable,
+// but because it "spins" in a tight loop rather than using system operations
+// to block the thread of execution, it is unsuited for use cases involving
+// high contention or long critical regions.  Additionally, this component does
+// not provide any guarantee of fairness when multiple threads are contending
+// for the same lock.  Use 'SpinLockGuard' for automatic locking-unlocking in a
 // scope.
 //
 // *WARNING*: A 'bsls::SpinLock' *must* be aggregate initialized to
@@ -36,8 +36,8 @@ BSLS_IDENT("$: $")
 ///Example 1: Maintaining Static Count/Max Values
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to determine the maximum number of threads executing a
-// block of code concurrently.  Note that such a use case naturally calls for
-// a statically initialized lock and the critical region involves a few integer
+// block of code concurrently.  Note that such a use case naturally calls for a
+// statically initialized lock and the critical region involves a few integer
 // operations; SpinLock may be suitable.
 //
 // First, we define a type to manage the count within a scope:
@@ -113,7 +113,7 @@ BSLS_IDENT("$: $")
 // contention is likely to be low, SpinLock might be suitable due to its small
 // size.
 //
-// In particular, imagine we want a threadsafe "multi-queue". In this case, we
+// In particular, imagine we want a threadsafe "multi-queue".  In this case, we
 // would have an array of queues, each with a SpinLock member for fine-grained
 // locking.  First, we define the type to be held in the array.
 //..
@@ -304,10 +304,10 @@ namespace bsls {
                              // class SpinLock
                              // ==============
 struct SpinLock {
-    // A statically-initializable synchronization primitive that "spins"
-    // (i.e., executes user instructions in a tight loop) rather than blocking
-    // waiting threads using system calls.  The following idiom is used to
-    // initialize 'SpinLock' variables:
+    // A statically-initializable synchronization primitive that "spins" (i.e.,
+    // executes user instructions in a tight loop) rather than blocking waiting
+    // threads using system calls.  The following idiom is used to initialize
+    // 'SpinLock' variables:
     //..
     //  SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
     //..
@@ -340,7 +340,7 @@ struct SpinLock {
 
     static void pause();
         // If available, invoke a pause operation (e.g., Intel's 'pause'
-        // instruction); otherwise do nothing. (i.e., this method is a no-op).
+        // instruction); otherwise do nothing.  (i.e., this method is a no-op).
 
     static void sleepMillis(int milliseconds);
         // Sleep the specified 'milliseconds'.  Note that this partially
@@ -349,7 +349,7 @@ struct SpinLock {
 
     static void yield();
         // Move the current thread to the end of the scheduler's queue and
-        // schedule another thread to run. Note that this allows cooperating
+        // schedule another thread to run.  Note that this allows cooperating
         // threads of the same priority to share CPU resources equally.  Also
         // note that this reimplements 'bslmt::ThreadUtil::yield()' locally, as
         // 'bslmt' is above 'bsls'.
@@ -362,25 +362,30 @@ struct SpinLock {
 
     // PUBLIC DATA
     AtomicOperations::AtomicTypes::Int d_state;
-        // Public to allow this type to be a statically-initializable POD. Do
+        // Public to allow this type to be a statically-initializable POD.  Do
         // not use directly.
 
     // MANIPULATORS
     void lock();
         // Spin (repeat a loop continuously without using the system to pause
         // or reschedule the thread) until this object is unlocked, then
+        // atomically acquire the lock.
+
+    void lockWithBackoff();
+        // Repeat a loop continuously, potentially using the system to pause or
+        // reschedule the thread, until this object is unlocked, then
         // atomically acquire the lock.  The spinning has backoff logic.
 
     void lockWithoutBackoff();
         // Spin (repeat a loop continuously without using the system to pause
         // or reschedule the thread) until this object is unlocked, then
         // atomically acquire the lock.  The spinning does not perform a
-        // backoff.  Note that use of this method is not recommended.
+        // backoff.
 
     int tryLock(int numRetries = 0);
         // Attempt to acquire the lock; optionally specify the 'numRetries'
         // times to attempt again if this object is already locked.  Return 0
-        // on success,  and a non-zero value if the lock was not successfully
+        // on success, and a non-zero value if the lock was not successfully
         // acquired.  The behavior is undefined unless '0 <= numRetries'.
 
     void unlock();
@@ -406,7 +411,7 @@ class SpinLockGuard {
 
     // CREATORS
     explicit SpinLockGuard(SpinLock *lock);
-        // Create a proctor object that manages the specified 'lock'. Invoke
+        // Create a proctor object that manages the specified 'lock'.  Invoke
         // 'lock->lock()'.
 
     ~SpinLockGuard();
@@ -473,10 +478,15 @@ void SpinLock::yield() {
 // MANIPULATORS
 inline
 void SpinLock::lock() {
+    lockWithoutBackoff();
+}
+
+inline
+void SpinLock::lockWithBackoff() {
     int count = 0;
     do {
-        // Implementation note: the outer 'if' block is not logically
-        // necessary but may reduce memory barrier costs when spinning.
+        // Implementation note: the outer 'if' block is not logically necessary
+        // but may reduce memory barrier costs when spinning.
         if (e_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
             if (e_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
                                                               e_LOCKED))
@@ -485,14 +495,14 @@ void SpinLock::lock() {
             }
         }
         doBackoff(&count);
-    } while(1);
+    } while (1);
 }
 
 inline
 void SpinLock::lockWithoutBackoff() {
     do {
-        // Implementation note: the outer 'if' block is not logically
-        // necessary but may reduce memory barrier costs when spinning.
+        // Implementation note: the outer 'if' block is not logically necessary
+        // but may reduce memory barrier costs when spinning.
         if (e_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
             if (e_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
                                                               e_LOCKED))
@@ -500,7 +510,7 @@ void SpinLock::lockWithoutBackoff() {
                 break;
             }
         }
-    } while(1);
+    } while (1);
 }
 
 inline
@@ -516,7 +526,7 @@ int SpinLock::tryLock(int numRetries) {
             }
         }
         doBackoff(&count);
-    } while(numRetries--);
+    } while (numRetries--);
     return -1;
 }
 
@@ -559,7 +569,7 @@ SpinLock *SpinLockGuard::release() {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
