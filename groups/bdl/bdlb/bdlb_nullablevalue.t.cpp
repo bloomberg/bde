@@ -37,7 +37,7 @@
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
 
-#include <bsl_cstdlib.h>    // 'atoi'
+#include <bsl_cstdlib.h>    // 'atoi', 'abs'
 #include <bsl_exception.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -142,9 +142,11 @@ using bsls::NameOf;
 // [27] bool operator<=(NullOptType, const NullableValue<LHS_TYPE>&);
 // [27] bool operator>=(NullOptType, const NullableValue<LHS_TYPE>&);
 // [27] bool operator> (NullOptType, const NullableValue<LHS_TYPE>&);
-
 // [ 4] ostream& operator<<(ostream&, const NullableValue<TYPE>&);
+//
+// FREE FUNCTIONS
 // [20] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
+// [13] void swap(NullableValue<TYPE>& a, b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
@@ -2450,23 +2452,33 @@ bool operator==(const Recipient& lhs, const Recipient& rhs)
     return lhs.d_msgType == rhs.d_msgType;
 }
 
-struct Swappable {
+class Swappable {
+    // 'Swappable', used for testing 'swap', does not take an allocator.
 
-    // PUBLIC CLASS DATA
-    static int s_swapCalled;
+    // CLASS DATA
+    static bool s_swapCalledFlag;  // 'true' if 'swap' free function called
+                                   // since last 'reset'; 'false' otherwise
 
-    // PUBLIC DATA
+    // DATA
     int d_value;
 
+    // FRIENDS
+    friend void swap(Swappable&, Swappable&);
+
+  private:
+    // NOT IMPLEMENTED
+    void swap(Swappable&);
+
+  public:
     // CLASS METHODS
-    static bool swapCalled()
+    static void reset()
     {
-        return 0 != s_swapCalled;
+        s_swapCalledFlag = false;
     }
 
-    static void swapReset()
+    static bool swapCalled()
     {
-        s_swapCalled = 0;
+        return s_swapCalledFlag;
     }
 
     // CREATORS
@@ -2474,22 +2486,162 @@ struct Swappable {
     : d_value(v)
     {
     }
+
+    Swappable(const Swappable& original)
+    : d_value(original.d_value)
+    {
+    }
+
+    // MANIPULATORS
+    // Swappable& operator=(const Swappable&);  // default
+
+    // ACCESSORS
+    int value() const
+    {
+        return d_value;
+    }
 };
 
 // FREE OPERATORS
 bool operator==(const Swappable& lhs, const Swappable& rhs)
 {
-    return lhs.d_value == rhs.d_value;
+    return lhs.value() == rhs.value();
 }
 
-// PUBLIC CLASS DATA
-int Swappable::s_swapCalled = 0;
+bool operator!=(const Swappable& lhs, const Swappable& rhs)
+{
+    return !(lhs == rhs);
+}
+
+// CLASS DATA
+bool Swappable::s_swapCalledFlag = false;
 
 void swap(Swappable& a, Swappable& b)
 {
-    ++Swappable::s_swapCalled;
+    Swappable::s_swapCalledFlag = true;
 
-    bsl::swap(a.d_value, b.d_value);
+    bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
+}
+
+class SwappableWithAllocator {
+    // 'SwappableWithAllocator', used for testing 'swap', takes an allocator.
+
+    // CLASS DATA
+    static bool s_swapCalledFlag;  // 'true' if 'swap' free function called
+                                   // since last 'reset'; 'false' otherwise
+
+    // DATA
+    int               d_value;
+    bsl::string       d_string;
+    bslma::Allocator *d_allocator_p;  // held, not owned
+
+    // FRIENDS
+    friend void swap(SwappableWithAllocator&, SwappableWithAllocator&);
+
+  private:
+    // NOT IMPLEMENTED
+    void swap(SwappableWithAllocator&);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(SwappableWithAllocator,
+                                   bslma::UsesBslmaAllocator);
+
+    // CLASS METHODS
+    static void reset()
+    {
+        s_swapCalledFlag = false;
+    }
+
+    static bool swapCalled()
+    {
+        return s_swapCalledFlag;
+    }
+
+    // CREATORS
+    explicit
+    SwappableWithAllocator(int v, bslma::Allocator *basicAllocator = 0)
+    : d_value(v)
+    , d_string(bsl::abs(v), 'x', basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    SwappableWithAllocator(const SwappableWithAllocator&  original,
+                           bslma::Allocator              *basicAllocator = 0)
+    : d_value(original.d_value)
+    , d_string(original.d_string, basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
+
+    ~SwappableWithAllocator()
+    {
+        BSLS_ASSERT_OPT(allocator() == d_string.get_allocator().mechanism());
+    }
+
+    // MANIPULATORS
+    SwappableWithAllocator& operator=(const SwappableWithAllocator& rhs)
+    {
+        d_value  = rhs.d_value;
+        d_string = rhs.d_string;
+
+        return *this;
+    }
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const
+    {
+        return d_allocator_p;
+    }
+
+    const bsl::string& string() const
+    {
+        return d_string;
+    }
+
+    int value() const
+    {
+        return d_value;
+    }
+};
+
+// FREE OPERATORS
+bool operator==(const SwappableWithAllocator& lhs,
+                const SwappableWithAllocator& rhs)
+{
+    return lhs.value() == rhs.value() && lhs.string() == rhs.string();
+}
+
+bool operator!=(const SwappableWithAllocator& lhs,
+                const SwappableWithAllocator& rhs)
+{
+    return !(lhs == rhs);
+}
+
+// CLASS DATA
+bool SwappableWithAllocator::s_swapCalledFlag = false;
+
+void swap(SwappableWithAllocator& a, SwappableWithAllocator& b)
+{
+    SwappableWithAllocator::s_swapCalledFlag = true;
+
+    if (a.allocator() == b.allocator()) {
+        bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
+
+        a.d_string.swap(b.d_string);
+
+        return;                                                       // RETURN
+    }
+
+    SwappableWithAllocator futureA(b, a.allocator());
+    SwappableWithAllocator futureB(a, b.allocator());
+
+    bslalg::SwapUtil::swap(&a.d_value, &futureA.d_value);
+    bslalg::SwapUtil::swap(&b.d_value, &futureB.d_value);
+
+    a.d_string.swap(futureA.d_string);
+    b.d_string.swap(futureB.d_string);
 }
 
 void dummyFunction()
@@ -6384,7 +6536,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING SWAP METHOD
+        // SWAP MEMBER AND FREE FUNCTIONS
         //
         // Concerns:
         //   1. Swap of two null objects is a no-op,
@@ -6400,76 +6552,463 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void swap(NullableValue<TYPE>& other);
+        //   void swap(NullableValue<TYPE>& a, b);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING SWAP METHOD"
-                             "\n===================" << endl;
+        if (verbose) cout << "\nSWAP MEMBER AND FREE FUNCTIONS"
+                             "\n==============================" << endl;
 
-        using bsl::swap;
+        if (verbose) cout << "Testing w/type not taking an allocator." << endl;
         {
-            Swappable obj1(1);
-            Swappable obj2(2);
+            if (veryVerbose) cout << "\tSanity test 'Swappable' type." << endl;
+            {
+                ASSERT(!Swappable::swapCalled());
 
-            const Swappable Zobj1(obj1);
-            const Swappable Zobj2(obj2);
+                Swappable obj1(1);
+                Swappable obj2(2);
 
-            ASSERT(obj1 == Zobj1);
-            ASSERT(obj2 == Zobj2);
+                const Swappable Zobj1(obj1);
+                const Swappable Zobj2(obj2);
 
-            ASSERT(!Swappable::swapCalled());
-            swap(obj1, obj2);
-            ASSERT( Swappable::swapCalled());
+                ASSERT(obj1 == Zobj1);
+                ASSERT(obj2 == Zobj2);
 
-            ASSERT(obj2 == Zobj1);
-            ASSERT(obj1 == Zobj2);
+                ASSERT(!Swappable::swapCalled());
+                swap(obj1, obj2);
+                ASSERT( Swappable::swapCalled());
+
+                ASSERT(obj2 == Zobj1);
+                ASSERT(obj1 == Zobj2);
+
+                Swappable::reset();
+                ASSERT(!Swappable::swapCalled());
+            }
+
+            typedef bdlb::NullableValue<Swappable> Obj;
+
+            if (veryVerbose) cout << "\tSwap two null objects." << endl;
+            {
+                // Swap of two null objects is a no-op.
+
+                Obj mX;  const Obj& X = mX;
+                Obj mY;  const Obj& Y = mY;
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+
+                // member 'swap'
+
+                Swappable::reset();
+
+                mX.swap(mY);
+                ASSERT(!Swappable::swapCalled());
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+
+                // free 'swap'
+
+                Swappable::reset();
+
+                swap(mX, mY);
+                ASSERT(!Swappable::swapCalled());
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+            }
+
+            if (veryVerbose) cout << "\tSwap null with non-null." << endl;
+            {
+                // Swap of null and non-null moves the value from one object to
+                // the other without calling swap for the value type.
+
+                const Swappable VV(10);
+
+                // 'swap' member called on non-null object.
+                {
+                    Obj mX(VV);  const Obj& X = mX;
+                    Obj mY;      const Obj& Y = mY;
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+
+                    // member 'swap'
+
+                    Swappable::reset();
+
+                    mX.swap(mY);
+                    ASSERT(!Swappable::swapCalled());
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+
+                    // free 'swap'
+
+                    Swappable::reset();
+
+                    swap(mX, mY);
+                    ASSERT(!Swappable::swapCalled());
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+                }
+
+                // 'swap' member called on null object.
+                {
+                    Obj mX;      const Obj& X = mX;
+                    Obj mY(VV);  const Obj& Y = mY;
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+
+                    // member 'swap'
+
+                    Swappable::reset();
+
+                    mX.swap(mY);
+                    ASSERT(!Swappable::swapCalled());
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+
+                    // free 'swap'
+
+                    Swappable::reset();
+
+                    swap(mX, mY);
+                    ASSERT(!Swappable::swapCalled());
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+                }
+            }
+
+            if (veryVerbose) cout << "\tSwap two non-null objects." << endl;
+            {
+                // Swap of two non-null objects calls swap for the value type.
+
+                const Swappable UU(10);
+                const Swappable VV(20);
+
+                Obj mX(UU);  const Obj& X = mX;
+                Obj mY(VV);  const Obj& Y = mY;
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( UU == X.value());
+                ASSERT( VV == Y.value());
+
+                // member 'swap'
+
+                Swappable::reset();
+
+                mX.swap(mY);
+                ASSERT( Swappable::swapCalled());
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( VV == X.value());
+                ASSERT( UU == Y.value());
+
+                // free 'swap'
+
+                Swappable::reset();
+
+                swap(mX, mY);
+                ASSERT( Swappable::swapCalled());
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( UU == X.value());
+                ASSERT( VV == Y.value());
+            }
         }
 
+        if (verbose) cout << "Testing w/type taking an allocator." << endl;
         {
-            // Swap of two null objects is a no-op.
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
-            bdlb::NullableValue<Swappable> nullObj1;
-            bdlb::NullableValue<Swappable> nullObj2;
+            bslma::DefaultAllocatorGuard dag(&da);
 
-            Swappable::swapReset();
-            swap(nullObj1, nullObj2);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            ASSERT(!Swappable::swapCalled());
-            ASSERT(nullObj1.isNull());
-            ASSERT(nullObj2.isNull());
+            if (veryVerbose) cout
+                << "\tSanity test 'SwappableWithAllocator' type." << endl;
+            {
+                ASSERT(!SwappableWithAllocator::swapCalled());
+
+                SwappableWithAllocator obj1(1, &scratch);
+                SwappableWithAllocator obj2(2, &scratch);
+
+                const SwappableWithAllocator Zobj1(obj1, &scratch);
+                const SwappableWithAllocator Zobj2(obj2, &scratch);
+
+                ASSERT(obj1 == Zobj1);
+                ASSERT(obj2 == Zobj2);
+
+                ASSERT(!SwappableWithAllocator::swapCalled());
+                swap(obj1, obj2);
+                ASSERT( SwappableWithAllocator::swapCalled());
+
+                ASSERT(obj2 == Zobj1);
+                ASSERT(obj1 == Zobj2);
+
+                SwappableWithAllocator::reset();
+                ASSERT(!SwappableWithAllocator::swapCalled());
+            }
+
+            typedef bdlb::NullableValue<SwappableWithAllocator> Obj;
+
+            if (veryVerbose) cout << "\tSwap two null objects." << endl;
+            {
+                // Swap of two null objects is a no-op.
+
+                Obj mX(&oa);  const Obj& X = mX;
+                Obj mY(&oa);  const Obj& Y = mY;
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+
+                // member 'swap'
+
+                SwappableWithAllocator::reset();
+
+                mX.swap(mY);
+                ASSERT(!SwappableWithAllocator::swapCalled());
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+
+                // free 'swap'
+
+                SwappableWithAllocator::reset();
+
+                swap(mX, mY);
+                ASSERT(!SwappableWithAllocator::swapCalled());
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+            }
+
+            if (veryVerbose) cout << "\tSwap null with non-null." << endl;
+            {
+                // Swap of null and non-null moves the value from one object to
+                // the other without calling swap for the value type.
+
+                const SwappableWithAllocator VV(88, &scratch);
+
+                // 'swap' member called on non-null object.
+                {
+                    Obj mX(VV, &oa);  const Obj& X = mX;
+                    Obj mY(&oa);      const Obj& Y = mY;
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+
+                    // member 'swap'
+
+                    SwappableWithAllocator::reset();
+
+                    mX.swap(mY);
+                    ASSERT(!SwappableWithAllocator::swapCalled());
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+
+                    // free 'swap'
+
+                    SwappableWithAllocator::reset();
+
+                    swap(mX, mY);
+                    ASSERT(!SwappableWithAllocator::swapCalled());
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+                }
+
+                // 'swap' member called on null object.
+                {
+                    Obj mX(&oa);      const Obj& X = mX;
+                    Obj mY(VV, &oa);  const Obj& Y = mY;
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+
+                    // member 'swap'
+
+                    SwappableWithAllocator::reset();
+
+                    mX.swap(mY);
+                    ASSERT(!SwappableWithAllocator::swapCalled());
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+
+                    // free 'swap'
+
+                    SwappableWithAllocator::reset();
+
+                    swap(mX, mY);
+                    ASSERT(!SwappableWithAllocator::swapCalled());
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+                }
+            }
+
+            if (veryVerbose) cout << "\tSwap two non-null objects." << endl;
+            {
+                // Swap of two non-null objects calls swap for the value type.
+
+                const SwappableWithAllocator UU(88, &scratch);
+                const SwappableWithAllocator VV(99, &scratch);
+
+                Obj mX(UU, &oa);  const Obj& X = mX;
+                Obj mY(VV, &oa);  const Obj& Y = mY;
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( UU == X.value());
+                ASSERT( VV == Y.value());
+
+                // member 'swap'
+
+                SwappableWithAllocator::reset();
+
+                mX.swap(mY);
+                ASSERT( SwappableWithAllocator::swapCalled());
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( VV == X.value());
+                ASSERT( UU == Y.value());
+
+                // free 'swap'
+
+                SwappableWithAllocator::reset();
+
+                swap(mX, mY);
+                ASSERT( SwappableWithAllocator::swapCalled());
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( UU == X.value());
+                ASSERT( VV == Y.value());
+            }
         }
 
+        if (verbose) cout << "Testing free 'swap' w/different allocators."
+                          << endl;
         {
-            // Swap of null and non-null moves the value from one object to
-            // the other without calling swap for the value type.
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",    veryVeryVeryVerbose);
+            bslma::TestAllocator za("different", veryVeryVeryVerbose);
 
-            bdlb::NullableValue<Swappable> nonNullObj(Swappable(10));
-            bdlb::NullableValue<Swappable> nonNullObjCopy(nonNullObj);
-            bdlb::NullableValue<Swappable> nullObj;
+            bslma::DefaultAllocatorGuard dag(&da);
 
-            Swappable::swapReset();
-            swap(nonNullObj, nullObj);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            ASSERT(!Swappable::swapCalled());
-            ASSERT(nonNullObjCopy == nullObj);
-            ASSERT(nonNullObj.isNull());
+            typedef bdlb::NullableValue<SwappableWithAllocator> Obj;
+
+            if (veryVerbose) cout << "\tSwap two null objects." << endl;
+            {
+                // Swap of two null objects is a no-op.
+
+                Obj mX(&oa);  const Obj& X = mX;
+                Obj mY(&za);  const Obj& Y = mY;
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+
+                // free 'swap'
+
+                SwappableWithAllocator::reset();
+
+                swap(mX, mY);
+                ASSERT(!SwappableWithAllocator::swapCalled());
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+            }
+
+            if (veryVerbose) cout << "\tSwap null with non-null." << endl;
+            {
+                // Swap of null and non-null moves the value from one object to
+                // the other without calling swap for the value type.
+
+                const SwappableWithAllocator VV(88, &scratch);
+
+                // non-null object as first argument
+                {
+                    Obj mX(VV, &oa);  const Obj& X = mX;
+                    Obj mY(&za);      const Obj& Y = mY;
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+
+                    // free 'swap'
+
+                    SwappableWithAllocator::reset();
+
+                    swap(mX, mY);
+                    ASSERT(!SwappableWithAllocator::swapCalled());
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+                }
+
+                // null object as first argument
+                {
+                    Obj mX(&oa);      const Obj& X = mX;
+                    Obj mY(VV, &za);  const Obj& Y = mY;
+                    ASSERT( X.isNull());
+                    ASSERT(!Y.isNull());
+                    ASSERT( VV == Y.value());
+
+                    // free 'swap'
+
+                    SwappableWithAllocator::reset();
+
+                    swap(mX, mY);
+                    ASSERT(!SwappableWithAllocator::swapCalled());
+                    ASSERT(!X.isNull());
+                    ASSERT( Y.isNull());
+                    ASSERT( VV == X.value());
+                }
+            }
+
+            if (veryVerbose) cout << "\tSwap two non-null objects." << endl;
+            {
+                // Swap of two non-null objects calls swap for the value type.
+
+                const SwappableWithAllocator UU(88, &scratch);
+                const SwappableWithAllocator VV(99, &scratch);
+
+                Obj mX(UU, &oa);  const Obj& X = mX;
+                Obj mY(VV, &za);  const Obj& Y = mY;
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( UU == X.value());
+                ASSERT( VV == Y.value());
+
+                // free 'swap'
+
+                SwappableWithAllocator::reset();
+
+                swap(mX, mY);
+                ASSERT( SwappableWithAllocator::swapCalled());
+                ASSERT(!X.isNull());
+                ASSERT(!Y.isNull());
+                ASSERT( VV == X.value());
+                ASSERT( UU == Y.value());
+            }
         }
 
+        if (verbose) cout << "\nNegative Testing." << endl;
         {
-            // Swap of two non-null objects calls swap for the value type.
+            bsls::AssertTestHandlerGuard hG;
 
-            bdlb::NullableValue<Swappable> obj1(Swappable(10));
-            bdlb::NullableValue<Swappable> obj2(Swappable(20));
+            typedef bdlb::NullableValue<SwappableWithAllocator> Obj;
 
-            bdlb::NullableValue<Swappable> obj1Copy(obj1);
-            bdlb::NullableValue<Swappable> obj2Copy(obj2);
+            {
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
-            Swappable::swapReset();
-            swap(obj1, obj2);
+                Obj mA(&oa1);  Obj mB(&oa1);
+                Obj mZ(&oa2);
 
-            ASSERT(Swappable::swapCalled());
-            ASSERT(obj1 == obj2Copy);
-            ASSERT(obj2 == obj1Copy);
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mA.swap(mZ));
+            }
         }
+
       } break;
       case 12: {
         // --------------------------------------------------------------------

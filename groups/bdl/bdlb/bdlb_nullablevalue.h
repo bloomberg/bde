@@ -151,6 +151,10 @@ class NullableValue {
     // DATA
     Imp d_imp;  // managed nullable 'TYPE' object
 
+    // FRIENDS
+    template <class FRIEND_TYPE>
+    friend void swap(NullableValue<FRIEND_TYPE>&, NullableValue<FRIEND_TYPE>&);
+
   public:
     // TYPES
     typedef TYPE ValueType;
@@ -422,10 +426,11 @@ class NullableValue {
     void swap(NullableValue& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if the template parameter 'TYPE' provides
-        // that guarantee and the result of the 'isNull' method for the two
-        // objects being swapped is the same.  The behavior is undefined unless
-        // this object was created with the same allocator, if any, as 'other'.
+        // exception-safety guarantee if the (template parameter) 'TYPE'
+        // provides that guarantee and the result of the 'isNull' method for
+        // the two objects being swapped is the same.  The behavior is
+        // undefined unless this object was created with the same allocator as
+        // 'other' (if applicable).
 
     TYPE& value();
         // Return a reference providing modifiable access to the underlying
@@ -607,7 +612,6 @@ bool operator>(const LHS_TYPE&                lhs,
     // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'.  Note
     // that this operator returns 'rhs < lhs'.
 
-
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
@@ -755,11 +759,12 @@ void hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input);
 
 template <class TYPE>
 void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This method provides the no-throw exception-safety guarantee if the
-    // template parameter 'TYPE' provides that guarantee and the result of the
-    // 'isNull' method for 'a' and 'b' is the same.  The behavior is undefined
-    // unless both objects were created with the same allocator, if any.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the (template
+    // parameter) 'TYPE' provides that guarantee, the two objects were created
+    // with the same allocator (if applicable), and the result of the 'isNull'
+    // method for the two objects is the same; otherwise this function provides
+    // the basic guarantee.
 
                // =======================================
                // class NullableValue_WithAllocator<TYPE>
@@ -784,6 +789,10 @@ class NullableValue_WithAllocator {
 
     // FRIENDS
     friend class NullableValue<TYPE>;
+
+    template <class FRIEND_TYPE>
+    friend void swap(NullableValue_WithAllocator<FRIEND_TYPE>&,
+                     NullableValue_WithAllocator<FRIEND_TYPE>&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -844,10 +853,11 @@ class NullableValue_WithAllocator {
     void swap(NullableValue_WithAllocator& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if the template parameter 'TYPE' provides
-        // that guarantee and the result of the 'isNull' method for the two
-        // objects being swapped is the same.  The behavior is undefined unless
-        // this object was created with the same allocator as 'other'.
+        // exception-safety guarantee if the (template parameter) 'TYPE'
+        // provides that guarantee and the result of the 'isNull' method for
+        // the two objects being swapped is the same.  The behavior is
+        // undefined unless this object was created with the same allocator as
+        // 'other'.
 
     template <class BDE_OTHER_TYPE>
     void makeValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
@@ -944,6 +954,17 @@ class NullableValue_WithAllocator {
         // non-null.
 };
 
+// FREE FUNCTIONS
+template <class TYPE>
+void swap(NullableValue_WithAllocator<TYPE>& a,
+          NullableValue_WithAllocator<TYPE>& b);
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the (template
+    // parameter) 'TYPE' provides that guarantee, the two objects were created
+    // with the same allocator, and the result of the 'isNull' method for the
+    // two objects is the same; otherwise this function provides the basic
+    // guarantee.
+
               // ==========================================
               // class NullableValue_WithoutAllocator<TYPE>
               // ==========================================
@@ -1009,9 +1030,9 @@ class NullableValue_WithoutAllocator {
     void swap(NullableValue_WithoutAllocator& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if the template parameter 'TYPE' provides
-        // that guarantee and the result of the 'isNull' method for the two
-        // objects being swapped is the same.
+        // exception-safety guarantee if the (template parameter) 'TYPE'
+        // provides that guarantee and the result of the 'isNull' method for
+        // the two objects being swapped is the same.
 
     template <class BDE_OTHER_TYPE>
     void makeValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
@@ -1103,6 +1124,16 @@ class NullableValue_WithoutAllocator {
         // 'TYPE' object.  The behavior is undefined unless this object is
         // non-null.
 };
+
+// FREE FUNCTIONS
+template <class TYPE>
+void swap(NullableValue_WithoutAllocator<TYPE>& a,
+          NullableValue_WithoutAllocator<TYPE>& b);
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the (template
+    // parameter) 'TYPE' provides that guarantee and the result of the 'isNull'
+    // method for the two objects is the same; otherwise this function provides
+    // the basic guarantee.
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -1209,8 +1240,6 @@ NullableValue<TYPE>::NullableValue(
     }
 }
 
-
-
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullOptType&) BSLS_KEYWORD_NOEXCEPT
@@ -1226,7 +1255,6 @@ NullableValue<TYPE>::NullableValue(const NullOptType& ,
 : d_imp(basicAllocator)
 {
 }
-
 
 // MANIPULATORS
 template <class TYPE>
@@ -1325,7 +1353,6 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullOptType&)
 
     return *this;
 }
-
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
@@ -1750,7 +1777,6 @@ bool bdlb::operator>=(const LHS_TYPE&                lhs,
     return !(lhs < rhs);
 }
 
-
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
 bool bdlb::operator==(const NullableValue<TYPE>& value,
@@ -1872,7 +1898,7 @@ template <class TYPE>
 inline
 void bdlb::swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b)
 {
-    a.swap(b);
+    bslalg::SwapUtil::swap(&a.d_imp, &b.d_imp);
 }
 
 namespace bdlb {
@@ -2247,6 +2273,28 @@ const TYPE& NullableValue_WithAllocator<TYPE>::value() const
     return d_buffer.object();
 }
 
+}  // close package namespace
+
+// FREE FUNCTIONS
+template <class TYPE>
+void bdlb::swap(NullableValue_WithAllocator<TYPE>& a,
+                NullableValue_WithAllocator<TYPE>& b)
+{
+    if (a.d_allocator_p == b.d_allocator_p) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    NullableValue_WithAllocator<TYPE> futureA(b, a.d_allocator_p);
+    NullableValue_WithAllocator<TYPE> futureB(a, b.d_allocator_p);
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
+
+namespace bdlb {
+
               // ------------------------------------------
               // class NullableValue_WithoutAllocator<TYPE>
               // ------------------------------------------
@@ -2594,6 +2642,16 @@ const TYPE& NullableValue_WithoutAllocator<TYPE>::value() const
 }
 
 }  // close package namespace
+
+// FREE FUNCTIONS
+template <class TYPE>
+inline
+void bdlb::swap(NullableValue_WithoutAllocator<TYPE>& a,
+                NullableValue_WithoutAllocator<TYPE>& b)
+{
+    a.swap(b);
+}
+
 }  // close enterprise namespace
 
 #endif
