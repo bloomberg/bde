@@ -3573,9 +3573,9 @@ int main(int argc, char *argv[]) {
 
             // The 'barrier.wait()' is insufficient to verify 'count' has
             // completed since 'deleteQueue' does not wait for the queue to be
-            // actually deleted (and 'count' invoked).  Hence, if the
-            // increment of 'counter' is not verified, the deletion of the
-            // queue associated with 'id2' (below) may occur before the 'count'
+            // actually deleted (and 'count' invoked).  Hence, if the increment
+            // of 'counter' is not verified, the deletion of the queue
+            // associated with 'id2' (below) may occur before the 'count'
             // callback executes and the counter will not be incremented as
             // expected.
 
@@ -5145,7 +5145,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

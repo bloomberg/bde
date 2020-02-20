@@ -169,7 +169,7 @@ void MultiQueueThreadPool_Queue::drainWaitWhilePausing()
 
 void MultiQueueThreadPool_Queue::executeFront()
 {
-    bsl::vector<Job> functor;
+    bsl::vector<Job> functors;
 
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
@@ -198,10 +198,10 @@ void MultiQueueThreadPool_Queue::executeFront()
             count = 1;
         }
 
-        functor.reserve(count);
+        functors.reserve(count);
 
         for (bsl::size_t i = 0; i < count; ++i) {
-            functor.emplace_back(d_list.front());
+            functors.emplace_back(d_list.front());
             d_list.pop_front();
         }
 
@@ -211,15 +211,15 @@ void MultiQueueThreadPool_Queue::executeFront()
     // Note that the appropriate 'd_runState' is a bit ambigoues at this point.
     // Since there is nothing scheduled in the thread pool, the state should
     // arguably be 'e_NOT_SCHEDULED'.  However, allowing work to be scheduled
-    // during the execution of the 'functor' would be a bug.  Instead of
-    // creating a new state to reflect this situation while the 'functor' is
+    // during the execution of the 'functors' would be a bug.  Instead of
+    // creating a new state to reflect this situation while the 'functors' are
     // executing, we leave 'd_runState' as 'e_SCHEDULED'.
 
-    for (bsl::size_t i = 0; i < functor.size(); ++i) {
-        functor[i]();
+    for (bsl::size_t i = 0; i < functors.size(); ++i) {
+        functors[i]();
     }
 
-    // Note that 'pause' might be called while executing the functor since no
+    // Note that 'pause' might be called while executing the functors since no
     // lock is held.
 
     {
@@ -620,63 +620,6 @@ int MultiQueueThreadPool::disableQueue(int id)
     return queue->disable();
 }
 
-int MultiQueueThreadPool::drainQueue(int id)
-{
-    while (1) {
-        {
-            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex>
-                                                   guard(&d_lock);
-
-            QueueRegistry::iterator iter = d_queueRegistry.find(id);
-
-            if (d_queueRegistry.end() == iter) {
-                return 1;                                             // RETURN
-            }
-
-            if (iter->second->isDrained()) {
-                return 0;                                             // RETURN
-            }
-        }
-
-        bslmt::ThreadUtil::yield();
-    }
-
-    return 0;
-}
-
-int MultiQueueThreadPool::start()
-{
-    while (1) {
-        {
-            bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
-
-            if (e_STATE_RUNNING == d_state) {
-                return 0;                                             // RETURN
-            }
-            else if (e_STATE_STOPPED == d_state) {
-                for (QueueRegistry::iterator it = d_queueRegistry.begin();
-                     it != d_queueRegistry.end();
-                     ++it) {
-                    it->second->enable();
-                }
-
-                int rc = 0;
-                if (d_threadPoolIsOwned) {
-                    rc = d_threadPool_p->start() ? -1 : 0;
-                }
-
-                if (0 == rc) {
-                    d_state = e_STATE_RUNNING;
-                }
-
-                return rc;                                            // RETURN
-            }
-        }
-
-        bslmt::ThreadUtil::yield();
-    }
-}
-
 void MultiQueueThreadPool::drain()
 {
     while (1) {
@@ -708,6 +651,30 @@ void MultiQueueThreadPool::drain()
 
         bslmt::ThreadUtil::yield();
     }
+}
+
+int MultiQueueThreadPool::drainQueue(int id)
+{
+    while (1) {
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex>
+                                                   guard(&d_lock);
+
+            QueueRegistry::iterator iter = d_queueRegistry.find(id);
+
+            if (d_queueRegistry.end() == iter) {
+                return 1;                                             // RETURN
+            }
+
+            if (iter->second->isDrained()) {
+                return 0;                                             // RETURN
+            }
+        }
+
+        bslmt::ThreadUtil::yield();
+    }
+
+    return 0;
 }
 
 int MultiQueueThreadPool::pauseQueue(int id)
@@ -744,34 +711,6 @@ int MultiQueueThreadPool::resumeQueue(int id)
     }
 
     return queue->resume();
-}
-
-void MultiQueueThreadPool::stop()
-{
-    {
-        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
-
-        if (e_STATE_STOPPED == d_state) {
-            return;                                                   // RETURN
-        }
-
-        d_state = e_STATE_STOPPING;
-    }
-
-    // Wait until all queues are emptied.
-    while (0 < d_numActiveQueues) {
-        bslmt::ThreadUtil::yield();
-    }
-
-    {
-        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
-
-        if (d_threadPoolIsOwned) {
-            d_threadPool_p->drain();
-        }
-
-        d_state = e_STATE_STOPPED;
-    }
 }
 
 void MultiQueueThreadPool::shutdown()
@@ -838,6 +777,67 @@ void MultiQueueThreadPool::shutdown()
     }
 
     d_state = e_STATE_STOPPED;
+}
+
+int MultiQueueThreadPool::start()
+{
+    while (1) {
+        {
+            bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+            if (e_STATE_RUNNING == d_state) {
+                return 0;                                             // RETURN
+            }
+            else if (e_STATE_STOPPED == d_state) {
+                for (QueueRegistry::iterator it = d_queueRegistry.begin();
+                     it != d_queueRegistry.end();
+                     ++it) {
+                    it->second->enable();
+                }
+
+                int rc = 0;
+                if (d_threadPoolIsOwned) {
+                    rc = d_threadPool_p->start() ? -1 : 0;
+                }
+
+                if (0 == rc) {
+                    d_state = e_STATE_RUNNING;
+                }
+
+                return rc;                                            // RETURN
+            }
+        }
+
+        bslmt::ThreadUtil::yield();
+    }
+}
+
+void MultiQueueThreadPool::stop()
+{
+    {
+        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+        if (e_STATE_STOPPED == d_state) {
+            return;                                                   // RETURN
+        }
+
+        d_state = e_STATE_STOPPING;
+    }
+
+    // Wait until all queues are emptied.
+    while (0 < d_numActiveQueues) {
+        bslmt::ThreadUtil::yield();
+    }
+
+    {
+        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+        if (d_threadPoolIsOwned) {
+            d_threadPool_p->drain();
+        }
+
+        d_state = e_STATE_STOPPED;
+    }
 }
 
 }  // close package namespace
