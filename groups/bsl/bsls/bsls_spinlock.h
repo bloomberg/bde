@@ -374,7 +374,9 @@ struct SpinLock {
     void lockWithBackoff();
         // Repeat a loop continuously, potentially using the system to pause or
         // reschedule the thread, until this object is unlocked, then
-        // atomically acquire the lock.  The spinning has backoff logic.
+        // atomically acquire the lock.  The spinning has backoff logic.  Note
+        // that this method is recommended when system calls are permissable
+        // and significant contention is expected.
 
     void lockWithoutBackoff();
         // Spin (repeat a loop continuously without using the system to pause
