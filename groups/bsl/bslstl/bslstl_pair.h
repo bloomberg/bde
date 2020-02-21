@@ -57,6 +57,35 @@ BSLS_IDENT("$Id: $")
 // 'bslma::UsesBslmaAllocator' trait if *either* 'T1' or 'T2' have that trait,
 // or both.
 //
+///Enhancements Enabled by Modern Language Standards
+///-------------------------------------------------
+// Language standards after the first (C++98) and its corregandum (C++03) have
+// added code C++ language features, type traits as well as requirements that
+// affect the exact interface 'pair' provides.  This section describes such
+// enhancements as they becaome available.
+//
+///Conditional Default Constructor (C++11)
+///- - - - - - - - - - - - - - - - - - - -
+// C++11 has introduced type traits, many of which needs compiler backing to be
+// (automatically implementable) and also introduced "defaulted" (special
+// member) functions that generate code without making mistakes.  Before C++11
+// it was not possible to determine if a type had a default constructor in a
+// non-intrusive manner.  C++11 makes it possible using <type_traits> to
+// detemine that, and '= default' makes it possible to create special member
+// functions that exists only when they can be implemented properly.
+//
+// Hence, when using compilers with a reasonably complete implementation of
+// C++11 (notably MSVC 2013 is not one of those) we only implement the default
+// constructor of pair if both types inside the pair type have a default
+// constuctor.  Note that it means that when using C++11 (except in compilers
+// not implementing it properly) a 'bsl::pair' that stores a reference type
+// (such as 'int&'), or any other type that cannot be default constructed using
+// the syntax 'T v{};' will cause pair to neither declare nor define a default
+// constructor.  So from C++11 onwards a type of 'bsl::pair<T1, T2>' will have
+// a default constructor only if both types 'T1' and 'T2' are default
+// constructible.  Otherwise, pair will have a default constructor that gives a
+// compile-error (only) if called.
+//
 ///Usage
 ///-----
 // A 'bsl::pair' is a very simple object when used without allocators.  Our
@@ -492,11 +521,20 @@ struct Pair_First {
   protected:
   public:
     // PUBLIC DATA
+#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
+    TYPE first {};
+#else
     TYPE first;
+#endif
 
     // CREATORS
+#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
+    BSLS_KEYWORD_CONSTEXPR
+    Pair_First() = default;
+#else
     BSLS_KEYWORD_CONSTEXPR
     Pair_First();
+#endif
         // Construct the 'first' member of a 'pair' using the default
         // constructor for (template parameter) 'TYPE'.
 
@@ -769,11 +807,19 @@ struct Pair_Second {
 
   protected:
     // PROTECTED DATA
+#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
+    TYPE second {};
+#else
     TYPE second;
-
+#endif
     // CREATORS
+#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
+    BSLS_KEYWORD_CONSTEXPR
+    Pair_Second() = default;
+#else
     BSLS_KEYWORD_CONSTEXPR
     Pair_Second();
+#endif
         // Construct the 'second' member of a 'pair' using the default
         // constructor for (template parameter) type 'TYPE'.
 
@@ -1877,6 +1923,7 @@ Pair_ImpUtil::concatAllocator(
                              // -----------------
 
 // CREATORS
+#if defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
 template <class TYPE>
 inline
 BSLS_KEYWORD_CONSTEXPR
@@ -1884,6 +1931,7 @@ Pair_First<TYPE>::Pair_First()
 : first()
 {
 }
+#endif
 
 template <class TYPE>
 inline
@@ -2220,6 +2268,7 @@ Pair_First<TYPE&&>& Pair_First<TYPE&&>::operator=(const Pair_First& rhs)
                              // ------------------
 
 // CREATORS
+#if defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
 template <class TYPE>
 inline
 BSLS_KEYWORD_CONSTEXPR
@@ -2227,6 +2276,7 @@ Pair_Second<TYPE>::Pair_Second()
 : second()
 {
 }
+#endif
 
 template <class TYPE>
 inline
