@@ -382,7 +382,7 @@ struct PathUtil {
         // Load into the specified 'extension' the extension of 'path'.
         // Note that the behavior of this implementation differs 
         // from that of other standard implementations in
-        // the same way `getLeaf` does (for example, '/c.txt/' is considered
+        // the same way `getLeaf` does (for instance, '/c.txt/' is considered
         // to have the extension '.txt'). See {Parsing and Performance
         // ('rootEnd' argument)}.  See also {Terminology} for the definitions
         // of extension and root.
