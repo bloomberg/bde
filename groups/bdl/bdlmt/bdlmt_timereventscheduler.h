@@ -369,17 +369,16 @@ class TimerEventScheduler {
     struct ClockData {
         // This structure encapsulates the data associated with a clock.
 
-        bsl::function<void()>     d_callback;          // associated callback
+        bsl::function<void()>  d_callback;          // associated callback
 
-        bsls::TimeInterval        d_periodicInterval;  // associated periodic
-                                                       // interval
+        bsls::TimeInterval     d_periodicInterval;  // associated periodic
+                                                    // interval
 
-        volatile bool             d_isCancelled;       // tracks if the
-                                                       // associated clock has
-                                                       // been cancelled
+        bsls::AtomicBool       d_isCancelled;       // tracks if the associated
+                                                    // clock has been cancelled
 
-        int                       d_handle;            // handle for clock
-                                                       // callback
+        bsls::AtomicInt        d_handle;            // handle for clock
+                                                    // callback
 
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(ClockData, bslma::UsesBslmaAllocator);
@@ -403,8 +402,8 @@ class TimerEventScheduler {
                      bsl::allocator<bsl::function<void()> >(basicAllocator),
                      original.d_callback)
         , d_periodicInterval(original.d_periodicInterval)
-        , d_isCancelled(original.d_isCancelled)
-        , d_handle(original.d_handle)
+        , d_isCancelled(original.d_isCancelled.load())
+        , d_handle(original.d_handle.load())
         {
         }
     };
