@@ -372,21 +372,19 @@ int PathUtil::getExtension(bsl::string             *extension,
         return -1;                                                        // RETURN
     }
 
-    if (leaf == "." or leaf == "..") {
+    if (leaf == "." || leaf == "..") {
         return -1;                                                        // RETURN
     }
 
-    int lastIndexToConsider = leaf[0] == '.'? 1 : 0;
+    bsl::size_t lastDotIndex = leaf.find_last_of(".");
 
-    for (bsl::string::size_type i = leaf.size();i > lastIndexToConsider; --i) {
-        if (leaf[i-1] == '.') {
-            extension->clear();
-            extension->append(&leaf[i-1], leaf.size() - i + 1);
-            return 0;                                                     // RETURN
-        }
+    if (lastDotIndex == 0 || lastDotIndex == bsl::string::npos) {
+        return -1;                                                        // RETURN
     }
 
-    return -1;                                                            // RETURN
+    extension->clear();
+    extension->append(&leaf[lastDotIndex], leaf.size() - lastDotIndex);
+    return 0;                                                             // RETURN
 }
 
 int PathUtil::getDirname(bsl::string              *dirname,
