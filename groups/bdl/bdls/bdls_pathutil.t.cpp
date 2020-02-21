@@ -526,9 +526,11 @@ int main(int argc, char *argv[])
             // 4. "." and ".."
             {L_, "a/..", 0, false, ""},
             {L_, ".", 0, false, ""},
+            {L_, "/a/b.txt/.", 0, false, ""},
+            {L_, "/a.txt/b.txt/..", 0, false, ""},
             // 5. First '.' is ignored
             {L_, ".profile", 0, false, ""},
-            {L_, ".bash.rc", 0, true, ".rc"},
+            {L_, ".profile.backup", 0, true, ".backup"},
             {L_, "/a/.txt", 1, false, ""},
             // 6. Dots in parent directories
             {L_, "/a/b.c/a", 1, false, ""},
