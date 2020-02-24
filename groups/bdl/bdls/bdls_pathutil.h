@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 // if a leaf's name begins with a dot, such dot is not considered when
 // determining the extension. For example, the leaf ".bashrc" does not have
 // an extension, but ".bbprofile.log" does, and its extension is ".log".
-// We will say that a path has an extension if it has leaf and its leaf
+// We will say that a path has an extension if it has a leaf and its leaf
 // has an extension. Note that for consistency reasons, our implementation
 // differs from other standard implementations in the same way 'getLeaf'
 // does: the path "/foo/bar.txt/" is considered to have an extension and
@@ -380,10 +380,10 @@ struct PathUtil {
                             const bslstl::StringRef& path,
                             int                      rootEnd = -1);
         // Load into the specified 'extension' the extension of 'path'.
-        // Note that the behavior of this implementation differs 
-        // from that of other standard implementations in
-        // the same way `getLeaf` does (for instance, '/c.txt/' is considered
-        // to have the extension '.txt'). See {Parsing and Performance
+        // If the optionally specified 'rootEnd' offset is non-negative,
+        // it is taken as the position in 'path' of the character
+        // following the root. Return 0 if the path has an extension,
+        // and a non-zero value otherwise. See {Parsing and Performance
         // ('rootEnd' argument)}.  See also {Terminology} for the definitions
         // of extension and root.
 

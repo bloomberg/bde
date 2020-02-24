@@ -382,8 +382,7 @@ int PathUtil::getExtension(bsl::string             *extension,
         return -1;                                                        // RETURN
     }
 
-    extension->clear();
-    extension->append(&leaf[lastDotIndex], leaf.size() - lastDotIndex);
+    extension->assign(&leaf[lastDotIndex], leaf.size() - lastDotIndex);
     return 0;                                                             // RETURN
 }
 
