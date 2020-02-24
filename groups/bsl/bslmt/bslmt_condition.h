@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // methods of 'bslmt::Condition':
 //..
 //  int wait(bslmt::Mutex *mutex);
-//  int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval& absoluteTime);
+//  int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval& timeout);
 //..
 // The caller must lock the mutex before invoking these functions.  The
 // 'bslmt::Condition' atomically releases the lock and waits, thereby
@@ -271,9 +271,9 @@ void bslmt::Condition::signal()
 
 inline
 int bslmt::Condition::timedWait(Mutex                     *mutex,
-                                const bsls::TimeInterval&  absoluteTime)
+                                const bsls::TimeInterval&  timeout)
 {
-    return d_imp.timedWait(mutex, absoluteTime);
+    return d_imp.timedWait(mutex, timeout);
 }
 
 inline
