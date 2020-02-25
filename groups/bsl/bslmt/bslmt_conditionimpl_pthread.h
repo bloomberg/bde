@@ -122,7 +122,7 @@ class ConditionImpl<Platform::PosixThreads> {
         // current thread until this condition object is "signaled" (i.e., one
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
         // until the specified 'timeout' expires, then re-acquire a lock on the
-        // 'mutex'.  The 'timeout' is an absolute time represented as an
+        // 'mutex'.  The 'timeout' is an *absolute* time represented as an
         // interval from some epoch, which is determined by the clock indicated
         // at construction (see {Supported Clock-Types} in the component
         // documentation), and is the earliest time at which the timeout may
