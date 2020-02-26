@@ -59,13 +59,6 @@ using namespace BloombergLP;
 //                                  Overview
 //                                  --------
 // ----------------------------------------------------------------------------
-// 'bdlmt_multiqueuethreadpool' private interface
-// MANIPULATORS
-// [ 2] void deleteQueueCb(int id, const bsl::function<void()>&
-//                                                             cleanupFunctor);
-// [ 2] void processQueueCb(int id);
-//
-// 'bdlmt_multiqueuethreadpool' public interface
 // CREATORS
 // [ 2] bdlmt::MultiQueueThreadPool(
 //                         const bslmt::ThreadAttributes&  threadAttributes,
@@ -78,9 +71,9 @@ using namespace BloombergLP;
 // [ 2] ~bdlmt::MultiQueueThreadPool();
 //
 // MANIPULATORS
+// [33] void setBatchSize(int id, int batchSize);
 // [ 2] int createQueue();
-// [ 2] int deleteQueue(int id, const bsl::function<void()>&
-//                                                             cleanupFunctor);
+// [ 2] int deleteQueue(int id, const bsl::function<void()>& cleanupFunc);
 // [ 2] int enqueueJob(int id, const bsl::function<void()>& functor);
 // [ 6] int enableQueue(int id);
 // [ 6] int disableQueue(int id);
@@ -90,6 +83,7 @@ using namespace BloombergLP;
 // [13] void numProcessedReset(int *, int *, int * = 0);
 //
 // ACCESSORS
+// [33] int batchSize(int id) const;
 // [13] void numProcessed(int *, int *, int * = 0) const;
 // [ 4] int numQueues() const;
 // [13] int numElements() const;
@@ -118,7 +112,7 @@ using namespace BloombergLP;
 // [30] DRQS 140150365: resume fails immediately after pause
 // [31] DRQS 140403279: pause can deadlock with delete and create
 // [32] DRQS 143578129: 'numElements' stress test
-// [33] USAGE EXAMPLE 1
+// [34] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -170,10 +164,19 @@ void aSsErT(bool condition, const char *message, int line)
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
-#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
-#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
@@ -316,6 +319,14 @@ static void waitPauseWait(bslmt::Barrier *barrier, Obj *pool, int queueId)
     barrier->wait();
     int rc = pool->pauseQueue(queueId);
     ASSERT(0 == rc);
+    barrier->wait();
+}
+
+static void waitWait(bslmt::Barrier *barrier)
+{
+    // Wait on the specified 'barrier' twice.
+
+    barrier->wait();
     barrier->wait();
 }
 
@@ -1470,7 +1481,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1550,6 +1561,151 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING BATCH SIZE
+        //
+        // Concerns:
+        //: 1 The value returned by 'batchSize' matches the value assigned by
+        //:   'setBatchSize'.
+        //:
+        //: 2 The value assigned by 'setBatchSize' is the batching size.
+        //:
+        //: 3 The 'deleteQueue' method operates properly (since a job is
+        //:   enqueued for handling deletion).
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Use 'setBatchSize' to set the batching size and directly verify
+        //:   the result of 'batchSize'.  (C-1)
+        //:
+        //: 2 From the main thread, use 'setBatchSize' to set the batching size
+        //:   and submit at least this number of jobs to the queue with the
+        //:   first job using a barrier to sync the thread-pool thread with the
+        //:   main thread twice.  After the first synchronization, the main
+        //:   thread will delete the queue containing the jobs.  After the
+        //:   second synchronization, the main thread will verify the number
+        //:   of executed jobs is frequently the batch size using
+        //:   'numProcessed'.  Note that the number of executed jobs will not
+        //:   always match the batch size since the timing of when the thread
+        //:   from the thread pool will take jobs can not be guaranteed.  (C-2)
+        //:
+        //: 3 Verify the number of enqueued, processed, and deleted jobs in
+        //:   P-2 to ensure no jobs were lost.  Use 'numQueues' and
+        //:   'numElements' to verify the the queue no longer exists.  (C-3)
+        //:
+        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        //
+        // Testing:
+        //   void setBatchSize(int id, int batchSize);
+        //   int batchSize(int id) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING BATCH SIZE\n"
+                          << "===================\n";
+
+        if (verbose) cout << "\nTesting 'batchSize'." << endl;
+        {
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
+
+            mX.start();
+
+            ASSERT(-1 == X.batchSize(0));
+
+            ASSERT( 0 != mX.setBatchSize(0, 2));
+
+            int queueId = mX.createQueue();
+
+            ASSERT( 1 == X.batchSize(queueId));
+            ASSERT(-1 == X.batchSize(queueId + 1));
+
+            ASSERT( 0 == mX.setBatchSize(queueId, 2));
+            ASSERT( 0 != mX.setBatchSize(queueId + 1, 2));
+
+            ASSERT( 2 == X.batchSize(queueId));
+
+            ASSERT( 0 == mX.setBatchSize(queueId, 3));
+
+            ASSERT( 3 == X.batchSize(queueId));
+
+            ASSERT( 0 == mX.setBatchSize(queueId, 1));
+
+            ASSERT( 1 == X.batchSize(queueId));
+        }
+
+        if (verbose) cout << "\nTesting 'setBatchSize'." << endl;
+        {
+            const int k_ENQUEUE = 5;
+
+            int count[k_ENQUEUE + 1];
+
+            for (int batchSize = 1; batchSize <= 4; ++batchSize) {
+                for (int i = 0; i <= k_ENQUEUE; ++i) {
+                    count[i] = 0;
+                }
+
+                for (int i = 0; i < 100; ++i) {
+                    Obj        mX(bslmt::ThreadAttributes(), 1, 1, 30);
+                    const Obj& X = mX;
+
+                    mX.start();
+                    int queueId = mX.createQueue();
+
+                    mX.setBatchSize(queueId, batchSize);
+
+                    bslmt::Barrier barrier(2);
+
+                    Func job = bdlf::BindUtil::bind(&waitWait, &barrier);
+
+                    mX.enqueueJob(queueId, job);
+                    for (int j = 1; j < k_ENQUEUE; ++j) {
+                        mX.enqueueJob(queueId, noop);
+                    }
+
+                    barrier.wait();
+                    mX.deleteQueue(queueId, noop);  // must not wait
+                    barrier.wait();
+
+                    ASSERT( 0 == X.numQueues());
+                    ASSERT(-1 == X.numElements(queueId));
+
+                    int doneJobs;
+                    int enqueuedJobs;
+                    int deletedJobs;
+
+                    X.numProcessed(&doneJobs, &enqueuedJobs, &deletedJobs);
+
+                    ASSERT(k_ENQUEUE == enqueuedJobs);
+                    ASSERT(k_ENQUEUE == doneJobs + deletedJobs);
+
+                    ++count[doneJobs];
+                }
+
+                ASSERT(80 <= count[batchSize]);
+
+                ASSERT(0 == count[0]);
+                for (int i = batchSize + 1; i <= k_ENQUEUE; ++i) {
+                    ASSERT(0 == count[i]);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            ASSERT_SAFE_PASS(mX.setBatchSize(queueId,  1));
+            ASSERT_SAFE_PASS(mX.setBatchSize(queueId,  2));
+            ASSERT_SAFE_FAIL(mX.setBatchSize(queueId,  0));
+            ASSERT_SAFE_FAIL(mX.setBatchSize(queueId, -1));
+        }
       }  break;
       case 32: {
         // --------------------------------------------------------------------
@@ -3417,9 +3573,9 @@ int main(int argc, char *argv[]) {
 
             // The 'barrier.wait()' is insufficient to verify 'count' has
             // completed since 'deleteQueue' does not wait for the queue to be
-            // actually deleted (and 'count' invoked).  Hence, if the
-            // increment of 'counter' is not verified, the deletion of the
-            // queue associated with 'id2' (below) may occur before the 'count'
+            // actually deleted (and 'count' invoked).  Hence, if the increment
+            // of 'counter' is not verified, the deletion of the queue
+            // associated with 'id2' (below) may occur before the 'count'
             // callback executes and the counter will not be incremented as
             // expected.
 
@@ -4439,8 +4595,7 @@ int main(int argc, char *argv[]) {
         //                 bslma::Allocator               *basicAllocator = 0);
         //   ~bdlmt::MultiQueueThreadPool();
         //   int createQueue();
-        //   int deleteQueue(int id, const bsl::function<void()>&
-        //                                                     cleanupFunctor);
+        //   int deleteQueue(int id, const bsl::function<void()>& cleanupFunc);
         //   int enqueueJob(int id, const bsl::function<void()>& functor);
         //   void start();
         //   void stop();
@@ -4990,7 +5145,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

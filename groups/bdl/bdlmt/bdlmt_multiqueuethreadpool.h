@@ -55,6 +55,21 @@ BSLS_IDENT("$Id: $")
 // correctly in a non-multi-threading environment).  See 'bsldoc_glossary' for
 // complete definitions of *fully thread-safe* and *thread-enabled*.
 //
+///Job Execution Batch Size
+///------------------------
+// 'bdlmt::MultiQueueThreadPool' allows clients to configure the maximum size
+// of a group of jobs that a queue will execute "atomically".  "Atomically", in
+// this context, means that no state changes to the queue will be observed by
+// that queue during the processing of the collection of jobs (e.g., a call to
+// 'pause' will only pause the queue after the currently executing group of
+// jobs completes execution).  By default a queue's batch size is 1.
+// Configuring a larger batch size may improve throughput by reducing the
+// synchronization overhead needed to execute a job.  However, for many
+// use-cases the overall throughput is limited by the time it takes to process
+// a job (rather than synchronization overhead), so users are strongly
+// encouraged to use benchmarks to guide their decision when setting this
+// option.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -385,6 +400,8 @@ class MultiQueueThreadPool_Queue {
 
     RunState                   d_runState;       // maintains run state
 
+    int                        d_batchSize;      // execution batch size
+
     mutable bslmt::Mutex       d_lock;           // protect queue and
                                                  // informational members
 
@@ -456,26 +473,26 @@ class MultiQueueThreadPool_Queue {
         // that will delete this queue.  Optionally specify 'cleanupFunctor',
         // which, if supplied, will be invoked immediately prior to this
         // queue's deletion.  Optionally specify 'completionSignal', on which
-        // (if the calling thread is not processing a job for this queue) to
-        // invoke 'arrive' when the queue is deleted.  Return 'true' if the
-        // current thread is the thread processing a job, and 'false'
-        // otherwise.  Note that if 'completionSignal' is supplied, a return
-        // status of 'false' typically indicates that
-        // 'compleitionSignal->wait()' should be invoked from the calling
-        // function', while a return status of 'true' indicates this is an
-        // attempt to delete the queue from within a job being processed on the
-        // queue (so waiting on the queue's deletion would result in a
+        // (if the calling thread is not processing a job - or batch of jobs -
+        // for this queue) to invoke 'arrive' when the queue is deleted.
+        // Return 'true' if the current thread is the thread processing a job
+        // (or batch of jobs), and 'false' otherwise.  Note that if
+        // 'completionSignal' is supplied, a return status of 'false' typically
+        // indicates that 'completionSignal->wait()' should be invoked from the
+        // calling function', while a return status of 'true' indicates this is
+        // an attempt to delete the queue from within a job being processed on
+        // the queue (so waiting on the queue's deletion would result in a
         // dead-lock).
 
     int initiatePause();
         // Initiate the pausing of this queue, prevent jobs from being executed
-        // on this queue (excluding the currently-executing job if there is
-        // one), and prevent the queue from being deleted.  Return 0 on
-        // success, and a non-zero value if the queue is already paused or is
-        // being paused or deleted by another thread.  The behavior is
-        // undefined unless, after a successful invocation of 'initiatePause',
-        // 'waitWhilePausing' is invoked (to complete the pause operation
-        // and allow the queue to, potentially, be deleted).
+        // on this queue (excluding the currently-executing job - or batch of
+        // jobs - if there is one), and prevent the queue from being deleted.
+        // Return 0 on success, and a non-zero value if the queue is already
+        // paused or is being paused or deleted by another thread.  The
+        // behavior is undefined unless, after a successful invocation of
+        // 'initiatePause', 'waitWhilePausing' is invoked (to complete the
+        // pause operation and allow the queue to, potentially, be deleted).
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -497,6 +514,15 @@ class MultiQueueThreadPool_Queue {
         // and a non-zero value if the queue is not paused or '!d_list.empty()'
         // and the associated thread pool fails to enqueue a job.
 
+    void setBatchSize(int batchSize);
+        // Configure this queue to process jobs in groups of the specified
+        // 'batchSize' (see {'Job Execution Batch Size'}).  When a thread is
+        // selecting jobs for processing, if fewer than 'batchSize' jobs are
+        // available then only the available jobs will be processed in the
+        // current batch.  The behavior is undefined unless '1 <= batchSize'.
+        // Note that the initial value for the execution batch size is 1 for
+        // all queues.
+
     void waitWhilePausing();
         // Wait until any currently-executing job on the queue completes and
         // the queue is paused.  Note that pausing differs from 'disable' in
@@ -506,6 +532,12 @@ class MultiQueueThreadPool_Queue {
         // 'initiatePause' invocation.
 
     // ACCESSORS
+    int batchSize() const;
+        // Return an instantaneous snapshot of the execution batch size (see
+        // {'Job Execution Batch Size'}).  When a thread is selecting jobs for
+        // processing, if fewer than 'batchSize' jobs are available then only
+        // the available jobs will be processed in the current batch.
+
     bool isDrained() const;
         // Report whether all jobs in this queue are finished.
 
@@ -678,10 +710,10 @@ class MultiQueueThreadPool {
 
     int deleteQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id',
-        // and block the calling thread until a currently-active callback, if
-        // any, is completed; then destroy the queue.  Return 0 on success, and
-        // a non-zero value otherwise.  Note that this function will fail if
-        // this pool is stopped.
+        // and block the calling thread until a currently-executing job (or
+        // batch of jobs), if any, is completed; then destroy the queue.
+        // Return 0 on success, and a non-zero value otherwise.  Note that this
+        // function will fail if this pool is stopped.
 
     int disableQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id'.
@@ -689,6 +721,17 @@ class MultiQueueThreadPool {
         // method differs from 'pauseQueue' in that (1) 'disableQueue' does
         // *not* stop processing for a queue, and (2) prevents additional jobs
         // from being enqueued.
+
+    void drain();
+        // Wait until all queues are empty.  This method waits until all
+        // non-paused queues are empty without disabling the queues (and may
+        // thus wait indefinitely).  The queues and/or the thread pool may be
+        // either enabled or disabled when this method is called.  This method
+        // may be called on a stopped or started thread pool.  Note that
+        // 'drain' does not attempt to delete queues directly.  However, as a
+        // side-effect of emptying all queues, any queue for which
+        // 'deleteQueue' was called previously will be deleted before 'drain'
+        // returns.  Note also that this method waits by repeatedly yielding.
 
     int drainQueue(int id);
         // Wait until all jobs in the queue indicated by the specified 'id' are
@@ -721,20 +764,36 @@ class MultiQueueThreadPool {
         // items.
 
     int pauseQueue(int id);
-        // Wait until any currently-executing job on the queue with the
-        // specified 'id' completes, then prevent any more jobs from being
-        // executed on that queue.  Return 0 on success, and a non-zero value
-        // if the queue is already paused or is being paused or deleted by
-        // another thread.  Note that this method may be invoked from a job
-        // executing on the given queue, in which case this method does not
-        // wait.  Note also that this method differs from 'disableQueue' in
-        // that (1) 'pauseQueue' stops processing for a queue, and (2) does
-        // *not* prevent additional jobs from being enqueued.
+        // Wait until any currently-executing job (or batch of jobs) on the
+        // queue with the specified 'id' completes, then prevent any more jobs
+        // from being executed on that queue.  Return 0 on success, and a
+        // non-zero value if the queue is already paused or is being paused or
+        // deleted by another thread.  Note that this method may be invoked
+        // from a job executing on the given queue, in which case this method
+        // does not wait.  Note also that this method differs from
+        // 'disableQueue' in that (1) 'pauseQueue' stops processing for a
+        // queue, and (2) does *not* prevent additional jobs from being
+        // enqueued.
 
     int resumeQueue(int id);
         // Allow jobs on the queue with the specified 'id' to begin executing.
         // Return 0 on success, and a non-zero value if the queue does not
         // exist or is not paused.
+
+    int setBatchSize(int id, int batchSize);
+        // Configure the queue specified by 'id' to process jobs in groups of
+        // the specified 'batchSize' (see {'Job Execution Batch Size'}).  When
+        // a thread is selecting jobs for processing, if fewer than 'batchSize'
+        // jobs are available then only the available jobs will be processed in
+        // the current batch.  Return 0 on success, and a non-zero value
+        // otherwise.  The behavior is undefined unless '1 <= batchSize'.  Note
+        // that the initial value for the execution batch size is 1 for all
+        // queues.
+
+    void shutdown();
+        // Disable queuing on all queues, and wait until all non-paused queues
+        // are empty.  Then, delete all queues, and shut down the thread pool
+        // if the thread pool is owned by this object.
 
     int start();
         // Enable queuing on all queues, start the thread pool if the thread
@@ -745,17 +804,6 @@ class MultiQueueThreadPool {
         // has no effect if this thread pool has already been started.  Note
         // that any paused queues remain paused.
 
-    void drain();
-        // Wait until all queues are empty.  This method waits until all
-        // non-paused queues are empty without disabling the queues (and may
-        // thus wait indefinitely).  The queues and/or the thread pool may be
-        // either enabled or disabled when this method is called.  This method
-        // may be called on a stopped or started thread pool.  Note that
-        // 'drain' does not attempt to delete queues directly.  However, as a
-        // side-effect of emptying all queues, any queue for which
-        // 'deleteQueue' was called previously will be deleted before 'drain'
-        // returns.  Note also that this method waits by repeatedly yielding.
-
     void stop();
         // Disable queuing on all queues and wait until all non-paused queues
         // are empty.  Then, stop the thread pool if the thread pool is owned
@@ -764,12 +812,15 @@ class MultiQueueThreadPool {
         // queue for which 'deleteQueue' was called previously will be deleted
         // before 'stop' unblocks.
 
-    void shutdown();
-        // Disable queuing on all queues, and wait until all non-paused queues
-        // are empty.  Then, delete all queues, and shut down the thread pool
-        // if the thread pool is owned by this object.
-
     // ACCESSORS
+    int batchSize(int id) const;
+        // Return an instantaneous snapshot of the execution batch size (see
+        // {'Job Execution Batch Size'}) of the queue associated with the
+        // specified 'id', or -1 if 'id' is not a valid queue id.  When a
+        // thread is selecting jobs for processing, if fewer than 'batchSize'
+        // jobs are available then only the available jobs will be processed in
+        // the current batch.
+
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
         // currently paused, or 'false' otherwise (including if 'id' is not a
@@ -816,6 +867,14 @@ class MultiQueueThreadPool {
                      // --------------------------------
 
 // ACCESSORS
+inline
+int MultiQueueThreadPool_Queue::batchSize() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    return d_batchSize;
+}
+
 inline
 bool MultiQueueThreadPool_Queue::isDrained() const
 {
@@ -932,7 +991,39 @@ void MultiQueueThreadPool::numProcessedReset(int *numExecuted,
     *numEnqueued = d_numEnqueued.swap(0);
 }
 
+inline
+int MultiQueueThreadPool::setBatchSize(int id, int batchSize)
+{
+    BSLS_ASSERT_SAFE(1 <= batchSize);
+
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    MultiQueueThreadPool_Queue *queue;
+
+    if (findIfUsable(id, &queue)) {
+        return 1;                                                     // RETURN
+    }
+
+    queue->setBatchSize(batchSize);
+
+    return 0;
+}
+
 // ACCESSORS
+inline
+int MultiQueueThreadPool::batchSize(int id) const
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    QueueRegistry::const_iterator iter = d_queueRegistry.find(id);
+
+    if (d_queueRegistry.end() != iter) {
+        return iter->second->batchSize();                             // RETURN
+    }
+
+    return -1;
+}
+
 inline
 bool MultiQueueThreadPool::isEnabled(int id) const
 {
@@ -1018,7 +1109,7 @@ const ThreadPool& MultiQueueThreadPool::threadPool() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
