@@ -1682,6 +1682,12 @@ class basic_string
         // Append the specified 'strView' to this string, and return a
         // reference providing modifiable access to this string.
 
+    template <class ALLOC2>
+    basic_string& operator+=(
+          const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs);
+        // Append the specified 'rhs' string to this string, and return a
+        // reference providing modifiable access to this string.
+
     basic_string& append(const basic_string& suffix);
         // Append to this string the specified 'suffix', and return a reference
         // providing modifiable access to this string.
@@ -4520,6 +4526,16 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                         bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView)
 {
     return append(strView.begin(),strView.end());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class ALLOC2>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
+           const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs)
+{
+    return append(rhs.begin(),rhs.end());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>

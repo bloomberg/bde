@@ -3135,6 +3135,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
         0  // null string required as last element
     };
 
+    const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
     typedef LimitAllocator<ALLOC> AltAlloc;
     typedef native_std::basic_string<TYPE, TRAITS, ALLOC> NativeObj;
     typedef native_std::basic_string<TYPE, TRAITS, AltAlloc> NativeObjAlt;
@@ -3208,6 +3214,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
                 ASSERT((X + U) == (X + V));
             }
         }
+
+        Obj b(VALUES);
+        NativeObj n(VALUES);
+        n += b + VALUES;
+        ASSERT(0 == std::memcmp(&n[0 * NUM_VALUES], VALUES, NUM_VALUES));
+        ASSERT(0 == std::memcmp(&n[1 * NUM_VALUES], VALUES, NUM_VALUES));
+        ASSERT(0 == std::memcmp(&n[2 * NUM_VALUES], VALUES, NUM_VALUES));
+        ASSERT(3 * NUM_VALUES == n.size());
     }
 
     if (verbose) printf("\tTesting conversion from native string\n");
@@ -3240,6 +3254,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
             ASSERT(V == U);
             ASSERT(U == V);
         }
+
+        Obj b(VALUES);
+        NativeObj n(VALUES);
+        b += n + VALUES;
+        ASSERT(0 == std::memcmp(&b[0 * NUM_VALUES], VALUES, NUM_VALUES));
+        ASSERT(0 == std::memcmp(&b[1 * NUM_VALUES], VALUES, NUM_VALUES));
+        ASSERT(0 == std::memcmp(&b[2 * NUM_VALUES], VALUES, NUM_VALUES));
+        ASSERT(3 * NUM_VALUES == b.size());
     }
 }
 
