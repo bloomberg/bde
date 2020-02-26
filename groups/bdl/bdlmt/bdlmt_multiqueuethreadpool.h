@@ -486,8 +486,8 @@ class MultiQueueThreadPool_Queue {
 
     int initiatePause();
         // Initiate the pausing of this queue, prevent jobs from being executed
-        // on this queue (excluding the currently-executing job - batch of jobs
-        // - if there is one), and prevent the queue from being deleted.
+        // on this queue (excluding the currently-executing job - or batch of
+        // jobs - if there is one), and prevent the queue from being deleted.
         // Return 0 on success, and a non-zero value if the queue is already
         // paused or is being paused or deleted by another thread.  The
         // behavior is undefined unless, after a successful invocation of
@@ -516,12 +516,12 @@ class MultiQueueThreadPool_Queue {
 
     void setBatchSize(int batchSize);
         // Configure this queue to process jobs in groups of the specified
-        // 'batchSize' (see {'Job Execution Batch Size'}).  The behavior is
-        // undefined unless '1 <= batchSize'.  Note that the initial value for
-        // the execution batch size is 1 for all queues.  Also note that when a
-        // thread is selecting jobs for processing, if fewer than 'batchSize'
-        // jobs are available then only the available jobs will be processed in
-        // the current batch.
+        // 'batchSize' (see {'Job Execution Batch Size'}).  When a thread is
+        // selecting jobs for processing, if fewer than 'batchSize' jobs are
+        // available then only the available jobs will be processed in the
+        // current batch.  The behavior is undefined unless '1 <= batchSize'.
+        // Note that the initial value for the execution batch size is 1 for
+        // all queues.
 
     void waitWhilePausing();
         // Wait until any currently-executing job on the queue completes and
@@ -534,9 +534,9 @@ class MultiQueueThreadPool_Queue {
     // ACCESSORS
     int batchSize() const;
         // Return an instantaneous snapshot of the execution batch size (see
-        // {'Job Execution Batch Size'}).  Note that when a thread is selecting
-        // jobs for processing, if fewer than 'batchSize' jobs are available
-        // then only the available jobs will be processed in the current batch.
+        // {'Job Execution Batch Size'}).  When a thread is selecting jobs for
+        // processing, if fewer than 'batchSize' jobs are available then only
+        // the available jobs will be processed in the current batch.
 
     bool isDrained() const;
         // Report whether all jobs in this queue are finished.
@@ -782,13 +782,13 @@ class MultiQueueThreadPool {
 
     int setBatchSize(int id, int batchSize);
         // Configure the queue specified by 'id' to process jobs in groups of
-        // the specified 'batchSize' (see {'Job Execution Batch Size'}).
-        // Return 0 on success, and a non-zero value otherwise.  The behavior
-        // is undefined unless '1 <= batchSize'.  Note that the initial value
-        // for the execution batch size is 1 for all queues.  Also note that
-        // when a thread is selecting jobs for processing, if fewer than
-        // 'batchSize' jobs are available then only the available jobs will be
-        // processed in the current batch.
+        // the specified 'batchSize' (see {'Job Execution Batch Size'}).  When
+        // a thread is selecting jobs for processing, if fewer than 'batchSize'
+        // jobs are available then only the available jobs will be processed in
+        // the current batch.  Return 0 on success, and a non-zero value
+        // otherwise.  The behavior is undefined unless '1 <= batchSize'.  Note
+        // that the initial value for the execution batch size is 1 for all
+        // queues.
 
     void shutdown();
         // Disable queuing on all queues, and wait until all non-paused queues
@@ -816,10 +816,10 @@ class MultiQueueThreadPool {
     int batchSize(int id) const;
         // Return an instantaneous snapshot of the execution batch size (see
         // {'Job Execution Batch Size'}) of the queue associated with the
-        // specified 'id', or -1 if 'id' is not a valid queue id.  Note that
-        // when a thread is selecting jobs for processing, if fewer than
-        // 'batchSize' jobs are available then only the available jobs will be
-        // processed in the current batch.
+        // specified 'id', or -1 if 'id' is not a valid queue id.  When a
+        // thread is selecting jobs for processing, if fewer than 'batchSize'
+        // jobs are available then only the available jobs will be processed in
+        // the current batch.
 
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
