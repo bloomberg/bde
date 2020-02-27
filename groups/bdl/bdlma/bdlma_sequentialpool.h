@@ -337,8 +337,9 @@ class SequentialPool {
     };
 
     enum {
-        k_NUM_GEOMETRIC_BIN = 56   // number of bins available for geometric
-                                   // growth strategy
+        k_NUM_GEOMETRIC_BIN = sizeof(bsls::Types::size_type) > 4 ? 56 : 31
+                                                // number of bins available for
+                                                // geometric growth strategy
     };
 
     typedef bsl::uint64_t uint64_t;  // to support old toolchains
