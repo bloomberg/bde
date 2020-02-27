@@ -895,7 +895,7 @@ BSLS_KEYWORD_NOEXCEPT;
     // respective position have the same value according to 'CHAR_TRAITS::eq'.
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
-BSLS_KEYWORD_CONSTEXPR
+BSLS_KEYWORD_CONSTEXPR_CPP14
 bool operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   lhs,
                basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   rhs)
 BSLS_KEYWORD_NOEXCEPT;
