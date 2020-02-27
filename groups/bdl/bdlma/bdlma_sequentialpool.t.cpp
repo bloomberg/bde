@@ -93,7 +93,8 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 2] HELPER FUNCTION: 'int blockSize(numBytes)'
 // [10] FREE FUNCTION: 'operator new(size_t, bdlma::SequentialPool)'
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
+// [13] DRQS 135423849: LARGE ALLOCATION FAILURE ON 32-BIT BUILDS
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -467,7 +468,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -489,6 +490,33 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // DRQS 135423849: LARGE ALLOCATION FAILURE ON 32-BIT BUILDS
+        //
+        // Concerns:
+        //: 1 Allocating '0xA0000000u' bytes in a 32-bit build does not assert.
+        //
+        // Plan:
+        //: 1 Directly test allocation of '0xA0000000u' bytes.  (C-1)
+        //
+        // Testing:
+        //   DRQS 135423849: LARGE ALLOCATION FAILURE ON 32-BIT BUILDS
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 135423849: LARGE ALLOCATION FAILURE ON 32-BIT BUILDS"
+                 << "\n"
+                 << "========================================================="
+                 << "\n";
+        }
+
+        Obj mX;
+
+        void *memory = mX.allocate(0xA0000000u);
+
+        BSLS_ASSERT(memory);
       } break;
       case 12: {
         // --------------------------------------------------------------------
