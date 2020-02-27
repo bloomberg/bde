@@ -157,7 +157,8 @@ SequentialPool::SequentialPool(bslma::Allocator *basicAllocator)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                   static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
+                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -174,7 +175,8 @@ SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                   static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
+                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -193,7 +195,8 @@ SequentialPool::SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                   static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
+                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -211,7 +214,8 @@ SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                   static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
+                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -229,7 +233,8 @@ SequentialPool::SequentialPool(int initialSize)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                      static_cast<uint64_t>(initialSize)) - 1))
+                                       static_cast<uint64_t>(initialSize)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -249,7 +254,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                      static_cast<uint64_t>(initialSize)) - 1))
+                                       static_cast<uint64_t>(initialSize)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -270,7 +276,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                      static_cast<uint64_t>(initialSize)) - 1))
+                                       static_cast<uint64_t>(initialSize)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -293,7 +300,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                      static_cast<uint64_t>(initialSize)) - 1))
+                                       static_cast<uint64_t>(initialSize)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -315,7 +323,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
-                                      static_cast<uint64_t>(initialSize)) - 1))
+                                       static_cast<uint64_t>(initialSize)) - 1)
+             | ~static_cast<uint64_t>(bsls::Types::size_type(-1)))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -339,9 +348,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
-             | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                        static_cast<uint64_t>((  maxBufferSize
-                                               & 0x7fffffffffffffffULL) | 1))))
+             | ~(bdlb::BitUtil::roundUpToBinaryPower(
+                                static_cast<uint64_t>(maxBufferSize + 1)) - 1))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -365,9 +373,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
-             | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                        static_cast<uint64_t>((  maxBufferSize
-                                               & 0x7fffffffffffffffULL) | 1))))
+             | ~(bdlb::BitUtil::roundUpToBinaryPower(
+                                static_cast<uint64_t>(maxBufferSize + 1)) - 1))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -393,9 +400,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
-             | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                        static_cast<uint64_t>((  maxBufferSize
-                                               & 0x7fffffffffffffffULL) | 1))))
+             | ~(bdlb::BitUtil::roundUpToBinaryPower(
+                                static_cast<uint64_t>(maxBufferSize + 1)) - 1))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -420,9 +426,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
-             | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                        static_cast<uint64_t>((  maxBufferSize
-                                               & 0x7fffffffffffffffULL) | 1))))
+             | ~(bdlb::BitUtil::roundUpToBinaryPower(
+                                static_cast<uint64_t>(maxBufferSize + 1)) - 1))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -451,9 +456,8 @@ SequentialPool::SequentialPool(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
-             | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                        static_cast<uint64_t>((  maxBufferSize
-                                               & 0x7fffffffffffffffULL) | 1))))
+             | ~(bdlb::BitUtil::roundUpToBinaryPower(
+                                static_cast<uint64_t>(maxBufferSize + 1)) - 1))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
