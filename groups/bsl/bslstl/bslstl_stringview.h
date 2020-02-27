@@ -2236,7 +2236,7 @@ BSLS_KEYWORD_NOEXCEPT
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
-BSLS_KEYWORD_CONSTEXPR
+BSLS_KEYWORD_CONSTEXPR_CPP14
 bool bsl::operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
