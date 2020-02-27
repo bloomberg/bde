@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
 
         void *memory = mX.allocate(0xA0000000u);
 
-        BSLS_ASSERT(memory);
+        ASSERT(memory);
       } break;
       case 12: {
         // --------------------------------------------------------------------
