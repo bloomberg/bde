@@ -18,6 +18,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -187,6 +188,47 @@ struct Block {
 
     Block                               *d_next_p;
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+};
+
+//-----------------------------------------------------------------------------
+
+class TrackingAllocator : public bslma::Allocator {
+    // This class implements the 'Allocator' protocol to provide an allocator
+    // that dispenses fixed sized blocks of memory (ignoring the requested
+    // allocation size) and tracks the allocations, useful for testing.
+
+    // DATA
+    bsl::map<void *, bsls::Types::size_type> d_data;
+
+  public:
+    // MANIPULATORS
+    void *allocate(bsls::Types::size_type size)
+        // Return a block of memory of sufficient size to accomodate the needs
+        // of storing the memory within the 'bdlma::SequentialPool' block list,
+        // track the address of the returned memory and the specified 'size'.
+    {
+        void *p =
+               bslma::Default::defaultAllocator()->allocate(4 * sizeof(Block));
+        d_data[p] = size;
+        return p;
+    }
+
+    void deallocate(void *address)
+        // Return the memory block at the specied 'address' to this allocator.
+        // Remove the address from tracking.  The behavior is undefined unless
+        // 'address' was allocated using this allocator object and has not
+        // already been deallocated.
+    {
+        bslma::Default::defaultAllocator()->deallocate(address);
+        d_data.erase(address);
+    }
+
+    // ACCESSORS
+    bsls::Types::size_type size() const
+        // Return the number of addressed being tracked.
+    {
+        return d_data.size();
+    }
 };
 
 //=============================================================================
@@ -512,11 +554,143 @@ int main(int argc, char *argv[])
                  << "\n";
         }
 
-        Obj mX;
+        enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER_SIZE = 128 * k_INITIAL_SIZE };
 
-        void *memory = mX.allocate(0xA0000000u);
+        bsls::BlockGrowth::Strategy growthStrategy[] = {
+            bsls::BlockGrowth::BSLS_GEOMETRIC,
+            bsls::BlockGrowth::BSLS_CONSTANT
+        };
+        const bsl::size_t numGrowthStrategy = sizeof  growthStrategy
+                                            / sizeof *growthStrategy;
 
-        ASSERT(memory);
+        const bsls::Alignment::Strategy alignmentStrategy[] = {
+            bsls::Alignment::BSLS_NATURAL,
+            bsls::Alignment::BSLS_MAXIMUM,
+            bsls::Alignment::BSLS_BYTEALIGNED
+        };
+        const bsl::size_t numAlignmentStrategy = sizeof  alignmentStrategy
+                                               / sizeof *alignmentStrategy;
+        {
+            TrackingAllocator supplied;
+
+            Obj mX(&supplied);
+
+            void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+        }
+        {
+            TrackingAllocator supplied;
+
+            Obj mX(k_INITIAL_SIZE, &supplied);
+
+            void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+        }
+        {
+            TrackingAllocator supplied;
+
+            Obj mX(k_INITIAL_SIZE, k_MAX_BUFFER_SIZE, &supplied);
+
+            void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+        }
+
+        for (bsl::size_t growthIndex = 0;
+             growthIndex < numGrowthStrategy;
+             ++growthIndex) {
+            {
+                TrackingAllocator supplied;
+
+                Obj mX(growthStrategy[growthIndex], &supplied);
+
+                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            }
+            {
+                TrackingAllocator supplied;
+
+                Obj mX(k_INITIAL_SIZE, growthStrategy[growthIndex], &supplied);
+
+                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            }
+            {
+                TrackingAllocator supplied;
+
+                Obj mX(k_INITIAL_SIZE,
+                       k_MAX_BUFFER_SIZE,
+                       growthStrategy[growthIndex],
+                       &supplied);
+
+                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            }
+        }
+
+        for (bsl::size_t alignmentIndex = 0;
+             alignmentIndex < numAlignmentStrategy;
+             ++alignmentIndex) {
+            {
+                TrackingAllocator supplied;
+
+                Obj mX(alignmentStrategy[alignmentIndex], &supplied);
+
+                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            }
+            {
+                TrackingAllocator supplied;
+
+                Obj mX(k_INITIAL_SIZE,
+                       alignmentStrategy[alignmentIndex],
+                       &supplied);
+
+                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            }
+            {
+                TrackingAllocator supplied;
+
+                Obj mX(k_INITIAL_SIZE,
+                       k_MAX_BUFFER_SIZE,
+                       alignmentStrategy[alignmentIndex],
+                       &supplied);
+
+                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            }
+        }
+
+        for (bsl::size_t growthIndex = 0;
+             growthIndex < numGrowthStrategy;
+             ++growthIndex) {
+
+            for (bsl::size_t alignmentIndex = 0;
+                 alignmentIndex < numAlignmentStrategy;
+                 ++alignmentIndex) {
+                {
+                    TrackingAllocator supplied;
+
+                    Obj mX(growthStrategy[growthIndex],
+                           alignmentStrategy[alignmentIndex],
+                           &supplied);
+
+                    void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                }
+                {
+                    TrackingAllocator supplied;
+
+                    Obj mX(k_INITIAL_SIZE,
+                           growthStrategy[growthIndex],
+                           alignmentStrategy[alignmentIndex],
+                           &supplied);
+
+                    void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                }
+                {
+                    TrackingAllocator supplied;
+
+                    Obj mX(k_INITIAL_SIZE,
+                           k_MAX_BUFFER_SIZE,
+                           growthStrategy[growthIndex],
+                           alignmentStrategy[alignmentIndex],
+                           &supplied);
+
+                    void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                }
+            }
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
