@@ -1793,6 +1793,12 @@ class basic_string
         // that this method has exactly the same behavior as the corresponding
         // 'operator='.
 
+    template <class ALLOC2>
+    basic_string& assign(
+       const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& string);
+        // Assign to this string the value of the specified 'string', and
+        // return a reference providing modifiable access to this string.
+
     basic_string& assign(size_type numChars, CHAR_TYPE character);
         // Assign to this string the value of a string of the specified
         // 'numChars' length whose every character is equal to the specified
@@ -4720,6 +4726,16 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class ALLOC2>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::assign(
+        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& string)
+{
+    return this->operator=(string);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
@@ -4743,6 +4759,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                             last,
                             "string<...>::assign<Iter>(i,j): string too long");
 }
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
