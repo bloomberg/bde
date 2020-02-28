@@ -1,6 +1,8 @@
 // bdlma_sequentialpool.t.cpp                                         -*-C++-*-
 #include <bdlma_sequentialpool.h>
 
+#include <bdlma_guardingallocator.h>
+
 #include <bdlb_bitutil.h>
 
 #include <bslim_testutil.h>
@@ -194,21 +196,27 @@ struct Block {
 
 class TrackingAllocator : public bslma::Allocator {
     // This class implements the 'Allocator' protocol to provide an allocator
-    // that dispenses fixed sized blocks of memory (ignoring the requested
-    // allocation size) and tracks the allocations, useful for testing.
+    // that dispenses memory up to a maximum size, verifies truncated
+    // allocations are not overrun, and tracks the allocations.
+
+    enum {
+        k_LARGE = 0x100000
+    };
 
     // DATA
     bsl::map<void *, bsls::Types::size_type> d_data;
+    bdlma::GuardingAllocator                 d_largeAllocator;
 
   public:
     // MANIPULATORS
     void *allocate(bsls::Types::size_type size)
-        // Return a block of memory of sufficient size to accomodate the needs
-        // of storing the memory within the 'bdlma::SequentialPool' block list,
-        // track the address of the returned memory and the specified 'size'.
+        // Return a newly allocated block of memory of the lesser of 'k_LARGE'
+        // and the specified 'size' bytes.  Track the address of the returned
+        // memory and the 'size'.
     {
-        void *p =
-               bslma::Default::defaultAllocator()->allocate(4 * sizeof(Block));
+        void *p = size < k_LARGE
+                ? bslma::Default::defaultAllocator()->allocate(size)
+                : d_largeAllocator.allocate(k_LARGE);
         d_data[p] = size;
         return p;
     }
@@ -219,7 +227,12 @@ class TrackingAllocator : public bslma::Allocator {
         // 'address' was allocated using this allocator object and has not
         // already been deallocated.
     {
-        bslma::Default::defaultAllocator()->deallocate(address);
+        if (d_data[address] < k_LARGE) {
+            bslma::Default::defaultAllocator()->deallocate(address);
+        }
+        else {
+            d_largeAllocator.deallocate(address);
+        }
         d_data.erase(address);
     }
 
