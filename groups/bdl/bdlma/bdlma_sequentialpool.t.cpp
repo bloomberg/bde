@@ -222,10 +222,10 @@ class TrackingAllocator : public bslma::Allocator {
     }
 
     void deallocate(void *address)
-        // Return the memory block at the specied 'address' to this allocator.
-        // Remove the address from tracking.  The behavior is undefined unless
-        // 'address' was allocated using this allocator object and has not
-        // already been deallocated.
+        // Return the memory block at the specified 'address' to this
+        // allocator.  Remove the address from tracking.  The behavior is
+        // undefined unless 'address' was allocated using this allocator object
+        // and has not already been deallocated.
     {
         if (d_data[address] < k_LARGE) {
             bslma::Default::defaultAllocator()->deallocate(address);
