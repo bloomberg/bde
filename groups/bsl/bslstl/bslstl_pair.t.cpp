@@ -71,6 +71,23 @@
 # define BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013 1
 #endif
 
+#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)              \
+  || defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+// The presence of a default constructor of a pair is determined by the
+// default-constructibility of its consituent parts on sufficiently complete
+// C++11 or later compilers (in C++11 or later mode).  We need the presence of
+// the 'is_default_constructible' type trait to be able to test the
+// conditional presence of the 'pair' default constructor.  We should have
+// checked for 'BSLS_LIBRARYFEATURES_HAS_IS_DEFAULT_CONSTRUCTIBLE' instead of
+// 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER', but there is no such thing.
+// So if you are trying to build this on a new C++11 compiler (like an AIX or
+// a Solaris) and you get that 'std::is_default_constructible' does not exist,
+// you will need to add some more conditions above.  On all C++11 compilers we
+// support in 2020, if '<type_traits>' exists it does define the required
+// 'is_default_constructible' trait and it is sufficiently functional.
+# define BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR 1
+#endif
+
 using namespace BloombergLP;
 using bsls::NameOf;
 
@@ -5498,6 +5515,46 @@ struct TupleConversionDriver
 };
 #endif
 
+#if defined(BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR)
+
+namespace IsDefaultConstructibleTestTypes {
+
+                // Types to Test Default Constructibility
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+    struct DeletedDefault {
+        DeletedDefault() = delete;
+    };
+
+    struct DeletedDefault2 : DeletedDefault {
+    };
+#endif
+
+    struct NoDefault {
+        NoDefault(int);
+    };
+
+    struct NoDefault2 : NoDefault {};
+
+    struct Empty {};
+
+    struct DefArgDefault {
+        DefArgDefault(int * = 0);
+    };
+
+    struct ExpDefArgDef {
+        explicit ExpDefArgDef(int * = 0);
+    };
+
+    class PrivDefault {
+        PrivDefault();
+    };
+
+    class PrivDefault2 : public PrivDefault {
+    };
+}  // close namespace IsDefaultConstructibleTestTypes
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -9285,6 +9342,319 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsBitwiseEqualityComparable<     Pair13>::value));
         ASSERT(  (bslmf::IsPair<                          Pair13>::value));
 
+#if defined(BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR)
+
+        if (verbose)
+            printf("Testing various pair's default constructibility\n");
+
+        using namespace IsDefaultConstructibleTestTypes;
+
+        if (veryVerbose)
+            printf("Testing components (first/second) constructibility\n");
+
+#define ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(TYPE)                                \
+        ASSERT(false == std::is_default_constructible<TYPE>::value)
+
+#define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                    \
+        ASSERT(true == std::is_default_constructible<TYPE>::value)
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2);
+#endif
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault2);
+
+        ASSERT_DEFAULT_CONSTRUCTIBLE(Empty);
+        ASSERT_DEFAULT_CONSTRUCTIBLE(DefArgDefault);
+        ASSERT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef);
+        ASSERT_DEFAULT_CONSTRUCTIBLE(int);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault&);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2&);
+#endif
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault&);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2&);
+
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(Empty&);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&);
+        ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(int&);
+
+#undef ASSERT_NOT_DEFAULT_CONSTRUCTIBLE
+#undef ASSERT_DEFAULT_CONSTRUCTIBLE
+
+        if (veryVerbose)
+            printf("All default constuctible pair combinations.\n");
+
+#define ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                       \
+        ASSERT((true == std::is_default_constructible<                        \
+                                              std::pair<TYPE1, TYPE2>>::value))
+
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(Empty, Empty);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(Empty, DefArgDefault);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(Empty, ExpDefArgDef);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(Empty, int);
+
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(DefArgDefault, Empty);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DefArgDefault);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(DefArgDefault, ExpDefArgDef);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(DefArgDefault, int);
+
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, Empty);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DefArgDefault);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, ExpDefArgDef);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, int);
+
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(int, Empty);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(int, DefArgDefault);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(int, ExpDefArgDef);
+        ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(int, int);
+
+#undef ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE
+
+        if (veryVerbose)
+            printf("All not default constuctible pair combinations.\n");
+
+#define ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                   \
+        ASSERT((false == std::is_default_constructible<                       \
+                                              std::pair<TYPE1, TYPE2>>::value))
+
+        if (veryVeryVerbose)
+            printf("pair<..>::second is not default constructible.\n");
+
+        #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, int&);
+
+        if (veryVeryVerbose)
+            printf("pair<..>::first is not default constructible.\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, Empty);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault2   , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&         , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault& , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , Empty);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , Empty);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DefArgDefault);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault2   , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&         , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault& , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , DefArgDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , DefArgDefault);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, ExpDefArgDef);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault2   , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&         , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault& , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , ExpDefArgDef);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , ExpDefArgDef);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, int);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault2   , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&         , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault& , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , int);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , int);
+
+        if (veryVeryVerbose)
+            printf("Neither 'first' or 'second' is default constructible.\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DeletedDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, int&);
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2,DeletedDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, int&);
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, DeletedDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, DeletedDefault2);
+#endif
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, NoDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, NoDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, PrivDefault);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, PrivDefault2);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, Empty&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, DefArgDefault&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, ExpDefArgDef&);
+        ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, int&);
+
+#undef ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE
+#endif
       } break;
 
       case 2: {
