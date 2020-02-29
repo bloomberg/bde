@@ -1,10 +1,25 @@
-bsl-internal (3.49.0.0) unstable; urgency=low
+bsl-internal (3.50.0.0) unstable; urgency=low
 
+  * a2c4ce236 Bumped version to 3.50.0.0
+  * 1b80dbc29 Merge pull request #2701 from afeher/drqs-155159498-dedefault-das-pair
+  * 8085ed4b8 Merge pull request #2687 from jmendelsohn4/drqs-152960171/bdlmt_multiqueuethreadpool-executeFront-2
+  * 843597190 Merge pull request #2705 from jmendelsohn4/drqs-155754111/bslmt_condition-timedWait-doc-20200224
+  * 02b7bc30c Merge pull request #2703 from jmendelsohn4/drqs-155286712/bdlmt_timereventscheduler-tsan-20200221
+  * cb438ef9a Merge pull request #2700 from jmendelsohn4/drqs-155641810/bsls_spinlock-revert-backoff
+  * 9e11a28de Merge pull request #2691 from cwilson/nullablevalue-free-swap-allow-differing-allocators-drqs-123088904
+  * a853d636a Merge pull request #2673 from bchapman/bsltf_wellbehavedmoveonlyalloctesttype-2-drqs-129710603
+  * 027a699fe Merge pull request #2694 from hrosen4/bid-win_drqs-155595047
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 29 Feb 2020 17:52:45 -0500
+
+bsl-internal (3.49.0.0) git; urgency=low
+
+  * 302150da1 Changelog for version 3.49.0.0
   * 3dd06cc37 Bumped version to 3.49.0.0
   * 9b6aa35f8 Merge pull request #2689 from jmendelsohn4/drqs-155023497/bdlcc_stripedunorderedmap-erase
   * b2bca2de4 Merge pull request #2690 from jberne4/review_windows_nostack
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Feb 2020 12:30:12 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Feb 2020 12:31:51 -0500
 
 bsl-internal (3.48.1.0) git; urgency=low
 
