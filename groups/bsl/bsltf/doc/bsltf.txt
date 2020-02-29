@@ -13,7 +13,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsltf' package currently has 31 components having 5 levels of physical
+ The 'bsltf' package currently has 32 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -33,6 +33,7 @@
      bsltf_movablealloctesttype
      bsltf_movabletesttype
      bsltf_moveonlyalloctesttype
+     bsltf_wellbehavedmoveonlyalloctesttype
 
   1. bsltf_allocbitwisemoveabletesttype
      bsltf_alloctesttype
@@ -149,3 +150,6 @@
 :
 : 'bsltf_uniontesttype':
 :      Provide an union test type.
+:
+: 'bsltf_wellbehavedmoveonlyalloctesttype':
+:      Provide well-behaved move-only type using 'bslma' allocators.
