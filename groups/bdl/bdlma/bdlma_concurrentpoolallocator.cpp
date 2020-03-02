@@ -28,12 +28,15 @@ enum {
 
 // STATIC METHODS
 static inline
-int calculateMaxAlignedSize(int totalSize)
+BloombergLP::bsls::Types::size_type calculateMaxAlignedSize(
+                                 BloombergLP::bsls::Types::size_type totalSize)
 {
     using namespace BloombergLP;
 
-    const int objectAlignmentMin = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
-    const int ret = (totalSize + objectAlignmentMin) & ~(objectAlignmentMin);
+    const bsls::Types::size_type objectAlignmentMin =
+                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
+    const bsls::Types::size_type ret =
+                      (totalSize + objectAlignmentMin) & ~(objectAlignmentMin);
     BSLS_ASSERT(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT ==
                          bsls::AlignmentUtil::calculateAlignmentFromSize(ret));
     return ret;
@@ -72,17 +75,16 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                               size_type         blockSize,
                                               bslma::Allocator *basicAllocator)
 : d_initialized(k_UNINITIALIZED)
-, d_blockSize(static_cast<int>(blockSize))
+, d_blockSize(blockSize)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
         new (d_pool.buffer()) ConcurrentPool(
-                     calculateMaxAlignedSize(static_cast<int>(blockSize
-                                                            + sizeof(Header))),
-                     d_growthStrategy,
-                     d_allocator_p);
+                           calculateMaxAlignedSize(blockSize + sizeof(Header)),
+                           d_growthStrategy,
+                           d_allocator_p);
         d_initialized = k_INITIALIZED;
     }
 }
@@ -92,17 +94,16 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
 : d_initialized(k_UNINITIALIZED)
-, d_blockSize(static_cast<int>(blockSize))
+, d_blockSize(blockSize)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
         new (d_pool.buffer()) ConcurrentPool(
-                     calculateMaxAlignedSize(static_cast<int>(blockSize
-                                                            + sizeof(Header))),
-                     d_growthStrategy,
-                     d_allocator_p);
+                           calculateMaxAlignedSize(blockSize + sizeof(Header)),
+                           d_growthStrategy,
+                           d_allocator_p);
         d_initialized = k_INITIALIZED;
     }
 }
@@ -125,18 +126,17 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                 int                          maxBlocksPerChunk,
                                 bslma::Allocator            *basicAllocator)
 : d_initialized(k_UNINITIALIZED)
-, d_blockSize(static_cast<int>(blockSize))
+, d_blockSize(blockSize)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
         new (d_pool.buffer()) ConcurrentPool(
-                     calculateMaxAlignedSize(static_cast<int>(blockSize
-                                                            + sizeof(Header))),
-                     d_growthStrategy,
-                     d_maxBlocksPerChunk,
-                     d_allocator_p);
+                           calculateMaxAlignedSize(blockSize + sizeof(Header)),
+                           d_growthStrategy,
+                           d_maxBlocksPerChunk,
+                           d_allocator_p);
         d_initialized = k_INITIALIZED;
     }
 }
@@ -171,22 +171,21 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
             else if (k_UNINITIALIZED != res) {
                 break;    // initialized
             }
-            d_blockSize = static_cast<int>(size);
+            d_blockSize = size;
             new (d_pool.buffer()) ConcurrentPool(
-                     calculateMaxAlignedSize(static_cast<int>(size
-                                                            + sizeof(Header))),
-                     d_growthStrategy,
-                     d_maxBlocksPerChunk,
-                     d_allocator_p);
+                                calculateMaxAlignedSize(size + sizeof(Header)),
+                                d_growthStrategy,
+                                d_maxBlocksPerChunk,
+                                d_allocator_p);
             d_initialized = k_INITIALIZED;
             break;
         }
     }
 
     char *ptr;
-    const size_t totalSize = static_cast<size_t>(size) + sizeof(Header);
+    const size_type totalSize = size + sizeof(Header);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-               totalSize > static_cast<size_t>(d_pool.object().blockSize()))) {
+                                    totalSize > d_pool.object().blockSize())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         ptr = static_cast<char *>(d_allocator_p->allocate(totalSize));
         static_cast<Header *>(static_cast<void *>(ptr))->d_magicNumber = 0;

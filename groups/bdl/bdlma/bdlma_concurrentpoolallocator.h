@@ -568,13 +568,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlma_concurrentpool.h>
 
-#include <bsls_atomic.h>
-
 #include <bslma_allocator.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_atomic.h>
 #include <bsls_blockgrowth.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_types.h>
 
 namespace BloombergLP {
 namespace bdlma {
@@ -595,6 +595,11 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
     // This class guarantees thread-safety while allocating or releasing
     // memory.
 
+  public:
+    // PUBLIC TYPES
+    typedef bsls::Types::size_type size_type;  // type for block size
+
+  private:
     // PRIVATE TYPES
     enum {
         k_MAGIC_NUMBER  = 0x111902,  // magic number that is inserted in header
@@ -621,14 +626,14 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
     };
 
     // DATA
-    bsls::AtomicInt    d_initialized;  // initialization state indicator
+    bsls::AtomicInt   d_initialized;  // initialization state indicator
 
     bsls::ObjectBuffer<ConcurrentPool>
                       d_pool;         // buffer used to hold the 'Pool'
                                       // (initialization occurs when the pooled
                                       // memory block size first becomes known)
 
-    int               d_blockSize;    // block size
+    size_type         d_blockSize;    // block size
 
     bsls::BlockGrowth::Strategy
                       d_growthStrategy;
@@ -734,7 +739,7 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
         // construction, or 'allocate' was invoked.
 
     // ACCESSORS
-    int blockSize() const;
+    size_type blockSize() const;
         // Return the size (in bytes) of the memory blocks allocated from this
         // allocator.  Note that all blocks dispensed by this allocator have
         // the same size.
@@ -767,7 +772,7 @@ void ConcurrentPoolAllocator::reserveCapacity(int numObjects)
 
 // ACCESSORS
 inline
-int ConcurrentPoolAllocator::blockSize() const
+bsls::Types::size_type ConcurrentPoolAllocator::blockSize() const
 {
     return d_blockSize;
 }

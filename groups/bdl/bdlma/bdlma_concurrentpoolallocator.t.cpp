@@ -10,6 +10,8 @@
 
 #include <bdlma_concurrentpoolallocator.h>
 
+#include <bdlma_guardingallocator.h>
+
 #include <bslim_testutil.h>
 
 #include <bslmt_condition.h>
@@ -25,6 +27,7 @@
 #include <bsl_cstdio.h>   // 'sprintf'
 #include <bsl_iostream.h>
 #include <bsl_list.h>
+#include <bsl_map.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -52,7 +55,8 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 2] CONCERN: 0-size allocation/deallocating 0 pointer
 // [ 3] CONCERN: thread-safety of the first allocation
-// [ 6] USAGE
+// [ 7] USAGE
+// [ 6] DRQS 143479677: LARGE ALLOCATION FAILURE
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -117,6 +121,71 @@ static int veryVeryVerbose = 0;
 static bslmt::Mutex coutMutex;
 
 typedef bdlma::ConcurrentPoolAllocator Obj;
+
+//-----------------------------------------------------------------------------
+
+class TrackingAllocator : public bslma::Allocator {
+    // This class implements the 'Allocator' protocol to provide an allocator
+    // that dispenses memory up to a maximum size, verifies truncated
+    // allocations are not overrun, and tracks the allocations.
+
+    enum {
+        k_LARGE = 0x100000
+    };
+
+    // DATA
+    bsl::map<void *, bsls::Types::size_type> d_data;
+    bdlma::GuardingAllocator                 d_largeAllocator;
+    bsls::Types::size_type                   d_lastAllocationSize;
+
+  public:
+    // CREATORS
+    TrackingAllocator() : d_lastAllocationSize(0) {}
+
+    // MANIPULATORS
+    void *allocate(bsls::Types::size_type size)
+        // Return a newly allocated block of memory of the lesser of 'k_LARGE'
+        // and the specified 'size' bytes.  Track the address of the returned
+        // memory and the 'size'.
+    {
+        void *p = size < k_LARGE
+                ? bslma::Default::defaultAllocator()->allocate(size)
+                : d_largeAllocator.allocate(k_LARGE);
+
+        d_data[p]            = size;
+        d_lastAllocationSize = size;
+
+        return p;
+    }
+
+    void deallocate(void *address)
+        // Return the memory block at the specified 'address' to this
+        // allocator.  Remove the address from tracking.  The behavior is
+        // undefined unless 'address' was allocated using this allocator object
+        // and has not already been deallocated.
+    {
+        if (d_data[address] < k_LARGE) {
+            bslma::Default::defaultAllocator()->deallocate(address);
+        }
+        else {
+            d_largeAllocator.deallocate(address);
+        }
+        d_data.erase(address);
+    }
+
+    // ACCESSORS
+    bsls::Types::size_type size() const
+        // Return the number of addresses being tracked.
+    {
+        return d_data.size();
+    }
+
+    bsls::Types::size_type lastAllocationSize() const
+        // Return the size of the last allocation request.
+    {
+        return d_lastAllocationSize;
+    }
+};
 
 //=============================================================================
 //                        HELPERS FOR TEST CASE 4
@@ -680,7 +749,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -754,6 +823,77 @@ int main(int argc, char *argv[])
     }
 //..
 
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // DRQS 143479677: LARGE ALLOCATION FAILURE
+        //
+        // Concerns:
+        //: 1 Large allocations are not correctly forwarded to underlying
+        //:   allocator.
+        //
+        // Plan:
+        //: 1 Directly test large allocations using a 'TrackingAllocator'.
+        //:   Failure is indicated by 'blockSize()' being zero.  (C-1)
+        //
+        // Testing:
+        //   DRQS 143479677: LARGE ALLOCATION FAILURE
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 143479677: LARGE ALLOCATION FAILURE\n"
+                 << "========================================\n";
+        }
+
+        const bsls::Types::size_type k_LARGE =
+                                             sizeof(bsls::Types::size_type) > 4
+                                           ? 0x8000000000000000ull
+                                           : 0x80000000u;
+
+        {
+            TrackingAllocator supplied;
+
+            Obj mX(&supplied);  const Obj& X = mX;
+
+            mX.allocate(k_LARGE);
+
+            ASSERT(      0 != X.blockSize());
+            ASSERT(k_LARGE <= supplied.lastAllocationSize());
+        }
+        {
+            TrackingAllocator supplied;
+
+            Obj mX(k_LARGE, &supplied);  const Obj& X = mX;
+
+            mX.allocate(k_LARGE);
+
+            ASSERT(      0 != X.blockSize());
+            ASSERT(k_LARGE <= supplied.lastAllocationSize());
+        }
+        {
+            TrackingAllocator supplied;
+
+            Obj mX(k_LARGE, bsls::BlockGrowth::BSLS_GEOMETRIC, &supplied);
+
+            const Obj& X = mX;
+
+            mX.allocate(k_LARGE);
+
+            ASSERT(      0 != X.blockSize());
+            ASSERT(k_LARGE <= supplied.lastAllocationSize());
+        }
+        {
+            TrackingAllocator supplied;
+
+            Obj mX(k_LARGE, bsls::BlockGrowth::BSLS_GEOMETRIC, 1, &supplied);
+
+            const Obj& X = mX;
+
+            mX.allocate(k_LARGE);
+
+            ASSERT(      0 != X.blockSize());
+            ASSERT(k_LARGE <= supplied.lastAllocationSize());
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
