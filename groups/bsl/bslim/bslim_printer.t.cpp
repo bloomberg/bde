@@ -76,8 +76,10 @@ using namespace bslim;
 // [ 2] bool suppressInitialIndentFlag() const;
 // [15] void printAttribute(const char *, const ITR&, const ITR&) const;
 // [16] void printAttribute(const char *name, const TYPE& data) const;
+// [20] void printAttribute(const char *,const I&,const I&,const F&)const;
 // [16] void printValue(const TYPE& data) const;
 // [16] void printValue(const ITR&, const ITR&) const;
+// [20] void printValue(const I&, const I&, const FUNC&) const;
 // [18] void printEndIndentation() const;
 // [18] void printIndentation() const;
 //
@@ -107,10 +109,10 @@ using namespace bslim;
 // [ 3] NoPrintUtil::print(bsl::ostream&, const NoPrint&, int, int);
 // [14] EXCEPTION NEUTRALITY
 // [17] CONCERN: Printer(stream, 0, -1) can be formatted with 'setw'
-// [19] USAGE EXAMPLE 1
-// [20] USAGE EXAMPLE 2
-// [21] USAGE EXAMPLE 3
-// [22] USAGE EXAMPLE 4
+// [21] USAGE EXAMPLE 1
+// [22] USAGE EXAMPLE 2
+// [23] USAGE EXAMPLE 3
+// [24] USAGE EXAMPLE 4
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -317,16 +319,46 @@ bsl::ostream& ParenPrintUtil::print(bsl::ostream& stream,
                                     int           level,
                                     int           spacesPerLevel)
 {
-    Obj printer(&stream, level, spacesPerLevel);
+    const int ABS_SPACES_PER_LEVEL =  spacesPerLevel < 0
+                                   ? -spacesPerLevel
+                                   :  spacesPerLevel;
+    const int INDENTATION          = ABS_SPACES_PER_LEVEL * level;
+
+    for (int i = 0; i < INDENTATION; ++i) {
+        stream << ' ';
+    }
+
     if (num < 0) {
         stream << '(' << -num << ")";
     }
     else {
         stream << num;
     }
+
     return stream;
 }
 
+struct CustomIntPrinter {
+    // Utility class to print integer values.
+
+    // ACCESSORS
+    bsl::ostream& operator()(bsl::ostream& stream,
+                             int           value,
+                             int           level,
+                             int           spacesPerLevel) const
+        // Print the specified 'value' to the specified 'stream' with
+        // indentation given by the specified 'level' and 'spacesPerLevel' and
+        // return a reference to the modifiable 'stream'.
+    {
+        bslim::Printer printer(&stream, level, spacesPerLevel);
+        printer.start();
+
+        printer.printValue(value);
+
+        printer.end();
+        return stream;
+    }
+};
 
 // BDE_VERIFY pragma: push   // Disable warnings for usage examples.
 // BDE_VERIFY pragma: -BW01
@@ -756,7 +788,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 4
         //
@@ -799,7 +831,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << oss.str() << "\n";
         }
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //
@@ -886,7 +918,7 @@ int main(int argc, char *argv[])
 
         LOOP2_ASSERT(EXP, oss.str(), EXP == oss.str());
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -962,7 +994,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
         }
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -998,6 +1030,333 @@ int main(int argc, char *argv[])
                               "    quantity = 200\n"
                               "]\n";
             LOOP_ASSERT(out.str(), EXP == out.str());
+        }
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // PRINT METHODS WITH RANGE AND FUNCTOR
+        //
+        // Concerns:
+        //: 1 Supplied functor is used for printing objects.
+        //:
+        //: 2 All elements within the range are passed to the supplied functor
+        //:   one by one in the expected order.
+        //:
+        //: 3 The expected indentation level and supplied number of spaces are
+        //:   correctly passed to the user's functor.
+        //
+        // Plan:
+        //: 1 Create an array and a set, populate both, print them out using
+        //:   the 'printAttribute' and 'printValue' methods, passing different
+        //:   level and spacePerLevel values.  Verify that the output is as
+        //:   expected.
+        //
+        // Testing:
+        //   void printAttribute(const char *,const I&,const I&,const F&)const;
+        //   void printValue(const I&, const I&, const FUNC&) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nPRINT METHODS WITH RANGE AND FUNCTOR"
+                             "\n====================================\n";
+
+        int array[] = { -3, 2, 7, 5, 9, 3, 22, 1 };
+        enum { NUM_IN_ARRAY = sizeof(array) / sizeof(*array) };
+
+        bsl::set<int> mySet;
+        for (int i = 0; i < NUM_IN_ARRAY; ++i) {
+            mySet.insert(array[i]);
+        }
+
+        if (verbose) cout << "\tTesting 'printAttribute'\n";
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, 2, 4);
+            p.start();
+            p.printAttribute("Array",
+                             array + 0,
+                             array + NUM_IN_ARRAY - 1,  // not all elements
+                             CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED = "        [\n"
+                                   "            Array = [\n"
+                                   "                [\n"
+                                   "                    -3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    2\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    7\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    5\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    9\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    22\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "            ]\n"
+                                   "        ]\n";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, -1, -2);
+            p.start();
+            p.printAttribute("Array",
+                             array + 0,
+                             array + NUM_IN_ARRAY - 1,  // not all elements
+                             CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED =
+                     "[ Array = [      [ -3 ]      [ 2 ]      [ 7 ]      [ 5 ]"
+                                 "      [ 9 ]      [ 3 ]      [ 22 ] ] ]";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, 2, 4);
+            p.start();
+            p.printAttribute("mySet",
+                             mySet.begin(),
+                             mySet.end(),
+                             CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED = "        [\n"
+                                   "            mySet = [\n"
+                                   "                [\n"
+                                   "                    -3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    1\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    2\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    5\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    7\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    9\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    22\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "            ]\n"
+                                   "        ]\n";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, -1, -2);
+            p.start();
+            p.printAttribute("mySet",
+                             mySet.begin(),
+                             mySet.end(),
+                             CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED =
+                     "[ mySet = [      [ -3 ]      [ 1 ]      [ 2 ]      [ 3 ]"
+                                 "      [ 5 ]      [ 7 ]      [ 9 ]"
+                                 "      [ 22 ] ] ]";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'printValue'\n";
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, 2, 4);
+            p.start();
+            p.printValue(array + 0,
+                         array + NUM_IN_ARRAY - 1,  // not all elements
+                         CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED = "        [\n"
+                                   "            [\n"
+                                   "                [\n"
+                                   "                    -3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    2\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    7\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    5\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    9\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    22\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "            ]\n"
+                                   "        ]\n";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, -1, -2);
+            p.start();
+            p.printValue(array + 0,
+                         array + NUM_IN_ARRAY - 1,  // not all elements
+                         CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED =
+                     "[ [      [ -3 ]      [ 2 ]      [ 7 ]      [ 5 ]"
+                                 "      [ 9 ]      [ 3 ]      [ 22 ] ] ]";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, 2, 4);
+            p.start();
+            p.printValue(mySet.begin(),
+                         mySet.end(),
+                         CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED = "        [\n"
+                                   "            [\n"
+                                   "                [\n"
+                                   "                    -3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    1\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    2\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    3\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    5\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    7\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    9\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "                [\n"
+                                   "                    22\n"
+                                   "                ]\n"
+                                   "\n"
+                                   "            ]\n"
+                                   "        ]\n";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        {
+            bsl::ostringstream out;
+            Obj                p(&out, -1, -2);
+            p.start();
+            p.printValue(mySet.begin(),
+                         mySet.end(),
+                         CustomIntPrinter());
+            p.end();
+
+            const char *EXPECTED =
+                     "[ [      [ -3 ]      [ 1 ]      [ 2 ]      [ 3 ]"
+                         "      [ 5 ]      [ 7 ]      [ 9 ]"
+                         "      [ 22 ] ] ]";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
         }
       } break;
       case 19: {
@@ -2284,17 +2643,27 @@ int main(int argc, char *argv[])
                              V.end(),
                              &ParenPrintUtil::print);
 
-            const char *EXP = "      vector = [\n"
-                              "        (3)\n"
-                              "        2\n"
-                              "        7\n"
-                              "        5\n"
-                              "        9\n"
-                              "        3\n"
-                              "        22\n"
-                              "        1\n"
-                              "      ]\n";
-            const char *EXP2 = EXP + 15;
+            const char *EXP =  "      vector = [\n"
+                               "        (3)\n"
+                               "        2\n"
+                               "        7\n"
+                               "        5\n"
+                               "        9\n"
+                               "        3\n"
+                               "        22\n"
+                               "        1\n"
+                               "      ]\n";
+
+            const char *EXP2 = "      [\n"
+                               "        (3)\n"
+                               "        2\n"
+                               "        7\n"
+                               "        5\n"
+                               "        9\n"
+                               "        3\n"
+                               "        22\n"
+                               "        1\n"
+                               "      ]\n";
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
 
             out.str("");
@@ -2311,8 +2680,8 @@ int main(int argc, char *argv[])
                              V.end(),
                              &ParenPrintUtil::print);
 
-            const char *EXP = " vector = [ (3) 2 7 5 9 3 22 1 ]";
-            const char *EXP2 = EXP + 10;
+            const char *EXP  = " vector = [  (3)  2  7  5  9  3  22  1 ]";
+            const char *EXP2 =          " [  (3)  2  7  5  9  3  22  1 ]";
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
 
             out.str("");
@@ -2334,17 +2703,27 @@ int main(int argc, char *argv[])
                              V.end(),
                              &ParenPrintUtil::print);
 
-            const char *EXP = "      vector = [\n"
-                              "        (3)\n"
-                              "        2\n"
-                              "        7\n"
-                              "        5\n"
-                              "        9\n"
-                              "        3\n"
-                              "        22\n"
-                              "        1\n"
-                              "      ]\n";
-            const char *EXP2 = EXP + 15;
+            const char *EXP =  "      vector = [\n"
+                               "        (3)\n"
+                               "        2\n"
+                               "        7\n"
+                               "        5\n"
+                               "        9\n"
+                               "        3\n"
+                               "        22\n"
+                               "        1\n"
+                               "      ]\n";
+
+            const char *EXP2 = "      [\n"
+                               "        (3)\n"
+                               "        2\n"
+                               "        7\n"
+                               "        5\n"
+                               "        9\n"
+                               "        3\n"
+                               "        22\n"
+                               "        1\n"
+                               "      ]\n";
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
 
             out.str("");

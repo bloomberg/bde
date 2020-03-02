@@ -1181,6 +1181,9 @@ void Printer::printValue(const ITERATOR&       begin,
                          const ITERATOR&       end,
                          const PRINT_FUNCTOR&  printFunctionObject) const
 {
+
+    printIndentation();
+
     Printer_Helper::print(*d_stream_p,
                           begin,
                           end,
@@ -1227,11 +1230,9 @@ void Printer_Helper::print(bsl::ostream&        stream,
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     for (ITERATOR it = begin; end != it; ++it) {
-        printer.printIndentation();
-
         printFunctionObject(stream,
                             *it,
-                            level,
+                            printer.absLevel() + 1,
                             spacesPerLevel);
         if (spacesPerLevel >= 0) {
             stream << '\n';
