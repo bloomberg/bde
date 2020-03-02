@@ -11,9 +11,6 @@ BSLS_IDENT_RCSID(balcl_typeinfo_cpp,"$Id$ $CSID$")
 
 #include <bdlt_iso8601util.h>
 
-#include <bslalg_typetraitusesbslmaallocator.h>
-#include <bslalg_typetraits.h>  // 'BSLALG_DECLARE_NESTED_TRAITS'
-
 #include <bslma_default.h>
 
 #include <bslmf_allocatorargt.h>
@@ -380,8 +377,8 @@ class ScalarConstraint : public TypeInfoConstraint {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ScalarConstraint,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ScalarConstraint,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit ScalarConstraint(const CONSTRAINT_TYPE&  constraint,
@@ -559,8 +556,8 @@ class ArrayConstraint : public TypeInfoConstraint {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ArrayConstraint,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ArrayConstraint,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit ArrayConstraint(const CONSTRAINT_TYPE&  constraint,
@@ -800,9 +797,9 @@ typedef ScalarConstraint<bdlt::Time,
     // The type 'TimeConstraint' is an alias for a scalar constraint on type
     // 'bdlt::Time' using the 'Constraint::TimeConstraint' functor.
 
-                    // =================================
-                    // typedef templater ArrayConstraint
-                    // =================================
+                    // ================================
+                    // typedef template ArrayConstraint
+                    // ================================
 
 typedef ArrayConstraint<char,
                         Constraint::CharConstraint,

@@ -5,93 +5,127 @@
 #include <balcl_optiontype.h>
 #include <balcl_optionvalue.h>
 
+#include <bdlb_numericparseutil.h>
+#include <bdlb_printmethods.h>     // 'bdlb::HasPrintMethod'
+
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_time.h>
 
-#include <bdlb_numericparseutil.h>
-#include <bdlb_printmethods.h>     // 'bdlb::HasPrintMethod'
-
 #include <bslim_testutil.h>
+
+#include <bslma_default.h>  // 'bslma::globalAllocator'
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
 
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_usesbslmaallocator.h>
-
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
+#include <bsls_platform.h>  // 'BSLS_PLATFORM_CPU_32_BIT'
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>    // 'bsl::strcmp'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>    // 'bsl::ostream<<'
 #include <bsl_string.h>     // 'bslstl::StringRef'
 #include <bsl_vector.h>
 
-#include <bsl_cstdlib.h>
-#include <bsl_cassert.h>
-#include <bsl_cstring.h> // 'bsl::strcmp'
-
 using namespace BloombergLP;
-using bsl::cerr;
-using bsl::cout;
-using bsl::endl;
+using namespace bsl;
 
 // ============================================================================
 //                                   TEST PLAN
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
+// The class under test is a complex-constrained (value-semantic) attribute
+// class that is tested by the commonly-used idioms employed for such classes.
 //
-// ----------------------------------------------------------------------------
-// balcl::OccurrenceInfo
+// Primary Manipulators
+//: o OccurrenceInfo(OccurrenceType type, *bA = 0);
+//: o void setDefaultValue(const OptionValue& defaultValue);
+//: o void setHidden();
+//
+// Basic Accessors
+//: o const OptionValue& defaultValue() const;
+//: o bool hasDefaultValue() const;
+//: o bool isHidden() const;
+//: o bool isRequired() const;
+//: o OccurrenceType occurrenceType() const;
+//: o bslma::Allocator *allocator() const;
+//
+///Input Tables
+///------------
+// There are two input tables (defined at file scope) that are used in many of
+// the case cases.  The cross product of these tables qualitatively covers the
+// space of possible inputs.  The two tables are:
+//
+//: 1 'OPTION_OCCURRENCES': an entry for each of the three allowed values of
+//:   'OccurrenceType'.
+//:
+//: 2 'OPTION_DEFAULT_VALUES': an entry for each of the allowed option types
+//:   and the address of a value of that type to be used as a default option
+//:   value.
+//:
+//:   o None of these "default" values correspond to the default value of their
+//:     respective type.
+//:
+//:   o The value chosen for 'Ot::e_STRING' is sufficiently long to exceed the
+//:     short-string optimization.
+//:
+//:   o A helper function, 'u::setOptionValue' (defined below), is provided to
+//:     convert the "value" field of 'OPTION_DEFAULT_VALUES' into an argument
+//:     for the 'setDefaultValue' method.
+//
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 1] OccurrenceInfo();
-// [ 1] OccurrenceInfo(bslma::Allocator *basicAllocator);
-// [ 1] OccurrenceInfo(OccurrenceType type, *bA = 0);
-// [ 1] OccurrenceInfo(char                    dflt, *bA = 0);
-// [ 1] OccurrenceInfo(int                     dflt, *bA = 0);
-// [ 1] OccurrenceInfo(Int64                   dflt, *bA = 0);
-// [ 1] OccurrenceInfo(double                  dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const string&           dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const Datetime&         dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const Date&             dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const Time&             dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<char>&     dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<int>&      dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<Int64>&    dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<double>&   dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<string>&   dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<Datetime>& dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<Date>&     dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const vector<Time>&     dflt, *bA = 0);
-// [ 1] OccurrenceInfo(const Cloi& original, *bA = 0);
-// [ 1] ~OccurrenceInfo();
+// [ 8] OccurrenceInfo();
+// [ 8] OccurrenceInfo(bslma::Allocator *basicAllocator);
+// [ 2] OccurrenceInfo(OccurrenceType type, *bA = 0);
+// [ 7] OccurrenceInfo(char                    dflt, *bA = 0);
+// [ 7] OccurrenceInfo(int                     dflt, *bA = 0);
+// [ 7] OccurrenceInfo(Int64                   dflt, *bA = 0);
+// [ 7] OccurrenceInfo(double                  dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const string&           dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const Datetime&         dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const Date&             dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const Time&             dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<char>&     dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<int>&      dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<Int64>&    dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<double>&   dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<string>&   dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<Datetime>& dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<Date>&     dflt, *bA = 0);
+// [ 7] OccurrenceInfo(const vector<Time>&     dflt, *bA = 0);
+// [ 5] OccurrenceInfo(const Oi& original, *bA = 0);
+// [ 2] ~OccurrenceInfo();
 //
 // MANIPULATORS
-// [ 1] OccurrenceInfo& operator=(const Cloi& rhs);
-// [ 1] void setDefaultValue(const OptionValue& defaultValue);
-// [ 1] void setHidden();
+// [ 6] OccurrenceInfo& operator=(const Oi& rhs);
+// [ 2] void setDefaultValue(const OptionValue& defaultValue);
+// [ 2] void setHidden();
 //
 // ACCESSORS
-// [ 1] const OptionValue& defaultValue() const;
-// [ 1] bool hasDefaultValue() const;
-// [ 1] bool isHidden() const;
-// [ 1] bool isRequired() const;
-// [ 1] OccurrenceType occurrenceType() const;
+// [ 2] const OptionValue& defaultValue() const;
+// [ 2] bool hasDefaultValue() const;
+// [ 2] bool isHidden() const;
+// [ 2] bool isRequired() const;
+// [ 2] OccurrenceType occurrenceType() const;
 //
-// [ 1] bslma::Allocator *allocator() const;
-// [ 1] ostream& print(ostream& stream, int level = 0, int spl = 4) const;
+// [ 2] bslma::Allocator *allocator() const;
+// [ 3] ostream& print(ostream& stream, int level = 0, int spl = 4) const;
 //
 // FREE OPERATORS
-// [ 1] bool operator==(const OccurrenceInfo& lhs, rhs)
-// [ 1] bool operator!=(const OccurrenceInfo& lhs, rhs)
-// [ 1] operator<<(ostream& stream, const OccurrenceInfo& rhs);
+// [ 4] bool operator==(const OccurrenceInfo& lhs, rhs)
+// [ 4] bool operator!=(const OccurrenceInfo& lhs, rhs)
+// [ 3] operator<<(ostream& stream, const OccurrenceInfo& rhs);
 // ----------------------------------------------------------------------------
-// [XX] BREATHING TEST
-// [ 1] TESTING 'balcl::OccurrenceInfo'
-// [XX] USAGE EXAMPLE
+// [ 1] BREATHING TEST
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -138,18 +172,24 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+
+// ============================================================================
 //                      GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef balcl::OccurrenceInfo    Obj;
+typedef balcl::OccurrenceInfo   Obj;
 
-typedef Obj::OccurrenceType      OccurType;
-typedef balcl::OptionType        Ot;
-typedef balcl::OptionType        OptionType;
-typedef balcl::OptionType::Enum  ElemType;
-typedef balcl::OptionValue       OptionValue;
+typedef Obj::OccurrenceType     OccurType;
+typedef balcl::OptionType       Ot;
+typedef balcl::OptionType::Enum ElemType;
+typedef balcl::OptionValue      OptionValue;
 
-typedef bsls::Types::Int64       Int64;
+typedef bsls::Types::Int64      Int64;
 
 // ============================================================================
 //                                TYPE TRAITS
@@ -178,6 +218,16 @@ static const struct {
 enum { NUM_OPTION_OCCURRENCES = sizeof  OPTION_OCCURRENCES
                               / sizeof *OPTION_OCCURRENCES };
 
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
+#else  // 64_BIT
+#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
+                                 "123456789012345678901234567890123"
+#endif
+BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+#define GA bslma::Default::globalAllocator()
+
 bool                        defaultBool          = false;
 char                        defaultChar          = 'D';
 short                       defaultShort         = 1234;
@@ -185,20 +235,20 @@ int                         defaultInt           = 1234567;
 Int64                       defaultInt64         = 123456789LL;
 float                       defaultFloat         = 0.125;     // 1/8
 double                      defaultDouble        = 0.015625;  // 1/64
-bsl::string                 defaultString        = "ABCDEFGHIJ";
+bsl::string                 defaultString(SUFFICIENTLY_LONG_STRING, GA);
 bdlt::Datetime              defaultDatetime(1234, 12, 3, 4, 5, 6);
 bdlt::Date                  defaultDate(1234, 4, 6);
 bdlt::Time                  defaultTime(7, 8, 9, 10);
-bsl::vector<char>           defaultCharArray    (1, defaultChar);
-bsl::vector<short>          defaultShortArray   (1, defaultShort);
-bsl::vector<int>            defaultIntArray     (1, defaultInt);
-bsl::vector<Int64>          defaultInt64Array   (1, defaultInt64);
-bsl::vector<float>          defaultFloatArray   (1, defaultFloat);
-bsl::vector<double>         defaultDoubleArray  (1, defaultDouble);
-bsl::vector<bsl::string>    defaultStringArray  (1, defaultString);
-bsl::vector<bdlt::Datetime> defaultDatetimeArray(1, defaultDatetime);
-bsl::vector<bdlt::Date>     defaultDateArray    (1, defaultDate);
-bsl::vector<bdlt::Time>     defaultTimeArray    (1, defaultTime);
+bsl::vector<char>           defaultCharArray    (1, defaultChar,     GA);
+bsl::vector<short>          defaultShortArray   (1, defaultShort,    GA);
+bsl::vector<int>            defaultIntArray     (1, defaultInt,      GA);
+bsl::vector<Int64>          defaultInt64Array   (1, defaultInt64,    GA);
+bsl::vector<float>          defaultFloatArray   (1, defaultFloat,    GA);
+bsl::vector<double>         defaultDoubleArray  (1, defaultDouble,   GA);
+bsl::vector<bsl::string>    defaultStringArray  (1, defaultString,   GA);
+bsl::vector<bdlt::Datetime> defaultDatetimeArray(1, defaultDatetime, GA);
+bsl::vector<bdlt::Date>     defaultDateArray    (1, defaultDate,     GA);
+bsl::vector<bdlt::Time>     defaultTimeArray    (1, defaultTime,     GA);
 
 static const struct {
     int             d_line;   // line number
@@ -241,7 +291,7 @@ int monthStrToInt(const char *input)
 {
     BSLS_ASSERT(input);
 
-    assert (3 == bsl::strlen(input));
+    ASSERT(3 == bsl::strlen(input));
 
     return 0 == bsl::strcmp("JAN", input) ?  1 :
            0 == bsl::strcmp("FEB", input) ?  2 :
@@ -263,7 +313,7 @@ int parseDate(bdlt::Date *result, const bslstl::StringRef& input)
     // specified 'input'.  The expected input format matches that of the
     // 'print' method of 'bdlt::Date' (e.g., '01JAN1970').
 {
-    assert(9 == input.size());
+    ASSERT(9 == input.size());
 
     bslstl::StringRef   dayField(input.begin() + 0, input.begin() + 2);
     bslstl::StringRef monthField(input.begin() + 2, input.begin() + 5);
@@ -286,7 +336,7 @@ int parseTime(bdlt::Time *result, const bslstl::StringRef& input)
     // specified 'input'.  The expected input format matches that of the
     // 'print' method of 'bdlt::Time' (e.g., '12:34:56.123456').
 {
-    assert(k_TIME_FIELD_WIDTH == input.size());
+    ASSERT(k_TIME_FIELD_WIDTH == input.size());
 
     bslstl::StringRef        hourField(input.begin() + 0, input.begin() +  2);
     bslstl::StringRef      minuteField(input.begin() + 3, input.begin() +  5);
@@ -324,7 +374,7 @@ int parseDatetime(bdlt::Datetime *result, const bslstl::StringRef& input)
     // 'parseDate' and 'parseTime' methods described above, with the two values
     // separated by an '_' (e.g., '01JAN1970_12:34:56.123456').
 {
-    assert(k_DATETIME_FIELD_WIDTH == input.size());
+    ASSERT(k_DATETIME_FIELD_WIDTH == input.size());
 
     bslstl::StringRef dateField(input.begin() + 0,
                                 input.begin() + k_DATE_FIELD_WIDTH);
@@ -351,45 +401,15 @@ int parseDatetime(bdlt::Datetime *result, const bslstl::StringRef& input)
                             // struct ParserImpUtil
                             // ====================
 
-struct ParserImpUtil {
-
-    enum { LOCAL_SUCCESS = 0, LOCAL_FAILURE = 1 };
-
-    static int skipRequiredToken(const char **endPos,
-                                 const char  *inputString,
-                                 const char  *token);
-        // Skip past the value of the specified 'token' in the specified
-        // 'inputString'.  Store in the specified '*endPos' the address of the
-        // non-modifiable character in 'inputString' immediately following the
-        // successfully matched text, or the position at which the match
-        // failure was detected.  Return 0 if 'token' is found, and a non-zero
-        // value otherwise.
-
-    static int skipWhiteSpace(const char **endPos,
-                              const char  *inputString);
-        // Skip over any combination of C-style comments, C++-style comments,
-        // and characters for which 'isspace' returns true in the specified
-        // 'inputString'.  Store in the specified '*endPos' the address of the
-        // non-modifiable character in 'inputString' immediately following the
-        // successfully matched text, or the position at which the match
-        // failure was detected.  Return 0 on success and a non-zero value
-        // otherwise.  If a C++-style comment terminates with '\0', 'endPos'
-        // will point *at* the '\0' and not past it.  The behavior is undefined
-        // if either argument is 0.
-        //
-        // A parse failure can occur for the following reason:
-        //..
-        //   '\0' is found before a C-style comment is terminated with '*/'.
-        //..
-};
-
-                            // --------------------
-                            // struct ParserImpUtil
-                            // --------------------
-
-int ParserImpUtil::skipRequiredToken(const char **endPos,
-                                     const char  *inputString,
-                                     const char  *token)
+int skipRequiredToken(const char **endPos,
+                      const char  *inputString,
+                      const char  *token)
+    // Skip past the value of the specified 'token' in the specified
+    // 'inputString'.  Store in the specified '*endPos' the address of the
+    // non-modifiable character in 'inputString' immediately following the
+    // successfully matched text, or the position at which the match failure
+    // was detected.  Return 0 if 'token' is found, and a non-zero value
+    // otherwise.
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -404,8 +424,22 @@ int ParserImpUtil::skipRequiredToken(const char **endPos,
     return '\0' != *token;  // return "is null char"
 }
 
-int ParserImpUtil::skipWhiteSpace(const char **endPos,
-                                  const char  *inputString)
+int skipWhiteSpace(const char **endPos,
+                   const char  *inputString)
+    // Skip over any combination of C-style comments, C++-style comments, and
+    // characters for which 'isspace' returns true in the specified
+    // 'inputString'.  Store in the specified '*endPos' the address of the
+    // non-modifiable character in 'inputString' immediately following the
+    // successfully matched text, or the position at which the match failure
+    // was detected.  Return 0 on success and a non-zero value otherwise.  If a
+    // C++-style comment terminates with '\0', 'endPos' will point *at* the
+    // '\0' and not past it.  The behavior is undefined if either argument is
+    // 0.
+    //
+    // A parse failure can occur for the following reason:
+    //..
+    //   '\0' is found before a C-style comment is terminated with '*/'.
+    //..
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -416,7 +450,7 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
         }
         if (*inputString != '/') {
             *endPos = inputString;
-            return LOCAL_SUCCESS;                                     // RETURN
+            return 0;                                                 // RETURN
         }
         else {
             ++inputString;
@@ -427,7 +461,7 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
                     if ('\0' == *inputString) {
                         // Comment is erroneous.
                         *endPos = inputString;
-                        return LOCAL_FAILURE;                         // RETURN
+                        return 1;                                     // RETURN
                     }
                     if ('*' == *inputString && '/' == *(inputString + 1)) {
                         // Found end of comment.
@@ -448,13 +482,13 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
                     if ('\0' == *inputString) {
                         // Reached end of string.
                         *endPos = inputString;
-                        return LOCAL_SUCCESS;                         // RETURN
+                        return 0;                                     // RETURN
                     }
                     ++inputString;
                 }
             } else {
                 *endPos = inputString - 1;
-                return LOCAL_SUCCESS;                                 // RETURN
+                return 0;                                             // RETURN
             }
         }
     }
@@ -719,7 +753,7 @@ int ArrayParserImpUtil::parse(bsl::vector<TYPE>  *result,
     }
     ++inputString;
 
-    ParserImpUtil::skipWhiteSpace(endPos, inputString);
+    skipWhiteSpace(endPos, inputString);
 
     TYPE value;
     while (']' != **endPos) {
@@ -728,7 +762,7 @@ int ArrayParserImpUtil::parse(bsl::vector<TYPE>  *result,
         }
         result->push_back(value);
         inputString = *endPos;
-        ParserImpUtil::skipWhiteSpace(endPos, inputString);
+        skipWhiteSpace(endPos, inputString);
         if (inputString == *endPos && ']' != **endPos) {
             return LOCAL_FAILURE;                                     // RETURN
         }
@@ -751,27 +785,33 @@ struct CheckOptionType {
     { return false; }
 };
 
-#define MATCH_OPTION_TYPE(ELEM_TYPE, TYPE)                               \
-    template <>                                                          \
-    struct CheckOptionType<(int)ELEM_TYPE, TYPE> {                       \
-        bool operator()() const { return true; }                         \
-    };                                                                   \
-    // This macro defines a specialization of the 'CheckOptionType' class
-    // template whose boolean functor returns 'true', one for the parameterized
-    // 'ELEM_TYPE' matching the parameterized 'TYPE'.
+#define MATCH_OPTION_TYPE(ELEM_TYPE, TYPE)                                   \
+    template <>                                                              \
+    struct CheckOptionType<(int)ELEM_TYPE, TYPE> {                           \
+        bool operator()() const { return true; }                             \
+    };                                                                       \
+    // This macro defines a specialization of the 'CheckOptionType' class for
+    // template parameters 'ELEM_TYPE' and 'TYPE'.  Instances of this template
+    // are boolean functors that always return 'true'.
 
-#define MATCH_OPTION_TYPE_PAIR(ELEM_TYPE, TYPE)                          \
-                                                                         \
-    MATCH_OPTION_TYPE(ELEM_TYPE, TYPE)                                   \
-                                                                         \
-    template <>                                                          \
-    struct CheckOptionType<(int)ELEM_TYPE##_ARRAY, bsl::vector<TYPE> > { \
-        bool operator()() const { return true; }                         \
+#define MATCH_OPTION_TYPE_PAIR(ELEM_TYPE, TYPE)                              \
+                                                                             \
+    MATCH_OPTION_TYPE(ELEM_TYPE, TYPE)                                       \
+                                                                             \
+    template <>                                                              \
+    struct CheckOptionType<(int)ELEM_TYPE##_ARRAY, bsl::vector<TYPE> > {     \
+        bool operator()() const { return true; }                             \
     };
-    // This macro defines two specializations of the 'CheckOptionType' class
-    // template whose boolean functor returns 'true', one for the parameterized
-    // 'ELEM_TYPE' matching the parameterized 'TYPE', and the other for the
-    // corresponding array type.
+    // This macro defines two specializations of the 'CheckOptionType' class.
+    // One specialization is for the template parameters 'ELEM_TYPE' and 'TYPE'
+    // (see the definition of the 'MATCH_OPTION_TYPE' macro above).  The other
+    // specialization is for 'Ot::toArray(ELEM_TYPE)' and 'TYPE'.  Instances of
+    // either of these specializations are boolean functors that always return
+    // 'true'.
+
+// Define for each of the valid combinations of 'ELEM_TYPE' and 'TYPE' a
+// specialization of the 'CheckOptionType' 'struct' template that returns
+// 'true'.  Any other instantiations of that 'struct' template return 'false'.
 
 MATCH_OPTION_TYPE(Ot::e_BOOL,     bool)
 
@@ -808,65 +848,37 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
 {
     BSLS_ASSERT(dst);
     BSLS_ASSERT(src);
-    BSLS_ASSERT(OptionType::e_VOID != type);
+    BSLS_ASSERT(Ot::e_VOID != type);
     BSLS_ASSERT(dst->type()        == type);
+
+#define CASE(ENUM)                                                            \
+    case ENUM: {                                                              \
+      dst->set(*(static_cast<const Ot::EnumToType<ENUM>::type *>(src)));      \
+    } break;                                                                  \
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"Not reachable.");
+        BSLS_ASSERT(!"reachable");
       } break;
-      case Ot::e_BOOL: {
-        dst->set(*(static_cast<const Ot::Bool          *>(src)));
-      } break;
-      case Ot::e_CHAR: {
-        dst->set(*(static_cast<const Ot::Char          *>(src)));
-      } break;
-      case Ot::e_INT: {
-        dst->set(*(static_cast<const Ot::Int           *>(src)));
-      } break;
-      case Ot::e_INT64: {
-        dst->set(*(static_cast<const Ot::Int64         *>(src)));
-      } break;
-      case Ot::e_DOUBLE: {
-        dst->set(*(static_cast<const Ot::Double        *>(src)));
-      } break;
-      case Ot::e_STRING: {
-        dst->set(*(static_cast<const Ot::String        *>(src)));
-      } break;
-      case Ot::e_DATETIME: {
-        dst->set(*(static_cast<const Ot::Datetime      *>(src)));
-      } break;
-      case Ot::e_DATE: {
-        dst->set(*(static_cast<const Ot::Date          *>(src)));
-      } break;
-      case Ot::e_TIME: {
-        dst->set(*(static_cast<const Ot::Time          *>(src)));
-      } break;
-      case Ot::e_CHAR_ARRAY: {
-        dst->set(*(static_cast<const Ot::CharArray     *>(src)));
-      } break;
-      case Ot::e_INT_ARRAY: {
-        dst->set(*(static_cast<const Ot::IntArray      *>(src)));
-      } break;
-      case Ot::e_INT64_ARRAY: {
-        dst->set(*(static_cast<const Ot::Int64Array    *>(src)));
-      } break;
-      case Ot::e_DOUBLE_ARRAY: {
-        dst->set(*(static_cast<const Ot::DoubleArray   *>(src)));
-      } break;
-      case Ot::e_STRING_ARRAY: {
-        dst->set(*(static_cast<const Ot::StringArray   *>(src)));
-      } break;
-      case Ot::e_DATETIME_ARRAY: {
-        dst->set(*(static_cast<const Ot::DatetimeArray *>(src)));
-      } break;
-      case Ot::e_DATE_ARRAY: {
-        dst->set(*(static_cast<const Ot::DateArray     *>(src)));
-      } break;
-      case Ot::e_TIME_ARRAY: {
-        dst->set(*(static_cast<const Ot::TimeArray     *>(src)));
-      } break;
+      CASE(Ot::e_BOOL)
+      CASE(Ot::e_CHAR)
+      CASE(Ot::e_INT)
+      CASE(Ot::e_INT64)
+      CASE(Ot::e_DOUBLE)
+      CASE(Ot::e_STRING)
+      CASE(Ot::e_DATETIME)
+      CASE(Ot::e_DATE)
+      CASE(Ot::e_TIME)
+      CASE(Ot::e_CHAR_ARRAY)
+      CASE(Ot::e_INT_ARRAY)
+      CASE(Ot::e_INT64_ARRAY)
+      CASE(Ot::e_DOUBLE_ARRAY)
+      CASE(Ot::e_STRING_ARRAY)
+      CASE(Ot::e_DATETIME_ARRAY)
+      CASE(Ot::e_DATE_ARRAY)
+      CASE(Ot::e_TIME_ARRAY)
     }
+#undef CASE
 }
 
 // BDE_VERIFY pragma: +AR01  // Type using allocator is returned by value
@@ -884,29 +896,27 @@ int parseOccurrenceInfo(const char **endpos,
     // the value parsed does not match 'occurrenceInfo', and return in the
     // specified 'endpos' the first unsuccessful parsing position.
 {
-    typedef ParserImpUtil Parser;
-
     enum { SUCCESS = 0, FAILURE = -1 };
 
-    if (Parser::skipWhiteSpace(&input, input)) {
+    if (skipWhiteSpace(&input, input)) {
         *endpos = input;
         return FAILURE;                                               // RETURN
     }
     if (*input != '{') {
         if (Obj::e_REQUIRED == occurrenceInfo.occurrenceType()) {
-            if (Parser::skipRequiredToken(endpos, input, "REQUIRED")) {
+            if (skipRequiredToken(endpos, input, "REQUIRED")) {
                 return FAILURE;                                       // RETURN
             }
             return SUCCESS;                                           // RETURN
         }
         if (Obj::e_OPTIONAL == occurrenceInfo.occurrenceType()) {
-            if (Parser::skipRequiredToken(endpos, input, "OPTIONAL")) {
+            if (skipRequiredToken(endpos, input, "OPTIONAL")) {
                 return FAILURE;                                       // RETURN
             }
             return SUCCESS;                                           // RETURN
         }
         if (Obj::e_HIDDEN == occurrenceInfo.occurrenceType()) {
-            if (Parser::skipRequiredToken(endpos, input, "HIDDEN")) {
+            if (skipRequiredToken(endpos, input, "HIDDEN")) {
                 return FAILURE;                                       // RETURN
             }
             return SUCCESS;                                           // RETURN
@@ -914,35 +924,35 @@ int parseOccurrenceInfo(const char **endpos,
         *endpos = input;
         return FAILURE;                                               // RETURN
     } else {
-        ++input; // Parser::skipRequiredToken(&input, input, "{");
+        ++input;
         if (Obj::e_OPTIONAL == occurrenceInfo.occurrenceType()) {
-            if (Parser::skipWhiteSpace(&input, input)
-             || Parser::skipRequiredToken(&input, input, "OPTIONAL")) {
+            if (skipWhiteSpace   (&input, input)
+             || skipRequiredToken(&input, input, "OPTIONAL")) {
                 *endpos = input;
                 return FAILURE;                                       // RETURN
             }
         } else {
-            if (Parser::skipWhiteSpace(&input, input)
-             || Parser::skipRequiredToken(&input, input, "HIDDEN")) {
+            if (skipWhiteSpace   (&input, input)
+             || skipRequiredToken(&input, input, "HIDDEN")) {
                 *endpos = input;
                 return FAILURE;                                       // RETURN
             }
         }
         if (occurrenceInfo.hasDefaultValue()) {
-            if (Parser::skipWhiteSpace(&input, input)
-             || Parser::skipRequiredToken(&input, input, "DEFAULT_TYPE")) {
+            if (skipWhiteSpace   (&input, input)
+             || skipRequiredToken(&input, input, "DEFAULT_TYPE")) {
                 *endpos = input;
                 return FAILURE;                                       // RETURN
             }
-            if (Parser::skipWhiteSpace(&input, input)
-             || Parser::skipRequiredToken(&input, input,
+            if (skipWhiteSpace   (&input, input)
+             || skipRequiredToken(&input, input,
                           Ot::toAscii(occurrenceInfo.defaultValue().type()))) {
                 *endpos = input;
                 return FAILURE;                                       // RETURN
             }
-            if (Parser::skipWhiteSpace(&input, input)
-             || Parser::skipRequiredToken(&input, input, "DEFAULT_VALUE")
-             || Parser::skipWhiteSpace(&input, input)) {
+            if (skipWhiteSpace   (&input, input)
+             || skipRequiredToken(&input, input, "DEFAULT_VALUE")
+             || skipWhiteSpace   (&input, input)) {
                 *endpos = input;
                 return FAILURE;                                       // RETURN
             }
@@ -1110,8 +1120,8 @@ int parseOccurrenceInfo(const char **endpos,
             };
         }
         input = *endpos;  // catch up with previous parsing
-        if (Parser::skipWhiteSpace(&input, input)
-         || Parser::skipRequiredToken(&input, input, "}")) {
+        if (skipWhiteSpace   (&input, input)
+         || skipRequiredToken(&input, input, "}")) {
             *endpos = input;
             return FAILURE;                                           // RETURN
         }
@@ -1121,12 +1131,107 @@ int parseOccurrenceInfo(const char **endpos,
     return SUCCESS;
 }
 
+bool isAllocatingType(ElemType type)
+    // Return 'true' if the specified 'type' is an allocating type, and 'false'
+    // otherwise.
+{
+    return Ot::e_STRING == type || Ot::isArrayType(type);
+}
+
+template <Ot::Enum ELEM_TYPE>
+void checkCtor(const Obj&  reference,
+               const void *value,
+               bool        veryVerbose,
+               bool        veryVeryVeryVerbose)
+    // Set a test failure if any of three temporary 'Obj's created by this
+    // function do not equal the specified 'reference' object, or if any of
+    // those temporary objects do not have their expected allocator.  Each of
+    // the temporary objects is created using the value found at the specified
+    // 'value' in concert with the (default) value constructor for 'ELEM_TYPE',
+    // the difference being the way the object allocator is specified:
+    //: 1 no specified allocator
+    //: 2 0-specified allocator
+    //: 3 an explicitly specified allocator
+    // Log each temporary object creation if the specified 'veryVerbose' is
+    // set.  Put the allocators used in trace mode if the specified
+    // 'veryVeryVeryVerbose' is set.
+{
+    for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        const char CONFIG = cfg;  // how we specify the allocator
+
+        if (veryVerbose) {
+            T_ P(CONFIG);
+        }
+
+        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj                  *objPtr           = 0;
+        bslma::TestAllocator *objAllocatorPtr  = 0;
+
+        switch (CONFIG) {
+          case 'a': {
+            objAllocatorPtr = &da;
+          } break;
+          case 'b': {
+            objAllocatorPtr = &da;
+          } break;
+          case 'c': {
+            objAllocatorPtr = &sa;
+          } break;
+          default: {
+            ASSERTV(CONFIG, !"Bad allocator config.");
+          } break;
+        }
+
+        ASSERTV(CONFIG, objAllocatorPtr);
+
+        bslma::TestAllocator&  oa = *objAllocatorPtr;
+        bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+        bslma::TestAllocatorMonitor  oam( &oa);
+        bslma::TestAllocatorMonitor noam(&noa);
+
+        typedef const typename Ot::EnumToType<ELEM_TYPE>::type *ValuePtr;
+
+        switch (CONFIG) {
+          case 'a': {
+            objPtr = new (fa) Obj(*static_cast<ValuePtr>(value));    // ACTION
+          } break;
+          case 'b': {
+            objPtr = new (fa) Obj(*static_cast<ValuePtr>(value), 0); // ACTION
+          } break;
+          case 'c': {
+            objPtr = new (fa) Obj(*static_cast<ValuePtr>(value), &sa);
+                                                                      // ACTION
+          } break;
+          default: {
+            ASSERTV(CONFIG, !"Bad allocator config.");
+          } break;
+        }
+
+        if (u::isAllocatingType(ELEM_TYPE)) {
+            ASSERTV(CONFIG, oam.isTotalUp());
+        }
+
+        ASSERTV(CONFIG, objPtr);
+        Obj&  mX = *objPtr;  const Obj& X = mX;
+
+        ASSERTV(CONFIG, &oa       == X.allocator());
+        ASSERTV(CONFIG, reference == X);
+
+        fa.deleteObject(objPtr);  // Clean up
+
+        ASSERTV(CONFIG,  oam.isInUseSame());
+        ASSERTV(CONFIG, noam.isInUseSame());
+    }
+}
+
 }  // close namespace u
 }  // close unnamed namespace
-
-// ============================================================================
-//                  USAGE EXAMPLE CLASSES AND FUNCTIONS
-// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -1137,48 +1242,87 @@ int main(int argc, const char *argv[])
     int                test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int             verbose = argc > 2;
     int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
+    int     veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
     int veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
+    bslma::TestAllocator globalAllocator(veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
     switch (test) { case 0:  // Zero is always the leading case.
-      case 1: {
+      case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'balcl::OccurrenceInfo'
+        // DEFAULT CONSTRUCTORS
         //
         // Concerns:
-        //: 1 'balcl::OccurrenceInfo' is a simple unconstrained
-        //:   attribute class that takes a 'bslma' allocator.  The concerns are
-        //:   generally the same as for any value-semantic type that takes a
-        //:   'bslma' allocator.
-        //
-        // This class has redundant manipulators and accessors, so we choose
-        // the primary manipulators to be:
-        //..
-        //  balcl::OccurrenceInfo(bslma::Allocator *allocator);
-        //  balcl::OccurrenceInfo(OccurrenceType    type,
-        //                                  bslma::Allocator *allocator);
-        //  void setDefaultValue(balcl::OptionValue value);
-        //..
-        // and the primary accessors to be:
-        //..
-        //  OccurrenceType occurrenceType() const;
-        //  bool hasDefaultValue() const;
-        //  balcl::OptionValue& defaultValue() const;
-        //..
+        //: 1 Objects created using the default constructors have the expected
+        //:   value and use the expected allocators.
         //
         // Plan:
-        //: 1 We follow the standard structure of a value-semantic test driver,
-        //:   with the twist that we test a very simple non-primary manipulator
-        //:   ('setHidden') in case 4, to avoid having to write a separate test
-        //:   case for it.
+        //: 1 Ad-hoc tests.
         //
         // Testing:
-        //   TESTING 'balcl::OccurrenceInfo'
         //   OccurrenceInfo();
         //   OccurrenceInfo(bslma::Allocator *basicAllocator);
-        //   OccurrenceInfo(OccurrenceType type, *bA = 0);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "DEFAULT CONSTRUCTORS" << endl
+                          << "====================" << endl;
+
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(false      == X.isRequired());
+        ASSERT(false      == X.isHidden());
+        ASSERT(false      == X.defaultValue().hasNonVoidType());
+        ASSERT(Ot::e_VOID == X.defaultValue().type());
+        ASSERT(&da        == X.defaultValue().allocator());
+        ASSERT(&da        == X.allocator());
+
+        Obj mY(&sa); const Obj& Y = mY;
+        ASSERT(false      == Y.isRequired());
+        ASSERT(false      == Y.isHidden());
+        ASSERT(false      == Y.defaultValue().hasNonVoidType());
+        ASSERT(Ot::e_VOID == Y.defaultValue().type());
+        ASSERT(&sa        == Y.defaultValue().allocator());
+        ASSERT(&sa        == Y.allocator());
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // VALUE CONSTRUCTORS
+        //
+        // Concerns:
+        //: 1 Each of the (default) value constructors can be invoked with
+        //:   three different ways of specifying the object's allocator:
+        //:   1 no specification (default allocator)
+        //:   2 0-specification  (default allocator)
+        //:   3 an explicit specification
+        //:
+        //: 2 The object created by the (default) value constructors is equal
+        //:   to the object created using the "type" constructor and then
+        //:   using the 'setDefaultValue' method.
+        //
+        // Plan:
+        //: 1 For each entry in the 'OPTION_DEFAULT_VALUES' table except for
+        //:   'Ot::e_BOOL' (which is disallowed default values), create a
+        //:   "reference" object by using the "type" constructor and then
+        //:   calling 'setDefaultValue'.
+        //:
+        //: 2 Call the 'u::checkCtor' helper function for the object's type.
+        //:   That function creates three temporary objects (using no
+        //:   specification, 0-specification, and explicit allocator
+        //:   specification) and compares each to the reference object.  The
+        //:   function also confirms that each object has the expected
+        //:   allocator.
+        //
+        // Testing:
         //   OccurrenceInfo(char                    dflt, *bA = 0);
         //   OccurrenceInfo(int                     dflt, *bA = 0);
         //   OccurrenceInfo(Int64                   dflt, *bA = 0);
@@ -1195,575 +1339,11 @@ int main(int argc, const char *argv[])
         //   OccurrenceInfo(const vector<Datetime>& dflt, *bA = 0);
         //   OccurrenceInfo(const vector<Date>&     dflt, *bA = 0);
         //   OccurrenceInfo(const vector<Time>&     dflt, *bA = 0);
-        //   OccurrenceInfo(const Cloi& original, *bA = 0);
-        //   ~OccurrenceInfo();
-        //   OccurrenceInfo& operator=(const Cloi& rhs);
-        //   void setDefaultValue(const OptionValue& defaultValue);
-        //   void setHidden();
-        //   const OptionValue& defaultValue() const;
-        //   bool hasDefaultValue() const;
-        //   bool isHidden() const;
-        //   bool isRequired() const;
-        //   OccurrenceType occurrenceType() const;
-        //   bslma::Allocator *allocator() const;
-        //   ostream& print(ostream& stream, int level = 0, int spl = 4) const;
-        //   bool operator==(const OccurrenceInfo& lhs, rhs)
-        //   bool operator!=(const OccurrenceInfo& lhs, rhs)
-        //   operator<<(ostream& stream, const OccurrenceInfo& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout
-                        << endl
-                        << "TESTING 'balcl::OccurrenceInfo'" << endl
-                        << "==============================-" << endl;
-
-        bslma::TestAllocator    testAllocator("test", veryVeryVeryVerbose);
-        bslma::TestAllocator defaultAllocator("dflt", veryVeryVeryVerbose);
-        bslma::TestAllocator   inputAllocator("iput", veryVeryVeryVerbose);
-
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // CASE 2 OF VALUE-SEMANTIC TEST DRIVER
-        // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
-
-        if (verbose) cout << "\n\tTesting primary manipulators." << endl;
-
-        if (verbose) cout << "\t\tWithout passing in an allocator." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE);  const Obj& X = mX;      // TEST HERE
-
-            if (veryVerbose) {
-                T_ T_ T_ P_(i) P_(j) P(X)
-            }
-            LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
-            LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
-
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                OptionValue DEFAULT_VALUE(ETYPE);
-                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                mX.setDefaultValue(DEFAULT_VALUE);  // AND HERE
-
-                if (veryVerbose) {
-                    T_ T_ T_ P_(i) P_(j) P(X)
-                }
-                LOOP2_ASSERT(LINE1, LINE2, X.hasDefaultValue());
-                LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
-                LOOP2_ASSERT(LINE1, LINE2, ETYPE == X.defaultValue().type());
-                LOOP2_ASSERT(LINE1, LINE2, DEFAULT_VALUE == X.defaultValue());
-            }
-        }
-        }
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-
-        if (verbose) cout << "\t\tPassing in an allocator." << endl
-                           << "\t\t\tWith no exceptions." << endl;
-
-        const bool HAS_BSLMA_ALLOCATOR_TRAIT =
-                                         bslma::UsesBslmaAllocator<Obj>::value;
-
-        ASSERT(HAS_BSLMA_ALLOCATOR_TRAIT);
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            const bsls::Types::Int64 NUM_BYTES =
-                                              defaultAllocator.numBytesInUse();
-            const bsls::Types::Int64 NUM_ALLOC =
-                                             defaultAllocator.numAllocations();
-            {
-                Obj mX(OTYPE, &testAllocator);  const Obj& X = mX;
-
-                if (veryVerbose) {
-                    T_ T_ T_ P_(i) P_(j) P(X)
-                }
-                LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
-                LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
-
-                if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                    OptionValue DEFAULT_VALUE(ETYPE, &inputAllocator);
-                    u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                    mX.setDefaultValue(DEFAULT_VALUE);
-
-                    if (veryVerbose) {
-                        T_ T_ T_ P_(i) P_(j) P(X)
-                    }
-                    LOOP2_ASSERT(LINE1, LINE2, X.hasDefaultValue());
-                    LOOP2_ASSERT(LINE1, LINE2,
-                                 OTYPE         == X.occurrenceType());
-                    LOOP2_ASSERT(LINE1, LINE2,
-                                 ETYPE         == X.defaultValue().type());
-                    LOOP2_ASSERT(LINE1, LINE2,
-                                 DEFAULT_VALUE == X.defaultValue());
-                }
-            }
-
-            LOOP2_ASSERT(LINE1, LINE2, 0 == testAllocator.numBytesInUse());
-            LOOP2_ASSERT(LINE1, LINE2, 0 == testAllocator.numMismatches());
-            LOOP2_ASSERT(LINE1, LINE2,
-                         NUM_BYTES == defaultAllocator.numBytesInUse());
-            LOOP2_ASSERT(LINE1, LINE2,
-                         NUM_ALLOC == defaultAllocator.numAllocations());
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-
-        if (verbose) cout << "\t\t\tWith exceptions." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                Obj mX(OTYPE, &testAllocator);  const Obj& X = mX;
-
-                LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
-                LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
-
-                if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                    OptionValue DEFAULT_VALUE(ETYPE);
-                    u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                    mX.setDefaultValue(DEFAULT_VALUE);
-
-                    LOOP2_ASSERT(LINE1, LINE2,
-                                 OTYPE         == X.occurrenceType());
-                    LOOP2_ASSERT(LINE1, LINE2,
-                                 ETYPE         == X.defaultValue().type());
-                    LOOP2_ASSERT(LINE1, LINE2,
-                                 DEFAULT_VALUE == X.defaultValue());
-                }
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-        ASSERT(0 == testAllocator.numBytesInUse());
-        ASSERT(0 == testAllocator.numMismatches());
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // CASE 4 OF VALUE-SEMANTIC TEST DRIVER
-        // TESTING BASIC ACCESSORS
-
-        if (verbose) cout << "\n\tTesting basic accessors." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE);  const Obj& X = mX;
-
-            LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
-            LOOP2_ASSERT(LINE1, LINE2,  OTYPE == X.occurrenceType());
-            LOOP2_ASSERT(LINE1, LINE2, (OTYPE == Obj::e_HIDDEN) ==
-                                                                 X.isHidden());
-            LOOP2_ASSERT(LINE1, LINE2, (OTYPE == Obj::e_REQUIRED) ==
-                                                               X.isRequired());
-
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                OptionValue DEFAULT_VALUE(ETYPE);
-                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                mX.setDefaultValue(DEFAULT_VALUE);
-
-                LOOP2_ASSERT(LINE1, LINE2, X.hasDefaultValue());
-                LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
-                LOOP2_ASSERT(LINE1, LINE2, ETYPE == X.defaultValue().type());
-                LOOP2_ASSERT(LINE1, LINE2, DEFAULT_VALUE == X.defaultValue());
-             // LOOP2_ASSERT(LINE1, LINE2, ADDRESS != X.defaultValue().data());
-
-                mX.setHidden();  // TEST EXTRA MANIPULATOR
-
-                LOOP2_ASSERT(LINE1, LINE2, Obj::e_HIDDEN ==
-                                                           X.occurrenceType());
-
-                LOOP2_ASSERT(LINE1, LINE2, X.hasDefaultValue());
-                LOOP2_ASSERT(LINE1, LINE2, ETYPE == X.defaultValue().type());
-                LOOP2_ASSERT(LINE1, LINE2, DEFAULT_VALUE == X.defaultValue());
-             // LOOP2_ASSERT(LINE1, LINE2, ADDRESS != X.defaultValue().data());
-                LOOP2_ASSERT(LINE1, LINE2, X.isHidden());
-            }
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // CASE 5 OF VALUE-SEMANTIC TEST DRIVER
-        // TESTING OUTPUT (<<) OPERATOR AND PRINT
-
-        if (verbose)
-            cout << "\n\tTesting output operator and 'print'." << endl;
-
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE);  const Obj& X = mX;
-
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                OptionValue DEFAULT_VALUE(ETYPE);
-                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                mX.setDefaultValue(DEFAULT_VALUE);
-            }
-
-            bsl::ostringstream oss1, oss2;
-            X.print(oss1);                  // TEST HERE
-            oss2 << X;                      // TEST HERE
-
-            bsl::string ss1(oss1.str()), ss2(oss2.str());
-            ASSERT(ss1 == ss2);
-                // Note: oss[12].str() are temporaries!  Doesn't work well with
-                // oss[12].str().c_str();  except on SunPro where temporary
-                // lives till the end of the block.
-
-            if (veryVerbose) {
-                T_ T_ P(X)
-                T_ T_ P(ss1)
-                T_ T_ P(ss2)
-            }
-
-            const char *output = ss1.c_str();
-            const int parseRet = u::parseOccurrenceInfo(&output, X, output);
-            LOOP2_ASSERT(parseRet, output, 0 == parseRet);
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // CASE 6 OF VALUE-SEMANTIC TEST DRIVER
-        // TESTING EQUALITY OPERATOR
-
-        if (verbose) cout << "\n\tTesting equality operator." << endl;
-
-        if (verbose)
-            cout << "\t\tCompare each pair of values (u, v) in W X W." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE1);  const Obj& X = mX;
-
-            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
-                OptionValue DEFAULT_VALUE1(ETYPE2);
-                u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
-
-                mX.setDefaultValue(DEFAULT_VALUE1);
-            }
-
-            for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
-            for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
-
-                const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
-                const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
-
-                const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
-                const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
-                const void     *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
-
-                Obj mY(OTYPE3);  const Obj& Y = mY;
-
-                if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
-                    OptionValue DEFAULT_VALUE2(ETYPE4);
-                    u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
-
-                    mY.setDefaultValue(DEFAULT_VALUE2);
-                }
-
-                bool isSame = (i == k);
-                if (OTYPE1 != Obj::e_REQUIRED
-                 && OTYPE3 != Obj::e_REQUIRED) {
-                    isSame = (i == k) && (j == l);
-                }
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             isSame == (X == Y));        // TEST HERE
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             !isSame == (X != Y));       // TEST HERE
-            }
-            }
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // CASE 7 OF VALUE-SEMANTIC TEST DRIVER
-        // TESTING COPY CONSTRUCTOR
-
-        if (verbose) cout << "\n\tTesting copy constructor." << endl;
-
-        if (verbose) cout << "\t\tWithout passing in an allocator." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE);  const Obj& X = mX;
-
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                OptionValue DEFAULT_VALUE(ETYPE);
-                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                mX.setDefaultValue(DEFAULT_VALUE);
-            }
-
-            Obj mY(X);  const Obj& Y = mY;  // TEST HERE
-
-            LOOP2_ASSERT(LINE1, LINE2, X == Y);
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-
-        if (verbose) cout << "\t\tPassing in an allocator." << endl
-                           << "\t\t\tWith no exceptions." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE);  const Obj& X = mX;
-
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                OptionValue DEFAULT_VALUE(ETYPE);
-                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                mX.setDefaultValue(DEFAULT_VALUE);
-            }
-
-            const bsls::Types::Int64 NUM_BYTES =
-                                              defaultAllocator.numBytesInUse();
-            const bsls::Types::Int64 NUM_ALLOC =
-                                             defaultAllocator.numAllocations();
-            {
-                Obj mY(X, &testAllocator);  const Obj& Y = mY;  // TEST HERE
-
-                LOOP2_ASSERT(LINE1, LINE2, X == Y);
-            }
-            LOOP2_ASSERT(LINE1, LINE2, 0 == testAllocator.numBytesInUse());
-            LOOP2_ASSERT(LINE1, LINE2, 0 == testAllocator.numMismatches());
-            LOOP2_ASSERT(LINE1, LINE2,
-                         NUM_BYTES == defaultAllocator.numBytesInUse());
-            LOOP2_ASSERT(LINE1, LINE2,
-                         NUM_ALLOC == defaultAllocator.numAllocations());
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-
-        if (verbose) cout << "\t\t\tWith exceptions." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            (void) LINE1;
-            (void) LINE2;
-
-            Obj mX(OTYPE);  const Obj& X = mX;
-
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                OptionValue DEFAULT_VALUE(ETYPE);
-                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                mX.setDefaultValue(DEFAULT_VALUE);
-            }
-
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-#endif
-                Obj mY(X, &testAllocator);  const Obj& Y = mY;  // TEST HERE
-
-                ASSERT(X == Y);
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-#endif
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-        ASSERT(0 == testAllocator.numBytesInUse());
-        ASSERT(0 == testAllocator.numMismatches());
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // CASE 9 OF VALUE-SEMANTIC TEST DRIVER
-        // TESTING ASSIGNMENT OPERATOR
-
-        if (verbose) cout << "\n\tTesting assignment operator." << endl;
-
-        if (verbose) cout << "\t\tTesting assignment u = v." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE1);  const Obj& X = mX;
-
-            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
-                OptionValue DEFAULT_VALUE1(ETYPE2);
-                u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
-
-                mX.setDefaultValue(DEFAULT_VALUE1);
-            }
-
-            for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
-            for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
-
-                const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
-                const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
-
-                const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
-                const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
-                const void     *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
-
-                Obj mY(OTYPE3, &testAllocator);  const Obj& Y = mY;
-
-                if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
-                    OptionValue DEFAULT_VALUE2(ETYPE4);
-                    u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
-
-                    mY.setDefaultValue(DEFAULT_VALUE2);
-                }
-
-                mY = X;  // TEST HERE
-
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, X == Y);
-            }
-            }
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-        ASSERT(0 == testAllocator.numBytesInUse());
-        ASSERT(0 == testAllocator.numMismatches());
-
-        if (verbose) cout << "\t\tTesting self-assignment (Aliasing)." << endl;
-
-// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
-// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
-        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
-
-            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
-            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
-
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            Obj mX(OTYPE);  const Obj& X = mX;
-
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
-                OptionValue DEFAULT_VALUE(ETYPE);
-                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
-
-                mX.setDefaultValue(DEFAULT_VALUE);
-            }
-
-            Obj mZ(X);  const Obj& Z = mZ;
-
-            mX = X;  // TEST HERE
-
-            LOOP2_ASSERT(LINE1, LINE2, Z == X);
-        }
-        }
-// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
-// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
-        ASSERT(0 == testAllocator.numBytesInUse());
-        ASSERT(0 == testAllocator.numMismatches());
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // TESTING ADDITIONAL CONSTRUCTORS
-
-        if (verbose) cout << "\nTesting default-value constructors.\n";
+        if (verbose) cout << endl
+                          << "VALUE CONSTRUCTORS" << endl
+                          << "==================" << endl;
 
         for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
 
@@ -1785,145 +1365,1014 @@ int main(int argc, const char *argv[])
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
 
+
             if (ADDRESS) {
+
+#define CASE(ENUM)                                                            \
+case ENUM: {                                                                  \
+  u::checkCtor<ENUM>(X, ADDRESS, veryVerbose, veryVeryVeryVerbose);           \
+} break;                                                                      \
+
                 switch (ETYPE) {
-  //v-------------^
-    case Ot::e_BOOL: {
-      Obj        mY(*static_cast<const bool *>                       (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_CHAR: {
-      Obj        mY(*static_cast<const char *>                       (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-     } break;
-    case Ot::e_INT: {
-      Obj        mY(*static_cast<const int *>                        (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_INT64: {
-      Obj        mY(*static_cast<const Int64 *>                      (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_DOUBLE: {
-      Obj        mY(*static_cast<const double *>                     (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_STRING: {
-      Obj        mY(*static_cast<const bsl::string *>                (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_DATETIME: {
-      Obj        mY(*static_cast<const bdlt::Datetime *>             (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_DATE: {
-      Obj        mY(*static_cast<const bdlt::Date *>                 (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_TIME: {
-      Obj        mY(*static_cast<const bdlt::Time *>                 (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_CHAR_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<char> *>          (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_INT_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<int> *>           (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_INT64_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<Int64> *>         (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_DOUBLE_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<double> *>        (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_STRING_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<bsl::string> *>   (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_DATETIME_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<bdlt::Datetime> *>(ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_DATE_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<bdlt::Date> *>    (ADDRESS),
-                   &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    case Ot::e_TIME_ARRAY: {
-      Obj        mY(*static_cast<const bsl::vector<bdlt::Time> *>    (ADDRESS),
-                    &testAllocator);
-      const Obj& Y = mY;
-      LOOP2_ASSERT(LINE1, LINE2, X == Y);
-    } break;
-    default: {
-      ASSERT(0);
-    } break;
-  //^-------------v
-                };
+                  case Ot::e_VOID: {
+                    BSLS_ASSERT(!"reachable");
+                  } break;
+                  case Ot::e_BOOL: {
+                    BSLS_ASSERT(!"reachable");
+                  } break;
+                  CASE(Ot::e_CHAR)
+                  CASE(Ot::e_INT)
+                  CASE(Ot::e_INT64)
+                  CASE(Ot::e_DOUBLE)
+                  CASE(Ot::e_STRING)
+                  CASE(Ot::e_DATETIME)
+                  CASE(Ot::e_DATE)
+                  CASE(Ot::e_TIME)
+                  CASE(Ot::e_CHAR_ARRAY)
+                  CASE(Ot::e_INT_ARRAY)
+                  CASE(Ot::e_INT64_ARRAY)
+                  CASE(Ot::e_DOUBLE_ARRAY)
+                  CASE(Ot::e_STRING_ARRAY)
+                  CASE(Ot::e_DATETIME_ARRAY)
+                  CASE(Ot::e_DATE_ARRAY)
+                  CASE(Ot::e_TIME_ARRAY)
+                }
+#undef CASE
             }
         }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // COPY ASSIGNMENT
+        //
+        // Concerns:
+        //: 1 The operator has the expected signature.
+        //:
+        //: 2 One object can be assigned to another irrespective of the value
+        //:   of each of those objects.
+        //:
+        //: 3 Alias-safety: An object an be assigned to itself.
+        //:
+        //: 4 The allocator of the assigned-to object ('lhs') is preserved.
+        //:
+        //: 5 The assignment operation returns a reference to the 'lhs' object.
+        //:
+        //: 6 The operation does not change the 'rhs'.
+        //
+        // Plan:
+        //: 1 Use the "pointer-to-method" idiom to have the compiler check the
+        //:   signature.  (C-1)
+        //:
+        //: 2 For a representative set of objects (see the 'OPTION_TYPEINFO'
+        //:   table), assign each object with itself and to every other object.
+        //:   Use equality comparison to confirm that each object is in the
+        //:   expected state afterward.  (C-2)
+        //:
+        //: 3 Use an ad hoc test to assign one object to another that is using
+        //:   a different allocator.  Confirm that the 'lhs' object retains its
+        //:   original allocator.  (C-3)
+        //:
+        //: 4 Use 'bslma::TestAllocatorMonitor' objects to confirm that no
+        //:   memory is allocated.  (C-4)
+        //:
+        //: 5 Compare the address of the returned value (a reference, as shown
+        //:   in P-1) to the address of the 'lhs'.  (C-5)
+        //:
+        //: 6 Create a duplicate of the 'rhs' object that is not used in the
+        //:   assignment operation.  Confirm that the 'rhs' compares equal to
+        //:   this spare object both before and after the assignment operation.
+        //
+        // Testing:
+        //   OccurrenceInfo& operator=(const Oi& rhs);
+        // --------------------------------------------------------------------
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // TESTING DEFAULT CONSTRUCTOR
+        if (verbose) cout << endl << "COPY ASSIGNMENT" << endl
+                                  << "===============" << endl;
 
-        if (verbose) cout << "\nTesting default constructor.\n";
+        if (verbose) cout
+                   << endl
+                   << "Verify that the signature and return type are standard."
+                   << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(const Obj&);
 
-        Obj mX; const Obj& X = mX;
+            // Verify that the signature and return type are standard.
 
-        ASSERT(false             == X.isRequired());
-        ASSERT(false             == X.isHidden());
-        ASSERT(false             == X.defaultValue().hasNonVoidType());
-        ASSERT(Ot::e_VOID        == X.defaultValue().type());
-        ASSERT(&defaultAllocator == X.defaultValue().allocator());
-        ASSERT(&defaultAllocator == X.allocator());
+            operatorPtr operatorAssignment = &Obj::operator=;
 
-        Obj mY(&testAllocator); const Obj& Y = mY;
-        ASSERT(false             == Y.isRequired());
-        ASSERT(false             == Y.isHidden());
-        ASSERT(false             == Y.defaultValue().hasNonVoidType());
-        ASSERT(Ot::e_VOID        == Y.defaultValue().type());
-        ASSERT(&testAllocator    == Y.defaultValue().allocator());
-        ASSERT(&testAllocator    == Y.allocator());
+            (void)operatorAssignment;  // quash potential compiler warning
+        }
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << endl << "Testing assignment operator." << endl;
 
-        ASSERT(0 == testAllocator.numBytesInUse());
-        ASSERT(0 == testAllocator.numMismatches());
+// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
+        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+
+            const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
+
+            const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
+            const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
+            const void     *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value_p;
+
+            if (veryVerbose) { T_ P_(LINE1) P_(OTYPE1)
+                                  P_(LINE2)  P(ETYPE2) }
+
+            Obj mX(OTYPE1);  const Obj& X = mX;
+            Obj mZ(OTYPE1);  const Obj& Z = mZ;
+
+            bslma::Allocator *xa = X.allocator();
+
+            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
+                OptionValue DEFAULT_VALUE1(ETYPE2);
+                u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
+
+                mX.setDefaultValue(DEFAULT_VALUE1);
+                mZ.setDefaultValue(DEFAULT_VALUE1);
+            }
+
+            // Testing self-assignment (alias safety).
+
+            Obj *mR = &(mX = X);  // ACTION
+
+            // Vet "assigned-to" object.
+
+            ASSERT(mR == &mX);
+            ASSERT(Z  == X);
+            ASSERT(xa == X.allocator());
+
+            for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
+            for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
+
+                const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
+                const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
+
+                const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
+                const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
+                const void     *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
+
+                if (veryVerbose) { T_ P_(LINE3) P_(OTYPE3)
+                                      P_(LINE4)  P(ETYPE4) }
+
+                bslma::TestAllocator saX("suppliedX", veryVeryVeryVerbose);
+                bslma::TestAllocator saY("suppliedY", veryVeryVeryVerbose);
+
+                Obj mX(OTYPE1, &saX);  const Obj& X = mX;
+                Obj mZ(OTYPE1, &saX);  const Obj& Z = mZ;
+
+                Obj mY(OTYPE3, &saY);  const Obj& Y = mY;
+
+                if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
+                    OptionValue DEFAULT_VALUE1(ETYPE2);
+                    u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
+
+                    mX.setDefaultValue(DEFAULT_VALUE1);
+                    mZ.setDefaultValue(DEFAULT_VALUE1);
+                }
+
+                if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
+                    OptionValue DEFAULT_VALUE2(ETYPE4);
+                    u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
+
+                    mY.setDefaultValue(DEFAULT_VALUE2);
+                }
+
+                Obj *mR = &(mY = X);  // ACTION
+
+                // Vet results
+
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, mR   == &mY);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, X    == Y);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, &saY == Y.allocator());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, X    == Z);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, X.allocator()
+                                                         == Z.allocator());
+            }
+            }
+        }
+        }
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // COPY CONSTRUCTOR
+        //
+        // Concerns:
+        //: 1 Equality: The copy constructor creates a new object that compares
+        //:   equal to the original object.
+        //
+        //: 2 Allocators:
+        //:   1 The allocator of the created object depends on its constructor
+        //:     argument (not the allocator of the original object).
+        //:
+        //:   2 If the allocator argument of the object is 0 or not specified,
+        //:     the new object uses the default allocator, otherwise, the
+        //:     specified allocator is used.
+        //:
+        //:   3 The class is exception safe.
+        //
+        // Plans:
+        //: 1 Do table-driven testing using the 'OPTION_TYPEINFO' array of
+        //:   representative values described in earlier tests.
+        //:
+        //: 2 Use 'operator==' to confirm the equality of the new object (C-1).
+        //:
+        //: 3 Repeat each test for the cases of an unspecified allocator, a
+        //:   0-allocator, and an explicitly supplied allocator.  (C-2.1)
+        //
+        //:   1 Confirm the allocator of the new object using the 'allocator'
+        //:     accessor.  (C-2.2)
+        //:
+        //:   2 Use 'bslma::TestAllocatorMonitor' objects to confirm that
+        //:     memory allocation, when expected, occurs in the expected
+        //:     allocator, and no allocation occurs from the "other" allocator.
+        //:
+        //:   3 The only allocating member is of type 'balcl::OptionValue'
+        //:     (used to hold the default option value).  That type was
+        //:     shown exception safe in its test driver.  (C-2.3)
+        //
+        // Testing:
+        //   OccurrenceInfo(const Oi& original, *bA = 0);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "COPY CONSTRUCTOR" << endl
+                          << "================" << endl;
+
+// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
+        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
+
+            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
+            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
+            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+
+            if (veryVerbose) { T_ P_(LINE1) P_(OTYPE)
+                                  P_(LINE2)  P(ETYPE) }
+
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(OTYPE);  const Obj& X = mX;
+
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
+                OptionValue DEFAULT_VALUE(ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+
+                mX.setDefaultValue(DEFAULT_VALUE);
+            }
+
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                if (veryVerbose) {
+                    T_ T_ P(CONFIG)
+                }
+
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj                  *objPtr           = 0;
+                bslma::TestAllocator *objAllocatorPtr  = 0;
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'c': {
+                    objAllocatorPtr = &sa;
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                  } break;
+                }
+
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+                bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                bslma::TestAllocatorMonitor  oam(&oa);
+                bslma::TestAllocatorMonitor noam(&noa);
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objPtr = new (fa) Obj(X);       // ACTION
+                  } break;
+                  case 'b': {
+                    objPtr = new (fa) Obj(X, 0);    // ACTION
+                  } break;
+                  case 'c': {
+                    objPtr = new (fa) Obj(X, &sa);  // ACTION
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                  } break;
+                }
+
+                // Check expected allocator usage.
+
+                if (Obj::e_REQUIRED != OTYPE && u::isAllocatingType(ETYPE)) {
+                  ASSERTV(LINE1, LINE2, CONFIG, oam.isTotalUp());
+                }
+                ASSERTV(LINE1, LINE2, CONFIG, noam.isTotalSame());
+
+                // Vet copied object.
+
+                Obj&  mY = *objPtr;  const Obj& Y = mY;
+
+                ASSERTV(LINE1, LINE2, CONFIG, X   == Y);
+                ASSERTV(LINE1, LINE2, CONFIG, &oa == Y.allocator());
+
+                fa.deleteObject(objPtr); // Clean up
+            }
+        }
+        }
+
+// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
+// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // EQUALITY-COMPARISON OPERATORS
+        //   Ensure that '==' and '!=' are the operational definition of value.
+        //
+        // Concerns:
+        //: 1 Salient Members:
+        //:
+        //:   1 Two objects, 'X' and 'Y', compare equal if and only if each of
+        //:     their corresponding salient attributes respectively compare
+        //:     equal.
+        //:
+        //:   2 All salient attributes participate in the comparison.
+        //
+        //:   3 The object's allocator is not salient.
+        //:
+        //: 2 Mathematical Properties:
+        //:
+        //:   1 The operators provide the property of identity:
+        //:     o 'true  == (X == X)'
+        //:     o 'false == (X != X)'
+        //:
+        //:   2 The operators provide the property of commutativity:
+        //:     o 'X == Y' if and only if 'Y == X'
+        //:     o 'X != Y' if and only if 'Y != X'
+        //:
+        //:   3 Each of these two operators is the inverse of the other:
+        //:     o 'X != Y' if and only if '!(X == Y)'
+        //:
+        //: 3 Non-modifiable objects can be compared (i.e., 'const' objects and
+        //:   'const' references).
+        //:
+        //: 4 The two operators have standard signatures and return types.
+        //
+        //: 5 No memory allocation occurs as a result of comparison (e.g., the
+        //:   arguments are not passed by value).
+        //
+        // Plan:
+        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
+        //:   initialize function pointers having the appropriate signatures
+        //:   and return types for the two homogeneous, free
+        //:   equality-comparison operators defined in this component.
+        //:   (C-3..4)
+        //:
+        //: 2 Using the tables 'OPTION_OCCURRENCES' and 'OPTION_DEFAULT_VALUES'
+        //:   (see {Input Tables}), create a series of test-object pairs, that
+        //:   serve as operands to 'operator==' and 'operator!='.  Since each
+        //:   row of the two input tables is unique, equality is expected when
+        //:   both objects of a pair happened to be created from the same table
+        //:   rows (i.e., same type and same default value), with the exception
+        //:   of objects having the 'Obj::e_REQUIRED' type.  Objects of that
+        //:   type are disallowed default values so row agreement in table
+        //:   'OPTION_OCCURRENCES' suffices for equality.  (C-1.1..2)
+        //:
+        //: 3 For each in the series, check for equality (and failure of
+        //:   inequality) when compared to itself.  (C-2.1)
+        //:
+        //: 4 For each test of equality between two distinct objects, create a
+        //:   parallel test that checks inequality (the inverse operator), and
+        //:   (when the two arguments are different) also create a test case
+        //:   where the two arguments are switched (showing commutativity).
+        //:   (C-2.2..3)
+        //:
+        //: 5 Install a test allocator as the default allocator.  Create a test
+        //:   allocator monitor object before each group of operator tests and
+        //:   confirm afterwards that the 'isTotalSame' returns 'true' (showing
+        //:   that no allocations occurred when exercising the operators).
+        //:   (C-5)
+        //:
+        //: 6 Repeat each test between two objects so that the objects use the
+        //:   same allocator in one test and use different allocators in the
+        //:   other.  Results should not change and thereby show that the
+        //:   object allocator is not salient to equality.  (C-1.3)
+        //
+        // Testing:
+        //   bool operator==(const OccurrenceInfo& lhs, rhs)
+        //   bool operator!=(const OccurrenceInfo& lhs, rhs)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "EQUALITY-COMPARISON OPERATORS" << endl
+                          << "=============================" << endl;
+
+        if (verbose) cout <<
+                "Check that signatures and return values are standard" << endl;
+        {
+            using namespace balcl;
+            typedef bool (*operatorPtr)(const Obj&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorEq = operator==;
+            operatorPtr operatorNe = operator!=;
+
+            (void)operatorEq;  // Quash potential compiler warnings.
+            (void)operatorNe;
+        }
+
+        if (verbose) cout << "\n\tTesting equality operator." << endl;
+
+        if (verbose)
+            cout << "\t\tCompare each pair of values (u, v) in W X W." << endl;
+
+// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
+        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+
+            const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
+
+            const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
+            const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
+            const void     *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value_p;
+
+            if (veryVerbose) { T_ P_(LINE1) P_(OTYPE1)
+                                  P_(LINE2)  P(ETYPE2) }
+
+            bslma::TestAllocator sa1("supplied1", veryVeryVeryVerbose);
+            bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
+
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            bslma::TestAllocator *saX = &sa1;
+
+            Obj mX(OTYPE1, saX);  const Obj& X = mX;
+
+            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
+                OptionValue DEFAULT_VALUE1(ETYPE2);
+                u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
+
+                mX.setDefaultValue(DEFAULT_VALUE1);
+            }
+
+            bslma::TestAllocatorMonitor dam (&da);
+            bslma::TestAllocatorMonitor samX(saX);
+
+            ASSERTV(LINE1,  (X == X));   // ACTION
+            ASSERTV(LINE1, !(X != X));   // ACTION
+
+            ASSERTV(LINE1, dam .isTotalSame());
+            ASSERTV(LINE1, samX.isTotalSame());
+
+            for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
+            for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
+
+                const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
+                const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
+
+                const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
+                const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
+                const void     *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
+
+                if (veryVerbose) { T_ P_(LINE3) P_(OTYPE3)
+                                      P_(LINE4)  P(ETYPE4) }
+
+                for (int m = 0; m < 2; ++m) {
+                    if (veryVerbose) { T_ T_ T_  P(k) }
+
+                    bslma::TestAllocator *saY = m % 2
+                                              ? &sa1  //     same as 'X'
+                                              : &sa2; // not same as 'X'
+
+                    Obj mY(OTYPE3, saY);  const Obj& Y = mY;
+
+                    if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
+                        OptionValue DEFAULT_VALUE2(ETYPE4);
+                        u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
+
+                        mY.setDefaultValue(DEFAULT_VALUE2);
+                    }
+
+                    bool isSame = (OTYPE1 != Obj::e_REQUIRED &&
+                                   OTYPE3 != Obj::e_REQUIRED)
+                                ? i == k && j == l
+                                : i == k
+                                ;
+         //v--------^
+           bslma::TestAllocatorMonitor dam (&da);
+           bslma::TestAllocatorMonitor samY(saY);
+
+           ASSERTV(LINE1, LINE2, LINE3, LINE4, isSame ==  (X == Y));  // ACTION
+           ASSERTV(LINE1, LINE2, LINE3, LINE4, isSame == !(X != Y));  // ACTION
+           ASSERTV(LINE1, LINE2, LINE3, LINE4, isSame ==  (Y == X));  // ACTION
+           ASSERTV(LINE1, LINE2, LINE3, LINE4, isSame == !(Y != X));  // ACTION
+
+           ASSERTV(LINE1, LINE2, LINE3, LINE4, samY.isTotalSame());
+           ASSERTV(LINE1, LINE2, LINE3, LINE4,  dam.isTotalSame());
+         //^--------v
+                }
+            }
+            }
+        }
+        }
+// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
+// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //
+        // Concerns:
+        //: 1 The 'print' method writes to the specified 'ostream' in the
+        //:   expected format.
+        //:
+        //: 2 The 'print' method produces the expected output for the given
+        //:   object.
+        //:
+        //: 3 'operator<<' produces the same results as 'print' when level and
+        //:   spaces-per-level arguments have their default value.
+        //:
+        //: 4 The return values of 'print' and 'operator<<' reference the
+        //:   stream argument.
+        //:
+        //: 5 The signature and return types of 'print' and 'operator<<' are
+        //:   standard.
+        //:
+        //: 6 Optional Arguments:
+        //:
+        //:   1 The 'print' method indents according to 'level' and
+        //:     'spacesPerLevel'.
+        //:
+        //:   2 The default values for 'level' and 'spacesPerLevel' are 0 and
+        //:     4, respectively.
+        //:
+        //: 7 The class has set the 'bdlb::HasPrintMethod' trait.
+        //
+        // Plan:
+        //: 1 Use the "function address" idiom to confirm the signatures.
+        //:   (C-5)
+        //:
+        //: 2 Confirm that 'bdlb::HasPrintMethod<OccurrenceInfo>::value' is
+        //:   'true' using a compile-time assertion at file scope.  (C-7)
+        //:
+        //: 3 For the cross product of the two input tables (see {Input
+        //:   Tables}):
+        //:
+        //:   1 Use 'bsl::ostringstream' objects to confirm that the output of
+        //:     'print' (with default arguments) and 'operator<<' are
+        //:     identical.  (C-3)
+        //:
+        //:   2 Use the 'u::parseOccurrenceInfo' helper function to confirm
+        //:     that output of 'print' matches the expected output for the
+        //:     given object.  (C-2)
+        //:
+        //:   3 Use 'bsl::strspn' to confirm that indentation matches 'level'
+        //:     and 'spacesPerLevel' and that the default values are as
+        //:     expected.  (C-6)
+        //
+        // Testing:
+        //   ostream& print(ostream& stream, int level = 0, int spl = 4) const;
+        //   operator<<(ostream& stream, const OccurrenceInfo& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRINT AND OUTPUT OPERATOR" << endl
+                          << "=========================" << endl;
+
+        if (verbose) cout
+                 << "Verify that the signatures and return types are standard."
+                 << endl;
+        {
+            using namespace balcl;
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOp  = operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOp;
+        }
+
+        if (verbose)
+            cout << "\n\tTesting output operator and 'print'." << endl;
+
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+        for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
+        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+
+            const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+            const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
+
+            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
+            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
+            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+
+            Obj mX(OTYPE);  const Obj& X = mX;
+
+            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
+                OptionValue DEFAULT_VALUE(ETYPE);
+                u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
+
+                mX.setDefaultValue(DEFAULT_VALUE);
+            }
+
+            bsl::ostringstream ossMethod;
+            bsl::ostringstream ossOperator;
+
+            ASSERTV(LINE1, LINE2, &ossMethod   == &X.print(ossMethod));  // ACT
+            ASSERTV(LINE1, LINE2, &ossOperator == &(ossOperator << X));  // ACT
+
+            bsl::string stringMethod  (ossMethod  .str());
+            bsl::string stringOperator(ossOperator.str());
+
+            ASSERT(0 * 4 == bsl::strspn(stringMethod  .c_str(), " "));
+            ASSERT(0 * 4 == bsl::strspn(stringOperator.c_str(), " "));
+
+            ASSERTV(LINE1, LINE2, stringMethod,   stringOperator,
+                                  stringMethod == stringOperator);
+
+            if (veryVerbose) {
+                T_ T_ P(X)
+                T_ T_ P(stringMethod)
+                T_ T_ P(stringOperator)
+            }
+
+            const char *output   = stringMethod.c_str();
+            const int   parseRet = u::parseOccurrenceInfo(&output, X, output);
+            LOOP2_ASSERT(parseRet, output, 0 == parseRet);
+
+            bsl::ostringstream ossIndent1;
+            bsl::ostringstream ossIndent2;
+
+            X.print(ossIndent1, 2);    // ACTION
+            X.print(ossIndent2, 1, 5); // ACTION
+
+            bsl::string stringIndent1(ossIndent1.str());
+            bsl::string stringIndent2(ossIndent2.str());
+
+            ASSERT(2 * 4 == bsl::strspn(stringIndent1.c_str(), " "));
+            ASSERT(1 * 5 == bsl::strspn(stringIndent2.c_str(), " "));
+        }
+        }
+// BDE_VERIFY pragma: +IND01   // Possibly mis-indented line
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TYPE CTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS & DTOR
+        //
+        // Concerns:
+        //: 1 Each object created using the (occurrence) type constructor has
+        //:   the expected attributes of occurrence type, default value, and
+        //:   allocator.
+        //:   1 The type constructor does not allocate.
+        //:   2 The allocator can be specified, or not, or specified as 0.
+        //:
+        //: 2 The object allocates from the intended allocator, and no other.
+        //:   1 Allocation is exception safe.
+        //:   2 The 'bslma::UsesBslmaAllocator' trait is set for this class.
+        //:
+        //: 3 The basic accessors provide a view of the object state that is
+        //:   consistent with the state of the object set by the constructor
+        //:   and the primary manipulators.
+        //:
+        //: 4 The basic accessors are 'const'-qualified.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using a table-driven organization, use the "footprint" idiom to
+        //:   invoke the constructor specifying for the allocator: nothing, 0,
+        //:   and a supplied allocator.  (C-1.2)
+        //
+        //:   1 In each scenario, the object uses a 'bslma::TestAllocator'
+        //:     (explicitly, or via the currently installed default allocator).
+        //:
+        //:   2 Use a 'bslma::TestAllocatorMonitor' object to confirm that
+        //:     allocation occurs when expected.  (C-1.1)
+        //:
+        //:   2 After creation, each object is subject to identical tests,
+        //:     thereby demonstrating that each creation produces identical
+        //:     results.  (C-3)
+        //:
+        //:   3 Confirm that
+        //:     'bslma::UsesBslmaAllocator<balcl::TypeInfo>::value' is 'true'
+        //:     in a compile-time assertion at file scope.  (C-2.2)
+        //:
+        //:   4 The implementation of 'Obj' does not allocate directly so there
+        //:     is no need for exception testing other than confirmation that
+        //:     the allocator is forwarded to the allocating subordinate types
+        //:     that are assumed to be exception safe. (C-2.1)
+        //:
+        //: 2 Always invoke the basic accessors on a 'const'-reference to the
+        //:   object under test.  Absence of compiler error confirms that the
+        //:   accessors are 'const' qualified.  (C-4)
+        //:
+        //: 3 Use 'BSLS_ASSERTTEST_*' facilities for negative testing.  (C-5)
+        //
+        // Testing:
+        //   OccurrenceInfo(OccurrenceType type, *bA = 0);
+        //   ~OccurrenceInfo();
+        //   void setDefaultValue(const OptionValue& defaultValue);
+        //   void setHidden();
+        //   const OptionValue& defaultValue() const;
+        //   bool hasDefaultValue() const;
+        //   bool isHidden() const;
+        //   bool isRequired() const;
+        //   OccurrenceType occurrenceType() const;
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+          << endl
+          << "TYPE CTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS & DTOR" << endl
+          << "=======================================================" << endl;
+
+        if (veryVerbose) cout << "Positive Testing" << endl;
+
+// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+
+//v-----^
+  for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
+  for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+
+      const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+      const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
+
+      const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
+      const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
+      const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+
+      if (veryVerbose) {
+          T_ P_(i) P(j)
+      }
+
+      for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+          const char CONFIG = cfg;  // how we specify the allocator
+
+          if (veryVerbose) {
+              T_ T_ P(CONFIG)
+          }
+
+          bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+
+          bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+          bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+          bslma::DefaultAllocatorGuard dag(&da);
+
+          bslma::TestAllocatorMonitor sam(&sa);
+          bslma::TestAllocatorMonitor dam(&da);
+
+          Obj                  *objPtr           = 0;
+          bslma::TestAllocator *objAllocatorPtr  = 0;
+
+          switch (CONFIG) {
+            case 'a': {
+              objAllocatorPtr = &da;
+            } break;
+            case 'b': {
+              objAllocatorPtr = &da;
+            } break;
+            case 'c': {
+              objAllocatorPtr = &sa;
+            } break;
+            default: {
+              ASSERTV(CONFIG, !"Bad allocator config.");
+            } break;
+          }
+
+          bslma::TestAllocator&  oa = *objAllocatorPtr;
+          bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+          bslma::TestAllocatorMonitor  oam(&oa);
+          bslma::TestAllocatorMonitor noam(&noa);
+
+          switch (CONFIG) {
+            case 'a': {
+              objPtr = new (fa) Obj(OTYPE);       // ACTION
+            } break;
+            case 'b': {
+              objPtr = new (fa) Obj(OTYPE, 0);    // ACTION
+            } break;
+            case 'c': {
+              objPtr = new (fa) Obj(OTYPE, &sa);  // ACTION
+            } break;
+            default: {
+              ASSERTV(CONFIG, !"Bad allocator config.");
+            } break;
+          }
+
+          ASSERTV(LINE1, LINE2,  oam.isTotalSame());
+          ASSERTV(LINE1, LINE2, noam.isTotalSame());
+
+          Obj&  mX = *objPtr;  const Obj& X = mX;
+
+          ASSERTV(LINE1, LINE2,  false  == X.hasDefaultValue());
+          ASSERTV(LINE1, LINE2,  OTYPE  == X.occurrenceType());
+          ASSERTV(LINE1, LINE2, (OTYPE  == Obj::e_HIDDEN)   == X.isHidden());
+          ASSERTV(LINE1, LINE2, (OTYPE  == Obj::e_REQUIRED) == X.isRequired());
+          ASSERTV(LINE1, LINE2,  &oa    == X.allocator());
+
+          if (OTYPE != Obj::e_REQUIRED) {
+
+              if (ADDRESS) {
+                  OptionValue dfltOptionValue(ETYPE);
+                  u::setOptionValue(&dfltOptionValue, ADDRESS, ETYPE);
+
+                  if (veryVerbose) {
+                      T_ T_ P(dfltOptionValue)
+                  }
+
+                  bslma::TestAllocatorMonitor oam(&oa);
+
+                  mX.setDefaultValue(dfltOptionValue);  // ACTION
+
+                  if (u::isAllocatingType(ETYPE)) {
+                      ASSERTV(LINE1, LINE2, oam.isTotalUp());
+                  }
+
+                  ASSERTV(LINE1, LINE2, true       == X.hasDefaultValue());
+                  ASSERTV(LINE1, LINE2, OTYPE      == X.occurrenceType());
+                  ASSERTV(LINE1, LINE2, ETYPE      == X.defaultValue().
+                                                                     type());
+                  ASSERTV(LINE1, LINE2, dfltOptionValue
+                                                   == X.defaultValue());
+                  ASSERTV(LINE1, LINE2, (OTYPE     == Obj::e_HIDDEN)
+                                                   == X.isHidden());
+                  ASSERTV(LINE1, LINE2, false      == X.isRequired());
+                  ASSERTV(LINE1, LINE2, &oa        == X.allocator());
+              }
+
+              mX.setHidden();
+              ASSERTV(LINE1, LINE2, true          == X.isHidden());
+              ASSERTV(LINE1, LINE2, Obj::e_HIDDEN == X.occurrenceType());
+          }
+
+          fa.deleteObject(objPtr);
+
+          ASSERTV(LINE1, LINE2,  oam.isInUseSame());
+          ASSERTV(LINE1, LINE2, noam.isInUseSame());
+      }
+  }
+  }
+//^-----v
+
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
+
+        if (veryVerbose) cout << "Negative Testing" << endl;
+
+        bsls::AssertTestHandlerGuard hG;
+
+        {
+            Obj mX(Obj::e_REQUIRED);
+            Obj mY(Obj::e_OPTIONAL);
+            Obj mZ(Obj::e_HIDDEN);
+
+            ASSERT_FAIL(mX.setHidden());
+            ASSERT_PASS(mY.setHidden());
+            ASSERT_PASS(mZ.setHidden());
+        }
+
+// BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+
+//v-----^
+  for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
+  for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+
+      const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
+      const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
+
+      const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
+      const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
+      const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+
+      if (veryVerbose) {
+          T_ P_(i) P_(LINE1) P_(OTYPE) P_(j) P_(ETYPE) P(LINE2)
+      }
+
+      {
+          Obj mX(OTYPE);
+
+          if (OTYPE == Obj::e_REQUIRED) {
+            ASSERT_FAIL(mX.setHidden());
+          } else {
+            ASSERT_PASS(mX.setHidden());
+          }
+      }
+
+      if (ADDRESS) {
+          Obj mX(OTYPE);
+
+          OptionValue defaultOptionValue(ETYPE);
+          u::setOptionValue(&defaultOptionValue, ADDRESS, ETYPE);
+
+          if (OTYPE == Obj::e_REQUIRED) {
+              ASSERT_FAIL(mX.setDefaultValue(defaultOptionValue));
+          } else {
+              ASSERT_PASS(mX.setDefaultValue(defaultOptionValue));
+          }
+      }
+
+      {
+          Obj mX(OTYPE);
+
+          OptionValue nullOptionValue(ETYPE);
+          nullOptionValue.setNull();
+
+          ASSERT_FAIL(mX.setDefaultValue(nullOptionValue));
+      }
+
+      {
+          Obj         mX(OTYPE);
+
+          OptionValue boolOptionValue(Ot::e_BOOL);
+
+          ASSERT_FAIL(mX.setDefaultValue(boolOptionValue));
+      }
+
+      {
+          Obj mX(OTYPE);
+
+          OptionValue unsetOptionValue;
+          ASSERT(Ot::e_VOID == unsetOptionValue.type());
+
+          ASSERT_FAIL(mX.setDefaultValue(unsetOptionValue));
+      }
+  }
+  }
+//^-----v
+
+// BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
+// BDE_VERIFY pragma: +TP21    // Loops must contain very verbose action
+
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Ad-hoc testing.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
+        Obj mX(Obj::e_REQUIRED);  const Obj& X = mX;
+        Obj mY(Obj::e_HIDDEN);    const Obj& Y = mY;
+        Obj mZ(Obj::e_OPTIONAL);  const Obj& Z = mZ;
+
+        ASSERT(Obj::e_REQUIRED == X.occurrenceType());
+        ASSERT(Obj::e_HIDDEN   == Y.occurrenceType());
+        ASSERT(Obj::e_OPTIONAL == Z.occurrenceType());
+
+        ASSERT( X.isRequired());
+        ASSERT(!Y.isRequired());
+        ASSERT(!Z.isRequired());
+
+        ASSERT(!X.isHidden());
+        ASSERT( Y.isHidden());
+        ASSERT(!Z.isHidden());
+
+        ASSERT(!X.hasDefaultValue());
+        ASSERT(!Y.hasDefaultValue());
+        ASSERT(!Z.hasDefaultValue());
 
       } break;
       default: {
@@ -1931,6 +2380,8 @@ int main(int argc, const char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

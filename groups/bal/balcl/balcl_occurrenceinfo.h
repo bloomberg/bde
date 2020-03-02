@@ -12,16 +12,31 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: 'balcl_commandline'
 //
-//@DESCRIPTION: This component provides a single attribute class,
-// 'balcl::OccurrenceInfo', that describes whether a command-line argument must
-// be supplied by the user or whether that option is truly optional.  If a
-// command line option is optional, it may have the additional attribute of
-// being "hidden" -- i.e., omitted by the 'printUsage' method of
-// 'balcl::CommandLine' (see '{balcl_commandline}').  Additionally, default
-// values can be provided for non-required options.
+//@DESCRIPTION: This component provides a single complex-constrained
+// (value-semantic) attribute class, 'balcl::OccurrenceInfo', that describes
+// whether a command-line argument must be supplied by the user or whether that
+// option is truly optional.  If a command-line option is optional, it may have
+// the additional attribute of being "hidden" -- i.e., omitted by the
+// 'printUsage' method of 'balcl::CommandLine' (see '{balcl_commandline}').
+// Additionally, default values can be provided for non-required options.
 //
 // For further details see {'balcl_commandline'|Occurrence Information Field}
 // and {'balcl_commandline'|Example: Occurrence Information Field}.
+//
+///Attributes
+///----------
+//..
+//  Attribute      Type               Default Constraints
+//  -------------- ------------------ ------- -------------------------------
+//  isHiddenFlag   bool               false   isHiddenFlag && !isRequiredFlag
+//
+//  isRequiredFlag bool               false   none
+//
+//  defaultValue   balcl::OptionValue e_VOID  e_VOID != type() &&
+//                                               (e_BOOL != type()
+//                                                false  == isNull()
+//                                                false  == isRequiredFlag)
+//..
 //
 ///Usage
 ///-----
@@ -189,15 +204,16 @@ class OccurrenceInfo {
         // otherwise.
 
     bool isHidden() const;
-        // Return 'true' if this option is hidden (i.e., not printed in the
-        // usage string), and 'false' otherwise.
+        // Return 'true' if the described option is hidden (i.e., not printed
+        // in the usage string), and 'false' otherwise.
 
     bool isRequired() const;
-        // Return 'true' if this option is required, and 'false' otherwise.
+        // Return 'true' if the described option is required, and 'false'
+        // otherwise.
 
     OccurrenceType occurrenceType() const;
-        // Return the occurrence type of this option (i.e., required, optional,
-        // or hidden).
+        // Return the occurrence type of the described option (i.e., required,
+        // optional, or hidden).
 
                                   // Aspects
 

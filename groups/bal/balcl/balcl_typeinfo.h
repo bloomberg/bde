@@ -13,8 +13,8 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balcl_commandline, balcl_optiontype
 //
-//@DESCRIPTION: This component provides a single attribute class,
-// 'balcl::TypeInfo', that is used to describe several features of a
+//@DESCRIPTION: This component provides a single (value-semantic) attribute
+// class, 'balcl::TypeInfo', that is used to describe several features of a
 // command-line option.  Specifically:
 //: o The type of an option's value (see {'balcl_optiontype'}).
 //: o Optional: The address of a linked variable to hold an option's value.
@@ -98,7 +98,8 @@ class TypeInfo {
     TypeInfo(bslma::Allocator *basicAllocator);
         // Construct an object having 'string' type for the associated option,
         // and the specified 'basicAllocator' to supply memory.  No variable is
-        // linked and no constraint is put on the value.
+        // linked and no constraint is put on the value.  Note that,
+        // atypically, 0 is disallowed for 'basicAllocator'.
 
     explicit
     TypeInfo(bool             *variable,
@@ -367,12 +368,12 @@ class TypeInfo {
     void setConstraint(const Constraint::DatetimeConstraint& constraint);
     void setConstraint(const Constraint::DateConstraint&     constraint);
     void setConstraint(const Constraint::TimeConstraint&     constraint);
-        // Put the specified 'constraint' on the value of this option,
+        // Put the specified 'constraint' on the value of the described option,
         // replacing any constraint that had been in effect (if any).  The
-        // behavior is undefined unless this option is not a flag and the
-        // 'balcl::OptionValue' type of this option corresponds to the type of
-        // 'constraint'.  Note that two distinct objects that have the same
-        // 'constraint' put on them will compare *unequal* unless the
+        // behavior is undefined unless the described option is not a flag and
+        // the 'balcl::OptionValue' type of the described option corresponds to
+        // the type of 'constraint'.  Note that two distinct objects that have
+        // the same 'constraint' put on them will compare *unequal* unless the
         // constraint is shared among them, which can be done by:
         //..
         //  aTypeInfo.setConstraint(anotherTypeInfo.constraint());
@@ -380,11 +381,11 @@ class TypeInfo {
 
     void
     setConstraint(const bsl::shared_ptr<TypeInfoConstraint>& constraint);
-        // Set the constraint of this option to the specified 'constraint'.
-        // The behavior is undefined unless the option associated with
-        // 'constraint' has the same type as the option associated with this
-        // object.  Note that the linked variable, if any, is unchanged by this
-        // method.
+        // Set the constraint of the described option to the specified
+        // 'constraint'.  The behavior is undefined unless the option
+        // associated with 'constraint' has the same type as the option
+        // associated with this object.  Note that the linked variable, if any,
+        // is unchanged by this method.
 
     void setLinkedVariable(bool                            *variable);
     void setLinkedVariable(char                            *variable);
@@ -406,20 +407,23 @@ class TypeInfo {
         // Set this object to have the type indicated by the specified
         // 'variable', and reset this object so that it no longer has a
         // constraint associated with it.  If 'variable' is not 0, then link it
-        // with this option.
+        // with the described option.
 
     // ACCESSORS
     bsl::shared_ptr<TypeInfoConstraint> constraint() const;
-        // Return the address of the (opaque) object storing the constraint
-        // associated with this option.
+        // Return a shared pointer to the (opaque) object storing the
+        // constraint associated with the described option.  If this object has
+        // no constraint an empty shared pointer is returned.  The lifetime of
+        // any shared reference to this object's constraint must not exceed
+        // that of this object's allocator.
 
     void *linkedVariable() const;
-        // Return the address of the modifiable variable linked to this option,
-        // or 0 no variable is linked.
+        // Return the address of the modifiable variable linked to the
+        // described option, or 0 if no variable is linked.
 
     OptionType::Enum type() const;
-        // Return the type of this option.  Note that the option is a flag if
-        // it is of type 'OptionType::e_BOOL'.
+        // Return the type of the described option.  Note that the option is a
+        // flag if it is of type 'OptionType::e_BOOL'.
 
                                   // Aspects
 

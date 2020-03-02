@@ -1,22 +1,19 @@
 // balcl_typeinfo.t.cpp                                               -*-C++-*-
-
 #include <balcl_typeinfo.h>
 
 #include <balcl_constraint.h>
-#include <balcl_optionvalue.h>
 #include <balcl_optiontype.h>
-
-#include <bdlt_date.h>
-#include <bdlt_datetime.h>
-#include <bdlt_time.h>
+#include <balcl_optionvalue.h>
 
 #include <bdlb_chartype.h>
 #include <bdlb_printmethods.h>
 #include <bdlb_tokenizer.h>
 
-#include <bslim_testutil.h>
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_time.h>
 
-#include <bslmf_assert.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -25,11 +22,15 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h>     // 'bsls::Types::Int64'
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>    // 'bsl::strspn'
 #include <bsl_functional.h> // 'bsl::function'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>    // 'operator<<'
@@ -37,10 +38,6 @@
 #include <bsl_stdexcept.h>
 #include <bsl_string.h>     // 'bslstl::StringRef'
 #include <bsl_vector.h>
-
-#include <bsl_cstdlib.h>
-#include <bsl_cassert.h>
-#include <bsl_cstring.h>    // 'bsl::strspn'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -50,12 +47,12 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The 'balcl::TypeInfo' is a (value-semantic) attribute class.  The three
-// salient attributes are:
+// 'balcl::TypeInfo' is a (value-semantic) attribute class.  The three salient
+// attributes are:
 //..
 //  Type                     Description
 //  ------------------------ --------------------
-//  OptionType::Enum         option types
+//  balcl::OptionType::Enum  option types
 //  void *                   linked variable
 //  bsl::share_ptr<TypeInfo> constraint (functor)
 //..
@@ -65,7 +62,7 @@ using namespace bsl;
 // The 'constraint' attribute, managed via 'bsl::share_ptr', lends this class
 // some interesting behaviors that are not typically seen in attribute classes.
 //
-//: o Two objects created some the same constituent attributes do not compare
+//: o Two objects created from the same constituent attributes do not compare
 //:   equal when a non-default constraint is specified.
 //:
 //: o Although the constructor allocates when there is a constraint, the copy
@@ -73,14 +70,15 @@ using namespace bsl;
 //:   new functor, the usage count on the shared pointer in the original (rhs)
 //:   object is merely incremented.
 //
-// This component also defines two other classes, 'balcl::TypeInfoContract', a
-// functor that is not visible outside of this component except as an opaque
+// This component also defines two other classes, 'balcl::TypeInfoConstraint',
+// a functor that is not visible outside of this component except as an opaque
 // type, and 'balcl::TypeInfoUtil', a utility 'struct' that must reside in this
-// component because of its dependency on 'balcl::TypeInfoContract'.
+// component because of its dependency on 'balcl::TypeInfoConstraint'.
 //
 // Testing follows the general pattern of a VST interspersed with tests of the
-// utility 'struct' and 'balcl::TypeInfoContract'.  Note that the latter class
-// cannot be directly tested because it has no methods visible to clients.
+// utility 'struct' and 'balcl::TypeInfoConstraint'.  Note that the latter
+// class cannot be directly tested because it has no methods visible to
+// clients.
 //
 // The VST's Primary Manipulators are:
 //: o void resetConstraint();
@@ -100,44 +98,44 @@ using namespace bsl;
 // CREATORS
 // [ 2] TypeInfo();
 // [ 2] TypeInfo(bslma::Allocator *basicAllocator);
-// [ 8] TypeInfo(bool             *v, *bA = 0);
-// [ 8] TypeInfo(char             *v, *bA = 0);
-// [ 8] TypeInfo(char             *v, CharC&     c, *bA = 0);
-// [ 8] TypeInfo(int              *v, *bA = 0);
-// [ 8] TypeInfo(int              *v, IntC&      c, *bA = 0);
-// [ 8] TypeInfo(Int64            *v, *bA = 0);
-// [ 8] TypeInfo(Int64            *v, Int64C&    c, *bA = 0);
-// [ 8] TypeInfo(double           *v, *bA = 0);
-// [ 8] TypeInfo(double           *v, DoubleC&   c, *bA = 0);
-// [ 8] TypeInfo(string           *v, *bA = 0);
-// [ 8] TypeInfo(string           *v, StringC&   c, *bA = 0);
-// [ 8] TypeInfo(Datetime         *v, *bA = 0);
-// [ 8] TypeInfo(Datetime         *v, DatetimeC& c, *bA = 0);
-// [ 8] TypeInfo(Date             *v, *bA = 0);
-// [ 8] TypeInfo(Date             *v, DateC&     c, *bA = 0);
-// [ 8] TypeInfo(Time             *v, *bA = 0);
-// [ 8] TypeInfo(Time             *v, TimeC&     c, *bA = 0);
-// [ 8] TypeInfo(vector<char>     *v, *bA = 0);
-// [ 8] TypeInfo(vector<char>     *v, CharC&     c, *bA = 0);
-// [ 8] TypeInfo(vector<int>      *v, *bA = 0);
-// [ 8] TypeInfo(vector<int>      *v, IntC&      c, *bA = 0);
-// [ 8] TypeInfo(vector<Int64>    *v, *bA = 0);
-// [ 8] TypeInfo(vector<Int64>    *v, Int64C&    c, *bA = 0);
-// [ 8] TypeInfo(vector<double>   *v, *bA = 0);
-// [ 8] TypeInfo(vector<double>   *v, DoubleC&   c, *bA = 0);
-// [ 8] TypeInfo(vector<string>   *v, *bA = 0);
-// [ 8] TypeInfo(vector<string>   *v, StringC&   c, *bA = 0);
-// [ 8] TypeInfo(vector<Datetime> *v, *bA = 0);
-// [ 8] TypeInfo(vector<Datetime> *v, DatetimeC& c, *bA = 0);
-// [ 8] TypeInfo(vector<Date>     *v, *bA = 0);
-// [ 8] TypeInfo(vector<Date>     *v, DateC&     c, *bA = 0);
-// [ 8] TypeInfo(vector<Time>     *v, *bA = 0);
-// [ 8] TypeInfo(vector<Time>     *v, TimeC&     c, *bA = 0);
-// [ 6] TypeInfo(const TypeInfo& original, *bA = 0);
+// [ 9] TypeInfo(bool             *v, *bA = 0);
+// [ 9] TypeInfo(char             *v, *bA = 0);
+// [ 9] TypeInfo(char             *v, CharC&     c, *bA = 0);
+// [ 9] TypeInfo(int              *v, *bA = 0);
+// [ 9] TypeInfo(int              *v, IntC&      c, *bA = 0);
+// [ 9] TypeInfo(Int64            *v, *bA = 0);
+// [ 9] TypeInfo(Int64            *v, Int64C&    c, *bA = 0);
+// [ 9] TypeInfo(double           *v, *bA = 0);
+// [ 9] TypeInfo(double           *v, DoubleC&   c, *bA = 0);
+// [ 9] TypeInfo(string           *v, *bA = 0);
+// [ 9] TypeInfo(string           *v, StringC&   c, *bA = 0);
+// [ 9] TypeInfo(Datetime         *v, *bA = 0);
+// [ 9] TypeInfo(Datetime         *v, DatetimeC& c, *bA = 0);
+// [ 9] TypeInfo(Date             *v, *bA = 0);
+// [ 9] TypeInfo(Date             *v, DateC&     c, *bA = 0);
+// [ 9] TypeInfo(Time             *v, *bA = 0);
+// [ 9] TypeInfo(Time             *v, TimeC&     c, *bA = 0);
+// [ 9] TypeInfo(vector<char>     *v, *bA = 0);
+// [ 9] TypeInfo(vector<char>     *v, CharC&     c, *bA = 0);
+// [ 9] TypeInfo(vector<int>      *v, *bA = 0);
+// [ 9] TypeInfo(vector<int>      *v, IntC&      c, *bA = 0);
+// [ 9] TypeInfo(vector<Int64>    *v, *bA = 0);
+// [ 9] TypeInfo(vector<Int64>    *v, Int64C&    c, *bA = 0);
+// [ 9] TypeInfo(vector<double>   *v, *bA = 0);
+// [ 9] TypeInfo(vector<double>   *v, DoubleC&   c, *bA = 0);
+// [ 9] TypeInfo(vector<string>   *v, *bA = 0);
+// [ 9] TypeInfo(vector<string>   *v, StringC&   c, *bA = 0);
+// [ 9] TypeInfo(vector<Datetime> *v, *bA = 0);
+// [ 9] TypeInfo(vector<Datetime> *v, DatetimeC& c, *bA = 0);
+// [ 9] TypeInfo(vector<Date>     *v, *bA = 0);
+// [ 9] TypeInfo(vector<Date>     *v, DateC&     c, *bA = 0);
+// [ 9] TypeInfo(vector<Time>     *v, *bA = 0);
+// [ 9] TypeInfo(vector<Time>     *v, TimeC&     c, *bA = 0);
+// [ 7] TypeInfo(const TypeInfo& original, *bA = 0);
 // [ 2] ~TypeInfo();
 //
 // MANIPULATORS
-// [ 7] TypeInfo& operator=(const TypeInfo& rhs);
+// [ 8] TypeInfo& operator=(const TypeInfo& rhs);
 // [ 2] void resetConstraint();
 // [ 2] void resetLinkedVariableAndConstraint();
 // [ 2] void setConstraint(const Clc::CharConstraint&     constraint);
@@ -173,22 +171,23 @@ using namespace bsl;
 // [ 2] OptionType::Enum type() const;
 //
 // [ 2] bslma::Allocator *allocator() const;
-// [ 4] ostream& print(ostream& stream, int level = 0, int spl = 4) const;
+// [ 5] ostream& print(ostream& stream, int level = 0, int spl = 4) const;
 //
 // FREE OPERATORS
-// [ 5] bool operator==(const TypeInfo& lhs, rhs);
-// [ 5] bool operator!=(const TypeInfo& lhs, rhs);
-// [ 4] operator<<(ostream& stream, const TypeInfo& rhs);
+// [ 6] bool operator==(const TypeInfo& lhs, rhs);
+// [ 6] bool operator!=(const TypeInfo& lhs, rhs);
+// [ 5] operator<<(ostream& stream, const TypeInfo& rhs);
 // ----------------------------------------------------------------------------
 // balcl::TypeInfoUtil
 // ----------------------------------------------------------------------------
-// [ 9] parseAndValidate(OV *e, string& i, TypeInfo& tf, ostream& s);
-// [ 3] bool satisfiesConstraint(const Clov& e,             TypeInfo tf);
-// [ 3] bool satisfiesConstraint(const Clov& e, ostream& s, TypeInfo tf);
-// [ 3] bool satisfiesConstraint(const void *v,             TypeInfo tf);
-// [ 3] bool satisfiesConstraint(const void *v, ostream& s, TypeInfo tf);
+// [10] parseAndValidate(OV *e, string& i, TypeInfo& tf, ostream& s);
+// [ 4] bool satisfiesConstraint(const Clov& e,             TypeInfo tf);
+// [ 4] bool satisfiesConstraint(const Clov& e, ostream& s, TypeInfo tf);
+// [ 4] bool satisfiesConstraint(const void *v,             TypeInfo tf);
+// [ 4] bool satisfiesConstraint(const void *v, ostream& s, TypeInfo tf);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 3] CONCERN: HELPER 'u::shiftType'
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -250,13 +249,12 @@ typedef balcl::TypeInfoConstraint ObjConstraint;
 typedef balcl::TypeInfoUtil       ObjUtil;
 
 typedef balcl::Constraint         Constraint;
-typedef balcl::OptionType         OptionType;
 typedef balcl::OptionValue        OptionValue;
 
-typedef balcl::OptionType       Ot;
-typedef balcl::OptionType::Enum ElemType;
+typedef balcl::OptionType         Ot;
+typedef balcl::OptionType::Enum   ElemType;
 
-typedef bsls::Types::Int64      Int64;
+typedef bsls::Types::Int64        Int64;
 
 // ============================================================================
 //                                TYPE TRAITS
@@ -311,7 +309,7 @@ bool OptConstraint::s_constraintValue = true;
 
 struct OptCharConstraint : public OptConstraint {
     bool operator()(const char *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -322,7 +320,8 @@ struct OptCharConstraint : public OptConstraint {
 
 struct OptIntConstraint : public OptConstraint {
     bool operator()(const int *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
+        // specified 'stream'.
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -333,7 +332,8 @@ struct OptIntConstraint : public OptConstraint {
 
 struct OptInt64Constraint : public OptConstraint {
     bool operator()(const bsls::Types::Int64 *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
+        // specified 'stream'.
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -344,7 +344,8 @@ struct OptInt64Constraint : public OptConstraint {
 
 struct OptDoubleConstraint : public OptConstraint {
     bool operator()(const double *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
+        // specified 'stream'.
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -355,7 +356,8 @@ struct OptDoubleConstraint : public OptConstraint {
 
 struct OptStringConstraint : public OptConstraint {
     bool operator()(const bsl::string *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
+        // specified 'stream'.
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -367,7 +369,8 @@ struct OptStringConstraint : public OptConstraint {
 struct OptDatetimeConstraint : public OptConstraint {
 
     bool operator()(const bdlt::Datetime *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
+        // specified 'stream'.
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -379,7 +382,8 @@ struct OptDatetimeConstraint : public OptConstraint {
 struct OptDateConstraint : public OptConstraint {
 
     bool operator()(const bdlt::Date *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
+        // specified 'stream'.
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -390,7 +394,8 @@ struct OptDateConstraint : public OptConstraint {
 
 struct OptTimeConstraint : public OptConstraint {
     bool operator()(const bdlt::Time *, bsl::ostream& stream) const
-        // Return 's_constraintValue'.
+        // Return 's_constraintValue' and output an error message to the
+        // specified 'stream'.
     {
         if (!s_constraintValue) {
             stream << "error" << flush;
@@ -405,8 +410,8 @@ const struct {
     void     *d_linkedVariable_p;  // linked variable attribute(s)
     void     *d_constraint_p;      // linked variable attribute(s)
 } OPTION_TYPEINFO[] = {
-    // This array provides has an entry for every supported option type with a
-    // linked variable and not, and having a constraint and not.
+    // This array has an entry for every supported option type with a linked
+    // variable and not, and having a constraint and not.
 
    { L_, Ot::e_BOOL,           0,                    0                     }
  , { L_, Ot::e_CHAR,           0,                    0                     }
@@ -480,8 +485,6 @@ const struct {
 enum { NUM_OPTION_TYPEINFO = sizeof  OPTION_TYPEINFO
                            / sizeof *OPTION_TYPEINFO };
 
-#undef VP
-
 bool                        defaultBool          = false;
 char                        defaultChar          = 'D';
 int                         defaultInt           = 1234567;
@@ -551,8 +554,7 @@ static const struct {
     const void *d_value_p;  // default value attribute(s)
     const char *d_input_p;  // default value attribute(s)
 } PARSABLE_VALUES[] = {
-
-  { L_, Ot::e_CHAR,           &parsedChar,           "a"                  }
+  { L_, Ot::e_CHAR,           &parsedChar,          "a"                   }
 , { L_, Ot::e_INT,            &parsedInt,           "123654"              }
 , { L_, Ot::e_INT64,          &parsedInt64,         "987654321"           }
 , { L_, Ot::e_DOUBLE,         &parsedDouble,        "0.376739501953125"   }
@@ -614,49 +616,62 @@ BSLMF_ASSERT(static_cast<int>(NUM_PARSABLE_VALUES)
 namespace {
 namespace u {
 
-                            // ====================
-                            // struct ParserImpUtil
-                            // ====================
+                        // ==================
+                        // function shiftType
+                        // ==================
 
-struct ParserImpUtil {
+Ot::Enum shiftType(Ot::Enum type, int offset)
+    // Return the enumerated value that is the specified 'offset' advanced from
+    // the specified 'type' in the sequence '[Ot::e_BOOL .. Ot::e_TIME_ARRAY]'.
+    // Offsets that go past the end of the sequence wrap around to
+    // 'Ot::e_BOOL'.  The behavior is undefined if 'Ot::e_VOID == type'.  Note
+    // that 'offset' can be negative.  Also note that 'Ot::e_VOID' is *not*
+    // part of the sequence.
+{
+    ///Implementation Note
+    ///-------------------
+    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // guarantee that there are no misleading exceptions thrown when this
+    // function is used in negative tests.
 
-    enum { LOCAL_SUCCESS = 0, LOCAL_FAILURE = 1 };
+    ASSERT(Ot::e_VOID != type || 0 == offset);
 
-    static int skipRequiredToken(const char **endPos,
-                                 const char  *inputString,
-                                 const char  *token);
-        // Skip past the value of the specified 'token' in the specified
-        // 'inputString'.  Store in the specified '*endPos' the address of the
-        // non-modifiable character in 'inputString' immediately following the
-        // successfully matched text, or the position at which the match
-        // failure was detected.  Return 0 if 'token' is found, and a non-zero
-        // value otherwise.
+    int typeAsInt  = static_cast<int>(type);
+    int numOptions = static_cast<int>(Ot::e_TIME_ARRAY) + 1;
 
-    static int skipWhiteSpace(const char **endPos,
-                              const char  *inputString);
-        // Skip over any combination of C-style comments, C++-style comments,
-        // and characters for which 'isspace' returns true in the specified
-        // 'inputString'.  Store in the specified '*endPos' the address of the
-        // non-modifiable character in 'inputString' immediately following the
-        // successfully matched text, or the position at which the match
-        // failure was detected.  Return 0 on success and a non-zero value
-        // otherwise.  If a C++-style comment terminates with '\0', 'endPos'
-        // will point *at* the '\0' and not past it.  The behavior is undefined
-        // if either argument is 0.
-        //
-        // A parse failure can occur for the following reason:
-        //..
-        //   '\0' is found before a C-style comment is terminated with '*/'.
-        //..
-};
+    ASSERT(18 == numOptions);
 
-                            // --------------------
-                            // struct ParserImpUtil
-                            // --------------------
+    // Map range from [1 .. 17] to [0 .. 16].
+    --typeAsInt;
+    --numOptions;
+    offset %= numOptions;
 
-int ParserImpUtil::skipRequiredToken(const char **endPos,
-                                     const char  *inputString,
-                                     const char  *token)
+      // Apply offset.
+    if (0 < offset) {
+        typeAsInt += offset;
+    } else {
+        typeAsInt += (numOptions + offset);
+    }
+
+    typeAsInt %= numOptions;   // Map to   [0 .. 16].
+    typeAsInt += 1;            // Map from [0 .. 16] to [1 .. 17].
+
+    return static_cast<Ot::Enum>(typeAsInt);
+}
+
+                        // ==========================
+                        // function skipRequiredToken
+                        // ==========================
+
+int skipRequiredToken(const char **endPos,
+                      const char  *inputString,
+                      const char  *token)
+    // Skip past the value of the specified 'token' in the specified
+    // 'inputString'.  Store in the specified '*endPos' the address of the
+    // non-modifiable character in 'inputString' immediately following the
+    // successfully matched text, or the position at which the match failure
+    // was detected.  Return 0 if 'token' is found, and a non-zero value
+    // otherwise.
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -671,8 +686,21 @@ int ParserImpUtil::skipRequiredToken(const char **endPos,
     return '\0' != *token;  // return "is null char"
 }
 
-int ParserImpUtil::skipWhiteSpace(const char **endPos,
-                                  const char  *inputString)
+int skipWhiteSpace(const char **endPos, const char  *inputString)
+    // Skip over any combination of C-style comments, C++-style comments, and
+    // characters for which 'isspace' returns true in the specified
+    // 'inputString'.  Store in the specified '*endPos' the address of the
+    // non-modifiable character in 'inputString' immediately following the
+    // successfully matched text, or the position at which the match failure
+    // was detected.  Return 0 on success and a non-zero value otherwise.  If a
+    // C++-style comment terminates with '\0', 'endPos' will point *at* the
+    // '\0' and not past it.  The behavior is undefined if either argument is
+    // 0.
+    //
+    // A parse failure can occur for the following reason:
+    //..
+    //   '\0' is found before a C-style comment is terminated with '*/'.
+    //..
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -683,7 +711,7 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
         }
         if (*inputString != '/') {
             *endPos = inputString;
-            return LOCAL_SUCCESS;                                     // RETURN
+            return 0;                                                 // RETURN
         }
         else {
             ++inputString;
@@ -694,7 +722,7 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
                     if ('\0' == *inputString) {
                         // Comment is erroneous.
                         *endPos = inputString;
-                        return LOCAL_FAILURE;                         // RETURN
+                        return 1;                                     // RETURN
                     }
                     if ('*' == *inputString && '/' == *(inputString + 1)) {
                         // Found end of comment.
@@ -715,32 +743,31 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
                     if ('\0' == *inputString) {
                         // Reached end of string.
                         *endPos = inputString;
-                        return LOCAL_SUCCESS;                         // RETURN
+                        return 0;                                     // RETURN
                     }
                     ++inputString;
                 }
             } else {
                 *endPos = inputString - 1;
-                return LOCAL_SUCCESS;                                 // RETURN
+                return 0;                                             // RETURN
             }
         }
     }
 }
 
-                           // ======================
-                           // function setConstraint
-                           // ======================
+                        // ======================
+                        // function setConstraint
+                        // ======================
 
 void setConstraint(Obj *typeInfo, ElemType type, const void *address)
     // Set the constraint of the specified 'typeInfo' to the function at the
     // specified 'address' of the signature corresponding to the specified
-    // 'type'.  The behavior is undefined unless
-    // 'balcl::OptionType::e_VOID != type' and
-    // 'balcl::OptionType::e_BOOL != type'.
+    // 'type'.  The behavior is undefined unless 'Ot::e_VOID != type' and
+    // 'Ot::e_BOOL != type'.
 {
     BSLS_ASSERT(typeInfo);
-    BSLS_ASSERT(balcl::OptionType::e_VOID != type);
-    BSLS_ASSERT(balcl::OptionType::e_BOOL != type);
+    BSLS_ASSERT(Ot::e_VOID != type);
+    BSLS_ASSERT(Ot::e_BOOL != type);
     BSLS_ASSERT(address);
 
     switch (type) {
@@ -793,151 +820,102 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
     };
 }
 
-                         // ==========================
-                         // function setLinkedVariable
-                         // ==========================
+                        // ==========================
+                        // function setLinkedVariable
+                        // ==========================
 
 void setLinkedVariable(Obj *typeInfo, ElemType type, void *address)
     // Set the linked variable of the specified 'typeInfo' to the variable at
     // the specified 'address'.  The behavior is undefined unless 'address' can
     // be cast to a pointer to the type associated with the specified 'type'
-    // (i.e., 'balcl::OptionType::EnumToType<type>::type *').
+    // (i.e., 'Ot::EnumToType<ENUM>::type *' where 'ENUM' matches any of the
+    // enumerators of 'Ot::OptionType' expect 'Ot::e_VOID').
 {
-    switch (type) {
-      case Ot::e_BOOL: {
-        typeInfo->setLinkedVariable(static_cast<bool *>             (address));
-      } break;
-      case Ot::e_CHAR: {
-        typeInfo->setLinkedVariable(static_cast<char *>             (address));
-      } break;
-      case Ot::e_INT: {
-        typeInfo->setLinkedVariable(static_cast<int *>              (address));
-      } break;
-      case Ot::e_INT64: {
-        typeInfo->setLinkedVariable(static_cast<Int64 *>            (address));
-      } break;
-      case Ot::e_DOUBLE: {
-        typeInfo->setLinkedVariable(static_cast<double *>           (address));
-      } break;
-      case Ot::e_STRING: {
-        typeInfo->setLinkedVariable(static_cast<bsl::string *>      (address));
-      } break;
-      case Ot::e_DATETIME: {
-        typeInfo->setLinkedVariable(static_cast<bdlt::Datetime *>   (address));
-      } break;
-      case Ot::e_DATE: {
-        typeInfo->setLinkedVariable(static_cast<bdlt::Date *>       (address));
-      } break;
-      case Ot::e_TIME: {
-        typeInfo->setLinkedVariable(static_cast<bdlt::Time *>       (address));
-      } break;
-      case Ot::e_CHAR_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<char> *>(address));
-      } break;
-      case Ot::e_INT_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<int> *> (address));
-      } break;
-      case Ot::e_INT64_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<Int64> *>(
-                                                                     address));
-      } break;
-      case Ot::e_DOUBLE_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<double> *>(
-                                                                     address));
-      } break;
-      case Ot::e_STRING_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<bsl::string> *>(
-                                                                     address));
-      } break;
-      case Ot::e_DATETIME_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<bdlt::Datetime> *>(
-                                                                     address));
-      } break;
-      case Ot::e_DATE_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<bdlt::Date> *>(
-                                                                     address));
-      } break;
-      case Ot::e_TIME_ARRAY: {
-        typeInfo->setLinkedVariable(static_cast<bsl::vector<bdlt::Time> *>(
-                                                                     address));
-      } break;
-      default: {
-        ASSERT(0);
-      } break;
-    };
-}
+    ASSERT(typeInfo);
 
-                         // ================
-                         // function setType
-                         // ================
+#define CASE(ENUM)                                                            \
+    case ENUM: {                                                              \
+      typeInfo->setLinkedVariable(static_cast<Ot::EnumToType<ENUM>::type *>(  \
+                                                                   address)); \
+    } break;                                                                  \
 
-void setType(Obj *typeInfo, ElemType type)
-    // Set the 'balcl::OptionType' element of the specified 'typeInfo' to the
-    // specified 'type'.  The behavior is undefined unless
-    // 'balcl::OptionType::e_VOID != type').  Note that this resets both the
-    // linked variable and constraint of 'typeInfo'.
-{
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"reachable");
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
-      case Ot::e_BOOL: {
-        typeInfo->setLinkedVariable(Ot::k_BOOL);
-      } break;
-      case Ot::e_CHAR: {
-        typeInfo->setLinkedVariable(Ot::k_CHAR);
-      } break;
-      case Ot::e_INT: {
-        typeInfo->setLinkedVariable(Ot::k_INT);
-      } break;
-      case Ot::e_INT64: {
-        typeInfo->setLinkedVariable(Ot::k_INT64);
-      } break;
-      case Ot::e_DOUBLE: {
-        typeInfo->setLinkedVariable(Ot::k_DOUBLE);
-      } break;
-      case Ot::e_STRING: {
-        typeInfo->setLinkedVariable(Ot::k_STRING);
-      } break;
-      case Ot::e_DATETIME: {
-        typeInfo->setLinkedVariable(Ot::k_DATETIME);
-      } break;
-      case Ot::e_DATE: {
-        typeInfo->setLinkedVariable(Ot::k_DATE);
-      } break;
-      case Ot::e_TIME: {
-        typeInfo->setLinkedVariable(Ot::k_TIME);
-      } break;
-      case Ot::e_CHAR_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_CHAR_ARRAY);
-      } break;
-      case Ot::e_INT_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_INT_ARRAY);
-      } break;
-      case Ot::e_INT64_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_INT64_ARRAY);
-      } break;
-      case Ot::e_DOUBLE_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_DOUBLE_ARRAY);
-      } break;
-      case Ot::e_STRING_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_STRING_ARRAY);
-      } break;
-      case Ot::e_DATETIME_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_DATETIME_ARRAY);
-      } break;
-      case Ot::e_DATE_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_DATE_ARRAY);
-      } break;
-      case Ot::e_TIME_ARRAY: {
-        typeInfo->setLinkedVariable(Ot::k_TIME_ARRAY);
+      CASE(Ot::e_BOOL)
+      CASE(Ot::e_CHAR)
+      CASE(Ot::e_INT)
+      CASE(Ot::e_INT64)
+      CASE(Ot::e_DOUBLE)
+      CASE(Ot::e_STRING)
+      CASE(Ot::e_DATETIME)
+      CASE(Ot::e_DATE)
+      CASE(Ot::e_TIME)
+      CASE(Ot::e_CHAR_ARRAY)
+      CASE(Ot::e_INT_ARRAY)
+      CASE(Ot::e_INT64_ARRAY)
+      CASE(Ot::e_DOUBLE_ARRAY)
+      CASE(Ot::e_STRING_ARRAY)
+      CASE(Ot::e_DATETIME_ARRAY)
+      CASE(Ot::e_DATE_ARRAY)
+      CASE(Ot::e_TIME_ARRAY)
+      default: {
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     };
+#undef CASE
 }
 
-                          // ====================
-                          // function setTypeInfo
-                          // ====================
+
+                        // ================
+                        // function setType
+                        // ================
+
+void setType(Obj *typeInfo, ElemType type)
+    // Set the 'Ot::OptionType' element of the specified 'typeInfo' to the
+    // specified 'type'.  The behavior is undefined unless
+    // 'Ot::e_VOID != type'.  Note that this resets both the linked variable
+    // and constraint of 'typeInfo'.
+{
+    ASSERT(typeInfo);
+
+#define CASE(ROOT)                                                            \
+    case Ot::e_##ROOT: {                                                      \
+      typeInfo->setLinkedVariable(Ot::k_##ROOT);                              \
+    } break;                                                                  \
+
+    switch (type) {
+      case Ot::e_VOID: {
+        BSLS_ASSERT(!"Reachable");
+      } break;
+      CASE(BOOL)
+      CASE(CHAR)
+      CASE(INT)
+      CASE(INT64)
+      CASE(DOUBLE)
+      CASE(STRING)
+      CASE(DATETIME)
+      CASE(DATE)
+      CASE(TIME)
+      CASE(CHAR_ARRAY)
+      CASE(INT_ARRAY)
+      CASE(INT64_ARRAY)
+      CASE(DOUBLE_ARRAY)
+      CASE(STRING_ARRAY)
+      CASE(DATETIME_ARRAY)
+      CASE(DATE_ARRAY)
+      CASE(TIME_ARRAY)
+      default: {
+        BSLS_ASSERT(!"Reached: Unknown");
+      } break;
+    };
+#undef CASE
+}
+
+                        // ====================
+                        // function setTypeInfo
+                        // ====================
 
 void setTypeInfo(Obj      *typeInfo,
                  ElemType  type,
@@ -945,15 +923,15 @@ void setTypeInfo(Obj      *typeInfo,
                  void     *constraint = 0)
     // Set the specified 'typeInfo' to have the specified 'type'.  Optionally
     // specify 'variable', the address of a linked variable and 'constraint',
-    // the address of a constraint.  The behavior is undefined unless unless
-    // 'balcl::OptionType::e_VOID != type', 'variable' is 0 or can be cast to
-    // 'balcl::OptionType::EnumToType<type>::type', 'constraint' is 0 or can be
-    // cast to the type defined by 'Constraint' for 'type', and if
-    // 'balcl::OptionType::e_BOOL == type' then 'constraint' must be 0.
+    // the address of a constraint.  The behavior is undefined unless
+    // 'Ot::e_VOID != type', 'variable' is 0 or can be cast to
+    // 'Ot::EnumToType<type>::type', 'constraint' is 0 or can be cast to the
+    // type defined by 'Constraint' for 'type', and if 'Ot::e_BOOL == type'
+    // then 'constraint' is 0.
 {
     BSLS_ASSERT(typeInfo);
 
-    if (balcl::OptionType::e_BOOL == type) {
+    if (Ot::e_BOOL == type) {
         BSLS_ASSERT(0 == constraint);
     }
 
@@ -967,103 +945,135 @@ void setTypeInfo(Obj      *typeInfo,
     }
 }
 
-                          // ==========================
-                          // function constructTypeInfo
-                          // ==========================
+                        // ==========================
+                        // function constructTypeInfo
+                        // ==========================
+
 
 Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
     // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type'.  If 'variable' is not 0, that
-    // address is linked to the option.  There is no constraint on the value.
-    // The returned object will use the currently defined default allocator.
-    // The caller is required to explicitly invoke the destructor of the
-    // returned object.  The behavior is undefined unless unless
-    // 'balcl::OptionType::e_VOID != type' and 'variable' can be cast to
-    // 'balcl::OptionType::EnumToType<type>::type'.
+    // 'buffer' and having the specified 'type'.  If the specified 'variable'
+    // is not 0, that address is linked to the option.  There is no constraint
+    // on the value.  The returned object will use the currently defined
+    // default allocator.  The caller is required to explicitly invoke the
+    // destructor of the returned object.  The behavior is undefined unless
+    // 'Ot::e_VOID != type' and 'variable' can be cast to
+    // 'Ot::EnumToType<type>::type'.
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(balcl::OptionType::e_VOID != type);
+    BSLS_ASSERT(Ot::e_VOID != type);
 
     Obj *ptr = 0;
 
+#define CASE(ENUM)                                                            \
+    case ENUM: {                                                              \
+      ptr = new (buffer) Obj(static_cast<Ot::EnumToType<ENUM>::type *>(       \
+                                                                  variable)); \
+    } break;                                                                  \
+
     switch (type) {
-//v---^
-  case Ot::e_VOID: {
-    BSLS_ASSERT(!"Reached: 'e_VOID'");
-  } break;
-  case Ot::e_BOOL: {
-    ptr = new (buffer) Obj(static_cast<Ot::Bool          *>(variable));
-  } break;
-  case Ot::e_CHAR: {
-    ptr = new (buffer) Obj(static_cast<Ot::Char          *>(variable));
-  } break;
-  case Ot::e_INT: {
-    ptr = new (buffer) Obj(static_cast<Ot::Int           *>(variable));
-  } break;
-  case Ot::e_INT64: {
-    ptr = new (buffer) Obj(static_cast<Ot::Int64         *>(variable));
-  } break;
-  case Ot::e_DOUBLE: {
-    ptr = new (buffer) Obj(static_cast<Ot::Double        *>(variable));
-  } break;
-  case Ot::e_STRING: {
-    ptr = new (buffer) Obj(static_cast<Ot::String        *>(variable));
-  } break;
-  case Ot::e_DATETIME: {
-    ptr = new (buffer) Obj(static_cast<Ot::Datetime      *>(variable));
-  } break;
-  case Ot::e_DATE: {
-    ptr = new (buffer) Obj(static_cast<Ot::Date          *>(variable));
-  } break;
-  case Ot::e_TIME: {
-    ptr = new (buffer) Obj(static_cast<Ot::Time          *>(variable));
-  } break;
-  case Ot::e_CHAR_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::CharArray     *>(variable));
-  } break;
-  case Ot::e_INT_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::IntArray      *>(variable));
-  } break;
-  case Ot::e_INT64_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::Int64Array    *>(variable));
-  } break;
-  case Ot::e_DOUBLE_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::DoubleArray   *>(variable));
-  } break;
-  case Ot::e_STRING_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::StringArray   *>(variable));
-  } break;
-  case Ot::e_DATETIME_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::DatetimeArray *>(variable));
-  } break;
-  case Ot::e_DATE_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::DateArray     *>(variable));
-  } break;
-  case Ot::e_TIME_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::TimeArray     *>(variable));
-  } break;
-//^---v
+      case Ot::e_VOID: {
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
+      } break;
+      CASE(Ot::e_BOOL)
+      CASE(Ot::e_CHAR)
+      CASE(Ot::e_INT)
+      CASE(Ot::e_INT64)
+      CASE(Ot::e_DOUBLE)
+      CASE(Ot::e_STRING)
+      CASE(Ot::e_DATETIME)
+      CASE(Ot::e_DATE)
+      CASE(Ot::e_TIME)
+      CASE(Ot::e_CHAR_ARRAY)
+      CASE(Ot::e_INT_ARRAY)
+      CASE(Ot::e_INT64_ARRAY)
+      CASE(Ot::e_DOUBLE_ARRAY)
+      CASE(Ot::e_STRING_ARRAY)
+      CASE(Ot::e_DATETIME_ARRAY)
+      CASE(Ot::e_DATE_ARRAY)
+      CASE(Ot::e_TIME_ARRAY)
+      default: {
+        BSLS_ASSERT(!"Reached: Unknown");
+      } break;
     }
+#undef CASE
+
     return ptr;
 }
+
+Obj *constructTypeInfo(void             *buffer,
+                       ElemType          type,
+                       void             *variable,
+                       bslma::Allocator *basicAllocator)
+    // Return the address of a 'TypeInfo' object created in the specified
+    // 'buffer' and having the specified 'type'.  If the specified 'variable'
+    // is not 0, that address is linked to the option.  There is no constraint
+    // on the value.  The returned object will use the currently defined
+    // default allocator.  The caller is required to explicitly invoke the
+    // destructor of the returned object.  The behavior is undefined unless
+    // 'Ot::e_VOID != type' and 'variable' can be cast to
+    // 'Ot::EnumToType<type>::type'.
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(Ot::e_VOID != type);
+
+    Obj *ptr = 0;
+
+#define CASE(ENUM)                                                            \
+    case ENUM: {                                                              \
+      ptr = new (buffer) Obj(static_cast<Ot::EnumToType<ENUM>::type *>(       \
+                                                                   variable), \
+                             basicAllocator);                                 \
+    } break;                                                                  \
+
+    switch (type) {
+      case Ot::e_VOID: {
+        BSLS_ASSERT(!"Reached");
+      } break;
+      CASE(Ot::e_BOOL)
+      CASE(Ot::e_CHAR)
+      CASE(Ot::e_INT)
+      CASE(Ot::e_INT64)
+      CASE(Ot::e_DOUBLE)
+      CASE(Ot::e_STRING)
+      CASE(Ot::e_DATETIME)
+      CASE(Ot::e_DATE)
+      CASE(Ot::e_TIME)
+      CASE(Ot::e_CHAR_ARRAY)
+      CASE(Ot::e_INT_ARRAY)
+      CASE(Ot::e_INT64_ARRAY)
+      CASE(Ot::e_DOUBLE_ARRAY)
+      CASE(Ot::e_STRING_ARRAY)
+      CASE(Ot::e_DATETIME_ARRAY)
+      CASE(Ot::e_DATE_ARRAY)
+      CASE(Ot::e_TIME_ARRAY)
+      default: {
+        BSLS_ASSERT(!"Reached: Unknown");
+      } break;
+    }
+#undef CASE
+
+    return ptr;
+}
+
 
 Obj *constructTypeInfo(void     *buffer,
                        ElemType  type,
                        void     *variable,
                        void     *constraint)
     // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type' and 'constraint', If 'variable'
-    // is not 0, that address is linked to the option.  The returned object
-    // uses the currently defined default allocator.  The caller is required to
-    // explicitly invoke the destructor of the returned object.  The behavior
-    // is undefined unless unless 'balcl::OptionType::e_VOID != type',
-    // 'balcl::OptionType::e_BOOL != type', 'variable' can be cast to
-    // 'balcl::OptionType::EnumToType<type>::type', and 'constraint' can be
-    // cast to the type defined by 'Constraint' for 'type'.
+    // 'buffer' and having the specified 'type' and 'constraint'.  If the
+    // specified 'variable' is not 0, that address is linked to the option.
+    // The returned object uses the currently defined default allocator.  The
+    // caller is required to explicitly invoke the destructor of the returned
+    // object.  The behavior is undefined unless 'Ot::e_VOID != type',
+    // 'Ot::e_BOOL != type', 'variable' can be cast to
+    // 'Ot::EnumToType<type>::type', and 'constraint' can be cast to the type
+    // defined by 'Constraint' for 'type'.
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(balcl::OptionType::e_VOID != type);
-    BSLS_ASSERT(balcl::OptionType::e_BOOL != type);
+    BSLS_ASSERT(Ot::e_VOID != type);
+    BSLS_ASSERT(Ot::e_BOOL != type);
     BSLS_ASSERT(constraint);
 
     Obj *ptr = 0;
@@ -1077,67 +1087,83 @@ Obj *constructTypeInfo(void     *buffer,
     BSLS_ASSERT(!"Reached: 'e_BOOL'");
   } break;
   case Ot::e_CHAR: {
-    ptr = new (buffer) Obj(static_cast<Ot::Char          *>(variable),
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::Char                   *>(variable  ),
                        *static_cast<Constraint::CharConstraint *>(constraint));
   } break;
   case Ot::e_INT: {
-    ptr = new (buffer) Obj(static_cast<Ot::Int           *>(variable),
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::Int                   *>(variable  ),
                         *static_cast<Constraint::IntConstraint *>(constraint));
   } break;
   case Ot::e_INT64: {
-    ptr = new (buffer) Obj(static_cast<Ot::Int64         *>(variable),
+    ptr = new (buffer) Obj(
+                       static_cast<Ot::Int64                   *>(variable  ),
                       *static_cast<Constraint::Int64Constraint *>(constraint));
   } break;
   case Ot::e_DOUBLE: {
-    ptr = new (buffer) Obj(static_cast<Ot::Double        *>(variable),
+    ptr = new (buffer) Obj(
+                      static_cast<Ot::Double                   *>(variable  ),
                      *static_cast<Constraint::DoubleConstraint *>(constraint));
   } break;
   case Ot::e_STRING: {
-    ptr = new (buffer) Obj(static_cast<Ot::String        *>(variable),
+    ptr = new (buffer) Obj(
+                      static_cast<Ot::String                   *>(variable  ),
                      *static_cast<Constraint::StringConstraint *>(constraint));
   } break;
   case Ot::e_DATETIME: {
-    ptr = new (buffer) Obj(static_cast<Ot::Datetime      *>(variable),
+    ptr = new (buffer) Obj(
+                    static_cast<Ot::Datetime                   *>(variable  ),
                    *static_cast<Constraint::DatetimeConstraint *>(constraint));
   } break;
   case Ot::e_DATE: {
-    ptr = new (buffer) Obj(static_cast<Ot::Date          *>(variable),
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::Date                   *>(variable  ),
                        *static_cast<Constraint::DateConstraint *>(constraint));
   } break;
   case Ot::e_TIME: {
-    ptr = new (buffer) Obj(static_cast<Ot::Time          *>(variable),
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::Time                   *>(variable  ),
                        *static_cast<Constraint::TimeConstraint *>(constraint));
   } break;
   case Ot::e_CHAR_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::CharArray     *>(variable),
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::CharArray              *>(variable  ),
                        *static_cast<Constraint::CharConstraint *>(constraint));
   } break;
   case Ot::e_INT_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::IntArray      *>(variable),
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::IntArray              *>(variable  ),
                         *static_cast<Constraint::IntConstraint *>(constraint));
   } break;
   case Ot::e_INT64_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::Int64Array    *>(variable),
+    ptr = new (buffer) Obj(
+                       static_cast<Ot::Int64Array              *>(variable  ),
                       *static_cast<Constraint::Int64Constraint *>(constraint));
   } break;
   case Ot::e_DOUBLE_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::DoubleArray   *>(variable),
+    ptr = new (buffer) Obj(
+                      static_cast<Ot::DoubleArray              *>(variable  ),
                      *static_cast<Constraint::DoubleConstraint *>(constraint));
   } break;
   case Ot::e_STRING_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::StringArray   *>(variable),
+    ptr = new (buffer) Obj(
+                      static_cast<Ot::StringArray              *>(variable  ),
                      *static_cast<Constraint::StringConstraint *>(constraint));
   } break;
   case Ot::e_DATETIME_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::DatetimeArray *>(variable),
+    ptr = new (buffer) Obj(
+                    static_cast<Ot::DatetimeArray              *>(variable  ),
                    *static_cast<Constraint::DatetimeConstraint *>(constraint));
   } break;
   case Ot::e_DATE_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::DateArray     *>(variable),
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::DateArray              *>(variable  ),
                        *static_cast<Constraint::DateConstraint *>(constraint));
   } break;
   case Ot::e_TIME_ARRAY: {
-    ptr = new (buffer) Obj(static_cast<Ot::TimeArray     *>(variable),
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::TimeArray              *>(variable  ),
                        *static_cast<Constraint::TimeConstraint *>(constraint));
   } break;
 //^---v
@@ -1145,40 +1171,169 @@ Obj *constructTypeInfo(void     *buffer,
     return ptr;
 }
 
-                          // ========================
-                           // function parseTypeInfo
-                          // ========================
+Obj *constructTypeInfo(void             *buffer,
+                       ElemType          type,
+                       void             *variable,
+                       void             *constraint,
+                       bslma::Allocator *basicAllocator)
+    // Return the address of a 'TypeInfo' object created in the specified
+    // 'buffer' and having the specified 'type' and 'constraint'.  If the
+    // specified 'variable' is not 0, that address is linked to the option.
+    // The returned object uses the currently defined default allocator.  The
+    // caller is required to explicitly invoke the destructor of the returned
+    // object.  The behavior is undefined unless 'Ot::e_VOID != type',
+    // 'Ot::e_BOOL != type', 'variable' can be cast to
+    // 'Ot::EnumToType<type>::type', and 'constraint' can be cast to the type
+    // defined by 'Constraint' for 'type'.
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(Ot::e_VOID != type);
+    BSLS_ASSERT(Ot::e_BOOL != type);
+    BSLS_ASSERT(constraint);
+
+    Obj *ptr = 0;
+
+    switch (type) {
+//v---^
+  case Ot::e_VOID: {
+    BSLS_ASSERT(!"Reached: 'e_VOID'");
+  } break;
+  case Ot::e_BOOL: {
+    BSLS_ASSERT(!"Reached: 'e_BOOL'");
+  } break;
+  case Ot::e_CHAR: {
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::Char                   *>(variable  ),
+                        *static_cast<Constraint::CharConstraint *>(constraint),
+                         basicAllocator);
+  } break;
+  case Ot::e_INT: {
+    ptr = new (buffer) Obj(
+                          static_cast<Ot::Int                   *>(variable  ),
+                         *static_cast<Constraint::IntConstraint *>(constraint),
+                          basicAllocator);
+  } break;
+  case Ot::e_INT64: {
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::Int64                   *>(variable  ),
+                       *static_cast<Constraint::Int64Constraint *>(constraint),
+                        basicAllocator);
+  } break;
+  case Ot::e_DOUBLE: {
+    ptr = new (buffer) Obj(
+                       static_cast<Ot::Double                   *>(variable  ),
+                      *static_cast<Constraint::DoubleConstraint *>(constraint),
+                       basicAllocator);
+  } break;
+  case Ot::e_STRING: {
+    ptr = new (buffer) Obj(
+                       static_cast<Ot::String                   *>(variable  ),
+                      *static_cast<Constraint::StringConstraint *>(constraint),
+                       basicAllocator);
+  } break;
+  case Ot::e_DATETIME: {
+    ptr = new (buffer) Obj(
+                     static_cast<Ot::Datetime                   *>(variable  ),
+                    *static_cast<Constraint::DatetimeConstraint *>(constraint),
+                     basicAllocator);
+  } break;
+  case Ot::e_DATE: {
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::Date                   *>(variable  ),
+                        *static_cast<Constraint::DateConstraint *>(constraint),
+                         basicAllocator);
+  } break;
+  case Ot::e_TIME: {
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::Time                    *>(variable  ),
+                        *static_cast<Constraint::TimeConstraint *>(constraint),
+                         basicAllocator);
+  } break;
+  case Ot::e_CHAR_ARRAY: {
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::CharArray              *>(variable  ),
+                        *static_cast<Constraint::CharConstraint *>(constraint),
+                         basicAllocator);
+  } break;
+  case Ot::e_INT_ARRAY: {
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::IntArray               *>(variable  ),
+                         *static_cast<Constraint::IntConstraint *>(constraint),
+                          basicAllocator);
+  } break;
+  case Ot::e_INT64_ARRAY: {
+    ptr = new (buffer) Obj(
+                        static_cast<Ot::Int64Array              *>(variable  ),
+                       *static_cast<Constraint::Int64Constraint *>(constraint),
+                        basicAllocator);
+  } break;
+  case Ot::e_DOUBLE_ARRAY: {
+    ptr = new (buffer) Obj(
+                       static_cast<Ot::DoubleArray              *>(variable  ),
+                      *static_cast<Constraint::DoubleConstraint *>(constraint),
+                       basicAllocator);
+  } break;
+  case Ot::e_STRING_ARRAY: {
+    ptr = new (buffer) Obj(
+                       static_cast<Ot::StringArray              *>(variable  ),
+                      *static_cast<Constraint::StringConstraint *>(constraint),
+                       basicAllocator);
+  } break;
+  case Ot::e_DATETIME_ARRAY: {
+    ptr = new (buffer) Obj(
+                     static_cast<Ot::DatetimeArray              *>(variable  ),
+                    *static_cast<Constraint::DatetimeConstraint *>(constraint),
+                     basicAllocator);
+  } break;
+  case Ot::e_DATE_ARRAY: {
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::DateArray              *>(variable  ),
+                        *static_cast<Constraint::DateConstraint *>(constraint),
+                         basicAllocator);
+  } break;
+  case Ot::e_TIME_ARRAY: {
+    ptr = new (buffer) Obj(
+                         static_cast<Ot::TimeArray              *>(variable  ),
+                        *static_cast<Constraint::TimeConstraint *>(constraint),
+                         basicAllocator);
+  } break;
+//^---v
+    }
+    return ptr;
+}
+                        // ======================
+                        // function parseTypeInfo
+                        // ======================
 
 int parseTypeInfo(const char **endpos,
                   const Obj&   typeInfo,
                   const char  *input)
     // Parse the specified 'input' for a value and verify that this value
-    // matches the specified 'typeInfo' (at least in 'balcl::OptionType' type)
-    // and return 0 if parsing and verification succeed.  Return a non-zero
-    // value if parsing fails or if the value parsed does not match 'typeInfo',
-    // and return in the specified 'endpos' the first unsuccessful parsing
+    // matches the specified 'typeInfo' (at least in 'Ot::OptionType' type) and
+    // return 0 if parsing and verification succeed.  Return a non-zero value
+    // if parsing fails or if the value parsed does not match 'typeInfo', and
+    // return in the specified 'endpos' the first unsuccessful parsing
     // position.
 {
-    typedef ParserImpUtil Parser;
     enum { SUCCESS = 0, FAILURE = -1 };
 
     bsl::string ptrString;
 
-    if (Parser::skipWhiteSpace   (&input, input)
-     || Parser::skipRequiredToken(&input, input, "{")
-     || Parser::skipWhiteSpace   (&input, input)
-     || Parser::skipRequiredToken(&input, input, "TYPE")
-     || Parser::skipWhiteSpace   (&input, input)
-     || Parser::skipRequiredToken(&input, input, Ot::toAscii(typeInfo.type())))
+    if (skipWhiteSpace   (&input, input)
+     || skipRequiredToken(&input, input, "{")
+     || skipWhiteSpace   (&input, input)
+     || skipRequiredToken(&input, input, "TYPE")
+     || skipWhiteSpace   (&input, input)
+     || skipRequiredToken(&input, input, Ot::toAscii(typeInfo.type())))
     {
         *endpos = input;
         return FAILURE;                                               // RETURN
     }
 
     if (typeInfo.linkedVariable()) {
-        if (Parser::skipWhiteSpace   (&input, input)
-         || Parser::skipRequiredToken(&input, input, "VARIABLE")
-         || Parser::skipWhiteSpace   (&input, input))
+        if (skipWhiteSpace   (&input, input)
+         || skipRequiredToken(&input, input, "VARIABLE")
+         || skipWhiteSpace   (&input, input))
         {
             *endpos = input;
             return FAILURE;                                           // RETURN
@@ -1200,9 +1355,9 @@ int parseTypeInfo(const char **endpos,
         }
     }
 
-    if (Parser::skipWhiteSpace   (&input, input)
-     || Parser::skipRequiredToken(&input, input, "CONSTRAINT")
-     || Parser::skipWhiteSpace   (&input, input))
+    if (skipWhiteSpace   (&input, input)
+     || skipRequiredToken(&input, input, "CONSTRAINT")
+     || skipWhiteSpace   (&input, input))
     {
         *endpos = input;
         return FAILURE;                                               // RETURN
@@ -1223,8 +1378,8 @@ int parseTypeInfo(const char **endpos,
         }
     }
 
-    if (Parser::skipWhiteSpace   (&input, input)
-     || Parser::skipRequiredToken(&input, input, "}"))
+    if (skipWhiteSpace   (&input, input)
+     || skipRequiredToken(&input, input, "}"))
     {
         *endpos = input;
         return FAILURE;                                               // RETURN
@@ -1234,25 +1389,24 @@ int parseTypeInfo(const char **endpos,
     return SUCCESS;
 }
 
-                          // =======================
-                          // function setOptionValue
-                          // =======================
+                        // =======================
+                        // function setOptionValue
+                        // =======================
 
 void setOptionValue(OptionValue *dst, const void *src, ElemType type)
     // Set the value at the specified 'dst' to the value found at the specified
     // 'src' that is of the specified 'type'.  The behavior is undefined unless
-    // 'src' can be cast to a pointer of
-    // 'balcl::OptionType::EnumToType<type>::type',
-    // 'balcl::OptionType::e_VOID != type', and 'dst->type() == type'.
+    // 'src' can be cast to a pointer of 'Ot::EnumToType<type>::type',
+    // 'Ot::e_VOID != type', and 'dst->type() == type'.
 {
     BSLS_ASSERT(dst);
     BSLS_ASSERT(src);
-    BSLS_ASSERT(OptionType::e_VOID != type);
+    BSLS_ASSERT(Ot::e_VOID != type);
     BSLS_ASSERT(dst->type()        == type);
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT(!"Not reachable.");
+        BSLS_ASSERT(!"Reachable");
       } break;
       case Ot::e_BOOL: {
         dst->set(*(static_cast<const Ot::Bool          *>(src)));
@@ -1308,9 +1462,9 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
     }
 }
 
-                          // =============================
-                          // function normalizeIndentation
-                          // =============================
+                        // =============================
+                        // function normalizeIndentation
+                        // =============================
 
 void normalizeIndentation(bsl::string        *output,
                           const bsl::string&  input,
@@ -1318,8 +1472,8 @@ void normalizeIndentation(bsl::string        *output,
                           int                 spacesPerLevel)
     // Load to the specified 'output' a "normalized" version of the specified
     // 'input' where 'input' is the output of the 'TypeInfo' 'print' method
-    // called with the specified 'level' and 'spacesPerlevel'.  The
-    // "normalized' version corresponds to calling 'print' with 'level' and
+    // called with the specified 'level' and the specified 'spacesPerLevel'.
+    // The "normalized" version corresponds to calling 'print' with 'level' and
     // 'spacesPerLevel' having the values 0 and 4, respectively.  The behavior
     // is undefined unless 'level' and 'spacesPerLevel' are both non-negative,
     // and unless 'output->empty()'.
@@ -1370,22 +1524,20 @@ void normalizeIndentation(bsl::string        *output,
     }
 }
 
+bool areEqualValues(const OptionValue& element, const void *value)
+    // Return 'true' if the value of the specified 'element' is the same as
+    // that found at the specified 'value', and 'false' otherwise.  The
+    // behavior is undefined unless 'Ot::e_VOID != element.type()',
+    // 'Ot::e_BOOL != element.type()', and 'value' can be (validly) cast to
+    // 'Ot::EnumToType<ENUM>::type *' where 'ENUM' matches 'element.type()'.
+{
+    BSLS_ASSERT(value);
+
 #define CASE(ENUM)                                                            \
     case ENUM: {                                                              \
       return      element.the<      Ot::EnumToType<ENUM>::type  >()           \
              == *(static_cast<const Ot::EnumToType<ENUM>::type *>(value));    \
     } break;
-
-bool areEqualValues(const OptionValue& element, const void *value)
-    // Return 'true' if the value of the specified 'element' is the same as
-    // that found at the specified 'value', and 'false' value otherwise.  The
-    // behavior is undefined unless
-    // 'balcl::OptionType::e_VOID != element.type()',
-    // 'balcl::OptionType::e_BOOL != element.type()', and 'value' can be
-    // (validly) cast to 'balcl::OptionType::EnumToType<ENUM>::type *' where
-    // 'ENUM' matches 'element.type()'.
-{
-    BSLS_ASSERT(value);
 
     switch (element.type()) {
       case Ot::e_VOID: {
@@ -1411,13 +1563,22 @@ bool areEqualValues(const OptionValue& element, const void *value)
       CASE(Ot::e_DATE_ARRAY)
       CASE(Ot::e_TIME_ARRAY)
       default: {
-        BSLS_ASSERT(!"Reached: Unkown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
+#undef CASE
 
     return false;
 }
-#undef CASE
+
+void printValue(ostream& stream, Ot::Enum type, const void *value)
+    // Print to the specified 'stream' the value at the specified 'value'.  The
+    // behavior is undefined unless 'value' can be (validly) cast to
+    // 'Ot::EnumToType<ENUM>::type *' where 'ENUM' matches the specified
+    // 'type'.  Each of the array types are assumed to contain a single
+    // element.
+{
+    BSLS_ASSERT(value);
 
 #define CASE_SCALAR(ENUM)                                                     \
     case ENUM: {                                                              \
@@ -1425,16 +1586,14 @@ bool areEqualValues(const OptionValue& element, const void *value)
                  << endl;                                                     \
     } break;
 
+
 #define CASE_ARRAY(ENUM)                                                      \
     case ENUM: {                                                              \
           stream                                                              \
             << (*(static_cast<const Ot::EnumToType<ENUM>::type *>(value)))[0] \
+                                                                              \
             << endl;                                                          \
     } break;
-
-void printValue(ostream& stream, Ot::Enum type, const void *value)
-{
-    BSLS_ASSERT(value);
 
     switch (type) {
       case Ot::e_VOID: {
@@ -1443,6 +1602,7 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
       case Ot::e_BOOL: {
         BSLS_ASSERT(!"Reached: e_BOOL");
       } break;
+
       CASE_SCALAR(Ot::e_CHAR)
       CASE_SCALAR(Ot::e_INT)
       CASE_SCALAR(Ot::e_INT64)
@@ -1451,6 +1611,7 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
       CASE_SCALAR(Ot::e_DATETIME)
       CASE_SCALAR(Ot::e_DATE)
       CASE_SCALAR(Ot::e_TIME)
+
       CASE_ARRAY( Ot::e_CHAR_ARRAY)
       CASE_ARRAY( Ot::e_INT_ARRAY)
       CASE_ARRAY( Ot::e_INT64_ARRAY)
@@ -1460,43 +1621,15 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
       CASE_ARRAY( Ot::e_DATE_ARRAY)
       CASE_ARRAY( Ot::e_TIME_ARRAY)
       default: {
-        BSLS_ASSERT(!"Reached: Unkown");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
-    }
-}
 #undef CASE_SCALAR
 #undef CASE_ARRAY
-
-const char *strdiffpos(const char *str1, const char *str2)
-{
-    BSLS_ASSERT(str1);
-    BSLS_ASSERT(str2);
-
-    const char *p1 = str1;
-    const char *p2 = str2;
-
-    for ( ; *p1 && *p2; ++p1, ++p2) {
-        if (*p1 != *p2) {
-            return p1;
-        }
     }
-
-    if (0 == *p1 && 0 == *p2) {
-        return 0;
-    }
-
-    BSLS_ASSERT(*p1 || *p2);  // one is longer
-    return p1;
 }
-
-#undef CASE
 
 }  // close namespace u
 }  // close unnamed namespace
-
-// ============================================================================
-//                  USAGE EXAMPLE CLASSES AND FUNCTIONS
-// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -1512,14 +1645,38 @@ int main(int argc, const char *argv[])  {
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // -------------------------------------------------------------------
         // 'balcl::TypeInfoUtil': 'parseAndValidate'
+        //
         // Concerns:
+        //: 1 The signature is implemented as expected.
+        //:   1 The return value is 'bool'.
+        //:   2 The second and third parameters are 'const'-qualified.
+        //:   3 The first and fourth parameters are not 'const'-qualified.
+        //:
+        //: 2 The function returns the expected value for the given object and
+        //:   constraint for all supported types.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
+        //: 1 Use the "pointer-to-function" idiom for a compile-time check of
+        //:   the signature.  (C-1)
+        //:
+        //: 2 Using a table-drive approach, we iterate through the
+        //:   'PARSABLE_VALUES' table to find valid input strings for each
+        //:   supported option type.  We employ a test constraint object that
+        //:   can be set to pass or fail via a globally visible static data
+        //:   member.  We confirm that the function returns the result
+        //:   according to the current value of that static data member.  We
+        //:   also confirm that the output string, when provided, is set when
+        //:   there is a failure and is left empty otherwise.  (C-2)
+        //:
+        //: 3 Use 'BSLS_ASSERTTEST_*' facilities for negative testing.  (C-3)
         //
         // Testing:
+        //   parseAndValidate(OV *e, string& i, TypeInfo& tf, ostream& s);
         // -------------------------------------------------------------------
 
         if (verbose) cout
@@ -1527,7 +1684,19 @@ int main(int argc, const char *argv[])  {
                         << "'balcl::TypeInfoUtil': 'parseAndValidate'" << endl
                         << "-----------------------------------------" << endl;
 
-        if (veryVerbose) cout << "\tCheck basic behavior" << endl;
+        if (verbose) cout << "Verify the signature and return type ." << endl;
+        {
+            typedef bool (*functionPtr)(OptionValue        *,
+                                        const bsl::string&  ,
+                                        const Obj&          ,
+                                        bsl::ostream&       );
+
+            functionPtr classMethod = &ObjUtil::parseAndValidate;
+
+            (void)classMethod;  // quash potential compiler warning
+        }
+
+        if (veryVerbose) cout << "Check basic behavior" << endl;
 
         for (int i = 0; i < NUM_PARSABLE_VALUES; ++i) {
             const int              LINE  = PARSABLE_VALUES[i].d_line;
@@ -1601,7 +1770,7 @@ int main(int argc, const char *argv[])  {
             objPtr->~Obj();
         }
 
-        if (veryVerbose) cout << "\tNegative testing." << endl;
+        if (veryVerbose) cout << "Negative testing." << endl;
 
         bsls::AssertTestHandlerGuard hG;
 
@@ -1620,7 +1789,7 @@ int main(int argc, const char *argv[])  {
             Obj *objPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
                                                TYPE,
                                                0);  // no linked variable
-                                                         // no constraint
+                                                    // no constraint
             bsl::ostringstream oss;
             OptionValue        elementOK(TYPE);
 
@@ -1647,12 +1816,45 @@ int main(int argc, const char *argv[])  {
                                                   oss));
         }
       } break;
-      case 8: {
+      case 9: {
         // -------------------------------------------------------------------
         // TESTING ADDITIONAL CONSTRUCTORS
+        //
         // Concerns:
+        //: 1 Each constructor creates a new object having the expected
+        //:   attributes: option type, linked variable (or not), constraint,
+        //:   and allocator.
+        //:
+        //: 2 Each constructor allocates from the intended allocator.
+        //:
+        //:   1 The supplied allocator is used when a user-defined constraint
+        //:     is given.
+        //:
+        //:   2 Otherwise, the default allocator is used.
+        //:
+        //: 3 Each constructor provides the basic exception-safety guarantee.
         //
         // Plan:
+        //: 1 For each set of attributes appearing in the (representative)
+        //:   'OPTION_TYPEINFO' table create a 'TypeInfo' object using the
+        //:   (overloaded) 'u::constructTypeInfo' helper functions and then use
+        //:   the (proven) accessors to show that the created object has the
+        //:   expected attributes.  (C-1)
+        //:
+        //: 2 Perform these tests for scenarios in which no allocator is
+        //:   specified, in which the 0-allocator is specified, and in which an
+        //:   allocator is explicitly specified.
+        //:
+        //: 3 In the later case, use 'BSLMA_TESTALLOCATOR_EXCEPTION_*' macros
+        //:   to inject an exception for each allocation during construction.
+        //:   (C-3)
+        //:
+        //:   1 A pair of nested 'BSLMA_TESTALLOCATOR_EXCEPTION_*' macros is
+        //:     used because the management of a constraint can use both
+        //:     the default allocator and the supplied allocator.
+        //:
+        //: 4 Use 'bslma::TestAllocatorMonitor' objects to confirm allocations
+        //:   from the intended allocators.  (C-2).
         //
         // Testing:
         //   TypeInfo(bool             *v, *bA = 0);
@@ -1704,217 +1906,190 @@ int main(int argc, const char *argv[])  {
                 P_(LINE)
                 P_(TYPE)
                 P_(VARIABLE)
-                P_(CONSTRAINT)
+                P(CONSTRAINT)
             }
 
-            bsls::ObjectBuffer<Obj> xObjectBuffer;
+            ASSERT(Ot::e_BOOL != TYPE || 0 == CONSTRAINT);
 
-            Obj *xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
-                                             TYPE,
-                                             VARIABLE);  // ACTION
-            Obj& mX = *xPtr; const Obj X = mX;
+            bsls::ObjectBuffer<Obj>  xObjectBuffer;
+            Obj                     *xPtr = 0;
+            bslma::Allocator        *xOa  = 0;
 
-            ASSERT(TYPE     ==                     X.type());
-            ASSERT(VARIABLE == static_cast<void *>(X.linkedVariable()));
+            char cfgLimit = CONSTRAINT
+                          ? 'f'    // has    constraint
+                          : 'c';   // has no constraint
 
-            // TBD: check allocator.  Pass allocator or 0 to 'construct...'
+            for (char cfg = 'a'; cfg <= cfgLimit; ++cfg) {
+                const char CONFIG = cfg;
 
-            if (Ot::e_BOOL != TYPE && 0 != CONSTRAINT) {
-                bsls::ObjectBuffer<Obj> yObjectBuffer;
+                bslma::TestAllocator         sa("supplied",
+                                                veryVeryVeryVerbose);
+                bslma::TestAllocator         da("default",
+                                                veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
 
-                Obj *yPtr = u::constructTypeInfo(yObjectBuffer.buffer(),
-                                                      TYPE,
-                                                      VARIABLE,
-                                                      CONSTRAINT);  // ACTION
-                Obj&  mY = *yPtr; const Obj Y = mY;
+                int completeExceptionCount = 0;
 
-                ASSERT(TYPE     ==                     Y.type());
-                ASSERT(VARIABLE == static_cast<void *>(Y.linkedVariable()));
-                ASSERT(0        != static_cast<void *>(Y.constraint().ptr()));
+                const bool usesSuppliedAllocator = 'f' == cfg;
+                    // Supplied allocator used to wrap a user-supplied
+                    // constraint.  Otherwise, the implementation uses the
+                    // default allocator to create shared pointers the
+                    // "always true" constraints.
 
-                yPtr->~Obj();
+                bslma::TestAllocatorMonitor dam(&da);
+                bslma::TestAllocatorMonitor sam(&sa);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(da) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+
+                    switch(cfg) {
+                      case 'a': {
+                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
+                                                    TYPE,
+                                                    VARIABLE);  // ACTION
+                        xOa = &da;
+                      } break;
+                      case 'b': {
+                        xPtr = u::constructTypeInfo(
+                                 xObjectBuffer.buffer(),
+                                 TYPE,
+                                 VARIABLE,
+                                 static_cast<bslma::Allocator *>(0)); // ACTION
+                        xOa = &da;
+                      } break;
+                      case 'c': {
+                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
+                                                    TYPE,
+                                                    VARIABLE,
+                                                    &sa);  // ACTION
+                        xOa = &sa;
+                      } break;
+                      case 'd': {
+                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
+                                                    TYPE,
+                                                    VARIABLE,
+                                                    CONSTRAINT);  // ACTION
+                        xOa = &da;
+                      } break;
+                      case 'e': {
+                        xPtr = u::constructTypeInfo(
+                                 xObjectBuffer.buffer(),
+                                 TYPE,
+                                 VARIABLE,
+                                 CONSTRAINT,
+                                 static_cast<bslma::Allocator *>(0)); // ACTION
+                        xOa = &da;
+                      } break;
+                      case 'f': {
+                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
+                                                    TYPE,
+                                                    VARIABLE,
+                                                    CONSTRAINT,
+                                                    &sa);  // ACTION
+                        xOa = &sa;
+                      } break;
+                      default: {
+                        BSLS_ASSERT(!"Reachable");
+                      } break;
+                    }
+                    ++completeExceptionCount;
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(CONFIG, xPtr);
+                ASSERTV(CONFIG, xOa);
+                ASSERTV(CONFIG, 1 == completeExceptionCount);
+
+                if (veryVerbose) {
+                    P_(cfg)
+                    P_(dam.isTotalUp())
+                     P(sam.isTotalUp())
+                }
+
+                // Vet allocator usage.
+
+                if (usesSuppliedAllocator) {
+                      ASSERT(sam.isTotalUp());
+                } else {
+                      ASSERT(dam.isTotalUp());
+                }
+
+                // Vet object.
+
+                Obj& mX = *xPtr; const Obj& X = mX;
+
+                ASSERT(TYPE     ==                     X.type());
+                ASSERT(VARIABLE == static_cast<void *>(X.linkedVariable()));
+                ASSERT(xOa      ==                     X.allocator());
+
+                xPtr->~Obj();
+
+                ASSERT(dam.isInUseSame());
+                ASSERT(sam.isInUseSame());
             }
-
-            xPtr->~Obj();
         }
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
-        // COPY-ASSIGNMENT OPERATOR
-        //   Ensure that we can assign the value of any object of the class to
-        //   any object of the class, such that the two objects subsequently
-        //   have the same value.
+        // COPY ASSIGNMENT
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
+        //: 1 The operator has the expected signature.
         //:
-        //: 2 The allocator address held by the target object is unchanged.
+        //: 2 One object can be assigned to another irrespective of the value
+        //:   of each of those objects.
         //:
-        //: 3 Any memory allocation is from the target object's allocator.
+        //: 3 Alias-safety: An object an be assigned to itself.
         //:
-        //: 4 The signature and return type are standard.
+        //: 3 The allocator of the assigned-to object ('lhs') is preserved.
         //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
+        //: 4 Assignment does not allocate memory.
         //:
-        //: 6 The value of the source object is not modified.
+        //: 5 The assignment operation returns a reference to the 'lhs' object.
         //:
-        //: 7 The allocator address held by the source object is unchanged.
-        //:
-        //: 8 QoI: Assigning a source object having the default-constructed
-        //:   value allocates no memory.
-        //:
-        //: 9 Any memory allocation is exception neutral.
-        //:
-        //:10 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //:11 Every object releases any allocated memory at destruction.
+        //: 6 The operation does not change the 'rhs'.
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-4)
+        //: 1 Use the "pointer-to-method" idiom to have the compiler check the
+        //:   signature.  (C-1)
         //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
+        //: 2 For a representative set of objects (see the 'OPTION_TYPEINFO'
+        //:   table), assign each object with itself and to every other object.
+        //:   Use equality comparison to confirm that each object is in the
+        //:   expected state afterward.  (C-2)
         //:
-        //: 3 Using the table-driven technique:
+        //: 3 Use an ad hoc test to assign one object to another that is using
+        //:   a different allocator.  Confirm that the 'lhs' object retains its
+        //:   original allocator.  (C-3)
         //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
+        //: 4 Use 'bslma::TestAllocatorMonitor' objects to confirm that no
+        //:   memory is allocated.  (C-4)
         //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
+        //: 5 Compare the address of the returned value (a reference, as shown
+        //:   in P-1) to the address of the 'lhs'.  (C-5)
         //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1..2, 5..8, 11)
-        //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
-        //:
-        //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', having the value 'W'.
-        //:
-        //:     3 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:
-        //:     4 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     5 Use the equality-comparison operator to verify that: (C-1, 6)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-6)
-        //:
-        //:     6 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:       that the respective allocator addresses held by the target
-        //:       and source objects are unchanged.  (C-2, 7)
-        //:
-        //:     7 Use the appropriate test allocators to verify that:
-        //:       (C-8, 11)
-        //:
-        //:       1 For an object that (a) is initialized with a value that did
-        //:         NOT require memory allocation, and (b) is then assigned a
-        //:         value that DID require memory allocation, the target object
-        //:         DOES allocate memory from its object allocator only
-        //:         (irrespective of the specific number of allocations or the
-        //:         total amount of memory allocated); also cross check with
-        //:         what is expected for 'mX' and 'Z'.
-        //:
-        //:       2 An object that is assigned a value that did NOT require
-        //:         memory allocation, does NOT allocate memory from its object
-        //:         allocator; also cross check with what is expected for 'Z'.
-        //:
-        //:       3 No additional memory is allocated by the source object.
-        //:         (C-8)
-        //:
-        //:       4 All object memory is released when the object is destroyed.
-        //:         (C-11)
-        //:
-        //: 5 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3:  (C-9..10)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
-        //:     'mX'; also use the value constructor and a distinct "scratch"
-        //:     allocator to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   3 Let 'Z' be a 'const' reference to 'mX'.
-        //:
-        //:   4 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:     (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:     (C-9)
-        //:
-        //:   5 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
-        //:
-        //:   6 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-10)
-        //:
-        //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still
-        //:     the object allocator.
-        //:
-        //:   8 Use the appropriate test allocators to verify that:
-        //:
-        //:     1 Any memory that is allocated is from the object allocator.
-        //:
-        //:     2 No additional (e.g., temporary) object memory is allocated
-        //:       when assigning an object value that did NOT initially require
-        //:       allocated memory.
-        //:
-        //:     3 All object memory is released when the object is destroyed.
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        //: 6 Create a duplicate of the 'rhs' object that is not used in the
+        //:   assignment operation.  Confirm that the 'rhs' compares equal to
+        //:   this spare object both before and after the assignment operation.
         //
         // Testing:
-        //   operator=(const baltzo::LocalTimeDescriptor& rhs);
-        //   CONCERN: All memory allocation is from the object's allocator.
-        //   CONCERN: All memory allocation is exception neutral.
-        //   CONCERN: Object value is independent of the object allocator.
-        //   CONCERN: There is no temporary allocation from any allocator.
+        //   TypeInfo& operator=(const TypeInfo& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "COPY-ASSIGNMENT OPERATOR" << endl
-                          << "========================" << endl;
+        if (verbose) cout << endl << "COPY ASSIGNMENT" << endl
+                                  << "===============" << endl;
 
         if (verbose) cout <<
-           "\nVerify that the signature and return type are standard." << endl;
+             "Verify that the signature and return type are standard." << endl;
         {
             typedef Obj& (Obj::*operatorPtr)(const Obj&);
-
-            // Verify that the signature and return type are standard.
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
             (void)operatorAssignment;  // quash potential compiler warning
         }
 
-        if (verbose) cout << "\n\tTesting assignment operator." << endl;
+        if (verbose) cout << "Testing assignment operator." << endl;
 
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
             const int       LINE1 = OPTION_TYPEINFO[i].d_line;
@@ -1929,17 +2104,21 @@ int main(int argc, const char *argv[])  {
 
             Obj mX;  const Obj& X = mX;
             Obj mZ;  const Obj& Z = mZ;
+            Obj mW;  const Obj& W = mW;
 
             u::setTypeInfo(&mX, TYPE1, VARIABLE1, CONSTRAINT1);
             u::setTypeInfo(&mZ, TYPE1, VARIABLE1, CONSTRAINT1);
+            u::setTypeInfo(&mW, TYPE1, VARIABLE1, CONSTRAINT1);
 
             mZ.setConstraint(X.constraint());  // shared constraint
-
             ASSERT(X == Z);
+            mW.setConstraint(Z.constraint());  // shared constraint
+            ASSERT(W == Z);
 
-            ASSERT(&X == &(mX = X));  // ACTION
-
-            ASSERT(X == Z);
+            Obj *mR = &(mX = X);  // ACTION
+            ASSERT(mR == &mX);
+            ASSERT(X  == Z);
+            ASSERT(Z  == W);
 
             for (int j = 0; j < NUM_OPTION_TYPEINFO; ++j) {
                 const int       LINE2 = OPTION_TYPEINFO[j].d_line;
@@ -1964,11 +2143,12 @@ int main(int argc, const char *argv[])  {
                 bslma::TestAllocatorMonitor samX(&saX);
                 bslma::TestAllocatorMonitor samY(&saY);
 
-                ASSERT(&Y == &(mY = X));  // ACTION
+                Obj *mR = &(mY = X);  // ACTION
 
                 LOOP2_ASSERT(LINE1, LINE2, samX.isTotalSame());
                 LOOP2_ASSERT(LINE1, LINE2, samY.isTotalSame());
 
+                LOOP2_ASSERT(LINE1, LINE2, mR   == &mY);
                 LOOP2_ASSERT(LINE1, LINE2, X    == Y);
                 LOOP2_ASSERT(LINE1, LINE2, &saX == X.allocator());
                 LOOP2_ASSERT(LINE1, LINE2, &saY == Y.allocator());
@@ -1976,129 +2156,39 @@ int main(int argc, const char *argv[])  {
         }
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // COPY CONSTRUCTOR
-        //   Ensure that we can create a distinct object of the class from any
-        //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor (with or without a supplied allocator)
-        //:   creates an object having the same value as that of the supplied
-        //:   original object.
+        //: 1 Equality: The copy constructor creates a new object that compares
+        //:   equal to the original object.
         //:
-        //: 2 If an allocator is NOT supplied to the copy constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object (i.e., the
-        //:   allocator of the original object is never copied).
+        //: 2 Allocators:
+        //:   1 The allocator of the created object depends on its constructor
+        //:     argument (not the allocator of the original object).
         //:
-        //: 3 If an allocator IS supplied to the copy constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
+        //:   2 If the allocator argument of the object is 0 or not specified,
+        //:     the new object uses the default allocator.
         //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the copy constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary memory allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 The original object is passed as a 'const' reference.
-        //:
-        //:10 The value of the original object is unchanged.
-        //:
-        //:11 The allocator address held by the original object is unchanged.
-        //:
-        //:12 QoI: Copying an object having the default-constructed value
-        //:   allocates no memory.
-        //:
-        //:13 Any memory allocation is exception neutral.
+        //:   3 The copy constructor does not allocate.  Note that this implies
+        //:     we need not do exception tests.
         //
-        // Plan:
-        //: 1 Using the table-driven technique:
+        // Plans:
+        //: 1 Do table-driven testing using the 'OPTION_TYPEINFO' array of
+        //:   representative values described in earlier tests.
         //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
+        //: 2 Use 'operator==' to confirm the equality of the new object (C-1).
         //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
+        //: 3 Use the "footprint" idiom to repeat each test for the cases of an
+        //:   unspecified allocator, a 0-allocator, and an explicitly supplied
+        //:   allocator.
         //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..12)
+        //:   1 Confirm the allocator of the new object using the 'allocator'
+        //:     accessor.  (C-2.1..2)
         //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
-        //:
-        //:   2 Execute an inner loop creating three distinct objects in turn,
-        //:     each using the copy constructor on 'Z' from P-2.1, but
-        //:     configured differently: (a) without passing an allocator,
-        //:     (b) passing a null allocator address explicitly, and (c)
-        //:     passing the address of a test allocator distinct from the
-        //:     default.
-        //:
-        //:   3 For each of these three iterations (P-2.2):  (C-1..12)
-        //:
-        //:     1 Create three 'bslma::TestAllocator' objects, and install one
-        //:       as the current default allocator (note that a ubiquitous test
-        //:       allocator is already installed as the global allocator).
-        //:
-        //:     2 Use the copy constructor to dynamically create an object 'X',
-        //:       with its object allocator configured appropriately (see
-        //:       P-2.2), supplying it the 'const' object 'Z' (see P-2.1); use
-        //:       a distinct test allocator for the object's footprint.  (C-9)
-        //:
-        //:     3 Use the equality-comparison operator to verify that:
-        //:       (C-1, 5, 10)
-        //:
-        //:       1 The newly constructed object, 'X', has the same value as
-        //:         that of 'Z'.  (C-1, 5)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-10)
-        //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
-        //:       capable of allocating memory to ensure that its object
-        //:       allocator is properly installed; also use the 'allocator'
-        //:       accessor of 'X' to verify that its object allocator is
-        //:       properly installed, and use the 'allocator' accessor of 'Z'
-        //:       to verify that the allocator address that it holds is
-        //:       unchanged.  (C-6, 11)
-        //:
-        //:     5 Use the appropriate test allocators to verify that:  (C-2..4,
-        //:       7..8, 12)
-        //:
-        //:       1 An object that IS expected to allocate memory does so
-        //:         from the object allocator only (irrespective of the
-        //:         specific number of allocations or the total amount of
-        //:         memory allocated).  (C-2, 4)
-        //:
-        //:       2 An object that is expected NOT to allocate memory doesn't.
-        //:         (C-12)
-        //:
-        //:       3 If an allocator was supplied at construction (P-2.1c), the
-        //:         current default allocator doesn't allocate any memory.
-        //:         (C-3)
-        //:
-        //:       4 No temporary memory is allocated from the object allocator.
-        //:         (C-7)
-        //:
-        //:       5 All object memory is released when the object is destroyed.
-        //:         (C-8)
-        //:
-        //: 3 Test again, using the data of P-1, but this time just for the
-        //:   supplied allocator configuration (P-2.2c), and create the object
-        //:   as an automatic variable in the presence of injected exceptions
-        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:   (C-13)
+        //:   2 Use 'bslma::TestAllocatorMonitor' objects to confirm that no
+        //:     memory is allocated by any copy.  (C-2.3)
         //
         // Testing:
         //   TypeInfo(const TypeInfo& original, *bA = 0);
@@ -2108,98 +2198,163 @@ int main(int argc, const char *argv[])  {
                           << "COPY CONSTRUCTOR" << endl
                           << "================" << endl;
 
-        bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
-        bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
-        if (verbose) cout << "\t\tWithout passing in an allocator." << endl;
-
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
             const int       LINE       = OPTION_TYPEINFO[i].d_line;
             const ElemType  TYPE       = OPTION_TYPEINFO[i].d_type;
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
-            Obj mX;  const Obj& X = mX;
-
-            u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
-
-            bslma::TestAllocatorMonitor dam(&da);
-
-            Obj mY(X);  const Obj& Y = mY;  // ACTION
-
-            LOOP_ASSERT(LINE, dam.isTotalSame());
-
-            LOOP_ASSERT(LINE, X    == Y);
-            LOOP_ASSERT(LINE, &da  == Y.allocator());
-        }
-
-        if (verbose) cout << "\t\tPassing in an allocator." << endl;
-
-        for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
-            const int       LINE       = OPTION_TYPEINFO[i].d_line;
-            const ElemType  TYPE       = OPTION_TYPEINFO[i].d_type;
-            void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
-            void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
-
-            Obj mX;  const Obj& X = mX;
-
-            u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
-
-            bslma::TestAllocatorMonitor dam(&da);
-            bslma::TestAllocatorMonitor sam(&sa);
-
-            {
-                Obj mY(X, &sa);  const Obj& Y = mY;  // ACTION
-
-                LOOP_ASSERT(LINE, X   == Y);
-                LOOP_ASSERT(LINE, &sa == Y.allocator());
+            if (veryVerbose) {
+                T_ P_(LINE) P_(i) P(TYPE)
+                T_ P_(VARIABLE) P(CONSTRAINT)
             }
 
-            LOOP_ASSERT(LINE, sam.isInUseSame());
-            LOOP_ASSERT(LINE, sam.isTotalSame());
-            LOOP_ASSERT(LINE, dam.isInUseSame());
-            LOOP_ASSERT(LINE, dam.isTotalSame());
+            Obj mX;  const Obj& X = mX;
+
+            u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
+
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                if (veryVerbose) {
+                    T_ T_ P(CONFIG)
+                }
+
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj                  *objPtr           = 0;
+                bslma::TestAllocator *objAllocatorPtr  = 0;
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'c': {
+                    objAllocatorPtr = &sa;
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                  } break;
+                }
+
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+                bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                bslma::TestAllocatorMonitor  oam(&oa);
+                bslma::TestAllocatorMonitor noam(&noa);
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objPtr = new (fa) Obj(X);       // ACTION
+                  } break;
+                  case 'b': {
+                    objPtr = new (fa) Obj(X, 0);    // ACTION
+                  } break;
+                  case 'c': {
+                    objPtr = new (fa) Obj(X, &sa);  // ACTION
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                  } break;
+                }
+
+                // Check expected allocator usage.
+
+                ASSERTV(LINE, CONFIG,  oam.isTotalSame());
+                ASSERTV(LINE, CONFIG, noam.isTotalSame());
+
+                // Vet copied object.
+
+                Obj&  mY = *objPtr;  const Obj& Y = mY;
+
+                ASSERTV(LINE, CONFIG, X   == Y);
+                ASSERTV(LINE, CONFIG, &oa == Y.allocator());
+
+                fa.deleteObject(objPtr); // Clean up
+            }
         }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
         //   Ensure that '==' and '!=' are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
+        //: 1 Salient Members:
         //:
-        //: 2 All salient attributes participate in the comparison.
+        //:   1 Two objects, 'X' and 'Y', compare equal if and only if each of
+        //:     their corresponding salient attributes respectively compare
+        //:     equal.
         //:
-        //: 3 No non-salient attributes (i.e., 'allocator') participate.
+        //:   2 All salient attributes participate in the comparison.
+        //
+        //:   3 The object's allocator is not salient.
         //:
-        //: 4 'true  == (X == X)'  (i.e., identity)
+        //: 2 Mathematical Properties:
         //:
-        //: 5 'false == (X != X)'  (i.e., identity)
+        //:   1 The operators provide the property of identity:
+        //:     o 'true  == (X == X)'
+        //:     o 'false == (X != X)'
         //:
-        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
+        //:   2 The operators provide the property of commutativity:
+        //:     o 'X == Y' if and only if 'Y == X'
+        //:     o 'X != Y' if and only if 'Y != X'
         //:
-        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
+        //:   3 Each of these two operators is the inverse of the other:
+        //:     o 'X != Y' if and only if '!(X == Y)'
         //:
-        //: 8 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 9 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //:10 Non-modifiable objects can be compared (i.e., 'const' objects and
+        //: 3 Non-modifiable objects can be compared (i.e., 'const' objects and
         //:   'const' references).
         //:
-        //:11 No memory allocation occurs as a result of comparison (e.g., the
+        //: 4 The two operators have standard signatures and return types.
+        //
+        //: 5 No memory allocation occurs as a result of comparison (e.g., the
         //:   arguments are not passed by value).
-        //:
-        //:12 The equality operator's signature and return type are standard.
-        //:
-        //:13 The inequality operator's signature and return type are standard.
         //
         // Plan:
+        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
+        //:   initialize function pointers having the appropriate signatures
+        //:   and return types for the two homogeneous, free
+        //:   equality-comparison operators defined in this component.
+        //:   (C-3..4)
+        //:
+        //: 2 Using the table-driven technique, specify a set of unique object
+        //:   values (one per row) in terms of their individual salient
+        //:   attributes such that each row differs from the others with
+        //:   respect to *one* salient value where the salient attributes are:
+        //:   o type
+        //:   o linked variable (or not)
+        //:   o constraint (or not)
+        //:
+        //: 3 Objects created from different rows of salient values compare
+        //:   unequal.  By taking the cross product of these objects, we
+        //:   demonstrate that a difference in *any* individual salient value
+        //:   results in inequality, thus demonstrating that each salient value
+        //:   contributes to the equality comparison.  Note that objects
+        //:   compare equal for only those cases of the cross product when both
+        //:   rows are the same.  (C-1)
+        //:
+        //: 4 For each test of equality, create a parallel test that checks
+        //:   inequality (the inverse operator), and (when the two arguments
+        //:   are different) also create a test case where the two arguments
+        //:   are switched (showing commutativity).  (C-2)
+        //:
+        //: 5 Install a test allocator as the default allocator.  Create a test
+        //:   allocator monitor object before each group of operator tests and
+        //:   confirm afterwards that the 'isTotalSame' returns 'true' (showing
+        //:   that no allocations occurred when exercising the operators).
+        //:
+        //: 6 Repeat each test between two objects so that the objects use the
+        //:   same allocator in one test and use different allocators in the
+        //:   other.  Results should not change and thereby show that the
+        //:   object allocator is not salient to equality.  (C-1.3)
         //
         // Testing:
         //   bool operator==(const TypeInfo& lhs, rhs);
@@ -2211,22 +2366,20 @@ int main(int argc, const char *argv[])  {
                           << "=============================" << endl;
 
         if (verbose) cout <<
-                "Check that signatures and return values are standard" << endl;
+               "Verify that signatures and return values are standard" << endl;
         {
             using namespace balcl;
             typedef bool (*operatorPtr)(const Obj&, const Obj&);
 
-            // Verify that the signatures and return types are standard.
-
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
-            (void)operatorEq;  // quash potential compiler warnings
+            (void)operatorEq;  // Quash potential compiler warnings.
             (void)operatorNe;
         }
 
         if (verbose)
-            cout << "\t\tCompare each pair of values (u, v) in W X W." << endl;
+                cout << "Compare each pair of values (u, v) in W X W." << endl;
 
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
             const int       LINE1 = OPTION_TYPEINFO[i].d_line;
@@ -2236,18 +2389,21 @@ int main(int argc, const char *argv[])  {
 
             if (veryVerbose) { T_ P_(LINE1) P(TYPE1) }
 
-            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator sa1("supplied1", veryVeryVeryVerbose);
+            bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
 
-            Obj mX(&sa);  const Obj& X = mX;
+            bslma::TestAllocator *saX = &sa1;
+
+            Obj mX(saX);  const Obj& X = mX;
 
             u::setTypeInfo(&mX, TYPE1, VARIABLE1, CONSTRAINT1);
 
-            bslma::TestAllocatorMonitor sam(&sa);
+            bslma::TestAllocatorMonitor samX(saX);
 
             LOOP_ASSERT(LINE1,  (X == X));   // ACTION
             LOOP_ASSERT(LINE1, !(X != X));   // ACTION
 
-            LOOP_ASSERT(LINE1, sam.isTotalSame());
+            LOOP_ASSERT(LINE1, samX.isTotalSame());
 
             for (int j = 0; j < NUM_OPTION_TYPEINFO; ++j) {
                 const int       LINE2 = OPTION_TYPEINFO[j].d_line;
@@ -2257,41 +2413,55 @@ int main(int argc, const char *argv[])  {
 
                 if (veryVerbose) { T_ T_ P_(LINE2) P(TYPE2) }
 
-                Obj mY(&sa);  const Obj& Y = mY;
+                for (int k = 0; k < 2; ++k) {
 
-                u::setTypeInfo(&mY, TYPE2, VARIABLE2, CONSTRAINT2);
+                    if (veryVerbose) { T_ T_ T_  P(k) }
 
-                bool isSame = (TYPE1       == TYPE2)
-                           && (VARIABLE1   == VARIABLE2)
-                           && (CONSTRAINT1 == 0)
-                           && (CONSTRAINT2 == 0);
+                    bslma::TestAllocator *saY = k % 2
+                                              ? &sa1  //     same as 'X'
+                                              : &sa2; // not same as 'X'
 
-                bslma::TestAllocatorMonitor sam(&sa);
+                    Obj mY(saY);  const Obj& Y = mY;
 
-                LOOP2_ASSERT(LINE1, LINE2,  isSame == (X == Y));   // ACTION
-                LOOP2_ASSERT(LINE1, LINE2, !isSame == (X != Y));   // ACTION
+                    u::setTypeInfo(&mY, TYPE2, VARIABLE2, CONSTRAINT2);
 
-                LOOP2_ASSERT(LINE1, LINE2, sam.isTotalSame());
+                    bool isSame = (TYPE1       == TYPE2)
+                               && (VARIABLE1   == VARIABLE2)
+                               && (CONSTRAINT1 == 0)
+                               && (CONSTRAINT2 == 0);
 
-                if (TYPE1 == TYPE2) {
-                    mY.setConstraint(X.constraint());  // shared constraints
-                                                       // compare equal.
+                    bslma::TestAllocatorMonitor samY(saY);
 
-                    isSame = (TYPE1     == TYPE2)
-                          && (VARIABLE1 == VARIABLE2);
+                    LOOP2_ASSERT(LINE1, LINE2,  isSame == (X == Y));  // ACTION
+                    LOOP2_ASSERT(LINE1, LINE2, !isSame == (X != Y));  // ACTION
+                    LOOP2_ASSERT(LINE1, LINE2,  isSame == (Y == X));  // ACTION
+                    LOOP2_ASSERT(LINE1, LINE2, !isSame == (Y != X));  // ACTION
 
-                    bslma::TestAllocatorMonitor sam(&sa);
+                    LOOP2_ASSERT(LINE1, LINE2, samY.isTotalSame());
 
-                    LOOP2_ASSERT(LINE1, LINE2,  isSame == (X == Y));
-                    LOOP2_ASSERT(LINE1, LINE2, !isSame == (X != Y));
+                    if (TYPE1 == TYPE2) {
+                        mY.setConstraint(X.constraint());  // Constraint shared
+                                                           // so constraints
+                                                           // are equal.
+                        isSame = (TYPE1     == TYPE2)
+                              && (VARIABLE1 == VARIABLE2);
 
-                    LOOP2_ASSERT(LINE1, LINE2, sam.isTotalSame());
+                        bslma::TestAllocatorMonitor samX(saX);
+                        bslma::TestAllocatorMonitor samY(saY);
+
+                        LOOP2_ASSERT(LINE1, LINE2,  isSame == (X == Y));
+                        LOOP2_ASSERT(LINE1, LINE2, !isSame == (X != Y));
+                        LOOP2_ASSERT(LINE1, LINE2,  isSame == (Y == X));
+                        LOOP2_ASSERT(LINE1, LINE2, !isSame == (Y != X));
+
+                        LOOP2_ASSERT(LINE1, LINE2, samX.isTotalSame());
+                        LOOP2_ASSERT(LINE1, LINE2, samY.isTotalSame());
+                    }
                 }
             }
         }
-        // TBD: Show that allocator is not salient.
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //
@@ -2315,7 +2485,7 @@ int main(int argc, const char *argv[])  {
         //: 1 Use the "function address" idiom to confirm the signatures.
         //
         //: 2 Confirm that 'bdlb::HasPrintMethod<TypeInfo>::value' is 'true'
-        //:   using a compile-time assertion.
+        //:   using a compile-time assertion at file scope.
         //
         // Testing:
         //   ostream& print(ostream& stream, int level = 0, int spl = 4) const;
@@ -2326,13 +2496,13 @@ int main(int argc, const char *argv[])  {
                           << "PRINT AND OUTPUT OPERATOR" << endl
                           << "-------------------------" << endl;
 
-        if (veryVerbose) cout << "\tConfirm signatures." << endl;
+        if (veryVerbose) cout
+                << "Verify that the signatures and return types are standard."
+                << endl;
         {
             using namespace balcl;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
-
-            // Verify that the signatures and return types are standard.
 
             funcPtr     printMember = &Obj::print;
             operatorPtr operatorOp  = operator<<;
@@ -2341,13 +2511,18 @@ int main(int argc, const char *argv[])  {
             (void)operatorOp;
         }
 
-        if (veryVerbose) cout << "\tCheck output" << endl;
+        if (veryVerbose) cout << "Check output" << endl;
 
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
             const int       LINE       = OPTION_TYPEINFO[i].d_line;
             const ElemType  TYPE       = OPTION_TYPEINFO[i].d_type;
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(i) P(TYPE)
+                T_ P_(VARIABLE) P(CONSTRAINT)
+            }
 
             Obj mX;  const Obj& X = mX;
 
@@ -2361,9 +2536,6 @@ int main(int argc, const char *argv[])  {
 
             bsl::string stringMethod  (ossMethod  .str());
             bsl::string stringOperator(ossOperator.str());
-                // Note: Convert to strings because 'oss[12].str()' are
-                // temporaries andthose do not work well with
-                // 'oss[12].str().c_str()'.
 
             ASSERT(0 * 4 == bsl::strspn(stringMethod  .c_str(), " "));
             ASSERT(0 * 4 == bsl::strspn(stringOperator.c_str(), " "));
@@ -2403,7 +2575,7 @@ int main(int argc, const char *argv[])  {
             LOOP2_ASSERT(LINE, ret, 0 == ret);
         }
 
-        if (veryVerbose) cout << "\tNegative testing." << endl;
+        if (veryVerbose) cout << "Negative testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
 
@@ -2416,43 +2588,47 @@ int main(int argc, const char *argv[])  {
             ASSERT_FAIL(X.print(oss, 0, -1));
         }
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // 'balcl::TypeInfoUtil': 'satisfiesConstraint'
         //
         // Concerns:
-        //: 1 Each of the 'satisfiesConstraint' overloads returns the
-        //:   expected result for the given value and constraint.
+        //: 1 Each of the 'satisfiesConstraint' overloads returns the expected
+        //:   result for the given value and constraint.
         //:
         //: 2 'const'-qualification:
         //:   1 The first two parameters are 'const' qualified.
         //:   2 The third parameter (stream), if present, is not 'const'
         //:     qualified.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use 'OPTION_TYPEINFO', a table of representative inputs,
-        //:   that includes an entry for each supported type having a
-        //:   constraint.
+        //: 1 Use 'OPTION_TYPEINFO', a table of representative inputs, that
+        //:   includes an entry for each supported type having a constraint.
         //:
-        //:   o Note that that constraints defined in the table can be set via
+        //:   o Note that constraints defined in the table can be set via a
         //:     public static variable to unconditionally return 'true' or
         //:     'false'.
         //
-        //: 2 Also use  'OPTION_DEFAULT_VALUES', a table of values
-        //:   for each supported option type.  Note that none of those values
-        //:   is the default value for the type.
+        //: 2 Also use 'OPTION_DEFAULT_VALUES', a table of values for each
+        //:   supported option type.  Note that none of those values is the
+        //:   default value for the type.
         //:
         //: 3 For each entry in 'OPTION_TYPEINFO' that defines a constraint,
-        //:   create an object, create a value of the appropriate type
-        //:   from 'OPTION_DEFAULT_VALUES', call 'satisfiesConstraint',
-        //:   and confirm that the result matches that expected per the
-        //:   current value of the constraint's static variable.  Toggle
-        //:   the static variable and retest.
+        //:   create an object, create a value of the appropriate type from
+        //:   'OPTION_DEFAULT_VALUES', call 'satisfiesConstraint', and confirm
+        //:   that the result matches that expected per the current value of
+        //:   the constraint's static variable.  Toggle the static variable and
+        //:   retest.  (C-1)
         //:
         //: 4 The first two arguments are always passed by 'const' reference.
-        //:   The 'stream' argument is shown to be non-'const' qualified
-        //:   by having the test constraint write an error message when
-        //:   it returns 'false'.
+        //:   The 'stream' argument is shown to be non-'const' qualified by
+        //:   having the test constraint write an error message when it returns
+        //:   'false'.  (C-2)
+        //:
+        //: 5 Do negative tests of defensive checks using 'BSLS_ASSERTTEST_*'
+        //:   macros.  (C-3)
         //
         // Testing:
         //   bool satisfiesConstraint(const Clov& e,             TypeInfo tf);
@@ -2477,62 +2653,174 @@ int main(int argc, const char *argv[])  {
                 T_ P_(VARIABLE) P(CONSTRAINT)
             }
 
+            const int   j = i % NUM_OPTION_DEFAULT_VALUES;
+            const void *VALUE = OPTION_DEFAULT_VALUES[j].d_value_p;
+
+            ASSERT(TYPE == OPTION_DEFAULT_VALUES[j].d_type);
+
             if (CONSTRAINT) {
                 Obj mX;  const Obj& X = mX;
 
                 u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
-
-                const int   j = i % NUM_OPTION_DEFAULT_VALUES;
-                const void *VALUE = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-                ASSERT(TYPE == OPTION_DEFAULT_VALUES[j].d_type);
 
                 OptionValue ELEMENT(TYPE);
                 u::setOptionValue(&ELEMENT, VALUE, TYPE);
 
                 bsl::ostringstream ossElement, ossValue;
 
-          //v---^
-            OptConstraint::s_constraintValue = true;
-            ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X            ));
-            ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
-            ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X            ));
-            ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X, ossValue  ));
+                OptConstraint::s_constraintValue = true;
+                ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X            ));
+                ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
+                ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X            ));
+                ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X, ossValue  ));
 
-            ASSERTV(LINE, ossElement.str(),  ossElement.str().empty());
-            ASSERTV(LINE, ossValue  .str(),  ossValue  .str().empty());
+                ASSERTV(LINE, ossElement.str(),  ossElement.str().empty());
+                ASSERTV(LINE, ossValue  .str(),  ossValue  .str().empty());
 
-            ossElement.str(""); ossElement.clear();
-            ossValue  .str(""); ossValue  .clear();
+                ossElement.str(""); ossElement.clear();
+                ossValue  .str(""); ossValue  .clear();
 
-            OptConstraint::s_constraintValue = false;
-            ASSERT(!ObjUtil::satisfiesConstraint(ELEMENT, X            ));
-            ASSERT(!ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
-            ASSERT(!ObjUtil::satisfiesConstraint(VALUE,   X            ));
-            ASSERT(!ObjUtil::satisfiesConstraint(VALUE,   X, ossValue  ));
+                OptConstraint::s_constraintValue = false;
+                ASSERT(!ObjUtil::satisfiesConstraint(ELEMENT, X            ));
+                ASSERT(!ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
+                ASSERT(!ObjUtil::satisfiesConstraint(VALUE,   X            ));
+                ASSERT(!ObjUtil::satisfiesConstraint(VALUE,   X, ossValue  ));
 
-            ASSERTV(LINE, ossElement.str(), !ossElement.str().empty());
-            ASSERTV(LINE, ossValue  .str(), !ossValue  .str().empty());
+                ASSERTV(LINE, ossElement.str(), !ossElement.str().empty());
+                ASSERTV(LINE, ossValue  .str(), !ossValue  .str().empty());
 
-            ossElement.str(""); ossElement.clear();
-            ossValue  .str(""); ossValue  .clear();
+                ossElement.str(""); ossElement.clear();
+                ossValue  .str(""); ossValue  .clear();
 
-            OptConstraint::s_constraintValue = true;
-            ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X            ));
-            ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
-            ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X            ));
-            ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X, ossValue  ));
+                OptConstraint::s_constraintValue = true;
+                ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X            ));
+                ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
+                ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X            ));
+                ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X, ossValue  ));
 
-            ASSERTV(LINE, ossElement.str(),  ossElement.str().empty());
-            ASSERTV(LINE,   ossValue.str(),    ossValue.str().empty());
-          //^---v
+                ASSERTV(LINE, ossElement.str(),  ossElement.str().empty());
+                ASSERTV(LINE,   ossValue.str(),    ossValue.str().empty());
+
+                // Negative tests
+                bsls::AssertTestHandlerGuard hG;
+       //v------^
+         ASSERT_PASS( ObjUtil::satisfiesConstraint(ELEMENT,   X            ));
+         ASSERT_PASS( ObjUtil::satisfiesConstraint(ELEMENT,   X, ossElement));
+       //^------v
+
+                OptionValue ELEMENT_NG(u::shiftType(TYPE, 1));
+
+       //v------^
+        ASSERT_FAIL( ObjUtil::satisfiesConstraint(ELEMENT_NG, X            ));
+        ASSERT_FAIL( ObjUtil::satisfiesConstraint(ELEMENT_NG, X, ossElement));
+       //^------v
+
             } else {
-                if (veryVerbose) {
-                    cout << "\tSkip: Has no constraint" << endl;
+                Obj mX;  const Obj& X = mX;
+                u::setTypeInfo(&mX, TYPE, VARIABLE, 0);  // no constraint
+
+                OptionValue ELEMENT(TYPE);
+                if (VALUE) {
+                    u::setOptionValue(&ELEMENT, VALUE, TYPE);
                 }
+
+                bsl::ostringstream ossElement;
+
+                ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X            ));
+                ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
+
+                ASSERTV(LINE, ossElement.str(),  ossElement.str().empty());
+
+                // Negative tests
+                bsls::AssertTestHandlerGuard hG;
+       //v------^
+         ASSERT_PASS( ObjUtil::satisfiesConstraint(ELEMENT,   X            ));
+         ASSERT_PASS( ObjUtil::satisfiesConstraint(ELEMENT,   X, ossElement));
+       //^------v
+
+                OptionValue ELEMENT_NG(u::shiftType(TYPE, 1));
+
+       //v------^
+        ASSERT_FAIL( ObjUtil::satisfiesConstraint(ELEMENT_NG, X            ));
+        ASSERT_FAIL( ObjUtil::satisfiesConstraint(ELEMENT_NG, X, ossElement));
+       //^------v
+            }
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // HELPER: 'u::shiftType'
+        //
+        // Concerns:
+        //: 1 The returned (enumerator) value is offset by the given 'offset'
+        //:   from the given (enumerator) value when the enumerators are
+        //:   ordered in their sequence of definition.
+        //
+        //: 2 An offset that extends past 'Ot::e_TIME_ARRAY' continues with
+        //:   'Ot::e_BOOL' (and vice versa).
+        //:
+        //: 3 The offset can be negative.
+        //:
+        //: 4 The value 'Ot::e_VOID' is ignored in the calculation.
+        //
+        // Plan:
+        //: 1 Using a table-driven test, compare calculated results with
+        //:   expected results the extreme values of the sequence.
+        //
+        // Testing:
+        //   CONCERN: HELPER 'u::shiftType'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "HELPER: 'u::shiftType'" << endl
+                          << "======================" << endl;
+
+        static const struct {
+            int      d_line;
+            Ot::Enum d_input;
+            int      d_offset;
+            Ot::Enum d_output;
+        } DATA[] = {
+           //LINE   INPUT            OFFS  OUTPUT
+           //----   ---------------- ----  --------------------
+            { L_,   Ot::e_BOOL,       -34, Ot::e_BOOL           }
+          , { L_,   Ot::e_BOOL,       -17, Ot::e_BOOL           }
+          , { L_,   Ot::e_BOOL,         0, Ot::e_BOOL           }
+          , { L_,   Ot::e_BOOL,        17, Ot::e_BOOL           }
+          , { L_,   Ot::e_BOOL,        34, Ot::e_BOOL           }
+
+          , { L_,   Ot::e_BOOL,        -2, Ot::e_DATE_ARRAY     }
+          , { L_,   Ot::e_BOOL,        -1, Ot::e_TIME_ARRAY     }
+          , { L_,   Ot::e_BOOL,         0, Ot::e_BOOL           }
+          , { L_,   Ot::e_BOOL,         1, Ot::e_CHAR           }
+          , { L_,   Ot::e_BOOL,         2, Ot::e_INT            }
+
+          , { L_,   Ot::e_TIME_ARRAY,  -2, Ot::e_DATETIME_ARRAY }
+          , { L_,   Ot::e_TIME_ARRAY,  -1, Ot::e_DATE_ARRAY     }
+          , { L_,   Ot::e_TIME_ARRAY,   0, Ot::e_TIME_ARRAY     }
+          , { L_,   Ot::e_TIME_ARRAY,   1, Ot::e_BOOL           }
+          , { L_,   Ot::e_TIME_ARRAY,   2, Ot::e_CHAR           }
+
+          , { L_,   Ot::e_TIME_ARRAY, -34, Ot::e_TIME_ARRAY     }
+          , { L_,   Ot::e_TIME_ARRAY, -17, Ot::e_TIME_ARRAY     }
+          , { L_,   Ot::e_TIME_ARRAY,   0, Ot::e_TIME_ARRAY     }
+          , { L_,   Ot::e_TIME_ARRAY,  17, Ot::e_TIME_ARRAY     }
+          , { L_,   Ot::e_TIME_ARRAY,  34, Ot::e_TIME_ARRAY     }
+        };
+
+        bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int        LINE   = DATA[ti].d_line;
+            const Ot::Enum  INPUT   = DATA[ti].d_input;
+            const int        OFFSET = DATA[ti].d_offset;
+            const Ot::Enum OUTPUT   = DATA[ti].d_output;
+
+            if (veryVerbose) {
+                T_ P_(ti) P_(LINE) P_(INPUT) P_(OFFSET) P(OUTPUT)
             }
 
-            // TBD: Negative testing
+            ASSERT(OUTPUT == u::shiftType(INPUT, OFFSET));
         }
       } break;
       case 2: {
@@ -2563,7 +2851,7 @@ int main(int argc, const char *argv[])  {
         //: 4 The basic accessors are 'const'-qualified.
         //
         // Plan:
-        //: 1 Create, 'OPTION_TYPEINFO', a table representing the space of
+        //: 1 Create 'OPTION_TYPEINFO', a table representing the space of
         //:   object attributes consisting of every supported option type,
         //:   having a linked variable, having a contract, having both a linked
         //:   variable and contract, and having neither.
@@ -2575,7 +2863,7 @@ int main(int argc, const char *argv[])  {
         //:
         //:   1 Confirm that
         //:     'bslma::UsesBslmaAllocator<balcl::TypeInfo>::value' is 'true'
-        //:     in a compile-time assertion.
+        //:     in a compile-time assertion at file scope.
         //:
         //:   2 Always invoke the basic accessors on a 'const'-reference to the
         //:     object under test.  If the accessors are not 'const'-qualified,
@@ -2640,7 +2928,7 @@ int main(int argc, const char *argv[])  {
         bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "\t\tWithout passing in an allocator." << endl;
+        if (verbose) cout << "Without passing in an allocator." << endl;
 
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
             const int       LINE       = OPTION_TYPEINFO[i].d_line;
@@ -2651,10 +2939,11 @@ int main(int argc, const char *argv[])  {
             Obj mX;  const Obj& X = mX;      // ACTION
 
             if (veryVerbose) {
-                T_ T_ T_ P_(LINE) P_(i) P(TYPE)
-                T_ T_ T_ P_(VARIABLE) P(CONSTRAINT)
-                T_ T_ T_ P_(LINE) P_(i) P(X)
+                T_ P_(LINE) P_(i) P(TYPE)
+                T_ P_(VARIABLE) P(CONSTRAINT)
+                T_ T_ P_(LINE) P_(i) P(X)
             }
+
             LOOP_ASSERT(LINE, Ot::e_STRING == X.type());
             LOOP_ASSERT(LINE, 0            == X.linkedVariable());
             LOOP_ASSERT(LINE, &da          == X.allocator());
@@ -2708,6 +2997,26 @@ int main(int argc, const char *argv[])  {
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, 0                  == X.linkedVariable());
                 LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+
+                {
+                    Obj mX;  const Obj& X = mX;
+                    u::setType(&mX, TYPE);
+                    u::setConstraint(&mX, TYPE, CONSTRAINT);
+
+                    LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT != X.constraint());
+                    mX.setConstraint( DEFAULT_CONSTRAINT);  // ACTION
+                    LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+
+                    Obj mY;  const Obj& Y = mY;
+                    u::setType(&mY, TYPE);
+                    u::setConstraint(&mY, TYPE, CONSTRAINT);
+
+                    LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT != Y.constraint());
+                    LOOP_ASSERT(LINE, Y.constraint()     != X.constraint());
+                    mX.setConstraint(Y.constraint());  // ACTION
+                    LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT != X.constraint());
+                    LOOP_ASSERT(LINE, Y.constraint()     == X.constraint());
+                }
             }
 
             mX.resetConstraint();
@@ -2721,7 +3030,7 @@ int main(int argc, const char *argv[])  {
                 u::setConstraint    (&mX, TYPE, CONSTRAINT);
 
                 if (veryVerbose) {
-                    T_ T_ T_ P_(LINE) P_(i) P(X)
+                    T_ T_ P_(LINE) P_(i) P(X)
                 }
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, VARIABLE           == X.linkedVariable());
@@ -2735,7 +3044,7 @@ int main(int argc, const char *argv[])  {
             }
         }
 
-        if (verbose) cout << "\t\tPassing in an allocator; no exceptions"
+        if (verbose) cout << "Passing in an allocator; no exceptions"
                           << endl;
 
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
@@ -2744,15 +3053,23 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            if (veryVerbose) {
+                T_ P_(LINE) P_(i) P(TYPE)
+                T_ P_(VARIABLE) P(CONSTRAINT)
+            }
+
+            bslma::TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor sam(&sa);
+
             Obj mX(&sa);  const Obj& X = mX;
+
+            LOOP_ASSERT(LINE, sam.isTotalSame());
 
             LOOP_ASSERT(LINE, Ot::e_STRING == X.type());
             LOOP_ASSERT(LINE, 0            == X.linkedVariable());
             LOOP_ASSERT(LINE, &sa          == X.allocator());
 
             bsl::shared_ptr<ObjConstraint> DEFAULT_CONSTRAINT = X.constraint();
-
-            bslma::TestAllocatorMonitor sam(&sa);
 
             u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);  // ACTION
 
@@ -2761,30 +3078,28 @@ int main(int argc, const char *argv[])  {
             } else {
                 LOOP_ASSERT(LINE, sam.isTotalSame());
             }
+            LOOP_ASSERT(LINE, dam.isTotalUp());
 
-            LOOP_ASSERT(LINE, TYPE               == X.type());
-            LOOP_ASSERT(LINE, VARIABLE           == X.linkedVariable());
+            LOOP_ASSERT(LINE, TYPE     == X.type());
+            LOOP_ASSERT(LINE, VARIABLE == X.linkedVariable());
 
-            // Note that the test for 'satisfiesConstraint' demonstrates that
-            // 'setConstraint' does install the intended constraint.
-#if 0
-            LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT != X.constraint());
-            if (CONSTRAINT) {
-                LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT != X.constraint());
-            }
-            else {
-                LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
-            }
-#endif // 0
+            // Note that the test for 'satisfiesConstraint' (case 4)
+            // demonstrates that 'setConstraint' does install the intended
+            // constraint.
         }
 
-        if (verbose) cout << "\t\t\tWith exceptions." << endl;
+        if (verbose) cout << "With exceptions." << endl;
 
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
             const int       LINE       = OPTION_TYPEINFO[i].d_line;
             const ElemType  TYPE       = OPTION_TYPEINFO[i].d_type;
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(i) P(TYPE)
+                T_ P_(VARIABLE) P(CONSTRAINT)
+            }
 
             Obj mY(&sa);  const Obj& Y = mY; u::setType(&mY, TYPE);
 
@@ -2831,9 +3146,13 @@ int main(int argc, const char *argv[])  {
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        Obj i(OptionType::k_INT);
-        Obj b(OptionType::k_BOOL);
-        Obj s(OptionType::k_STRING_ARRAY);
+        Obj mX(Ot::k_INT);           const Obj& X = mX;
+        Obj mY(Ot::k_BOOL);          const Obj& Y = mY;
+        Obj mZ(Ot::k_STRING_ARRAY);  const Obj& Z = mZ;
+
+        ASSERT(Ot::e_INT          == X.type());
+        ASSERT(Ot::e_BOOL         == Y.type());
+        ASSERT(Ot::e_STRING_ARRAY == Z.type());
 
       } break;
       default: {
