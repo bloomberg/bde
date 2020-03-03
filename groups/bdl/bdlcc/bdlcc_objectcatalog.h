@@ -988,7 +988,7 @@ void ObjectCatalog<TYPE>::verifyState() const
         handle & k_BUSY_INDICATOR ? ++numBusy
                                   : ++numFree;
     }
-    BSLS_ASSERT(numBusy           == static_cast<unsigned>(d_length));
+    BSLS_ASSERT(          numBusy == static_cast<unsigned>(d_length));
     BSLS_ASSERT(numFree + numBusy == d_nodes.size());
 
     for (const Node *p = d_nextFreeNode_p; p; p = p->d_payload.d_next_p) {
