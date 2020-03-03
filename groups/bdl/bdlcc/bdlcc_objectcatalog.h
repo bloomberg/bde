@@ -396,7 +396,7 @@ class ObjectCatalog {
     bsl::vector<Node *>     d_nodes;
     bdlma::Pool             d_nodePool;
     Node                   *d_nextFreeNode_p;
-    volatile int            d_length;
+    int                     d_length;
     mutable bslmt::RWMutex  d_lock;
 
   private:
@@ -957,6 +957,8 @@ template <class TYPE>
 inline
 int ObjectCatalog<TYPE>::length() const
 {
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
+
     return d_length;
 }
 
@@ -976,9 +978,8 @@ void ObjectCatalog<TYPE>::verifyState() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
 
-    BSLS_ASSERT(0 <= d_length);
-    const unsigned uLength = d_length;
-    BSLS_ASSERT(d_nodes.size() >= uLength);
+    BSLS_ASSERT(             0 <= d_length);
+    BSLS_ASSERT(d_nodes.size() >= d_length);
 
     unsigned numBusy = 0, numFree = 0;
     for (unsigned ii = 0; ii < d_nodes.size(); ++ii) {
@@ -987,7 +988,7 @@ void ObjectCatalog<TYPE>::verifyState() const
         handle & k_BUSY_INDICATOR ? ++numBusy
                                   : ++numFree;
     }
-    BSLS_ASSERT(uLength == numBusy);
+    BSLS_ASSERT(d_length == numBusy);
     BSLS_ASSERT(numFree + numBusy == d_nodes.size());
 
     for (const Node *p = d_nextFreeNode_p; p; p = p->d_payload.d_next_p) {
