@@ -282,6 +282,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -396,7 +397,7 @@ class ObjectCatalog {
     bsl::vector<Node *>     d_nodes;
     bdlma::Pool             d_nodePool;
     Node                   *d_nextFreeNode_p;
-    int                     d_length;
+    bsls::AtomicInt         d_length;
     mutable bslmt::RWMutex  d_lock;
 
   private:
@@ -957,8 +958,6 @@ template <class TYPE>
 inline
 int ObjectCatalog<TYPE>::length() const
 {
-    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
-
     return d_length;
 }
 
