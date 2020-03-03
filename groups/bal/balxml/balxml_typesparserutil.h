@@ -52,13 +52,14 @@ BSLS_IDENT("$Id: $")
 //      bsls::Types::[Uint64|Int64]         DEFAULT, DEC
 //      float                               DEFAULT, DEC
 //      double                              DEFAULT, DEC
+//      bdldfp::Decimal64                   DEFAULT, DEC
 //      bsl::string                         DEFAULT, TEXT, BASE64, HEX
-//      bdlt::Date                           DEFAULT
-//      bdlt::DateTz                         DEFAULT
-//      bdlt::Datetime                       DEFAULT
-//      bdlt::DateTimeTz                     DEFAULT
-//      bdlt::Time                           DEFAULT
-//      bdlt::TimeTz                         DEFAULT
+//      bdlt::Date                          DEFAULT
+//      bdlt::DateTz                        DEFAULT
+//      bdlt::Datetime                      DEFAULT
+//      bdlt::DateTimeTz                    DEFAULT
+//      bdlt::Time                          DEFAULT
+//      bdlt::TimeTz                        DEFAULT
 //      bsl::vector<char>                   DEFAULT, BASE64, HEX, TEXT, IS_LIST
 //..
 // In addition to the types listed above, this component also recognizes the
@@ -161,6 +162,7 @@ struct TypesParserUtil {
     // This 'struct' contains functions for parsing input strings using various
     // XML formatting modes.
 
+    // CLASS METHODS
     template <class TYPE>
     static int parse(TYPE       *result,
                      const char *input,
@@ -236,7 +238,9 @@ struct TypesParserUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
     // this component.
 
-    // BASE64 FUNCTIONS
+    // CLASS METHODS
+
+                            // BASE64 FUNCTIONS
     template <class TYPE>
     static int parseBase64(TYPE                            *result,
                            const char                      *input,
@@ -258,7 +262,8 @@ struct TypesParserUtil_Imp {
                            int                        inputLength,
                            bdlat_TypeCategory::Array);
 
-    // DECIMAL FUNCTIONS
+                            // DECIMAL FUNCTIONS
+
     template <class TYPE>
     static int parseDecimal(TYPE                            *result,
                             const char                      *input,
@@ -328,12 +333,13 @@ struct TypesParserUtil_Imp {
                             const char                 *input,
                             int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bdldfp::Decimal64          *result,
+    static int parseDecimal(bdldfp::Decimal64          *result,
                             const char                 *input,
                             int                         inputLength,
                             bdlat_TypeCategory::Simple);
 
-    // DEFAULT FUNCTIONS
+                            // DEFAULT FUNCTIONS
+
     template <class TYPE>
     static int parseDefault(TYPE                            *result,
                             const char                      *input,
@@ -402,6 +408,10 @@ struct TypesParserUtil_Imp {
                             const char                 *input,
                             int                         inputLength,
                             bdlat_TypeCategory::Simple);
+    static int parseDefault(bdldfp::Decimal64          *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
     static int parseDefault(bsl::string                *result,
                             const char                 *input,
                             int                         inputLength,
@@ -435,7 +445,8 @@ struct TypesParserUtil_Imp {
                             int                        inputLength,
                             bdlat_TypeCategory::Array);
 
-    // HEX FUNCTIONS
+                            // HEX FUNCTIONS
+
     template <class TYPE>
     static int parseHex(TYPE                            *result,
                         const char                      *input,
@@ -457,7 +468,8 @@ struct TypesParserUtil_Imp {
                         int                        inputLength,
                         bdlat_TypeCategory::Array);
 
-    // LIST FUNCTIONS
+                            // LIST FUNCTIONS
+
     template <class TYPE>
     static int parseList(TYPE                      *result,
                          const char                *input,
@@ -476,7 +488,8 @@ struct TypesParserUtil_Imp {
                          int           inputLength,
                          ANY_CATEGORY);
 
-    // TEXT FUNCTIONS
+                            // TEXT FUNCTIONS
+
     template <class TYPE>
     static int parseText(TYPE                            *result,
                          const char                      *input,
@@ -540,12 +553,13 @@ struct TypesParserUtil_Imp_parseBase64Proxy {
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -576,12 +590,13 @@ struct TypesParserUtil_Imp_parseDecimalProxy {
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -612,12 +627,13 @@ struct TypesParserUtil_Imp_parseDefaultProxy {
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -648,12 +664,13 @@ struct TypesParserUtil_Imp_parseHexProxy {
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -684,12 +701,13 @@ struct TypesParserUtil_Imp_parseListProxy {
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -720,12 +738,13 @@ struct TypesParserUtil_Imp_parseTextProxy {
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -771,36 +790,36 @@ int TypesParserUtil::parse(TYPE       *result,
                                                 input,
                                                 inputLength,
                                                 Tag());               // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_DEC: {
         return TypesParserUtil_Imp::parseDecimal(result,
                                                  input,
                                                  inputLength,
                                                  Tag());              // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_DEFAULT: {
         return TypesParserUtil_Imp::parseDefault(result,
                                                  input,
                                                  inputLength,
                                                  Tag());              // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_HEX: {
         return TypesParserUtil_Imp::parseHex(result,
                                              input,
                                              inputLength,
                                              Tag());                  // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_TEXT: {
         return TypesParserUtil_Imp::parseText(result,
                                               input,
                                               inputLength,
                                               Tag());                 // RETURN
-      }
+      } break;
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
         return k_FAILURE;                                             // RETURN
-      }
+      } break;
     }
 }
 

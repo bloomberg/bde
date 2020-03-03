@@ -421,13 +421,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, TestEnum::Value rhs)
 {
     switch (rhs) {
       case TestEnum::VALUE1:
-        return stream << "VALUE1";
+        return stream << "VALUE1";                                    // RETURN
       case TestEnum::VALUE2:
-        return stream << "VALUE2";
+        return stream << "VALUE2";                                    // RETURN
       case TestEnum::VALUE3:
-        return stream << "VALUE3";
+        return stream << "VALUE3";                                    // RETURN
       default:
-        return stream << "(* UNKNOWN *)";
+        return stream << "(* UNKNOWN *)";                             // RETURN
     }
 }
 
@@ -726,8 +726,8 @@ class CustomizedInt {
     int d_value;  // stored value
 
     // FRIENDS
-    friend bool operator==(const CustomizedInt& lhs, const CustomizedInt& rhs);
-    friend bool operator!=(const CustomizedInt& lhs, const CustomizedInt& rhs);
+    friend bool operator==(const CustomizedInt&, const CustomizedInt&);
+    friend bool operator!=(const CustomizedInt&, const CustomizedInt&);
 
   public:
     // TYPES
@@ -964,10 +964,10 @@ class CustomizedString {
     bsl::string d_value;  // stored value
 
     // FRIENDS
-    friend bool operator==(const CustomizedString& lhs,
-                           const CustomizedString& rhs);
-    friend bool operator!=(const CustomizedString& lhs,
-                           const CustomizedString& rhs);
+    friend bool operator==(const CustomizedString&,
+                           const CustomizedString&);
+    friend bool operator!=(const CustomizedString&,
+                           const CustomizedString&);
 
   public:
     // TYPES
@@ -1986,48 +1986,57 @@ int main(int argc, char *argv[])
         {
             typedef bdldfp::Decimal64 Type;
 
-            Type posInf = bsl::numeric_limits<Type>::infinity();
-            Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
+            const Type posInf = bsl::numeric_limits<Type>::infinity();
+            const Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
+            const Type qNull  = BDLDFP_DECIMAL_DD(-2.3e5);
 
-            static const struct {
+            static const struct Data {
                 int         d_lineNum;
                 const char *d_input;
                 Type        d_result;
+                bool        d_weird;
             } DATA[] = {
-                //line    input        result
-                //----    -----        ------
-                { L_,     "-1X",       BDLDFP_DECIMAL_DD(-1.0),     },
-                { L_,     "-0.1X",     BDLDFP_DECIMAL_DD(-0.1),     },
-                { L_,     "0X",        BDLDFP_DECIMAL_DD(0.0),      },
-                { L_,     "0.1X",      BDLDFP_DECIMAL_DD(0.1),      },
-                { L_,     "1X",        BDLDFP_DECIMAL_DD(1.0),      },
-                { L_,     "123.4X",    BDLDFP_DECIMAL_DD(123.4),    },
-                { L_,     "0.005X",    BDLDFP_DECIMAL_DD(0.005),    },
-                { L_,     "9.99E306X", BDLDFP_DECIMAL_DD(9.99E306), },
-                { L_,     "+INFX",     posInf,                      },
-                { L_,     "-INFX",     -posInf,                     },
-                { L_,     "NaNX",      qNaN                         },
+                //line    input        result                       weird
+                //----    -----        ------                       -----
+                { L_,     "-1X",       BDLDFP_DECIMAL_DD(-1.0),     0 },
+                { L_,     "-0.1X",     BDLDFP_DECIMAL_DD(-0.1),     0 },
+                { L_,     "0X",        BDLDFP_DECIMAL_DD(0.0),      0 },
+                { L_,     "0.1X",      BDLDFP_DECIMAL_DD(0.1),      0 },
+                { L_,     "1X",        BDLDFP_DECIMAL_DD(1.0),      0 },
+                { L_,     "123.4X",    BDLDFP_DECIMAL_DD(123.4),    0 },
+                { L_,     "0.005X",    BDLDFP_DECIMAL_DD(0.005),    0 },
+                { L_,     "9.99E306X", BDLDFP_DECIMAL_DD(9.99E306), 0 },
+                { L_,     "+INFX",     posInf,                      1 },
+                { L_,     "-INFX",     -posInf,                     1 },
+                { L_,     "NaNX",      qNaN,                        1 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE            = DATA[i].d_lineNum;
-                const char *INPUT           = DATA[i].d_input;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const bool  DECIMAL         = ti % 2;
+                const Data& data            = DATA[ti / 2];
+                const int   LINE            = data.d_lineNum;
+                const char *INPUT           = data.d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
-                const Type  EXPECTED_RESULT = DATA[i].d_result;
+                const Type  EXPECTED_RESULT = data.d_result;
+                const bool  WEIRD           = data.d_weird;
+                const bool  SUCCESS         = !DECIMAL || !WEIRD;
 
-                Type mX;  const Type& X = mX;
+                Type mX(qNull);  const Type& X = mX;
 
-                int retCode = Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
+                int rc = DECIMAL
+                         ? Util::parseDecimal(&mX, INPUT, INPUT_LENGTH)
+                         : Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+                ASSERTV(LINE, rc, SUCCESS, SUCCESS == (0 == rc));
 
-                if (bdldfp::DecimalUtil::isNan(EXPECTED_RESULT)) {
-                    LOOP2_ASSERT(LINE, X, bdldfp::DecimalUtil::isNan(X));
+                if (SUCCESS && bdldfp::DecimalUtil::isNan(EXPECTED_RESULT)) {
+                    ASSERTV(LINE, X, bdldfp::DecimalUtil::isNan(X));
                 }
                 else {
-                    LOOP2_ASSERT(LINE, X, EXPECTED_RESULT == X);
+                    ASSERTV(LINE, X, EXPECTED_RESULT, SUCCESS,
+                                     (SUCCESS ? EXPECTED_RESULT : qNull) == X);
                 }
             }
         }
@@ -4012,8 +4021,10 @@ int main(int argc, char *argv[])
             T_ P(blah);
         }
         bsl::string str = "VALUE1";
-        balxml::TypesParserUtil::parse(&blah, str.data(), str.length(),
-                                      bdlat_FormattingMode::e_DEFAULT);
+        balxml::TypesParserUtil::parse(&blah,
+                                       str.data(),
+                                       static_cast<int>(str.length()),
+                                       bdlat_FormattingMode::e_DEFAULT);
 
         if (veryVerbose) {
             T_ P(blah);
@@ -4023,8 +4034,8 @@ int main(int argc, char *argv[])
             bsl::string str = "2";
             float floatVal = 123.0f;
             balxml::TypesParserUtil::parse(&floatVal, str.data(),
-                                          str.length(),
-                                          bdlat_FormattingMode::e_DEFAULT);
+                                           static_cast<int>(str.length()),
+                                           bdlat_FormattingMode::e_DEFAULT);
             if (veryVerbose) {
               T_ P(floatVal);
             }
@@ -4037,8 +4048,8 @@ int main(int argc, char *argv[])
             bsl::string str = "2";
             double doubleVal = 123.0;
             balxml::TypesParserUtil::parse(&doubleVal, str.data(),
-                                          str.length(),
-                                          bdlat_FormattingMode::e_DEFAULT);
+                                           static_cast<int>(str.length()),
+                                           bdlat_FormattingMode::e_DEFAULT);
             if (veryVerbose) {
                 T_ P(doubleVal);
             }
@@ -4054,7 +4065,7 @@ int main(int argc, char *argv[])
             int ret = balxml::TypesParserUtil::parse(
                                               &dateTime,
                                               str.data(),
-                                              str.length(),
+                                              static_cast<int>(str.length()),
                                               bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {
@@ -4068,7 +4079,7 @@ int main(int argc, char *argv[])
             int ret = balxml::TypesParserUtil::parse(
                                               &timeValue,
                                               str.data(),
-                                              str.length(),
+                                              static_cast<int>(str.length()),
                                               bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {
@@ -4082,7 +4093,7 @@ int main(int argc, char *argv[])
             int ret = balxml::TypesParserUtil::parse(
                                               &dateValue,
                                               str.data(),
-                                              str.length(),
+                                              static_cast<int>(str.length()),
                                               bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {

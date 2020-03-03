@@ -65,8 +65,9 @@ BSLS_IDENT("$Id: $")
 //      [unsigned] int                      DEFAULT, DEC
 //      [unsigned] long                     DEFAULT, DEC
 //      bsls::Types::[Uint64|Int64]         DEFAULT, DEC
-//      float                               DEFAULT
-//      double                              DEFAULT
+//      float                               DEFAULT, DEC
+//      double                              DEFAULT, DEC
+//      bdldfp::Decimal64                   DEFAULT, DEC
 //      bsl::string                         DEFAULT, TEXT, BASE64, HEX
 //      bdlt::Date                          DEFAULT
 //      bdlt::DateTz                        DEFAULT
@@ -225,6 +226,7 @@ struct TypesPrintUtil {
     // This 'struct' contains functions for printing objects to output streams
     // using various formatting modes.
 
+    // CLASS METHODS
     template <class TYPE>
     static bsl::ostream& print(bsl::ostream&         stream,
                                const TYPE&           object,
@@ -310,6 +312,7 @@ struct TypesPrintUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
     // this component.
 
+    // CLASS METHODS
     template <class TYPE>
     static bsl::ostream& printDateAndTime(
                                          bsl::ostream&         stream,
@@ -319,7 +322,8 @@ struct TypesPrintUtil_Imp {
         // output the result to the specified 'stream' using the specified
         // 'encoderOptions'.
 
-    // BASE64 FUNCTIONS
+                            // BASE64 FUNCTIONS
+
     template <class TYPE>
     static bsl::ostream& printBase64(
                                bsl::ostream&                    stream,
@@ -368,7 +372,8 @@ struct TypesPrintUtil_Imp {
                                      const EncoderOptions      *encoderOptions,
                                      bdlat_TypeCategory::Array);
 
-    // DECIMAL FUNCTIONS
+                            // DECIMAL FUNCTIONS
+
     template <class TYPE>
     static bsl::ostream& printDecimal(
                                bsl::ostream&                    stream,
@@ -463,13 +468,14 @@ struct TypesPrintUtil_Imp {
                                     const double&               object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
-    static bsl::ostream& printDefault(
+    static bsl::ostream& printDecimal(
                                     bsl::ostream&               stream,
                                     const bdldfp::Decimal64&    object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
 
-    // DEFAULT FUNCTIONS
+                            // DEFAULT FUNCTIONS
+
     template <class TYPE>
     static bsl::ostream& printDefault(
                                bsl::ostream&                    stream,
@@ -564,6 +570,11 @@ struct TypesPrintUtil_Imp {
                                     bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                     bsl::ostream&               stream,
+                                    const bdldfp::Decimal64&    object,
+                                    const EncoderOptions       *encoderOptions,
+                                    bdlat_TypeCategory::Simple);
+    static bsl::ostream& printDefault(
+                                    bsl::ostream&               stream,
                                     const char                 *object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
@@ -633,7 +644,8 @@ struct TypesPrintUtil_Imp {
                                      const EncoderOptions      *encoderOptions,
                                      bdlat_TypeCategory::Array);
 
-    // HEX FUNCTIONS
+                            // HEX FUNCTIONS
+
     template <class TYPE>
     static bsl::ostream& printHex(
                                bsl::ostream&                    stream,
@@ -680,7 +692,8 @@ struct TypesPrintUtil_Imp {
                                   const EncoderOptions      *encoderOptions,
                                   bdlat_TypeCategory::Array);
 
-    // LIST FUNCTIONS
+                            // LIST FUNCTIONS
+
     template <class TYPE>
     static bsl::ostream& printList(bsl::ostream&              stream,
                                    const TYPE&                object,
@@ -700,7 +713,8 @@ struct TypesPrintUtil_Imp {
                                    const EncoderOptions *encoderOptions,
                                    ANY_CATEGORY);
 
-    // TEXT FUNCTIONS
+                            // TEXT FUNCTIONS
+
     template <class TYPE>
     static bsl::ostream& printText(
                                bsl::ostream&                    stream,
@@ -768,6 +782,7 @@ struct TypesPrintUtil_Imp {
                          encoderOptions,
                          bdlat_TypeCategory::Simple());
     }
+
     static bsl::ostream& printText(bsl::ostream&              stream,
                                    const bsl::vector<char>&   object,
                                    const EncoderOptions      *encoderOptions,
@@ -794,7 +809,7 @@ struct TypesPrintUtil_printDefaultProxy {
     // Creators have been omitted to allow simple static initialization of
     // this struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(const TYPE& object)
@@ -820,12 +835,13 @@ struct TypesPrintUtil_Imp_printBase64Proxy {
     // Creators have been omitted to allow simple static initialization of
     // this struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -857,12 +873,13 @@ struct TypesPrintUtil_Imp_printDecimalProxy {
     // Creators have been omitted to allow simple static initialization of
     // this struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -894,12 +911,13 @@ struct TypesPrintUtil_Imp_printDefaultProxy {
     // Creators have been omitted to allow simple static initialization of
     // this struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -931,12 +949,13 @@ struct TypesPrintUtil_Imp_printHexProxy {
     // Creators have been omitted to allow simple static initialization of
     // this struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -968,12 +987,13 @@ struct TypesPrintUtil_Imp_printListProxy {
     // Creators have been omitted to allow simple static initialization of
     // this struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -1005,12 +1025,13 @@ struct TypesPrintUtil_Imp_printTextProxy {
     // Creators have been omitted to allow simple static initialization of
     // this struct.
 
-    // FUNCTIONS
+    // MANIPULATORS
     template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
+
         return -1;
     }
 
@@ -1055,38 +1076,38 @@ bsl::ostream& TypesPrintUtil::print(bsl::ostream&         stream,
                                                object,
                                                encoderOptions,
                                                Tag());                // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_DEC: {
         return TypesPrintUtil_Imp::printDecimal(stream,
                                                 object,
                                                 encoderOptions,
                                                 Tag());               // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_DEFAULT: {
         return TypesPrintUtil_Imp::printDefault(stream,
                                                 object,
                                                 encoderOptions,
                                                 Tag());               // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_HEX: {
         return TypesPrintUtil_Imp::printHex(stream,
                                             object,
                                             encoderOptions,
                                             Tag());                   // RETURN
-      }
+      } break;
       case bdlat_FormattingMode::e_TEXT: {
         return TypesPrintUtil_Imp::printText(stream,
                                              object,
                                              encoderOptions,
                                              Tag());                  // RETURN
-      }
+      } break;
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
         stream.setstate(bsl::ios_base::failbit);
 
         return stream;                                                // RETURN
-      }
+      } break;
     }
 }
 

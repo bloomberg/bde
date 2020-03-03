@@ -16,7 +16,7 @@ BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 #include <bdlde_base64encoder.h>
 #include <bdldfp_decimalutil.h>
 
-#include <bsls_annotation.h>
+#include <bsla_fallthrough.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -29,6 +29,7 @@ BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace {
+namespace u {
 
 // HELPER FUNCTIONS
 
@@ -387,7 +388,7 @@ const char *printTextReplacingXMLEscapes(
                 stream.write(runBegin, data - runBegin);
                 return 0;                                             // RETURN
             }
-          } BSLS_ANNOTATION_FALLTHROUGH;
+          } BSLA_FALLTHROUGH;
 
           case CONTROL_CHARACTER: {
             // Control characters, although allowed in XML 1.1, are discouraged
@@ -408,7 +409,7 @@ const char *printTextReplacingXMLEscapes(
             stream.write(runBegin, data - runBegin);
             stream.setstate(bsl::ios_base::failbit);
             return data;  // error position                           // RETURN
-          }
+          } break;
 
           case AMPERSAND: {
             stream.write(runBegin, data - runBegin);
@@ -592,8 +593,9 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
       case bdlb::Float::k_SNAN: {
         stream.setstate(bsl::ios_base::failbit);
         return stream;                                                // RETURN
-      }
+      } break;
       default: {
+        ;  // do nothing
       } break;
     }
 
@@ -657,8 +659,9 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
       case bdlb::Float::k_QNAN:
       case bdlb::Float::k_SNAN: {
         stream.setstate(bsl::ios_base::failbit);
+
         return stream;                                                // RETURN
-      }
+      } break;
       default: {
       } break;
     }
@@ -723,6 +726,61 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
     return stream.write(buffer, (ptr - buffer) + fractionLen);
 }
 
+inline
+bsl::ostream& printDecimalImpl(bsl::ostream&              stream,
+                               const bdldfp::Decimal64&   object,
+                               bool                       decimalMode)
+{
+    typedef bsl::numeric_limits<bdldfp::Decimal64> Limits;
+    typedef bdldfp::DecimalFormatConfig Config;
+
+    Config cfg;
+    if (stream.flags() & bsl::ios::floatfield) {
+        const bsl::streamsize precision =
+                  bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
+                           stream.precision());
+
+        cfg.setPrecision(static_cast<int>(precision));
+        cfg.setStyle((stream.flags() & bsl::ios::scientific)
+                     ? Config::e_SCIENTIFIC
+                     : Config::e_FIXED);
+    }
+
+    if (decimalMode) {
+        const int classify = bdldfp::DecimalUtil::classify(object);
+        if (FP_NAN == classify || FP_INFINITE == classify) {
+            stream.setstate(bsl::ios_base::failbit);
+
+            return stream;                                            // RETURN
+        }
+    }
+    else {
+        cfg.setInfinity("INF");
+        cfg.setNan("NaN");
+        cfg.setSNan("NaN");
+    }
+
+    const int k_BUFFER_SIZE = 1                          // sign
+                            + 1 + Limits::max_exponent10 // integer part
+                            + 1                          // decimal point
+                            + Limits::max_precision;     // partial part
+        // The size of the buffer sufficient to store max 'bdldfp::Decimal64'
+        // value in fixed notation with the max precision supported by
+        // 'bdldfp::Decimal64' type.
+
+    char buffer[k_BUFFER_SIZE + 1];
+    int  len = bdldfp::DecimalUtil::format(buffer,
+                                           k_BUFFER_SIZE,
+                                           object,
+                                           cfg);
+    BSLS_ASSERT(len <= k_BUFFER_SIZE);
+    buffer[len] = 0;
+    stream << buffer;
+
+    return stream;
+}
+
+}  // close namespace u
 }  // close unnamed namespace
 
 namespace balxml {
@@ -739,7 +797,7 @@ TypesPrintUtil_Imp::printBase64(bsl::ostream&               stream,
                                 bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    return encodeBase64(stream, object.begin(), object.end());
+    return u::encodeBase64(stream, object.begin(), object.end());
 }
 
 bsl::ostream&
@@ -749,7 +807,7 @@ TypesPrintUtil_Imp::printBase64(bsl::ostream&               stream,
                                 bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    return encodeBase64(stream, object.begin(), object.end());
+    return u::encodeBase64(stream, object.begin(), object.end());
 }
 
 bsl::ostream&
@@ -759,7 +817,7 @@ TypesPrintUtil_Imp::printBase64(bsl::ostream&              stream,
                                 bdlat_TypeCategory::Array)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    return encodeBase64(stream, object.begin(), object.end());
+    return u::encodeBase64(stream, object.begin(), object.end());
 }
 
 // HEX FUNCTIONS
@@ -806,7 +864,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
                               bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    printTextReplacingXMLEscapes(stream, &object, 1, encoderOptions);
+    u::printTextReplacingXMLEscapes(stream, &object, 1, encoderOptions);
     return stream;
 }
 
@@ -817,7 +875,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
                               bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    printTextReplacingXMLEscapes(stream, object, -1, encoderOptions);
+    u::printTextReplacingXMLEscapes(stream, object, -1, encoderOptions);
     return stream;
 }
 
@@ -828,10 +886,10 @@ TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
                               bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    printTextReplacingXMLEscapes(stream,
-                                 object.data(),
-                                 static_cast<int>(object.length()),
-                                 encoderOptions);
+    u::printTextReplacingXMLEscapes(stream,
+                                    object.data(),
+                                    static_cast<int>(object.length()),
+                                    encoderOptions);
     return stream;
 }
 
@@ -842,10 +900,10 @@ TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
                               bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    printTextReplacingXMLEscapes(stream,
-                                 object.data(),
-                                 static_cast<int>(object.length()),
-                                 encoderOptions);
+    u::printTextReplacingXMLEscapes(stream,
+                                    object.data(),
+                                    static_cast<int>(object.length()),
+                                    encoderOptions);
     return stream;
 }
 
@@ -860,10 +918,10 @@ TypesPrintUtil_Imp::printText(bsl::ostream&              stream,
     // This 'if' statement prevents us from invoking undefined behavior by
     // taking the address of the first element of an empty vector.
     if (! object.empty()) {
-        printTextReplacingXMLEscapes(stream,
-                                     &object[0],
-                                     static_cast<int>(object.size()),
-                                     encoderOptions);
+        u::printTextReplacingXMLEscapes(stream,
+                                        &object[0],
+                                        static_cast<int>(object.size()),
+                                        encoderOptions);
     }
     return stream;
 }
@@ -874,7 +932,7 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
                                  const EncoderOptions       *,
                                  bdlat_TypeCategory::Simple)
 {
-    return printDecimalImpl(stream, object, FLT_DIG);
+    return u::printDecimalImpl(stream, object, FLT_DIG);
 }
 
 bsl::ostream&
@@ -886,7 +944,7 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
     if (!encoderOptions
      || (encoderOptions->maxDecimalTotalDigits().isNull()
       && encoderOptions->maxDecimalFractionDigits().isNull())) {
-        printDecimalImpl(stream, object, DBL_DIG);
+        u::printDecimalImpl(stream, object, DBL_DIG);
     }
     else {
         const int maxTotalDigits =
@@ -899,10 +957,10 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
                           ? DBL_DIG
                           : encoderOptions->maxDecimalFractionDigits().value();
 
-        printDecimalWithOptions(stream,
-                                object,
-                                maxTotalDigits,
-                                maxFractionDigits);
+        u::printDecimalWithOptions(stream,
+                                   object,
+                                   maxTotalDigits,
+                                   maxFractionDigits);
     }
 
     return stream;
@@ -999,48 +1057,22 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
     return stream;
 }
 
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
+bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                              bsl::ostream&              stream,
                                              const bdldfp::Decimal64&   object,
                                              const EncoderOptions       *,
                                              bdlat_TypeCategory::Simple)
 {
-    typedef bsl::numeric_limits<bdldfp::Decimal64> Limits;
-    typedef bdldfp::DecimalFormatConfig Config;
+    return u::printDecimalImpl(stream, object, true);
+}
 
-    Config cfg;
-    if (stream.flags() & bsl::ios::floatfield) {
-        const bsl::streamsize precision =
-                  bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
-                           stream.precision());
-
-        cfg.setPrecision(static_cast<int>(precision));
-        cfg.setStyle((stream.flags() & bsl::ios::scientific)
-                     ? Config::e_SCIENTIFIC
-                     : Config::e_FIXED);
-    }
-    cfg.setInfinity("INF");
-    cfg.setNan("NaN");
-    cfg.setSNan("NaN");
-
-    const int k_BUFFER_SIZE = 1                          // sign
-                            + 1 + Limits::max_exponent10 // integer part
-                            + 1                          // decimal point
-                            + Limits::max_precision;     // partial part
-        // The size of the buffer sufficient to store max 'bdldfp::Decimal64'
-        // value in fixed notation with the max precision supported by
-        // 'bdldfp::Decimal64' type.
-
-    char buffer[k_BUFFER_SIZE + 1];
-    int  len = bdldfp::DecimalUtil::format(buffer,
-                                           k_BUFFER_SIZE,
-                                           object,
-                                           cfg);
-    BSLS_ASSERT(len <= k_BUFFER_SIZE);
-    buffer[len] = 0;
-    stream << buffer;
-
-    return stream;
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                    bsl::ostream&               stream,
+                                    const bdldfp::Decimal64&    object,
+                                    const EncoderOptions       *,
+                                    bdlat_TypeCategory::Simple)
+{
+    return u::printDecimalImpl(stream, object, false);
 }
 
 }  // close package namespace
