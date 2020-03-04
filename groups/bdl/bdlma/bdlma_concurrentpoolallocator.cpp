@@ -12,10 +12,12 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_concurrentpoolallocator_cpp,"$Id$ $CSID$")
 
+#include <bdlma_guardingallocator.h>  // for testing only
+
 #include <bslmt_threadutil.h>
 
 #include <bslma_default.h>
-#include <bslma_testallocator.h>    // for testing only
+#include <bslma_testallocator.h>      // for testing only
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
