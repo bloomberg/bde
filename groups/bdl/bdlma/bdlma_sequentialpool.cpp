@@ -1,6 +1,8 @@
 // bdlma_sequentialpool.cpp                                           -*-C++-*-
 #include <bdlma_sequentialpool.h>
 
+#include <bdlma_guardingallocator.h>  // for testing only
+
 #include <bdlb_bitutil.h>
 
 #include <bslma_default.h>

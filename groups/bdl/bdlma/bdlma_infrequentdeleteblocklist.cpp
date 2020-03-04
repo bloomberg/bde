@@ -35,7 +35,8 @@ static bsls::Types::size_type alignedAllocationSize(
     //:   'size = (size + MAX_ALIGNMENT - 1) & ~(MAX_ALIGNMENT - 1)'
 
     return (size + sizeOfBlock - 1)
-           & ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+         & ~static_cast<bsls::Types::size_type>(
+                                  bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 }
 
 namespace bdlma {
