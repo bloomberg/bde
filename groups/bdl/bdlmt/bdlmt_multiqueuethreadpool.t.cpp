@@ -1683,7 +1683,7 @@ int main(int argc, char *argv[]) {
                     ++count[doneJobs];
                 }
 
-                ASSERT(80 <= count[batchSize]);
+                ASSERTV(batchSize, count[batchSize], 70 <= count[batchSize]);
 
                 ASSERT(0 == count[0]);
                 for (int i = batchSize + 1; i <= k_ENQUEUE; ++i) {
