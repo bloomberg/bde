@@ -1149,9 +1149,9 @@ BSLS_IDENT("$Id: $")
             // Currently have an issue with rvalue-references on the CC 12.6
             // (beta) compiler, so undefining library feature macros that rely
             // on that language feature being marked as available
-            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR  1
-            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE               1
-            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR          1
+            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
         #endif
     #endif
     #if __cplusplus > 201103L
