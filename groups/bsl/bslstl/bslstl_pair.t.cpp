@@ -72,7 +72,7 @@
 #endif
 
 #if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)              \
-  || defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+  && defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 // The presence of a default constructor of a pair is determined by the
 // default-constructibility of its consituent parts on sufficiently complete
 // C++11 or later compilers (in C++11 or later mode).  We need the presence of
