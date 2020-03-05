@@ -883,7 +883,7 @@ inline
 double TimeInterval::totalSecondsAsDouble() const
 {
     return static_cast<double>(d_seconds) + d_nanoseconds /
-                                                    (1.0 * k_NANOSECS_PER_SEC);
+                                       static_cast<double>(k_NANOSECS_PER_SEC);
 }
 
                                   // Aspects
