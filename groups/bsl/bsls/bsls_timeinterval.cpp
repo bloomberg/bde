@@ -61,7 +61,8 @@ TimeInterval::TimeInterval(double seconds)
 #else
         const double nanoseconds =
 #endif
-             (static_cast<double>(d_seconds) - seconds) * k_NANOSECS_PER_SEC;
+             (static_cast<double>(d_seconds) - seconds)
+                                     * static_cast<double>(k_NANOSECS_PER_SEC);
         d_nanoseconds = -static_cast<int>(nanoseconds + 0.5);
         if (d_nanoseconds == -k_NANOSECS_PER_SEC) {
             --d_seconds;
@@ -80,7 +81,8 @@ TimeInterval::TimeInterval(double seconds)
 #else
         const double nanoseconds =
 #endif
-               (seconds - static_cast<double>(d_seconds)) * k_NANOSECS_PER_SEC;
+               (seconds - static_cast<double>(d_seconds))
+                                     * static_cast<double>(k_NANOSECS_PER_SEC);
         d_nanoseconds = static_cast<int>(nanoseconds + 0.5);
         if (d_nanoseconds == k_NANOSECS_PER_SEC) {
             ++d_seconds;
