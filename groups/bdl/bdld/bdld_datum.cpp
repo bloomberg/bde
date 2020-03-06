@@ -1331,7 +1331,7 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
 Datum Datum::clone(bslma::Allocator *basicAllocator) const
 {
     BSLS_ASSERT(basicAllocator);
-    Datum result = createNull();
+    Datum result;
 
     Datum_CopyVisitor cv(&result, basicAllocator);
     apply(cv);
