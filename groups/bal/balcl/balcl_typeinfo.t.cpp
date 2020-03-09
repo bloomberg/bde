@@ -292,117 +292,105 @@ bsl::vector<bdlt::Datetime> linkedDatetimeArray(GA);
 bsl::vector<bdlt::Date>     linkedDateArray    (GA);
 bsl::vector<bdlt::Time>     linkedTimeArray    (GA);
 
-struct OptConstraint {
+                        // =====================
+                        // struct TestConstraint
+                        // =====================
 
-    // CLASS DATA
+struct TestConstraint {
+    // This 'struct' provides a namespace for functions, one for each
+    // constraint type, used to initialize 'Constraint' objects for testing.
+
+  private:
+    static bool commonLogic(bsl::ostream& stream);
+        // Return 's_constraintValue' and if 'false == s_contraintValue' output
+        // an error message to the specified 'stream'.
+
+  public:
+    // PUBLIC CLASS DATA
     static bool s_constraintValue;
         // Global return value (for easier control).
 
-    // DATA
-    char d_buffer[1 + sizeof(bsl::function<bool(const void   *,
-                                                bsl::ostream *)>)];
-         // This data member ensures that the 'bsl::function' object that
-         // contains this object has to allocate.
+    static bool     charFunc(const char           *, bsl::ostream& stream);
+    static bool      intFunc(const int            *, bsl::ostream& stream);
+    static bool    int64Func(const Int64          *, bsl::ostream& stream);
+    static bool   doubleFunc(const double         *, bsl::ostream& stream);
+    static bool   stringFunc(const bsl::string    *, bsl::ostream& stream);
+    static bool datetimeFunc(const bdlt::Datetime *, bsl::ostream& stream);
+    static bool     dateFunc(const bdlt::Date     *, bsl::ostream& stream);
+    static bool     timeFunc(const bdlt::Time     *, bsl::ostream& stream);
+        // Return 's_constraintValue' and if 'false == s_contraintValue' output
+        // an error message to the specified 'stream'.  Note that the first
+        // argument is ignored.
 };
 
-bool OptConstraint::s_constraintValue = true;
+                        // ---------------------
+                        // struct TestConstraint
+                        // ---------------------
 
-struct OptCharConstraint : public OptConstraint {
-    bool operator()(const char *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
+bool TestConstraint::commonLogic(bsl::ostream& stream)
+{
+    if (!s_constraintValue) {
+        stream << "error" << flush;
     }
-} optCharConstraint;
+    return s_constraintValue;
+}
 
-struct OptIntConstraint : public OptConstraint {
-    bool operator()(const int *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-        // specified 'stream'.
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
-    }
-} optIntConstraint;
+// PUBLIC CLASS DATA
+bool TestConstraint::s_constraintValue = true;
 
-struct OptInt64Constraint : public OptConstraint {
-    bool operator()(const bsls::Types::Int64 *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-        // specified 'stream'.
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
-    }
-} optInt64Constraint;
+// CLASS METHODS
+bool TestConstraint::charFunc(const char *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
 
-struct OptDoubleConstraint : public OptConstraint {
-    bool operator()(const double *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-        // specified 'stream'.
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
-    }
-} optDoubleConstraint;
+bool TestConstraint::intFunc(const int *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
 
-struct OptStringConstraint : public OptConstraint {
-    bool operator()(const bsl::string *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-        // specified 'stream'.
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
-    }
-} optStringConstraint;
+bool TestConstraint::int64Func(const Int64 *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
 
-struct OptDatetimeConstraint : public OptConstraint {
+bool TestConstraint::doubleFunc(const double *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
 
-    bool operator()(const bdlt::Datetime *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-        // specified 'stream'.
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
-    }
-} optDatetimeConstraint;
+bool TestConstraint::stringFunc(const bsl::string *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
 
-struct OptDateConstraint : public OptConstraint {
+bool TestConstraint::datetimeFunc(const bdlt::Datetime *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
 
-    bool operator()(const bdlt::Date *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-        // specified 'stream'.
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
-    }
-} optDateConstraint;
+bool TestConstraint::dateFunc(const bdlt::Date *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
 
-struct OptTimeConstraint : public OptConstraint {
-    bool operator()(const bdlt::Time *, bsl::ostream& stream) const
-        // Return 's_constraintValue' and output an error message to the
-        // specified 'stream'.
-    {
-        if (!s_constraintValue) {
-            stream << "error" << flush;
-        }
-        return s_constraintValue;
-    }
-} optTimeConstraint;
+bool TestConstraint::timeFunc(const bdlt::Time *, bsl::ostream& stream)
+{
+    return commonLogic(stream);
+}
+
+#define TC TestConstraint
+
+Constraint::    CharConstraint     testCharConstraint(&TC::    charFunc);
+Constraint::     IntConstraint      testIntConstraint(&TC::     intFunc);
+Constraint::   Int64Constraint    testInt64Constraint(&TC::   int64Func);
+Constraint::  DoubleConstraint   testDoubleConstraint(&TC::  doubleFunc);
+Constraint::  StringConstraint   testStringConstraint(&TC::  stringFunc);
+Constraint::DatetimeConstraint testDatetimeConstraint(&TC::datetimeFunc);
+Constraint::    DateConstraint     testDateConstraint(&TC::    dateFunc);
+Constraint::    TimeConstraint     testTimeConstraint(&TC::    timeFunc);
+
+#undef TC  // TestConstraint
 
 const struct {
     int       d_line;              // line number
@@ -448,39 +436,39 @@ const struct {
  , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     0                     }
  , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     0                     }
  , { L_, Ot::e_BOOL,           0,                    0                     }
- , { L_, Ot::e_CHAR,           0,                    &optCharConstraint    }
- , { L_, Ot::e_INT,            0,                    &optIntConstraint     }
- , { L_, Ot::e_INT64,          0,                    &optInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         0,                    &optDoubleConstraint  }
- , { L_, Ot::e_STRING,         0,                    &optStringConstraint  }
- , { L_, Ot::e_DATETIME,       0,                    &optDatetimeConstraint}
- , { L_, Ot::e_DATE,           0,                    &optDateConstraint    }
- , { L_, Ot::e_TIME,           0,                    &optTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     0,                    &optCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      0,                    &optIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    0,                    &optInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &optDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   0,                    &optStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, 0,                    &optDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     0,                    &optDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     0,                    &optTimeConstraint    }
+ , { L_, Ot::e_CHAR,           0,                    &testCharConstraint    }
+ , { L_, Ot::e_INT,            0,                    &testIntConstraint     }
+ , { L_, Ot::e_INT64,          0,                    &testInt64Constraint   }
+ , { L_, Ot::e_DOUBLE,         0,                    &testDoubleConstraint  }
+ , { L_, Ot::e_STRING,         0,                    &testStringConstraint  }
+ , { L_, Ot::e_DATETIME,       0,                    &testDatetimeConstraint}
+ , { L_, Ot::e_DATE,           0,                    &testDateConstraint    }
+ , { L_, Ot::e_TIME,           0,                    &testTimeConstraint    }
+ , { L_, Ot::e_CHAR_ARRAY,     0,                    &testCharConstraint    }
+ , { L_, Ot::e_INT_ARRAY,      0,                    &testIntConstraint     }
+ , { L_, Ot::e_INT64_ARRAY,    0,                    &testInt64Constraint   }
+ , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &testDoubleConstraint  }
+ , { L_, Ot::e_STRING_ARRAY,   0,                    &testStringConstraint  }
+ , { L_, Ot::e_DATETIME_ARRAY, 0,                    &testDatetimeConstraint}
+ , { L_, Ot::e_DATE_ARRAY,     0,                    &testDateConstraint    }
+ , { L_, Ot::e_TIME_ARRAY,     0,                    &testTimeConstraint    }
  , { L_, Ot::e_BOOL,           &linkedBool,          0                     }
- , { L_, Ot::e_CHAR,           &linkedChar,          &optCharConstraint    }
- , { L_, Ot::e_INT,            &linkedInt,           &optIntConstraint     }
- , { L_, Ot::e_INT64,          &linkedInt64,         &optInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         &linkedDouble,        &optDoubleConstraint  }
- , { L_, Ot::e_STRING,         &linkedString,        &optStringConstraint  }
- , { L_, Ot::e_DATETIME,       &linkedDatetime,      &optDatetimeConstraint}
- , { L_, Ot::e_DATE,           &linkedDate,          &optDateConstraint    }
- , { L_, Ot::e_TIME,           &linkedTime,          &optTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &optCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &optIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &optInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &optDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &optStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &optDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &optDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &optTimeConstraint    }
+ , { L_, Ot::e_CHAR,           &linkedChar,          &testCharConstraint    }
+ , { L_, Ot::e_INT,            &linkedInt,           &testIntConstraint     }
+ , { L_, Ot::e_INT64,          &linkedInt64,         &testInt64Constraint   }
+ , { L_, Ot::e_DOUBLE,         &linkedDouble,        &testDoubleConstraint  }
+ , { L_, Ot::e_STRING,         &linkedString,        &testStringConstraint  }
+ , { L_, Ot::e_DATETIME,       &linkedDatetime,      &testDatetimeConstraint}
+ , { L_, Ot::e_DATE,           &linkedDate,          &testDateConstraint    }
+ , { L_, Ot::e_TIME,           &linkedTime,          &testTimeConstraint    }
+ , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &testCharConstraint    }
+ , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &testIntConstraint     }
+ , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &testInt64Constraint   }
+ , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &testDoubleConstraint  }
+ , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &testStringConstraint  }
+ , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &testDatetimeConstraint}
+ , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &testDateConstraint    }
+ , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &testTimeConstraint    }
 };
 enum { NUM_OPTION_TYPEINFO = sizeof  OPTION_TYPEINFO
                            / sizeof *OPTION_TYPEINFO };
@@ -583,22 +571,22 @@ static const struct {
 } PARSABLE_CONSTRAINTS[] = {
    //LINE TYPE                  CONSTRAINT
    //---- -------------------   ----------------------
-   { L_,  Ot::e_CHAR,           &optCharConstraint     }
- , { L_,  Ot::e_INT,            &optIntConstraint      }
- , { L_,  Ot::e_INT64,          &optInt64Constraint    }
- , { L_,  Ot::e_DOUBLE,         &optDoubleConstraint   }
- , { L_,  Ot::e_STRING,         &optStringConstraint   }
- , { L_,  Ot::e_DATETIME,       &optDatetimeConstraint }
- , { L_,  Ot::e_DATE,           &optDateConstraint     }
- , { L_,  Ot::e_TIME,           &optTimeConstraint     }
- , { L_,  Ot::e_CHAR_ARRAY,     &optCharConstraint     }
- , { L_,  Ot::e_INT_ARRAY,      &optIntConstraint      }
- , { L_,  Ot::e_INT64_ARRAY,    &optInt64Constraint    }
- , { L_,  Ot::e_DOUBLE_ARRAY,   &optDoubleConstraint   }
- , { L_,  Ot::e_STRING_ARRAY,   &optStringConstraint   }
- , { L_,  Ot::e_DATETIME_ARRAY, &optDatetimeConstraint }
- , { L_,  Ot::e_DATE_ARRAY,     &optDateConstraint     }
- , { L_,  Ot::e_TIME_ARRAY,     &optTimeConstraint     }
+   { L_,  Ot::e_CHAR,           &testCharConstraint     }
+ , { L_,  Ot::e_INT,            &testIntConstraint      }
+ , { L_,  Ot::e_INT64,          &testInt64Constraint    }
+ , { L_,  Ot::e_DOUBLE,         &testDoubleConstraint   }
+ , { L_,  Ot::e_STRING,         &testStringConstraint   }
+ , { L_,  Ot::e_DATETIME,       &testDatetimeConstraint }
+ , { L_,  Ot::e_DATE,           &testDateConstraint     }
+ , { L_,  Ot::e_TIME,           &testTimeConstraint     }
+ , { L_,  Ot::e_CHAR_ARRAY,     &testCharConstraint     }
+ , { L_,  Ot::e_INT_ARRAY,      &testIntConstraint      }
+ , { L_,  Ot::e_INT64_ARRAY,    &testInt64Constraint    }
+ , { L_,  Ot::e_DOUBLE_ARRAY,   &testDoubleConstraint   }
+ , { L_,  Ot::e_STRING_ARRAY,   &testStringConstraint   }
+ , { L_,  Ot::e_DATETIME_ARRAY, &testDatetimeConstraint }
+ , { L_,  Ot::e_DATE_ARRAY,     &testDateConstraint     }
+ , { L_,  Ot::e_TIME_ARRAY,     &testTimeConstraint     }
 };
 
 enum { NUM_PARSABLE_CONSTRAINTS = sizeof  PARSABLE_CONSTRAINTS
@@ -770,6 +758,13 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
     BSLS_ASSERT(Ot::e_BOOL != type);
     BSLS_ASSERT(address);
 
+#define CASE(ENUM, CONSTRAINT)                                                \
+    case ENUM:                                                                \
+    case ENUM##_ARRAY: {                                                      \
+      typeInfo->setConstraint(                                                \
+                      *static_cast<const Constraint::CONSTRAINT *>(address)); \
+    } break;                                                                  \
+
     switch (type) {
       case Ot::e_VOID: {
         ASSERT(!"Reached");
@@ -777,47 +772,23 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
       case Ot::e_BOOL: {
         ASSERT(!"Reached");
       } break;
-      case Ot::e_CHAR:
-      case Ot::e_CHAR_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::CharConstraint(
-                            *static_cast<const OptCharConstraint *>(address)));
-      } break;
-      case Ot::e_INT:
-      case Ot::e_INT_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::IntConstraint(
-                             *static_cast<const OptIntConstraint *>(address)));
-      } break;
-      case Ot::e_INT64:
-      case Ot::e_INT64_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::Int64Constraint(
-                           *static_cast<const OptInt64Constraint *>(address)));
-      } break;
-      case Ot::e_DOUBLE:
-      case Ot::e_DOUBLE_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::DoubleConstraint(
-                          *static_cast<const OptDoubleConstraint *>(address)));
-      } break;
-      case Ot::e_STRING:
-      case Ot::e_STRING_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::StringConstraint(
-                          *static_cast<const OptStringConstraint *>(address)));
-      } break;
-      case Ot::e_DATETIME:
-      case Ot::e_DATETIME_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::DatetimeConstraint(
-                        *static_cast<const OptDatetimeConstraint *>(address)));
-      } break;
-      case Ot::e_DATE:
-      case Ot::e_DATE_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::DateConstraint(
-                            *static_cast<const OptDateConstraint *>(address)));
-      } break;
-      case Ot::e_TIME:
-      case Ot::e_TIME_ARRAY: {
-        typeInfo->setConstraint(balcl::Constraint::TimeConstraint(
-                            *static_cast<const OptTimeConstraint *>(address)));
+
+      CASE(Ot::e_CHAR,         CharConstraint)
+      CASE(Ot::e_INT,           IntConstraint)
+      CASE(Ot::e_INT64,       Int64Constraint)
+      CASE(Ot::e_DOUBLE,     DoubleConstraint)
+      CASE(Ot::e_STRING,     StringConstraint)
+      CASE(Ot::e_DATETIME, DatetimeConstraint)
+      CASE(Ot::e_DATE,         DateConstraint)
+      CASE(Ot::e_TIME,         TimeConstraint)
+
+      default: {
+        BSLS_ASSERT(!"Reached");
       } break;
     };
+
+#undef CASE
+
 }
 
                         // ==========================
@@ -843,6 +814,7 @@ void setLinkedVariable(Obj *typeInfo, ElemType type, void *address)
       case Ot::e_VOID: {
         BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
+
       CASE(Ot::e_BOOL)
       CASE(Ot::e_CHAR)
       CASE(Ot::e_INT)
@@ -860,11 +832,14 @@ void setLinkedVariable(Obj *typeInfo, ElemType type, void *address)
       CASE(Ot::e_DATETIME_ARRAY)
       CASE(Ot::e_DATE_ARRAY)
       CASE(Ot::e_TIME_ARRAY)
+
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
     };
+
 #undef CASE
+
 }
 
 
@@ -889,6 +864,7 @@ void setType(Obj *typeInfo, ElemType type)
       case Ot::e_VOID: {
         BSLS_ASSERT(!"Reachable");
       } break;
+
       CASE(BOOL)
       CASE(CHAR)
       CASE(INT)
@@ -906,11 +882,14 @@ void setType(Obj *typeInfo, ElemType type)
       CASE(DATETIME_ARRAY)
       CASE(DATE_ARRAY)
       CASE(TIME_ARRAY)
+
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
     };
+
 #undef CASE
+
 }
 
                         // ====================
@@ -975,6 +954,7 @@ Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
       case Ot::e_VOID: {
         BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
+
       CASE(Ot::e_BOOL)
       CASE(Ot::e_CHAR)
       CASE(Ot::e_INT)
@@ -992,10 +972,12 @@ Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
       CASE(Ot::e_DATETIME_ARRAY)
       CASE(Ot::e_DATE_ARRAY)
       CASE(Ot::e_TIME_ARRAY)
+
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
+
 #undef CASE
 
     return ptr;
@@ -1030,6 +1012,7 @@ Obj *constructTypeInfo(void             *buffer,
       case Ot::e_VOID: {
         BSLS_ASSERT(!"Reached");
       } break;
+
       CASE(Ot::e_BOOL)
       CASE(Ot::e_CHAR)
       CASE(Ot::e_INT)
@@ -1047,15 +1030,16 @@ Obj *constructTypeInfo(void             *buffer,
       CASE(Ot::e_DATETIME_ARRAY)
       CASE(Ot::e_DATE_ARRAY)
       CASE(Ot::e_TIME_ARRAY)
+
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
+
 #undef CASE
 
     return ptr;
 }
-
 
 Obj *constructTypeInfo(void     *buffer,
                        ElemType  type,
@@ -1078,96 +1062,46 @@ Obj *constructTypeInfo(void     *buffer,
 
     Obj *ptr = 0;
 
+#define CASE(ENUM, CONSTRAINT)                                                \
+    case ENUM: {                                                              \
+      ptr = new (buffer) Obj(                                                 \
+                    static_cast<Ot::EnumToType<ENUM>::type   *>(variable  ),  \
+                   *static_cast<const Constraint::CONSTRAINT *>(constraint)); \
+    } break;                                                                  \
+
     switch (type) {
-//v---^
-  case Ot::e_VOID: {
-    BSLS_ASSERT(!"Reached: 'e_VOID'");
-  } break;
-  case Ot::e_BOOL: {
-    BSLS_ASSERT(!"Reached: 'e_BOOL'");
-  } break;
-  case Ot::e_CHAR: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::Char                   *>(variable  ),
-                       *static_cast<Constraint::CharConstraint *>(constraint));
-  } break;
-  case Ot::e_INT: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::Int                   *>(variable  ),
-                        *static_cast<Constraint::IntConstraint *>(constraint));
-  } break;
-  case Ot::e_INT64: {
-    ptr = new (buffer) Obj(
-                       static_cast<Ot::Int64                   *>(variable  ),
-                      *static_cast<Constraint::Int64Constraint *>(constraint));
-  } break;
-  case Ot::e_DOUBLE: {
-    ptr = new (buffer) Obj(
-                      static_cast<Ot::Double                   *>(variable  ),
-                     *static_cast<Constraint::DoubleConstraint *>(constraint));
-  } break;
-  case Ot::e_STRING: {
-    ptr = new (buffer) Obj(
-                      static_cast<Ot::String                   *>(variable  ),
-                     *static_cast<Constraint::StringConstraint *>(constraint));
-  } break;
-  case Ot::e_DATETIME: {
-    ptr = new (buffer) Obj(
-                    static_cast<Ot::Datetime                   *>(variable  ),
-                   *static_cast<Constraint::DatetimeConstraint *>(constraint));
-  } break;
-  case Ot::e_DATE: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::Date                   *>(variable  ),
-                       *static_cast<Constraint::DateConstraint *>(constraint));
-  } break;
-  case Ot::e_TIME: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::Time                   *>(variable  ),
-                       *static_cast<Constraint::TimeConstraint *>(constraint));
-  } break;
-  case Ot::e_CHAR_ARRAY: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::CharArray              *>(variable  ),
-                       *static_cast<Constraint::CharConstraint *>(constraint));
-  } break;
-  case Ot::e_INT_ARRAY: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::IntArray              *>(variable  ),
-                        *static_cast<Constraint::IntConstraint *>(constraint));
-  } break;
-  case Ot::e_INT64_ARRAY: {
-    ptr = new (buffer) Obj(
-                       static_cast<Ot::Int64Array              *>(variable  ),
-                      *static_cast<Constraint::Int64Constraint *>(constraint));
-  } break;
-  case Ot::e_DOUBLE_ARRAY: {
-    ptr = new (buffer) Obj(
-                      static_cast<Ot::DoubleArray              *>(variable  ),
-                     *static_cast<Constraint::DoubleConstraint *>(constraint));
-  } break;
-  case Ot::e_STRING_ARRAY: {
-    ptr = new (buffer) Obj(
-                      static_cast<Ot::StringArray              *>(variable  ),
-                     *static_cast<Constraint::StringConstraint *>(constraint));
-  } break;
-  case Ot::e_DATETIME_ARRAY: {
-    ptr = new (buffer) Obj(
-                    static_cast<Ot::DatetimeArray              *>(variable  ),
-                   *static_cast<Constraint::DatetimeConstraint *>(constraint));
-  } break;
-  case Ot::e_DATE_ARRAY: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::DateArray              *>(variable  ),
-                       *static_cast<Constraint::DateConstraint *>(constraint));
-  } break;
-  case Ot::e_TIME_ARRAY: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::TimeArray              *>(variable  ),
-                       *static_cast<Constraint::TimeConstraint *>(constraint));
-  } break;
-//^---v
+      case Ot::e_VOID: {
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
+      } break;
+      case Ot::e_BOOL: {
+        BSLS_ASSERT(!"Reached: 'e_BOOL'");
+      } break;
+
+      CASE(Ot::e_CHAR,               CharConstraint)
+      CASE(Ot::e_INT,                 IntConstraint)
+      CASE(Ot::e_INT64,             Int64Constraint)
+      CASE(Ot::e_DOUBLE,           DoubleConstraint)
+      CASE(Ot::e_STRING,           StringConstraint)
+      CASE(Ot::e_DATETIME,       DatetimeConstraint)
+      CASE(Ot::e_DATE,               DateConstraint)
+      CASE(Ot::e_TIME,               TimeConstraint)
+
+      CASE(Ot::e_CHAR_ARRAY,         CharConstraint)
+      CASE(Ot::e_INT_ARRAY,           IntConstraint)
+      CASE(Ot::e_INT64_ARRAY,       Int64Constraint)
+      CASE(Ot::e_DOUBLE_ARRAY,     DoubleConstraint)
+      CASE(Ot::e_STRING_ARRAY,     StringConstraint)
+      CASE(Ot::e_DATETIME_ARRAY, DatetimeConstraint)
+      CASE(Ot::e_DATE_ARRAY,         DateConstraint)
+      CASE(Ot::e_TIME_ARRAY,         TimeConstraint)
+
+      default: {
+        BSLS_ASSERT(!"Reached: Unknown");
+      } break;
     }
+
+#undef CASE
+
     return ptr;
 }
 
@@ -1193,112 +1127,47 @@ Obj *constructTypeInfo(void             *buffer,
 
     Obj *ptr = 0;
 
+#define CASE(ENUM, CONSTRAINT)                                                \
+    case ENUM: {                                                              \
+      ptr = new (buffer) Obj(                                                 \
+                    static_cast<Ot::EnumToType<ENUM>::type   *>(variable  ),  \
+                   *static_cast<const Constraint::CONSTRAINT *>(constraint),  \
+                   basicAllocator);                                           \
+    } break;                                                                  \
+
     switch (type) {
-//v---^
-  case Ot::e_VOID: {
-    BSLS_ASSERT(!"Reached: 'e_VOID'");
-  } break;
-  case Ot::e_BOOL: {
-    BSLS_ASSERT(!"Reached: 'e_BOOL'");
-  } break;
-  case Ot::e_CHAR: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::Char                   *>(variable  ),
-                        *static_cast<Constraint::CharConstraint *>(constraint),
-                         basicAllocator);
-  } break;
-  case Ot::e_INT: {
-    ptr = new (buffer) Obj(
-                          static_cast<Ot::Int                   *>(variable  ),
-                         *static_cast<Constraint::IntConstraint *>(constraint),
-                          basicAllocator);
-  } break;
-  case Ot::e_INT64: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::Int64                   *>(variable  ),
-                       *static_cast<Constraint::Int64Constraint *>(constraint),
-                        basicAllocator);
-  } break;
-  case Ot::e_DOUBLE: {
-    ptr = new (buffer) Obj(
-                       static_cast<Ot::Double                   *>(variable  ),
-                      *static_cast<Constraint::DoubleConstraint *>(constraint),
-                       basicAllocator);
-  } break;
-  case Ot::e_STRING: {
-    ptr = new (buffer) Obj(
-                       static_cast<Ot::String                   *>(variable  ),
-                      *static_cast<Constraint::StringConstraint *>(constraint),
-                       basicAllocator);
-  } break;
-  case Ot::e_DATETIME: {
-    ptr = new (buffer) Obj(
-                     static_cast<Ot::Datetime                   *>(variable  ),
-                    *static_cast<Constraint::DatetimeConstraint *>(constraint),
-                     basicAllocator);
-  } break;
-  case Ot::e_DATE: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::Date                   *>(variable  ),
-                        *static_cast<Constraint::DateConstraint *>(constraint),
-                         basicAllocator);
-  } break;
-  case Ot::e_TIME: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::Time                    *>(variable  ),
-                        *static_cast<Constraint::TimeConstraint *>(constraint),
-                         basicAllocator);
-  } break;
-  case Ot::e_CHAR_ARRAY: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::CharArray              *>(variable  ),
-                        *static_cast<Constraint::CharConstraint *>(constraint),
-                         basicAllocator);
-  } break;
-  case Ot::e_INT_ARRAY: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::IntArray               *>(variable  ),
-                         *static_cast<Constraint::IntConstraint *>(constraint),
-                          basicAllocator);
-  } break;
-  case Ot::e_INT64_ARRAY: {
-    ptr = new (buffer) Obj(
-                        static_cast<Ot::Int64Array              *>(variable  ),
-                       *static_cast<Constraint::Int64Constraint *>(constraint),
-                        basicAllocator);
-  } break;
-  case Ot::e_DOUBLE_ARRAY: {
-    ptr = new (buffer) Obj(
-                       static_cast<Ot::DoubleArray              *>(variable  ),
-                      *static_cast<Constraint::DoubleConstraint *>(constraint),
-                       basicAllocator);
-  } break;
-  case Ot::e_STRING_ARRAY: {
-    ptr = new (buffer) Obj(
-                       static_cast<Ot::StringArray              *>(variable  ),
-                      *static_cast<Constraint::StringConstraint *>(constraint),
-                       basicAllocator);
-  } break;
-  case Ot::e_DATETIME_ARRAY: {
-    ptr = new (buffer) Obj(
-                     static_cast<Ot::DatetimeArray              *>(variable  ),
-                    *static_cast<Constraint::DatetimeConstraint *>(constraint),
-                     basicAllocator);
-  } break;
-  case Ot::e_DATE_ARRAY: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::DateArray              *>(variable  ),
-                        *static_cast<Constraint::DateConstraint *>(constraint),
-                         basicAllocator);
-  } break;
-  case Ot::e_TIME_ARRAY: {
-    ptr = new (buffer) Obj(
-                         static_cast<Ot::TimeArray              *>(variable  ),
-                        *static_cast<Constraint::TimeConstraint *>(constraint),
-                         basicAllocator);
-  } break;
-//^---v
+      case Ot::e_VOID: {
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
+      } break;
+      case Ot::e_BOOL: {
+        BSLS_ASSERT(!"Reached: 'e_BOOL'");
+      } break;
+
+      CASE(Ot::e_CHAR,               CharConstraint)
+      CASE(Ot::e_INT,                 IntConstraint)
+      CASE(Ot::e_INT64,             Int64Constraint)
+      CASE(Ot::e_DOUBLE,           DoubleConstraint)
+      CASE(Ot::e_STRING,           StringConstraint)
+      CASE(Ot::e_DATETIME,       DatetimeConstraint)
+      CASE(Ot::e_DATE,               DateConstraint)
+      CASE(Ot::e_TIME,               TimeConstraint)
+
+      CASE(Ot::e_CHAR_ARRAY,         CharConstraint)
+      CASE(Ot::e_INT_ARRAY,           IntConstraint)
+      CASE(Ot::e_INT64_ARRAY,       Int64Constraint)
+      CASE(Ot::e_DOUBLE_ARRAY,     DoubleConstraint)
+      CASE(Ot::e_STRING_ARRAY,     StringConstraint)
+      CASE(Ot::e_DATETIME_ARRAY, DatetimeConstraint)
+      CASE(Ot::e_DATE_ARRAY,         DateConstraint)
+      CASE(Ot::e_TIME_ARRAY,         TimeConstraint)
+
+      default: {
+        BSLS_ASSERT(!"Reached: Unknown");
+      } break;
     }
+
+#undef CASE
+
     return ptr;
 }
                         // ======================
@@ -1742,7 +1611,7 @@ int main(int argc, const char *argv[])  {
 
             u::setConstraint(objPtr, TYPE_C, CONSTRAINT);
 
-            OptConstraint::s_constraintValue = true;
+            TestConstraint::s_constraintValue = true;
             oss.str(""); oss.clear();
             element.reset(); element.setType(TYPE);
 
@@ -1756,7 +1625,7 @@ int main(int argc, const char *argv[])  {
 
             // Set a constraint that should not pass.
 
-            OptConstraint::s_constraintValue = false;
+            TestConstraint::s_constraintValue = false;
             oss.str(""); oss.clear();
             element.reset(); element.setType(TYPE);
 
@@ -1922,10 +1791,13 @@ int main(int argc, const char *argv[])  {
             for (char cfg = 'a'; cfg <= cfgLimit; ++cfg) {
                 const char CONFIG = cfg;
 
-                bslma::TestAllocator         sa("supplied",
-                                                veryVeryVeryVerbose);
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
+                if (veryVerbose) {
+                    P(CONFIG)
+                }
+
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 int completeExceptionCount = 0;
@@ -2001,7 +1873,7 @@ int main(int argc, const char *argv[])  {
                 ASSERTV(CONFIG, 1 == completeExceptionCount);
 
                 if (veryVerbose) {
-                    P_(cfg)
+                    P_(CONFIG)
                     P_(dam.isTotalUp())
                      P(sam.isTotalUp())
                 }
@@ -2656,7 +2528,9 @@ int main(int argc, const char *argv[])  {
             const int   j = i % NUM_OPTION_DEFAULT_VALUES;
             const void *VALUE = OPTION_DEFAULT_VALUES[j].d_value_p;
 
-            ASSERT(TYPE == OPTION_DEFAULT_VALUES[j].d_type);
+            const ElemType OTYPE = OPTION_DEFAULT_VALUES[j].d_type;
+
+            ASSERTV(TYPE, OTYPE, TYPE == OTYPE);
 
             if (CONSTRAINT) {
                 Obj mX;  const Obj& X = mX;
@@ -2668,7 +2542,7 @@ int main(int argc, const char *argv[])  {
 
                 bsl::ostringstream ossElement, ossValue;
 
-                OptConstraint::s_constraintValue = true;
+                TestConstraint::s_constraintValue = true;
                 ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X            ));
                 ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
                 ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X            ));
@@ -2680,7 +2554,7 @@ int main(int argc, const char *argv[])  {
                 ossElement.str(""); ossElement.clear();
                 ossValue  .str(""); ossValue  .clear();
 
-                OptConstraint::s_constraintValue = false;
+                TestConstraint::s_constraintValue = false;
                 ASSERT(!ObjUtil::satisfiesConstraint(ELEMENT, X            ));
                 ASSERT(!ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
                 ASSERT(!ObjUtil::satisfiesConstraint(VALUE,   X            ));
@@ -2692,7 +2566,7 @@ int main(int argc, const char *argv[])  {
                 ossElement.str(""); ossElement.clear();
                 ossValue  .str(""); ossValue  .clear();
 
-                OptConstraint::s_constraintValue = true;
+                TestConstraint::s_constraintValue = true;
                 ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X            ));
                 ASSERT( ObjUtil::satisfiesConstraint(ELEMENT, X, ossElement));
                 ASSERT( ObjUtil::satisfiesConstraint(VALUE,   X            ));
