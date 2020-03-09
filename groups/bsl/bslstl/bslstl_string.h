@@ -207,10 +207,10 @@ BSLS_IDENT("$Id: $")
 // supply memory.  Note that the default allocator can become locked prior to
 // entering 'main' as a side-effect of initializing a file-scope static string
 // object using 'operator "" _s'.  To avoid the default allocator locking an
-// 'operator "" _S' can be used instead.  This operator uses the global allocator
-// to supply memory and has no side-effects.  (See the "Default Allocator"
-// section in the 'bslma::Default' component-level documentation for details.)
-// For Example,
+// 'operator "" _S' can be used instead.  This operator uses the global
+// allocator to supply memory and has no side-effects.  (See the "Default
+// Allocator" section in the 'bslma::Default' component-level documentation for
+// details.)  For Example:
 //..
 // using namespace bsl::string_literals;
 // static const bsl::string s = "Use '_S' to initialize a file-scope string"_S;
@@ -1460,8 +1460,7 @@ class basic_string
         // to 'original.length() - position').  Optionally specify the
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // specified, a default-constructed allocator is used.  Throw
-        // 'out_of_range' if 'position > original.length()' or
-        // 'numChars != npos' and 'position + numChars < original.length()'.
+        // 'out_of_range' if 'position > original.length()'.
 
     basic_string(const CHAR_TYPE  *characterString,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());   // IMPLICIT
@@ -2666,7 +2665,7 @@ inline namespace string_literals {
  string operator ""_s(const char    *characterString, std::size_t length);
 wstring operator ""_s(const wchar_t *characterString, std::size_t length);
     // Convert a character sequence of the specified 'length' excluding the
-    // termnatng null character starting at the beginning of the specified
+    // terminatng null character starting at the beginning of the specified
     // 'characterString' to a string object of the indicated return type.  Use
     // the 'bslma::Default::defaultAllocator()' to supply memory.  (See the
     // "User-Defined Literals" section in the component-level documentation.)
@@ -2688,7 +2687,7 @@ wstring operator ""_s(const wchar_t *characterString, std::size_t length);
  string operator ""_S(const char    *characterString, std::size_t length);
 wstring operator ""_S(const wchar_t *characterString, std::size_t length);
     // Convert a character sequence of the specified 'length' excluding the
-    // termnatng null character starting at the beginning of the specified
+    // terminatng null character starting at the beginning of the specified
     // 'characterString' to a string object of the indicated return type.  Use
     // the 'bslma::Default::globalAllocator()' to supply memory.  (See the
     // "Memory Allocation For a File-Scope Strings" section in the
