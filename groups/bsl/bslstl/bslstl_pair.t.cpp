@@ -9353,10 +9353,10 @@ int main(int argc, char *argv[])
             printf("Testing components (first/second) constructibility\n");
 
 #define ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(TYPE)                                \
-        ASSERT(false == std::is_default_constructible<TYPE>::value)
+        ASSERT(false == native_std::is_default_constructible<TYPE>::value)
 
 #define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                    \
-        ASSERT(true == std::is_default_constructible<TYPE>::value)
+        ASSERT(true == native_std::is_default_constructible<TYPE>::value)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault);
@@ -9391,8 +9391,8 @@ int main(int argc, char *argv[])
             printf("All default constuctible pair combinations.\n");
 
 #define ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                       \
-        ASSERT((true == std::is_default_constructible<                        \
-                                              std::pair<TYPE1, TYPE2>>::value))
+        ASSERT((true == native_std::is_default_constructible<                 \
+                                              bsl::pair<TYPE1, TYPE2>>::value))
 
         ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(Empty, Empty);
         ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(Empty, DefArgDefault);
@@ -9420,8 +9420,8 @@ int main(int argc, char *argv[])
             printf("All not default constuctible pair combinations.\n");
 
 #define ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                   \
-        ASSERT((false == std::is_default_constructible<                       \
-                                              std::pair<TYPE1, TYPE2>>::value))
+        ASSERT((false == native_std::is_default_constructible<                \
+                                              bsl::pair<TYPE1, TYPE2>>::value))
 
         if (veryVeryVerbose)
             printf("pair<..>::second is not default constructible.\n");

@@ -353,7 +353,8 @@ void swap(TYPE& a, TYPE& b);
 // for move constructors, so a special exception must be made in this case.
 #endif
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)           \
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)               \
+ || !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)             \
  || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 // MSVC 2013 implicitly declared and defines a default constructor, even for
 // members that are not default constructible such as references.
@@ -521,16 +522,22 @@ struct Pair_First {
   protected:
   public:
     // PUBLIC DATA
-#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
-    TYPE first {};
-#else
     TYPE first;
-#endif
 
     // CREATORS
 #if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
+    template <
+        class BSLSTL_DUMMY = TYPE,
+        typename
+            std::enable_if<std::is_default_constructible<BSLSTL_DUMMY>::value,
+                           int>::type = 0>
     BSLS_KEYWORD_CONSTEXPR
-    Pair_First() = default;
+    Pair_First() : first()
+    {
+        // This constructor template must be defined inline inside the
+        // class definition, as Microsoft Visual C++ does not recognize the
+        // definition as matching this signature when placed out-of-line.
+    }
 #else
     BSLS_KEYWORD_CONSTEXPR
     Pair_First();
@@ -807,15 +814,22 @@ struct Pair_Second {
 
   protected:
     // PROTECTED DATA
-#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
-    TYPE second {};
-#else
     TYPE second;
-#endif
+
     // CREATORS
 #if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)
+    template <
+        class BSLSTL_DUMMY = TYPE,
+        typename
+            std::enable_if<std::is_default_constructible<BSLSTL_DUMMY>::value,
+                           int>::type = 0>
     BSLS_KEYWORD_CONSTEXPR
-    Pair_Second() = default;
+    Pair_Second() : second()
+    {
+        // This constructor template must be defined inline inside the
+        // class definition, as Microsoft Visual C++ does not recognize the
+        // definition as matching this signature when placed out-of-line.
+    }
 #else
     BSLS_KEYWORD_CONSTEXPR
     Pair_Second();
