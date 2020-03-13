@@ -1,5 +1,21 @@
-bsl-internal (3.50.0.0) unstable; urgency=low
+bsl-internal (3.51.0.0) unstable; urgency=low
 
+  * b9d6e3d61 Bumped version to 3.51.0.0
+  * 7f1b9acea Merge pull request #2723 from cwilson/fix-string-ctor-doc-drqs-156319171
+  * 8b3c0ccf3 Merge pull request #2722 from egoodrich4/improve-datum-clone
+  * 0823e852a Merge pull request #2720 from afeher/fix-pair-test-driver
+  * f3a748bc0 Merge pull request #2719 from afeher/drqs-156229760-cpp20-enum-warning
+  * 629561964 Merge pull request #2715 from jmendelsohn4/drqs-156214645/bdlmt_multiqueuethreadpool-case-33-threshold
+  * c1f14b479 Merge pull request #2714 from jmendelsohn4/drqs-156182592/bdlma_concurrentpoolallocator-case-6-20200303
+  * 26ed4566d Merge pull request #2711 from jmendelsohn4/drqs-156161832/bdlcc_objectcatalog-clang-cleanup-20200303
+  * 8fd61c8d2 Merge pull request #2685 from bchapman/balxml-Decimal64-decimal-mode-drqs-154624542
+  * 413e7538a Merge pull request #2708 from jmendelsohn4/drqs-135423849/bdlma_sequentialallocator-incorrect-maxBufferSize-2
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Mar 2020 11:29:53 -0400
+
+bsl-internal (3.50.0.0) git; urgency=low
+
+  * f4e59f34b Changelog for version 3.50.0.0
   * a2c4ce236 Bumped version to 3.50.0.0
   * 1b80dbc29 Merge pull request #2701 from afeher/drqs-155159498-dedefault-das-pair
   * 8085ed4b8 Merge pull request #2687 from jmendelsohn4/drqs-152960171/bdlmt_multiqueuethreadpool-executeFront-2
@@ -10,7 +26,7 @@ bsl-internal (3.50.0.0) unstable; urgency=low
   * a853d636a Merge pull request #2673 from bchapman/bsltf_wellbehavedmoveonlyalloctesttype-2-drqs-129710603
   * 027a699fe Merge pull request #2694 from hrosen4/bid-win_drqs-155595047
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 29 Feb 2020 17:52:45 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 29 Feb 2020 17:53:22 -0500
 
 bsl-internal (3.49.0.0) git; urgency=low
 
