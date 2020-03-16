@@ -12,10 +12,47 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:  balcl_optioninfo, balcl_commandline
 //
-//@DESCRIPTION: This component provides an allocator-aware, in-core
-// (value-semantic) attribute class, 'balcl::Option', that describes a
+//@DESCRIPTION: This component provides an unconstrained, allocator-aware,
+// in-core (value-semantic) attribute class, 'balcl::Option', that describes a
 // command-line option.  Class 'balcl::Option' is used to specify the
 // user-defined command-line options accepted by a 'balcl::CommandLine' object.
+//
+// The value of a 'balcl::Option' object is the same as that of the
+// 'balcl::OptionInfo' object accessible from the option object via a
+// conversion operator.  That value consists of several (subordinate)
+// attributes:
+//
+//: o the strings associated with the option:
+//:   o 'tag'
+//:   o 'name', and
+//:   o 'description'
+//:
+//: o the 'typeInfo' attribute (see {'balcl_typeinfo'}) that, in turn,
+//:   consists of:
+//:   o 'type' (type of the option's value)
+//:   o 'linkedVariable' [optional], and
+//:   o 'constraint' [optional]
+//
+//: o the 'occurrenceInfo' attribute (see {'balcl_occurrenceinfo}') that, in
+//:   turn, consists of:
+//:   o 'occurrenceType' (required, optional, or hidden)
+//:   o 'defaulValue' [optional]
+//
+// Since 'balcl::TypeInfo' is an in-core VST, so is 'balcl::Option'.
+//
+// When constructing a 'balcl::Option' from a 'balcl::OptionInfo' object, the
+// class places no constraints on the latter's value except, of course, for the
+// constraints required by the types that compose the 'balcl::OptionInfo'
+// class.
+//
+// Additionally, the 'balcl::Option' class provides:
+//
+//: o A set of ('is*Valid') methods that report whether or not the option's
+//:   string attributes (tag, name, description) are valid for use by
+//:   'balcl::CommandLine'.
+//:
+//: o Allocator awareness that allows 'balcl::Option' values to be stored in
+//:   allocator-aware containers.
 //
 ///Usage
 ///-----
@@ -65,7 +102,7 @@ class Option {
   private:
     // PRIVATE MANIPULATORS
     void init();
-        // Default initialize the underylining option info.
+        // Default initialize the underlying option info.
 
     void init(const OptionInfo& optionInfo);
         // Initialize the underlying option info from the value of the
@@ -73,10 +110,9 @@ class Option {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Option,
-                                   bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(Option,
-                                   bdlb::HasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(Option, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Option, bdlb::HasPrintMethod);
+
     // CREATORS
     Option();
     explicit
@@ -127,26 +163,6 @@ class Option {
         // Return 'true' if the value of this option is of array type, and
         // 'false' otherwise.
 
-    bool isDescriptionValid(bsl::ostream& stream) const;
-        // Return 'true' if the description is valid for this option, leaving
-        // the specified 'stream' unaffected; otherwise, write a diagnostic
-        // message to 'stream' and return 'false'.
-
-    bool isLongTagValid(const char *longTag, bsl::ostream& stream) const;
-        // Return 'true' if the specified 'longTag' is valid for this option,
-        // leaving the specified 'stream' unaffected; otherwise, write a
-        // diagnostic message to 'stream' and return 'false'.
-
-    bool isNameValid(bsl::ostream& stream) const;
-        // Return 'true' if the name is valid for this option, leaving the
-        // specified 'stream' unaffected; otherwise, write a diagnostic message
-        // to 'stream' and return 'false'.
-
-    bool isTagValid(bsl::ostream& stream) const;
-        // Return 'true' if the tag is valid for this option, leaving the
-        // specified 'stream' unaffected; otherwise, write a diagnostic message
-        // to 'stream' and return 'false'.
-
     const char *longTag() const;
         // Return the string used to identify this option on a command line
         // preceded with '--', or 0 if there is no long tag associated with
@@ -175,6 +191,28 @@ class Option {
         // Return a 'const' reference to the type info for this option (i.e.,
         // the type of the option, whether the option is linked to a variable,
         // and whether it has a constraint).
+
+                                  // Validators
+
+    bool isDescriptionValid(bsl::ostream& stream) const;
+        // Return 'true' if the description is valid for this option, leaving
+        // the specified 'stream' unaffected; otherwise, write a diagnostic
+        // message to 'stream' and return 'false'.
+
+    bool isLongTagValid(const char *longTag, bsl::ostream& stream) const;
+        // Return 'true' if the specified 'longTag' is valid for this option,
+        // leaving the specified 'stream' unaffected; otherwise, write a
+        // diagnostic message to 'stream' and return 'false'.
+
+    bool isNameValid(bsl::ostream& stream) const;
+        // Return 'true' if the name is valid for this option, leaving the
+        // specified 'stream' unaffected; otherwise, write a diagnostic message
+        // to 'stream' and return 'false'.
+
+    bool isTagValid(bsl::ostream& stream) const;
+        // Return 'true' if the tag is valid for this option, leaving the
+        // specified 'stream' unaffected; otherwise, write a diagnostic message
+        // to 'stream' and return 'false'.
 
                                   // Aspects
 

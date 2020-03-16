@@ -32,28 +32,31 @@ namespace balcl {
 // PRIVATE MANIPULATORS
 void Option::init()
 {
-    bslalg::ScalarPrimitives::defaultConstruct(
-                                 &d_optionInfo.object().d_tag, d_allocator_p);
+    bslalg::ScalarPrimitives::defaultConstruct(&d_optionInfo.object().d_tag,
+                                               d_allocator_p);
     bslalg::AutoScalarDestructor<bsl::string> tagGuard(
                                                  &d_optionInfo.object().d_tag);
 
-    bslalg::ScalarPrimitives::defaultConstruct(
-                                &d_optionInfo.object().d_name, d_allocator_p);
+    bslalg::ScalarPrimitives::defaultConstruct(&d_optionInfo.object().d_name,
+                                               d_allocator_p);
     bslalg::AutoScalarDestructor<bsl::string> nameGuard(
                                                 &d_optionInfo.object().d_name);
 
     bslalg::ScalarPrimitives::defaultConstruct(
-                         &d_optionInfo.object().d_description, d_allocator_p);
+                                          &d_optionInfo.object().d_description,
+                                          d_allocator_p);
     bslalg::AutoScalarDestructor<bsl::string> descGuard(
                                          &d_optionInfo.object().d_description);
 
     bslalg::ScalarPrimitives::defaultConstruct(
-                            &d_optionInfo.object().d_typeInfo, d_allocator_p);
+                                            &d_optionInfo.object().d_typeInfo,
+                                            d_allocator_p);
     bslalg::AutoScalarDestructor<TypeInfo> typeGuard(
                                             &d_optionInfo.object().d_typeInfo);
 
     bslalg::ScalarPrimitives::defaultConstruct(
-                         &d_optionInfo.object().d_defaultInfo, d_allocator_p);
+                                          &d_optionInfo.object().d_defaultInfo,
+                                          d_allocator_p);
     typeGuard.release();
     descGuard.release();
     nameGuard.release();
@@ -164,6 +167,11 @@ Option::operator const OptionInfo&() const
 
 OptionInfo::ArgType Option::argType() const
 {
+    // An empty tag is the only indicator of a non-option so that must be
+    // tested first.  An 'OptionType::e_BOOL' option should not have an empty
+    // tag but the class is allowed to contain tags that are considered invalid
+    // (i.e., 'isTagValid' returns 'false').
+
     if (d_optionInfo.object().d_tag.empty()) {
         return OptionInfo::e_NON_OPTION;                              // RETURN
     }
@@ -184,6 +192,44 @@ bool Option::isArray() const
 {
     return OptionType::isArrayType(d_optionInfo.object().d_typeInfo.type());
 }
+
+const char *Option::longTag() const
+{
+    BSLS_ASSERT(argType() != OptionInfo::e_NON_OPTION);
+
+    const char *tagString = d_optionInfo.object().d_tag.c_str();
+    return '|' == tagString[1] ? tagString + 2 : tagString;
+}
+
+const bsl::string& Option::name() const
+{
+    return d_optionInfo.object().d_name;
+}
+
+const OccurrenceInfo& Option::occurrenceInfo() const
+{
+    return d_optionInfo.object().d_defaultInfo;
+}
+
+char Option::shortTag() const
+{
+    BSLS_ASSERT(argType() != OptionInfo::e_NON_OPTION);
+
+    const char *tagString = d_optionInfo.object().d_tag.c_str();
+    return '|' == tagString[1] ? *tagString : 0;
+}
+
+const bsl::string& Option::tagString() const
+{
+    return d_optionInfo.object().d_tag;
+}
+
+const TypeInfo& Option::typeInfo() const
+{
+    return d_optionInfo.object().d_typeInfo;
+}
+
+                                  // Validators
 
 bool Option::isDescriptionValid(bsl::ostream& stream) const
 {
@@ -207,6 +253,11 @@ bool Option::isLongTagValid(const char    *longTag,
 
     if (0 != bsl::strchr(longTag, '|')) {
         stream << "Long tag cannot contain '|'." << '\n';
+        result = false;
+    }
+
+    if (0 != bsl::strchr(longTag, ' ')) {
+        stream << "Long tag cannot contain spaces." << '\n';
         result = false;
     }
 
@@ -288,42 +339,6 @@ bool Option::isTagValid(bsl::ostream& stream) const
     }
 
     return result && isLongTagValid(str + 2, stream);
-}
-
-const char *Option::longTag() const
-{
-    BSLS_ASSERT(argType() != OptionInfo::e_NON_OPTION);
-
-    const char *tagString = d_optionInfo.object().d_tag.c_str();
-    return '|' == tagString[1] ? tagString + 2 : tagString;
-}
-
-const bsl::string& Option::name() const
-{
-    return d_optionInfo.object().d_name;
-}
-
-const OccurrenceInfo& Option::occurrenceInfo() const
-{
-    return d_optionInfo.object().d_defaultInfo;
-}
-
-char Option::shortTag() const
-{
-    BSLS_ASSERT(argType() != OptionInfo::e_NON_OPTION);
-
-    const char *tagString = d_optionInfo.object().d_tag.c_str();
-    return '|' == tagString[1] ? *tagString : 0;
-}
-
-const bsl::string& Option::tagString() const
-{
-    return d_optionInfo.object().d_tag;
-}
-
-const TypeInfo& Option::typeInfo() const
-{
-    return d_optionInfo.object().d_typeInfo;
 }
 
                                   // Aspects
