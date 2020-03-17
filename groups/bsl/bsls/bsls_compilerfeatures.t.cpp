@@ -18,18 +18,18 @@
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                            * Overview *
-// Testing available C++11 language features by trying to compile code that
-// uses them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
-// defined, then we try to compile code that uses 'static_assert'.  This is a
-// purely compile-time test.  If the code compiles, then the test succeeds, if
-// the code fails to compile, then the test fails.  Due to the limitations of
-// the testing framework, there is no way to turn compile-time failures into
-// runtime failures.  Note that we don't intend to test the correctness of the
-// implementation of C++ features, but just the fact that features are
-// supported.
+// Testing available C++ language features by trying to compile code that uses
+// them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
+// defined, then we try to compile code that uses 'static_assert'.  Many of
+// the tests are purely compile-time; if the code compiles, then the test
+// succeeds.  Due to the limitations of the testing framework, there is no way
+// to turn compile-time failures into runtime failures.  Note that we don't
+// intend to test the correctness of the implementation of C++ features, but
+// just the fact that features are supported.
 //-----------------------------------------------------------------------------
+// [31] BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 // [23] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
-// [31] BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+// [32] BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 // [10] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 // [24] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
@@ -68,7 +68,7 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [32] USAGE EXAMPLE
+// [33] USAGE EXAMPLE
 
 using namespace BloombergLP;
 
@@ -1026,6 +1026,95 @@ struct is_same<T,T>
 #endif
 }  // close namespace test_case_30
 
+                    // case 31
+
+namespace test_case_31 {
+#ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+
+class NeverCopied {
+    // Instances of this class can be constructed only using the 'factory'
+    // method and must never be copied or moved.  This class is used to test
+    // guaranteed copy elision.
+
+    enum { NOT_COPIED = false };
+
+    // PRIVATE DATA
+    int d_data;
+
+    // PRIVATE CREATORS
+    explicit NeverCopied(int v) : d_data(v) { }
+
+public:
+    // CLASS MEMBERS
+    static NeverCopied factory1(int v);
+        // Return an object by value constructed direction within the 'return'
+        // statement.  A compiler for which
+        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
+        // no copies in the process of returning the prvalue.
+
+    static NeverCopied factory2(int v);
+        // Return 'factory1(v)'.  A compiler for which
+        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
+        // no copies in the process of returning the prvalue.
+
+    static const NeverCopied factory3(int v);
+        // Return 'factory1(v)' as a const prvalue.  A compiler for which
+        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
+        // no copies in the process of returning the prvalue.
+
+    // CREATORS
+    NeverCopied(const NeverCopied&, int *alloc = 0)
+        : d_data(alloc ? *alloc : 0) { ASSERT(NOT_COPIED); }
+        // "Extended" copy/move constructor that is never called. Note that
+        // some compilers (e.g., xlC) will elide some calls to a regular copy
+        // constructor, but not to an extended copy constructor like this one.
+
+    // MANIPULATORS
+    NeverCopied& operator=(const NeverCopied&)
+        // Copy/move assignment is never called.
+        { ASSERT(NOT_COPIED); return *this; }
+
+    // ACCESSORS
+    int value() const { return d_data; }
+};
+
+NeverCopied NeverCopied::factory1(int v) {
+    // RVO and copy elision prevent copy from being made.
+    return NeverCopied(v);
+}
+
+NeverCopied NeverCopied::factory2(int v) {
+    // RVO and copy elision prevent copy from being made.
+    return factory1(v);
+}
+
+const NeverCopied NeverCopied::factory3(int v) {
+    // RVO and copy elision prevent copy from being made.
+    return factory1(v);
+}
+
+class NCWrapper {
+    // Instances of this class wrap a 'NeverCopied' object. The constructor
+    // uses the 'NeverCopied' factory and ensures that initializing the
+    // wrapped value can be done without making a copy.
+
+    NeverCopied d_data;
+
+public:
+    explicit NCWrapper(int v)
+        // Construct the data member by calling 'NeverCopied::factory2'
+        : d_data(NeverCopied::factory2(v)) { }
+
+    explicit NCWrapper(int v, int)
+        // Construct the data member by calling 'NeverCopied::factory3'
+        : d_data(NeverCopied::factory3(v)) { }
+
+    int value() const { return d_data.value(); }
+};
+
+#endif
+}
+
 // ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -1625,7 +1714,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1707,7 +1796,7 @@ int main(int argc, char *argv[])
 // may arise.
 #undef THATS_MY_LINE
       } break;
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'
         //
@@ -1810,6 +1899,109 @@ int main(int argc, char *argv[])
         // compilers (clang and gcc) report the number of the line '__LINE__'
         // is on, as I believe WG14 N2322 recommends (hence the value 4).
       } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION'
+        //
+        // Concerns:
+        //: 1 If 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined,
+        //:   a function returning a prvalue that is initialized in its return
+        //:   statement does not make a copy of the initialized prvalue
+        //:   (i.e., the object is constructed in the caller, not
+        //:   constructed locally and then copied or moved).
+        //:
+        //: 2 If 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined,
+        //:   then initializing an object from a call to a function returning
+        //:   a prvalue of the same type does not make a copy of the returned
+        //:   object (i.e., the target object is initialized directly by
+        //:   the function call).
+        //:
+        //: 3 Concern 2 applies when the target object is a class member
+        //:   being initialized within a member initialization list.
+        //:
+        //: 4 Concerns 2 and 3 apply when the source and target differ in
+        //:   'const' qualification.
+        //
+        // Plan
+        //: 1 For concern 1, create a class, 'NeverCopied', which asserts
+        //:   failure if its copy/move constructor or assignment operator are
+        //:   called.  Create a static 'factory1' method for 'NeverCopied'
+        //:   which returns a 'NeverCopied' object by value and initializes
+        //:   its return value directly in the 'return' statement. Call the
+        //:   'factory' method and verify that the no-copy assertion is not
+        //:   tripped.  Add a static 'factory2' method such that
+        //:   'NeverCopied::factory2' returns the result of of calling,
+        //:   'NeverCopied::factory1'. Call 'factory2' and verify that the
+        //:   no-copy assertion is still not tripped, even across multiple
+        //:   levels of function calls.
+        //:
+        //: 2 For concern 2, create an instance of a 'NeverCopied' object
+        //:   initialized by calling 'NeverCopied::factory2()' as the
+        //:   constructor argument and verify that the no-copy assertion is
+        //:   not tripped. Repeat using the '=' form of initialization (i.e.,
+        //:   'NeverCopied x = NeverCopied::factory2()'.
+        //:
+        //: 3 For concern 3, create a class, 'NCWrapper' containing a data
+        //:   member of type 'NeverCopied'.  Initialize the data member in the
+        //:   constructor's member-initializer list using
+        //:   'NeverCopied::factory2'.  Verify that the non-copied assertion
+        //:   is not tripped.
+        //:
+        //: 4 For concern 4, initialize a 'const NeverCopied' object using
+        //:   'factory2' and verify that the no-copy assertion is not
+        //:   tripped.  Create a static 'factory3' method
+        //:   returning a 'const
+        //:   NeverCopied' object and use this overload to initialize a
+        //:   non-const 'NeverCopied' object; again, the no-copy assertion
+        //:   should not be tripped.  Repeat step 3 using an overload for
+        //:   'NCWrapper' that calls 'factory3' instead of 'factory2'.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "\nTESTING 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION'"
+            "\n=======================================================\n");
+
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+
+        using namespace test_case_31;
+
+        // Step 1:
+        (void) NeverCopied::factory1(8);
+        (void) NeverCopied::factory2(9);
+
+        // Step 2:
+
+        // Direct initailization
+        NeverCopied a(NeverCopied::factory2(10));
+        ASSERT(10 == a.value());
+
+        // Copy initialization (should have same samantics as direct in this
+        // case).
+        NeverCopied b = NeverCopied::factory2(11);
+        ASSERT(11 == b.value());
+
+        // Step 3:
+        // NCWrapper member initialization
+        NCWrapper c(12);
+        ASSERT(12 == c.value());
+
+        // Step 4:
+        const NeverCopied d(NeverCopied::factory2(13));
+        ASSERT(13 == d.value());
+        const NeverCopied e = NeverCopied::factory2(14);
+        ASSERT(14 == e.value());
+        NeverCopied f(NeverCopied::factory3(15));
+        ASSERT(15 == f.value());
+        NeverCopied g = NeverCopied::factory3(16);
+        ASSERT(16 == g.value());
+        NCWrapper h(17, 0);
+        ASSERT(17 == h.value());
+
+#endif
+      } break;
       case 30: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'
@@ -1890,6 +2082,7 @@ will not improve the flavor.
         //: 1 If exceptions are disabled, then there is nothing to test, and
         //:   any reasonable attempt at testing will fail to compile.  Report
         //:   an supported configuration and return.
+        //:
         //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is
         //:   defined then compile code that attempts to throw an invalid
         //:   exception out of a function that has an exception specification
@@ -2089,6 +2282,7 @@ will not improve the flavor.
         //:   '<initializer_list>', and try to initialize from a list of
         //:   instrumented user-defined object types, using a constructor that
         //:   throws when the (instrumented) global object count gets too high.
+        //:
         //: 2 Verify that the live global object count is reduced to zero after
         //:   throwing the exception, unless the macro
         //:   'BSLS_COMPILERFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
@@ -2135,6 +2329,7 @@ will not improve the flavor.
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is defined, try
         //:   '__has_include(<stddef.h>)', as that is a C header that exists in
         //:   non-hosted environments as well, so it is the safest bet.
+        //:
         //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is *not* defined,
         //:   use the clang-suggested
         //:   (https://clang.llvm.org/docs/LanguageExtensions.html#has-include)
@@ -2170,7 +2365,9 @@ will not improve the flavor.
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
         //:   only when the compiler supports unicode character types unicode
         //:   character literals, and unicode string literals.
+        //:
         //: 2 Both 16-bit and 32-bit unicode are supported.
+        //:
         //: 3 8-bit unicode is a C++17 feature and is not tested.
         //
         // Plan:
@@ -2178,9 +2375,11 @@ will not improve the flavor.
         //:   'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
         //:   then define 'char16_t' and 'char16_t[]' variables initialized to
         //:   character and string constants with the 'u' prefix.
+        //:
         //: 2 For concern 2, also define 'char32_t' and 'char32_t[]' variables
         //:   initialized to character and string constants with the 'U'
         //:   prefix.
+        //:
         //: 3 For concern 3, eventually define 'char8_t' and 'char8_t[]'
         //:   variables initialized to character and string constants with the
         //:   'u8' prefix.  It is likely that a different macro will be tested
@@ -2225,17 +2424,21 @@ will not improve the flavor.
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS' is defined only
         //:   when the compiler is able to compile code with ref-qualified
         //:   functions.
+        //:
         //: 2 If rvalue references are also supported, then functions can be
         //:   qualified with rvalue references.
+        //:
         //: 3 Ref qualification is orthogonal to cv-qualification.
         //
         // Plan:
         //: 1 For concern 1, if 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
         //:   is defined then compile a class that defines ref-qualified member
         //:   functions.
+        //:
         //: 2 For concern 2, if
         //:   'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also
         //:   defined, include rvalue-ref-qualified member functions.
+        //:
         //: 3 For concern 3, try every combination of cv qualification on all
         //:   ref-qualified member functions.
         //
@@ -2799,6 +3002,7 @@ will not improve the flavor.
         //:   constexpr functions that may comprise of multiple statements,
         //:   including multiple return statements, and may mutate the state of
         //:   local variables.
+        //:
         //: 2 When 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
         //:   constexpr member functions are not implicitly const.
         //
@@ -2806,6 +3010,7 @@ will not improve the flavor.
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
         //:   then compile code that uses this feature to define relaxed
         //:   constant expression functions.
+        //:
         //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
         //:   then compile code that uses this feature to define a constexpr
         //:   member function and detect that it is not a const member
@@ -2935,7 +3140,7 @@ will not improve the flavor.
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

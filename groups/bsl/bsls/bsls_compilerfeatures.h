@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS
 //  BSLS_COMPILERFEATURES_CPLUSPLUS: Portable version of '__cplusplus'
+//  BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION: flag for return optimization
 //  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: compiler bug
 //  BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST: __LINE__ value for multi-line
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
@@ -76,6 +77,19 @@ BSLS_IDENT("$Id: $")
 //:     and month when the standard was completed, and the value of this macro
 //:     should be compared with the appropriate constants -- '199711L',
 //:     '201103L', '201402L', '201703L', etc.
+//:
+//: 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION'
+//:     This macro is defined if the compiler always elides all copies (or
+//:     moves) when returning a prvalue expression from a function and using
+//:     that expression to initialize a class object of the same type
+//:     (ignoring cv qualifications).  Specifically, given the function,
+//:     'Thing funcReturningThing() { return Thing(ctor-args...); }', the
+//:     return value is always initialized with '(ctor-args...)'; no copy is
+//:     performed in the return statement.  Additionally,
+//:     'Thing var(funcReturningThing())' always constructs 'var' directly
+//:     with the return expression of 'funcReturningThing()'; again, no copies
+//:     are involved. The semantics of these optimizations are guaranteed in
+//:     C++17 and later, but are optional in previous versions of C++.
 //:
 //: 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS':
 //:     The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS' macro
@@ -792,6 +806,7 @@ BSLS_IDENT("$Id: $")
 # endif
 # if BSLS_PLATFORM_CMP_VERSION >= 50000
 #    define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+#    define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 //   GCC provides this support prior to C++17, independant of language dialect.
 # endif
 // GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
@@ -860,6 +875,7 @@ BSLS_IDENT("$Id: $")
 // http://clang.llvm.org/docs/LanguageExtensions.html
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 // Clang supported
+#define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 #define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
@@ -1018,6 +1034,7 @@ BSLS_IDENT("$Id: $")
 // 2013 supports deleted functions in principle, the only use we had caused a
 // C1001 compiler internal error.  Also note that the variable template C++14
 // compiler feature is supported since the 2015 update 2 compiler.
+#   define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 #   define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #   define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -1269,6 +1286,11 @@ BSLS_IDENT("$Id: $")
     // supports implicit-move from rvalues.
 #endif
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L && \
+    !defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+#   define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#endif
+
 // ============================================================================
 //                      SIMULATE VARIOUS C++11 FEATURES
 // ============================================================================
@@ -1340,7 +1362,7 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
