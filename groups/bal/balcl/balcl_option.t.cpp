@@ -2200,7 +2200,7 @@ int main(int argc, const char *argv[])  {
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) \
  && defined(BSLS_PLATFORM_CMP_MSVC)   \
- && BSLS_PLATFORM_CMP_VERSION <= 1800 // MSVC 2013 (error)
+ && BSLS_PLATFORM_CMP_VERSION <= 1900 // MSVC 2015 (error)
             typedef Obj& (Obj::*structOperatorPtr)(
                                         const BloombergLP::balcl::OptionInfo&);
 #else
@@ -3215,7 +3215,7 @@ int main(int argc, const char *argv[])  {
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)                                         \
  && defined(BSLS_PLATFORM_CMP_MSVC)                                           \
- && BSLS_PLATFORM_CMP_VERSION <= 1800 // MSVC 2013 (warning)
+ && BSLS_PLATFORM_CMP_VERSION <= 1900 // MSVC 2015 (warning)
 
                     if (OptionInfo::e_NON_OPTION == X.argType()) {
                         ASSERT_FAIL(( LONG_TAG == X. longTag()));
