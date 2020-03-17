@@ -287,9 +287,10 @@ template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_unsigned_v = native_std::is_unsigned<TYPE>::value;
 
-template <class TYPE>
+template <class TYPE, class ...Args>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_constructible_v = native_std::is_constructible<TYPE>::value;
+constexpr bool is_constructible_v =
+                            native_std::is_constructible<TYPE, Args...>::value;
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
@@ -320,15 +321,14 @@ template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_destructible_v = native_std::is_destructible<TYPE>::value;
 
-template <class TYPE>
+template <class TYPE, class ...Args>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_trivially_constructible_v =
-                           native_std::is_trivially_constructible<TYPE>::value;
+                  native_std::is_trivially_constructible<TYPE, Args...>::value;
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_trivially_copy_constructible_v =
-
                       native_std::is_trivially_copy_constructible<TYPE>::value;
 
 template <class TYPE>
@@ -356,10 +356,10 @@ BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_trivially_destructible_v =
                             native_std::is_trivially_destructible<TYPE>::value;
 
-template <class TYPE>
+template <class TYPE, class ...Args>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_nothrow_constructible_v =
-                             native_std::is_nothrow_constructible<TYPE>::value;
+                    native_std::is_nothrow_constructible<TYPE, Args...>::value;
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
