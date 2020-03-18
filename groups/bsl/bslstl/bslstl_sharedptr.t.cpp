@@ -213,6 +213,7 @@ using namespace BloombergLP;
 // [14] void loadAlias(const bsl::shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
 // [17] pair<TYPE *, bslma::SharedPtrRep *> release()
 // [14] void reset(const shared_ptr<OTHER>& source, TYPE *ptr)
+// [ 9] shared_ptr& operator=(bslma::ManagedPtr<OTHER> rhs)
 //
 // ACCESSORS
 // [ 4] TYPE *get() const
@@ -431,6 +432,14 @@ using namespace BloombergLP;
 // extensibility of the protocol works as intended with the prime consumer of
 // the protocol.
 // ----------------------------------------------------------------------------
+//
+// class NonPolymorphicTestBaseObject
+// ----------------------------------
+//
+// class NonPolymorphicTestObject
+//-------------------------------
+// [  ] volatile bsls::Types::Int64 *deleteCounter() const
+// [  ] volatile bsls::Types::Int64 *copyCounter() const
 //
 // class MyTestObject
 //-------------------
@@ -1628,6 +1637,76 @@ struct TypedDeleter{
 
 }  // close namespace support
 
+          // *** 'NonPolymorphicTestBaseObject' CLASS HIERARCHY ***
+
+                     // ==================================
+                     // class NonPolymorphicTestBaseObject
+                     // ==================================
+
+class NonPolymorphicTestBaseObject {
+    // This class provides a non-polymorphic test object used to verify that
+    // shared pointers can statically cast without slicing.
+
+    // DATA
+    char d_padding[32];    // Padding bytes that are never initialized
+
+  public:
+    // CREATORS
+    NonPolymorphicTestBaseObject() {}
+        // Create a 'NonPolymorphicTestBaseObject' object.  Note that the
+        // padding bytes are deliberately never initialized.
+
+    NonPolymorphicTestBaseObject(const NonPolymorphicTestBaseObject&) {}
+        // Create a 'NonPolymorphicTestBaseObject' object.  Note that this
+        // constructor does not copy the unused (and uninitialized) values of
+        // the 'd_padding' bytes.
+
+    // ~NonPolymorphicTestBaseObject() = default;
+        // Destroy this object.  Note that this descructor is deliberately not
+        // virtual!
+
+    NonPolymorphicTestBaseObject&
+    operator=(const NonPolymorphicTestBaseObject&) { return *this; }
+        // Return a reference to 'this' object.  There are no other effects.
+
+};
+
+                       // ==============================
+                       // class NonPolymorphicTestObject
+                       // ==============================
+
+class NonPolymorphicTestObject : public NonPolymorphicTestBaseObject {
+    // This class provides a non-polymorphic test object that keeps track of
+    // how many objects have been deleted.  Optionally, also keeps track of how
+    // many objects have been copied.
+
+    // DATA
+    volatile bsls::Types::Int64 *d_deleteCounter_p;
+    volatile bsls::Types::Int64 *d_copyCounter_p;
+
+  public:
+    // CREATORS
+    NonPolymorphicTestObject(const NonPolymorphicTestObject& original);
+        // Create a copy of the specified 'original' object.
+
+    explicit NonPolymorphicTestObject(bsls::Types::Int64 *deleteCounter,
+                                      bsls::Types::Int64 *copyCounter = 0);
+
+    ~NonPolymorphicTestObject();
+        // Destroy this object.  Note that this destructor is deliberately not
+        // virtual.
+
+    // ACCESSORS
+    volatile bsls::Types::Int64 *copyCounter() const;
+        // Return a pointer to the counter (if any) used to track the number of
+        // times an object of type 'NonPolymorphicTestObject' has been copied.
+
+    volatile bsls::Types::Int64 *deleteCounter() const;
+        // Return a pointer to the counter used to track the number of times an
+        // object of type 'NonPolymorphicTestObject' has been copied.
+
+};
+
                    // *** 'MyTestObject' CLASS HIERARCHY ***
 
                            // ======================
@@ -1657,7 +1736,6 @@ class MyTestBaseObject {
     MyTestBaseObject& operator=(const MyTestBaseObject&) { return *this; }
         // Return a reference to 'this' object.  There are no other effects.
 };
-
 
                              // ==================
                              // class MyTestObject
@@ -1712,7 +1790,7 @@ class MyTestDerivedObject : public MyTestObject2, public MyTestObject {
         // Create a 'MyTestDerivedObject' using the same counters (if any) as
         // the specified 'original' object.
 
-    explicit MyTestDerivedObject(bsls::Types::Int64 *counter,
+    explicit MyTestDerivedObject(bsls::Types::Int64 *deleteCounter,
                                  bsls::Types::Int64 *copyCounter = 0);
 };
 
@@ -2247,6 +2325,44 @@ struct UsesBslmaAllocator<NonOwningRep<TYPE> >
 //                      MEMBER- AND TEMPLATE-FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
+                      // ------------------------------
+                      // class NonPolymorphicTestObject
+                      // ------------------------------
+
+// CREATORS
+NonPolymorphicTestObject::NonPolymorphicTestObject(
+                                      const NonPolymorphicTestObject& original)
+: NonPolymorphicTestBaseObject()
+, d_deleteCounter_p(original.d_deleteCounter_p)
+, d_copyCounter_p(original.d_copyCounter_p)
+{
+    if (d_copyCounter_p) ++(*d_copyCounter_p);
+}
+
+NonPolymorphicTestObject::NonPolymorphicTestObject(
+                                             bsls::Types::Int64 *deleteCounter,
+                                             bsls::Types::Int64 *copyCounter)
+: d_deleteCounter_p(deleteCounter)
+, d_copyCounter_p(copyCounter)
+{
+}
+
+NonPolymorphicTestObject::~NonPolymorphicTestObject()
+{
+    ++(*d_deleteCounter_p);
+}
+
+// ACCESSORS
+volatile bsls::Types::Int64* NonPolymorphicTestObject::copyCounter() const
+{
+    return d_copyCounter_p;
+}
+
+volatile bsls::Types::Int64* NonPolymorphicTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
+}
+
                              // ------------------
                              // class MyTestObject
                              // ------------------
@@ -2293,9 +2409,9 @@ MyTestDerivedObject::MyTestDerivedObject(const MyTestObject& original)
 {
 }
 
-MyTestDerivedObject::MyTestDerivedObject(bsls::Types::Int64 *counter,
+MyTestDerivedObject::MyTestDerivedObject(bsls::Types::Int64 *deleteCounter,
                                          bsls::Types::Int64 *copyCounter)
-: MyTestObject(counter, copyCounter)
+: MyTestObject(deleteCounter, copyCounter)
 {
 }
 
@@ -13903,300 +14019,374 @@ int main(int argc, char *argv[])
             printf("\nTESTING ROUND-TRIP THROUGH 'bslma::ManagedPtr'"
                    "\n==============================================\n");
 
-        bslma::TestAllocatorMonitor dam(&defaultAllocator);
+        for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+            const char CONFIG = cfg;  // construct or assign ownership transfer
 
-        bslma::TestAllocator nullAllocator("Null Allocator for case 30");
-        nullAllocator.setAllocationLimit(0);
+            if (veryVerbose) { T_ T_ P(CONFIG) }
 
-        numAllocations   = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
+            bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-        if (verbose) printf("\nTesting simple round-trip"
-                            "\n-------------------------\n");
-        {
-            numDeletes = 0;
-            TObj *p = new(ta) TObj(&numDeletes);
-            ASSERTV(1 + numAllocations,   ta.numAllocations(),
-                    1 + numAllocations == ta.numAllocations());
+            bslma::TestAllocator nullAllocator("Null Allocator for case 30");
+            nullAllocator.setAllocationLimit(0);
 
-            Obj x(p, &ta);      const Obj&  X   = x;
-            bslma::SharedPtrRep const*const REP = X.rep();
-            ASSERTV(2 + numAllocations,   ta.numAllocations(),
-                    2 + numAllocations == ta.numAllocations());
+            numAllocations   = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
 
-            if (veryVerbose) {
-                T_ T_ P_(numDeletes); P(X.use_count());
-            }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X.get());
-            ASSERT(1 == X.use_count());
-
+            if (verbose) printf("\nTesting simple round-trip"
+                                "\n-------------------------\n");
             {
-                bslma::ManagedPtr<TObj> y(X.managedPtr());
-                const bslma::ManagedPtr<TObj>& Y=y;
+                numDeletes = 0;
+                TObj *p = new(ta) TObj(&numDeletes);
+                ASSERTV(1 + numAllocations,   ta.numAllocations(),
+                        1 + numAllocations == ta.numAllocations());
 
-                ASSERT(REP == X.rep());
+                Obj x(p, &ta);      const Obj&  X   = x;
+                bslma::SharedPtrRep const*const REP = X.rep();
+                ASSERTV(2 + numAllocations,   ta.numAllocations(),
+                        2 + numAllocations == ta.numAllocations());
+
+                if (veryVerbose) {
+                    T_ T_ P_(numDeletes); P(X.use_count());
+                }
                 ASSERT(0 == numDeletes);
                 ASSERT(p == X.get());
-                ASSERT(2 == X.use_count());
-                ASSERT(p == Y.ptr());
-                ASSERT(2 + numAllocations == ta.numAllocations());
-                ASSERT(numDeallocations   == ta.numDeallocations());
-
-                // Give up original shared ownership, so 'y' is unique owner of
-                // shared object.
-
-                x.reset();
-                ASSERT(0 == X.rep());
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == X.get());
-                ASSERT(0 == X.use_count());
-                ASSERT(p == Y.ptr());
-                ASSERT(2 + numAllocations == ta.numAllocations());
-                ASSERT(numDeallocations   == ta.numDeallocations());
-
-                // Transfer ownership to a new 'shared_ptr'.  No memory should
-                // be allocated.
-
-                Obj z(y, &nullAllocator); const Obj& Z = z;
-                ASSERT(REP == Z.rep());
-                ASSERT(0 == X.rep());
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == X.get());
-                ASSERT(0 == X.use_count());
-                ASSERT(0 == Y.ptr());
-                ASSERT(p == Z.get());
-                ASSERT(1 == Z.use_count());
-                ASSERT(2 + numAllocations == ta.numAllocations());
-                ASSERT(numDeallocations   == ta.numDeallocations());
-
-                // Transfer ownership back out of the nested block.
-
-                x = MoveUtil::move(z);
-            }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X.get());
-            ASSERT(1 == X.use_count());
-            ASSERT(REP == X.rep());
-            ASSERT(2 + numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations   == ta.numDeallocations());
-        }
-        ASSERTV(numDeletes, 1 == numDeletes);
-        ASSERTV(2 + numDeallocations,   ta.numDeallocations(),
-                2 + numDeallocations == ta.numDeallocations());
-
-        // Reset counters.
-
-        numAllocations   = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-
-        if (verbose) printf("\nTesting counted-null round-trip"
-                            "\n-------------------------------\n");
-        {
-            TObj *p = 0;    // null pointer must be the right type to ref-count
-
-            Obj x(p, &ta);      const Obj&  X   = x;
-            bslma::SharedPtrRep const*const REP = X.rep();
-            ASSERTV(1 + numAllocations,   ta.numAllocations(),
-                    1 + numAllocations == ta.numAllocations());
-
-            if (veryVerbose) {
-                T_ T_ P_(numDeletes); P(X.use_count());
-            }
-            ASSERT(p == X.get());
-            ASSERT(1 == X.use_count());
-
-            {
-                bslma::ManagedPtr<TObj> y(X.managedPtr());
-                const bslma::ManagedPtr<TObj>& Y=y;
-
-                ASSERT(REP == X.rep());
-                ASSERT(0 == X.get());
                 ASSERT(1 == X.use_count());
-                ASSERT(0 == Y.ptr());
-                ASSERT(1 + numAllocations == ta.numAllocations());
-                ASSERT(numDeallocations   == ta.numDeallocations());
 
-                // Transfer ownership to a new 'shared_ptr'.  No memory should
-                // be allocated.
+                {
+                    bslma::ManagedPtr<TObj> y(X.managedPtr());
+                    const bslma::ManagedPtr<TObj>& Y=y;
 
-                Obj z(y, &nullAllocator); const Obj& Z = z;
-                ASSERT(0 == Z.rep());  // does not round trip ownership of null
-                ASSERT(0 == Z.get());
-                ASSERT(0 == Z.use_count());
-                ASSERT(0 == Y.ptr());
-                ASSERT(1 + numAllocations == ta.numAllocations());
-                ASSERT(numDeallocations   == ta.numDeallocations());
-            }
-            ASSERT(p == X.get());
-            ASSERT(1 == X.use_count());
-            ASSERT(REP == X.rep());
-            ASSERT(1 + numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations   == ta.numDeallocations());
-        }
-        ASSERTV(numDeletes, 1 == numDeletes);
-        ASSERTV(1 + numDeallocations,   ta.numDeallocations(),
-                1 + numDeallocations == ta.numDeallocations());
+                    ASSERT(REP == X.rep());
+                    ASSERT(0 == numDeletes);
+                    ASSERT(p == X.get());
+                    ASSERT(2 == X.use_count());
+                    ASSERT(p == Y.ptr());
+                    ASSERT(2 + numAllocations == ta.numAllocations());
+                    ASSERT(numDeallocations   == ta.numDeallocations());
 
-        // Reset counters.
+                    // Give up original shared ownership, so 'y' is unique
+                    // owner of shared object.
 
-        numAllocations   = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
+                    x.reset();
+                    ASSERT(0 == X.rep());
+                    ASSERT(0 == numDeletes);
+                    ASSERT(0 == X.get());
+                    ASSERT(0 == X.use_count());
+                    ASSERT(p == Y.ptr());
+                    ASSERT(2 + numAllocations == ta.numAllocations());
+                    ASSERT(numDeallocations   == ta.numDeallocations());
 
-        if (verbose) printf("\nTesting empty non-null is supported"
-                            "\n-----------------------------------\n");
-        {
-            numDeletes = 0;
-            TObj dummy(&numDeletes);
-            TObj *p = &dummy;
+                    // Transfer ownership to a new 'shared_ptr'.  No memory
+                    // should be allocated.
 
-            Obj nullPointer;
-            Obj x(nullPointer, p); const Obj& X = x;
-            bslma::SharedPtrRep const*const REP = X.rep();
+                    bsls::ObjectBuffer<Obj> zBuf;
+                    Obj& z = zBuf.object(); const Obj& Z = z;
 
-            ASSERTV(REP, 0 == REP);
-            ASSERTV(numAllocations,   ta.numAllocations(),
-                    numAllocations == ta.numAllocations());
+                    switch (CONFIG) {
+                      case 'a': {
+                        new (zBuf.buffer()) Obj(y, &nullAllocator);
+                      } break;
+                      case 'b': {
+                        bslma::DefaultAllocatorGuard dag(&nullAllocator);
+                        (void)dag;
+                        new (zBuf.buffer()) Obj();
+                        z = y;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad test config.");
+                      } break;
+                    }
 
-            if (veryVerbose) {
-                T_ T_ P_(numDeletes); P(X.use_count());
-            }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X.get());
-            ASSERT(0 == X.use_count());
+                    ASSERT(REP == Z.rep());
+                    ASSERT(  p == Z.get());
+                    ASSERT(  1 == Z.use_count());
 
-            {
-                bslma::ManagedPtr<TObj> y(X.managedPtr());
-                const bslma::ManagedPtr<TObj>& Y=y;
+                    ASSERT(0 == X.rep());
+                    ASSERT(0 == X.get());
+                    ASSERT(0 == X.use_count());
+                    ASSERT(0 == Y.ptr());
 
+                    ASSERT(0 == numDeletes);
+                    ASSERT(2 + numAllocations == ta.numAllocations());
+                    ASSERT(numDeallocations   == ta.numDeallocations());
+
+                    // Transfer ownership back out of the nested block.
+
+                    x = MoveUtil::move(z);
+
+                    zBuf.object().~Obj();
+                }
+                ASSERT(0 == numDeletes);
+                ASSERT(p == X.get());
+                ASSERT(1 == X.use_count());
                 ASSERT(REP == X.rep());
+                ASSERT(2 + numAllocations == ta.numAllocations());
+                ASSERT(numDeallocations   == ta.numDeallocations());
+            }
+            ASSERTV(numDeletes, 1 == numDeletes);
+            ASSERTV(2 + numDeallocations,   ta.numDeallocations(),
+                    2 + numDeallocations == ta.numDeallocations());
+
+            // Reset counters.
+
+            numAllocations   = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+
+            if (verbose) printf("\nTesting counted-null round-trip"
+                                "\n-------------------------------\n");
+            {
+                TObj *p = 0;    // null ptr must be the right type to ref-count
+
+                Obj x(p, &ta);      const Obj&  X   = x;
+                bslma::SharedPtrRep const*const REP = X.rep();
+                ASSERTV(1 + numAllocations,   ta.numAllocations(),
+                        1 + numAllocations == ta.numAllocations());
+
+                if (veryVerbose) {
+                    T_ T_ P_(numDeletes); P(X.use_count());
+                }
+                ASSERT(p == X.get());
+                ASSERT(1 == X.use_count());
+
+                {
+                    bslma::ManagedPtr<TObj> y(X.managedPtr());
+                    const bslma::ManagedPtr<TObj>& Y=y;
+
+                    ASSERT(REP == X.rep());
+                    ASSERT(0 == X.get());
+                    ASSERT(1 == X.use_count());
+                    ASSERT(0 == Y.ptr());
+                    ASSERT(1 + numAllocations == ta.numAllocations());
+                    ASSERT(numDeallocations   == ta.numDeallocations());
+
+                    // Transfer ownership to a new 'shared_ptr'.  No memory
+                    // should be allocated.
+
+                    bsls::ObjectBuffer<Obj> zBuf;
+                    Obj& z = zBuf.object(); const Obj& Z = z;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        new (zBuf.buffer()) Obj(y, &nullAllocator);
+                      } break;
+                      case 'b': {
+                        bslma::DefaultAllocatorGuard dag(&nullAllocator);
+                        (void)dag;
+                        new (zBuf.buffer()) Obj();
+                        z = y;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad test config.");
+                      } break;
+                    }
+
+                    ASSERT(0 == Z.rep()); // doesn't round trip null ownership
+                    ASSERT(0 == Z.get());
+                    ASSERT(0 == Z.use_count());
+
+                    ASSERT(0 == Y.ptr());
+
+                    ASSERT(1 + numAllocations == ta.numAllocations());
+                    ASSERT(numDeallocations   == ta.numDeallocations());
+
+                    zBuf.object().~Obj();
+                }
+                ASSERT(  p == X.get());
+                ASSERT(  1 == X.use_count());
+                ASSERT(REP == X.rep());
+
+                ASSERT(1 + numAllocations == ta.numAllocations());
+                ASSERT(numDeallocations   == ta.numDeallocations());
+            }
+            ASSERTV(numDeletes, 1 == numDeletes);
+            ASSERTV(1 + numDeallocations,   ta.numDeallocations(),
+                    1 + numDeallocations == ta.numDeallocations());
+
+            // Reset counters.
+
+            numAllocations   = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+
+            if (verbose) printf("\nTesting empty non-null is supported"
+                                "\n-----------------------------------\n");
+            {
+                numDeletes = 0;
+                TObj dummy(&numDeletes);
+                TObj *p = &dummy;
+
+                Obj nullPointer;
+                Obj x(nullPointer, p); const Obj& X = x;
+                bslma::SharedPtrRep const*const REP = X.rep();
+
+                ASSERTV(REP, 0 == REP);
+                ASSERTV(numAllocations,   ta.numAllocations(),
+                        numAllocations == ta.numAllocations());
+
+                if (veryVerbose) {
+                    T_ T_ P_(numDeletes); P(X.use_count());
+                }
                 ASSERT(0 == numDeletes);
                 ASSERT(p == X.get());
                 ASSERT(0 == X.use_count());
-                ASSERT(p == Y.ptr());
-                ASSERT(numAllocations   == ta.numAllocations());
-                ASSERT(numDeallocations == ta.numDeallocations());
 
-                // Give up original shared ownership, so 'y' is unique owner of
-                // shared object.
+                {
+                    bslma::ManagedPtr<TObj> y(X.managedPtr());
+                    const bslma::ManagedPtr<TObj>& Y=y;
 
-                x.reset();
-                ASSERT(0 == X.rep());
+                    ASSERT(REP == X.rep());
+                    ASSERT(0 == numDeletes);
+                    ASSERT(p == X.get());
+                    ASSERT(0 == X.use_count());
+                    ASSERT(p == Y.ptr());
+                    ASSERT(numAllocations   == ta.numAllocations());
+                    ASSERT(numDeallocations == ta.numDeallocations());
+
+                    // Give up original shared ownership, so 'y' is unique
+                    // owner of shared object.
+
+                    x.reset();
+                    ASSERT(0 == X.rep());
+                    ASSERT(0 == numDeletes);
+                    ASSERT(0 == X.get());
+                    ASSERT(0 == X.use_count());
+                    ASSERT(p == Y.ptr());
+                    ASSERT(numAllocations   == ta.numAllocations());
+                    ASSERT(numDeallocations == ta.numDeallocations());
+
+                    // Now release ownership, which should have no effect.
+
+                    y.reset();
+                    ASSERT(0 == X.rep());
+                    ASSERT(0 == numDeletes);
+                    ASSERT(0 == X.get());
+                    ASSERT(0 == X.use_count());
+                    ASSERT(0 == Y.ptr());
+                    ASSERT(numAllocations   == ta.numAllocations());
+                    ASSERT(numDeallocations == ta.numDeallocations());
+
+                    // Transfer remains back out of the nested block.
+
+                    x = y;
+                }
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == X.get());
                 ASSERT(0 == X.use_count());
-                ASSERT(p == Y.ptr());
-                ASSERT(numAllocations   == ta.numAllocations());
-                ASSERT(numDeallocations == ta.numDeallocations());
-
-                // Now release ownership, which should have no effect.
-
-                y.reset();
                 ASSERT(0 == X.rep());
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == X.get());
-                ASSERT(0 == X.use_count());
-                ASSERT(0 == Y.ptr());
                 ASSERT(numAllocations   == ta.numAllocations());
                 ASSERT(numDeallocations == ta.numDeallocations());
-
-                // Transfer remains back out of the nested block.
-
-                x = y;
             }
-            ASSERT(0 == numDeletes);
-            ASSERT(0 == X.get());
-            ASSERT(0 == X.use_count());
-            ASSERT(0 == X.rep());
-            ASSERT(numAllocations   == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-        }
-        ASSERTV(numDeletes, 1 == numDeletes);
-        ASSERTV(numDeallocations,   ta.numDeallocations(),
-                numDeallocations == ta.numDeallocations());
+            ASSERTV(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeallocations,   ta.numDeallocations(),
+                    numDeallocations == ta.numDeallocations());
 
-        // Reset counters.
+            // Reset counters.
 
-        numAllocations   = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
+            numAllocations   = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
 
-        if (verbose) printf("\nTesting empty non-null round-trip"
-                            "\n---------------------------------\n");
-        {
-            numDeletes = 0;
-            TObj dummy(&numDeletes);
-            TObj *p = &dummy;
-
-            Obj nullPointer;
-            Obj x(nullPointer, p); const Obj& X = x;
-            bslma::SharedPtrRep const*const REP = X.rep();
-
-            ASSERTV(REP, 0 == REP);
-            ASSERTV(numAllocations,   ta.numAllocations(),
-                    numAllocations == ta.numAllocations());
-
-            if (veryVerbose) {
-                T_ T_ P_(numDeletes); P(X.use_count());
-            }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X.get());
-            ASSERT(0 == X.use_count());
-
+            if (verbose) printf("\nTesting empty non-null round-trip"
+                                "\n---------------------------------\n");
             {
-                bslma::ManagedPtr<TObj> y(X.managedPtr());
-                const bslma::ManagedPtr<TObj>& Y=y;
+                numDeletes = 0;
+                TObj dummy(&numDeletes);
+                TObj *p = &dummy;
 
-                ASSERT(REP == X.rep());
+                Obj nullPointer;
+                Obj x(nullPointer, p); const Obj& X = x;
+                bslma::SharedPtrRep const*const REP = X.rep();
+
+                ASSERTV(REP, 0 == REP);
+                ASSERTV(numAllocations,   ta.numAllocations(),
+                        numAllocations == ta.numAllocations());
+
+                if (veryVerbose) {
+                    T_ T_ P_(numDeletes); P(X.use_count());
+                }
                 ASSERT(0 == numDeletes);
                 ASSERT(p == X.get());
                 ASSERT(0 == X.use_count());
-                ASSERT(p == Y.ptr());
-                ASSERT(numAllocations   == ta.numAllocations());
-                ASSERT(numDeallocations == ta.numDeallocations());
 
-                // Give up original shared ownership, so 'y' is unique owner of
-                // shared object.
+                {
+                    bslma::ManagedPtr<TObj> y(X.managedPtr());
+                    const bslma::ManagedPtr<TObj>& Y=y;
 
-                x.reset();
-                ASSERT(0 == X.rep());
+                    ASSERT(REP == X.rep());
+                    ASSERT(0 == numDeletes);
+                    ASSERT(p == X.get());
+                    ASSERT(0 == X.use_count());
+                    ASSERT(p == Y.ptr());
+                    ASSERT(numAllocations   == ta.numAllocations());
+                    ASSERT(numDeallocations == ta.numDeallocations());
+
+                    // Give up original shared ownership, so 'y' is unique
+                    // owner of shared object.
+
+                    x.reset();
+                    ASSERT(0 == X.rep());
+                    ASSERT(0 == numDeletes);
+                    ASSERT(0 == X.get());
+                    ASSERT(0 == X.use_count());
+                    ASSERT(p == Y.ptr());
+                    ASSERT(numAllocations   == ta.numAllocations());
+                    ASSERT(numDeallocations == ta.numDeallocations());
+
+                    // Transfer ownership to a new 'shared_ptr'.  No memory
+                    // should be allocated.
+
+                    bsls::ObjectBuffer<Obj> zBuf;
+                    Obj& z = zBuf.object(); const Obj& Z = z;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        new (zBuf.buffer()) Obj(y, &nullAllocator);
+                      } break;
+                      case 'b': {
+                        bslma::DefaultAllocatorGuard dag(&nullAllocator);
+                        (void)dag;
+                        new (zBuf.buffer()) Obj();
+                        z = y;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad test config.");
+                      } break;
+                    }
+
+                    ASSERT(REP == Z.rep());
+                    ASSERT(  p == Z.get());
+                    ASSERT(  0 == Z.use_count());
+
+                    ASSERT(0 == X.rep());
+                    ASSERT(0 == X.get());
+                    ASSERT(0 == X.use_count());
+
+                    ASSERT(0 == Y.ptr());
+
+                    ASSERT(               0 == numDeletes);
+                    ASSERT(numAllocations   == ta.numAllocations());
+                    ASSERT(numDeallocations == ta.numDeallocations());
+
+                    // Transfer ownership back out of the nested block.
+
+                    x = MoveUtil::move(z);
+
+                    zBuf.object().~Obj();
+                }
                 ASSERT(0 == numDeletes);
-                ASSERT(0 == X.get());
+                ASSERT(p == X.get());
                 ASSERT(0 == X.use_count());
-                ASSERT(p == Y.ptr());
+                ASSERT(REP == X.rep());
                 ASSERT(numAllocations   == ta.numAllocations());
                 ASSERT(numDeallocations == ta.numDeallocations());
-
-                // Transfer ownership to a new 'shared_ptr'.  No memory should
-                // be allocated.
-
-                Obj z(y, &nullAllocator); const Obj& Z = z;
-                ASSERT(REP == Z.rep());
-                ASSERT(0 == X.rep());
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == X.get());
-                ASSERT(0 == X.use_count());
-                ASSERT(0 == Y.ptr());
-                ASSERT(p == Z.get());
-                ASSERT(0 == Z.use_count());
-                ASSERT(numAllocations   == ta.numAllocations());
-                ASSERT(numDeallocations == ta.numDeallocations());
-
-                // Transfer ownership back out of the nested block.
-
-                x = MoveUtil::move(z);
             }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X.get());
-            ASSERT(0 == X.use_count());
-            ASSERT(REP == X.rep());
-            ASSERT(numAllocations   == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-        }
-        ASSERTV(numDeletes, 1 == numDeletes);
-        ASSERTV(numDeallocations,   ta.numDeallocations(),
-                numDeallocations == ta.numDeallocations());
+            ASSERTV(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeallocations,   ta.numDeallocations(),
+                    numDeallocations == ta.numDeallocations());
 
-        ASSERT(dam.isTotalSame());
+            ASSERT(dam.isTotalSame());
+        }
       } break;
       case 29: {
         // --------------------------------------------------------------------
@@ -15670,16 +15860,13 @@ int main(int argc, char *argv[])
         //   2) When constructing from an aliased managed-ptr, the original
         //      deleter is supplied the correct address
         //
-        //   3) A managed pointer can be assigned to a shared pointer, through
-        //      the same conversion sequence.  DRQS 38359639.
-        //
-        //   4) Can convert from rvalues (function results) as well as from
+        //   3) Can convert from rvalues (function results) as well as from
         //      lvalue.
         //
-        //   5) The target shared pointer can point to the same type as the
+        //   4) The target shared pointer can point to the same type as the
         //      managed pointer, or to a base class.
         //
-        //   6) No memory is allocated when simply transferring ownership from
+        //   5) No memory is allocated when simply transferring ownership from
         //      a managed pointer created from a previous shared pointer.
         //
         // Plan:
@@ -15695,17 +15882,6 @@ int main(int argc, char *argv[])
         ManagedPtrTestDeleter<bsls::Types::Int64> deleter;
 
         bsls::Types::Int64 obj1, obj2;
-
-        struct Local {
-            static
-            bslma::ManagedPtr<bsls::Types::Int64> makeManagedInt(
-                                                          bsls::Types::Int64 x)
-            {
-                bslma::Allocator *pda = bslma::Default::defaultAllocator();
-                bsls::Types::Int64 *pX = new(*pda) bsls::Types::Int64(x);
-                return bslma::ManagedPtr<bsls::Types::Int64>(pX, pda);
-            }
-        };
 
         bsl::shared_ptr<bsls::Types::Int64> outerSp;
         {
@@ -15729,17 +15905,25 @@ int main(int argc, char *argv[])
         ASSERT(&obj2 == deleter.providedObj());
 
         {
-            bsl::shared_ptr<bsls::Types::Int64> sp1(Local::makeManagedInt(13));
-//          bsl::shared_ptr<bsls::Types::Int64> sp2 = Local::makeManagedInt(2);
+            // Direct initialization
+            using bslma::ManagedPtrUtil;
+            bsl::shared_ptr<bsls::Types::Int64> sp1(
+                      ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
+                                                                          13));
+
+#if !defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VERSION > 0x0CFF)
+            // Copy initialization from rvalue does not work on AIX currently
+            bsl::shared_ptr<bsls::Types::Int64> sp2 =
+                       ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
+                                                                            2);
+#endif
+
+            // Copy initialization from lvalues works on all compilers
+            bslma::ManagedPtr<bsls::Types::Int64> mp3 =
+                       ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
+                                                                            3);
+            bsl::shared_ptr<bsls::Types::Int64> sp3 = mp3;
         }
-
-        // It is not clear if assignment from a ManagedPtr is intended to be
-        // supported by anything other than through implicit conversion to a
-        // temporary shared_ptr, and then binding to that assignment operator.
-        // As such, we would support only assigning from ManagedPtr lvalues,
-        // but not from rvalues.
-
-//        outerSp = Local::makeManagedInt(42);
 
         bslma::ManagedPtr<MyTestObject>   mpd1(new MyTestObject(&obj1));
         bsl::shared_ptr<MyTestBaseObject> spd1(mpd1);
@@ -17680,6 +17864,7 @@ int main(int argc, char *argv[])
         //   shared_ptr& operator=(shared_ptr&& rhs) noexcept
         //   shared_ptr& operator=(const shared_ptr<OTHER>& rhs) noexcept
         //   shared_ptr& operator=(shared_ptr<OTHER>&& rhs) noexcept
+        //   shared_ptr& operator=(bslma::ManagedPtr<OTHER> rhs)
         //   shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
         //   shared_ptr& operator=(std::unique_ptr<OTHER, DELETER>&& rhs)
         // --------------------------------------------------------------------
@@ -18167,6 +18352,269 @@ int main(int argc, char *argv[])
             ASSERT(1 == X1.use_count());
         }
         ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting ASSIGNMENT of ManagedPtr"
+                            "\n--------------------------------\n");
+        //   3) A managed pointer can be assigned to a shared pointer, through
+        //      the same conversion sequence.  DRQS 38359639, DRQS 142188247
+
+        ManagedPtrTestDeleter<bsls::Types::Int64> deleter;
+
+        bsls::Types::Int64 obj1;
+
+        {
+            bslma::ManagedPtr<bsls::Types::Int64> mp(&obj1, &deleter);
+
+            bsl::shared_ptr<bsls::Types::Int64> x;
+            const bsl::shared_ptr<bsls::Types::Int64>& X = x;
+            ASSERT(0 != mp.ptr());
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+
+            x = mp;
+
+            if (veryVerbose) {
+                P_(X.use_count());
+                P(mp.ptr());
+            }
+
+            ASSERT(0 == mp.ptr());
+            ASSERT(&obj1 == X.get());
+            ASSERT(1 == X.use_count());
+
+            ASSERT(0 == deleter.providedObj());
+        }
+        ASSERT(&obj1 == deleter.providedObj());
+
+        if (verbose) printf("\nTesting ASSIGNMENT of ManagedPtr rvalue"
+                            "\n-------------------------------------\n");
+        {
+            bsl::shared_ptr<bsls::Types::Int64> x;
+            const bsl::shared_ptr<bsls::Types::Int64>& X = x;
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+
+            x = bslma::ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
+                                                                           38);
+
+            if (veryVerbose) {
+                P_(X.use_count());
+                P(X.get());
+            }
+
+            ASSERT(0 != X.get());
+            ASSERT(1 == X.use_count());
+        }
+
+        if (verbose)
+                printf("\nTesting ASSIGNMENT of polymorphic ManagedPtr"
+                       "\n--------------------------------------------\n");
+        {
+            ObjSP baseSp;
+            const ObjSP& BASE_SP = baseSp;
+            ASSERT(0 == BASE_SP.get());
+            ASSERT(0 == BASE_SP.use_count());
+
+            numDeletes = 0;
+
+            baseSp = bslma::ManagedPtrUtil::allocateManaged<
+                                        MyTestDerivedObject>(&ta, &numDeletes);
+
+            if (veryVerbose) {
+                P_(BASE_SP.use_count());
+                P(BASE_SP.get());
+            }
+
+            ASSERT(0 != BASE_SP.get());
+            ASSERT(1 == BASE_SP.use_count());
+
+            ASSERT(0 == numDeletes);
+
+            bslma::ManagedPtr<MyTestDerivedObject> mpd =
+                    bslma::ManagedPtrUtil::allocateManaged<
+                                        MyTestDerivedObject>(&ta, &numDeletes);
+
+            const MyTestObject * const mpdPtrWas = mpd.get();
+
+            baseSp = mpd;
+            ASSERT(1 == numDeletes);
+            numDeletes = 0;
+
+            if (veryVerbose) {
+                P_(BASE_SP.use_count());
+                P(BASE_SP.get());
+            }
+
+            ASSERT(0 != BASE_SP.get());
+            ASSERT(1 == BASE_SP.use_count());
+
+            ASSERT(mpdPtrWas == BASE_SP.get());
+            ASSERT(        0 == mpd.get());
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose)
+                printf("\nTesting ASSIGNMENT of convertible ManagedPtr"
+                       "\n--------------------------------------------\n");
+        {
+            typedef bsl::shared_ptr<NonPolymorphicTestBaseObject> BaseSp;
+            BaseSp baseSp;
+            const BaseSp& BASE_SP = baseSp;
+            ASSERT(0 == BASE_SP.get());
+            ASSERT(0 == BASE_SP.use_count());
+
+            numDeletes = 0;
+
+            baseSp = bslma::ManagedPtrUtil::allocateManaged<
+                                   NonPolymorphicTestObject>(&ta, &numDeletes);
+
+            if (veryVerbose) {
+                P_(BASE_SP.use_count());
+                P(BASE_SP.get());
+            }
+
+            ASSERT(0 != BASE_SP.get());
+            ASSERT(1 == BASE_SP.use_count());
+
+            ASSERT(0 == numDeletes);
+
+            bslma::ManagedPtr<NonPolymorphicTestObject> mpd =
+                 bslma::ManagedPtrUtil::allocateManaged<
+                                   NonPolymorphicTestObject>(&ta, &numDeletes);
+
+            const NonPolymorphicTestBaseObject * const mpdPtrWas = mpd.get();
+
+            baseSp = mpd;
+
+            ASSERT(1 == numDeletes);
+            numDeletes = 0;
+
+            if (veryVerbose) {
+                P_(BASE_SP.use_count());
+                P(BASE_SP.get());
+            }
+
+            ASSERT(0 != BASE_SP.get());
+            ASSERT(1 == BASE_SP.use_count());
+
+            ASSERT(mpdPtrWas == BASE_SP.get());
+            ASSERT(        0 == mpd.get());
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting ASSIGNMENT of ManagedPtr to void SP"
+                            "\n--------------------------------\n");
+        {
+            bslma::ManagedPtr<bsls::Types::Int64> mpi =
+                bslma::ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
+                                                                           42);
+
+            bslma::ManagedPtr<bsls::Types::Int64> mp(mpi);
+
+            bsl::shared_ptr<void> x;
+            const bsl::shared_ptr<void>& X = x;
+            ASSERT(0 != mp.ptr());
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+
+            x = mp;
+
+            if (veryVerbose) {
+                P_(X.use_count());
+                P(mp.ptr());
+            }
+
+            ASSERT(0 == mp.ptr());
+            ASSERT(0 != X.get());
+            ASSERT(1 == X.use_count());
+        }
+        {
+            bsl::shared_ptr<void> x;
+            const bsl::shared_ptr<void>& X = x;
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+
+            x = bslma::ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
+                                                                           24);
+
+            if (veryVerbose) {
+                P_(X.use_count());
+                P(X.get());
+            }
+
+            ASSERT(0 != X.get());
+            ASSERT(1 == X.use_count());
+        }
+        {
+            bsl::shared_ptr<void> baseSp;
+            const bsl::shared_ptr<void>& BASE_SP = baseSp;
+            ASSERT(0 == BASE_SP.get());
+            ASSERT(0 == BASE_SP.use_count());
+
+            numDeletes = 0;
+
+            baseSp = bslma::ManagedPtrUtil::allocateManaged<
+                                        MyTestDerivedObject>(&ta, &numDeletes);
+
+            if (veryVerbose) {
+                P_(BASE_SP.use_count());
+                P(BASE_SP.get());
+            }
+
+            ASSERT(0 != BASE_SP.get());
+            ASSERT(1 == BASE_SP.use_count());
+
+            ASSERT(0 == numDeletes);
+
+            bslma::ManagedPtr<MyTestDerivedObject> mpd =
+                    bslma::ManagedPtrUtil::allocateManaged<
+                                        MyTestDerivedObject>(&ta, &numDeletes);
+
+            const void * const mpdPtrWas = mpd.get();
+
+            baseSp = mpd;
+            ASSERT(1 == numDeletes);
+            numDeletes = 0;
+
+            if (veryVerbose) {
+                P_(BASE_SP.use_count());
+                P(BASE_SP.get());
+            }
+
+            ASSERT(0 != BASE_SP.get());
+            ASSERT(1 == BASE_SP.use_count());
+
+            ASSERT(mpdPtrWas == BASE_SP.get());
+            ASSERT(        0 == mpd.get());
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        {
+            bsl::shared_ptr<void> x;
+            const bsl::shared_ptr<void>& X = x;
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+
+            bslma::ManagedPtr<bsls::Types::Int64> mpi =
+                bslma::ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
+                                                                          144);
+            bslma::ManagedPtr<void> mpv(mpi);
+            x = mpv;
+
+            if (veryVerbose) {
+                P_(X.use_count());
+                P(X.get());
+            }
+
+            ASSERT(0 != X.get());
+            ASSERT(1 == X.use_count());
+        }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
