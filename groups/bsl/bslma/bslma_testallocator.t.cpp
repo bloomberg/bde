@@ -576,7 +576,8 @@ my_ShortArray::~my_ShortArray()
     }
 }
 
-inline void my_ShortArray::append(short value)
+inline
+void my_ShortArray::append(short value)
 {
     if (d_length >= d_size) {
         increaseSize();

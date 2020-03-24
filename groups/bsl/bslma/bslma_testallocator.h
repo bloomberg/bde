@@ -14,7 +14,8 @@ BSLS_IDENT("$Id: $")
 //  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN: macro to begin testing exceptions
 //  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END: macro to end testing exceptions
 //
-//@SEE_ALSO: bslma_newdeleteallocator, bslma_mallocfreeallocator
+//@SEE_ALSO: bslma_newdeleteallocator, bslma_mallocfreeallocator,
+//  balst_stacktracetestallocator
 //
 //@DESCRIPTION: This component provides an instrumented allocator,
 // 'bslma::TestAllocator', that implements the 'bslma::Allocator' protocol and
@@ -74,6 +75,18 @@ BSLS_IDENT("$Id: $")
 // deallocation to see if they have been modified.  If they have, a message is
 // printed and the allocator aborts, unless it is in quiet mode.
 //
+///Detecting Memory Leaks
+///----------------------
+// The 'bslma::TestAllocator' is useful for detecting memory leaks, unless
+// configured in quiet mode.  With the default configuration, if a test
+// allocator is destroyed before all memory is reclaimed, a report will be
+// logged and 'abort' will be called.  When such a memory leak is detected,
+// clients can substitute 'balst::StackTraceTestAllocator' for
+// 'bslma::TestAllocator' to report stack traces of allocations that were
+// leaked.  Note that 'balst::StackTraceTestAllocator' is slower and consumes
+// more memory than 'bslma::TestAllocator', and usually is not appropriate for
+// automated tests.
+//
 ///Modes
 ///-----
 // The test allocator's behavior is controlled by three basic *mode* flags:
@@ -97,8 +110,8 @@ BSLS_IDENT("$Id: $")
 //
 // Taking the default mode settings, memory allocation/deallocation will not be
 // displayed individually.  However, in the event of a mismatched deallocation
-// or a memory leak, the problem will be announced, any relevant state of the
-// object will be displayed, and the program will abort.
+// or a memory leak detected at destruction, the problem will be announced, any
+// relevant state of the object will be displayed, and the program will abort.
 //
 // The three modes are independently set using the 'setVerbose', 'setQuiet',
 // and 'setNoAbort' manipulators.
@@ -676,6 +689,7 @@ class TestAllocator_ProxyBase {
     // 'const'.
 
   public:
+    // CREATOR
     virtual ~TestAllocator_ProxyBase()
     {
     }
@@ -685,7 +699,7 @@ class TestAllocator_ProxyBase {
 };
 
 template <class BSLMA_ALLOC_TYPE>
-class TestAllocator_Proxy: public TestAllocator_ProxyBase {
+class TestAllocator_Proxy : public TestAllocator_ProxyBase {
     // This class provides a proxy to the test allocator that is supplied to
     // the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro.  This proxy may be
     // instantiated with 'TestAllocator', or with a type that supports the same
