@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>  // iterator tags
 #include <bslstl_pair.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
@@ -93,12 +94,43 @@ ForwardIt search( ForwardIt first, ForwardIt last,
 }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
+    // Visual Studio (the versions we support) provides 'copy_if'.
+    using native_std::copy_if;
+#else
+#define BSLSTL_ALGORITHMWORKAROUND_IMPLEMENTS_COPY_IF                         1
+    // C++03 standard libraries do not provide 'std::copy_if' (as it was not
+    // part of the C++03 standard), but it is actually implementable in C++03,
+    // so we inject it here.
+
+template <class InputIt, class OutputIt, class UnaryPred>
+OutputIt copy_if(InputIt first, InputIt last, OutputIt result, UnaryPred pred)
+    // Copy all elements in the half-open range of the specified 'first', and
+    // 'last' ('[first, last)') input iterators for which the specified 'pred'
+    // unary predicate is 'true' to the specified 'result' output iterator,
+    // incrementing result after each copied element, keeping the element order
+    // stable.  The behavior is undefined if the ranges '[first, last)' and
+    // '[result, advance(result, distance(firt, last)))' overlap.  The behavior
+    // is also undefined if 'pred' attempts to invoke any non-constant
+    // functions of its argument.  See also [alg.copy] in the C++11 standard.
+{
+    while(first != last) {
+        if (pred(*first)) {
+            *result++ = *first;
+        }
+        ++first;
+    }
+    return result;
+}
+#endif
+#endif
 }  // close namespace bsl
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

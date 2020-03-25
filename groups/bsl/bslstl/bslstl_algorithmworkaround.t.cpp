@@ -106,7 +106,26 @@ static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
+// ============================================================================
+//                            MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
+struct IsOdd {
+    // A standard compliant C++03 unary predicate functor that returns 'true'
+    // if an 'int' value is odd.
+
+    // PUBLIC TYPES
+    typedef int  argument_type;
+    typedef bool result_type;
+
+    // ACCESSORS
+    result_type operator()(argument_type value) const
+        // Return 'true' if the specified 'value' is odd.  Otherwise, if
+        // 'value' is even, return 'false'.
+    {
+        return (value % 2) != 0;
+    }
+};
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -171,6 +190,33 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+#ifdef BSLSTL_ALGORITHMWORKAROUND_IMPLEMENTS_COPY_IF
+        const int INPUT_ARRAY[] = { 0, 1, 2, 3, 4, 5, 6, 7};
+        const int * const INPUT_BEGIN = INPUT_ARRAY;
+        const size_t INPUT_SIZE = sizeof(INPUT_ARRAY) / sizeof(*INPUT_ARRAY);
+        const int * const INPUT_END = INPUT_BEGIN + INPUT_SIZE;
+        int OUTPUT_ARRAY[INPUT_SIZE] = {};
+
+        const int * const OUTPUT_END =
+        bsl::copy_if(INPUT_BEGIN, INPUT_END, OUTPUT_ARRAY, IsOdd());
+
+        const size_t OUTPUT_EFFECTIVE_SIZE = OUTPUT_END - OUTPUT_ARRAY;
+
+        ASSERTV(OUTPUT_EFFECTIVE_SIZE, 4 == OUTPUT_EFFECTIVE_SIZE);
+
+        if (OUTPUT_EFFECTIVE_SIZE > 0) {
+            ASSERTV(OUTPUT_ARRAY[0], 1 == OUTPUT_ARRAY[0]);
+        }
+        if (OUTPUT_EFFECTIVE_SIZE > 1) {
+            ASSERTV(OUTPUT_ARRAY[1], 3 == OUTPUT_ARRAY[1]);
+        }
+        if (OUTPUT_EFFECTIVE_SIZE > 2) {
+            ASSERTV(OUTPUT_ARRAY[2], 5 == OUTPUT_ARRAY[2]);
+        }
+        if (OUTPUT_EFFECTIVE_SIZE > 3) {
+            ASSERTV(OUTPUT_ARRAY[3], 7 == OUTPUT_ARRAY[3]);
+        }
+#endif
       } break;
 
       default: {
@@ -190,7 +236,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
