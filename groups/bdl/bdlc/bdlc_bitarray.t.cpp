@@ -31,10 +31,11 @@
 #include <bslx_testinstreamexception.h>
 #include <bslx_testoutstream.h>
 
+#include <bsl_algorithm.h>   // min/max
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_sstream.h>
-#include <bsl_new.h>         // placement syntax
+#include <bsl_new.h>         // placement new syntax
 
 #include <bsl_cctype.h>      // isspace, tolower
 #include <bsl_climits.h>     // CHAR_BIT

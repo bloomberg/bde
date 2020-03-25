@@ -25,9 +25,9 @@
 
 #include <bdldfp_decimal.h>
 
-#include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_memoutstreambuf.h>
 
+#include <bslalg_constructorproxy.h>
 #include <bslalg_typetraits.h>
 
 #include <bslma_allocator.h>
@@ -49,8 +49,6 @@
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_unordered_map.h>
-#include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;

@@ -5,6 +5,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructorproctor.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_movableref.h>
@@ -19,7 +20,6 @@
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
-#include <bsls_outputredirector.h>
 #include <bsls_util.h>
 
 #include <algorithm>
