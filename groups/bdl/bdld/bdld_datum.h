@@ -70,7 +70,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // the 'Datum::create*' static functions).  This memory is said to be
 // "externally managed" because it not released when a 'Datum' object is
 // destroyed, instead clients must explicitly call 'Datum::destroy' on a
-// 'Datum' to release its memory (see {'Analogy to Raw to Raw Pointers'}).  The
+// 'Datum' to release its memory (see {'Analogy to Raw Pointers'}).  The
 // 'bdlb' package provides tools and components that can simplify the process
 // of managing the memory (see 'bdld_manageddatum', and the various builder
 // components like 'bdld_datumarraybuilder').
