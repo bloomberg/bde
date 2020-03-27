@@ -1444,7 +1444,7 @@ class LargeBitwiseMoveableTestType : public TestType {
                                  bslma::Allocator        *ba = 0)   // IMPLICIT
     : TestType(ba)
     {
-        d_data_p = cE.d_c;
+        *d_data_p = cE.d_c;
         for (int i = 0; i < FOOTPRINT; ++i) {
             d_junk[i] = i;
         }
