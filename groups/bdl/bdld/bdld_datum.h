@@ -65,10 +65,15 @@ BSLS_IDENT("$Id$ $CSID$")
 // A primary design goal for 'Datum' is space-efficiency, particularly on
 // 32-bit platforms.  In order to minimize the foot-print (i.e., the 'sizeof')
 // of a 'Datum' object, 'Datum' does not hold a reference to the allocator that
-// was used to allocate its contents.  Therefore any allocated memory referred
-// to by a 'Datum' must be *externally* *managed*.  The 'bdld' package, and
-// this component, provide tools to simplify the process of managing the
-// memory.
+// was used to allocate its contents.  This component provides static functions
+// that allocate dynamic data structures referred to by a 'Datum' object (i.e.
+// the 'Datum::create*' static functions).  This memory is said to be
+// "externally managed" because it not released when a 'Datum' object is
+// destroyed, instead clients must explicitly call 'Datum::destroy' on a
+// 'Datum' to release its memory (see {'Analogy to Raw to Raw Pointers'}).  The
+// 'bdlb' package provides tools and components that can simplify the process
+// of managing the memory (see 'bdld_manageddatum', and the various builder
+// components like 'bdld_datumarraybuilder').
 //
 ///Analogy to Raw Pointers
 ///- - - - - - - - - - - -
@@ -224,6 +229,19 @@ BSLS_IDENT("$Id$ $CSID$")
 // released by 'Datum::destroy'.  The meaning of the integer type identifier is
 // determined by the application, which is responsible for ensuring the set of
 // "user-defined" type identifiers remains unique.
+//
+///Map and IntMap types
+/// - - - - - - - - - -
+// Datum provides two 'map' types, map (datatype 'e_MAP') and int-map (
+// datatype 'e_INT_MAP').  These types provide a mapping of key to value, as
+// represented by a sequence of key-value pairs (and are not directly related
+// to 'std::map').  The key types for map and int-map are 'bslstl::StringRef'
+// and 'int' respectively, and the value is always a 'Datum'.  Both map types
+// keep track of whether they are sorted by key.  Key-based lookup is done via
+// the 'find' function.  If the map is in a sorted state, 'find' has O(logN)
+// complexity and 'find' is O(N) otherwise (where N is the number of elements
+// in the map).  If entries with duplicate keys are present, which matching
+// entry will be found is unspecified.
 //
 ///Usage
 ///-----
@@ -2400,8 +2418,10 @@ class DatumIntMapRef {
     const Datum *find(int key) const;
         // Return a const pointer to the datum having the specified 'key', if
         // it exists and 0 otherwise.  Note that the 'find' has order of 'O(n)'
-        // if the data is not sorted based on the keys.  If the data is sorted,
-        // it has order of 'O(log(n))'.
+        // if the data is not sorted based on the keys; if the data is sorted,
+        // it has order of 'O(log(n))'.  Also note that if multiple entries
+        // with matching keys are present, which matching record is found is
+        // unspecified.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
@@ -2595,7 +2615,9 @@ class DatumMapRef {
         // Return a const pointer to the datum having the specified 'key', if
         // it exists and 0 otherwise.  Note that the 'find' has order of 'O(n)'
         // if the data is not sorted based on the keys.  If the data is sorted,
-        // it has order of 'O(log(n))'.
+        // it has order of 'O(log(n))'.  Also note that if multiple entries
+        // with matching keys are present, which matching record is found is
+        // unspecified.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
