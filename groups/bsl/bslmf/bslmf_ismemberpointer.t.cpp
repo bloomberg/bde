@@ -165,10 +165,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
 # define ASSERT_V_EQ_VALUE(TYPE)                                              \
-    ASSERT(bsl::is_member_object_pointer  <TYPE>::value ==                  \
-           bsl::is_member_object_pointer_v<TYPE>)
-    // Test whether 'bsl::is_member_object_pointer_v<TYPE>' value equals to
-    // 'bsl::is_member_object_pointer<TYPE>::value'.
+    ASSERT(bsl::is_member_pointer  <TYPE>::value ==                           \
+           bsl::is_member_pointer_v<TYPE>)
+    // Test whether 'bsl::is_member_pointer_v<TYPE>' value equals to
+    // 'bsl::is_member_pointer<TYPE>::value'.
 #else
 # define ASSERT_V_EQ_VALUE(TYPE)
 #endif

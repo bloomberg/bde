@@ -18,6 +18,7 @@
 #include <bsls_review.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>

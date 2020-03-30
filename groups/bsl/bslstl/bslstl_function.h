@@ -110,6 +110,8 @@ extern const char s_bslstl_function_h[];
     // workaround until an IBM compiler patch is available is to pass member
     // function pointers through 'bdlf::MemFn' objects instead - see
     // 'bdlf::MemFnUtil' for more details.
+
+# include <bslmf_ismemberfunctionpointer.h>
 #endif
 
 
