@@ -19,6 +19,7 @@
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>

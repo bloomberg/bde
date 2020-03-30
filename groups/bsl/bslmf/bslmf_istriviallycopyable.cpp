@@ -10,6 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_addpointer.h>               // for testing only
 #include <bslmf_addvolatile.h>              // for testing only
 #include <bslmf_nestedtraitdeclaration.h>   // for testing only
+#include <bslmf_nil.h>                      // for testing only
 #include <bslmf_removevolatile.h>           // for testing only
 
 // ----------------------------------------------------------------------------

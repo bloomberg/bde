@@ -8,6 +8,7 @@
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_nil.h>
 #include <bslmf_removevolatile.h>  // gcc workaround
 
 #include <bsls_bsltestutil.h>
