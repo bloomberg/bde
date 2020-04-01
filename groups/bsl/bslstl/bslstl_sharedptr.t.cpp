@@ -16,6 +16,7 @@
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_exceptionutil.h>
@@ -1652,7 +1653,7 @@ class NonPolymorphicTestBaseObject {
 
   public:
     // CREATORS
-    NonPolymorphicTestBaseObject() {}
+    NonPolymorphicTestBaseObject() { (void)d_padding; }
         // Create a 'NonPolymorphicTestBaseObject' object.  Note that the
         // padding bytes are deliberately never initialized.
 
@@ -1722,7 +1723,7 @@ class MyTestBaseObject {
 
   public:
     // CREATORS
-    MyTestBaseObject() {}
+    MyTestBaseObject() { (void)d_padding; }
         // Create a 'MyTestBaseObject' object.
 
     MyTestBaseObject(const MyTestBaseObject&) {}
@@ -15911,7 +15912,7 @@ int main(int argc, char *argv[])
                       ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
                                                                           13));
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VERSION > 0x0CFF)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
             // Copy initialization from rvalue does not work on AIX currently
             bsl::shared_ptr<bsls::Types::Int64> sp2 =
                        ManagedPtrUtil::allocateManaged<bsls::Types::Int64>(&ta,
