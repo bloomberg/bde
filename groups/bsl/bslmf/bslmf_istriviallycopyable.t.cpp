@@ -8,6 +8,7 @@
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_nil.h>
 #include <bslmf_removevolatile.h>  // gcc workaround
 
 #include <bsls_bsltestutil.h>
@@ -628,8 +629,6 @@ int main(int argc, char *argv[])
 
         // C-1
         ASSERT(bsl::is_trivially_copyable<bslmf::Nil>::value);
-
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
