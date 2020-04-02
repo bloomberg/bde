@@ -41,7 +41,6 @@ bsls_byteorderutil
 bsls_byteorderutil_impl
 bsls_compilerfeatures
 bsls_cpp11
-bsls_dbghelpdllimpl_windows
 bsls_deprecate
 bsls_exceptionutil
 bsls_ident

@@ -317,17 +317,6 @@ struct StackAddressUtil {
 
 #if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
     enum { k_IGNORE_FRAMES = 1 };
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
-    // We don't have access to pre-2013 compilers to test on, so we set
-    // 'k_IGNORE_FRAMES' to 0 to be safe in those cases.  For 2013-2019, 32 bit
-    // builds need 'k_IGNORE_FRAMES' to be 0 and 64 bit builds should have it
-    // at 1.
-
-    enum { k_MSVC_2012_OR_EARLIER = _MSC_VER < 1800,
-           k_IGNORE_FRAMES        = k_MSVC_2012_OR_EARLIER
-                                  ? 0
-                                  : sizeof(int) < sizeof(void *)
-    };
 #else
     enum { k_IGNORE_FRAMES = 0 };
 #endif

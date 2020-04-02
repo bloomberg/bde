@@ -52,11 +52,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-# include <bsls_dbghelpdllimpl_windows.h>
-
 # include <windows.h>
-# include <intrin.h>
-# include <dbghelp.h>
+# include <winnt.h>
 
 #pragma optimize("", off)
 
@@ -488,99 +485,7 @@ namespace bsls {
 int StackAddressUtil::getStackAddresses(void    **buffer,
                                         int       maxFrames)
 {
-    assert(0 <= maxFrames);
-
-    DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
-                                          | SYMOPT_LOAD_LINES
-                                          | SYMOPT_DEFERRED_LOADS);
-
-    //                                    | SYMOPT_DEBUG);
-
-    // See 'http://msdn.microsoft.com/en-us/library/ms680313(VS.85).aspx' for
-    // details.
-
-#if !defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CPU_X86_64)
-#   error unrecognized architecture
-#elif defined(BSLS_PLATFORM_CPU_64_BIT)
-    // x86 compatible cpu, 64 bit executable
-
-    enum { MACHINE = IMAGE_FILE_MACHINE_AMD64 };
-#elif defined(BSLS_PLATFORM_CPU_32_BIT)
-    // x86 compatible cpu, 32 bit executable
-
-    enum { MACHINE = IMAGE_FILE_MACHINE_I386 };
-#else
-#   error unrecognized architecture
-#endif
-
-    CONTEXT winContext;
-    memset(&winContext, 0, sizeof(winContext));
-
-#if   defined(BSLS_PLATFORM_OS_WINXP)
-    // RtlCaptureContext is not implemented before XP or Server 2003
-
-    RtlCaptureContext(&winContext);
-
-#elif defined(BSLS_PLATFORM_OS_WIN2K) ||                                     \
-      defined(BSLS_PLATFORM_OS_WINNT) ||                                     \
-      defined(BSLS_PLATFORM_OS_WIN9X)
-
-    winContext.ContextFlags = CONTEXT_CONTROL;
-    __asm {
-        mov winContext.Ebp, ebp;
-        call here;
-  here: pop eax;
-        mov winContext.Eip, eax;
-        mov winContext.SegCs, 0;
-        mov word ptr winContext.SegCs, cs;
-        pushfd;
-        pop eax;
-        mov winContext.EFlags, eax;
-        mov winContext.Esp, esp;
-        mov winContext.SegSs, 0;
-        mov word ptr winContext.SegSs, ss;
-    }
-
-#else
-
-# error unrecognized platform
-
-#endif
-
-    STACKFRAME64 stackFrame;
-    memset(&stackFrame, 0, sizeof(stackFrame));
-
-    // 'ip' is instruction pointer, 'bp' is base pointer (== frame pointer),
-    // 'sp' is pointer to stack top
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-    stackFrame.AddrPC.Offset    = (DWORD64) winContext.Rip;
-    stackFrame.AddrFrame.Offset = (DWORD64) winContext.Rbp;
-    stackFrame.AddrStack.Offset = (DWORD64) winContext.Rsp;
-#else
-    stackFrame.AddrPC.Offset    = (DWORD64) winContext.Eip;
-    stackFrame.AddrFrame.Offset = (DWORD64) winContext.Ebp;
-    stackFrame.AddrStack.Offset = (DWORD64) winContext.Esp;
-#endif
-
-    stackFrame.AddrPC.Mode    = AddrModeFlat;
-    stackFrame.AddrFrame.Mode = AddrModeFlat;
-    stackFrame.AddrStack.Mode = AddrModeFlat;
-    int stackFrameIndex;
-    HANDLE currentThread = GetCurrentThread();
-
-    for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex){
-        bool rc = bsls::DbghelpDllImpl_Windows::stackWalk64(MACHINE,
-                                                            currentThread,
-                                                            &stackFrame,
-                                                            &winContext);
-        if (!rc) {
-            break;
-        }
-        buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
-    }
-
-    return stackFrameIndex;
+    return RtlCaptureStackBackTrace(1, maxFrames, buffer, (PDWORD) 0);
 }
 
 }  // close package namespace

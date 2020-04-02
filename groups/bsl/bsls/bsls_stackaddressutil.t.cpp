@@ -9,8 +9,10 @@
 
 #include <bsls_stackaddressutil.h>
 
+#include <bsls_atomic.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <algorithm>
@@ -18,11 +20,23 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include <cstddef>
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+#include <thread.h>  // thr_setconcurrency
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <windows.h>
+#else
+#include <pthread.h>
+#include <sys/time.h>
+#endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 // 'getStackAddresses' will not be able to trace through our stack frames if
@@ -53,7 +67,8 @@ using namespace BloombergLP;
 // [ 6] CHEAPSTACK: test truncation
 // [ 7] CHEAPSTACK: test stacks
 // [ 8] CHEAPSTACK: test process name
-// [ 9] USAGE EXAMPLE #2
+// [ 9] MULTITHREADED TEST
+// [10] USAGE EXAMPLE #2
 // [ 2] getStackAddresses(0, 0)
 // [-1] Speed benchmark of getStackAddresses
 
@@ -111,6 +126,14 @@ typedef bsls::Types::UintPtr UintPtr;
 int verbose;
 int veryVerbose;
 
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+int main(int, char **);    // forward declaration
+
+namespace u {
+
 // 'lamePlatform' -- on lame platforms where StackAddressUtil doesn't work or
 // executables are stripped, disable some of the tests.
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -119,9 +142,70 @@ const bool lamePlatform = true;
 const bool lamePlatform = false;
 #endif
 
-// ============================================================================
-//                    GLOBAL HELPER FUNCTIONS FOR TESTING
-// ----------------------------------------------------------------------------
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+typedef HANDLE    ThreadType;
+#else
+typedef pthread_t ThreadType;
+#endif
+
+extern "C" {
+typedef void* (*THREAD_ENTRY)(void *arg);
+}
+
+static int createThread(ThreadType *aHandle, THREAD_ENTRY aEntry, void *arg )
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    *aHandle = CreateThread( 0, 0, (LPTHREAD_START_ROUTINE)aEntry,arg,0,0);
+    return *aHandle ? 0 : -1;
+#else
+    return pthread_create(aHandle, 0, aEntry, arg);
+#endif
+}
+
+static void  joinThread(ThreadType aHandle)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    WaitForSingleObject(aHandle,INFINITE);
+    CloseHandle(aHandle);
+#else
+    pthread_join(aHandle,0);
+#endif
+}
+
+template <class TYPE>
+TYPE foilOptimizer(const TYPE funcPtr)
+    // The function just returns 'funcPtr', but only after putting it through a
+    // transform that the optimizer can't possibly understand that leaves it
+    // with its original value.  'TYPE' is expected to be a function pointer
+    // type.
+    //
+    // Note that it's still necessary to put a lot of the routines through
+    // contortions to avoid the optimizer optimizing tail calls as jumps.
+{
+    TYPE ret, ret2 = funcPtr;
+
+    UintPtr u = (UintPtr) funcPtr;
+
+    const int loopGuard  = 0x8edf1000;    // garbage with a lot of trailing
+                                          // 0's.
+    const int toggleMask = 0xa72c3dca;    // pure garbage
+
+    UintPtr u2 = u;
+    for (int i = 0; !(i & loopGuard); ++i) {
+        u ^= (i & toggleMask);
+    }
+
+    ret = (TYPE) u;
+
+    // That previous loop toggled all the bits in 'u' that it touched an even
+    // number of times, so 'ret == ret2', but I'm pretty sure the optimizer
+    // can't figure that out.
+
+    ASSERT(  u2 ==   u);
+    ASSERT(ret2 == ret);
+
+    return ret;
+}
 
 static std::string myHex(UintPtr up)
 {
@@ -132,11 +216,131 @@ static std::string myHex(UintPtr up)
     return ss.str();
 }
 
-                                 // ------
-                                 // CASE 9
-                                 // ------
+}  // close namespace u
 
-namespace CASE_NINE {
+                            // ------------------
+                            // MULTITHREADED TEST
+                            // ------------------
+
+namespace MULTITHREADED_TEST {
+
+enum { k_NUM_THREADS = 100 };
+enum { k_MAX_FRAMES_TO_CAPTURE = 30 };
+enum Mode { e_CAPTURE_ADDRESSES, e_COMPARE_ADDRESSES };
+Mode mode;
+void *addressDataBase[10][k_MAX_FRAMES_TO_CAPTURE];
+bsls::AtomicInt threadId(0);
+bsls::TimeInterval start;
+bsls::AtomicInt tracesDone(0);
+int framesToCaptureBase = 0;
+
+void topOfTheStack(int idMod)
+{
+    const int framesToCapture = framesToCaptureBase
+                              ? framesToCaptureBase + idMod
+                              : k_MAX_FRAMES_TO_CAPTURE;
+    ASSERTV(framesToCapture, framesToCapture <= k_MAX_FRAMES_TO_CAPTURE);
+
+    void *addresses[k_MAX_FRAMES_TO_CAPTURE];
+
+    const int rc = bsls::StackAddressUtil::getStackAddresses(
+                                                   addresses, framesToCapture);
+    if (framesToCaptureBase) {
+        ASSERTV(rc, framesToCapture, rc == framesToCapture);
+    }
+
+    switch (mode) {
+      case e_CAPTURE_ADDRESSES: {
+        ::memcpy(addressDataBase[idMod], addresses,
+                                             framesToCapture * sizeof(void *));
+        if (0 == idMod) {
+            ASSERT(0 == framesToCaptureBase);
+
+            // We want to 'framesToCaptureBase' so that it just barely includes
+            // the function 'loopForEightSeconds' and everything above it.
+            // We know that that function is just preceded by many identical
+            // instances of 'recurseABunchOfTimes'.
+            //
+            // We know that the stack trace will consist of
+            //: o (possibly) an ignored frame
+            //: o '&topOfTheStack' + off
+            //: o '&recurseABunchOfTimes' + off of call to 'topOfTheStack'
+            //: o many identical instances of '&recurseABunchOfTimes' recurse
+            //: o 'loopForEightSeconds' + off
+            // So we probe the array to find the repeating addresses, and then
+            // set 'framesToCaptureBase' to also capture the one frame after
+            // them.
+
+            int ii = 1;
+            while (addresses[ii-1] != addresses[ii] &&
+                                                ii < k_MAX_FRAMES_TO_CAPTURE) {
+                ++ii;
+            }
+            while (addresses[ii-1] == addresses[ii] &&
+                                                ii < k_MAX_FRAMES_TO_CAPTURE) {
+                ++ii;
+            }
+            ASSERTV(ii, 10 <= ii);
+            ASSERTV(ii, ii < k_MAX_FRAMES_TO_CAPTURE - 1);
+            framesToCaptureBase = ii + 1;
+        }
+      } break;
+      case e_COMPARE_ADDRESSES: {
+        ASSERT(framesToCaptureBase);
+
+        if (0 != ::memcmp(addresses, addressDataBase[idMod],
+                                           framesToCapture * sizeof(void *))) {
+            bool match = true;
+            for (int ii = 0; match && ii < framesToCapture; ++ii) {
+                ASSERTV(idMod, ii, framesToCapture,
+                        (match = addresses[ii] == addressDataBase[idMod][ii]));
+            }
+        }
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(0 && "impossible switch");
+      }
+    }
+}
+
+void recurseABunchOfTimes(int *depth, int, void *, int, int idMod)
+{
+    if (--*depth <= 0) {
+        topOfTheStack(idMod);
+    }
+    else {
+        recurseABunchOfTimes(depth, 0, depth, 0, idMod);
+    }
+
+    ++*depth;
+}
+
+void *loopForEightSeconds(void *arg)
+{
+    const int idMod = threadId++ % 10;
+    const int expDepth = 10 + idMod;
+    const int iterations = arg ? 100 : 1;
+
+    do {
+        int depth = expDepth;
+
+        for (int ii = 0; ii < iterations; ++ii, ++tracesDone) {
+            recurseABunchOfTimes(&depth, 0, &ii, 0, idMod);
+            ASSERT(expDepth == depth);
+        }
+    } while ((bsls::SystemTime::nowMonotonicClock() -
+                                            start).totalSecondsAsDouble() < 8);
+
+    return 0;
+}
+
+}  // close namespace MULTITHREADED_TEST
+
+                                 // -----
+                                 // Usage
+                                 // -----
+
+namespace CASE_USAGE {
 
 // In this example we demonstrate how to use 'formatCheapStack' to generate a
 // string containing the current stack trace and instructions on how to print
@@ -191,7 +395,7 @@ struct MyTest2 {
 //                                           ... 400F49" to see the stack trace
 //..
 
-}  // close namespace CASE_NINE
+}  // close namespace CASE_USAGE
 
                                  // ------
                                  // CASE 4
@@ -438,7 +642,7 @@ static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
     int ret = entries[i].d_traceIndex;
 
     if (veryVerbose) {
-        P_(myHex(funcP).c_str()) P_(myHex(retP).c_str()) P(ret);
+        P_(u::myHex(funcP).c_str()) P_(u::myHex(retP).c_str()) P(ret);
     }
 
     return ret;
@@ -521,19 +725,19 @@ void func0(int *pi)
         if (i != index) {
             problem = true;
         }
-        ASSERTV(i, index, myHex(funcAddrs[i]).c_str(), i == index);
+        ASSERTV(i, index, u::myHex(funcAddrs[i]).c_str(), i == index);
     }
 
     if (problem || veryVerbose) {
         for (int i = 0; i < NUM_FUNC_ADDRS; ++i) {
-            P_(i);    P(myHex(funcAddrs[i]).c_str());
+            P_(i);    P(u::myHex(funcAddrs[i]).c_str());
         }
 
         for (int i = 0; i < numAddresses; ++i) {
             const AddressEntry *e = &entries[i];
 
             printf("(%d): addr = %s, ti = %d\n", i,
-                   myHex(e->d_returnAddress).c_str(), e->d_traceIndex);
+                   u::myHex(e->d_returnAddress).c_str(), e->d_traceIndex);
         }
     }
 }
@@ -566,7 +770,7 @@ void recurser(volatile int *depth)
         numAddresses = bsls::StackAddressUtil::getStackAddresses(
                                                                 buffer,
                                                                 BUFFER_LENGTH);
-        ASSERTV(numAddresses, lamePlatform || numAddresses > recurseDepth);
+        ASSERTV(numAddresses, u::lamePlatform || numAddresses > recurseDepth);
         for (int i = 0; i < numAddresses; ++i) {
             ASSERT(0 != buffer[i]);
         }
@@ -576,7 +780,7 @@ void recurser(volatile int *depth)
 
         memset(buffer, 0, sizeof(buffer));
         numAddresses = bsls::StackAddressUtil::getStackAddresses(buffer, 10);
-        ASSERTV(numAddresses, lamePlatform || 10 == numAddresses);
+        ASSERTV(numAddresses, u::lamePlatform || 10 == numAddresses);
         for (int i = 0; i < numAddresses; ++i) {
             ASSERT(0 != buffer[i]);
         }
@@ -643,7 +847,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2
         //
@@ -662,9 +866,85 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE #2"
                             "\n================\n");
 
-        CASE_NINE::MyTest::printCheapStack();
-        CASE_NINE::MyTest2::printCheapStack();
+        CASE_USAGE::MyTest::printCheapStack();
+        CASE_USAGE::MyTest2::printCheapStack();
 
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // MULTITHREADED TEST
+        //
+        // Concerns:
+        //: 1 We want to test that the stack walkback is thread safe.  Of
+        //:   particular concern is the Windows implementation, where we use
+        //:   'RtlCaptureStackBackTrace' which is not explicitly documented on
+        //:   MSDN as thread-safe, but it is argued that MSDN always calls out
+        //:   non-thread-safe functions as such.
+        //
+        // Plan:
+        //: 1 We do 10 different stack traces where we capture a stack trace to
+        //:   10 buffers, a different stack trace each time.
+        //:
+        //: 2 Then we repeat, in 10 threads, repeatedly doing stack traces,
+        //:   the stack traces in each thread matching one of those ten
+        //:   different traces, and check that the stack trace matches the
+        //:   so no two threads are doing matching traces.  Do this repeatedly
+        //:   for 8 seconds.
+        //
+        // Testing:
+        //   MULTITHREADED TEST
+        // --------------------------------------------------------------------
+
+        namespace TC = MULTITHREADED_TEST;
+
+        TC::mode = TC::e_CAPTURE_ADDRESSES;
+        TC::threadId = 0;
+        TC::start = bsls::SystemTime::nowMonotonicClock() - 20;
+        for (int ii = 0; ii < 10; ++ii) {
+            TC::loopForEightSeconds(0);
+        }
+        ASSERT(10 == TC::threadId);
+
+        // Make sure the 'addressDataBase' is as we expect it to be.
+
+        {
+            ASSERT(10 < TC::framesToCaptureBase);
+
+            void **stack = &TC::addressDataBase[0][0];
+            int   jj     = TC::framesToCaptureBase;
+
+            const void *p = stack[jj - 1];
+            const void *q = stack[jj - 2];
+            ASSERT(p != q);
+            for (int ii = 0; ii < 10; ++ii) {
+                stack = &TC::addressDataBase[ii][0];
+                jj    = bsls::StackAddressUtil::k_IGNORE_FRAMES;
+                ASSERT(stack[jj] != stack[jj + 1]);
+
+                jj    = TC::framesToCaptureBase + ii;
+
+                ASSERT(p == stack[jj - 1]);
+                for (int kk = 2; kk < 11; ++kk) {
+                    ASSERT(q == stack[jj - kk]);
+                }
+            }
+        }
+
+        u::ThreadType threadHandles[TC::k_NUM_THREADS];
+
+        TC::mode = TC::e_COMPARE_ADDRESSES;
+        TC::threadId = 0;
+        TC::tracesDone = 0;
+        TC::start = bsls::SystemTime::nowMonotonicClock();
+        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+            u::createThread(&threadHandles[ii], &TC::loopForEightSeconds, &ii);
+        }
+
+        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+            u::joinThread(threadHandles[ii]);
+        }
+
+        if (verbose) P(TC::tracesDone);
       } break;
       case 8: {
         // --------------------------------------------------------------------
