@@ -18,25 +18,25 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 77 components having 19 levels of physical
+ The 'bsls' package currently has 76 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  19. bsls_byteorder
+  16. bsls_byteorder
 
-  18. bsls_alignedbuffer
+  15. bsls_alignedbuffer
       bsls_alignment
       bsls_byteorderutil
       bsls_platformutil                                  !DEPRECATED!
       bsls_systemtime
 
-  17. bsls_alignmentutil
+  14. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_stopwatch
       bsls_timeinterval
 
-  16. bsls_asserttest
+  13. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
       bsls_nameof
@@ -44,15 +44,10 @@
       bsls_spinlock
       bsls_timeutil
 
-  15. bsls_assert
-
-  14. bsls_review
-
-  13. bsls_stackaddressutil
-
-  12. bsls_dbghelpdllimpl_windows                                     !PRIVATE!
+  12. bsls_assert
 
   11. bsls_bsllock
+      bsls_review
 
   10. bsls_atomic
       bsls_bslonce
@@ -98,6 +93,7 @@
       bsls_int64                                         !DEPRECATED!
       bsls_logseverity
       bsls_performancehint
+      bsls_stackaddressutil
       bsls_systemclocktype
       bsls_unspecifiedbool
 
@@ -250,9 +246,6 @@
 :
 : 'bsls_cpp11':                                          !DEPRECATED!
 :      Provide macros for C++11 forward compatibility.
-:
-: 'bsls_dbghelpdllimpl_windows':                                      !PRIVATE!
-:      Provide access to the 'dbghelp.dll' shared library on Windows.
 :
 : 'bsls_deprecate':
 :      Provide machinery to deprecate interfaces on a per-version basis.
