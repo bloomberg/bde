@@ -431,9 +431,12 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
 {
     LOOP_ASSERT(st.length(), st.length() > 0);
 
-    bool reachedMain = false;   // all the routines above 'main' are pretty
-                                // small
+    bool reachedMain = false, pastMain = false;   // The trace above, at, and
+                                                  // below 'main' have
+                                                  // different properties.
+
     int numMisses = 0;
+
     for (int i = 0; i < st.length(); ++i) {
         const Frame& frame = st[i];
 
@@ -447,13 +450,15 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
             continue;
         }
 
-        ASSERT((PLAT_WIN && !DEBUG_ON) || frame.isSymbolNameKnown());
         if (npos != frame.symbolName().find("main")) {
             reachedMain = true;
         }
 
+        ASSERT((PLAT_WIN && !DEBUG_ON) || pastMain ||
+                                                    frame.isSymbolNameKnown());
+
         if (!PLAT_WIN || DEBUG_ON) {
-            LOOP_ASSERT(i, frame.isOffsetFromSymbolKnown());
+            LOOP_ASSERT(i, pastMain || frame.isOffsetFromSymbolKnown());
 
             UintPtr offset = frame.offsetFromSymbol();
             const unsigned int maxOffset = 2048;
@@ -462,11 +467,11 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
         }
 
         if (!(FORMAT_ELF && !FORMAT_DWARF) && !FORMAT_DLADDR && DEBUG_ON &&
-                                                                !reachedMain) {
+                                                                !pastMain) {
             ASSERT(frame.isSourceFileNameKnown());
         }
 
-        if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !reachedMain) {
+        if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !pastMain) {
             ASSERT(frame.lineNumber() > 0);
         }
         else if (FORMAT_XCOFF && DEBUG_ON) {
@@ -476,6 +481,8 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
 
             numMisses += frame.lineNumber() < 0;
         }
+
+        pastMain |= reachedMain;
     }
 
     ASSERT(numMisses <= tolerateMisses);
