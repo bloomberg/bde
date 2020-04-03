@@ -143,7 +143,7 @@ class Option {
     Option& operator=(const Option&     rhs);
     Option& operator=(const OptionInfo& rhs);
         // Assign to this object the value of the specified 'rhs' object and
-        // return a reference to this modifiable object.
+        // return a reference providing modifiable access to this object.
 
     // ACCESSORS
     operator const OptionInfo&() const;

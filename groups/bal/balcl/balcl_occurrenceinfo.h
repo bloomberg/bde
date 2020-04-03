@@ -90,10 +90,8 @@ class OccurrenceInfo {
     };
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(OccurrenceInfo,
-                                   bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(OccurrenceInfo,
-                                   bdlb::HasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(OccurrenceInfo, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(OccurrenceInfo, bdlb::HasPrintMethod);
 
     // CREATORS
     OccurrenceInfo();

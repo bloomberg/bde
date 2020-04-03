@@ -82,10 +82,8 @@ class TypeInfo {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(TypeInfo,
-                                   bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(TypeInfo,
-                                   bdlb::HasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(TypeInfo, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TypeInfo, bdlb::HasPrintMethod);
 
     // CREATORS
     TypeInfo();
@@ -346,7 +344,7 @@ class TypeInfo {
     // MANIPULATORS
     TypeInfo& operator=(const TypeInfo& rhs);
         // Assign to this object the value of the specified 'rhs' object and
-        // return a reference to this modifiable object.
+        // return a reference providing modifiable access to this object.
 
     void resetConstraint();
         // Reset this object so that it no longer has a constraint.  This

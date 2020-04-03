@@ -80,12 +80,12 @@ BSLS_IDENT("$Id: $")
 //
 // For example, in the following command line:
 //..
-//  $ mybuildcommand -e -c CC64 bde
+//  $ mybuildcommand -e -c CC64 myproject
 //..
 // the command name is 'mybuildcommand'.  There is one option, described by
 // '-c CC64': 'c' is the tag name, and 'CC64' is the option value.  There is
 // also one boolean option (flag): '-e' is a flag, 'e' is the flag name.  The
-// last parameter, 'bde', is a non-option argument.
+// last parameter, 'myproject', is a non-option argument.
 //
 // Sometimes *option* is also used where "flag" or "non-option" would be more
 // accurate.  What is actually intended should be clear from context.
@@ -1066,10 +1066,8 @@ class CommandLine {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(CommandLine,
-                                   bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(CommandLine,
-                                   bdlb::HasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(CommandLine, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(CommandLine, bdlb::HasPrintMethod);
 
     // CLASS METHODS
     template <int LENGTH>
@@ -1120,9 +1118,9 @@ class CommandLine {
         // specified (statically-initialized) 'specTable'.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  The behavior is
-        // undefined unless the tag, description, and name are valid for each
-        // option in 'specTable'.  Note that an appropriate error message is
-        // written to the specified 'stream'.
+        // undefined unless 'specTable' satisfies the
+        // 'isValidOptionSpecificationTable' function.  Note that an
+        // appropriate error message is written to the specified 'stream'.
 
     template <int LENGTH>
     explicit
@@ -1136,9 +1134,9 @@ class CommandLine {
         // specified (statically-initialized) 'specTable'.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  The behavior is
-        // undefined unless the tag, description, and name are valid for each
-        // option in 'specTable'.  Note that an appropriate error message is
-        // written to 'bsl::cerr'.
+        // undefined unless 'specTable' satisfies the
+        // 'isValidOptionSpecificationTable' function.  Note that an
+        // appropriate error message is written to 'bsl::cerr'.
 
     CommandLine(const OptionInfo *specTable,
                 int               length,
@@ -1147,10 +1145,10 @@ class CommandLine {
         // specified 'specTable' of the specified 'length'.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  The behavior is
-        // undefined unless the tag, description, and name are valid for each
-        // option in 'specTable'.  Note that an appropriate error message is
-        // written to 'bsl::cerr'.  Also note that 'specTable' need not be
-        // statically initialized.
+        // undefined unless 'specTable' satisfies the
+        // 'isValidOptionSpecificationTable' function.  Note that an
+        // appropriate error message is written to 'bsl::cerr'.  Also note that
+        // 'specTable' need not be statically initialized.
 
     CommandLine(const OptionInfo *specTable,
                 int               length,
@@ -1160,10 +1158,10 @@ class CommandLine {
         // specified 'specTable' of the specified 'length'.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  The behavior is
-        // undefined unless the tag, description, and name are valid for each
-        // option in 'specTable'.  Note that an appropriate error message is
-        // written to the specified 'stream'.  Also note that 'specTable' need
-        // not be statically initialized.
+        // undefined unless 'specTable' satisfies the
+        // 'isValidOptionSpecificationTable' function.  Note that an
+        // appropriate error message is written to the specified 'stream'.
+        // Also note that 'specTable' need not be statically initialized.
 
     CommandLine(const CommandLine&  original,
                 bslma::Allocator   *basicAllocator = 0);
@@ -1182,10 +1180,10 @@ class CommandLine {
     // MANIPULATORS
     CommandLine& operator=(const CommandLine& rhs);
         // Assign to this command-line object the value of the specified 'rhs'
-        // command-line object and return a reference to this modifiable
-        // object.  The behavior is undefined unless both 'rhs' and this object
-        // are valid (i.e., 'isValid()' and 'rhs.isValid()' both return
-        // 'true').
+        // command-line object and return a reference providing modifiable
+        // access to this object.  The behavior is undefined unless both 'rhs'
+        // and this object are valid (i.e., 'isValid()' and 'rhs.isValid()'
+        // both return 'true').
 
     int parse(int argc, const char *const argv[]);
     int parse(int argc, const char *const argv[], bsl::ostream& stream);
@@ -1194,18 +1192,19 @@ class CommandLine {
         // specify a 'stream' to which an appropriate error message is written
         // if parsing fails.  If 'stream' is not specified, 'bsl::cerr' is
         // used.  Return 0 on success, and a non-zero value otherwise.  After a
-        // successful call, 'true == isParsed()' and the information provided
-        // by 'argv' can be viewed via the accessors.  The behavior is
-        // undefined if 'parse' has already been invoked on this object.
+        // successful call 'true == isParsed()', 'true == isValid()', and the
+        // information provided by 'argv' can be viewed via the accessors.
+        // After an unsuccessful call 'false == isParsed()' and
+        // 'false == isValid()'.  The behavior is undefined unless
+        // 'false == isParsed()' and 'true == isValid()'.  Note that the
+        // behavior is undefined if 'parse' is invoked more than once on an
+        // object (successful or not).
 
     // ACCESSORS
     bool isParsed() const;
         // Return 'true' if this object was parsed successfully, and 'false'
         // otherwise.  Note that if 'parse' was invoked but failed, this method
-        // returns 'false'.  Also note that if this object was assigned the
-        // value of another 'CommandLine' object after if was parsed
-        // successfully, it is the successful parsed status of that object that
-        // will be returned.
+        // returns 'false'.
 
     bool isSpecified(const bsl::string& name) const;
     bool isSpecified(const bsl::string& name, int *count) const;
@@ -1217,13 +1216,15 @@ class CommandLine {
         // value, the command line must be successfully parsed.
 
     bool isValid() const;
-        // Return 'true' if this object was parsed successfully, and 'false'
-        // otherwise.  Note that if 'parse' was not invoked, this method
-        // returns 'false'.  Also note that if this object was assigned the
-        // value of another 'CommandLine' object after if was parsed
-        // successfully, it is the successful parsed status of that object that
-        // will be returned.  Finally, note that this method is identical to
-        // the 'isParsed' accessor.
+        // Return 'true' if this object is in a valid state, and 'false'
+        // otherwise.  Objects are in a valid state after construction from a
+        // valid set of option specifications (see the function-level
+        // documentation of the 'isValidOptionSpecificationTable' method) and
+        // after a successful invocation of the 'parse' method.  Conversely,
+        // construction from invalid option specifications or an unsuccessful
+        // invocation of the 'parse' method leaves the object in an invalid
+        // state.  Note that additional object state is available from the
+        // 'isParsed' accessor method.
 
     int numSpecified(const bsl::string& name) const;
         // Return the number of times the option with the specified 'name' has
@@ -1239,10 +1240,7 @@ class CommandLine {
         // difference with the 'specifiedOptions' method).  If an option was
         // not entered on the command line *and* no default value was provided
         // for that option, then the corresponding option will be in a null
-        // state.  All the flags (that is, 'boolean' options) will have integer
-        // type (rather than 'bool') and the 'true' and 'false' values will be
-        // described by integer values 1 and 0, respectively.  The behavior is
-        // undefined unless 'isParsed' returns 'true'.
+        // state.  The behavior is undefined unless 'isParsed' returns 'true'.
 
     int position(const bsl::string& name) const;
         // Return the position where the option with the specified 'name' has
@@ -1256,116 +1254,123 @@ class CommandLine {
         // return an empty vector.  Note that, in order to receive the valid
         // positions, the command line must be successfully parsed.
 
-    CommandLineOptionsHandle specifiedOptions() const;
-        // Return the command-line options and their values.  If an option was
-        // not entered on the command line, then the option will be in a null
-        // state (note the difference with the 'options' method).  This method
-        // is especially useful for overwriting some other configuration
-        // (potentially obtained from a configuration file).  All the flags
-        // will have integer type (rather than 'bool') and the 'true' and the
-        // 'false' values will be described by integer values 1 and 0,
-        // respectively.  The behavior is undefined unless 'isParsed' returns
-        // 'true'.
-
-                        // 'the*' Accessors
-
-// BDE_VERIFY pragma: -FABC01  // not in alphabetic order
-    bool theBool(const bsl::string& name) const;
-        // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'bool' and
-        // 'isParsed' returns 'true'.
-
-    char theChar(const bsl::string& name) const;
-        // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'char' and
-        // 'isParsed' returns 'true'.
-
-    int theInt(const bsl::string& name) const;
-        // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'int' and
-        // 'isParsed' returns 'true'.
-
-    bsls::Types::Int64 theInt64(const bsl::string& name) const;
-        // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type
-        // 'bsls::Types::Int64' and 'isParsed' returns 'true'.
-
-    double theDouble(const bsl::string& name) const;
-        // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'double' and
-        // 'isParsed' returns 'true'.
-
-    const bsl::string& theString(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::string' and 'isParsed' returns 'true'.
-
-    const bdlt::Datetime& theDatetime(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bdlt::Datetime' and 'isParsed' returns 'true'.
-
-    const bdlt::Date& theDate(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bdlt::Date' and 'isParsed' returns 'true'.
-
-    const bdlt::Time& theTime(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bdlt::Time' and 'isParsed' returns 'true'.
-
-    const bsl::vector<char>& theCharArray(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<char>' and 'isParsed' returns 'true'.
-
-    const bsl::vector<int>& theIntArray(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<int>' and 'isParsed' returns 'true'.
-
-    const bsl::vector<bsls::Types::Int64>& theInt64Array(
-                                                const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bsls::Types::Int64>' and 'isParsed' returns
-        // 'true'.
-
-    const bsl::vector<double>& theDoubleArray(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<double>' and 'isParsed' returns 'true'.
-
-    const bsl::vector<bsl::string>& theStringArray(
-                                                const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bsl::string>' and 'isParsed' returns 'true'.
-
-    const bsl::vector<bdlt::Datetime>& theDatetimeArray(
-                                                const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bdlt::Datetime>' and 'isParsed' returns
-        // 'true'.
-
-    const bsl::vector<bdlt::Date>& theDateArray(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bdlt::Date>' and 'isParsed' returns 'true'.
-
-    const bsl::vector<bdlt::Time>& theTimeArray(const bsl::string& name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bdlt::Time>' and 'isParsed' returns 'true'.
-
     void printUsage() const;
     void printUsage(bsl::ostream& stream) const;
         // Print usage to the specified output 'stream', describing what the
         // command line should look like.  If 'stream' is not specified, print
         // usage to 'stderr'.  This method can be invoked at any time, even
         // before 'parse' has been invoked on this object.
+
+    CommandLineOptionsHandle specifiedOptions() const;
+        // Return the command-line options and their values.  If an option was
+        // not entered on the command line, then the option will be in a null
+        // state (note the difference with the 'options' method).  This method
+        // is especially useful for overwriting some other configuration
+        // (potentially obtained from a configuration file).  The behavior is
+        // undefined unless 'isParsed' returns 'true'.
+
+                        // 'the*' Accessors
+
+// BDE_VERIFY pragma: -FABC01  // not in alphabetic order
+    bool theBool(const bsl::string& name) const;
+        // Return the value of the option having the specified 'name'.  The
+        // behavior is undefined unless 'isParsed' returns 'true', the object
+        // has a 'name' option, and that option has type 'bool'.
+
+    char theChar(const bsl::string& name) const;
+        // Return the value of the option having the specified 'name'.  The
+        // behavior is undefined unless 'isParsed' returns 'true', the object
+        // has a 'name' option, and that option has type 'char'.
+
+    int theInt(const bsl::string& name) const;
+        // Return the value of the option having the specified 'name'.  The
+        // behavior is undefined unless 'isParsed' returns 'true', the object
+        // has a 'name' option, and that option has type 'int'.
+
+    bsls::Types::Int64 theInt64(const bsl::string& name) const;
+        // Return the value of the option having the specified 'name'.  The
+        // behavior is undefined unless 'isParsed' returns 'true', the object
+        // has a 'name' option, and that option has type 'bsls::Types::Int64'.
+
+    double theDouble(const bsl::string& name) const;
+        // Return the value of the option having the specified 'name'.  The
+        // behavior is undefined unless 'isParsed' returns 'true', the object
+        // has a 'name' option, and that option has type 'double'.
+
+    const bsl::string& theString(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::string'.
+
+    const bdlt::Datetime& theDatetime(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bdlt::Datetime'.
+
+    const bdlt::Date& theDate(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bdlt::Date'.
+
+    const bdlt::Time& theTime(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bdlt::Time'.
+
+    const bsl::vector<char>& theCharArray(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<char>'.
+
+    const bsl::vector<int>& theIntArray(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<int>'.
+
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(
+                                                const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<bsls::Types::Int64>'.
+
+    const bsl::vector<double>& theDoubleArray(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<double>'.
+
+    const bsl::vector<bsl::string>& theStringArray(
+                                                const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<bsl::string>'.
+
+    const bsl::vector<bdlt::Datetime>& theDatetimeArray(
+                                                const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<bdlt::Datetime>'.
+
+    const bsl::vector<bdlt::Date>& theDateArray(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<bdlt::Date>'.
+
+    const bsl::vector<bdlt::Time>& theTimeArray(const bsl::string& name) const;
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless 'isParsed'
+        // returns 'true', the object has a 'name' option, and that option has
+        // type 'bsl::vector<bdlt::Time>'.
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
 
                                   // Aspects
@@ -1451,7 +1456,7 @@ class CommandLineOptionsHandle {
     const char *name(bsl::size_t index) const;
         // Return the name of the option at the specified 'index'.  The
         // behavior is undefined unless '0 <= index < numOptions()' and this
-        // object was obtained from a 'CommandLine' object where
+        // handle was obtained from a 'CommandLine' object where
         // 'true == isParsed()'.
 
     bsl::size_t numOptions() const;
@@ -1460,13 +1465,13 @@ class CommandLineOptionsHandle {
     OptionType::Enum type(bsl::size_t index) const;
         // Return the type of the option at the specified 'index'.  The
         // behavior is undefined unless '0 <= index < numOptions()' and this
-        // object was obtained from a 'CommandLine' object where
+        // handle was obtained from a 'CommandLine' object where
         // 'true == isParsed()'.
 
     const OptionValue& value(bsl::size_t index) const;
         // Return a 'const' reference to the value (possibly in a null state)
         // of the option at the specified 'index'.  The behavior is undefined
-        // unless '0 <= index < numOptions()' and this object was obtained from
+        // unless '0 <= index < numOptions()' and this handle was obtained from
         // a 'CommandLine' object where 'true == isParsed()'.
 
                         // 'the*' Accessors
@@ -1477,113 +1482,113 @@ class CommandLineOptionsHandle {
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  Template parameter 'TYPE' must be one of the
         // supported types (see {Supported Types}).  The behavior is undefined
-        // unless this object was obtained from a 'CommandLine' object where
-        // 'true == isParsed()'.
+        // unless this handle was obtained from a 'CommandLine' object that
+        // 'isParsed()' and has a 'name' option of type 'TYPE'.
 
     bool theBool(const char *name) const;
         // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'bool' and this
-        // object was obtained from a 'CommandLine' object where
-        // 'true == isParsed()'.
+        // behavior is undefined unless this handle was obtained from a
+        // 'CommandLine' object that 'isParsed()' and has a 'name' option of
+        // type 'bool'.
 
     char theChar(const char *name) const;
         // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'char' and this
-        // object was obtained from a 'CommandLine' object where
-        // 'true == isParsed()'.
+        // behavior is undefined unless this handle was obtained from a
+        // 'CommandLine' object that 'isParsed()' and has a 'name' option of
+        // type 'char'.
 
     int theInt(const char *name) const;
         // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'int' and this
-        // object was obtained from a 'CommandLine' object where
-        // 'true == isParsed()'.
+        // behavior is undefined unless this handle was obtained from a
+        // 'CommandLine' object that 'isParsed()' and has a 'name' option of
+        // type 'int'.
 
     bsls::Types::Int64 theInt64(const char *name) const;
         // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type this object was
-        // obtained from a 'CommandLine' object where 'true == isParsed()'.
+        // behavior is undefined unless this handle was obtained from a
+        // 'CommandLine' object that 'isParsed()' and has a 'name' option of
+        // type 'bsls::Types::Int64'.
 
     double theDouble(const char *name) const;
         // Return the value of the option having the specified 'name'.  The
-        // behavior is undefined unless the option is of type 'double' and this
-        // object was obtained from a 'CommandLine' object where
-        // 'true == isParsed()'.
+        // behavior is undefined unless this handle was obtained from a
+        // 'CommandLine' object that 'isParsed()' and has a 'name' option of
+        // type 'double'.
 
     const bsl::string& theString(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // this object was obtained from a 'CommandLine' object where
-        // 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::string'.
 
     const bdlt::Datetime& theDatetime(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bdlt::Datetime' and this object was obtained from a
-        // 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless the option this
+        // handle was obtained from a 'CommandLine' object that 'isParsed()'
+        // and has a 'name' option of type 'bdlt::Datetime'.
 
     const bdlt::Date& theDate(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bdlt::Date' and this object was obtained from a
-        // 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bdlt::Date'.
 
     const bdlt::Time& theTime(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bdlt::Time' and this object was obtained from a
-        // 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bdlt::Time'.
 
     const bsl::vector<char>& theCharArray(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<char>' and this object was obtained from a
-        // 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<char>'.
 
     const bsl::vector<int>& theIntArray(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<int>' and this object was obtained from a
-        // 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<int>'.
 
     const bsl::vector<bsls::Types::Int64>& theInt64Array(const char *name)
                                                                          const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bsls::Types::Int64>' and this object was
-        // obtained from a 'CommandLine' object where 'true == isParsed()'.
-        // returns 'true'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<bsls::Types::Int64>'.
 
     const bsl::vector<double>& theDoubleArray(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<double>' and this object was obtained from a
-        // 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<double>'.
 
     const bsl::vector<bsl::string>& theStringArray(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bsl::string>' and this object was obtained
-        // from a 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<bsl::string>'.
 
     const bsl::vector<bdlt::Datetime>& theDatetimeArray(const char *name)
                                                                          const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bdlt::Datetime>' and this object was
-        // obtained from a 'CommandLine' object where 'true == isParsed()'.
-        // 'true'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<bdlt::Datetime>'.
 
     const bsl::vector<bdlt::Date>& theDateArray(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bdlt::Date>' and this object was obtained
-        // from a 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<bdlt::Date>'.
 
     const bsl::vector<bdlt::Time>& theTimeArray(const char *name) const;
-        // Return a reference to the non-modifiable value of the option having
-        // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bdlt::Time>' and this object was obtained
-        // from a 'CommandLine' object where 'true == isParsed()'.
+        // Return a 'const' reference to the value of the option having the
+        // specified 'name'.  The behavior is undefined unless this handle was
+        // obtained from a 'CommandLine' object that 'isParsed()' and has a
+        // 'name' option of type 'bsl::vector<bdlt::Time>'.
+
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
 };
 

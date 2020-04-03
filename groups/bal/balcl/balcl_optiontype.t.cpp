@@ -255,14 +255,14 @@ struct MyMultitypeValueUtil {
     static int parse(MyMultitypeValue        *result,
                      bsl::ostream&            input,
                      balcl::OptionType::Enum  type);
-        // Load to the specified 'result' the value represented in the
+        // Load into the specified 'result' the value represented in the
         // specified 'input' that is formatted according to the specified
         // 'type'.
 
     static int parseScalar(MyMultitypeValue        *result,
                            bsl::ostream&            input,
                            balcl::OptionType::Enum  type);
-        // Load to the specified 'result' the value represented in the
+        // Load into the specified 'result' the value represented in the
         // specified 'input' that is formatted according to the specified
         // 'type'.  The behavior is undefined unless 'type' is one of the
         // scalar (i.e., non-array) types.

@@ -1339,7 +1339,7 @@ void normalizeIndentation(bsl::string        *output,
                           const bsl::string&  input,
                           int                 level,
                           int                 spacesPerLevel)
-    // Load to the specified 'output' a "normalized" version of the specified
+    // Load into the specified 'output' a "normalized" version of the specified
     // 'input' where 'input' is the output of the 'TypeInfo' 'print' method
     // called with the specified 'level' and the specified 'spacesPerLevel'.
     // The "normalized" version corresponds to calling 'print' with 'level' and

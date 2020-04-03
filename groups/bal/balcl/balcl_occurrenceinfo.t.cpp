@@ -506,7 +506,7 @@ struct TypesParser {
     static int parse(TYPE        *result,
                      const char **endPos,
                      const char  *inputString);
-        // Load to the specified 'result' the 'TYPE' value represented at the
+        // Load into the specified 'result' the 'TYPE' value represented at the
         // specified 'inputString'.  The specified '*endPos' is set to one past
         // the parsed value or to the position at which a parse error is
         // detected.  Return 0 on success and a non-zero value otherwise.  The
@@ -522,7 +522,7 @@ struct TypesParser {
     static int parseQuotedString(bsl::string  *result,
                                  const char  **endPos,
                                  const char   *inputString);
-        // Load to the specified 'result' the next double quote (i.e., '"')
+        // Load into the specified 'result' the next double quote (i.e., '"')
         // delimited sequence of characters found at the specified
         // 'inputString'.  The specified '*endPos' is set to one past the
         // parsed value or to the position at which a parse error is detected.

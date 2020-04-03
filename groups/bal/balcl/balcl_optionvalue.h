@@ -324,10 +324,8 @@ class OptionValue {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(OptionValue,
-                                   bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(OptionValue,
-                                   bdlb::HasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(OptionValue, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(OptionValue, bdlb::HasPrintMethod);
 
     // CREATORS
     OptionValue();

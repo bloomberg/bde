@@ -304,11 +304,11 @@ struct OptionType {
         // value.
 
     static const char *toAscii(OptionType::Enum value);
-        // Return the non-modifiable string representation corresponding to the
-        // specified enumeration 'value', if it exists, and a unique (error)
-        // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the 'e_' prefix elided.  For
-        // example:
+        // Return the (non-modifiable) string representation corresponding to
+        // the specified enumeration 'value', if it exists, and a unique
+        // (error) string otherwise.  The string representation of 'value'
+        // matches its corresponding enumerator name with the 'e_' prefix
+        // elided.  For example:
         //..
         //  bsl::cout << balcl::OptionType::toAscii(
         //                                    OptionType::e_STRING);

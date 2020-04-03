@@ -416,9 +416,12 @@ int validate(const bsl::vector<Option>& options,
                                     thisOption.occurrenceInfo().defaultValue(),
                                     thisOption.typeInfo(),
                                     stream)) {
+                stream << "Error: default value violates constraint." << '\n';
                 stream << "The error occurred while validating the "
                        << u::Ordinal(i) << " option." << '\n'
                        << bsl::flush;
+
+                status = -1;
 
                 return status;                                        // RETURN
             }
@@ -438,6 +441,8 @@ int validate(const bsl::vector<Option>& options,
                        << u::Ordinal(i) << " option." << '\n'
                        << bsl::flush;
 
+                status = -2;
+
                 return status;                                        // RETURN
             }
 
@@ -456,6 +461,8 @@ int validate(const bsl::vector<Option>& options,
                        << "The error occurred while validating the "
                        << u::Ordinal(i) << " option." << '\n'
                        << bsl::flush;
+
+                status = -3;
 
                 return status;                                        // RETURN
             }
@@ -1138,8 +1145,9 @@ CommandLine::~CommandLine()
 // MANIPULATORS
 CommandLine& CommandLine::operator=(const CommandLine& rhs)
 {
+    BSLS_ASSERT(d_state != e_INVALID);
+
     if (&rhs != this) {
-        BSLS_ASSERT(d_state     != e_INVALID);
         BSLS_ASSERT(rhs.d_state != e_INVALID);
 
         clear();
@@ -1205,7 +1213,7 @@ bool CommandLine::isSpecified(const bsl::string& name, int *count) const
 
 bool CommandLine::isValid() const
 {
-    return e_PARSED == d_state;
+    return e_INVALID != d_state;
 }
 
 int CommandLine::numSpecified(const bsl::string& name) const
@@ -1242,6 +1250,11 @@ const bsl::vector<int>& CommandLine::positions(const bsl::string& name) const
     BSLS_ASSERT(index >= 0);
 
     return d_positions[index];
+}
+
+void CommandLine::printUsage() const
+{
+    printUsage(bsl::cerr);
 }
 
 CommandLineOptionsHandle CommandLine::specifiedOptions() const
@@ -1373,11 +1386,6 @@ const bsl::vector<bdlt::Time>&
 CommandLine::theTimeArray(const bsl::string& name) const
 {
     return options().the<OptionType::TimeArray>(name.c_str());
-}
-
-void CommandLine::printUsage() const
-{
-    printUsage(bsl::cerr);
 }
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
                                   // Aspects
@@ -1620,10 +1628,13 @@ bsl::ostream& CommandLine::print(bsl::ostream& stream,
             printer.printAttribute(d_schema[i].d_name_p, d_data1[i]);
         }
         printer.end();
-    } else if (e_INVALID == d_state) {
-        stream << "INVALID";
-    } else {
-        stream << "UNPARSED";
+    }
+    else {
+        bdlb::Print::indent(stream, level, spacesPerLevel);
+        const char *output = e_INVALID == d_state
+                           ? "INVALID\n"
+                           : "UNPARSED\n";
+        stream << output;
     }
     return stream;
 }
