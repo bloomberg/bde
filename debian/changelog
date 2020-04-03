@@ -1,5 +1,20 @@
-bsl-internal (3.51.0.0) unstable; urgency=low
+bsl-internal (3.52.0.0) unstable; urgency=low
 
+  * b72bb6053 Bumped version to 3.52.0.0
+  * f91d32f72 Merge pull request #2746 from afeher/fix-bsls_ident-undef
+  * c469c4d30 Merge pull request #2744 from afeher/fix-smartptr-test-drivers
+  * 94d7dd276 Merge pull request #2743 from mgiroux/sean-baxter-github-pr-256
+  * 2b3d07323 Merge pull request #2740 from afeher/drqs-155897793-copy_if-for-cpp03
+  * e9ab538d8 Merge pull request #2735 from afeher/remove-bsls_ident-undef
+  * f6c7855ff Merge pull request #2739 from afeher/drqs-156777393-remove-bsl_cinttypes-abs-div
+  * 638e3c5c7 Merge pull request #2728 from afeher/drqs-142188247-assign-shared_ptr-from-managedptr
+  * 18686f3d3 Merge pull request #2733 from sbreitst/balcl_option-drqs-156728040
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Apr 2020 11:08:47 -0400
+
+bsl-internal (3.51.0.0) git; urgency=low
+
+  * a51bd84c2 Changelog for version 3.51.0.0
   * b9d6e3d61 Bumped version to 3.51.0.0
   * 7f1b9acea Merge pull request #2723 from cwilson/fix-string-ctor-doc-drqs-156319171
   * 8b3c0ccf3 Merge pull request #2722 from egoodrich4/improve-datum-clone
@@ -11,7 +26,7 @@ bsl-internal (3.51.0.0) unstable; urgency=low
   * 8fd61c8d2 Merge pull request #2685 from bchapman/balxml-Decimal64-decimal-mode-drqs-154624542
   * 413e7538a Merge pull request #2708 from jmendelsohn4/drqs-135423849/bdlma_sequentialallocator-incorrect-maxBufferSize-2
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Mar 2020 11:29:53 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Mar 2020 11:35:37 -0400
 
 bsl-internal (3.50.0.0) git; urgency=low
 
