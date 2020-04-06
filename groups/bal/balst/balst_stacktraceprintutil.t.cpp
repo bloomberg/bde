@@ -534,20 +534,36 @@ int phonyCompare(const void *, const void *)
     }
     const bsl::size_t NPOS = bsl::string::npos;
 
-    struct {
+    struct Data {
         int         d_line;
         bool        d_noNewlines;
         const char *d_match;
-    } STRINGS[] = {
+    };
+
+    Data strippedStrings[] = {
+        { L_, false, "phonyCompare" },
+        { L_, false, "main" } };
+    enum { NUM_STRIPPED_STRINGS = sizeof strippedStrings /
+                                                     sizeof *strippedStrings };
+
+    Data debugStrings[] = {
         { L_, false, "phonyCompare" },
         { L_, false, "qsort" },
         { L_, true,  " in " },
         { L_, true,  e_FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };
-    enum { NUM_STRINGS = sizeof STRINGS / sizeof *STRINGS };
+    enum { NUM_DEBUG_STRINGS = sizeof debugStrings / sizeof *debugStrings };
+
+    const bool stripped = NPOS != dump.find("--unknown--");
+
+    if (stripped) cout << "System libs stripped, unable to find 'qsort'\n";
+
+    struct Data *STRINGS    = stripped ? strippedStrings : debugStrings;
+    const int    numStrings = stripped ? NUM_STRIPPED_STRINGS
+                                       : NUM_DEBUG_STRINGS;
 
     bsl::size_t pos = 0;
-    for (int i = 0; i < NUM_STRINGS; ++i) {
+    for (int i = 0; i < numStrings; ++i) {
         int LINE          = STRINGS[i].d_line;
         bool NO_NEWLINES  = STRINGS[i].d_noNewlines;
         const char *MATCH = STRINGS[i].d_match;

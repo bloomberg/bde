@@ -518,8 +518,9 @@ int main(int argc, char *argv[])
                         ASSERTV(line, line < 10 * 1000);
                     }
                     else {
+                        const int fudge = 4 == i ? 4 : 2;
                         ASSERTV(i, lineResults[i], line,
-                                              abs(lineResults[i] - line) <= 2);
+                                          abs(lineResults[i] - line) <= fudge);
                     }
                 }
 
