@@ -719,7 +719,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // not be destroyed by its users:
 //..
 //  MyUser *MyTransactionManager::systemUser(
-//                                      bslma::Allocator */* basicAllocator */)
+//                                      bslma::Allocator * /* basicAllocator */)
 //  {
 //      static MyUser *systemUserSingleton;
 //      if (!systemUserSingleton) {
@@ -1035,7 +1035,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // d) A search function that takes a list of keywords and returns available
 // results by searching the cached peers:
 //..
-//  void search(bsl::vector<SearchResult>       */* results */,
+//  void search(bsl::vector<SearchResult>       * /* results */,
 //              const PeerCache&                 peerCache,
 //              const bsl::vector<bsl::string>&  /* keywords */)
 //  {
