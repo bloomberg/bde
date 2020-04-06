@@ -93,6 +93,11 @@
 //..
 
 
+// We're removing these undefs, however 3.52.0 failed with the removal
+// so we are restoring them temporarily.
+#undef BDE_OMIT_INTERNAL_DEPRECATED
+#undef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 /* ident string intentionally omitted for this header (do not add to binaries)
  * Its use is expected to be so extensive that the cost outweighs benefit
  * of including an ident string for every file that includes this header
