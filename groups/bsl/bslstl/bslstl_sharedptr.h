@@ -719,7 +719,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // not be destroyed by its users:
 //..
 //  MyUser *MyTransactionManager::systemUser(
-//                                      bslma::Allocator * /* basicAllocator */)
+//                                     bslma::Allocator * /* basicAllocator */)
 //  {
 //      static MyUser *systemUserSingleton;
 //      if (!systemUserSingleton) {
