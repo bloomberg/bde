@@ -3213,9 +3213,8 @@ int main(int argc, const char *argv[])  {
 
                     bsls::AssertTestHandlerGuard hG;
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)                                         \
- && defined(BSLS_PLATFORM_CMP_MSVC)                                           \
- && BSLS_PLATFORM_CMP_VERSION <= 1900 // MSVC 2015 (warning)
+                    // Redundant parentheses below suppress compilation
+                    // warnings on some platforms (Windows/MSVC).
 
                     if (OptionInfo::e_NON_OPTION == X.argType()) {
                         ASSERT_FAIL(( LONG_TAG == X. longTag()));
@@ -3224,16 +3223,6 @@ int main(int argc, const char *argv[])  {
                         ASSERT_PASS(( LONG_TAG == X. longTag()));
                         ASSERT_PASS((SHORT_TAG == X.shortTag()));
                     }
-#else
-                    if (OptionInfo::e_NON_OPTION == X.argType()) {
-                        ASSERT_FAIL( LONG_TAG == X. longTag());
-                        ASSERT_FAIL(SHORT_TAG == X.shortTag());
-                    } else {
-                        ASSERT_PASS( LONG_TAG == X. longTag());
-                        ASSERT_PASS(SHORT_TAG == X.shortTag());
-                    }
-
-#endif
                 }
 
                 // Simple validating accessors.
