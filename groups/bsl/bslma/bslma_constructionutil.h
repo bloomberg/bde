@@ -52,6 +52,14 @@ BSLS_IDENT("$Id: $")
 //                                                "TYPE is bitwise movable"
 //..
 //
+// This component provides full support for constructing of objects in place:
+// the object type's allocator policy is respected, the construction
+// arguments are perfect forwarded to the object's constructor.
+// This component also provides partial support of creating a new object
+// similar to C++20 'std::make_obj_using_allocator' utility. Currently,
+// only default construction, and construction from one argument of same or
+// different type are supported.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -190,6 +198,10 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object.
 //
 //      // MANIPULATORS
+//      MyContainer& operator=(const TYPE& rhs);
+//      MyContainer& operator=(const MyContainer& rhs);
+//            // Assign this object a new value
+//
 //      TYPE& front()
 //          // Return a non-'const' reference to the element contained in this
 //          // object.
@@ -282,6 +294,30 @@ BSLS_IDENT("$Id: $")
 //  {
 //      d_value_p->~TYPE();
 //      d_allocator_p->deallocate(d_value_p);
+//  }
+// The assignment needs to take the allocator into account.
+//..
+//  template <class TYPE>
+//  MyContainer<TYPE>& MyContainer<TYPE>::operator=(const TYPE& rhs)
+//  {
+//      d_value_p->~TYPE();
+//      MyContainerProctor<TYPE> proctor(d_allocator_p, d_value_p);
+//      bslma::ConstructionUtil::construct(d_value_p, d_allocator_p, rhs);
+//      proctor.release();
+//      return *this;
+//  }
+//  template <class TYPE>
+//  MyContainer<TYPE>& MyContainer<TYPE>::operator=(const MyContainer& rhs)
+//  {
+//      if (&rhs != this)
+//      {
+//          d_value_p->~TYPE();
+//          MyContainerProctor<TYPE> proctor(d_allocator_p, d_value_p);
+//          bslma::ConstructionUtil::construct(d_value_p, d_allocator_p,
+//                                             *rhs.d_value_p);
+//          proctor.release();
+//      }
+//      return *this;
 //  }
 //..
 // Finally, we perform a simple test of 'MyContainer', instantiating it with
@@ -380,7 +416,122 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-
+///Example 3: Constructing into non-heap memory
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates the use of the 'make' function to implement a
+// simple wrapper class that contains a single item that might or might not
+// user the bslma allocator protocol.
+//
+// First we define wrapper class that hold an object and a functor and
+// calls the functor (called the listener) each time the wrapped object is
+// assigned to. We store the object directly as a member variable, instead of
+// using an uninitialised buffer, to avoid the separate construction step :
+//..
+//  template <class TYPE, class FUNC>
+//  class MyTriggeredWrapper {
+//      // PRIVATE DATA
+//      TYPE d_value;
+//      FUNC d_listener;
+//
+//  public:
+//      // CREATORS
+//      MyTriggeredWrapper(const FUNC& f, bslma::Allocator *alloc = 0);
+//      MyTriggeredWrapper(const TYPE& v, const FUNC& f,
+//                         bslma::Allocator *alloc = 0);
+//      MyTriggeredWrapper(const MyTriggeredWrapper& other,
+//                         bslma::Allocator *alloc = 0);
+//      ~MyTriggeredWrapper() { }
+//
+//      // MANIPULATORS
+//      MyTriggeredWrapper& operator=(const TYPE& rhs);
+//      MyTriggeredWrapper& operator=(const MyTriggeredWrapper& rhs);
+//          // Assign this object a new value and call the listner with the
+//          // new value after assignment.
+//
+//      // ACCESSORS
+//      const TYPE& value() const { return d_value; }
+//      const FUNC& listener() const { return d_listener; }
+//  };
+//..
+// Next we define the constructors such that they initialize 'd_value' using
+// the specified allocator if and only if 'TYPE' accepts an allocator. The
+// 'bslma::ConstructUtil::make' family of functions encapsulate all of the
+// metaprogramming that detects whether or not 'TYPE' uses an allocator and,
+// if so, which construction protocol it uses (allocator at the front or at
+// the back of the argument list), making all three constructors straight-
+// forward:
+//..
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>::MyTriggeredWrapper(const FUNC&       f,
+//                                                     bslma::Allocator *alloc)
+//      : d_value(bslma::ConstructionUtil::make<TYPE>(alloc))
+//      , d_listener(f)
+//  {
+//  }
+//
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>::MyTriggeredWrapper(const TYPE&       v,
+//                                                     const FUNC&       f,
+//                                                     bslma::Allocator *alloc)
+//      : d_value(bslma::ConstructionUtil::make<TYPE>(alloc, v))
+//      , d_listener(f)
+//  {
+//  }
+//
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>::MyTriggeredWrapper(
+//                                            const MyTriggeredWrapper&  other,
+//                                            bslma::Allocator          *alloc)
+//      : d_value(bslma::ConstructionUtil::make<TYPE>(alloc, other.value()))
+//      , d_listener(other.d_listener)
+//  {
+//  }
+//..
+// Note that, in order for 'd_value' to be constructed with the correct
+// allocator, the compiler must construct the result of 'make' directly into
+// the the 'd_value' variable, an optimization formerly known prior to C++17
+// as "copy elision".  This optimization is required by the C++17 standard and
+// is optional in pre-2017 standards, but is implemented in all of the
+// compilers for which this component is expected to be used at Bloomberg.
+//
+// Next, we implement the assignment operators, which call the listener:
+//..
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>&
+//  MyTriggeredWrapper<TYPE, FUNC>::operator=(const TYPE& rhs)
+//  {
+//      d_value = rhs;
+//      d_listener(d_value);
+//      return *this;
+//  }
+//
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>&
+//  MyTriggeredWrapper<TYPE, FUNC>::operator=(const MyTriggeredWrapper& rhs)
+//  {
+//      return operator=(rhs.value());
+//  }
+//..
+// Finally, we check our work by creating a listener for 'MyContainer<int>'
+// that stores its last-seen value in a known location and creating a wrapper
+// around 'MyContainer<int>' to test it.
+//..
+//  int lastSeen = 0;
+//  void myListener(const MyContainer<int>& c) {
+//      lastSeen = c.front();
+//  }
+//
+//  void usageExample3() {
+//      bslma::TestAllocator testAlloc;
+//      MyTriggeredWrapperMyContainer<int>, void (*)(const MyContainer<int> &)
+//                          wrappedContainer(myListener, &testAlloc);
+//
+//      assert(&testAlloc = wrappedContainer.value().allocator());
+//
+//      wrappedContainer == MyContainer<int>(99);
+//      assert(99 == lastSeen);
+//  }
+//..
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>
@@ -1187,8 +1338,40 @@ struct ConstructionUtil {
         // (i.e., a slicing move) where 'TARGET_TYPE' has a non-'virtual'
         // destructor and is not bitwise-movable, then 'original' will be only
         // partially destroyed.
-};
 
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(bslma::Allocator *allocator);
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(void   *allocator);
+        // Returns an object of the specified (template parameter) type
+        // 'TARGET_TYPE', having default value.  If the specified 'allocator'
+        // is a pointer to a class derived from 'bslma::Allocator*' and
+        // 'TARGET_TYPE' supports 'bslma'-style allocation, 'allocator' is
+        // propagated to the newly created object; otherwise 'allocator' is
+        // ignored. Note that returning a result with the correct allocator is
+        // dependent on the compiler reliably implementing copy/move elision
+        // (i.e., RVO) on the returned object, which was optional prior to
+        // C++17, but supported in all of the compilers currently used at
+        // Bloomberg.
+
+
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(bslma::Allocator *allocator,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original);
+    template <class TARGET_TYPE,class ANY_TYPE>
+    static TARGET_TYPE make(void *allocator,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original);
+        // Returns an object of the specified (template parameter) type
+        // 'TARGET_TYPE', constructed from the specified 'original'. If the
+        // specified 'allocator' is a pointer to a class derived from
+        // 'bslma::Allocator*' and 'TARGET_TYPE' supports 'bslma'-style
+        // allocation, 'allocator' is propagated to the newly created object;
+        // otherwise 'allocator' is  ignored. Note that returning a result with
+        // the correct allocator is dependent on the compiler reliably
+        // implementing copy/move elision i.e., RVO) on the returned object,
+        // which was optional prior to C++17, but supported in all of the
+        // compilers currently used at Bloomberg.
+};
                         // ===========================
                         // struct ConstructionUtil_Imp
                         // ===========================
@@ -2645,6 +2828,39 @@ struct ConstructionUtil_Imp {
         // 'TARGET_TYPE' (i.e., a slicing move) where 'TARGET_TYPE' has a
         // non-'virtual' destructor, then 'original' will be only partially
         // destroyed.
+
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(bslma::Allocator  *allocator,
+                 bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *);
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(bslma::Allocator   *allocator,
+                 bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *);
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(bslma::Allocator   *allocator,
+                            bsl::integral_constant<int, e_NIL_TRAITS> *);
+        // Returns a default constructed object of the specified (template
+        // parameter) type 'TARGET_TYPE'. The 'integral_constant' pointer
+        // argument is used to dispatch on various traits so that the correct
+        // constructor is invoked for the specified 'TARGET_TYPE'
+
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(bslma::Allocator *allocator,
+                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original);
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(bslma::Allocator *allocator,
+                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original);
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(bslma::Allocator *allocator,
+                         bsl::integral_constant<int, e_NIL_TRAITS> *,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original);
+        // Returns an object of the specified (template parameter) type
+        // 'TARGET_TYPE', created by copy/move from the specified 'original'
+        // object. The 'integral_constant' pointer argument is used to
+        // dispatch on various traits so that the correct constructor is
+        // invoked for the specified 'TARGET_TYPE'
+
 
     template <class TARGET_TYPE>
     static void *voidify(TARGET_TYPE *address);
@@ -4113,6 +4329,58 @@ ConstructionUtil::destructiveMove(TARGET_TYPE *address,
                          original);
 }
 
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(bslma::Allocator   *allocator)
+{
+    enum {
+      k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
+               ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
+                ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
+                : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
+               : Imp::e_NIL_TRAITS
+    };
+
+    return Imp::make<TARGET_TYPE>(allocator,
+                                  (bsl::integral_constant<int, k_VALUE>*)0);
+}
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(void   *)
+{
+    return TARGET_TYPE();
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(bslma::Allocator *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original)
+{
+    enum {
+      k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
+               ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
+                ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
+                : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
+               : Imp::e_NIL_TRAITS
+   };
+
+    return Imp::make<TARGET_TYPE>(allocator,
+                             (bsl::integral_constant<int, k_VALUE>*)0,
+                             BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE,original));
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(void *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original)
+{
+    return TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE,original));
+}
                        // ---------------------------
                        // struct ConstructionUtil_Imp
                        // ---------------------------
@@ -6548,6 +6816,65 @@ void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
 {
     return static_cast<void *>(
             const_cast<typename bsl::remove_cv<TARGET_TYPE>::type *>(address));
+}
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(bslma::Allocator   *allocator,
+                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *)
+{
+    return TARGET_TYPE(allocator);
+}
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(bslma::Allocator   *allocator,
+                 bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *)
+{
+    return TARGET_TYPE(bsl::allocator_arg, allocator);
+}
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(bslma::Allocator   *,
+                            bsl::integral_constant<int, e_NIL_TRAITS> *)
+{
+    return TARGET_TYPE();
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(bslma::Allocator *allocator,
+                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original)
+{
+    return TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE,original),
+                       allocator);
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(bslma::Allocator *allocator,
+                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original)
+{
+    return TARGET_TYPE(bsl::allocator_arg, allocator,
+                       BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE,original));
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(bslma::Allocator *,
+                         bsl::integral_constant<int, e_NIL_TRAITS> *,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) original)
+{
+    return TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE,original));
 }
 
 }  // close package namespace
