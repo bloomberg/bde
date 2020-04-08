@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //:   o 'linkedVariable' [optional], and
 //:   o 'constraint' [optional]
 //
-//: o the 'occurrenceInfo' attribute (see {'balcl_occurrenceinfo}') that, in
+//: o the 'occurrenceInfo' attribute (see {'balcl_occurrenceinfo'}) that, in
 //:   turn, consists of:
 //:   o 'occurrenceType' (required, optional, or hidden)
 //:   o 'defaulValue' [optional]
