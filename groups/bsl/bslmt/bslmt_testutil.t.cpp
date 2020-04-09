@@ -506,16 +506,15 @@ class OutputRedirector {
     // un-redirected state, the process' 'stdout' and 'stderr' are connected to
     // their normal targets.  In the redirected state, the process' 'stdout' is
     // connected to a temporary file, and the process' 'stderr' is connected to
-    // the original target of 'stdout'.  The redirected state of an
-    // 'OutputRedirector' object can be tested by calling 'isRedirected'.  An
-    // 'OutputRedirector' object has the concept of a scratch buffer, where
-    // output captured from the process' 'stdout' stream is stored when the
-    // 'OutputRedirector' object is in the redirected state.  Throughout this
-    // class, the term "captured output" refers to data that has been written
-    // to the 'stdout' stream and is waiting to be loaded into the scratch
-    // buffer.  Each time the 'load' method is called, the scratch buffer is
-    // truncated, and the captured output is moved into the scratch buffer.
-    // When this is done, there is no longer any captured output.
+    // the original target of 'stdout'.  An 'OutputRedirector' object has the
+    // concept of a scratch buffer, where output captured from the process'
+    // 'stdout' stream is stored when the 'OutputRedirector' object is in the
+    // redirected state.  Throughout this class, the term "captured output"
+    // refers to data that has been written to the 'stdout' stream and is
+    // waiting to be loaded into the scratch buffer.  Each time the 'load'
+    // method is called, the scratch buffer is truncated, and the captured
+    // output is moved into the scratch buffer.  When this is done, there is no
+    // longer any captured output.
 
     // DATA
     const bsl::string d_fileName;
@@ -581,11 +580,6 @@ class OutputRedirector {
         // successfully.  Note that captured output is allowed to have 0
         // length.
 
-    int numInstances(const bsl::string& expected);
-        // Scan the buffer for instances of the specified 'expected', and
-        // return the number of instances of 'expected' that were found.
-        // Overwrite the matched memory in the buffer with '*'s.
-
     void redirect();
         // Redirect 'stdout' to a temp file, and 'stderr' to the original
         // 'stdout', putting this 'OutputRedirector' object into the redirected
@@ -627,10 +621,6 @@ class OutputRedirector {
     bool isOutputReady() const;
         // Return 'true' if captured output been loaded into the scratch
         // buffer, and 'false' otherwise.
-
-    bool isRedirected() const;
-        // Return 'true' if 'stdout' and 'stderr' have been successfully
-        // redirected, and 'false' otherwise.
 
     const struct stat& originalStdoutStat() const;
         // Return a reference providing non-modifiable access to the status
@@ -765,25 +755,6 @@ bool OutputRedirector::load()
     d_isOutputReadyFlag = true;
 
     return true;
-}
-
-int OutputRedirector::numInstances(const bsl::string& expected)
-{
-    BSLS_ASSERT(d_isOutputReadyFlag);
-    BSLS_ASSERT(!expected.empty());
-    BSLS_ASSERT(bsl::string::npos == expected.find('#'));
-
-    const char        *e   = expected.c_str();
-    const bsl::size_t  len = expected.length();
-
-    int ret = 0;
-    for (char *pc = d_outputBuffer_p; (pc = bsl::strstr(pc, e)); ) {
-        ++ret;
-
-        bsl::fill(pc, pc + len, '#');
-    }
-
-    return ret;
 }
 
 void OutputRedirector::redirect()
@@ -927,11 +898,6 @@ int OutputRedirector::compare(const char  *expected,
 bool OutputRedirector::isOutputReady() const
 {
     return d_isOutputReadyFlag;
-}
-
-bool OutputRedirector::isRedirected() const
-{
-    return d_isRedirectedFlag;
 }
 
 const struct stat& OutputRedirector::originalStdoutStat() const
@@ -1530,28 +1496,28 @@ int main(int argc, char *argv[])
                       "====================================================\n";
 
         enum {
-            BUFFER_SIZE    = 1024,  // size of the buffer used to store
-                                    // captured output
+	    BUFFER_SIZE  = 1024,  // size of the buffer used to store
+				  // captured output
 
-            NUM_ITERATIONS =   10   // number of iterations to use when testing
-                                    // loop assert macros
+            k_REPEAT     =   10   // number of iterations to use when testing
+                                  // loop assert macros
         };
 
-        static char s_expectedOutput[BUFFER_SIZE];  // scratch area for
-                                                    // assembling model output
-                                                    // that will be compared to
-                                                    // real output captured
-                                                    // from 'stdout'
+	static char s_expectedOutput[BUFFER_SIZE];  // scratch area for
+						    // assembling model output
+						    // that will be compared to
+						    // real output captured
+						    // from 'stdout'
 
         // 'BSLMT_TESTUTIL_ASSERT(X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                BSLMT_TESTUTIL_ASSERT(idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(idx < NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERT(idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(idx < k_REPEAT);
 
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
@@ -1559,37 +1525,37 @@ int main(int argc, char *argv[])
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_ASSERT(idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERT(idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "Error %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          __FILE__,
                          LINE);
                 REALLOOP2_ASSERT(s_expectedOutput,
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP0_ASSERT(X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                BSLMT_TESTUTIL_LOOP0_ASSERT(idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(idx < NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP0_ASSERT(idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(idx < k_REPEAT);
 
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
@@ -1597,39 +1563,39 @@ int main(int argc, char *argv[])
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_LOOP0_ASSERT(idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP0_ASSERT(idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "Error %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          __FILE__,
                          LINE);
                 REALLOOP2_ASSERT(s_expectedOutput,
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
 
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                BSLMT_TESTUTIL_LOOP1_ASSERT(I, idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(I, idx < NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP1_ASSERT(I, idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(I, idx < k_REPEAT);
 
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
@@ -1637,20 +1603,20 @@ int main(int argc, char *argv[])
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
 
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_LOOP1_ASSERT(I, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP1_ASSERT(I, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I,
                          __FILE__,
                          LINE);
@@ -1658,25 +1624,25 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
 
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_ASSERTV(I, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERTV(I, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I,
                          __FILE__,
                          LINE);
@@ -1684,29 +1650,29 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
 
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                BSLMT_TESTUTIL_LOOP2_ASSERT(I, J, idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(I, J,idx < NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP2_ASSERT(I, J, idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(I, J,idx < k_REPEAT);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
 
@@ -1714,13 +1680,13 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_LOOP2_ASSERT(I, J, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP2_ASSERT(I, J, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I, J,
                          __FILE__,
                          LINE);
@@ -1728,12 +1694,12 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
 
@@ -1741,13 +1707,13 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_ASSERTV(I, J, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERTV(I, J, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I, J,
                          __FILE__,
                          LINE);
@@ -1755,14 +1721,14 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP3_ASSERT(I,J,K,X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1771,15 +1737,15 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 BSLMT_TESTUTIL_LOOP3_ASSERT(I, J, K,
-                                            idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, idx < NUM_ITERATIONS);
+                                            idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, idx < k_REPEAT);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1788,13 +1754,13 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_LOOP3_ASSERT(I, J, K, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP3_ASSERT(I, J, K, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I, J, K,
                          __FILE__,
                          LINE);
@@ -1802,12 +1768,12 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1816,13 +1782,13 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I, J, K,
                          __FILE__,
                          LINE);
@@ -1830,14 +1796,14 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1847,15 +1813,15 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 BSLMT_TESTUTIL_LOOP4_ASSERT(I, J, K, L,
-                                            idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, idx < NUM_ITERATIONS);
+                                            idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, idx < k_REPEAT);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1865,13 +1831,13 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_LOOP4_ASSERT(I, J, K, L, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP4_ASSERT(I, J, K, L, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I, J, K, L,
                          __FILE__,
                          LINE);
@@ -1879,12 +1845,12 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1894,13 +1860,13 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I, J, K, L,
                          __FILE__,
                          LINE);
@@ -1908,14 +1874,14 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1926,15 +1892,15 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 BSLMT_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
-                                            idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx < NUM_ITERATIONS);
+                                            idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx < k_REPEAT);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1944,15 +1910,14 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
-                BSLMT_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
-                                            idx > NUM_ITERATIONS);
+                const int LINE = __LINE__ + 1;
+                BSLMT_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError"
-                         " %s(%d): idx > NUM_ITERATIONS    (failed)\n",
+                         " %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
                          LINE);
@@ -1960,12 +1925,12 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1982,13 +1947,13 @@ int main(int argc, char *argv[])
                 // calls fit on a single line.
 
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError"
-                         " %s(%d): idx > NUM_ITERATIONS    (failed)\n",
+                         " %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
                          LINE);
@@ -1996,14 +1961,14 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)'
         {
             REAL_ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -2014,49 +1979,15 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { REALP(idx); }
 
                 output.reset();
-                BSLMT_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
-                                            idx < NUM_ITERATIONS);
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx < NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, idx < k_REPEAT);
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx < k_REPEAT);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
                 REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             REAL_ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                const int L = idx + 3;
-                const int M = idx + 4;
-                const int N = idx + 5;
-
-                if (veryVerbose) { REALP(idx); }
-
-                output.reset();
-                const int LINE = __LINE__ + 2;
-                BSLMT_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
-                                            idx > NUM_ITERATIONS);
-                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                REAL_ASSERT(output.load());
-                snprintf(s_expectedOutput,
-                         BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
-                         "Error %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
-                         I, J, K, L, M, N,
-                         __FILE__,
-                         LINE);
-                REALLOOP2_ASSERT(s_expectedOutput,
-                                 output.buffer(),
-                                 0 == output.compare(s_expectedOutput));
-            }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
-            testStatus = 0;
-
-            // Repeat for 'ASSERTV'.
-
-            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -2068,14 +1999,15 @@ int main(int argc, char *argv[])
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx > NUM_ITERATIONS);
+                BSLMT_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
+                                            idx > k_REPEAT);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
                          "Error %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         " idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M, N,
                          __FILE__,
                          LINE);
@@ -2083,7 +2015,39 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(k_REPEAT == testStatus);
+            testStatus = 0;
+
+            // Repeat for 'ASSERTV'.
+
+            for (int idx = 0; idx < k_REPEAT; ++idx) {
+                const int I = idx;
+                const int J = idx + 1;
+                const int K = idx + 2;
+                const int L = idx + 3;
+                const int M = idx + 4;
+                const int N = idx + 5;
+
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+                const int LINE = __LINE__ + 1;
+                BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx > k_REPEAT);
+                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
+                REAL_ASSERT(output.load());
+                snprintf(s_expectedOutput,
+                         BUFFER_SIZE,
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
+                         "Error %s(%d):"
+                         " idx > k_REPEAT    (failed)\n",
+                         I, J, K, L, M, N,
+                         __FILE__,
+                         LINE);
+                REALLOOP2_ASSERT(s_expectedOutput,
+                                 output.buffer(),
+                                 0 == output.compare(s_expectedOutput));
+            }
+            REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
         }
       } break;
