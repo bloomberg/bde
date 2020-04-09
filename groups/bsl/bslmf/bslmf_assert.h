@@ -194,18 +194,6 @@ BSLA_MAYBE_UNUSED typedef BloombergLP::bslmf::AssertTest<                     \
                                     BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)
 #endif
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-#ifdef bslmf_AssertTest
-#undef bslmf_AssertTest
-#endif
-#define bslmf_AssertTest bslmf::AssertTest
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-
 }  // close enterprise namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
