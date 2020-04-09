@@ -423,7 +423,7 @@ static int encodeValue(SimpleFormatter    *formatter,
         *foundCheckFailures = true;
         result = 0;
       } break;
-      case bdld::Datum::e_REAL: {
+      case bdld::Datum::e_DOUBLE: {
         formatter->addValue(datum.theDouble());
         result = 0;
       } break;
