@@ -1639,6 +1639,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
 #ifdef BSLS_PLATFORM_CMP_GNU
 #elif  BSLS_PLATFORM_CMP_CLANG
+#elif  BSLS_PLATFORM_CMP_SUN && BSLS_PLATFORM_CMP_VERSION >= 0x5130
 #else
 #error Unexpected compiler for GNU LibStdC++.
 #endif

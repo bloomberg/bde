@@ -710,7 +710,7 @@ struct hash<bsl::error_condition> : BloombergLP::bslh::Hash<>
 
 namespace std {
 
-#ifndef BSLS_PLATFORM_OS_DARWIN
+#if !defined(BSLS_PLATFORM_OS_DARWIN) || defined (BSLS_PLATFORM_CMP_GNU)
   // On C++03 on Darwin, the template struct 'hash' is forward declared with
   // different attributes in <typetraits> that conflict with this forward
   // declaration.
