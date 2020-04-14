@@ -247,7 +247,7 @@ struct BlobUtilAsciiDumper {
 
     // CREATORS
     explicit BlobUtilAsciiDumper(const Blob *blob);
-        // Create a hex dumper for the specified 'blob'.
+        // Create an ascii dumper for the specified 'blob'.
 };
 
 // FREE OPERATORS
