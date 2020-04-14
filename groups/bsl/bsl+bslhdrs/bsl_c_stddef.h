@@ -24,7 +24,20 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM_CMP_SUN
+#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
+ && (!defined(__SUNPRO_CC_COMPAT) || __SUNPRO_CC_COMPAT  != 'G')
+
+// On SUN since compiler version 5.13 we may operate in GNU compatibility mode,
+// which uses the GNU library, and so the SUN workarounds aren't necessary.  We
+// do *not* include '<bsls_libraryfeatures.h>' here for a reason (we could use
+// the standard library detection mechanism from there to avoid using compiler
+// specific macros here).  '<bsls_libraryfeatures.h>' has to '#include' C++
+// standard library headers to determine which library is actually used.  Now
+// we really, really do not want '<bsl_c_stddef.h>' to '#include <valarray>'.
+// Using compiler specific macros here is safe.  The first element of the
+// '#if' condition limits evaluation of the rest to the SUN compiler only, and
+// these headers inherently depend on many platform specific implementation
+// details anyway.  Case in point is the code below.
 
 // It is valid to include a C header inside an 'extern "C"' block, so C++ code
 // within C files should be wrapped around an 'extern "C++"' block.

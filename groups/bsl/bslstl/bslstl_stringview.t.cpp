@@ -17,6 +17,7 @@
 
 #include <cstring>     // memcpy(), memcmp()
 #include <iostream>
+#include <stdexcept>   // std::out_of_range
 #include <string>
 #include <sstream>
 
@@ -4303,7 +4304,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
         ASSERT_SAFE_PASS(X.rfind(STRING  , 0, 0            ));
         ASSERT_SAFE_PASS(X.rfind(NULL_PTR, 0, 0            ));
         ASSERT_SAFE_FAIL(X.rfind(NULL_PTR, 0, 1            ));
-                                                           
+
         ASSERT_SAFE_PASS(X.rfind(STRING  , 0               ));
         ASSERT_SAFE_FAIL(X.rfind(NULL_PTR, 0               ));
 

@@ -5,7 +5,9 @@
 BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 
 #include <bsls_exceptionutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
+#include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -333,7 +335,7 @@ bsl::ostream& Decimal_Type64::print(bsl::ostream& stream,
 template <class CHARTYPE, class INPUTITERATOR>
 bsl::locale::id DecimalNumGet<CHARTYPE, INPUTITERATOR>::id;
 
-#ifdef BSLS_PLATFORM_CMP_SUN
+#ifdef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
 template <class CHARTYPE, class INPUTITERATOR>
 bsl::locale::id& DecimalNumGet<CHARTYPE, INPUTITERATOR>::__get_id() const
 {
@@ -485,7 +487,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
 template <class CHARTYPE, class OUTPUTITERATOR>
 bsl::locale::id DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::id;
 
-#ifdef BSLS_PLATFORM_CMP_SUN
+#ifdef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
 template <class CHARTYPE, class OUTPUTITERATOR>
 bsl::locale::id& DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::__get_id() const
 {
