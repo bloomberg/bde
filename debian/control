@@ -69,9 +69,25 @@ Architecture: any
 Description: BSL 
  groups/bsl development files
 
+
+
+Package: libinteldfp-dev-extra
+Depends: libinteldfp-dev
+Architecture: any
+Description: Intel Decimal Floating-Point Math Library 
+ thirdparty/inteldfp extra libraries
+
 Package: libinteldfp-dev
 Architecture: any
 Description: Intel Decimal Floating-Point Math Library
+
+
+
+Package: libpcre2-dev-extra
+Depends: libpcre2-dev
+Architecture: any
+Description: PCRE 2 Regular Expression Library
+ thirdparty/pcre2 extra libraries
 
 Package: libpcre2-dev
 Architecture: any

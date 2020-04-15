@@ -85,7 +85,9 @@
             "libbal-dev-extra": [ "bal", "bal-symlinks" ],
             "libbbl-dev-extra": [ "bbl", "bbl-symlinks" ],
             "libbdl-dev-extra": [ "bdl", "bdl-symlinks" ],
-            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ]
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ],
+            "libinteldfp-dev-extra": [ "inteldfp", "inteldfp-symlinks" ],
+            "libpcre2-dev-extra": [ "pcre2", "pcre2-symlinks" ]
         }
     },
     {
@@ -187,7 +189,9 @@
             "libbal-dev-extra": [ "bal", "bal-symlinks" ],
             "libbbl-dev-extra": [ "bbl", "bbl-symlinks" ],
             "libbdl-dev-extra": [ "bdl", "bdl-symlinks" ],
-            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ]
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ],
+            "libinteldfp-dev-extra": [ "inteldfp", "inteldfp-symlinks" ],
+            "libpcre2-dev-extra": [ "pcre2", "pcre2-symlinks" ]
         }
     },
     {
@@ -289,7 +293,9 @@
             "libbal-dev-extra": [ "bal", "bal-symlinks" ],
             "libbbl-dev-extra": [ "bbl", "bbl-symlinks" ],
             "libbdl-dev-extra": [ "bdl", "bdl-symlinks" ],
-            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ]
+            "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ],
+            "libinteldfp-dev-extra": [ "inteldfp", "inteldfp-symlinks" ],
+            "libpcre2-dev-extra": [ "pcre2", "pcre2-symlinks" ]
         }
     },
     {
