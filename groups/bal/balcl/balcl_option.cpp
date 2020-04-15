@@ -12,10 +12,11 @@ BSLS_IDENT_RCSID(balcl_option_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
-#include <bslma_default.h>
-
 #include <bslalg_scalarprimitives.h>
 #include <bslalg_autoscalardestructor.h>
+
+#include <bslma_default.h>
+#include <bslma_destructionutil.h>
 
 #include <bsls_assert.h>
 
@@ -137,7 +138,7 @@ Option::Option(const OptionInfo&  optionInfo,
 
 Option::~Option()
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_optionInfo.object());
+    bslma::DestructionUtil::destroy(&d_optionInfo.object());
 }
 
 // MANIPULATORS
