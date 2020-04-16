@@ -1,6 +1,6 @@
-// bslstl_hashtable_test.h                                            -*-C++-*-
-#ifndef INCLUDED_BSLSTL_HASHTABLE_TEST
-#define INCLUDED_BSLSTL_HASHTABLE_TEST
+// bslstl_hashtable_test2.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLSTL_HASHTABLE_TEST2
+#define INCLUDED_BSLSTL_HASHTABLE_TEST2
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -11,11 +11,12 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_hashtable
 //
-//@DESCRIPTION: This component provides a second translation unit for
+//@DESCRIPTION: This component provides a third translation unit for
 // 'HashTable' test cases to reduce the test-driver's build time.  Test cases
-// 1-10, plus the usage example test, are in the original component test driver,
-// the remaining tests (11 and higher) are in this subordinate component's test
-// driver.
+// 1-10 plus the usage example test, are in the original component test driver,
+// test cases 11-13 are in the 'bslstl_hashtable_test1' component's test
+// driver, and the remaining tests (14 and higher) are in this subordinate
+// component's test driver.
 //
 // As the number of test concerns grows, and the number of types to instantiate
 // 'HashTable' with in order to gain complete code coverage grows, we have
@@ -24,13 +25,13 @@ BSLS_IDENT("$Id: $")
 // internal tables.  In order to continue providing full coverage, the standard
 // value-semantic type test cases 1-10 are handled by the primary component
 // test driver, and the tests for all remaining functionality are moved into
-// this component, that comprises only a test driver.
+// two components, that comprise only a test driver.
 
 #include <bslstl_hashtable.h>
 
 #endif
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -1,5 +1,5 @@
-// bslstl_hashtable_test.cpp                                          -*-C++-*-
-#include <bslstl_hashtable_test.h>
+// bslstl_hashtable_test2.cpp                                         -*-C++-*-
+#include <bslstl_hashtable_test2.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_iterator.h>           // for testing only
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

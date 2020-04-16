@@ -59,8 +59,9 @@ using bslstl::CallableVariable;
 //                                  TEST PLAN
 // ----------------------------------------------------------------------------
 // NOTICE: To reduce the compilation time, this test driver has been broken
-// into 2 parts, 'bslstl_hashtable.t.cpp' (cases 1-10, plus the usage example),
-// and 'bslstl_hashtable_test.cpp' (cases 11 and higher).
+// into 3 parts, 'bslstl_hashtable.t.cpp' (cases 1-10, plus the usage example)
+// 'bslstl_hashtable_test1.cpp' (cases 11-13), and 'bslstl_hashtable_test2.cpp'
+// (cases 14 and higher).
 //
 //                                  Overview
 //                                  --------
@@ -328,7 +329,6 @@ void aSsErT(bool condition, const char *message, int line)
 // non-realistic scenarios to find corner-case issues that might affect
 // standard confirmance of the unordered containers built on top of
 // 'bslstl::HashTable'.
-
 
 #if __cplusplus <= 199711L
 // We note that certain test cases rely on the reference collapsing rules that
@@ -1974,7 +1974,6 @@ struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
 
 namespace TestTypes
 {
-
                        // ===========================
                        // class AwkwardMaplikeElement
                        // ===========================
@@ -2265,7 +2264,6 @@ class GroupedHasher : private HASHER {
         // 'GROUP_SIZE'.
 };
 
-
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // ================================
@@ -2551,7 +2549,6 @@ class ModifiableHasher {
         // Return a hash code for the specified 'k'.
 };
 
-
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // ===========================
@@ -2613,7 +2610,6 @@ class DefaultOnlyHasher {
                       bsltf::TemplateTestFacility::getIdentifier(value));
     }
 };
-
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -5525,8 +5521,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //:
     //: 2 The number of buckets is 1 or a prime number.
     //:
-//: 2 If the requested number of buckets cannot be supplied, an exception
-//:   is thrown (need to nail down the contract on which exception)
+    //: 2 If the requested number of buckets cannot be supplied, an exception
+    //:   is thrown (need to nail down the contract on which exception)
     //:
     //: 2 If more than zero buckets are requested, there shall be at least
     //:   enough buckets to insert one element, or else the constructor will
@@ -5556,9 +5552,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //: 6 If the allocator is a 'bsl::allocator', supplying a null allocator
     //:   address has the same effect as not supplying an allocator.
     //:
-//: 7 Supplying an allocator to the value constructor has no effect on
-//:   subsequent object values.
-//:
+    //: 7 Supplying an allocator to the value constructor has no effect on
+    //:   subsequent object values.
+    //:
     //: 8 Any memory allocation is from the object allocator.
     //:
     //: 9 There is no temporary allocation from any allocator.
@@ -5595,8 +5591,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //:
     //:20 Any argument can be 'const'.
     //:
-//:21 Any memory allocation is exception neutral.
-//:
+    //:21 Any memory allocation is exception neutral.
+    //:
     //:22 The constructor fails by throwing a 'std::length_error' if the
     //:   initial length of the bucket array cannot be computed.
     //:
@@ -9596,8 +9592,6 @@ void mainTestCase9_CopyAssignPart6()
 
 #undef BSLSTL_HASHTABLE_TESTCASE_COPY_ASSIGN_TYPES
 
-
-
 void mainTestCaseUsageExample()
     // This case number will rise as remaining tests are implemented.
     // --------------------------------------------------------------------
@@ -9658,6 +9652,7 @@ BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TaseAsFalse>::value);
 BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestAsFalse2>::value);
 
 }  // close namespace static_assertions
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -9736,7 +9731,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
