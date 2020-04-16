@@ -816,10 +816,6 @@ int main(int argc, char *argv[])
 
         if (veryVeryVerbose) { T_; T_; P(baseName); }
 
-        ball::FileObserver2 observer;
-        observer.enableFileLogging(baseName.c_str(), false);
-        observer.rotateOnSize(rot_size);
-
         ball::LoggerManagerConfiguration configuration;
 
         configuration.setDefaultThresholdLevelsIfValid(
@@ -828,16 +824,23 @@ int main(int argc, char *argv[])
                                                       ball::Severity::e_WARN,
                                                       ball::Severity::e_FATAL);
 
-        ball::LoggerManagerScopedGuard scopedGuard(&observer,
-                                                   configuration);
-            // Instantiate the logger manager singleton.
+        // Instantiate the logger manager singleton.
+        ball::LoggerManagerScopedGuard scopedGuard(configuration);
 
+        bsl::shared_ptr<Obj> observer = bsl::make_shared<Obj>();
+        observer->enableFileLogging(baseName.c_str(), false);
+        observer->rotateOnSize(rot_size);
+
+        ASSERT(0 == ball::LoggerManager::singleton().registerObserver(
+                                                              observer,
+                                                              "testObserver"));
+
+        // Set a category -- an arbitrary name.
         BALL_LOG_SET_CATEGORY("main category");
-            // Set a category -- an arbitrary name.
 
         BALL_LOG_INFO << "LOG";
         BALL_LOG_TRACE << "";
-        ASSERT(observer.isFileLoggingEnabled());
+        ASSERT(observer->isFileLoggingEnabled());
 
         if (verbose) {
             bsl::string out;

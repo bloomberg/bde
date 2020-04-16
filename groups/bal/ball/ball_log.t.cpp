@@ -6709,6 +6709,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_IS_ENABLED(SEVERITY)
         // --------------------------------------------------------------------
 
+        using namespace BloombergLP;  // okay here
+
         if (verbose) bsl::cout << "\nTESTING 'BALL_LOG_IS_ENABLED(SEVERITY)'"
                                << "\n======================================="
                                << bsl::endl;
@@ -6729,15 +6731,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         const int DATA[] = { OFF, TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
         enum { NUM_DATA = sizeof (DATA) / sizeof (*DATA) };
 
-        BloombergLP::ball::StreamObserver observer(&bsl::cout);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
+        ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(OFF, OFF, OFF, OFF);
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                          configuration,
-                                                          &ta);
-        BloombergLP::ball::LoggerManager& manager =
-                                 BloombergLP::ball::LoggerManager::singleton();
+        ball::LoggerManagerScopedGuard guard(configuration, &ta);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                            bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+        manager.registerObserver(observer, "default");
 
         if (verbose) bsl::cout << "\tExhaustively test w/o logging rules.\n";
         {
@@ -7476,9 +7479,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         CategoryManager CM;
 
-        BloombergLP::ball::TestObserver  testObserver(&bsl::cout);
-        BloombergLP::ball::TestObserver *TO = &testObserver;
-
         for (int i = 0; i < NUM_DATA; ++i) {
             const int     LINE        = DATA[i].d_line;
             const bool    USE_LM      = DATA[i].d_useLM;
@@ -7498,8 +7498,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             static bool LM_INITIALIZED = false;
             if (USE_LM && !LM_INITIALIZED) {
                 LM_INITIALIZED = true;
-                BloombergLP::ball::LoggerManagerConfiguration lmc;
-                BloombergLP::ball::LoggerManager::initSingleton(TO, lmc, &ta);
+                ball::LoggerManagerConfiguration lmc;
+                ball::LoggerManager::initSingleton(lmc, &ta);
             }
             bool result = ball::Log::isCategoryEnabled(&mH, SEVERITY);
             ASSERTV(LINE, RESULT == result);
@@ -7513,16 +7513,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             const bool    USE_CAT     = DATA[i].d_useCategory;
             const char   *FILENAME    = DATA[i].d_name_p;
 
-            const Cat   *CATEGORY = USE_CAT ? (Cat *) 0 : (Cat *) 1;
+            const Cat    *CATEGORY = USE_CAT ? (Cat *) 0 : (Cat *) 1;
             ball::Record *RECORD   = ball::Log::getRecord(CATEGORY,
-                                                        FILENAME,
-                                                        LINE);
+                                                          FILENAME,
+                                                          LINE);
             ASSERTV(LINE, LINE == RECORD->fixedFields().lineNumber());
             ASSERTV(LINE, 0 == bsl::strcmp(FILENAME,
                                            RECORD->fixedFields().fileName()));
         }
 
-        BloombergLP::ball::LoggerManager::shutDownSingleton();
+        ball::LoggerManager::shutDownSingleton();
 
       } break;
       case 19: {
@@ -8225,30 +8225,37 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << bsl::endl << "===========" << bsl::endl;
 
         using namespace BALL_LOG_TEST_CASE_15;
+        using namespace BloombergLP;
 
-        my_PublishCountingObserver observer;
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
+        ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                 BloombergLP::ball::Severity::e_TRACE,  // record level
-                 BloombergLP::ball::Severity::e_WARN,   // passthrough level
-                 BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                 BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+                             ball::Severity::e_TRACE,  // record level
+                             ball::Severity::e_WARN,   // passthrough level
+                             ball::Severity::e_ERROR,  // trigger level
+                             ball::Severity::e_FATAL); // triggerAll level
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration);
+        ball::LoggerManagerScopedGuard guard(configuration);
 
-        // int NUM_MESSAGES = bsl::atoi(argv[2]);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        bsl::shared_ptr<my_PublishCountingObserver> observer =
+                                bsl::make_shared<my_PublishCountingObserver>();
+
+        ASSERT(0 == manager.registerObserver(observer, "test"));
+
         enum { NUM_MESSAGES = 100000 };
         BALL_LOG_SET_CATEGORY("TEST.CATEGORY");
+
         for (int i = 0; i < NUM_MESSAGES; ++i) {
             BALL_LOG_TRACE << "DUMMY MESSAGE";
         }
+
         BALL_LOG_ERROR << "DUMMY MESSAGE";
 
-        if (verbose) P(observer.publishCount());
+        if (verbose) P(observer->publishCount());
 
-        ASSERT(observer.publishCount() > 1); // because the triggering message
-                                             // is always published
+        ASSERT(observer->publishCount() > 1); // because the triggering message
+                                              // is always published
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -8274,65 +8281,61 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_IS_ENABLED(SEVERITY)
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "BALL_IS_ENABLED(SEVERITY) Utility MACRO TEST"
-                      << bsl::endl
-                      << "============================================"
+        if (verbose) {
+            bsl::cout << "\nBALL_IS_ENABLED(SEVERITY) Utility MACRO TEST"
+                      << "\n============================================"
                       << bsl::endl;
+        }
 
-        BloombergLP::ball::StreamObserver observer(&bsl::cout);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::e_TRACE,  // record level
-                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+        using namespace BloombergLP;
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration,
-                                                         &ta);
-        BloombergLP::ball::LoggerManager& manager =
-            BloombergLP::ball::LoggerManager::singleton();
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_WARN,   // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
+
+        ball::LoggerManagerScopedGuard lmg(lmc, &ta);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         {
             BALL_LOG_SET_CATEGORY("TEST.CATEGORY");
 
             BALL_LOG_TRACE << "This will load the category";
 
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
 
             manager.setCategory("TEST.CATEGORY",
-                                BloombergLP::ball::Severity::e_WARN,
-                                BloombergLP::ball::Severity::e_ERROR,
-                                BloombergLP::ball::Severity::e_FATAL,
-                                BloombergLP::ball::Severity::e_FATAL);
+                                ball::Severity::e_WARN,
+                                ball::Severity::e_ERROR,
+                                ball::Severity::e_FATAL,
+                                ball::Severity::e_FATAL);
 
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
-            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERT(BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
 
             manager.setCategory("TEST.CATEGORY",
-                                BloombergLP::ball::Severity::e_OFF,
-                                BloombergLP::ball::Severity::e_OFF,
-                                BloombergLP::ball::Severity::e_OFF,
-                                BloombergLP::ball::Severity::e_OFF);
+                                ball::Severity::e_OFF,
+                                ball::Severity::e_OFF,
+                                ball::Severity::e_OFF,
+                                ball::Severity::e_OFF);
 
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
-            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
-
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
         }
       } break;
       case 13: {
@@ -8352,14 +8355,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   performance of printf macro with one thread
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "PRINTF MACRO PERFORMANCE TEST WITH 1 THREADS"
-                      << bsl::endl
-                      << "============================================"
+        if (verbose) {
+            bsl::cout << "\nPRINTF MACRO PERF TEST WITH 1 THREADS"
+                      << "\n====================================="
                       << bsl::endl;
+        }
 
         using namespace BALL_LOG_TEST_CASE_13;
+        using namespace BloombergLP;
 
         int i;
         for (i = 0; i < MAX_MSG_SIZE; ++i) {
@@ -8371,20 +8374,25 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::StreamObserver observer(&bsl::cout);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::e_TRACE,  // record level
-                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_WARN,   // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration);
-        BloombergLP::bsls::Types::Int64 t =
-                         BloombergLP::bsls::TimeUtil::getTimer();
+        ball::LoggerManagerScopedGuard guard(lmc);
+
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                        bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+        ball::LoggerManager::singleton().registerObserver(observer, "test");
+
+        bsls::Types::Int64 t = bsls::TimeUtil::getTimer();
+
         u::executeInParallel(NUM_THREADS, workerThread13);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+
+        t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -8417,14 +8425,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   performance of printf macro with one thread
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "PRINTF MACRO PERFORMANCE TEST WITH MULTIPLE THREADS"
-                      << bsl::endl
-                      << "==================================================="
+        if (verbose) {
+            bsl::cout << "\nPRINTF MACRO PERF TEST WITH MULTIPLE THREADS"
+                      << "\n============================================"
                       << bsl::endl;
+        }
 
         using namespace BALL_LOG_TEST_CASE_12;
+        using namespace BloombergLP;
 
         int i;
         for (i = 0; i < MAX_MSG_SIZE; ++i) {
@@ -8436,20 +8444,23 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::StreamObserver observer(&bsl::cout);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(
-               BloombergLP::ball::Severity::e_TRACE,  // record level
-               BloombergLP::ball::Severity::e_WARN,   // passthrough level
-               BloombergLP::ball::Severity::e_ERROR,  // trigger level
-               BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_WARN,   // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration);
-        BloombergLP::bsls::Types::Int64 t =
-                          BloombergLP::bsls::TimeUtil::getTimer();
+        ball::LoggerManagerScopedGuard guard(lmc);
+
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                        bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+        ball::LoggerManager::singleton().registerObserver(observer, "test");
+
+        bsls::Types::Int64 t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread12);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+        t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -8481,40 +8492,43 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   performance of c++ macro with one thread
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "C++ MACRO PERFORMANCE TEST WITH 1 THREADS"
-                      << bsl::endl
-                      << "========================================="
+        if (verbose) {
+            bsl::cout << "\nC++ MACRO PERFORMANCE TEST WITH 1 THREADS"
+                      << "\n========================================="
                       << bsl::endl;
+        }
 
         if (!verbose) break;
 
         using namespace BALL_LOG_TEST_CASE_11;
+        using namespace BloombergLP;
 
         for (int i = 0; i < MAX_MSG_SIZE; ++i) {
             message[i] = 'X';
         }
         message[MAX_MSG_SIZE] = '\0';
 
-        severity = veryVerbose ? BloombergLP::ball::Severity::e_INFO
-                               : BloombergLP::ball::Severity::e_DEBUG;
+        severity = veryVerbose ? ball::Severity::e_INFO
+                               : ball::Severity::e_DEBUG;
 
-        BloombergLP::ball::StreamObserver observer(&bsl::cout);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(
-                BloombergLP::ball::Severity::e_TRACE,  // record level
-                BloombergLP::ball::Severity::e_WARN,   // passthrough level
-                BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_WARN,   // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration);
-        BloombergLP::bsls::Types::Int64 t;
+        ball::LoggerManagerScopedGuard guard(lmc);
 
-        t = BloombergLP::bsls::TimeUtil::getTimer();
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                        bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+        ball::LoggerManager::singleton().registerObserver(observer, "test");
+
+        bsls::Types::Int64 t = bsls::TimeUtil::getTimer();
+
         u::executeInParallel(NUM_THREADS, workerThread11a);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+        t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -8529,9 +8543,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                  << t/(NUM_MSGS*NUM_THREADS) << bsl::endl;
         }
 
-        t = BloombergLP::bsls::TimeUtil::getTimer();
+        t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread11);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+        t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -8574,60 +8588,65 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         if (!verbose) break;
 
         using namespace BALL_LOG_TEST_CASE_10;
+        using namespace BloombergLP;
 
         for (int i = 0; i < MAX_MSG_SIZE; ++i) {
             message[i] = 'X';
         }
         message[MAX_MSG_SIZE] = '\0';
 
-        severity = veryVerbose ? BloombergLP::ball::Severity::e_INFO
-                               : BloombergLP::ball::Severity::e_TRACE;
+        severity = veryVerbose ? ball::Severity::e_INFO
+                               : ball::Severity::e_TRACE;
         if (verbose) P(severity);
 
-        BloombergLP::ball::StreamObserver observer(&bsl::cout);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::e_DEBUG,  // record level
-                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_DEBUG,  // record level
+                                 ball::Severity::e_WARN,   // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration);
-        BloombergLP::bsls::Types::Int64 t;
+        ball::LoggerManagerScopedGuard guard(lmc);
 
-        BloombergLP::bslim::TestUtil::setFunc(
-                               BloombergLP::ball::Severity::e_TRACE == severity
-                             ? &Util::doOldTraceConst
-                             : &Util::doOldInfoConst);
-        t = BloombergLP::bsls::TimeUtil::getTimer();
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                        bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+        ball::LoggerManager::singleton().registerObserver(observer, "test");
+
+        bsls::Types::Int64 t;
+
+        bslim::TestUtil::setFunc(ball::Severity::e_TRACE == severity
+                                 ? &Util::doOldTraceConst
+                                 : &Util::doOldInfoConst);
+
+        t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+        t = bsls::TimeUtil::getTimer() - t;
 
         const double oldConstTime = static_cast<double>(t);
 
-        BloombergLP::bslim::TestUtil::setFunc(&Util::doOldVar);
-        t = BloombergLP::bsls::TimeUtil::getTimer();
+        bslim::TestUtil::setFunc(&Util::doOldVar);
+        t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+        t = bsls::TimeUtil::getTimer() - t;
 
         const double oldVarTime = static_cast<double>(t);
 
-        BloombergLP::bslim::TestUtil::setFunc(
-                               BloombergLP::ball::Severity::e_TRACE == severity
-                             ? &Util::doTraceConst
-                             : &Util::doInfoConst);
+        bslim::TestUtil::setFunc(ball::Severity::e_TRACE == severity
+                                 ? &Util::doTraceConst
+                                 : &Util::doInfoConst);
 
-        t = BloombergLP::bsls::TimeUtil::getTimer();
+        t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+        t = bsls::TimeUtil::getTimer() - t;
 
         const double newConstTime = static_cast<double>(t);
 
-        BloombergLP::bslim::TestUtil::setFunc(&Util::doVar);
-        t = BloombergLP::bsls::TimeUtil::getTimer();
+        bslim::TestUtil::setFunc(&Util::doVar);
+
+        t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
-        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
+        t = bsls::TimeUtil::getTimer() - t;
 
         const double newVarTime = static_cast<double>(t);
 
@@ -8686,39 +8705,42 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   Testing concurrent logging.
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "CONCURRENT LOGGING TEST" << bsl::endl
-                      << "=======================" << bsl::endl;
+        if (verbose) {
+            bsl::cout << "\nCONCURRENT LOGGING TEST"
+                      << "\n=======================" << bsl::endl;
+        }
 
         using namespace BALL_LOG_TEST_CASE_9;
+        using namespace BloombergLP;
 
         ASSERT(EXP_N_TOTAL == EXP_N_RECORD + EXP_N_PUBLISH + EXP_N_TRIGGER);
 
-        my_Observer observer;
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
-        configuration.setLogOrder(
-            BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
-        configuration.setDefaultThresholdLevelsIfValid(
-               BloombergLP::ball::Severity::e_TRACE,  // record level
-               BloombergLP::ball::Severity::e_WARN,   // passthrough level
-               BloombergLP::ball::Severity::e_ERROR,  // trigger level
-               BloombergLP::ball::Severity::e_FATAL); // triggerAll level
-        configuration.setDefaultRecordBufferSizeIfValid(REC_BUF_LIMIT);
-        configuration.setTriggerMarkers(
-               BloombergLP::ball::LoggerManagerConfiguration::e_NO_MARKERS);
-        BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_WARN,   // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
+        lmc.setDefaultRecordBufferSizeIfValid(REC_BUF_LIMIT);
+        lmc.setTriggerMarkers(ball::LoggerManagerConfiguration::e_NO_MARKERS);
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration,
-                                                         &ta);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+        ball::LoggerManagerScopedGuard guard(lmc, &ta);
+
+        bsl::shared_ptr<my_Observer> observer =
+                                               bsl::make_shared<my_Observer>();
+
+        ball::LoggerManager::singleton().registerObserver(observer, "test");
+
         u::executeInParallel(NUM_THREADS, workerThread9);
-        if (veryVeryVerbose) observer.print();
+        if (veryVeryVerbose) observer->print();
 
         bsl::vector<bsl::pair<int, int> > vv[NUM_THREADS];
         // 'vv[i]' contains the message information for i'th thread
 
-        const bsl::vector<bsl::string>& v = observer.get();
+        const bsl::vector<bsl::string>& v = observer->get();
         ASSERT(v.size() == NUM_THREADS * EXP_N_TOTAL);
         // ignore any unconditional printing
         for (int i = 0; i < (int)v.size(); ++i) {
@@ -8762,27 +8784,32 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   the FIFO log order
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "TESTING THE FIFO LOG ORDER" << bsl::endl
-                      << "==========================" << bsl::endl;
+        if (verbose) {
+            bsl::cout << "\nTESTING THE FIFO LOG ORDER"
+                      << "\n==========================" << bsl::endl;
+        }
 
-        bsl::ostringstream os;
-        BloombergLP::ball::StreamObserver observer(&os);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
+        using namespace BloombergLP;
+
+        ball::LoggerManagerConfiguration lmc;
 
         // for simplicity we keep the passthrough level to be 'FATAL', so that
         // on trigger event, the message is published only once.
 
-        configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::e_TRACE,  // record level
-                  BloombergLP::ball::Severity::e_FATAL,  // passthrough level
-                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_FATAL,  // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration,
-                                                         &ta);
+        ball::LoggerManagerScopedGuard guard(lmc, &ta);
+
+        bsl::ostringstream os;
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                        bsl::make_shared<ball::StreamObserver>(&os);
+
+        ball::LoggerManager::singleton().registerObserver(observer, "test");
+
         BALL_LOG_SET_CATEGORY("main category");
         char helloWorld1[] = "hello world 1";
         char helloWorld2[] = "hello world 2";
@@ -8831,10 +8858,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   the default log order
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "TESTING THE DEFAULT LOG ORDER (LIFO)" << bsl::endl
-                      << "====================================" << bsl::endl;
+        if (verbose) {
+            bsl::cout << "\nTESTING THE DEFAULT LOG ORDER (LIFO)"
+                      << "\n====================================" << bsl::endl;
+        }
+
+        using namespace BloombergLP;
 
         char helloWorld1[] = "hello world 1";
         char helloWorld2[] = "hello world 2";
@@ -8842,36 +8871,40 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         char helloWorld4[] = "hello world 4";
 
         static const struct Data {
-            BloombergLP::ball::Severity::Level  d_severity;
-            const char                         *d_string_p;
+            ball::Severity::Level  d_severity;
+            const char            *d_string_p;
         } DATA[] = {
-            { BloombergLP::ball::Severity::e_INFO,  helloWorld1 },
-            { BloombergLP::ball::Severity::e_INFO,  helloWorld2 },
-            { BloombergLP::ball::Severity::e_INFO,  helloWorld3 },
-            { BloombergLP::ball::Severity::e_ERROR, helloWorld4 }
+            { ball::Severity::e_INFO,  helloWorld1 },
+            { ball::Severity::e_INFO,  helloWorld2 },
+            { ball::Severity::e_INFO,  helloWorld3 },
+            { ball::Severity::e_ERROR, helloWorld4 }
         };
         enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "Testing with fixed-severity macros\n";
         {
-            bsl::ostringstream os;
-            BloombergLP::ball::StreamObserver observer(&os);
-            BloombergLP::ball::LoggerManagerConfiguration configuration;
-            configuration.setLogOrder(
-                      BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
+            ball::LoggerManagerConfiguration lmc;
+
+            lmc.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
 
             // for simplicity we keep the passthrough level to be 'FATAL', so
             // that on trigger event, the message is published only once.
 
-            configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::e_TRACE,  // record level
-                  BloombergLP::ball::Severity::e_FATAL,  // passthrough level
-                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+            lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_FATAL,  // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
 
-            BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                             configuration,
-                                                             &ta);
+            BloombergLP::ball::LoggerManagerScopedGuard guard(lmc, &ta);
+
+            bsl::ostringstream os;
+            bsl::shared_ptr<ball::StreamObserver> observer =
+                            bsl::make_shared<ball::StreamObserver>(&os);
+
+            ball::LoggerManager::singleton().registerObserver(observer,
+                                                              "test");
+
             BALL_LOG_SET_CATEGORY("main category");
             BALL_LOG_INFO  << helloWorld1;
             BALL_LOG_INFO  << helloWorld2;
@@ -8895,24 +8928,27 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) cout << "Testing with variable-severity macros\n";
         {
-            bsl::ostringstream os;
-            BloombergLP::ball::StreamObserver observer(&os);
-            BloombergLP::ball::LoggerManagerConfiguration configuration;
-            configuration.setLogOrder(
-                      BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
+            ball::LoggerManagerConfiguration lmc;
+            lmc.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
 
             // for simplicity we keep the passthrough level to be 'FATAL', so
             // that on trigger event, the message is published only once.
 
-            configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::e_TRACE,  // record level
-                  BloombergLP::ball::Severity::e_FATAL,  // passthrough level
-                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+            lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_FATAL,  // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
 
-            BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                             configuration,
-                                                             &ta);
+            ball::LoggerManagerScopedGuard guard(lmc, &ta);
+
+            bsl::ostringstream os;
+            bsl::shared_ptr<ball::StreamObserver> observer =
+                            bsl::make_shared<ball::StreamObserver>(&os);
+
+            ball::LoggerManager::singleton().registerObserver(observer,
+                                                              "test");
+
             BALL_LOG_SET_CATEGORY("main category");
             for (int ii = 0; ii < k_NUM_DATA; ++ii) {
                 BALL_LOG_STREAM(DATA[ii].d_severity) << DATA[ii].d_string_p;
@@ -8953,26 +8989,30 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   the c++ macro when logging returned value of a function.
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "TESTING THE C++ MACRO WHEN LOGGING "
-                      << "RETURNED VALUE OF A FUNCTION"         << bsl::endl
-                      << "====================================" << bsl::endl;
+        if (verbose) {
+            bsl::cout << "\nTESTING THE C++ MACRO WHEN LOGGING "
+                      << "\nRETURNED VALUE OF A FUNCTION"
+                      << "\n====================================" << bsl::endl;
+        }
 
         using namespace BALL_LOG_TEST_CASE_6;
+        using namespace BloombergLP;
+
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_TRACE,  // record level
+                                 ball::Severity::e_WARN,   // passthrough level
+                                 ball::Severity::e_ERROR,  // trigger level
+                                 ball::Severity::e_FATAL); // triggerAll level
+
+        ball::LoggerManagerScopedGuard guard(lmc, &ta);
 
         bsl::ostringstream os;
-        BloombergLP::ball::StreamObserver observer(&os);
-        BloombergLP::ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::e_TRACE,  // record level
-                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                                   bsl::make_shared<ball::StreamObserver>(&os);
 
-        BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration,
-                                                         &ta);
+        ball::LoggerManager::singleton().registerObserver(observer, "test");
+
         BALL_LOG_SET_CATEGORY("main category");
 
         BALL_LOG_WARN << f();
@@ -11778,20 +11818,20 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   const ball::Category *setCategory(const char *categoryName);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl << "Testing Utility Functions"
-                               << bsl::endl << "========================="
-                               << bsl::endl;
+        if (verbose) {
+            bsl::cout << "\nTesting Utility Functions"
+                      << "\n=========================" << bsl::endl;
+        }
 
-        using namespace BloombergLP;  // okay here
+        using namespace BloombergLP;
 
-        BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc);
+        ball::LoggerManagerConfiguration lmc;
+        ball::LoggerManagerScopedGuard   lmg(lmc);
 
-        bsl::shared_ptr<BloombergLP::ball::TestObserver> observer(
-               new (ta) BloombergLP::ball::TestObserver(&bsl::cout, &ta), &ta);
+        bsl::shared_ptr<ball::TestObserver> observer(
+               new (ta) ball::TestObserver(&bsl::cout, &ta), &ta);
 
-        BloombergLP::ball::LoggerManager& manager =
-                                 BloombergLP::ball::LoggerManager::singleton();
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
 
@@ -11893,10 +11933,17 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         using namespace BALL_LOG_TEST_CASE_MINUS_1;
-        using namespace BloombergLP;  // okay here
+        using namespace BloombergLP;
 
-        ball::StreamObserver observer(&bsl::cout);
-        ball::LoggerManager::initSingleton(&observer, 0);
+        ball::LoggerManagerConfiguration lmc;
+        ball::LoggerManagerScopedGuard   lmg(lmc);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                        bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+        ASSERT(0 == manager.registerObserver(observer, "test"));
 
         bslmt::ThreadAttributes attributes;
         bslmt::ThreadUtil::Handle handles[10];
@@ -11932,27 +11979,29 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         using namespace BALL_LOG_TEST_CASE_MINUS_2;
+        using namespace BloombergLP;
 
         const int CYCLES_NUM     = 5;
         double    totalTimes     = 0;
 
         TestAllocator ta(veryVeryVeryVerbose);
 
-        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        ball::LoggerManagerConfiguration lmc;
         lmc.setDefaultThresholdLevelsIfValid(
-                    BloombergLP::ball::Severity::e_ERROR,  // record level
-                    BloombergLP::ball::Severity::e_OFF,    // passthrough level
-                    BloombergLP::ball::Severity::e_OFF,    // trigger level
-                    BloombergLP::ball::Severity::e_OFF);   // triggerAll level
-        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+                                 ball::Severity::e_ERROR,  // record level
+                                 ball::Severity::e_OFF,    // passthrough level
+                                 ball::Severity::e_OFF,    // trigger level
+                                 ball::Severity::e_OFF);   // triggerAll level
+
+        ball::LoggerManagerScopedGuard  lmg(lmc, &ta);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         bsl::shared_ptr<TestObserver> observer(
                                   new (ta) TestObserver(&bsl::cout, &ta), &ta);
-        LoggerManager& manager = LoggerManager::singleton();
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
 
-        BloombergLP::bsls::Stopwatch timer;
+        bsls::Stopwatch timer;
         timer.start();
 
         for (int i = 0; i < CYCLES_NUM; ++i) {
