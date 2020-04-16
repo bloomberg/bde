@@ -1,36 +1,37 @@
-// bslstl_set_test.h                                                  -*-C++-*-
-#ifndef INCLUDED_BSLSTL_SET_TEST
-#define INCLUDED_BSLSTL_SET_TEST
+// bslstl_deque_test1.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLSTL_DEQUE_TEST1
+#define INCLUDED_BSLSTL_DEQUE_TEST1
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide support for the 'bslstl_set.t.cpp' test driver.
+//@PURPOSE: Provide support for the 'bslstl_deque.t.cpp' test driver.
 //
 //@CLASSES:
 //
-//@SEE_ALSO: bslstl_set
+//@SEE_ALSO: bslstl_deque
 //
-//@DESCRIPTION: This component provides a second translation unit for 'set'
+//@DESCRIPTION: This component provides a second translation unit for 'deque'
 // test cases to reduce the test-driver's build time.  Test cases 1-11, plus
-// the usage example test, are in the original component test driver, the
-// remaining tests (11 and higher) are in this subordinate component's test
-// driver.
+// the usage example test, are in the original component test driver, test
+// cases 12-23 are in this component's test driver, while the remaining tests
+// (24 and higher, and the interactive tests) are in the 'bslstl_deque_test2'
+// component's test driver.
 //
 // As the number of test concerns grows, and the number of types to instantiate
-// 'set' with in order to gain complete code coverage grows, we have exceeded
+// 'deque' with in order to gain complete code coverage grows, we have exceeded
 // the limits of certain compilers.  For example, gcc will not produce a valid
 // '.o' file as the number of template instantiations exceeds some internal
 // tables.  In order to continue providing full coverage, the standard
-// value-semantic type test cases 1-10 are handled by the primary component
+// value-semantic type test cases 1-11 are handled by the primary component
 // test driver, and the tests for all remaining functionality are moved into
-// this component, that comprises only a test driver.
+// two additional components, that comprise only a test driver.
 
-#include <bslstl_set.h>
+#include <bslstl_deque.h>
 
 #endif
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

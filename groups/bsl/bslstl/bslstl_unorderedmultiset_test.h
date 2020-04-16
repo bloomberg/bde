@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 // 'unordered_multiset' test cases to reduce the test-driver's build time.
 // Test cases 1-11, plus the usage example test, are in the original component
 // test driver, the remaining tests (11 and higher) are in this subordinate
-// components test driver.
+// component's test driver.
 //
 // As the number of test concerns grows, and the number of types to instantiate
 // 'unordered_multiset' with in order to gain complete code coverage grows, we
