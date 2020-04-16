@@ -77,4 +77,5 @@ bslstl_unorderedset
 bslstl_unorderedset_test
 bslstl_unorderedsetkeyconfiguration
 bslstl_vector
-bslstl_vector_test
+bslstl_vector_test1
+bslstl_vector_test2

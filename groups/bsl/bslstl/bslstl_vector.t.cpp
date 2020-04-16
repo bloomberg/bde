@@ -1,8 +1,6 @@
 // bslstl_vector.t.cpp                                                -*-C++-*-
 #include <bslstl_vector.h>
 
-#include <bslstl_iterator.h>
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -30,7 +28,6 @@
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
-#include <bsls_stopwatch.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
 
@@ -59,9 +56,11 @@
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// NOTICE: To reduce the compilation time, this test driver has been broken
-// into 2 parts, 'bslstl_vector.t.cpp' (cases 1-11, plus the usage example),
-// and 'bslstl_vector_test.cpp' (cases 12 and higher).
+// NOTICE: To reduce the compilation time as well as to enable building at all
+// with certain compilers (Solaris Studio), this test driver has been broken
+// into 3 parts, 'bslstl_vector.t.cpp' (cases 1-11, plus the usage example),
+// 'bslstl_vector_test1.cpp' (cases 12-24), and 'bslstl_vector_test2.cpp'
+// (cases 24 and higher).
 //
 //                              Overview
 //                              --------
@@ -91,6 +90,14 @@
 // are not implemented, as there is not output or streaming below bslstl), we
 // test each individual constructor, manipulator, and accessor in subsequent
 // cases.
+//
+// TBD Test coverage of support for move-only types is incomplete, as the
+// 'bsltf' test infrastructure is largely built around making copies, and
+// providing immutable access to reference objects.  Replacing copy operations
+// with potentially-modifying move operations requires support in several
+// lower level components, as well as a careful redesign of test code to
+// validate moves *as* *well* *as* copies.  This will also require use of
+// 'std::move_itearator' to support range-based operations in c++99 and later.
 //
 // Abbreviations:
 // --------------
@@ -139,7 +146,7 @@
 // [15] reference front();
 // [15] reference back();
 // [15] VALUE_TYPE *data();
-// [27] void emplace_back(Args...);
+// [27] reference emplace_back(Args...);
 // [17] void push_back(const T&);
 // [25] void push_back(T&&);
 // [19] void pop_back();
@@ -181,13 +188,16 @@
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [36] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
 // [32] CONCERN: Range operations slice from ranges of derived types
 // [33] CONCERN: Range ops work correctly for types convertible to 'iterator'
 // [35] CONCERN: Methods qualified 'noexcept' in standard are so implemented
+// [36] CONCERN: 'vector<bool>' is also verified
+// [37] CONCERN: Access through membert pointers compiles
+// [38] CONCERN: Movable types are moved when growing a vector
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
@@ -396,43 +406,9 @@ const DefaultDataRow DEFAULT_DATA[] = {
 static const size_t DEFAULT_NUM_DATA =
                                     sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
-
-const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 const int LARGE_SIZE_VALUE = 10;
     // Declare a large value for insertions into the vector.  Note this value
     // will cause multiple resizes during insertion into the vector.
-const int NUM_ALLOCS[] = {
-    // Number of allocations (blocks) to create a vector of the following size
-    // by using 'push_back' repeatedly (without initial reserve):
-    //
-    // 0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17
-    // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-       0,  1,  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  6,
-
-    // 18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35
-    // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-       6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  7,  7,  7,
-
-    // 36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53
-    // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-       7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7
-};
-
-// Define values used to initialize positional arguments for
-// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
-// constructors.  Note, that you cannot change those values as they are used by
-// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
-// objects to their integer identifiers.
-static const int V01 = 1;
-static const int V02 = 20;
-static const int V03 = 23;
-static const int V04 = 44;
-static const int V05 = 66;
-static const int V06 = 176;
-static const int V07 = 878;
-static const int V08 = 8;
-static const int V09 = 912;
-static const int V10 = 102;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -913,17 +889,6 @@ bsl::vector<TYPE, ALLOC>& gg(bsl::vector<TYPE, ALLOC> *object,
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace BloombergLP {
-namespace bsltf {
-
-bool operator<(const AllocTestType& lhs, const AllocTestType& rhs)
-{
-    return lhs.data() < rhs.data();
-}
-
-}  // close namespace bsltf
-}  // close enterprise namespace
-
                             // ==========================
                             // class StatefulStlAllocator
                             // ==========================
@@ -1093,6 +1058,10 @@ struct UsesBslmaAllocator<ExceptionProctor<OBJECT, ALLOCATOR> >
 //                              AWKWARD TEST TYPES
 //=============================================================================
 
+                            // ===================
+                            // class NotAssignable
+                            // ===================
+
 class NotAssignable {
     // Several 'vector' methods have "instertable" requirements without also
     // demanding "assignable" requirements.  This type is designed to support
@@ -1125,6 +1094,10 @@ void debugprint(const NotAssignable& v)
 {
     printf("%d", v.value());
 }
+
+                       // ==========================
+                       // class BitwiseNotAssignable
+                       // ==========================
 
 class BitwiseNotAssignable {
     // Several 'vector' methods have "instertable" requirements without also
@@ -1217,10 +1190,6 @@ struct TestDriver {
                                                 bsl::allocator<TYPE> > >::value
                         ? e_ADAPTOR
                         : e_STATEFUL;
-
-    static
-    const bool s_typeUsesAllocator = e_STATEFUL != s_allocCategory &&
-                                        bslma::UsesBslmaAllocator<TYPE>::value;
 
     static
     const bool s_typeIsMoveEnabled = bsl::is_nothrow_move_constructible<TYPE>::
@@ -5205,7 +5174,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 37: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5249,6 +5218,8 @@ int main(int argc, char *argv[])
             ASSERT(4 == m1.theValue(1, 1));
         }
       } break;
+      case 38: // falls through
+      case 37: // falls through
       case 36: // falls through
       case 35: // falls through
       case 34: // falls through
@@ -5261,7 +5232,12 @@ int main(int argc, char *argv[])
       case 27: // falls through
       case 26: // falls through
       case 25: // falls through
-      case 24: // falls through
+      case 24: {
+        if (verbose) printf(
+                "\nTEST CASE %d IS DELEGATED TO 'bslstl_vector_test2.t.cpp'"
+                "\n========================================================\n",
+                test);
+      } break;
       case 23: // falls through
       case 22: // falls through
       case 21: // falls through
@@ -5275,9 +5251,9 @@ int main(int argc, char *argv[])
       case 13: // falls through
       case 12: {
         if (verbose) printf(
-                 "\nTEST CASE %d IS DELEGATED TO 'bslstl_vector_test.t.cpp'"
-                 "\n=======================================================\n",
-                 test);
+                "\nTEST CASE %d IS DELEGATED TO 'bslstl_vector_test1.t.cpp'"
+                "\n========================================================\n",
+                test);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -5620,7 +5596,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
