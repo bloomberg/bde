@@ -1,5 +1,7 @@
 // balxml_typesparserutil.t.cpp                                       -*-C++-*-
 
+#include <balxml_typesparserutil.h>
+
 // ----------------------------------------------------------------------------
 //                                   NOTICE
 //
@@ -7,25 +9,28 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balxml_typesparserutil.h>
-
-#include <bslim_testutil.h>
-
 #include <balxml_typesprintutil.h>  // for testing only
+
+#include <s_baltst_customizedstring.h>
+#include <s_baltst_myenumeration.h>
 
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_enumfunctions.h>
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
-
 #include <bdlb_chartype.h>
 #include <bdlb_float.h>  // for printing vector
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
-
 #include <bdldfp_decimalutil.h>
-
 #include <bdlt_datetime.h>
+
+#include <bslim_testutil.h>
+
+#include <bslalg_typetraits.h>
+#include <bslma_allocator.h>
+#include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -37,15 +42,12 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-#include <bslalg_typetraits.h>
-
-#include <bslma_allocator.h>
-
-#include <bsls_assert.h>
-#include <bsls_types.h>
-
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
+namespace test = BloombergLP::s_baltst;
 
 // ============================================================================
 //                             TEST PLAN
@@ -109,7 +111,7 @@ void printValue(bsl::ostream& out, const T& value)
 }
 
 template <class T>
-ostream& operator<<(ostream& out, const bsl::vector<T>& value)
+bsl::ostream& operator<<(bsl::ostream& out, const bsl::vector<T>& value)
     // Output the specified container 'value' to the specified stream 'out' and
     // return that stream.
 {
@@ -491,219 +493,6 @@ namespace bdlat_EnumFunctions {
 }  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
 
-// test_myenumeration.h   -*-C++-*-
-
-//@PURPOSE: todo: provide purpose.
-//
-//@CLASSES:
-//  MyEnumeration: an enumeration
-//
-//@DESCRIPTION:
-//  todo: provide annotation for 'MyEnumeration'
-
-namespace BloombergLP {
-
-namespace test {
-
-struct MyEnumeration {
-
-  public:
-    // TYPES
-    enum Value {
-        VALUE1 = 1,
-            // todo: provide annotation
-        VALUE2 = 2
-            // todo: provide annotation
-    };
-
-    enum {
-        NUM_ENUMERATORS = 2 // the number of enumerators in the 'Value'
-                            // enumeration
-    };
-
-    // CONSTANTS
-    static const char CLASS_NAME[];
-        // the name of this class (i.e., "MyEnumeration")
-
-    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
-        // enumerator information for each enumerator
-
-    // CLASS METHODS
-    static const char *toString(Value value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
-
-    static int fromString(Value        *result,
-                          const char   *string,
-                          int           stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise
-        // (i.e., 'string' does not match any enumerator).
-
-    static int fromInt(Value *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
-        // enumerator).
-
-    static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of the
-        // specified enumeration 'value'.  Return a reference to the modifiable
-        // 'stream'.
-};
-
-// FREE OPERATORS
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
-
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-inline
-int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
-{
-    enum { SUCCESS = 0, NOT_FOUND = 1 };
-
-    switch (number) {
-      case MyEnumeration::VALUE1:
-      case MyEnumeration::VALUE2:
-        *result = (MyEnumeration::Value)number;
-        return SUCCESS;                                               // RETURN
-      default:
-        return NOT_FOUND;                                             // RETURN
-    }
-}
-
-inline
-bsl::ostream& MyEnumeration::print(bsl::ostream&        stream,
-                                   MyEnumeration::Value value)
-{
-    return stream << toString(value);
-}
-
-// ----------------------------------------------------------------------------
-
-// CLASS METHODS
-inline
-const char *MyEnumeration::toString(MyEnumeration::Value value)
-{
-    switch (value) {
-      case VALUE1: {
-        return "VALUE1";                                              // RETURN
-      } break;
-      case VALUE2: {
-        return "VALUE2";                                              // RETURN
-      } break;
-      default:
-        BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
-    }
-
-    return 0;
-}
-
-}  // close namespace test
-
-// TRAITS
-BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
-
-// FREE OPERATORS
-inline
-bsl::ostream &test::operator<<(bsl::ostream &stream, MyEnumeration::Value rhs)
-{
-    return test::MyEnumeration::print(stream, rhs);
-}
-
-}  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-//                       *End-of-file Block removed.*
-// ----------------------------------------------------------------------------
-
-// test_myenumeration.cpp  -*-C++-*-
-
-namespace BloombergLP {
-namespace test {
-
-                               // ---------
-                               // CONSTANTS
-                               // ---------
-
-const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
-    // the name of this class
-
-const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
-    {
-        MyEnumeration::VALUE1,
-        "VALUE1",                      // name
-        sizeof("VALUE1") - 1,          // name length
-        "todo: provide annotation"  // annotation
-    },
-    {
-        MyEnumeration::VALUE2,
-        "VALUE2",                      // name
-        sizeof("VALUE2") - 1,          // name length
-        "todo: provide annotation"  // annotation
-    }
-};
-
-                               // -------------
-                               // CLASS METHODS
-                               // -------------
-
-int MyEnumeration::fromString(Value      *result,
-                              const char *string,
-                              int         stringLength)
-{
-
-    enum { SUCCESS = 0, NOT_FOUND = 1 };
-
-    switch(stringLength) {
-        case 6: {
-            if (bdlb::CharType::toUpper(string[0])=='V'
-             && bdlb::CharType::toUpper(string[1])=='A'
-             && bdlb::CharType::toUpper(string[2])=='L'
-             && bdlb::CharType::toUpper(string[3])=='U'
-             && bdlb::CharType::toUpper(string[4])=='E') {
-                switch(bdlb::CharType::toUpper(string[5])) {
-                    case '1': {
-                        *result = VALUE1;
-                        return SUCCESS;                               // RETURN
-                    } break;
-                    case '2': {
-                        *result = VALUE2;
-                        return SUCCESS;                               // RETURN
-                    } break;
-                }
-            }
-        } break;
-    }
-
-    return NOT_FOUND;
-
-}
-
-                                // --------
-                                // CREATORS
-                                // --------
-
-                                // ------------
-                                // MANIPULATORS
-                                // ------------
-
-                                // ---------
-                                // ACCESSORS
-                                // ---------
-
-}  // close namespace test
-}  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-//                       *End-of-file Block removed.*
-// ----------------------------------------------------------------------------
 
 // test_customizedint.h   -*-C++-*-
 
@@ -716,8 +505,7 @@ int MyEnumeration::fromString(Value      *result,
 //  todo: provide annotation for 'CustomizedInt'
 
 namespace BloombergLP {
-
-namespace test {
+namespace s_baltst {
 
 class CustomizedInt {
 
@@ -876,7 +664,7 @@ const int& CustomizedInt::toInt() const
     return d_value;
 }
 
-}  // close namespace test
+}  // close namespace s_baltst
 
 // TRAITS
 
@@ -911,7 +699,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const CustomizedInt& rhs)
 // test_customizedint.cpp  -*-C++-*-
 
 namespace BloombergLP {
-namespace test {
+namespace s_baltst {
 
                                // ---------
                                // CONSTANTS
@@ -936,259 +724,7 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test
-}  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-//                       *End-of-file Block removed.*
-// ----------------------------------------------------------------------------
-
-// test_customizedstring.h   -*-C++-*-
-
-//@PURPOSE: todo: provide purpose.
-//
-//@CLASSES:
-//  CustomizedString: a customized string
-//
-//@DESCRIPTION:
-//  todo: provide annotation for 'CustomizedString'
-
-namespace BloombergLP {
-
-namespace test {
-
-class CustomizedString {
-
-  private:
-    // PRIVATE DATA MEMBERS
-    bsl::string d_value;  // stored value
-
-    // FRIENDS
-    friend bool operator==(const CustomizedString&,
-                           const CustomizedString&);
-    friend bool operator!=(const CustomizedString&,
-                           const CustomizedString&);
-
-  public:
-    // TYPES
-    typedef bsl::string BaseType;
-
-    // CONSTANTS
-    static const char CLASS_NAME[];
-        // the name of this class (i.e., "CustomizedString")
-
-    // CREATORS
-    explicit CustomizedString(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'CustomizedString' having the default
-        // value.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
-
-    CustomizedString(const CustomizedString&  original,
-                     bslma::Allocator        *basicAllocator = 0);
-        // Create an object of type 'CustomizedString' having the value of the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
-
-    explicit CustomizedString(const bsl::string&  value,
-                              bslma::Allocator   *basicAllocator = 0);
-        // Create an object of type 'CustomizedString' having the specified
-        // 'value'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
-
-    ~CustomizedString();
-        // Destroy this object.
-
-    // MANIPULATORS
-    CustomizedString& operator=(const CustomizedString& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-
-    void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
-
-    int fromString(const bsl::string& value);
-        // Convert from the specified 'value' to this type.  Return 0 if
-        // successful and non-zero otherwise.
-
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
-
-    const bsl::string& toString() const;
-        // Convert this value to 'bsl::string'.
-};
-
-// FREE OPERATORS
-inline
-bool operator==(const CustomizedString& lhs, const CustomizedString& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
-
-inline
-bool operator!=(const CustomizedString& lhs, const CustomizedString& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
-
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-// CREATORS
-
-inline
-CustomizedString::CustomizedString(bslma::Allocator *basicAllocator)
-: d_value(basicAllocator)
-{
-}
-
-inline
-CustomizedString::CustomizedString(const CustomizedString&  original,
-                                   bslma::Allocator        *basicAllocator)
-: d_value(original.d_value, basicAllocator)
-{
-}
-
-inline
-CustomizedString::CustomizedString(const bsl::string&  value,
-                                   bslma::Allocator   *basicAllocator)
-: d_value(value, basicAllocator)
-{
-}
-
-inline
-CustomizedString::~CustomizedString()
-{
-}
-
-// MANIPULATORS
-
-inline
-CustomizedString& CustomizedString::operator=(const CustomizedString& rhs)
-{
-    d_value = rhs.d_value;
-    return *this;
-}
-
-inline
-void CustomizedString::reset()
-{
-    bdlat_ValueTypeFunctions::reset(&d_value);
-}
-
-inline
-int CustomizedString::fromString(const bsl::string& value)
-{
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    if (5 < value.size()) {
-        return FAILURE;                                               // RETURN
-    }
-
-    d_value = value;
-
-    return SUCCESS;
-}
-
-// ACCESSORS
-
-inline
-bsl::ostream& CustomizedString::print(bsl::ostream& stream,
-                                      int           level,
-                                      int           spacesPerLevel) const
-{
-    return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
-}
-
-inline
-const bsl::string& CustomizedString::toString() const
-{
-    return d_value;
-}
-
-}  // close namespace test
-
-// TRAITS
-
-BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(test::CustomizedString)
-
-// FREE OPERATORS
-
-inline
-bool test::operator==(const CustomizedString& lhs, const CustomizedString& rhs)
-{
-    return lhs.d_value == rhs.d_value;
-}
-
-inline
-bool test::operator!=(const CustomizedString& lhs, const CustomizedString& rhs)
-{
-    return lhs.d_value != rhs.d_value;
-}
-
-inline
-bsl::ostream& test::operator<<(bsl::ostream&           stream,
-                               const CustomizedString& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-}  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-//                       *End-of-file Block removed.*
-// ----------------------------------------------------------------------------
-
-// test_customizedstring.cpp  -*-C++-*-
-
-namespace BloombergLP {
-namespace test {
-
-                               // ---------
-                               // CONSTANTS
-                               // ---------
-
-const char CustomizedString::CLASS_NAME[] = "CustomizedString";
-    // the name of this class
-
-                                // -------------
-                                // CLASS METHODS
-                                // -------------
-
-                                // --------
-                                // CREATORS
-                                // --------
-
-                                // ------------
-                                // MANIPULATORS
-                                // ------------
-
-                                // ---------
-                                // ACCESSORS
-                                // ---------
-
-}  // close namespace test
+}  // close namespace s_baltst
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
@@ -2522,7 +2058,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
-                const string      INPUT       = DATA[i].d_input_p;
+                const bsl::string INPUT       = DATA[i].d_input_p;
                 const int         YEAR        = DATA[i].d_year;
                 const int         MONTH       = DATA[i].d_month;
                 const int         DAY         = DATA[i].d_day;
@@ -2903,18 +2439,18 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int    LINE         = DATA[i].d_line;
-                const string INPUT        = DATA[i].d_input_p;
-                const int    YEAR         = DATA[i].d_year;
-                const int    MONTH        = DATA[i].d_month;
-                const int    DAY          = DATA[i].d_day;
-                const int    HOUR         = DATA[i].d_hour;
-                const int    MINUTE       = DATA[i].d_minutes;
-                const int    SECOND       = DATA[i].d_seconds;
-                const int    MILLISECOND  = DATA[i].d_milliSecs;
-                const int    MICROSECOND  = DATA[i].d_microSecs;
-                const int    OFFSET       = DATA[i].d_tzoffset;
-                const bool   IS_VALID     = DATA[i].d_isValid;
+                const int         LINE         = DATA[i].d_line;
+                const bsl::string INPUT        = DATA[i].d_input_p;
+                const int         YEAR         = DATA[i].d_year;
+                const int         MONTH        = DATA[i].d_month;
+                const int         DAY          = DATA[i].d_day;
+                const int         HOUR         = DATA[i].d_hour;
+                const int         MINUTE       = DATA[i].d_minutes;
+                const int         SECOND       = DATA[i].d_seconds;
+                const int         MILLISECOND  = DATA[i].d_milliSecs;
+                const int         MICROSECOND  = DATA[i].d_microSecs;
+                const int         OFFSET       = DATA[i].d_tzoffset;
+                const bool        IS_VALID     = DATA[i].d_isValid;
 
                 bdlt::Datetime dt(YEAR, MONTH, DAY,
                                   HOUR, MINUTE, SECOND,
@@ -3199,8 +2735,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line    input
                 //----    -----
-                { L_,     "abcdefX",    },
-                { L_,     "abcdefgX",   },
+                { L_,     "0123456789_0123456789_12345X",    },
+                { L_,     "0123456789_0123456789_123456X",   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3691,8 +3227,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line    input   result
                 //----    -----   ------
-                { L_,     "1X",    test::MyEnumeration::VALUE1      },
-                { L_,     "2X",    test::MyEnumeration::VALUE2      },
+                { L_,     "0X",    test::MyEnumeration::VALUE1      },
+                { L_,     "1X",    test::MyEnumeration::VALUE2      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3708,8 +3244,8 @@ int main(int argc, char *argv[])
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                ASSERTV(LINE, retCode, 0               == retCode);
+                ASSERTV(LINE, EXPECTED_RESULT, X, EXPECTED_RESULT == X);
             }
         }
 
@@ -3724,7 +3260,7 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line    input
                 //----    -----
-                { L_,     "0X",        },
+                { L_,     "2X",        },
                 { L_,     "3X",        },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;

@@ -1,0 +1,161 @@
+ s_baltst.txt
+
+@PURPOSE: Private auto-generated classes for testing of other packages.
+
+@SEE_ALSO: balber, baljsn, balxml
+
+@DESCRIPTION: The 's_baltst' package provides a number of classes for testing
+ encoders and decoders in other packages.
+
+/Component - Class Synopsys
+/--------------------------
+
+/Auto-generated - single 'class' or 'struct' per component:
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+..
+   Component                                'class' or 'struct'
+
+1. s_baltst_address                         Address
+   s_baltst_basicrecord                     BasicRecord
+   s_baltst_bigrecord                       BigRecord
+   s_baltst_customint                       CustomInt
+   s_baltst_customizedstring                CustomString
+   s_baltst_customstring                    CustomizedString
+   s_baltst_employee                        Employee
+   s_baltst_enumerated                      Enumerated
+   s_baltst_mychoice                        MyChoice
+   s_baltst_myenumeration                   MyEnumeration
+   s_baltst_mysequence                      MySequence
+   s_baltst_mysequencewithanonymouschoice   MySequenceWithAnonymousChoice
+   s_baltst_mysequencewithanonymouschoicechoice   
+                                            MySequenceWithAnonymousChoiceChoice
+   s_baltst_mysequencewitharray             MySequenceWithArray
+   s_baltst_mysequencewithattributes        MySequenceWithAttributes
+   s_baltst_mysequencewithnillable          MySequenceWithNillable
+   s_baltst_mysequencewithnillables         MySequenceWithNillables
+   s_baltst_mysequencewithnullable          MySequenceWithNullable
+   s_baltst_mysequencewithnullables         MySequenceWithNullables
+   s_baltst_mysimplecontent                 MySimpleContent
+   s_baltst_mysimpleintcontent              MySimpleIntContent
+   s_baltst_rawdata                         RawData
+   s_baltst_rawdataswitched                 RawDataSwitched
+   s_baltst_rawdataunformatted              RawDataUnformatted
+   s_baltst_sqrt                            Sqrt
+   s_baltst_timingrequest                   TimingRequest
+   s_baltst_topchoice                       Topchoice
+..
+/Multiple auto-generated classes merged into a single component:
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+..
+2. s_baltst_ratsnest{choice{1,2,3},sequence{1,2,3,4,5,6}}
+
+   Classes: Choice1, Choice2, Choice3, Sequence1, Sequence2, Sequence3,
+            Sequence4, Sequence5, Sequence6
+
+   These nine auto-generated components must be merged into a single component,
+   s_baltst_ratsnest, after being generated (see instructions below).
+..
+/Hand-written superficial test driver:
+/ - - - - - - - - - - - - - - - - - -
+: There is only one test driver in the package.  All it has is a breathing
+: test which default constructs every value type in the package, and ensures
+: that 'operator==' and 'operator!=' exist and work and that 'operator<<'
+: exists.
+..
+3. s_baltst_test
+..
+/Schema:
+/ - - -
+..                                                                            \
+4. s_baltst.xsd
+..
+/Generation Script:
+/- - - - - - - - -
+..
+5. s_baltst_codegen.sh
+..
+: To run this script, copy 'baltxt.xsd' and 's_baltst_codegen.sh' to an empty
+: directory, and run the script there with no arguments.
+..
+    $ mkdir tmpDir
+    $ cp s_baltst.xsd s_baltst_codegen.sh tmpDir
+    $ cd tmpDir
+    $ ./s_baltst_codegen.sh
+..
+. The script will refuse to run in the source directory where it lives, since
+: that would write over the source there, most of which will probably not need
+: to be changed.
+:
+: The script will generate all the components listed in '1' above (but not
+: 's_baltst_test'), which will not need any modification.  If the changes you
+: made to schema file 's_baltst.xsd' affect only classes in these components,
+: you can just copy those components into your source directory, rebuild, and
+: you're done.
+
+/Rat's Nest
+/ - - - - -
+: The file 's_baltst_ratsnest' will NOT be auto-generated, instead the script
+: will generate 9 rat's nest components, with one class apiece.
+..
+6.  s_baltst_ratsnestchoice1
+    s_baltst_ratsnestchoice2
+    s_baltst_ratsnestchoice3
+    s_baltst_ratsnestsequence1
+    s_baltst_ratsnestsequence2
+    s_baltst_ratsnestsequence3
+    s_baltst_ratsnestsequence4
+    s_baltst_ratsnestsequence5
+    s_baltst_ratsnestsequence6
+..
+: The classes in these components have a complex and sometimes circular set of
+: dependencies, hence the name 'Rat's Nest' and the need for them to be in a
+: single component, which shall be named 's_baltst_ratsnest'.
+:
+:
+: To get the includes needed for 's_baltst_ratsnest.h', do
+..
+$ grep '#include' s_baltst_ratsnest*.h  | sed -e 's/^.*[:]//' | sort -u
+..
+: and for 's_baltst_ratsnest.cpp', do
+..
+$ grep '#include' s_baltst_ratsnest*.cpp  | sed -e 's/^.*[:]//' | sort -u
+..
+: However, BAS does not seem to be designed with circular dependencies in mind,
+: and when putting classes into separate component, seems to have each
+: component include include files from all the previously generated components,
+: without regard to which dependencies actually exist.
+:
+: This winds up being problematic, because a lot of other 's_baltst_*'
+: components include 'baltst_ratsnest.h', which combined with the complex and
+: circular dependences, results in compilation failures.  But it turns out that
+: the ONLY other 's_baltst' include files needed to be included by
+: 's_baltst_ratsnest.h' are 's_baltst_customint.h', 's_baltst_customstring.h',
+: and 's_baltst_enumerated.h'.  Other than include files from other packages
+: and the system, 's_baltst_ratsnest.cpp' doesn't need any include file other
+: than 's_baltst_ratsnest.h'.
+:
+: Forward declare all 9 classes at the beginning before defining them, but
+: that's not enough, the order in which they are defined is important.  Because
+: of the dependencies, if they're defined in alphabetical order, very, very
+: bizarre (apparently 'impossible') and hard to understand compiler errors are
+: generated.  An order of the class definitions that has been found to work is:
+..
+7.  Choice1
+    Choice2
+    Sequence2
+    Sequence3
+    Sequence4
+    Sequence5
+    Sequence6
+    Choice3
+    Sequence1
+..
+: Define all the classes first and all definitions of inline and template
+: functions should follow the last one.
+:
+: The s_baltst_ratsnest*.cpp files can be merged into s_baltst_ratsnest.cpp
+: through a similar means, though the ordering of things in that file is
+: unimportant and can be in alphabetical order by class name.
+:
+: If you just changed the schema for a subset of the rat's nest classes, you
+: can hand-migrate your new work into s_baltst_ratsnets.{h,cpp}.

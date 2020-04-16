@@ -1,0 +1,578 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           xmlns='http://bloomberg.com/schemas/s_baltst'
+           targetNamespace='http://bloomberg.com/schemas/s_baltst'
+           elementFormDefault='qualified'>
+
+    <xs:annotation>
+        <xs:documentation>
+            Create a separate directory and run s_baltst_codegen.sh in it
+            with no command line arguments.  Further doc is in that script
+            and in doc/s_baltst.txt
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:annotation>
+        <xs:documentation>
+            The following types are built only out of basic types.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name='Address'>
+        <xs:sequence>
+            <xs:element name='street' type='xs:string'/>
+            <xs:element name='city' type='xs:string'/>
+            <xs:element name='state' type='xs:string'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='BasicRecord'>
+        <xs:annotation>
+            <xs:documentation>
+                A representative small record type
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name='i1' type='xs:int'/>
+            <xs:element name='i2' type='xs:int'/>
+            <xs:element name='dt' type='xs:dateTime'/>
+            <xs:element name='s'  type='xs:string'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name='CustomInt'>
+      <xs:restriction base='xs:int'>
+        <xs:maxInclusive value='1000'/>
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name='CustomizedString'>
+        <xs:restriction base='xs:string'>
+            <xs:maxLength value='25'/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name='CustomString'>
+      <xs:restriction base='xs:string'>
+        <xs:maxLength value='8'/>
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name='Enumerated' bdem:preserveEnumOrder='1'>
+      <xs:restriction base='xs:string'>
+         <xs:enumeration value='NEW_YORK'/>
+         <xs:enumeration value='NEW_JERSEY'/>
+         <xs:enumeration value='LONDON'/>
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name='MyEnumeration' bdem:preserveEnumOrder='1'>
+        <xs:restriction base='xs:string'>
+            <xs:enumeration value='VALUE1'/>
+            <xs:enumeration value='VALUE2'/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name='MyChoice'>
+        <xs:choice>
+            <xs:element name='selection1' type='xs:int'/>
+            <xs:element name='selection2' type='xs:string'/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name='MySequence'>
+        <xs:sequence>
+            <xs:element name='attribute1' type='xs:int'/>
+            <xs:element name='attribute2' type='xs:string'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithAnonymousChoice'>
+        <xs:sequence>
+            <xs:element name='attribute1' type='xs:int' minOccurs='0'/>
+            <xs:choice>
+                <xs:element name='myChoice1' type='xs:int'/>
+                <xs:element name='myChoice2' type='xs:string'/>
+            </xs:choice>
+            <xs:element name='attribute2' type='xs:string' minOccurs='0'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithArray'>
+        <xs:sequence>
+            <xs:element name='attribute1' type='xs:int'/>
+            <xs:element name='attribute2' type='xs:string'
+                                     minOccurs='0' maxOccurs='unbounded'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithAttributes'>
+        <xs:sequence>
+            <xs:element name='element1' type='xs:int' minOccurs='0'/>
+            <xs:element name='element2' type='xs:string' minOccurs='0'/>
+        </xs:sequence>
+        <xs:attribute name='attribute1' type='xs:int' use='required'/>
+        <xs:attribute name='attribute2' type='xs:string'/>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithNillable'>
+        <xs:sequence>
+            <xs:element name='attribute1' type='xs:int'/>
+            <xs:element name='myNillable' type='xs:string'
+                                                  nillable='true'/>
+            <xs:element name='attribute2' type='xs:string'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithNullable'>
+        <xs:sequence>
+            <xs:element name='attribute1' type='xs:int'/>
+            <xs:element name='attribute2' type='xs:string'
+                                           minOccurs='0' maxOccurs='1'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='MySimpleContent'>
+        <xs:simpleContent>
+            <xs:extension base='xs:string'>
+                <xs:attribute name='attribute1' type='xs:boolean'/>
+                <xs:attribute name='attribute2' type='xs:string'/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name='MySimpleIntContent'>
+        <xs:simpleContent>
+            <xs:extension base='xs:int'>
+                <xs:attribute name='attribute1' type='xs:boolean'/>
+                <xs:attribute name='attribute2' type='xs:string'/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name='RawData'>
+        <xs:sequence>
+            <xs:element name='charvec' type='xs:byte'
+                        minOccurs='0' maxOccurs='unbounded'
+                        bdem:formattingMode='default'
+                        bdem:id='0'/>
+            <xs:element name='ucharvec' type='xs:unsignedByte'
+                        minOccurs='0' maxOccurs='unbounded'
+                        bdem:formattingMode='default'
+                        bdem:id='1'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='RawDataSwitched'>
+        <xs:sequence>
+            <xs:element name='charvec' type='xs:byte'
+                        minOccurs='0' maxOccurs='unbounded'
+                        bdem:id='1'/>
+            <xs:element name='ucharvec' type='xs:unsignedByte'
+                        minOccurs='0' maxOccurs='unbounded'
+                        bdem:id='0'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='RawDataUnformatted'>
+        <xs:sequence>
+            <xs:element name='charvec' type='xs:byte'
+                        minOccurs='0' maxOccurs='unbounded'
+                        bdem:id='0'/>
+            <xs:element name='ucharvec' type='xs:unsignedByte'
+                        minOccurs='0' maxOccurs='unbounded'
+                        bdem:id='1'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='SimpleRequest'>
+      <xs:sequence>
+        <xs:element name='data'           type='xs:string'/>
+        <xs:element name='responseLength' type='xs:int'/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='Sqrt'>
+        <xs:annotation>
+            <xs:documentation>
+                Simulate a square root request/response
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name='value' type='xs:double'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='UnsignedSequence'>
+      <xs:sequence>
+        <xs:element name='element1' type='xs:unsignedInt'/>
+        <xs:element name='element2' type='xs:unsignedShort'/>
+        <xs:element name='element3' type='xs:unsignedLong'/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='VoidSequence'>
+      <xs:sequence/>
+    </xs:complexType>
+
+    <xs:annotation>
+        <xs:documentation>
+            The following types depend on the 'Address' type.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name='Employee'>
+        <xs:sequence>
+            <xs:element name='name' type='xs:string'/>
+            <xs:element name='homeAddress' type='Address'/>
+            <xs:element name='age' type='xs:int'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:annotation>
+        <xs:documentation>
+            The following types depend on the 'BasicRecord' type.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name='BigRecord'>
+        <xs:annotation>
+            <xs:documentation>
+                A bigger record containing an array of smaller records
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name='name' type='xs:string' />
+            <xs:element name='array' type='BasicRecord'
+                                minOccurs='0' maxOccurs='unbounded'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='TimingRequest'>
+        <xs:annotation>
+            <xs:documentation>
+                A choice record representative of a typical request
+                object.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name='sqrt' type='Sqrt'/>
+            <xs:element name='basic' type='BasicRecord'/>
+            <xs:element name='big' type='BigRecord'/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:annotation>
+        <xs:documentation>
+            The following types depend on the 'MySequence' type.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name='MySequenceWithNullables'>
+        <xs:sequence>
+            <xs:element name='attribute1' type='xs:int' minOccurs='0'/>
+            <xs:element name='attribute2' type='xs:string' minOccurs='0'/>
+            <xs:element name='attribute3' type='MySequence' minOccurs='0'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithNillables'>
+        <xs:sequence>
+            <xs:element name='attribute1' type='xs:int' nillable='true'/>
+            <xs:element name='attribute2' type='xs:string'
+                 nillable='true'/>
+            <xs:element name='attribute3' type='MySequence'
+                 nillable='true'/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:annotation>
+        <xs:documentation>
+            Rat's nest of 'Choice*' and 'Sequence*' types
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name='Choice1'>
+      <xs:choice>
+        <xs:element name='selection1' type='xs:int'/>
+        <xs:element name='selection2' type='xs:double'/>
+        <xs:element name='selection3' type='Sequence4'/>
+        <xs:element name='selection4' type='Choice2'/>
+      </xs:choice>
+    </xs:complexType>
+    
+    <xs:complexType name='Choice2'>
+      <xs:choice>
+        <xs:element name='selection1' type='xs:boolean'/>
+        <xs:element name='selection2' type='xs:string'/>
+        <xs:element name='selection3' type='Choice1'/>
+        <xs:element name='selection4' type='xs:unsignedInt'/>
+      </xs:choice>
+    </xs:complexType>
+    
+    <xs:complexType name='Choice3'>
+      <xs:choice>
+        <xs:element name='selection1' type='Sequence6'/>
+        <xs:element name='selection2' type='xs:unsignedByte'/>
+        <xs:element name='selection3' type='CustomString'/>
+        <xs:element name='selection4' type='CustomInt'/>
+      </xs:choice>
+    </xs:complexType>
+    
+    <xs:complexType name='Sequence1'>
+      <xs:sequence>
+        <xs:element name='element1' type='Choice3' minOccurs='0'/>
+        <xs:element name='element2' type='Choice1'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element3' type='Choice2' />
+        <xs:element name='element4' type='Choice1'
+                  nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element5' type='Choice3' minOccurs='0'
+                                                maxOccurs='unbounded'/>
+      </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name='Sequence2'>
+      <xs:sequence>
+        <xs:element name='element1' type='CustomString' />
+        <xs:element name='element2' type='xs:unsignedByte' />
+        <xs:element name='element3' type='xs:dateTime' />
+        <xs:element name='element4' type='Choice1' minOccurs='0'/>
+        <xs:element name='element5' type='xs:double' minOccurs='0'/>
+        <xs:element name='element6' type='xs:string' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element7' type='CustomString'
+                  nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+      </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name='Sequence3'>
+      <xs:sequence>
+        <xs:element name='element1' type='Enumerated'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element2' type='xs:string'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element3' type='xs:boolean' minOccurs='0'/>
+        <xs:element name='element4' type='xs:string' minOccurs='0'/>
+        <xs:element name='element5' type='Sequence5'
+                                                        minOccurs='0'/>
+        <xs:element name='element6' type='Enumerated'
+                  nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+      </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name='Sequence4'>
+      <xs:sequence>
+        <xs:element name='element1' type='Sequence3'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element2' type='Choice1'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element3' type='xs:hexBinary' minOccurs='0'/>
+        <xs:element name='element4' type='xs:int' minOccurs='0'/>
+        <xs:element name='element5' type='xs:dateTime' minOccurs='0'/>
+        <xs:element name='element6' type='CustomString'
+                                                        minOccurs='0'/>
+        <xs:element name='element7' type='Enumerated'
+                                                        minOccurs='0'/>
+        <xs:element name='element8' type='xs:boolean' />
+        <xs:element name='element9' type='xs:string' />
+        <xs:element name='element10' type='xs:double' />
+        <xs:element name='element11' type='xs:hexBinary' />
+        <xs:element name='element12' type='xs:int' />
+        <xs:element name='element13' type='Enumerated' />
+        <xs:element name='element14' type='xs:boolean'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element15' type='xs:double'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element16' type='xs:hexBinary'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element17' type='xs:int'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element18' type='xs:dateTime'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element19' type='CustomString'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+      </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name='Sequence5'>
+      <xs:sequence>
+        <xs:element name='element1' type='Sequence3' />
+        <xs:element name='element2' type='xs:boolean' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element3' type='xs:double' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element4' type='xs:hexBinary' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element5' type='xs:int' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element6' type='xs:dateTime' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element7' type='Sequence3' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+      </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name='Sequence6'>
+      <xs:sequence>
+        <xs:element name='element1' type='xs:unsignedByte'
+                                                        minOccurs='0'/>
+        <xs:element name='element2' type='CustomString'
+                                                        minOccurs='0'/>
+        <xs:element name='element3' type='CustomInt'
+                                                        minOccurs='0'/>
+        <xs:element name='element4' type='xs:unsignedInt' />
+        <xs:element name='element5' type='xs:unsignedByte' />
+        <xs:element name='element6' type='CustomInt' nillable='true'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element7' type='CustomString' />
+        <xs:element name='element8' type='CustomInt' />
+        <xs:element name='element9' type='xs:unsignedInt'
+                                                        minOccurs='0'/>
+        <xs:element name='element10' type='xs:unsignedByte'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element11' type='CustomString'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element12' type='xs:unsignedInt'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element13' type='xs:unsignedByte'
+                  nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element14' type='CustomInt'
+                                  minOccurs='0' maxOccurs='unbounded'/>
+        <xs:element name='element15' type='xs:unsignedInt'
+                  nillable='true' minOccurs='0' maxOccurs='unbounded'/>
+      </xs:sequence>
+    </xs:complexType>
+    
+    <xs:annotation>
+        <xs:documentation>
+            Classes dependent on rat's nest.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name='FeatureTestMessage'>
+      <xs:choice>
+        <xs:element name='selection1'  type='Sequence1'/>
+        <xs:element name='selection2'  type='xs:hexBinary'/>
+        <xs:element name='selection3'  type='Sequence2'/>
+        <xs:element name='selection4'  type='Sequence3'/>
+        <xs:element name='selection5'  type='xs:dateTime'/>
+        <xs:element name='selection6'  type='CustomString'/>
+        <xs:element name='selection7'  type='Enumerated'/>
+        <xs:element name='selection8'  type='Choice3'/>
+        <xs:element name='selection9'  type='VoidSequence'/>
+        <xs:element name='selection10' type='UnsignedSequence'/>
+        <xs:element name='selection11' type='SequenceWithAnonymity'/>
+      </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name='SequenceWithAnonymity'>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element name='selection1' type='Sequence6'/>
+          <xs:element name='selection2' type='xs:unsignedByte'/>
+          <xs:element name='selection3' type='CustomString'/>
+          <xs:element name='selection4' type='CustomInt'/>
+        </xs:choice>
+        <xs:choice>
+          <xs:element name='selection5' type='xs:boolean'/>
+          <xs:element name='selection6' type='xs:string'/>
+        </xs:choice>
+        <xs:choice minOccurs='0' maxOccurs='1'>
+          <xs:element name='selection7' type='Sequence4'/>
+          <xs:element name='selection8' type='Choice2'/>
+        </xs:choice>
+        <xs:element name='element4' type='Sequence6'/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name='Topchoice'>
+      <xs:choice>
+        <xs:element name='selection1' type='Sequence1'/>
+        <xs:element name='selection2' type='xs:hexBinary'/>
+        <xs:element name='selection3' type='Sequence2'/>
+        <xs:element name='selection4' type='Sequence3'/>
+        <xs:element name='selection5' type='xs:dateTime'/>
+        <xs:element name='selection6' type='CustomString'/>
+        <xs:element name='selection7' type='Enumerated'/>
+        <xs:element name='selection8' type='Choice3'/>
+      </xs:choice>
+    </xs:complexType>
+
+    <xs:annotation>
+        <xs:documentation>
+            Classes dependent on 'FeatureTestMessage'.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name='Request'>
+      <xs:choice>
+        <xs:element name='simpleRequest' type='SimpleRequest'/>
+        <xs:element name='featureRequest' type='FeatureTestMessage'/>
+      </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name='Response'>
+      <xs:choice>
+        <xs:element name='responseData'    type='xs:string'/>
+        <xs:element name='featureResponse' type='FeatureTestMessage'/>
+      </xs:choice>
+    </xs:complexType>
+
+    <xs:annotation>
+        <xs:documentation>
+            Forward everything to elements.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name='Address' type='Address'/>
+    <xs:element name='BasicRecord' type='BasicRecord'/>
+    <xs:element name='BigRecord' type='BigRecord'/>
+    <xs:element name='Choice1' type='Choice1'/>
+    <xs:element name='Choice2' type='Choice2'/>
+    <xs:element name='Choice3' type='Choice3'/>
+    <xs:element name='CustomInt' type='CustomInt'/>
+    <xs:element name='CustomizedString' type='CustomizedString'/>
+    <xs:element name='CustomString' type='CustomString'/>
+    <xs:element name='Employee' type='Employee'/>
+    <xs:element name='Enumerated' type='Enumerated'/>
+    <xs:element name='FeatureTestMessage' type='FeatureTestMessage'/>
+    <xs:element name='MyChoice' type='MyChoice'/>
+    <xs:element name='MyEnumeration' type='MyEnumeration'/>
+    <xs:element name='MySequence' type='MySequence'/>
+    <xs:element name='MySequenceWithAnonymousChoice'
+                type='MySequenceWithAnonymousChoice'/>
+    <xs:element name='MySequenceWithArray' type='MySequenceWithArray'/>
+    <xs:element name='MySequenceWithAttributes'
+                type='MySequenceWithAttributes'/>
+    <xs:element name='MySequenceWithNillable'
+                type='MySequenceWithNillable'/>
+    <xs:element name='MySequenceWithNillables'
+                type='MySequenceWithNillables'/>
+    <xs:element name='MySequenceWithNullable'
+                type='MySequenceWithNullable'/>
+    <xs:element name='MySequenceWithNullables'
+                type='MySequenceWithNullables'/>
+    <xs:element name='MySimpleContent' type='MySimpleContent'/>
+    <xs:element name='MySimpleIntContent' type='MySimpleIntContent'/>
+    <xs:element name='RawData' type='RawData'/>
+    <xs:element name='RawDataSwitched' type='RawDataSwitched'/>
+    <xs:element name='RawDataUnformatted' type='RawDataUnformatted'/>
+    <xs:element name='Request' type='Request'/>
+    <xs:element name='Response' type='Response'/>
+    <xs:element name='Sequence1' type='Sequence1'/>
+    <xs:element name='Sequence2' type='Sequence2'/>
+    <xs:element name='Sequence3' type='Sequence3'/>
+    <xs:element name='Sequence4' type='Sequence4'/>
+    <xs:element name='Sequence5' type='Sequence5'/>
+    <xs:element name='Sequence6' type='Sequence6'/>
+    <xs:element name='SequenceWithAnonymity' type='SequenceWithAnonymity'/>
+    <xs:element name='SimpleRequest' type='SimpleRequest'/>
+    <xs:element name='Sqrt' type='Sqrt'/>
+    <xs:element name='TimingRequest' type='TimingRequest'/>
+    <xs:element name='Topchoice' type='Topchoice'/>
+    <xs:element name='UnsignedSequence' type='UnsignedSequence'/>
+    <xs:element name='VoidSequence' type='VoidSequence'/>
+
+</xs:schema>

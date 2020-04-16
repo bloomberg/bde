@@ -9,6 +9,9 @@
 
 #include <balxml_typesprintutil.h>
 
+#include <s_baltst_customizedstring.h>
+#include <s_baltst_myenumeration.h>
+
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_enumfunctions.h>
 #include <bdlat_typetraits.h>
@@ -18,11 +21,11 @@
 #include <bdlb_nullablevalue.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
-
-
 #include <bdlt_datetime.h>
-#include <bslalg_typetraits.h>
+
 #include <bslim_testutil.h>
+
+#include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -39,9 +42,12 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
+namespace test = BloombergLP::s_baltst;
 
 // ============================================================================
 //                             TEST PLAN
@@ -78,15 +84,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
 #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
-
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -198,215 +195,6 @@ namespace bdlat_EnumFunctions {
 }  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
 
-// test_myenumeration.h   -*-C++-*-
-
-//@PURPOSE: todo: provide purpose.
-//
-//@CLASSES:
-//  MyEnumeration: an enumeration
-//
-//@DESCRIPTION:
-//  todo: provide annotation for 'MyEnumeration'
-
-namespace BloombergLP {
-
-namespace test {
-
-struct MyEnumeration {
-
-  public:
-    // TYPES
-    enum Value {
-        VALUE1 = 1,
-            // todo: provide annotation
-        VALUE2 = 2
-            // todo: provide annotation
-    };
-
-    enum {
-        // the number of enumerators in the 'Value' enumeration
-        NUM_ENUMERATORS = 2
-    };
-
-    // CONSTANTS
-    static const char CLASS_NAME[];
-        // the name of this class (i.e., "MyEnumeration")
-
-    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
-        // enumerator information for each enumerator
-
-    // CLASS METHODS
-    static const char *toString(Value value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
-
-    static int fromString(Value        *result,
-                          const char   *string,
-                          int           stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise
-        // (i.e., 'string' does not match any enumerator).
-
-    static int fromInt(Value *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
-        // enumerator).
-
-    static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of the
-        // specified enumeration 'value'.  Return a reference to the modifiable
-        // 'stream'.
-};
-
-// FREE OPERATORS
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
-
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-inline
-int MyEnumeration::fromInt(Value *result, int number)
-{
-    enum { SUCCESS = 0, NOT_FOUND = 1 };
-
-    switch (number) {
-      case VALUE1:
-      case VALUE2:
-        *result = (Value)number;
-        return SUCCESS;                                               // RETURN
-      default:
-        return NOT_FOUND;                                             // RETURN
-    }
-}
-
-inline
-bsl::ostream& MyEnumeration::print(bsl::ostream& stream, Value value)
-{
-    return stream << toString(value);
-}
-
-// ----------------------------------------------------------------------------
-
-// CLASS METHODS
-inline
-const char *MyEnumeration::toString(Value value)
-{
-    switch (value) {
-      case VALUE1: {
-        return "VALUE1";                                              // RETURN
-      } break;
-      case VALUE2: {
-        return "VALUE2";                                              // RETURN
-      } break;
-      default:
-        BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
-    }
-
-    return 0;
-}
-
-}  // close namespace test
-
-
-// TRAITS
-BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
-
-// FREE OPERATORS
-inline
-bsl::ostream& test::operator<<(bsl::ostream& stream, MyEnumeration::Value rhs)
-{
-    return MyEnumeration::print(stream, rhs);
-}
-
-}  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-//                       *End-of-file Block removed.*
-// ----------------------------------------------------------------------------
-
-// test_myenumeration.cpp  -*-C++-*-
-
-namespace BloombergLP {
-namespace test {
-
-                               // ---------
-                               // CONSTANTS
-                               // ---------
-
-const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
-    // the name of this class
-
-const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
-    {
-        VALUE1,
-        "VALUE1",                      // name
-        sizeof("VALUE1") - 1,          // name length
-        "todo: provide annotation"  // annotation
-    },
-    {
-        VALUE2,
-        "VALUE2",                      // name
-        sizeof("VALUE2") - 1,          // name length
-        "todo: provide annotation"  // annotation
-    }
-};
-
-                               // -------------
-                               // CLASS METHODS
-                               // -------------
-
-int MyEnumeration::fromString(Value      *result,
-                              const char *string,
-                              int         stringLength)
-{
-
-    enum { SUCCESS = 0, NOT_FOUND = 1 };
-
-    switch(stringLength) {
-        case 6: {
-            if (bdlb::CharType::toUpper(string[0])=='V' &&
-                bdlb::CharType::toUpper(string[1])=='A' &&
-                bdlb::CharType::toUpper(string[2])=='L' &&
-                bdlb::CharType::toUpper(string[3])=='U' &&
-                bdlb::CharType::toUpper(string[4])=='E') {
-                switch(bdlb::CharType::toUpper(string[5])) {
-                    case '1': {
-                        *result = MyEnumeration::VALUE1;
-                        return SUCCESS;                               // RETURN
-                    } break;
-                    case '2': {
-                        *result = MyEnumeration::VALUE2;
-                        return SUCCESS;                               // RETURN
-                    } break;
-                }
-            }
-        } break;
-    }
-
-    return NOT_FOUND;
-
-}
-
-                                // --------
-                                // CREATORS
-                                // --------
-
-                                // ------------
-                                // MANIPULATORS
-                                // ------------
-
-                                // ---------
-                                // ACCESSORS
-                                // ---------
-
-}  // close namespace test
-}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 //                       *End-of-file Block removed.*
@@ -423,8 +211,7 @@ int MyEnumeration::fromString(Value      *result,
 //  todo: provide annotation for 'CustomizedInt'
 
 namespace BloombergLP {
-
-namespace test {
+namespace s_baltst {
 
 class CustomizedInt {
 
@@ -583,7 +370,7 @@ const int& CustomizedInt::toInt() const
     return d_value;
 }
 
-}  // close namespace test
+}  // close namespace s_baltst
 
 // TRAITS
 
@@ -618,7 +405,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const CustomizedInt& rhs)
 // test_customizedint.cpp  -*-C++-*-
 
 namespace BloombergLP {
-namespace test {
+namespace s_baltst {
 
                                // ---------
                                // CONSTANTS
@@ -643,260 +430,7 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test
-}  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-//                       *End-of-file Block removed.*
-// ----------------------------------------------------------------------------
-
-// test_customizedstring.h   -*-C++-*-
-
-//@PURPOSE: todo: provide purpose.
-//
-//@CLASSES:
-//  CustomizedString: a customized string
-//
-//@DESCRIPTION:
-//  todo: provide annotation for 'CustomizedString'
-
-namespace BloombergLP {
-
-namespace test {
-
-class CustomizedString {
-
-  private:
-    // PRIVATE DATA MEMBERS
-    bsl::string d_value;  // stored value
-
-    // FRIENDS
-    friend bool operator==(const CustomizedString&,
-                           const CustomizedString&);
-    friend bool operator!=(const CustomizedString&,
-                           const CustomizedString&);
-
-  public:
-    // TYPES
-    typedef bsl::string BaseType;
-
-    // CONSTANTS
-    static const char CLASS_NAME[];
-        // the name of this class (i.e., "CustomizedString")
-
-    // CREATORS
-    explicit CustomizedString(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'CustomizedString' having the default
-        // value.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
-
-    CustomizedString(const CustomizedString&  original,
-                     bslma::Allocator        *basicAllocator = 0);
-        // Create an object of type 'CustomizedString' having the value of the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
-
-    explicit CustomizedString(const bsl::string&  value,
-                              bslma::Allocator   *basicAllocator = 0);
-        // Create an object of type 'CustomizedString' having the specified
-        // 'value'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
-
-    ~CustomizedString();
-        // Destroy this object.
-
-    // MANIPULATORS
-    CustomizedString& operator=(const CustomizedString& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-
-    void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
-
-    int fromString(const bsl::string& value);
-        // Convert from the specified 'value' to this type.  Return 0 if
-        // successful and non-zero otherwise.
-
-    // ACCESSORS
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
-
-    const bsl::string& toString() const;
-        // Convert this value to 'bsl::string'.
-};
-
-// FREE OPERATORS
-inline
-bool operator==(const CustomizedString& lhs, const CustomizedString& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
-
-inline
-bool operator!=(const CustomizedString& lhs, const CustomizedString& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
-
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-// CREATORS
-
-inline
-CustomizedString::CustomizedString(bslma::Allocator *basicAllocator)
-: d_value(basicAllocator)
-{
-}
-
-inline
-CustomizedString::CustomizedString(const CustomizedString&  original,
-                                   bslma::Allocator        *basicAllocator)
-: d_value(original.d_value, basicAllocator)
-{
-}
-
-inline
-CustomizedString::CustomizedString(const bsl::string&  value,
-                                   bslma::Allocator   *basicAllocator)
-: d_value(value, basicAllocator)
-{
-}
-
-inline
-CustomizedString::~CustomizedString()
-{
-}
-
-// MANIPULATORS
-
-inline
-CustomizedString& CustomizedString::operator=(const CustomizedString& rhs)
-{
-    d_value = rhs.d_value;
-    return *this;
-}
-
-inline
-void CustomizedString::reset()
-{
-    bdlat_ValueTypeFunctions::reset(&d_value);
-}
-
-inline
-int CustomizedString::fromString(const bsl::string& value)
-{
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    if (5 < value.size()) {
-        return FAILURE;                                               // RETURN
-    }
-
-    d_value = value;
-
-    return SUCCESS;
-}
-
-// ACCESSORS
-
-inline
-bsl::ostream& CustomizedString::print(bsl::ostream& stream,
-                                      int           level,
-                                      int           spacesPerLevel) const
-{
-    return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
-}
-
-inline
-const bsl::string& CustomizedString::toString() const
-{
-    return d_value;
-}
-
-}  // close namespace test
-
-// TRAITS
-
-BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(test::CustomizedString)
-
-// FREE OPERATORS
-
-inline
-bool test::operator==(const CustomizedString& lhs, const CustomizedString& rhs)
-{
-    return lhs.d_value == rhs.d_value;
-}
-
-inline
-bool test::operator!=(const CustomizedString& lhs, const CustomizedString& rhs)
-{
-    return lhs.d_value != rhs.d_value;
-}
-
-inline
-bsl::ostream& test::operator<<(bsl::ostream&           stream,
-                               const CustomizedString& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-}  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-//                       *End-of-file Block removed.*
-// ----------------------------------------------------------------------------
-
-// test_customizedstring.cpp  -*-C++-*-
-
-namespace BloombergLP {
-namespace test {
-
-                               // ---------
-                               // CONSTANTS
-                               // ---------
-
-const char CustomizedString::CLASS_NAME[] = "CustomizedString";
-    // the name of this class
-
-                                // -------------
-                                // CLASS METHODS
-                                // -------------
-
-                                // --------
-                                // CREATORS
-                                // --------
-
-                                // ------------
-                                // MANIPULATORS
-                                // ------------
-
-                                // ---------
-                                // ACCESSORS
-                                // ---------
-
-}  // close namespace test
+}  // close namespace s_baltst
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
@@ -990,7 +524,7 @@ void usageExample2()
 //..
     balxml::TypesPrintUtil::printText(ss, VALID_STR);
     ASSERT(ss.good());
-    LOOP2_ASSERT(EXPECTED_RESULT, ss.str(), EXPECTED_RESULT == ss.str());
+    ASSERTV(EXPECTED_RESULT, ss.str(), EXPECTED_RESULT == ss.str());
 //..
 // In addition, when invalid data is printed, the stream is set to a bad
 // state which is the proper means for the user to detect an error, as shown in
@@ -1001,7 +535,7 @@ void usageExample2()
     balxml::TypesPrintUtil::printText(ss, INVALID_STR);
     const char EXPECTED_INVALID_RESULT[] = "Hello ";
     ASSERT(ss.fail());
-    LOOP2_ASSERT(EXPECTED_INVALID_RESULT, ss.str(),
+    ASSERTV(EXPECTED_INVALID_RESULT, ss.str(),
                  EXPECTED_INVALID_RESULT == ss.str());
 }
 //..
@@ -1078,7 +612,7 @@ int main(int argc, char *argv[])
 
                 Util::print(ss, X, bdlat_FormattingMode::e_BASE64);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1107,7 +641,7 @@ int main(int argc, char *argv[])
 
                 Util::print(ss, INPUT, bdlat_FormattingMode::e_DEC);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1136,7 +670,7 @@ int main(int argc, char *argv[])
 
                 Util::print(ss, INPUT, bdlat_FormattingMode::e_DEFAULT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1170,7 +704,7 @@ int main(int argc, char *argv[])
 
                 Util::print(ss, INPUT, bdlat_FormattingMode::e_DEFAULT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1212,7 +746,7 @@ int main(int argc, char *argv[])
 
                 Util::print(ss, X, bdlat_FormattingMode::e_HEX);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1250,14 +784,14 @@ int main(int argc, char *argv[])
 
                 Util::print(ss, X, bdlat_FormattingMode::e_LIST);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
 
                 ss.str("");
 
                 Util::print(ss, X, bdlat_FormattingMode::e_LIST |
                                    bdlat_FormattingMode::e_DEC);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1286,7 +820,7 @@ int main(int argc, char *argv[])
 
                 Util::print(ss, INPUT, bdlat_FormattingMode::e_TEXT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1329,7 +863,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1363,7 +897,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1397,7 +931,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1431,7 +965,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1478,7 +1012,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1513,7 +1047,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1544,7 +1078,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1575,7 +1109,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1606,7 +1140,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1637,7 +1171,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1686,7 +1220,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -1725,7 +1259,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2593,7 +2127,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT, &options);
 
-                LOOP3_ASSERT(LINE, ss.str(), RESULT, RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT, RESULT == ss.str());
             }
         }
 
@@ -2625,7 +2159,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2673,7 +2207,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2721,7 +2255,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2769,7 +2303,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2803,7 +2337,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2832,7 +2366,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2865,7 +2399,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, Type(INPUT));
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -2899,7 +2433,7 @@ int main(int argc, char *argv[])
 
                 Util::printDefault(ss, Type(INPUT));
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -3122,7 +2656,7 @@ int main(int argc, char *argv[])
                     Util::printDefault(oss, theDateTz, &options);
 
                     bsl::string result = oss.str();
-                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                    ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
                 if (verbose) cout << "Print Time" << endl;
@@ -3158,7 +2692,7 @@ int main(int argc, char *argv[])
                     Util::printDefault(oss, theTimeTz, &options);
 
                     bsl::string result = oss.str();
-                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                    ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
                 if (verbose) cout << "Print Datetime" << endl;
@@ -3182,7 +2716,7 @@ int main(int argc, char *argv[])
                     Util::printDefault(oss, theDatetime, &options);
 
                     bsl::string result = oss.str();
-                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                    ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
                 if (verbose) cout << "Print DatetimeTz" << endl;
@@ -3207,7 +2741,7 @@ int main(int argc, char *argv[])
                     Util::printDefault(oss, theDatetimeTz, &options);
 
                     bsl::string result = oss.str();
-                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                    ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
                 if (verbose) cout << "Print DatetimeTzMs" << endl;
@@ -3220,7 +2754,7 @@ int main(int argc, char *argv[])
                     Util::printDefault(oss, theDatetimeTz, &options);
 
                     bsl::string result = oss.str();
-                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                    ASSERTV(LINE, result, EXP, result == EXP);
                 }
             }
         }
@@ -3282,7 +2816,7 @@ int main(int argc, char *argv[])
 
                 Util::printText(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -3367,7 +2901,7 @@ int main(int argc, char *argv[])
 
                 Util::printText(ss, INPUT);
 
-                LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -3446,8 +2980,8 @@ int main(int argc, char *argv[])
 
                 Util::printText(ss, INPUT);
 
-                LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                LOOP_ASSERT(LINE, ss.fail());
+                ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.fail());
             }
         }
 
@@ -3754,8 +3288,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     char mINPUT2[64];             const char *INPUT2 = mINPUT2;
                     bsl::strcpy(mINPUT2, HEADER.c_str());
@@ -3765,8 +3299,8 @@ int main(int argc, char *argv[])
                     bsl::strcat(mRESULT2, RESULT);
                     ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     char mINPUT3[64];             const char *INPUT3 = mINPUT3;
                     bsl::strcpy(mINPUT3, INPUT);
@@ -3776,8 +3310,8 @@ int main(int argc, char *argv[])
                     bsl::strcat(mRESULT3, TRAILER.c_str());
                     ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     char mINPUT4[64];             const char *INPUT4 = mINPUT4;
                     bsl::strcpy(mINPUT4, HEADER.c_str());
@@ -3789,8 +3323,8 @@ int main(int argc, char *argv[])
                     bsl::strcat(mRESULT4, TRAILER.c_str());
                     ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.good());
                 }
             }
 
@@ -3806,29 +3340,29 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const Type INPUT2 = HEADER + INPUT;
                     const Type RESULT2 = HEADER + RESULT;
                     ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const Type INPUT3 = INPUT + TRAILER;
                     const Type RESULT3 = RESULT + TRAILER;
                     ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const Type INPUT4 = HEADER + INPUT + TRAILER;
                     const Type RESULT4 = HEADER + RESULT + TRAILER;
                     ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.good());
                 }
             }
 
@@ -3844,8 +3378,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const bsl::string INPUT2_STR = HEADER + INPUT;
                     const bsl::string RESULT2_STR = HEADER + RESULT;
@@ -3853,8 +3387,8 @@ int main(int argc, char *argv[])
                     const Type RESULT2 = RESULT2_STR;
                     ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const bsl::string INPUT3_STR = INPUT + TRAILER;
                     const bsl::string RESULT3_STR = RESULT + TRAILER;
@@ -3862,8 +3396,8 @@ int main(int argc, char *argv[])
                     const Type RESULT3 = RESULT3_STR;
                     ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const bsl::string INPUT4_STR = HEADER + INPUT + TRAILER;
                     const bsl::string RESULT4_STR = HEADER + RESULT + TRAILER;
@@ -3871,8 +3405,8 @@ int main(int argc, char *argv[])
                     const Type RESULT4 = RESULT4_STR;
                     ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.good());
                 }
             }
 
@@ -3888,8 +3422,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const bsl::string INPUT2_STR = HEADER + INPUT;
                     const bsl::string RESULT2_STR = HEADER + RESULT;
@@ -3897,8 +3431,8 @@ int main(int argc, char *argv[])
                     const Type RESULT2 = RESULT2_STR;
                     ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const bsl::string INPUT3_STR = INPUT + TRAILER;
                     const bsl::string RESULT3_STR = RESULT + TRAILER;
@@ -3906,8 +3440,8 @@ int main(int argc, char *argv[])
                     const Type RESULT3 = RESULT3_STR;
                     ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     const bsl::string INPUT4_STR = HEADER + INPUT + TRAILER;
                     const bsl::string RESULT4_STR = HEADER + RESULT + TRAILER;
@@ -3915,8 +3449,8 @@ int main(int argc, char *argv[])
                     const Type RESULT4 = RESULT4_STR;
                     ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.good());
                 }
             }
 
@@ -3935,8 +3469,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     Type mINPUT2;                 const Type& INPUT2 = mINPUT2;
                     mINPUT2.insert(mINPUT2.end(),
@@ -3945,8 +3479,8 @@ int main(int argc, char *argv[])
                     const bsl::string RESULT2 = HEADER + RESULT;
                     ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     Type mINPUT3;                 const Type& INPUT3 = mINPUT3;
                     mINPUT3.insert(mINPUT3.end(), INPUT.begin(), INPUT.end());
@@ -3955,8 +3489,8 @@ int main(int argc, char *argv[])
                     const bsl::string RESULT3 = RESULT + TRAILER;
                     ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
                     Type mINPUT4;                 const Type& INPUT4 = mINPUT4;
                     mINPUT4.insert(mINPUT4.end(),
@@ -3967,8 +3501,8 @@ int main(int argc, char *argv[])
                     const bsl::string RESULT4 = HEADER + RESULT + TRAILER;
                     ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.good());
                 }
             }
 
@@ -3985,29 +3519,41 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.good());
 
-                    const Type INPUT2 ( HEADER + INPUT.toString() );
+                    const bsl::string pre2 = HEADER + INPUT.toString();
+                    if (25 < pre2.length()) {
+                        continue;
+                    }
+                    const Type INPUT2 ( pre2 );
                     bsl::string RESULT2 = HEADER + RESULT;
                     ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
-                    const Type INPUT3 ( INPUT.toString() + TRAILER );
+                    const bsl::string pre3 = INPUT.toString() + TRAILER;
+                    if (25 < pre3.length()) {
+                        continue;
+                    }
+                    const Type INPUT3(pre3);
                     bsl::string RESULT3 = RESULT + TRAILER;
                     ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.good());
 
-                    const Type INPUT4 ( HEADER + INPUT.toString() + TRAILER );
+                    const bsl::string pre4 = HEADER+INPUT.toString()+TRAILER;
+                    if (25 < pre4.length()) {
+                        continue;
+                    }
+                    const Type INPUT4 (pre4);
                     bsl::string RESULT4 = HEADER + RESULT + TRAILER;
                     ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.good());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.good());
                 }
             }
         }
@@ -4284,8 +3830,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     char mINPUT2[64];             const char *INPUT2 = mINPUT2;
                     bsl::strcpy(mINPUT2, HEADER.c_str());
@@ -4294,8 +3840,8 @@ int main(int argc, char *argv[])
                     bsl::strcpy(mRESULT2, HEADER.c_str());
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     char mINPUT3[64];             const char *INPUT3 = mINPUT3;
                     bsl::strcpy(mINPUT3, INPUT);
@@ -4303,8 +3849,8 @@ int main(int argc, char *argv[])
                     char mRESULT3[64] = "";     const char *RESULT3 = mRESULT3;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     char mINPUT4[64];             const char *INPUT4 = mINPUT4;
                     bsl::strcpy(mINPUT4, HEADER.c_str());
@@ -4314,8 +3860,8 @@ int main(int argc, char *argv[])
                     bsl::strcpy(mRESULT4, HEADER.c_str());
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.fail());
                 }
             }
 
@@ -4331,29 +3877,29 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const Type INPUT2 = HEADER + INPUT;
                     const Type RESULT2 = HEADER + Type(RESULT);
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const Type INPUT3 = INPUT + TRAILER;
                     const Type RESULT3 = RESULT;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const Type INPUT4 = HEADER + INPUT + TRAILER;
                     const Type RESULT4 = HEADER + Type(RESULT);
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.fail());
                 }
             }
 
@@ -4370,8 +3916,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const bsl::string INPUT2_STR = HEADER + INPUT;
                     const bsl::string RESULT2_STR = HEADER + RESULT;
@@ -4379,16 +3925,16 @@ int main(int argc, char *argv[])
                     const Type RESULT2 = RESULT2_STR;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const bsl::string INPUT3_STR = INPUT + TRAILER;
                     const Type INPUT3 = INPUT3_STR;
                     const Type RESULT3 = RESULT;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const bsl::string INPUT4_STR = HEADER + INPUT + TRAILER;
                     const bsl::string RESULT4_STR = HEADER + RESULT;
@@ -4396,8 +3942,8 @@ int main(int argc, char *argv[])
                     const Type RESULT4 = RESULT4_STR;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.fail());
                 }
             }
 
@@ -4414,8 +3960,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const bsl::string INPUT2_STR = HEADER + INPUT;
                     const bsl::string RESULT2_STR = HEADER + RESULT;
@@ -4423,16 +3969,16 @@ int main(int argc, char *argv[])
                     const Type RESULT2 = RESULT2_STR;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const bsl::string INPUT3_STR = INPUT + TRAILER;
                     const Type INPUT3 = INPUT3_STR;
                     const Type RESULT3 = RESULT;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const bsl::string INPUT4_STR = HEADER + INPUT + TRAILER;
                     const bsl::string RESULT4_STR = HEADER + RESULT;
@@ -4440,8 +3986,8 @@ int main(int argc, char *argv[])
                     const Type RESULT4 = RESULT4_STR;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.fail());
                 }
             }
 
@@ -4460,8 +4006,8 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     Type mINPUT2;                 const Type& INPUT2 = mINPUT2;
                     mINPUT2.insert(mINPUT2.end(),
@@ -4470,8 +4016,8 @@ int main(int argc, char *argv[])
                     const bsl::string RESULT2 = HEADER;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     Type mINPUT3;                 const Type& INPUT3 = mINPUT3;
                     mINPUT3.insert(mINPUT3.end(), INPUT.begin(), INPUT.end());
@@ -4480,8 +4026,8 @@ int main(int argc, char *argv[])
                     const bsl::string RESULT3;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     Type mINPUT4;                 const Type& INPUT4 = mINPUT4;
                     mINPUT4.insert(mINPUT4.end(),
@@ -4492,10 +4038,15 @@ int main(int argc, char *argv[])
                     const bsl::string RESULT4 = HEADER;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.fail());
                 }
             }
+
+#if 0
+// It appears to be undefined behavior to feed invalid UTF-8 to a BAS-generated
+// type.  See DRQS 156550647.  It wasn't at the time this test was originally
+// written.
 
             if (verbose)
               cout << "\nUsing 'CustomizedString' on invalid strings." << endl;
@@ -4509,31 +4060,32 @@ int main(int argc, char *argv[])
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
-                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const Type INPUT2 ( HEADER + INPUT.toString() );
                     const char *RESULT2 = HEADER.c_str();
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT2);
-                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const Type INPUT3 ( INPUT.toString() + TRAILER );
                     const char *RESULT3 = RESULT;
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT3);
-                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    ASSERTV(LINE, ss.fail());
 
                     const Type INPUT4 ( HEADER + INPUT.toString() + TRAILER );
                     const char *RESULT4 = HEADER.c_str();
                     ss.clear(); ASSERT(ss.good()); ss.str("");
                     Util::printText(ss, INPUT4);
-                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
-                    LOOP_ASSERT(LINE, ss.fail());
+                    ASSERTV(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    ASSERTV(LINE, ss.fail());
                 }
             }
+#endif
         }
 
         if (verbose) cout << "\nUsing 'MyEnumeration::Value'." << endl;
@@ -4561,8 +4113,8 @@ int main(int argc, char *argv[])
 
                 Util::printText(ss, INPUT);
 
-                LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                LOOP_ASSERT(LINE, ss.good());
+                ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.good());
             }
         }
 
@@ -4614,7 +4166,7 @@ int main(int argc, char *argv[])
 
                 Util::printList(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4662,7 +4214,7 @@ int main(int argc, char *argv[])
 
                 Util::printHex(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4681,7 +4233,7 @@ int main(int argc, char *argv[])
 
                 Util::printHex(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4700,7 +4252,7 @@ int main(int argc, char *argv[])
 
                 Util::printHex(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4719,7 +4271,7 @@ int main(int argc, char *argv[])
 
                 Util::printHex(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4762,7 +4314,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4796,7 +4348,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4830,7 +4382,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4864,7 +4416,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4911,7 +4463,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP3_ASSERT(LINE, ss.str(), RESULT, RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT, RESULT == ss.str());
             }
         }
 
@@ -4946,7 +4498,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -4977,7 +4529,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5008,7 +4560,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5039,7 +4591,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5079,7 +4631,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP3_ASSERT(LINE, ss.str(), RESULT, RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT, RESULT == ss.str());
             }
         }
 
@@ -5110,7 +4662,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5125,8 +4677,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line    input                         result
                 //----    -----                         ------
-                { L_,     test::MyEnumeration::VALUE1,  "1"         },
-                { L_,     test::MyEnumeration::VALUE2,  "2"         },
+                { L_,     test::MyEnumeration::VALUE1,  "0"         },
+                { L_,     test::MyEnumeration::VALUE2,  "1"         },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -5139,7 +4691,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, RESULT, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5173,7 +4725,7 @@ int main(int argc, char *argv[])
 
                 Util::printDecimal(ss, Type(INPUT));
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5214,12 +4766,12 @@ int main(int argc, char *argv[])
                 if (bdlb::Float::isNan(INPUT) ||
                     bdlb::Float::isInfinite(INPUT)) {
 
-                    LOOP2_ASSERT(LINE, ss.str(), !ss);
+                    ASSERTV(LINE, ss.str(), !ss);
                 }
                 else {
                     bool rc = testFloatPointResult(ss.str().c_str(), RESULT);
 
-                    LOOP3_ASSERT(LINE, ss.str(), RESULT, rc);
+                    ASSERTV(LINE, ss.str(), RESULT, rc);
                 }
             }
         }
@@ -5265,12 +4817,12 @@ int main(int argc, char *argv[])
                 if (bdlb::Float::isNan(INPUT) ||
                     bdlb::Float::isInfinite(INPUT)) {
 
-                    LOOP2_ASSERT(LINE, ss.str(), !ss);
+                    ASSERTV(LINE, ss.str(), !ss);
                 }
                 else {
                     bool rc = testFloatPointResult(ss.str().c_str(), RESULT);
 
-                    LOOP3_ASSERT(LINE, ss.str(), RESULT, rc);
+                    ASSERTV(LINE, ss.str(), RESULT, rc);
                 }
             }
         }
@@ -5515,12 +5067,12 @@ int main(int argc, char *argv[])
                 if (bdlb::Float::isNan(INPUT) ||
                     bdlb::Float::isInfinite(INPUT)) {
 
-                    LOOP2_ASSERT(LINE, ss.str(), !ss);
+                    ASSERTV(LINE, ss.str(), !ss);
                 }
                 else {
                     bool rc = testFloatPointResult(ss.str().c_str(), RESULT);
 
-                    LOOP3_ASSERT(LINE, ss.str(), RESULT, rc);
+                    ASSERTV(LINE, ss.str(), RESULT, rc);
                 }
             }
         }
@@ -5569,7 +5121,7 @@ int main(int argc, char *argv[])
 
                 Util::printBase64(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5588,7 +5140,7 @@ int main(int argc, char *argv[])
 
                 Util::printBase64(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5607,7 +5159,7 @@ int main(int argc, char *argv[])
 
                 Util::printBase64(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5626,7 +5178,7 @@ int main(int argc, char *argv[])
 
                 Util::printBase64(ss, X);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
 
@@ -5649,7 +5201,7 @@ int main(int argc, char *argv[])
             balxml::TypesPrintUtil::print(ss,
                                           TestEnum::VALUE2,
                                           bdlat_FormattingMode::e_DEFAULT);
-            LOOP_ASSERT(ss.str(), "VALUE2" == ss.str());
+            ASSERTV(ss.str(), "VALUE2" == ss.str());
         }
 
         {
@@ -5658,7 +5210,7 @@ int main(int argc, char *argv[])
             balxml::TypesPrintUtil::print(ss,
                                           TestEnum::VALUE2,
                                           bdlat_FormattingMode::e_DEC);
-            LOOP_ASSERT(ss.str(), "2" == ss.str());
+            ASSERTV(ss.str(), "2" == ss.str());
         }
 
         {
@@ -5672,7 +5224,7 @@ int main(int argc, char *argv[])
 
             balxml::TypesPrintUtil::printBase64(ss, vec);
 
-            LOOP_ASSERT(ss.str(), "YWJjZA==" == ss.str());
+            ASSERTV(ss.str(), "YWJjZA==" == ss.str());
         }
 
         {
@@ -5686,7 +5238,7 @@ int main(int argc, char *argv[])
 
             balxml::TypesPrintUtil::printHex(ss, vec);
 
-            LOOP_ASSERT(ss.str(), "61626364" == ss.str());
+            ASSERTV(ss.str(), "61626364" == ss.str());
         }
       } break;
       default: {

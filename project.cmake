@@ -45,5 +45,6 @@ function(bdeproj_project_process_uors proj listDir)
         ${proj}
         ${listDir}/thirdparty/inteldfp
         ${listDir}/thirdparty/pcre2
+        ${listDir}/standalones/s_baltst
     )
 endfunction()
