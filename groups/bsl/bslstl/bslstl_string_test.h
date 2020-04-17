@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a second translation unit for 'string'
 // test cases to reduce the test-driver's build time.  Test cases 1-11, plus
 // the usage example test, are in the original component test driver, the
-// remaining tests (11 and higher) are in this subordinate components test
+// remaining tests (11 and higher) are in this subordinate component's test
 // driver.
 //
 // As the number of test concerns grows, and the number of types to instantiate

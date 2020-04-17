@@ -60,12 +60,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+using namespace BloombergLP;
+using bsl::deque;
+using bsl::Deque_BlockLengthCalcUtil;
+using bsls::NameOf;
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
 // NOTICE: To reduce the compilation time, this test driver has been broken
-// into 2 parts, 'bslstl_deque.t.cpp' (cases 1-11, plus the usage example), and
-// 'bslstl_deque_test.cpp' (cases 12 and higher).
+// into 3 parts, 'bslstl_deque.t.cpp' (cases 1-11, plus the usage example),
+// 'bslstl_deque_test1.cpp' (cases 12-23), and 'bslstl_deque_test2.cpp' (cases
+// 24 and higher).
 //
 //                              Overview
 //                              --------
@@ -144,8 +150,8 @@
 // [26] void push_front(T&& rvalue);
 // [17] void push_back(const T& value);
 // [26] void push_back(T&& rvalue);
-// [28] void emplace_front(Args&&... args);
-// [28] void emplace_back(Args&&... args);
+// [28] reference emplace_front(Args&&... args);
+// [28] reference emplace_back(Args&&... args);
 // [29] iterator emplace(const_iterator pos, Args&&... args);
 // [20] void pop_front();
 // [20] void pop_back();
@@ -273,57 +279,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
-//                             SWAP TEST HELPERS
-// ----------------------------------------------------------------------------
-
-namespace incorrect {
-
-template <class TYPE>
-void swap(TYPE&, TYPE&)
-    // Fail.  In a successful test, this 'swap' should never be called.  It is
-    // set up to be called (and fail) in the case where ADL fails to choose the
-    // right 'swap' in 'invokeAdlSwap' below.
-{
-    ASSERT(0 && "incorrect swap called");
-}
-
-}  // close namespace incorrect
-
-template <class TYPE>
-void invokeAdlSwap(TYPE *a, TYPE *b)
-    // Exchange the values of the specified '*a' and '*b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).
-{
-    using incorrect::swap;
-
-    // A correct ADL will key off the types of '*a' and '*b', which will be of
-    // our 'bsl' container type, to find the right 'bsl::swap' and not
-    // 'incorrect::swap'.
-
-    swap(*a, *b);
-}
-
-template <class TYPE>
-void invokePatternSwap(TYPE *a, TYPE *b)
-    // Exchange the values of the specified '*a' and '*b' objects using the
-    // 'swap' method found by the recommended pattern for calling 'swap'.
-{
-    // Invoke 'swap' using the recommended pattern for 'bsl' clients.
-
-    using bsl::swap;
-
-    swap(*a, *b);
-}
-
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' and 'invokePatternSwap' (above).
-
-using namespace BloombergLP;
-using bsl::deque;
-using bsl::Deque_BlockLengthCalcUtil;
-using bsls::NameOf;
-
-// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -370,8 +325,6 @@ struct PageLength {
 };
 
 // CONSTANTS
-const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-
 const char UNINITIALIZED_VALUE = '_';
 const char DEFAULT_VALUE       = 'z';
 const char VA = 'A';
@@ -396,15 +349,6 @@ const int  LARGE_SIZE_VALUE = 10;
     // Declare a large value for insertions into the deque.  Note this value
     // will cause multiple resizes during insertion into the deque.
 
-const int NUM_ALLOCS[] = {
-    // Number of allocations (blocks) to create a deque of the following size
-    // by using 'push_back' repeatedly (without initial reserve):
-    //
-    // 0    1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17
-    // --   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-       0,   1,  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  6
-};
-
 const int NUM_PADDING = 2;
     // BLOCK_ARRAY_PADDING as defined in 'bslalg_dequeimputil'.
 
@@ -416,22 +360,6 @@ const int DEFAULT_ALLOC_BLOCKS = 2;
     // a deque, or a moved-from state.
 
 const int k_MINIMUM_PAGE_LENGTH = NOMINAL_BLOCK_BYTES;
-
-// Define values used to initialize positional arguments for
-// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
-// constructors.  Note, that you cannot change those values as they are used by
-// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
-// objects to their integer identifiers.
-static const int V01 = 1;
-static const int V02 = 20;
-static const int V03 = 23;
-static const int V04 = 44;
-static const int V05 = 66;
-static const int V06 = 176;
-static const int V07 = 878;
-static const int V08 = 8;
-static const int V09 = 912;
-static const int V10 = 102;
 
 // ============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -502,74 +430,6 @@ void debugprint(const bsl::deque<TYPE,ALLOC>& v)
 }
 
 }  // close namespace bsl
-
-template <class CONTAINER, class VALUES>
-size_t verifyContainer(const CONTAINER& container,
-                       const VALUES&    expectedValues,
-                       size_t           expectedSize)
-    // Verify the specified 'container' has the specified 'expectedSize' and
-    // contains the same values as the array in the specified 'expectedValues'.
-    // Return 0 if 'container' has the expected values, and a non-zero value
-    // otherwise.
-{
-    ASSERTV(expectedSize, container.size(), expectedSize == container.size());
-
-    if (expectedSize != container.size()) {
-        return static_cast<size_t>(-1);                               // RETURN
-    }
-
-    typename CONTAINER::const_iterator it = container.cbegin();
-    for (size_t i = 0; i < expectedSize; ++i) {
-        ASSERTV(it != container.cend());
-        ASSERTV(i, expectedValues[i], *it, expectedValues[i] == *it);
-
-        if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[i])
-            != bsltf::TemplateTestFacility::getIdentifier(*it)) {
-            return i + 1;                                             // RETURN
-        }
-        ++it;
-    }
-    return 0;
-}
-
-template <class CONTAINER>
-size_t numMovedInto(const CONTAINER& X,
-                    size_t           startIndex = 0,
-                    size_t           endIndex   = 0)
-{
-    typedef bsltf::TemplateTestFacility TstFacility;
-    typedef bsltf::MoveState            MoveState;
-
-    int numMoved = 0;
-    size_t upTo = endIndex > startIndex ? endIndex : X.size();
-    for (size_t i = startIndex; i < upTo; ++i) {
-        MoveState::Enum mState = TstFacility::getMovedIntoState(X[i]);
-        if (MoveState::e_MOVED == mState || MoveState::e_UNKNOWN == mState) {
-            ++numMoved;
-        }
-    }
-    return numMoved;
-}
-
-template <class CONTAINER>
-size_t numNotMovedInto(const CONTAINER& X,
-                       size_t           startIndex = 0,
-                       size_t           endIndex   = 0)
-{
-    typedef bsltf::TemplateTestFacility TstFacility;
-    typedef bsltf::MoveState            MoveState;
-
-    int numNotMoved = 0;
-    size_t upTo = endIndex > startIndex ? endIndex : X.size();
-    for (size_t i = startIndex; i < upTo; ++i) {
-        MoveState::Enum mState = TstFacility::getMovedIntoState(X[i]);
-        if (MoveState::e_NOT_MOVED == mState
-         || MoveState::e_UNKNOWN   == mState) {
-            ++numNotMoved;
-        }
-    }
-    return numNotMoved;
-}
 
 template <class CONTAINER>
 bool verifySpec(const CONTAINER& c, const char *spec)
@@ -1417,206 +1277,6 @@ class BitwiseCopyableTestTypeNoAlloc : public SmallTestTypeNoAlloc {
     }
 };
 
-                               // ==============
-                               // class CharList
-                               // ==============
-
-template <class TYPE>
-class CharList {
-    // This array class is a simple wrapper on a 'char' array offering an input
-    // iterator access via the 'begin' and 'end' accessors.  The iterator is
-    // specifically an *input* iterator and its value type is the (template
-    // parameter) 'TYPE'.
-
-    // DATA
-    bsl::vector<TYPE> d_value;
-
-  public:
-    // TYPES
-    typedef bslstl::ForwardIterator<const TYPE, const TYPE *> const_iterator;
-        // Input iterator.
-
-    // CREATORS
-    CharList() {}
-    explicit CharList(const bsl::vector<TYPE>& value);
-
-    // ACCESSORS
-    const TYPE& operator[](size_t index) const;
-    const_iterator begin() const;
-    const_iterator end() const;
-};
-
-// CREATORS
-template <class TYPE>
-CharList<TYPE>::CharList(const bsl::vector<TYPE>& value)
-: d_value(value)
-{
-}
-
-// ACCESSORS
-template <class TYPE>
-const TYPE&
-CharList<TYPE>::operator[](size_t index) const
-{
-    return d_value[index];
-}
-
-template <class TYPE>
-typename CharList<TYPE>::const_iterator
-CharList<TYPE>::begin() const
-{
-    return const_iterator(d_value.begin());
-}
-
-template <class TYPE>
-typename CharList<TYPE>::const_iterator
-CharList<TYPE>::end() const
-{
-    return const_iterator(d_value.end());
-}
-
-                              // ===============
-                              // class CharArray
-                              // ===============
-
-template <class TYPE>
-class CharArray {
-    // This array class is a simple wrapper on a deque offering an input
-    // iterator access via the 'begin' and 'end' accessors.  The iterator is
-    // specifically a *random-access* iterator and its value type is the
-    // (template parameter) 'TYPE'.
-
-    // DATA
-    bsl::vector<TYPE>  d_value;
-
-  public:
-    // TYPES
-    typedef const TYPE *const_iterator;
-        // Random-access iterator.
-
-    // CREATORS
-    CharArray() {}
-    explicit CharArray(const bsl::vector<TYPE>& value);
-
-    // ACCESSORS
-    const TYPE& operator[](size_t index) const;
-    const_iterator begin() const;
-    const_iterator end() const;
-};
-
-// CREATORS
-template <class TYPE>
-CharArray<TYPE>::CharArray(const bsl::vector<TYPE>& value)
-: d_value(value)
-{
-}
-
-// ACCESSORS
-template <class TYPE>
-const TYPE& CharArray<TYPE>::operator[](size_t index) const
-{
-    return d_value[index];
-}
-
-template <class TYPE>
-typename CharArray<TYPE>::const_iterator CharArray<TYPE>::begin() const
-{
-    return const_iterator(d_value.begin());
-}
-
-template <class TYPE>
-typename CharArray<TYPE>::const_iterator CharArray<TYPE>::end() const
-{
-    return const_iterator(d_value.end());
-}
-
-                              // ====================
-                              // class LimitAllocator
-                              // ====================
-
-template <class ALLOC>
-class LimitAllocator : public ALLOC {
-
-  public:
-    // TYPES
-    typedef typename ALLOC::value_type        value_type;
-    typedef typename ALLOC::pointer           pointer;
-    typedef typename ALLOC::const_pointer     const_pointer;
-    typedef typename ALLOC::reference         reference;
-    typedef typename ALLOC::const_reference   const_reference;
-    typedef typename ALLOC::size_type         size_type;
-    typedef typename ALLOC::difference_type   difference_type;
-
-    template <class OTHER_TYPE>
-    struct rebind {
-        // It is better not to inherit the rebind template, or else
-        // 'rebind<X>::other' would be 'ALLOC::rebind<OTHER_TYPE>::other'
-        // instead of 'LimitAlloc<X>'.
-
-        typedef LimitAllocator<typename ALLOC::template
-                                             rebind<OTHER_TYPE>::other > other;
-    };
-
-  private:
-    // PRIVATE TYPES
-    typedef ALLOC AllocBase;
-
-    // DATA
-    size_type d_limit;
-
-  private:
-    // NOT IMPLEMENTED
-    LimitAllocator& operator=(const LimitAllocator&);
-
-  public:
-    // CREATORS
-    LimitAllocator()
-    : d_limit(-1) {}
-
-    explicit
-    LimitAllocator(bslma::Allocator *mechanism)
-    : AllocBase(mechanism)
-    , d_limit(-1)
-    {
-    }
-
-    explicit
-    LimitAllocator(const ALLOC& alloc)
-    : AllocBase((const AllocBase&)alloc)
-    , d_limit(-1)
-    {
-    }
-
-    ~LimitAllocator()
-    {
-    }
-
-    // MANIPULATORS
-    void setMaxSize(size_type maxSize)
-    {
-        d_limit = maxSize;
-    }
-
-    // ACCESSORS
-    size_type max_size() const
-    {
-        return d_limit;
-    }
-};
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <class ALLOCATOR>
-struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
-    : IsBitwiseMoveable<ALLOCATOR>
-{
-};
-
-}  // close namespace bslmf
-}  // close enterprise namespace
-
-
                         // =========================
                         // class template PageLength
                         // =========================
@@ -1691,50 +1351,6 @@ struct PageLength<BCTT> {
     enum { k_VALUE = sizeof(char *) == 4 ? 25
                    : sizeof(char *) == 8 ? 16
                    : 0 };
-};
-
-template <class ITER, class VALUE_TYPE>
-struct TestMovableTypeUtil {
-
-  public:
-    static ITER findFirstNotMovedInto(ITER begin, ITER end)
-    {
-        typedef bsltf::TemplateTestFacility TstFacility;
-        typedef bsltf::MoveState            MoveState;
-
-        for (; begin != end; ++begin) {
-            MoveState::Enum mState = TstFacility::getMovedIntoState(*begin);
-            if (MoveState::e_NOT_MOVED == mState) {
-                break;
-            }
-        }
-        return begin;
-    }
-};
-
-struct TestAllocatorUtil {
-
-  public:
-    // CLASS METHODS
-    template <class TYPE>
-    static void test(const TYPE&, const bslma::Allocator&)
-    {
-    }
-
-    static void test(const bsltf::AllocEmplacableTestType& value,
-                     const bslma::Allocator&               allocator)
-    {
-        ASSERTV(&allocator == value.arg01().allocator());
-        ASSERTV(&allocator == value.arg02().allocator());
-        ASSERTV(&allocator == value.arg03().allocator());
-        ASSERTV(&allocator == value.arg04().allocator());
-        ASSERTV(&allocator == value.arg05().allocator());
-        ASSERTV(&allocator == value.arg06().allocator());
-        ASSERTV(&allocator == value.arg07().allocator());
-        ASSERTV(&allocator == value.arg08().allocator());
-        ASSERTV(&allocator == value.arg09().allocator());
-        ASSERTV(&allocator == value.arg10().allocator());
-    }
 };
 
 // ============================================================================
@@ -1818,52 +1434,15 @@ struct TestDriver {
     typedef typename Obj::const_reverse_iterator  const_reverse_iterator;
     typedef typename Obj::value_type              ValueType;
 
-    typedef typename Obj::const_iterator          CIter;
-
-    typedef bslma::ConstructionUtil               ConstrUtil;
     typedef bslmf::MovableRefUtil                 MoveUtil;
 
     typedef bsltf::MoveState                      MoveState;
     typedef bsltf::TemplateTestFacility           TstFacility;
     typedef bsltf::TestValuesArray<TYPE>          TestValues;
 
-    typedef TestMovableTypeUtil<CIter, TYPE>      TstMoveUtil;
-
-    typedef bsl::allocator_traits<ALLOC>          AllocatorTraits;
-
-    enum AllocCategory { e_BSLMA, e_STDALLOC, e_ADAPTOR, e_STATEFUL };
-
     // TEST APPARATUS
 
-    // CLASS DATA
-    static
-    const AllocCategory s_allocCategory =
-                        bsl::is_same<ALLOC, bsl::allocator<TYPE> >::value
-                        ? e_BSLMA
-                        : bsl::is_same<ALLOC,
-                                       bsltf::StdAllocTestType<
-                                                bsl::allocator<TYPE> > >::value
-                        ? e_STDALLOC
-                        : bsl::is_same<ALLOC,
-                                       bsltf::StdAllocatorAdaptor<
-                                                bsl::allocator<TYPE> > >::value
-                        ? e_ADAPTOR
-                        : e_STATEFUL;
-
     // CLASS METHODS
-    static
-    const char *allocCategoryAsStr()
-    {
-        return e_BSLMA == s_allocCategory ? "bslma"
-                                          : e_STDALLOC == s_allocCategory
-                                          ? "stdalloc"
-                                          : e_ADAPTOR == s_allocCategory
-                                          ? "adaptor"
-                                          : e_STATEFUL == s_allocCategory
-                                          ? "stateful"
-                                          : "<INVALID>";
-    }
-
     static void primaryManipulatorBack(Obj   *container,
                                        int    identifier)
         // Insert at the back of specified 'container' the value object
@@ -1986,31 +1565,6 @@ struct TestDriver {
         // Return, by value, a new vector corresponding to the specified
         // 'spec'.
 
-    static void storeFirstNElemAddr(typename Obj::const_pointer *pointers,
-                                    const Obj&                   object,
-                                    size_t                       n)
-    {
-        size_t i = 0;
-        for (CIter b = object.cbegin(); b != object.cend() && i < n; ++b) {
-            pointers[i++] = bsls::Util::addressOf(*b);
-        }
-    }
-
-    static
-    int checkFirstNElemAddr(typename Obj::const_pointer *pointers,
-                            const Obj&                   object,
-                            size_t                       n)
-    {
-        int    count = 0;
-        size_t i     = 0;
-        for (CIter b = object.cbegin(); b != object.end() && i < n; ++b) {
-            if (pointers[i++] != bsls::Util::addressOf(*b)) {
-                ++count;
-            }
-        }
-        return count;
-    }
-
     static void resetMovedInto(Obj *object)
     {
         for (size_t i = 0; i < object->size(); ++i) {
@@ -2032,21 +1586,6 @@ struct TestDriver {
         // value indicated by the optionally specified 'identifier'.  If
         // 'identifier' is not specified, 'Z' is used.  The resulting value is
         // not specified.
-
-    static void stretchRemoveAll(Obj         *object,
-                                 std::size_t  size,
-                                 int          identifier = int('Z'));
-        // Using only primary manipulators, extend the capacity of the
-        // specified 'object' by the specified 'size' by adding 'size' copies
-        // of the value indicated by the optionally specified 'identifier'.  If
-        // 'identifier' is not specified, 'Z' is used.  The resulting value is
-        // not specified.
-
-    static int findRoomierEnd(Obj *container);
-        // Determine which end of the specified '*container' has more room.
-        // Return a value > 0 if it's the front, < 0 if it's the back, and
-        // 0 if the two ends have the same amount of room.  Note that this
-        // function modifies 'container' but restores it to its original state.
 
     // TEST CASES
 
@@ -2465,68 +2004,6 @@ void TestDriver<TYPE,ALLOC>::stretch(Obj         *object,
 //        }
     }
     ASSERT(object->size() == initialSize + size);
-}
-
-template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::stretchRemoveAll(Obj         *object,
-                                              std::size_t  size,
-                                              int          identifier)
-{
-    ASSERT(object);
-    stretch(object, size, identifier);
-    object->clear();
-    ASSERT(0 == object->size());
-}
-
-template <class TYPE, class ALLOC>
-int TestDriver<TYPE, ALLOC>::findRoomierEnd(Obj *container)
-{
-    typedef typename Obj::size_type size_type;
-
-    const size_type cap = container->capacity();
-
-    if (container->empty()) {
-        // The container will always have room for at least one element without
-        // doing any block allocations.
-
-        container->push_back(TYPE(VA));
-        const bool backGrew = container->capacity() > cap;
-        container->pop_back();
-
-        container->push_front(TYPE(VA));
-        const bool frontGrew = container->capacity() > cap;
-        container->pop_front();
-
-        ASSERT(backGrew || frontGrew);
-
-        if (backGrew) {
-            if (frontGrew) {
-                return 0;                                             // RETURN
-            }
-            return -1;                                                // RETURN
-        }
-        return 1;                                                     // RETURN
-    }
-
-    TYPE val = container->back();
-    container->pop_back();
-    const bool backShrunk = container->capacity() < cap;
-    container->push_back(val);
-
-    val = container->front();
-    container->pop_front();
-    const bool frontShrunk = container->capacity() < cap;
-    container->push_front(val);
-
-    ASSERT(backShrunk || frontShrunk);
-
-    if (backShrunk) {
-        if (frontShrunk) {
-            return 0;                                                 // RETURN
-        }
-        return -1;                                                    // RETURN
-    }
-    return 1;
 }
 
 template <class TYPE, class ALLOC>
@@ -3628,7 +3105,7 @@ void TestDriver<TYPE,ALLOC>::testCase6()
                                                                 // same lengths
 
                 if (U_LENGTH != oldLen) {
-                    if (verbose) printf( 
+                    if (verbose) printf(
                               "\tUsing lhs objects of length %d.\n", U_LENGTH);
                     LOOP_ASSERT(U_SPEC, oldLen <= U_LENGTH);  //non-decreasing
                     oldLen = U_LENGTH;
@@ -6169,7 +5646,12 @@ int main(int argc, char *argv[])
       case 27: // falls through
       case 26: // falls through
       case 25: // falls through
-      case 24: // falls through
+      case 24: {
+        if (verbose) printf(
+                 "\nTEST CASE %d IS DELEGATED TO 'bslstl_deque_test2.t.cpp'"
+                 "\n=======================================================\n",
+                 test);
+      } break;
       case 23: // falls through
       case 22: // falls through
       case 21: // falls through
@@ -6183,9 +5665,9 @@ int main(int argc, char *argv[])
       case 13: // falls through
       case 12: {
         if (verbose) printf(
-                  "\nTEST CASE %d IS DELEGATED TO 'bslstl_deque_test.t.cpp'"
-                  "\n======================================================\n",
-                  test);
+                 "\nTEST CASE %d IS DELEGATED TO 'bslstl_deque_test1.t.cpp'"
+                 "\n=======================================================\n",
+                 test);
       } break;
       case 11: {
         // --------------------------------------------------------------------
