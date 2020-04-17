@@ -20,7 +20,8 @@ bslstl_forwarditerator
 bslstl_function
 bslstl_hash
 bslstl_hashtable
-bslstl_hashtable_test
+bslstl_hashtable_test1
+bslstl_hashtable_test2
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
 bslstl_iosfwd
