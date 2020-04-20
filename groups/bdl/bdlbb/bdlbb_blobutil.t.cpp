@@ -27,6 +27,7 @@
 #include <bsls_review.h>
 #include <bsls_types.h>
 
+#include <bsl_climits.h>     // 'INT_MIN'
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'memcpy'
@@ -41,6 +42,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
+// [12] padToAlignment(Blob *, int, char = 0);
 // [10] Testing copy to a blob
 // [ 9] Testing getContiguousRangeOrCopy
 // [ 8] Testing getContiguousDataBuffer
@@ -81,8 +83,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_FAIL(expr)      BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr)      BSLS_ASSERTTEST_ASSERT_PASS(expr)
+
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
@@ -334,6 +339,37 @@ static bool bad_jk(int j, int k, bdlbb::Blob& blob)
     return (j < 0 || k < 0 || j + k > blob.totalSize());
 }
 
+namespace {
+namespace u {
+
+void checkBlob(const bdlbb::Blob& dst,
+               int                blobBufferSize,
+               int                prevSize,
+               char               otherChar,
+               char               fillChar)
+    // Check, with 'ASSERT', that the first specified 'prevSize' bytes in the
+    // specified 'dst' have the specified value 'otherChar', and that any
+    // remaining bytes, if any, have the specified value 'fillChar'.  The
+    // behavior is undefined unless all the buffers in the blob are of
+    // specified size 'blobBufferSize'.
+{
+    ASSERT(0 < blobBufferSize);
+    ASSERT(0 <= prevSize);
+
+    for (int ii = 0; ii < dst.length(); ++ii) {
+        int bufIdx = ii / blobBufferSize;
+        int offset = ii % blobBufferSize;
+
+        const char bufChar = dst.buffer(bufIdx).data()[offset];
+        const char exp     = ii < prevSize ? otherChar : fillChar;
+
+        ASSERT(exp == bufChar);
+    }
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -351,6 +387,318 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING PADTOALIGNMENT
+        //
+        // Concerns:
+        //: 1 That 'padToAlignment' will properly align the buffer length.
+        //:   o that the length after padding is a multiple of 'alignment'
+        //:
+        //:   o that the number of bytes padded was less than 'alignment'.
+        //:
+        //:   o that the padded bytes all match the fill char
+        //:
+        //:   o That the bytes in the blob prior to the padding were
+        //:     unaffected.
+        //:
+        //: 2 That characters appended will be:
+        //:   o the fill char that was passed
+        //:
+        //:   o '\0' if no fill char was passed
+        //:
+        //: 3 That 'assert's detect the undefined behavior in the contract.
+        //
+        // Plan:
+        //: 1 Create a function 'checkBlob' in the unnamed namespace that will
+        //:   examine a blob and verify that:
+        //:   o the first 'prevBlobSize' bytes all match the specified
+        //:     'otherChar'
+        //:
+        //:   o the remaining bytes all match the specified 'fillChar'
+        //:
+        //: 2 Write three nested loops to call 'padToAlignment' with a wide
+        //:   variety of values of the blob buffer size, the preexisting blob
+        //:   length, and all valid values of 'alignment'.  In these cases, set
+        //:   all bytes in the preexisting blob to one byte value 'otherChar',
+        //:   and specify a byte value to the 'fillChar' arg of
+        //:   'padToAlignment' that is different from 'otherChar'.  After the
+        //:   call to 'padToAlignment',
+        //:   o check that the blob length is a multiple of 'alignment'
+        //:
+        //:   o check that less than 'alignment' padding bytes were added
+        //:
+        //:   o call 'u::checkBlob' to verify that:
+        //:     1 bytes prior to the padding match 'otherChar'
+        //:
+        //:     2 padded bytes match 'fillChar'
+        //:
+        //: 3 Write 2 nested loops to call 'padToAlignment' with a variety of
+        //:   two char values: 'otherChar', to which all bytes in the blob
+        //:   prior to the 'padToAlignment' call are initialized, and
+        //:   'fillChar', either the value passed to the 'fillChar' argument,
+        //:   or '\0' in the case where that argument is to be allowed to
+        //:   default.  After the call, 'u::checkBlob' is called to verify that
+        //:   all the bytes in the blob have their expeted values.
+        //:
+        //: 4 Write a table-driven test.
+        //:
+        //: 5 Do negative testing to verify that asserts catch all the
+        //:   undefined behavior in the contract.
+        //
+        // Testing:
+        //   padToAlignment(Blob *, int, char = 0);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING ALIGNTO\n"
+                             "===============\n";
+
+        if (verbose) cout << "Test with wide variety of blob buffer sizes,"
+                             " alignment values, and previous blob sizes.\n";
+        {
+            enum { k_MAX_ALIGNMENT = 64,
+                   k_INIT_BUF_SIZE = 4 + 2 * k_MAX_ALIGNMENT };
+            char initBuf[k_INIT_BUF_SIZE];
+
+            const char fillChar = 'a', otherChar = 'z';
+
+            bsl::memset(initBuf, otherChar, sizeof(initBuf));
+
+            // Here we iterate 3 nested loops to vary 3 variables:
+            //: o 'blobBufferSize' -- the size of the blob buffers.  Since the
+            //:   blob buffer factory we are using is
+            //:   'SimpleBlobBufferFactory', all the blob buffers are the same
+            //:   size (so a blob buffer size of 0 would make no sense).
+            //:
+            //: o 'alignment' -- must be a power of two.  We vary this over the
+            //:   range of ALL acceptable values.
+            //:
+            //: o 'prevBlobSize' -- the size of the blob before it is padded.
+
+            const unsigned blobBufferSizes[] = { 1, 2, 3, 4, 7, 8, 9, 12 };
+            enum { k_NUM_BLOB_BUFFER_SIZES = sizeof blobBufferSizes /
+                                                     sizeof *blobBufferSizes };
+
+            for (int ii = 0; ii < k_NUM_BLOB_BUFFER_SIZES; ++ii) {
+                const int blobBufferSize = blobBufferSizes[ii];
+
+                for (int alignment = 1; alignment <= k_MAX_ALIGNMENT;
+                                                             alignment <<= 1) {
+                    const int maxPrefBlobSize = 4 + 2 * alignment;
+
+                    for (int prevBlobSize = 0; prevBlobSize <= maxPrefBlobSize;
+                                                              ++prevBlobSize) {
+                        ASSERT(prevBlobSize <= k_INIT_BUF_SIZE);
+
+                        bslma::TestAllocator           bbfAllocator("bbf");
+                        bdlbb::SimpleBlobBufferFactory bbf(blobBufferSize,
+                                                           &bbfAllocator);
+                        bslma::TestAllocator           dstAllocator("dst");
+                        bdlbb::Blob                    dst(&bbf,
+                                                           &dstAllocator);
+
+                        bdlbb::BlobUtil::append(&dst, initBuf, prevBlobSize);
+
+                        bdlbb::BlobUtil::padToAlignment(&dst,
+                                                        alignment,
+                                                        fillChar);
+
+                        int guessLen = 0;
+                        while (guessLen < prevBlobSize) {
+                            guessLen += alignment;
+                        }
+                        ASSERT(dst.length() == guessLen);
+
+                        ASSERT(0 == (dst.length() & (alignment - 1)));
+                        ASSERT(prevBlobSize <= dst.length());
+                        ASSERT(dst.length() - prevBlobSize < alignment);
+
+                        u::checkBlob(dst,
+                                     blobBufferSize,
+                                     prevBlobSize,
+                                     otherChar,
+                                     fillChar);
+                    }
+                }
+            }
+        }
+
+        if (verbose) cout << "Test with a variety of fill chars passed, and"
+                             " with fill char defaulting.\n";
+        {
+            enum { k_BLOB_BUFFER_SIZE = 3, k_PREV_SIZE = 5, k_ALIGNMENT = 8 };
+
+            char otherCharBuf[k_PREV_SIZE];
+
+            const char chars[] = { '\0', 'A', 'P', '*', '6', '/' };
+            enum { k_NUM_CHARS = sizeof chars / sizeof *chars };
+
+            for (int ii = 0; ii < k_NUM_CHARS; ++ii) {
+                const char otherChar = chars[ii];
+
+                bsl::memset(otherCharBuf, otherChar, sizeof(otherCharBuf));
+
+                for (int jj = -1; jj < k_NUM_CHARS; ++jj) {
+                    const bool passChar = -1 != jj;
+                    const char fillChar = passChar ? chars[jj] : '\0';
+
+                    bslma::TestAllocator           bbfAllocator("bbf");
+                    bdlbb::SimpleBlobBufferFactory bbf(k_BLOB_BUFFER_SIZE,
+                                                       &bbfAllocator);
+                    bslma::TestAllocator           dstAllocator("dst");
+                    bdlbb::Blob                    dst(&bbf,
+                                                       &dstAllocator);
+
+                    bdlbb::BlobUtil::append(&dst, otherCharBuf, k_PREV_SIZE);
+
+                    if (passChar) {
+                        bdlbb::BlobUtil::padToAlignment(&dst,
+                                                        k_ALIGNMENT,
+                                                        fillChar);
+                    }
+                    else {
+                        bdlbb::BlobUtil::padToAlignment(&dst, k_ALIGNMENT);
+                    }
+
+                    ASSERT(k_ALIGNMENT == dst.length());
+
+                    u::checkBlob(dst,
+                                 k_BLOB_BUFFER_SIZE,
+                                 k_PREV_SIZE,
+                                 otherChar,
+                                 fillChar);
+                }
+            }
+        }
+
+        static const struct Data {
+            int  d_line;
+            char d_prevChar;
+            char d_fillChar;
+            int  d_blobBufferSize;
+            int  d_prevBlobSize;
+            int  d_alignment;
+            int  d_expSize;
+        } DATA[] = {
+            { L_, 'a', 'z', 8,  0,  4,  0 },
+            { L_, 'a', 'z', 8,  1,  4,  4 },
+            { L_, 'a', 'z', 8,  2,  4,  4 },
+            { L_, 'a', 'z', 8,  3,  4,  4 },
+            { L_, 'a', 'z', 8,  4,  4,  4 },
+
+            { L_, 'a', 'z', 8,  0,  8,  0 },
+            { L_, 'a', 'z', 8,  1,  8,  8 },
+            { L_, 'a', 'z', 8,  2,  8,  8 },
+            { L_, '+', '*', 8,  3,  8,  8 },
+            { L_, '+', '*', 8,  4,  8,  8 },
+            { L_, '+', '*', 8,  5,  8,  8 },
+            { L_, '+', '*', 8,  6,  8,  8 },
+            { L_, '+', '*', 8,  7,  8,  8 },
+            { L_, 'F', 'W', 8,  8,  8,  8 },
+            { L_, 'F', 'W', 8,  9,  8, 16 },
+            { L_, 'F', 'W', 8, 10,  8, 16 },
+            { L_, 'F', 'W', 8, 11,  8, 16 },
+            { L_, 'F', 'W', 8, 12,  8, 16 },
+            { L_, '8', '.', 8, 13,  8, 16 },
+            { L_, '8', '.', 8, 14,  8, 16 },
+            { L_, '8', '.', 8, 15,  8, 16 },
+            { L_, '8', '.', 8, 16,  8, 16 },
+
+            { L_, 'a', 'z', 3,  0,  4,  0 },
+            { L_, 'a', 'z', 3,  1,  4,  4 },
+            { L_, 'a', 'z', 3,  2,  4,  4 },
+            { L_, 'a', 'z', 3,  3,  4,  4 },
+            { L_, 'a', 'z', 3,  4,  4,  4 },
+
+            { L_, 'a', 'z', 3,  0,  8,  0 },
+            { L_, 'a', 'z', 3,  1,  8,  8 },
+            { L_, 'a', 'z', 3,  2,  8,  8 },
+            { L_, '+', '*', 3,  3,  8,  8 },
+            { L_, '+', '*', 3,  4,  8,  8 },
+            { L_, '+', '*', 3,  5,  8,  8 },
+            { L_, '+', '*', 3,  6,  8,  8 },
+            { L_, '+', '*', 3,  7,  8,  8 },
+            { L_, 'F', 'W', 3,  8,  8,  8 },
+            { L_, 'F', 'W', 3,  9,  8, 16 },
+            { L_, 'F', 'W', 3, 10,  8, 16 },
+            { L_, 'F', 'W', 3, 11,  8, 16 },
+            { L_, 'F', 'W', 3, 12,  8, 16 },
+            { L_, '8', '.', 3, 13,  8, 16 },
+            { L_, '8', '.', 3, 14,  8, 16 },
+            { L_, '8', '.', 3, 15,  8, 16 },
+            { L_, '8', '.', 3, 16,  8, 16 } };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) cout << "Table-Driven Testing\n";
+        {
+            for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+                const Data& data             = DATA[ti];
+                const int   LINE             = data.d_line;
+                const char  PREV_CHAR        = data.d_prevChar;
+                const char  FILL_CHAR_RAW    = data.d_fillChar;
+                const int   BLOB_BUFFER_SIZE = data.d_blobBufferSize;
+                const int   PREV_BLOB_SIZE   = data.d_prevBlobSize;
+                const int   ALIGNMENT        = data.d_alignment;
+                const int   EXP_SIZE         = data.d_expSize;
+
+                for (int tj = 0; tj < 2; ++tj) {
+                    const bool PASS_CHAR = tj;
+                    const char FILL_CHAR = PASS_CHAR ? FILL_CHAR_RAW : '\0';
+
+                    static char prevCharBuf[1024];
+                    bsl::memset(prevCharBuf, PREV_CHAR, PREV_BLOB_SIZE);
+
+                    bslma::TestAllocator           bbfAllocator("bbf");
+                    bdlbb::SimpleBlobBufferFactory bbf(BLOB_BUFFER_SIZE,
+                                                       &bbfAllocator);
+                    bslma::TestAllocator           dstAllocator("dst");
+                    bdlbb::Blob                    dst(&bbf, &dstAllocator);
+
+                    bdlbb::BlobUtil::append(&dst, prevCharBuf, PREV_BLOB_SIZE);
+
+                    if (PASS_CHAR) {
+                        bdlbb::BlobUtil::padToAlignment(&dst,
+                                                        ALIGNMENT,
+                                                        FILL_CHAR);
+                    }
+                    else {
+                        bdlbb::BlobUtil::padToAlignment(&dst, ALIGNMENT);
+                    }
+
+                    ASSERTV(LINE, 0 == (dst.length() & (ALIGNMENT - 1)));
+                    ASSERT(PREV_BLOB_SIZE <= dst.length());
+                    ASSERTV(LINE, dst.length() - PREV_BLOB_SIZE < ALIGNMENT);
+                    ASSERTV(LINE, EXP_SIZE, dst.length(),
+                                                     EXP_SIZE == dst.length());
+
+                    u::checkBlob(dst,
+                                 BLOB_BUFFER_SIZE,
+                                 PREV_BLOB_SIZE,
+                                 PREV_CHAR,
+                                 FILL_CHAR);
+                }
+            }
+        }
+
+        if (verbose) cout << "Negative testing\n";
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            bslma::TestAllocator           bbfAllocator("bbf");
+            bdlbb::SimpleBlobBufferFactory bbf(7, &bbfAllocator);
+
+            bslma::TestAllocator           dstAllocator("dst");
+            bdlbb::Blob                    dst(&bbf, &dstAllocator);
+
+            ASSERT_PASS(bdlbb::BlobUtil::padToAlignment(&dst, 2));
+            ASSERT_FAIL(bdlbb::BlobUtil::padToAlignment(&dst, 128));
+            ASSERT_FAIL(bdlbb::BlobUtil::padToAlignment(&dst, -2));
+            ASSERT_FAIL(bdlbb::BlobUtil::padToAlignment(&dst, INT_MIN));
+            ASSERT_PASS(bdlbb::BlobUtil::padToAlignment(&dst, 64));
+            ASSERT_FAIL(bdlbb::BlobUtil::padToAlignment(&dst, 3));
+            ASSERT_FAIL(bdlbb::BlobUtil::padToAlignment(0,    64));
+        }
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING FIX TO DRQS 144543867

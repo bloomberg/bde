@@ -186,6 +186,16 @@ struct BlobUtil {
         // bytes of the specified 'source' starting at the specified 'offset',
         // and return a reference to the modifiable 'stream'.
 
+    static void padToAlignment(Blob *dest,
+                               int   alignment,
+                               char  fillChar = '\0');
+        // Append padding bytes to the specified 'dest' so that its resulting
+        // length is an integer multiple of the specified 'alignment'.
+        // Optionally specify 'fillChar' with which the padding is to be
+        // filled.  If 'fillChar' is not specified, a 0 byte will be used.  The
+        // behavior is undefined unless 'alignment' is a power of 2, and less
+        // than or equal to 64.
+
     template <class STREAM>
     static STREAM& read(STREAM& stream, Blob *dest, int numBytes);
         // Read the specified 'numBytes' from the specified 'stream' and load
@@ -373,6 +383,23 @@ inline
 bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream, const Blob& source)
 {
     return hexDump(stream, source, 0, source.length());
+}
+
+inline
+void BlobUtil::padToAlignment(Blob *dest, int alignment, char fillChar)
+{
+    BSLS_ASSERT(0 != dest);
+    BSLS_ASSERT(static_cast<unsigned>(alignment) <= 64);
+
+    const int modMask = alignment - 1;
+
+    BSLS_ASSERT(0 == (alignment & modMask));    // power of 2
+
+    const int padLength = (alignment - (dest->length() & modMask)) & modMask;
+    char padBuffer[63];
+    bsl::memset(padBuffer, fillChar, padLength);
+
+    append(dest, padBuffer, padLength);
 }
 
 template <class STREAM>
