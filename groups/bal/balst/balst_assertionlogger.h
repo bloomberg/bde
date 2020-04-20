@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsls_assert
 //
 //@DESCRIPTION: This component defines an assert handling mechanism that logs
-// the function call stack at the point of the assertion (using the BAEL
+// the function call stack at the point of the assertion (using the BALL
 // logging framework), and then returns to the caller allowing program
 // execution to continue.  This component provides methods to enable or disable
 // logging, which can be called throughout the execution of the program.  These
@@ -142,7 +142,7 @@ class AssertionLogger {
     // This mechanism class implements an assertion failure handler that logs a
     // stack trace when triggered, and unlike other such handlers, returns to
     // its caller.  The class provides the option of setting the severity level
-    // at which (BAEL) logging occurs, as well as the ability to obtain the
+    // at which (BALL) logging occurs, as well as the ability to obtain the
     // severity via a callback function invoked on each failure.  The class
     // acts as a "static singleton," keeping a single state in atomic static
     // variables.
@@ -158,8 +158,8 @@ class AssertionLogger {
         // set along with the callback, the text of the assertion failure, and
         // the source file and line number where the assertion was triggered.
         // The function should return a severity level at which the assertion
-        // failure is to be logged.  If it returns 0 ('BAEL_OFF') no logging
-        // at all will be done.
+        // failure is to be logged.  If it returns 0 ('e_OFF') no logging at
+        // all will be done.
 
     // CLASS METHODS
     static void assertionFailureHandler(const char *text,
@@ -167,12 +167,12 @@ class AssertionLogger {
                                         int         line);
         // Report the specified 'text', 'file', and 'line' of an assertion
         // failure, and a stack trace pinpointing where the failure occurred,
-        // via BAEL logging and return.  If a severity callback has been set,
+        // via BALL logging and return.  If a severity callback has been set,
         // it is invoked with the closure and 'text', 'file', and 'line' to get
         // the severity level, otherwise the static severity level is used.  If
-        // the severity level is 0 ('BAEL_OFF') then the assertion is not
-        // logged at all.  Note that this assertion handler violates the usual
-        // policy that assertion handlers should not return to their callers.
+        // the severity level is 0 ('e_OFF') then the assertion is not logged
+        // at all.  Note that this assertion handler violates the usual policy
+        // that assertion handlers should not return to their callers.
 
     static void getLogSeverityCallback(LogSeverityCallback *callback,
                                        void **closure);
@@ -200,13 +200,13 @@ class AssertionLogger {
         // which assertion failures are logged.  This value is used if a log
         // severity callback has not been supplied (by calling
         // 'setLogSeverityCallback').  The default severity level is initially
-        // 'ball::Severity::BAEL_FATAL'.
+        // 'ball::Severity::e_FATAL'.
 
     static ball::Severity::Level defaultLogSeverity();
         // Get the default severity level at which assertion tracing is logged.
         // This value is used if a log severity callback has not been supplied
         // (by calling 'setLogSeverityCallback').  The default severity level
-        // is initially 'ball::Severity::BAEL_FATAL'.
+        // is initially 'ball::Severity::e_FATAL'.
 };
 }  // close package namespace
 

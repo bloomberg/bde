@@ -186,7 +186,7 @@ void ThroughputBenchmark::execute(
                 functionArgs[threadIndex].d_threadIndex = j;
                 functionArgs[threadIndex].d_barrier_p = &barrier;
 
-                workFunctions[threadIndex].load(new
+                workFunctions[threadIndex].reset(new
                   ThroughputBenchmark_WorkFunction(functionArgs[threadIndex]));
                 bslmt::ThreadUtil::create(&handles[threadIndex],
                                           *workFunctions[threadIndex]);
