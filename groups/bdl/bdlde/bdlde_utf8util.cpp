@@ -194,6 +194,8 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
           case 0xb: {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
+            *invalidString = string;
+
             return e_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
           } break;
           case 0xc:
@@ -328,6 +330,8 @@ static int validateAndCountCodePoints(const char             **invalidString,
           case 0xb: {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
+            *invalidString = pc;
+
             return e_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
           } break;
           case 0xc:
@@ -338,8 +342,8 @@ static int validateAndCountCodePoints(const char             **invalidString,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
-                return value < k_MIN_2_BYTE_VALUE ? e_NON_MINIMAL_ENCODING
-                                                  : e_NON_CONTINUATION_OCTET;
+                return isNotContinuation(pc[1]) ? e_NON_CONTINUATION_OCTET
+                                                : e_NON_MINIMAL_ENCODING;
                                                                       // RETURN
             }
 
@@ -425,6 +429,8 @@ static int validateAndCountCodePoints(const char             **invalidString,
           case 0xa:
           case 0xb: {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            *invalidString = pc;
 
             return e_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
           } break;
