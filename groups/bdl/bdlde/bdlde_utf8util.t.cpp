@@ -63,7 +63,6 @@ using bsl::size_t;
 // [12] int appendUtf8Character(bsl::string *, unsigned int);
 // [11] int getByteSize(const char *);
 // [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
-// [10] IntPtr numBytesRaw(const bslstl::StringRef&, IntPtr);
 // [ 8] IntPtr advanceIfValid(int *, const char **, const char *, int);
 // [ 8] IntPtr advanceIfValid(int *, const char **, const char *,int,int);
 // [ 8] IntPtr advanceRaw(const char **, const char *, int);
@@ -3168,7 +3167,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'numBytesRaw'
+        // TESTING 'numBytesIfValid'
         //
         // Concerns:
         //: 1 The method under test produce the expected results on valid UTF-8
@@ -3181,10 +3180,9 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
-        //   IntPtr numBytesRaw(const bslstl::StringRef&, IntPtr);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'numBytesRaw'\n"
+        if (verbose) cout << "\nTESTING 'numBytesIfValid'\n"
                                "=========================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
@@ -3215,19 +3213,13 @@ int main(int argc, char *argv[])
                 // ask for the 1st codepoint's byte length.
                 ASSERT(Obj::IntPtr(UTF8.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 1));
-                ASSERT(Obj::IntPtr(UTF8.length()) ==
-                       Obj::numBytesRaw(    UTF8_2, 1));
 
                 // Embedded NUL's count as 1 byte.
                 ASSERT(1 + Obj::IntPtr(UTF8.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 2));
-                ASSERT(1 + Obj::IntPtr(UTF8.length()) ==
-                       Obj::numBytesRaw(    UTF8_2, 2));
 
                 ASSERT(Obj::IntPtr(UTF8_2.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 3));
-                ASSERT(Obj::IntPtr(UTF8_2.length()) ==
-                       Obj::numBytesRaw(    UTF8_2, 3));
             }
         }
       } break;

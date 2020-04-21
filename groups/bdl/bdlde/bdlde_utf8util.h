@@ -534,17 +534,6 @@ struct Utf8Util {
         // than zero if 'string' contains less than 'numCharacters' UTF-8
         // characters.  The behavior is undefined unless 'string' is a valid
         // UTF-8 string.
-        //
-        // DEPRECATED: The name of this function suggests a wide, contract,
-        // when in fact it has a narrow contract.  Use 'numBytesRaw' instead.
-
-    static IntPtr numBytesRaw(const bslstl::StringRef& string,
-                              IntPtr                   numCodePoints);
-        // Return the number of bytes used by the specified 'numCodePoints'
-        // first utf8 characters in the specified 'string', or a value less
-        // than zero if 'string' contains less than 'numCharacters' UTF-8
-        // characters.  The behavior is undefined unless 'string' is a valid
-        // UTF-8 string.
 
     static IntPtr numCharactersIfValid(const char **invalidString,
                                        const char  *string);
@@ -673,13 +662,6 @@ bool Utf8Util::isValid(const char *string, size_type length)
     const char *dummy = 0;
 
     return isValid(&dummy, string, length);
-}
-
-inline
-Utf8Util::IntPtr Utf8Util::numBytesRaw(const bslstl::StringRef& string,
-                                       IntPtr                   numCodePoints)
-{
-    return numBytesIfValid(string, numCodePoints);
 }
 
 inline
