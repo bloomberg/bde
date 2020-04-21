@@ -3614,9 +3614,6 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
         return;                                                       // RETURN
     }
 
-    typedef BloombergLP::bslalg::ArrayPrimitives ArrayPrimitives;
-
-
     if (!this->capacity()) {
         privateReserveEmpty(size_type(1));
         position = this->d_dataBegin_p;       // 'position' must have been null
