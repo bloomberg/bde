@@ -1,6 +1,6 @@
-// bslstl_map_test.h                                                  -*-C++-*-
-#ifndef INCLUDED_BSLSTL_MAP_TEST
-#define INCLUDED_BSLSTL_MAP_TEST
+// bslstl_map_test3.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLSTL_MAP_TEST3
+#define INCLUDED_BSLSTL_MAP_TEST3
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -11,26 +11,28 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_map
 //
-//@DESCRIPTION: This component provides a second translation unit for 'map'
-// test cases to reduce the test-driver's build time.  Test cases 1-11, plus
-// the usage example test, are in the original component test driver, the
-// remaining tests (11 and higher) are in this subordinate component's test
-// driver.
+//@DESCRIPTION: This component provides a fourth translation unit for 'map'
+// test cases to reduce the test-driver's build time.  The usage example test,
+// and test cases 1-8 are in the original component test driver.  Test cases
+// cases 9-27 are in the 'bslstl_map_test1' component's test driver.  Test case
+// 28 is in the 'bslstl_map_test2' component's test driver.  The remaining
+// tests (29 and higher) are in this subordinate component's test driver.
 //
 // As the number of test concerns grows, and the number of types to instantiate
 // 'map' with in order to gain complete code coverage grows, we have exceeded
 // the limits of certain compilers.  For example, gcc will not produce a valid
 // '.o' file as the number of template instantiations exceeds some internal
-// tables.  In order to continue providing full coverage, the standard
-// value-semantic type test cases 1-10 are handled by the primary component
-// test driver, and the tests for all remaining functionality are moved into
-// this component, that comprises only a test driver.
+// tables.  In order to continue providing full coverage, some of the standard
+// value-semantic type test cases (1-8) are handled by the primary component
+// test driver, and the remaining standard tests, and tests for all remaining
+// functionality are moved into three additional component, that comprise only
+// a test driver.
 
 #include <bslstl_map.h>
 
 #endif
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

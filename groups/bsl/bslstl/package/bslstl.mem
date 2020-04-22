@@ -33,7 +33,9 @@ bslstl_iteratorutil
 bslstl_list
 bslstl_list_test
 bslstl_map
-bslstl_map_test
+bslstl_map_test1
+bslstl_map_test2
+bslstl_map_test3
 bslstl_mapcomparator
 bslstl_multimap
 bslstl_multimap_test
