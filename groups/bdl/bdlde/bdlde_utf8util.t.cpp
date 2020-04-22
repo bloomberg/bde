@@ -67,6 +67,12 @@ using bsl::size_t;
 // [ 8] IntPtr advanceIfValid(int *, const char **, const char *,int,int);
 // [ 8] IntPtr advanceRaw(const char **, const char *, int);
 // [ 8] IntPtr advanceRaw(const char **, const char *, int, int);
+// [ 8] bool isValid(const char *);
+// [ 8] bool isValid(const char *, int);
+// [ 8] bool isValid(const char **, const char *);
+// [ 8] bool isValid(const char **, const char *, int);
+// [ 8] IntPtr numCodePointsIfValid(const char **, const char *);
+// [ 8] IntPtr numCodePointsIfValid(const char **, const char *, int);
 // [ 7] IntPtr advanceIfValid(int *, const char **, const char *, int);
 // [ 7] IntPtr advanceIfValid(int*,const char**,const char *, int, int);
 // [ 7] IntPtr advanceRaw(const char **, const char *, int);
@@ -105,6 +111,7 @@ using bsl::size_t;
 // [13] USAGE EXAMPLE 1
 // [14] USAGE EXAMPLE 2
 // [ 9] 'advanceIfValid' on correct input plus incorrect input
+// [ 9] 'isValid' on correct input plus incorrect input
 // [ 9] 'numCodePointsIfValid' on correct input plus incorrect input
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
@@ -3370,6 +3377,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   'advanceIfValid' on correct input plus incorrect input
+        //   'isValid' on correct input plus incorrect input
         //   'numCodePointsIfValid' on correct input plus incorrect input
         // --------------------------------------------------------------------
 
@@ -3389,12 +3397,12 @@ int main(int argc, char *argv[])
                                 // some carnage on to the end of it.
         errorStr.reserve(200);
 
-        enum { k_NUM_ITERATIONS          = 20000,
+        enum { k_NUM_ITERATIONS          = 10000,
                k_NUM_USE_ZERO_ITERATIONS = k_NUM_ITERATIONS / 10 };
 
         for (int tj = 0; tj < k_NUM_ITERATIONS; ++tj) {
             const bool useZero = tj < k_NUM_USE_ZERO_ITERATIONS;
-            const int numCorrectStrCodePoints = randUnsigned() % 4;
+            const int numCorrectStrCodePoints = randUnsigned() % 4 + 2;
 
             correctStr.clear();
             for (int ii = 0; ii < numCorrectStrCodePoints; ++ii) {
@@ -3470,6 +3478,12 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STATUS, sts, dumpStr(errorStr),
                                                         STATUS == sts);
 
+                    ASSERT(!Obj::isValid(begin));
+
+                    end = "woof";
+                    ASSERT(!Obj::isValid(&end, begin));
+                    ASSERT(endOfValid == end);
+
                     end = "woof";
                     numCodePoints = Obj::numCodePointsIfValid(&end,
                                                               begin);
@@ -3489,6 +3503,12 @@ int main(int argc, char *argv[])
                 ASSERT(endOfValid == end);
                 ASSERT(numCodePointsArg == numCodePoints);
                 ASSERTV(LINE, STATUS, sts, STATUS == sts);
+
+                ASSERT(!Obj::isValid(begin, str.length()));
+
+                end = "woof";
+                ASSERT(!Obj::isValid(&end, begin, str.length()));
+                ASSERT(endOfValid == end);
 
                 end = "woof";
                 numCodePoints = Obj::numCodePointsIfValid(&end,
@@ -3520,6 +3540,12 @@ int main(int argc, char *argv[])
                     ASSERT(numCodePointsArg == numCodePoints);
                     ASSERT(STATUS == sts);
 
+                    ASSERT(!Obj::isValid(begin));
+
+                    end = "woof";
+                    ASSERT(!Obj::isValid(&end, begin));
+                    ASSERT(endOfValid == end);
+
                     end = "woof";
                     numCodePoints = Obj::numCodePointsIfValid(&end,
                                                               begin);
@@ -3538,6 +3564,12 @@ int main(int argc, char *argv[])
                 ASSERT(numCodePointsArg == numCodePoints);
                 ASSERTV(LINE, STATUS, sts,
                                    str[str.length()-1], STATUS == sts);
+
+                ASSERT(!Obj::isValid(begin, str.length()));
+
+                end = "woof";
+                ASSERT(!Obj::isValid(&end, begin, str.length()));
+                ASSERT(endOfValid == end);
 
                 end = "woof";
                 numCodePoints = Obj::numCodePointsIfValid(&end,
@@ -3599,6 +3631,12 @@ int main(int argc, char *argv[])
         //   IntPtr advanceIfValid(int *, const char **, const char *,int,int);
         //   IntPtr advanceRaw(const char **, const char *, int);
         //   IntPtr advanceRaw(const char **, const char *, int, int);
+        //   bool isValid(const char *);
+        //   bool isValid(const char *, int);
+        //   bool isValid(const char **, const char *);
+        //   bool isValid(const char **, const char *, int);
+        //   IntPtr numCodePointsIfValid(const char **, const char *);
+        //   IntPtr numCodePointsIfValid(const char **, const char *, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING EXHAUSTIVE CORRECT SEQUENCES\n"
@@ -3625,6 +3663,8 @@ int main(int argc, char *argv[])
 
         const double fraction = verbose ? strtod(argv[2], 0) : defaultFraction;
         ASSERT(fraction >= 0.0 && fraction <= 1.0);
+
+        const char *WOOF = "woof";
 
         for (int useZero = 0; useZero < 2; ++useZero) {
             int numValues   = 4 + useZero;
@@ -3707,13 +3747,13 @@ int main(int argc, char *argv[])
                     const bsl::size_t  strLength = str.length();
 
                     if (!useZero) {
-                        end = "woof";
+                        end = WOOF;
                         numCodePoints = Obj::advanceRaw(&end, begin, INT_MAX);
                         ASSERT(endOfString == end);
                         ASSERT(numCodePointsArg == numCodePoints);
 
                         sts = -11;
-                        end = "woof";
+                        end = WOOF;
                         numCodePoints = Obj::advanceIfValid(&sts,
                                                             &end,
                                                             begin,
@@ -3721,6 +3761,18 @@ int main(int argc, char *argv[])
                         ASSERT(endOfString == end);
                         ASSERT(numCodePointsArg == numCodePoints);
                         ASSERT(0 == sts);
+
+                        ASSERT(Obj::isValid(begin));
+
+                        end = WOOF;
+                        ASSERT(Obj::isValid(&end, begin));
+                        ASSERT(WOOF == end);
+
+                        end = WOOF;
+                        numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                                  begin);
+                        ASSERT(WOOF == end);
+                        ASSERT(numCodePointsArg == numCodePoints);
                     }
 
                     end = "woof";
@@ -3741,6 +3793,19 @@ int main(int argc, char *argv[])
                     ASSERT(endOfString == end);
                     ASSERT(numCodePointsArg == numCodePoints);
                     ASSERT(0 == sts);
+
+                    ASSERT(Obj::isValid(begin, strLength));
+
+                    end = WOOF;
+                    ASSERT(Obj::isValid(&end, begin, strLength));
+                    ASSERT(WOOF == end);
+
+                    end = WOOF;
+                    numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                              begin,
+                                                              strLength);
+                    ASSERT(WOOF == end);
+                    ASSERT(numCodePointsArg == numCodePoints);
 
                     // Now we tack an extra non-zero garbage char on the end
                     // 'str', and make sure that it makes no difference when
@@ -3809,6 +3874,19 @@ int main(int argc, char *argv[])
                     ASSERT(endOfString == end);
                     ASSERT(numCodePointsArg == numCodePoints);
                     ASSERT(0 == sts);
+
+                    ASSERT(Obj::isValid(begin, strLength));
+
+                    end = WOOF;
+                    ASSERT(Obj::isValid(&end, begin, strLength));
+                    ASSERT(WOOF == end);
+
+                    end = WOOF;
+                    numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                              begin,
+                                                              strLength);
+                    ASSERT(WOOF == end);
+                    ASSERT(numCodePointsArg == numCodePoints);
 
                     bsl::next_permutation(vec.begin(), vec.end());
                 } while (origVec != vec);
