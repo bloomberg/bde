@@ -1785,19 +1785,6 @@ const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 enum { NUM_UTF8_MULTI_LANG_CODE_POINTS = 11781 };
 
 static
-bsl::string dumpVec(const bsl::vector<int>& vec)
-    // Return the contents of the specified 'vec' in string form.
-{
-    bsl::ostringstream oss;
-
-    for (unsigned uu = 0; uu < vec.size(); ++uu) {
-        oss << (uu ? " " : "") << vec[uu];
-    }
-
-    return oss.str();
-}
-
-static
 bsl::string dumpStr(const bsl::string& str)
     // Returns the specified 'str' in a human-readable hex format.
 {
@@ -1819,6 +1806,13 @@ bsl::string dumpStr(const bsl::string& str)
     }
 
     return ret;
+}
+
+static inline
+int intAbs(int x)
+{
+    x = x < 0 ? -x : x;
+    return x < 0 ? ~x : x;
 }
 
 static inline
@@ -3642,16 +3636,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING EXHAUSTIVE CORRECT SEQUENCES\n"
                                "====================================\n";
 
-        bsl::vector<int> vec;
-        bsl::vector<int> origVec;
-        bsl::string      str;
+        bsl::string str;
 
-        vec.    reserve(10);
-        origVec.reserve(10);
-        str.    reserve(50);    // reserve longer than the longest length we
+        const IntPtr INT_PTR_MAX = ~static_cast<bsl::size_t>(0) >> 1;
+
+        str.reserve(200);       // reserve longer than the longest length we
                                 // will use, so no manipulation of this
                                 // 'string' will result in a reallocation and a
                                 // move of the buffer.
+
+        enum { k_NUM_ITERATIONS          = 500 * 1000,
+               k_NUM_USE_ZERO_ITERATIONS = k_NUM_ITERATIONS / 10 };
 
 #if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
         const double defaultFraction = 1.0;
@@ -3666,231 +3661,181 @@ int main(int argc, char *argv[])
 
         const char *WOOF = "woof";
 
-        for (int useZero = 0; useZero < 2; ++useZero) {
-            int numValues   = 4 + useZero;
+        for (int tj = 0; tj < k_NUM_ITERATIONS; ++tj) {
+            const bool useZero = tj < k_NUM_USE_ZERO_ITERATIONS;
+            const int  numCodePointsArg = randUnsigned() % 6 + 4;
 
-            // Only throttle 'totalValues' in the case 'useZero == true'.  In
-            // the other case, the max length of 'vec' is 8, and the number of
-            // permutations isn't a problem until you get up to 9 or 10.
-
-            int totalValues = useZero
-                            ? int(2 * numValues * (0.5 + fraction * 0.5))
-                            : 2 * numValues;
-            int iterations  = 1 << totalValues;
-            if (veryVerbose) P(totalValues);
-
-            const int zeroUsedMask = (totalValues >=  5 ? (1 << 4) : 0) |
-                                     (totalValues >= 10 ? (1 << 9) : 0);
-
-            for (int key = 0; key < iterations; ++key) {
-                if (useZero && 0 == (key & zeroUsedMask)) {
-                    continue;
-                }
-
-                bool zeroUsed = false;
-
-                vec.clear();
-                for (int jj = 0; jj < totalValues; ++jj) {
-                    // Valid values of 'bytesPerCodePoint' are 1, 2, 3, 4, and
-                    // 0, and '0' gets converted from 'jj == 4', and only when
-                    // 'numValues == 5'.
-
-                    if (key & (1 << jj)) {
-                        int bytesPerCodePoint = jj % numValues + 1;
-                        if (5 == bytesPerCodePoint) {
-                            bytesPerCodePoint = 0;
-                            zeroUsed = true;
-                        }
-                        vec.push_back(bytesPerCodePoint);
-                    }
-                }
-                ASSERT(!useZero || zeroUsed);
-
-                origVec = vec;
-                do {    // for all permutations of vec
-                    str.clear();
-
-                    for (unsigned jj = 0; jj < vec.size(); ++jj) {
-                        switch (vec[jj]) {
-                          case 1: {
-                            appendRand1Byte(&str);
-                          } break;
-                          case 2: {
-                            appendRand2Byte(&str);
-                          } break;
-                          case 3: {
-                            appendRand3Byte(&str);
-                          } break;
-                          case 4: {
-                            appendRand4Byte(&str);
-                          } break;
-                          case 0: {
-                            str.push_back('\0');
-                          } break;
-                          default: {
-                            ASSERT(0);
-                          }
-                        }
-                    }
-
-                    if (veryVerbose) {
-                        P(dumpVec(vec));
-                        P(dumpStr(str));
-                    }
-
-                    const char * const begin       = str.c_str();
-                    const char * const endOfString = &*str.end();
-                    const char *       end;
-                    IntPtr             numCodePoints;
-                    int                sts;
-                    const int          numCodePointsArg = int(vec.size());
-                    const bsl::size_t  strLength = str.length();
-
-                    if (!useZero) {
-                        end = WOOF;
-                        numCodePoints = Obj::advanceRaw(&end, begin, INT_MAX);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-
-                        sts = -11;
-                        end = WOOF;
-                        numCodePoints = Obj::advanceIfValid(&sts,
-                                                            &end,
-                                                            begin,
-                                                            INT_MAX);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-                        ASSERT(0 == sts);
-
-                        ASSERT(Obj::isValid(begin));
-
-                        end = WOOF;
-                        ASSERT(Obj::isValid(&end, begin));
-                        ASSERT(WOOF == end);
-
-                        end = WOOF;
-                        numCodePoints = Obj::numCodePointsIfValid(&end,
-                                                                  begin);
-                        ASSERT(WOOF == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-                    }
-
-                    end = "woof";
-                    numCodePoints = Obj::advanceRaw(&end,
-                                                    begin,
-                                                    strLength,
-                                                    INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    sts = -11;
-                    end = "woof";
-                    numCodePoints = Obj::advanceIfValid(&sts,
-                                                        &end,
-                                                        begin,
-                                                        strLength,
-                                                        INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-                    ASSERT(0 == sts);
-
-                    ASSERT(Obj::isValid(begin, strLength));
-
-                    end = WOOF;
-                    ASSERT(Obj::isValid(&end, begin, strLength));
-                    ASSERT(WOOF == end);
-
-                    end = WOOF;
-                    numCodePoints = Obj::numCodePointsIfValid(&end,
-                                                              begin,
-                                                              strLength);
-                    ASSERT(WOOF == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    // Now we tack an extra non-zero garbage char on the end
-                    // 'str', and make sure that it makes no difference when
-                    // when 'strLength' and 'numCodePointsArg' dictate that it
-                    // will not be read.
-
-                    // Don't use 'c == 0' as we already tested that above.
-
-                    char c = char(randUnsigned() % 256 - 128);
-                    c = c ? c : 'a';
-                    str.push_back(c);
-
-                    end = "woof";
-                    numCodePoints = Obj::advanceRaw(&end,
-                                                    begin,
-                                                    strLength,
-                                                    INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    sts = -11;
-                    end = "woof";
-                    numCodePoints = Obj::advanceIfValid(&sts,
-                                                   &end,
-                                                   begin,
-                                                   strLength,
-                                                   INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-                    ASSERT(0 == sts);
-
-                    if (!useZero) {
-                        end = "woof";
-                        numCodePoints = Obj::advanceRaw(&end,
-                                                        begin,
-                                                        numCodePointsArg);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-
-                        sts = -11;
-                        end = "woof";
-                        numCodePoints = Obj::advanceIfValid(&sts,
-                                                            &end,
-                                                            begin,
-                                                            numCodePointsArg);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-                        ASSERT(0 == sts);
-                    }
-
-                    end = "woof";
-                    numCodePoints = Obj::advanceRaw(&end,
-                                                    begin,
-                                                    strLength + 1,
-                                                    numCodePointsArg);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    sts = -11;
-                    end = "woof";
-                    numCodePoints = Obj::advanceIfValid(&sts,
-                                                        &end,
-                                                        begin,
-                                                        strLength + 1,
-                                                        numCodePointsArg);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-                    ASSERT(0 == sts);
-
-                    ASSERT(Obj::isValid(begin, strLength));
-
-                    end = WOOF;
-                    ASSERT(Obj::isValid(&end, begin, strLength));
-                    ASSERT(WOOF == end);
-
-                    end = WOOF;
-                    numCodePoints = Obj::numCodePointsIfValid(&end,
-                                                              begin,
-                                                              strLength);
-                    ASSERT(WOOF == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    bsl::next_permutation(vec.begin(), vec.end());
-                } while (origVec != vec);
+            str.clear();
+            for (int ii = 0; ii < numCodePointsArg; ++ii) {
+                appendRandCorrectCodePoint(&str, useZero);
             }
+
+            if (veryVeryVerbose ||
+                               (intAbs(tj - k_NUM_USE_ZERO_ITERATIONS) < 100 &&
+                                                                veryVerbose)) {
+                P(dumpStr(str));
+            }
+
+            const bool zeroUsed = bsl::count(str.begin(), str.end(), '\0');
+            ASSERT(!zeroUsed || useZero);
+
+            const char * const begin       = str.c_str();
+            const char * const endOfString = &*str.end();
+            const char *       end;
+            IntPtr             numCodePoints;
+            int                sts;
+            const bsl::size_t  strLength = str.length();
+
+            if (!zeroUsed) {
+                end = WOOF;
+                numCodePoints = Obj::advanceRaw(&end, begin, INT_MAX);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsArg == numCodePoints);
+
+                sts = -11;
+                end = WOOF;
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    begin,
+                                                    INT_PTR_MAX);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsArg == numCodePoints);
+                ASSERT(0 == sts);
+
+                ASSERT(Obj::isValid(begin));
+
+                end = WOOF;
+                ASSERT(Obj::isValid(&end, begin));
+                ASSERT(WOOF == end);
+
+                end = WOOF;
+                numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                          begin);
+                ASSERT(WOOF == end);
+                ASSERT(numCodePointsArg == numCodePoints);
+
+                numCodePoints = Obj::numCodePointsRaw(begin);
+                ASSERT(numCodePointsArg == numCodePoints);
+            }
+
+            end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            begin,
+                                            strLength,
+                                            INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                                &end,
+                                                begin,
+                                                strLength,
+                                                INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+            ASSERT(0 == sts);
+
+            ASSERT(Obj::isValid(begin, strLength));
+
+            end = WOOF;
+            ASSERT(Obj::isValid(&end, begin, strLength));
+            ASSERT(WOOF == end);
+
+            end = WOOF;
+            numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                      begin,
+                                                      strLength);
+            ASSERT(WOOF == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+
+            numCodePoints = Obj::numCodePointsRaw(begin, strLength);
+            ASSERT(numCodePointsArg == numCodePoints);
+
+            // Now we tack an extra non-zero garbage char on the end
+            // 'str', and make sure that it makes no difference when
+            // when 'strLength' and 'numCodePointsArg' dictate that it
+            // will not be read.
+
+            // Don't use 'c == 0' as we already tested that above.
+
+            char c = char(randUnsigned() % 256 - 128);
+            c = c ? c : 'a';
+            str.push_back(c);
+
+            end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            begin,
+                                            strLength,
+                                            INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                           &end,
+                                           begin,
+                                           strLength,
+                                           INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+            ASSERT(0 == sts);
+
+            if (!zeroUsed) {
+                end = "woof";
+                numCodePoints = Obj::advanceRaw(&end,
+                                                begin,
+                                                numCodePointsArg);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsArg == numCodePoints);
+
+                sts = -11;
+                end = "woof";
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    begin,
+                                                    numCodePointsArg);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsArg == numCodePoints);
+                ASSERT(0 == sts);
+            }
+
+            end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            begin,
+                                            strLength + 1,
+                                            numCodePointsArg);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                                &end,
+                                                begin,
+                                                strLength + 1,
+                                                numCodePointsArg);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+            ASSERT(0 == sts);
+
+            ASSERT(Obj::isValid(begin, strLength));
+
+            end = WOOF;
+            ASSERT(Obj::isValid(&end, begin, strLength));
+            ASSERT(WOOF == end);
+
+            end = WOOF;
+            numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                      begin,
+                                                      strLength);
+            ASSERT(WOOF == end);
+            ASSERT(numCodePointsArg == numCodePoints);
+
+            numCodePoints = Obj::numCodePointsRaw(begin, strLength);
+            ASSERT(numCodePointsArg == numCodePoints);
         }
       } break;
       case 7: {
