@@ -349,6 +349,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
+#include <bsl_iosfwd.h>
 #include <bsl_string.h>
 
 namespace BloombergLP {
@@ -377,32 +378,38 @@ struct Utf8Util {
         // are set to one of these values (all of which are negative) to
         // indicate which type of UTF-8 error occurred.
 
-                     e_END_OF_BUFFER_TRUNCATION      = -2,
-                        // The last code point in the input was truncated by
-                        // the end of buffer (or terminating '\0' in a
-                        // zero-terminated string), but the entire input,
-                        // including that part of the truncated code point that
-                        // was within the buffer, is valid UTF-8.
+                     e_SUCCESS                       = 0,
 
-                     e_UNEXPECTED_CONTINUATION_OCTET = -3,
+                     e_OUTPUT_BUFFER_FULL            = -2,
+                        // Only returned when reading from a 'bsl::streambuf',
+                        // indicates that the buffer was full before end of
+                        // input was reached.
+
+                     e_END_OF_INPUT_TRUNCATION       = -3,
+                        // The end of input from a 'streambuf' was reached
+                        // partway through a multibyte UTF-8 sequence, or if
+                        // the input was a buffer, the buffer ended partway
+                        // through a multibyte sequence.
+
+                     e_UNEXPECTED_CONTINUATION_OCTET = -4,
                         // A continuation byte was encountered when not within
                         // a multi-bytes sequence.
 
-                     e_NON_CONTINUATION_OCTET        = -4,
+                     e_NON_CONTINUATION_OCTET        = -5,
                         // A non-continuation byte was encountered where a
                         // continuation byte was expected.  Note that this may
                         // include a '\0' in a non zero-terminated string that
                         // occurs where a continuation byte was expected.
 
-                     e_NON_MINIMAL_ENCODING          = -5,
+                     e_NON_MINIMAL_ENCODING          = -6,
                         // The unicode value encoded could have been encoded in
                         // a sequence of fewer bytes.
 
-                     e_NOT_UNICODE                   = -6,
+                     e_NOT_UNICODE                   = -7,
                         // Either a 5-byte sequence was encoded, or a value was
                         // encoded that was not in the unicode character set.
 
-                     e_SURROGATE                     = -7
+                     e_SURROGATE                     = -8
                         // Illegal occurrance of unicode code point reserved
                         // for surrogate values in UTF-16.
     };
@@ -633,6 +640,27 @@ struct Utf8Util {
         // null-terminated and can contain embedded null bytes.  The behavior
         // is undefined unless 'string' contains valid UTF-8.  Note that
         // 'string' may contain less than 'length' Unicode code points.
+
+    static int readValidUtf8ToBuffer(char            *outputBuffer,
+                                     size_type       *outputBufferLength,
+                                     bsl::streambuf  *input);
+        // Read from the specified 'input', validating the UTF-8 in the
+        // process, copying correct UTF-8 input into the specified
+        // 'outputBuffer' of length 'outputBufferLength'.  At return,
+        // 'outputBufferLength' is set to the length of the valid UTF-8 written
+        // into 'outputBuffer'.  Return 'e_OUTPUT_BUFFER_FULL' if less than 4
+        // bytes of room in 'outputBuffer' remain, or 0 if all of the input was
+        // parsed as valid UTF-8.  If invalid UTF-8 is encountered, return
+        // another value from 'ErrorCode' with the first 'outputBufferLength'
+        // bytes of 'outputBuffer' containing all the valid UTF-8 that was
+        // parsed before the invalid UTF-8 was encountered.  The contents of
+        // 'outputBuffer' after the first 'outputBufferLength' bytes is
+        // unspecified.  The behavior is undefined if 'outputBufferLength < 4'.
+
+    static const char *toAscii(ErrorCode errorCode);
+        // Write a string indicating which value of the specified 'ErrorCode'
+        // was passed.  If 'errorCode' does not represent a valid value of
+        // 'ErrorCode' return "(* unrecognized value *)";
 };
 
 // ============================================================================
@@ -705,6 +733,10 @@ Utf8Util::IntPtr Utf8Util::numCharactersRaw(const char *string,
 }
 
 }  // close package namespace
+
+bsl::ostream& operator<<(bsl::ostream& stream, bdlde::Utf8Util::ErrorCode ec);
+    // Output a string representation of the specified 'ec' to the specifed
+    // 'stream', and return 'stream'.
 
 }  // close enterprise namespace
 
