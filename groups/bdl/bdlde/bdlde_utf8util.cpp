@@ -1452,7 +1452,7 @@ int Utf8Util::readValidUtf8ToBuffer(char            *outputBuffer,
             }
 
             const int value = get3ByteValue(pc);
-            if (UNLIKELY(ret
+            if (UNLIKELY(bool(ret)
                        | (value < k_MIN_3_BYTE_VALUE)
                        | isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1497,7 +1497,7 @@ int Utf8Util::readValidUtf8ToBuffer(char            *outputBuffer,
             }
 
             const int value = get4ByteValue(pc);
-            if (UNLIKELY(ret
+            if (UNLIKELY(bool(ret)
                        | (value < k_MIN_4_BYTE_VALUE)
                        | (value > k_MAX_VALID))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;

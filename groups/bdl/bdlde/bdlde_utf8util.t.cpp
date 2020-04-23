@@ -4202,7 +4202,7 @@ int main(int argc, char *argv[])
             const int   NUMBYTES = DATA[ti].d_numBytes;
             const int   NUMCPS   = DATA[ti].d_numCodePoints;
             const int   ERROFF   = DATA[ti].d_errOffset;
-            const int   VALID    = DATA[ti].d_isValid;
+            const bool  VALID    = DATA[ti].d_isValid;
 
             if (veryVerbose) {
                 T_; P_(ti);
