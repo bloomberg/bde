@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 80 components having 9 levels of physical
+ The 'bslstl' package currently has 85 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -25,7 +25,9 @@
   9. bslstl_ownerless
      bslstl_typeindex
 
-  8. bslstl_map_test                                                  !PRIVATE!
+  8. bslstl_map_test1                                                 !PRIVATE!
+     bslstl_map_test2                                                 !PRIVATE!
+     bslstl_map_test3                                                 !PRIVATE!
      bslstl_multimap_test                                             !PRIVATE!
      bslstl_multiset_test                                             !PRIVATE!
      bslstl_set_test                                                  !PRIVATE!
@@ -37,7 +39,8 @@
      bslstl_set
 
   6. bslstl_boyermoorehorspoolsearcher
-     bslstl_deque_test                                                !PRIVATE!
+     bslstl_deque_test1                                               !PRIVATE!
+     bslstl_deque_test2                                               !PRIVATE!
      bslstl_istringstream
      bslstl_mapcomparator
      bslstl_ostringstream
@@ -54,7 +57,8 @@
   5. bslstl_bitset
      bslstl_defaultsearcher
      bslstl_deque
-     bslstl_hashtable_test                                            !PRIVATE!
+     bslstl_hashtable_test1                                           !PRIVATE!
+     bslstl_hashtable_test2                                           !PRIVATE!
      bslstl_string_test                                               !PRIVATE!
      bslstl_stringbuf
      bslstl_stringref
@@ -78,7 +82,8 @@
      bslstl_list_test                                                 !PRIVATE!
      bslstl_priorityqueue
      bslstl_stringrefdata
-     bslstl_vector_test                                               !PRIVATE!
+     bslstl_vector_test1                                              !PRIVATE!
+     bslstl_vector_test2                                              !PRIVATE!
 
   2. bslstl_array
      bslstl_bidirectionalnodepool
@@ -153,7 +158,10 @@
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
 :
-: 'bslstl_deque_test':                                                !PRIVATE!
+: 'bslstl_deque_test1':                                               !PRIVATE!
+:      Provide support for the 'bslstl_deque.t.cpp' test driver.
+:
+: 'bslstl_deque_test2':                                               !PRIVATE!
 :      Provide support for the 'bslstl_deque.t.cpp' test driver.
 :
 : 'bslstl_equalto':
@@ -177,7 +185,10 @@
 : 'bslstl_hashtable':
 :      Provide a hash-container with support for duplicate values.
 :
-: 'bslstl_hashtable_test':                                            !PRIVATE!
+: 'bslstl_hashtable_test1':                                           !PRIVATE!
+:      Provide support for the 'bslstl_hashtable.t.cpp' test driver.
+:
+: 'bslstl_hashtable_test2':                                           !PRIVATE!
 :      Provide support for the 'bslstl_hashtable.t.cpp' test driver.
 :
 : 'bslstl_hashtablebucketiterator':
@@ -213,7 +224,13 @@
 : 'bslstl_map':
 :      Provide an STL-compliant map class.
 :
-: 'bslstl_map_test':                                                  !PRIVATE!
+: 'bslstl_map_test1':                                                 !PRIVATE!
+:      Provide support for the 'bslstl_map.t.cpp' test driver.
+:
+: 'bslstl_map_test2':                                                 !PRIVATE!
+:      Provide support for the 'bslstl_map.t.cpp' test driver.
+:
+: 'bslstl_map_test3':                                                 !PRIVATE!
 :      Provide support for the 'bslstl_map.t.cpp' test driver.
 :
 : 'bslstl_mapcomparator':
@@ -351,5 +368,8 @@
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
 :
-: 'bslstl_vector_test':                                               !PRIVATE!
+: 'bslstl_vector_test1':                                              !PRIVATE!
+:      Provide support for the 'bslstl_vector.t.cpp' test driver.
+:
+: 'bslstl_vector_test2':                                              !PRIVATE!
 :      Provide support for the 'bslstl_vector.t.cpp' test driver.
