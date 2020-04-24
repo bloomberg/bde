@@ -371,7 +371,7 @@ struct Utf8Util {
     typedef bsls::Types::size_type       size_type;
     typedef bsls::Types::IntPtr          IntPtr;
 
-    enum ErrorCode {
+    enum ReturnCode {
         // For those functions in this 'struct' for which invalid UTF-8 input
         // is not undefined behavior, if invalid UTF-8 is passed, either the
         // return value or the 'status' code returned from the argument list
@@ -405,11 +405,14 @@ struct Utf8Util {
                         // The unicode value encoded could have been encoded in
                         // a sequence of fewer bytes.
 
-                     e_NOT_UNICODE                   = -7,
-                        // Either a 5-byte sequence was encoded, or a value was
-                        // encoded that was not in the unicode character set.
+                     e_SEQUENCE_TOO_LONG             = -7,
+                        // The start of the sequence indicated that the
+                        // sequence was over 4 bytes long.
 
-                     e_SURROGATE                     = -8
+                     e_VALUE_TOO_LARGE               = -8,
+                        // A value larger than 0x10FFFF was encoded.
+
+                     e_SURROGATE                     = -9
                         // Illegal occurrance of unicode code point reserved
                         // for surrogate values in UTF-16.
     };
@@ -425,7 +428,7 @@ struct Utf8Util {
         // invalid UTF-8 is encountered (whichever occurs first), and return
         // the number of Unicode code points traversed.  Set the specified
         // '*status' to 0 if no invalid UTF-8 is encountered, and to a value
-        // from the 'Utf8Util::ErrorCode' 'enum' otherwise.  Set the specified
+        // from the 'Utf8Util::ReturnCode' 'enum' otherwise.  Set the specified
         // '*result' to the address of the byte immediately following the last
         // valid code point traversed, or to 'string' if 'string' is empty or
         // 'numCodePoints' is 0.  'string' is necessarily null-terminated, so
@@ -445,7 +448,7 @@ struct Utf8Util {
         // 'length' bytes have been traversed, or invalid UTF-8 is encountered
         // (whichever occurs first), and return the number of Unicode code
         // points traversed.  Set the specified '*status' to 0 if no invalid
-        // UTF-8 is encountered, and to a value from the 'Utf8Util::ErrorCode'
+        // UTF-8 is encountered, and to a value from the 'Utf8Util::ReturnCode'
         // 'enum' otherwise.  Set the specified '*result' to the address of the
         // byte immediately following the last valid code point traversed, or
         // to 'string' if 'length' or 'numCodePoints' is 0.  'string' need not
@@ -609,7 +612,7 @@ struct Utf8Util {
         // Return the number of Unicode code points in the specified 'string'
         // if it contains valid UTF-8, with no effect on the specified
         // 'invalidString'.  Otherwise, return a value from the
-        // 'Utf8Util::ErrorCode' 'enum' (which are all negative) and load into
+        // 'Utf8Util::ReturnCode' 'enum' (which are all negative) and load into
         // 'invalidString' the address of the byte after the last valid Unicode
         // code point traversed.  'string' is necessarily null-terminated, so
         // it cannot contain embedded null bytes.  Note that 'string' may
@@ -621,7 +624,7 @@ struct Utf8Util {
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes) if 'string' contains valid
         // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
-        // return a value from the 'Utf8Util::ErrorCode' 'enum' (which are all
+        // return a value from the 'Utf8Util::ReturnCode' 'enum' (which are all
         // negative) and load into 'invalidString' the address of the byte
         // after the last valid Unicode code point traversed.  'string' need
         // not be null-terminated and may contain embedded null bytes.  Note
@@ -641,26 +644,27 @@ struct Utf8Util {
         // is undefined unless 'string' contains valid UTF-8.  Note that
         // 'string' may contain less than 'length' Unicode code points.
 
-    static int readValidUtf8ToBuffer(char            *outputBuffer,
-                                     size_type       *outputBufferLength,
-                                     bsl::streambuf  *input);
+    static size_type readIfValid(ReturnCode     *returnCode,
+                                 char           *outputBuffer,
+                                 size_type       outputBufferLength,
+                                 bsl::streambuf *input);
         // Read from the specified 'input', validating the UTF-8 in the
         // process, copying correct UTF-8 input into the specified
-        // 'outputBuffer' of length 'outputBufferLength'.  At return,
-        // 'outputBufferLength' is set to the length of the valid UTF-8 written
-        // into 'outputBuffer'.  Return 'e_OUTPUT_BUFFER_FULL' if less than 4
-        // bytes of room in 'outputBuffer' remain, or 0 if all of the input was
-        // parsed as valid UTF-8.  If invalid UTF-8 is encountered, return
-        // another value from 'ErrorCode' with the first 'outputBufferLength'
-        // bytes of 'outputBuffer' containing all the valid UTF-8 that was
-        // parsed before the invalid UTF-8 was encountered.  The contents of
-        // 'outputBuffer' after the first 'outputBufferLength' bytes is
-        // unspecified.  The behavior is undefined if 'outputBufferLength < 4'.
+        // 'outputBuffer' of length 'outputBufferLength'.  Always return the
+        // number of bytes of valid UTF-8 written into the buffer.  Return a
+        // value from the 'ReturnCode' 'enum' to '*returnCode', 'e_SUCCESS' if
+        // end of file was reached, 'e_OUTPUT_BUFFER_FULL' if the buffer was
+        // full before end of file was reached, and other values if incorrect
+        // UTF-8 was encountered.  The contents of 'outputBuffer' following the
+        // correct UTF-8 is unspecified.  The behavior is undefined if
+        // 'outputBufferLength < 4'.  Note that
+        // '*returnCode == e_OUTPUT_BUFFER_FULL' may be returned with up to 3
+        // unfilled bytes at the end of 'outputBuffer'.
 
-    static const char *toAscii(ErrorCode errorCode);
-        // Write a string indicating which value of the specified 'ErrorCode'
+    static const char *toAscii(ReturnCode errorCode);
+        // Write a string indicating which value of the specified 'ReturnCode'
         // was passed.  If 'errorCode' does not represent a valid value of
-        // 'ErrorCode' return "(* unrecognized value *)";
+        // 'ReturnCode' return "(* unrecognized value *)";
 };
 
 // ============================================================================
@@ -734,7 +738,8 @@ Utf8Util::IntPtr Utf8Util::numCharactersRaw(const char *string,
 
 }  // close package namespace
 
-bsl::ostream& operator<<(bsl::ostream& stream, bdlde::Utf8Util::ErrorCode ec);
+bsl::ostream& operator<<(bsl::ostream& stream, bdlde::Utf8Util::ReturnCode
+                                                                   returnCode);
     // Output a string representation of the specified 'ec' to the specifed
     // 'stream', and return 'stream'.
 

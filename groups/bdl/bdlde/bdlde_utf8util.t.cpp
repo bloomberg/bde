@@ -2723,12 +2723,13 @@ bsl::string makeString(const char *pc, size_t len)
 
 }  // close namespace BDEDE_UTF8UTIL_CASE_2
 
-const Obj::ErrorCode EIT = Obj::e_END_OF_INPUT_TRUNCATION;
-const Obj::ErrorCode UCO = Obj::e_UNEXPECTED_CONTINUATION_OCTET;
-const Obj::ErrorCode NCO = Obj::e_NON_CONTINUATION_OCTET;
-const Obj::ErrorCode NME = Obj::e_NON_MINIMAL_ENCODING;
-const Obj::ErrorCode NUN = Obj::e_NOT_UNICODE;
-const Obj::ErrorCode SUR = Obj::e_SURROGATE;
+const Obj::ReturnCode EIT = Obj::e_END_OF_INPUT_TRUNCATION;
+const Obj::ReturnCode UCO = Obj::e_UNEXPECTED_CONTINUATION_OCTET;
+const Obj::ReturnCode NCO = Obj::e_NON_CONTINUATION_OCTET;
+const Obj::ReturnCode NME = Obj::e_NON_MINIMAL_ENCODING;
+const Obj::ReturnCode STL = Obj::e_SEQUENCE_TOO_LONG;
+const Obj::ReturnCode VTL = Obj::e_VALUE_TOO_LARGE;
+const Obj::ReturnCode SUR = Obj::e_SURROGATE;
 
 static const struct {
     int         d_lineNum;    // source line number
@@ -2825,17 +2826,17 @@ static const struct {
     { L_, "\xf5",                         1, EIT,  0,   0   },
     { L_, "\xf6",                         1, EIT,  0,   0   },
     { L_, "\xf7",                         1, EIT,  0,   0   },
-    { L_, "\xf8",                         1, NUN,  0,   0   },
-    { L_, "\xf8\xaf\xaf\xaf",             4, NUN,  0,   0   },
-    { L_, "\xf8\x80\x80\x80",             4, NUN,  0,   0   },
-    { L_, "\xf8",                         1, NUN,  0,   0   },
-    { L_, "\xf9",                         1, NUN,  0,   0   },
-    { L_, "\xfa",                         1, NUN,  0,   0   },
-    { L_, "\xfb",                         1, NUN,  0,   0   },
-    { L_, "\xfc",                         1, NUN,  0,   0   },
-    { L_, "\xfd",                         1, NUN,  0,   0   },
-    { L_, "\xfe",                         1, NUN,  0,   0   },
-    { L_, "\xff",                         1, NUN,  0,   0   },
+    { L_, "\xf8",                         1, STL,  0,   0   },
+    { L_, "\xf8\xaf\xaf\xaf",             4, STL,  0,   0   },
+    { L_, "\xf8\x80\x80\x80",             4, STL,  0,   0   },
+    { L_, "\xf8",                         1, STL,  0,   0   },
+    { L_, "\xf9",                         1, STL,  0,   0   },
+    { L_, "\xfa",                         1, STL,  0,   0   },
+    { L_, "\xfb",                         1, STL,  0,   0   },
+    { L_, "\xfc",                         1, STL,  0,   0   },
+    { L_, "\xfd",                         1, STL,  0,   0   },
+    { L_, "\xfe",                         1, STL,  0,   0   },
+    { L_, "\xff",                         1, STL,  0,   0   },
 
     // Make sure that the "illegal" UTF-8 octets are handled correctly
     // mid-string:
@@ -2846,14 +2847,14 @@ static const struct {
     { L_, " \xf5 ",                       3, NCO,  1,   0   },
     { L_, " \xf6 ",                       3, NCO,  1,   0   },
     { L_, " \xf7 ",                       3, NCO,  1,   0   },
-    { L_, " \xf8 ",                       3, NUN,  1,   0   },
-    { L_, " \xf9 ",                       3, NUN,  1,   0   },
-    { L_, " \xfa ",                       3, NUN,  1,   0   },
-    { L_, " \xfb ",                       3, NUN,  1,   0   },
-    { L_, " \xfc ",                       3, NUN,  1,   0   },
-    { L_, " \xfd ",                       3, NUN,  1,   0   },
-    { L_, " \xfe ",                       3, NUN,  1,   0   },
-    { L_, " \xff ",                       3, NUN,  1,   0   },
+    { L_, " \xf8 ",                       3, STL,  1,   0   },
+    { L_, " \xf9 ",                       3, STL,  1,   0   },
+    { L_, " \xfa ",                       3, STL,  1,   0   },
+    { L_, " \xfb ",                       3, STL,  1,   0   },
+    { L_, " \xfc ",                       3, STL,  1,   0   },
+    { L_, " \xfd ",                       3, STL,  1,   0   },
+    { L_, " \xfe ",                       3, STL,  1,   0   },
+    { L_, " \xff ",                       3, STL,  1,   0   },
 
     { L_, U8_00080,                       2,   1, -1,   1   },
     { L_, "\xc2",                         1, EIT,  0,   0   },
@@ -2882,6 +2883,11 @@ static const struct {
     { L_, "\xf0\x90\x80\x80",             4,   1,  0,   1   },    // min legal
     { L_, "\xf1\x80\x80\x80",             4,   1,  0,   1   },    // norm legal
     { L_, "\xf1\xaa\xaa\xaa",             4,   1,  0,   1   },    // norm legal
+    { L_, "\xf4\x8f\xbf\xbf",             4,   1,  0,   1   },    // max legal
+    { L_, "\xf4\x90\x80\x80",             4, VTL,  0,   0   },    // min VTL
+    { L_, "\xf4\x90\xbf\xbf",             4, VTL,  0,   0   },    //     VTL
+    { L_, "\xf4\xa0\x80\x80",             4, VTL,  0,   0   },    //     VTL
+    { L_, "\xf7\xbf\xbf\xbf",             4, VTL,  0,   0   },    // max VTL
 
     { L_, "\xe0\x80\x80",                 3, NME,  0,   0   },
     { L_, "\xe0\x9a\xaa",                 3, NME,  0,   0   },
@@ -2900,13 +2906,8 @@ static const struct {
     { L_, "\xc2",                         1, EIT,  0,   0   },
     { L_, " \xc2",                        2, EIT,  1,   0   },
     { L_, "\xc2 ",                        2, NCO,  0,   0   },
-    { L_, "\xc2\xc2 ",                    3, NCO,  0,   0   },
-    { L_, "\xc2 \xc2",                    3, NCO,  0,   0   },
-
-    // Corrupted 2-octet code point followed by a valid code point:
-
-    { L_, "\xc2" U8_00080,                3, NCO,  0,   0   },
-    { L_, "\xc2" U8_00080,                3, NCO,  0,   0   },
+    { L_, "\xc2\xc2",                     2, NCO,  0,   0   },
+    { L_, "\xc2\xef",                     2, NCO,  0,   0   },
 
     // Corrupted 2-octet code point followed by an invalid code point:
 
@@ -2930,16 +2931,7 @@ static const struct {
     { L_, " \xef\xbf@",                   4, NCO,  1,   0   },
     { L_, "\xef\xbf ",                    3, NCO,  0,   0   },
     { L_, "\xef\xbf ",                    3, NCO,  0,   0   },
-    { L_, "\xef\xbf" U8_00080,            4, NCO,  0,   0   },
-    { L_, "\xef\xbf" U8_00080,            4, NCO,  0,   0   },
-    { L_, "\xef\xbf" U8_00080 " ",        5, NCO,  0,   0   },
-    { L_, "\xef\xbf" U8_00080 " ",        5, NCO,  0,   0   },
-    { L_, "\xef\xbf" U8_00080 " ",        5, NCO,  0,   0   },
-    { L_, "\xef\xbf\xef\xbf ",            5, NCO,  0,   0   },
-    { L_, "\xef\xbf\xef\xbf ",            5, NCO,  0,   0   },
-    { L_, "\xef\xbf \xef\xbf",            5, NCO,  0,   0   },
-    { L_, "\xef\xbf \xef\xbf",            5, NCO,  0,   0   },
-    { L_, "\xef\xbf \xef\xbf",            5, NCO,  0,   0   },
+    { L_, "\xef\xbf\xef",                 3, NCO,  0,   0   },
 
     { L_, "\xed\xa0\x80",                 3, SUR,  0,   0   },
     { L_, "\xed\xb0\x85 ",                4, SUR,  0,   0   },
@@ -3436,8 +3428,8 @@ int main(int argc, char *argv[])
 
                 if (0 <= STATUS) continue;
 
-                Obj::ErrorCode
-                            ERROR_CODE   = static_cast<Obj::ErrorCode>(STATUS);
+                Obj::ReturnCode
+                          RETURN_CODE   = static_cast<Obj::ReturnCode>(STATUS);
 
                 ASSERT(0 <= OFFSET);
 
@@ -3446,7 +3438,7 @@ int main(int argc, char *argv[])
                 ASSERT(!zeroUsed || useZero);
 
                 errorStr.clear();
-                if (EIT == ERROR_CODE &&
+                if (EIT == RETURN_CODE &&
                                 30 <= intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
                     // In the end of buffer truncation cases, instead of taking
                     // 'ERROR_STR', manufacture a valid multibyte sequence of
@@ -3464,7 +3456,7 @@ int main(int argc, char *argv[])
 
                     errorStr.resize(OFFSET + len);
                 }
-                else if (SUR == ERROR_CODE &&
+                else if (SUR == RETURN_CODE &&
                                 30 <= intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
                     errorStr = BDEDE_UTF8UTIL_CASE_4::codeRandSurrogate();
                 }
@@ -3500,8 +3492,8 @@ int main(int argc, char *argv[])
                                                         INT_PTR_MAX);
                     ASSERT(endOfValid == end);
                     ASSERT(numCodePointsExp == numCodePoints);
-                    ASSERTV(LINE, ERROR_CODE, sts, dumpStr(errorStr),
-                                                        ERROR_CODE == sts);
+                    ASSERTV(LINE, RETURN_CODE, sts, dumpStr(errorStr),
+                                                           RETURN_CODE == sts);
 
                     ASSERT(!Obj::isValid(begin));
 
@@ -3512,10 +3504,9 @@ int main(int argc, char *argv[])
                     end = "woof";
                     numCodePoints = Obj::numCodePointsIfValid(&end,
                                                               begin);
-                    ASSERTV(end - endOfValid, ERROR_CODE,
-                                                    endOfValid == end);
-                    ASSERTV(LINE, ERROR_CODE, numCodePoints,
-                                              ERROR_CODE == numCodePoints);
+                    ASSERTV(end - endOfValid, RETURN_CODE, endOfValid == end);
+                    ASSERTV(LINE, RETURN_CODE, numCodePoints,
+                                                 RETURN_CODE == numCodePoints);
                 }
 
                 sts = -11;
@@ -3527,7 +3518,7 @@ int main(int argc, char *argv[])
                                                     INT_PTR_MAX);
                 ASSERT(endOfValid == end);
                 ASSERT(numCodePointsExp == numCodePoints);
-                ASSERTV(LINE, ERROR_CODE, sts, ERROR_CODE == sts);
+                ASSERTV(LINE, RETURN_CODE, sts, RETURN_CODE == sts);
 
                 ASSERT(!Obj::isValid(begin, str.length()));
 
@@ -3540,53 +3531,55 @@ int main(int argc, char *argv[])
                                                           begin,
                                                           str.length());
                 ASSERT(endOfValid == end);
-                ASSERTV(LINE, ERROR_CODE, numCodePoints,
-                                              ERROR_CODE == numCodePoints);
+                ASSERTV(LINE, RETURN_CODE, numCodePoints,
+                                                 RETURN_CODE == numCodePoints);
 
-                const IntPtr validLen  = endOfValid - begin;                  \
+                const IntPtr validLen  = endOfValid - begin;
                 IntPtr       intStrLen = str.length();
                 for (IntPtr endOutLen = intStrLen + 4,
                                    outLen = bsl::max<IntPtr>(4, intStrLen - 1);
                                            outLen <= endOutLen + 4; ++outLen) {
                     fsb.pubsetbuf(begin, str.length());
                     out.resize(0);
-                    out.resize(outLen, badChar);
+                    out.resize(outLen + 1, badChar);
 
-                    bsl::size_t bufLen = outLen;
-                    sts = Obj::readValidUtf8ToBuffer(&out[0],
-                                                     &bufLen,
-                                                     &fsb);
-                    const Obj::ErrorCode ec = static_cast<Obj::ErrorCode>(sts);
-                    const IntPtr intBufLen = bufLen;
+                    Obj::ReturnCode rc;
+                    IntPtr intBufLen = Obj::readIfValid(&rc,
+                                                        &out[0],
+                                                        outLen,
+                                                        &fsb);
                     ASSERT(0 <= intBufLen);
 
                     ASSERTV(dumpStr(str), intBufLen, outLen,
                                                           intBufLen <= outLen);
                     ASSERTV(dumpStr(str), intBufLen, outLen,
                                                         intBufLen <= validLen);
+                    ASSERT(badChar == out[outLen]);
 
-                    if (ec == ERROR_CODE) {
+                    if (rc == RETURN_CODE) {
                         ASSERT(intBufLen == validLen);
-                        ASSERT(0 == validLen || 0 < bufLen);
+                        ASSERT(0 == validLen || 0 < intBufLen);
                     }
                     else {
-                        ASSERTV(ec, ERROR_CODE,
-                                              Obj::e_OUTPUT_BUFFER_FULL == ec);
+                        ASSERTV(rc, RETURN_CODE,
+                                              Obj::e_OUTPUT_BUFFER_FULL == rc);
                         ASSERTV(outLen, intStrLen, outLen - 3 <= intStrLen);
                     }
 
-                    out.resize(bufLen);
-                    ASSERTV(dumpStr(out), Obj::isValid(&out[0], bufLen));
+                    out.resize(intBufLen);
+                    ASSERTV(dumpStr(out), Obj::isValid(&out[0], intBufLen));
                 }
 
                 // Now, we tack a correct char on after and observe
                 // no change to the result:
 
-                appendRandCorrectCodePoint(&str, useZero);
+                for (unsigned uu = randUnsigned() % 3 + 1; 0 < uu--; ) {
+                    appendRandCorrectCodePoint(&str, useZero);
+                }
                 zeroUsed = zeroUsed || (useZero &&
                                      bsl::count(str.begin(), str.end(), '\0'));
 
-                ERROR_CODE = EIT == ERROR_CODE ? NCO : ERROR_CODE;
+                RETURN_CODE = EIT == RETURN_CODE ? NCO : RETURN_CODE;
 
                 if (!zeroUsed) {
                     ASSERT(bsl::strlen(begin) == str.length());
@@ -3599,7 +3592,7 @@ int main(int argc, char *argv[])
                                                         INT_PTR_MAX);
                     ASSERT(endOfValid == end);
                     ASSERT(numCodePointsExp == numCodePoints);
-                    ASSERT(ERROR_CODE == sts);
+                    ASSERT(RETURN_CODE == sts);
 
                     ASSERT(!Obj::isValid(begin));
 
@@ -3611,7 +3604,7 @@ int main(int argc, char *argv[])
                     numCodePoints = Obj::numCodePointsIfValid(&end,
                                                               begin);
                     ASSERT(endOfValid == end);
-                    ASSERT(ERROR_CODE == numCodePoints);
+                    ASSERT(RETURN_CODE == numCodePoints);
                 }
 
                 sts = -11;
@@ -3623,8 +3616,8 @@ int main(int argc, char *argv[])
                                                     INT_PTR_MAX);
                 ASSERT(endOfValid == end);
                 ASSERT(numCodePointsExp == numCodePoints);
-                ASSERTV(LINE, ERROR_CODE, sts,
-                                   str[str.length()-1], ERROR_CODE == sts);
+                ASSERTV(LINE, RETURN_CODE, sts,
+                                      str[str.length()-1], RETURN_CODE == sts);
 
                 ASSERT(!Obj::isValid(begin, str.length()));
 
@@ -3637,8 +3630,8 @@ int main(int argc, char *argv[])
                                                           begin,
                                                           str.length());
                 ASSERT(endOfValid == end);
-                ASSERTV(LINE, dumpStr(errorStr), ERROR_CODE, numCodePoints,
-                                              ERROR_CODE == numCodePoints);
+                ASSERTV(LINE, dumpStr(errorStr), RETURN_CODE, numCodePoints,
+                                                 RETURN_CODE == numCodePoints);
 
                 intStrLen = str.length();
                 for (IntPtr endOutLen = intStrLen + 4,
@@ -3646,33 +3639,33 @@ int main(int argc, char *argv[])
                                            outLen <= endOutLen + 4; ++outLen) {
                     fsb.pubsetbuf(begin, str.length());
                     out.resize(0);
-                    out.resize(outLen, badChar);
+                    out.resize(outLen + 1, badChar);
 
-                    bsl::size_t bufLen = outLen;
-                    sts = Obj::readValidUtf8ToBuffer(&out[0],
-                                                     &bufLen,
-                                                     &fsb);
-                    const Obj::ErrorCode ec = static_cast<Obj::ErrorCode>(sts);
-                    const IntPtr intBufLen = bufLen;
+                    Obj::ReturnCode rc;
+                    IntPtr intBufLen = Obj::readIfValid(&rc,
+                                                        &out[0],
+                                                        outLen,
+                                                        &fsb);
                     ASSERT(0 <= intBufLen);
+                    ASSERT(badChar == out[outLen]);
 
                     ASSERTV(dumpStr(str), intBufLen, outLen,
                                                           intBufLen <= outLen);
                     ASSERTV(dumpStr(str), intBufLen, outLen,
                                                         intBufLen <= validLen);
 
-                    if (ec == ERROR_CODE) {
+                    if (rc == RETURN_CODE) {
                         ASSERT(intBufLen == validLen);
-                        ASSERT(0 == validLen || 0 < bufLen);
+                        ASSERT(0 == validLen || 0 < intBufLen);
                     }
                     else {
-                        ASSERTV(ec, ERROR_CODE,
-                                              Obj::e_OUTPUT_BUFFER_FULL == ec);
+                        ASSERTV(rc, RETURN_CODE,
+                                              Obj::e_OUTPUT_BUFFER_FULL == rc);
                         ASSERTV(outLen, intStrLen, outLen - 3 <= intStrLen);
                     }
 
-                    out.resize(bufLen);
-                    ASSERTV(dumpStr(out), Obj::isValid(&out[0], bufLen));
+                    out.resize(intBufLen);
+                    ASSERTV(dumpStr(out), Obj::isValid(&out[0], intBufLen));
                 }
             }
         }
@@ -3899,15 +3892,16 @@ int main(int argc, char *argv[])
 
                     const bool inputValid = Obj::isValid(begin, sbLen);
 
-                    bsl::size_t bufLen = outLen;
-                    int rc = Obj::readValidUtf8ToBuffer(&out[0],
-                                                        &bufLen,
+                    Obj::ReturnCode rc;
+                    IntPtr intBufLen = Obj::readIfValid(&rc,
+                                                        &out[0],
+                                                        outLen,
                                                         &fsb);
+                    ASSERT(0 <= intBufLen);
 
-                    const Obj::ErrorCode ec = static_cast<Obj::ErrorCode>(rc);
-                    switch (ec) {
+                    switch (rc) {
                       case Obj::e_SUCCESS: {
-                        ASSERT(static_cast<int>(bufLen) == sbLen);
+                        ASSERT(intBufLen == sbLen);
                       } break;
                       case Obj::e_OUTPUT_BUFFER_FULL: {
                         ASSERT(outLen <= sbLen + 3);
@@ -3923,22 +3917,19 @@ int main(int argc, char *argv[])
                         ASSERT(ii <= end);
                       } break;
                       default: {
-                        ASSERTV(ec, 0 && "unexpected error");
+                        ASSERTV(rc, 0 && "unexpected error");
                       }
                     }
 
-                    ASSERTV(bufLen, outLen,
-                                        static_cast<IntPtr>(bufLen) <= outLen);
-                    ASSERTV(bufLen, sbLen,
-                                        static_cast<IntPtr>(bufLen) <= sbLen);
-                    ASSERTV(bufLen, sbLen, outLen,
-                        bsl::min(sbLen, outLen-3) - static_cast<IntPtr>(bufLen)
-                                                                         <= 3);
-                    ASSERTV(0 < bufLen || 0 == sbLen ||
+                    ASSERTV(intBufLen, outLen, intBufLen <= outLen);
+                    ASSERTV(intBufLen, sbLen,  intBufLen <= sbLen);
+                    ASSERTV(intBufLen, sbLen, outLen,
+                                   bsl::min(sbLen, outLen-3) - intBufLen <= 3);
+                    ASSERTV(0 < intBufLen || 0 == sbLen ||
                                                    (!inputValid && sbLen < 4));
 
-                    ASSERT(0 == bsl::memcmp(&out[0], begin, bufLen));
-                    ASSERT(Obj::isValid(&out[0], bufLen));
+                    ASSERT(0 == bsl::memcmp(&out[0], begin,intBufLen));
+                    ASSERT(Obj::isValid(&out[0], intBufLen));
 
                     if (inputValid) {
                         ASSERT(Obj::e_OUTPUT_BUFFER_FULL == rc || 0 == rc);
@@ -3949,37 +3940,14 @@ int main(int argc, char *argv[])
                             end = WOOF;
                             ASSERT(1 == Obj::numCodePointsIfValid(&end,
                                                                   &out[0],
-                                                                  bufLen));
+                                                                  intBufLen));
                             ASSERT(WOOF == end);
                         }
                     }
                     else {
                         ASSERT(0 != rc);
-                        ASSERTV(ec, sbLen + 3 > outLen ||
+                        ASSERTV(rc, sbLen + 3 > outLen ||
                                          Obj::e_END_OF_INPUT_TRUNCATION == rc);
-                    }
-
-                    bool t4 = 4 <= bufLen && (out[bufLen - 4] & 0xf8) == 0xf0;
-                    bool t3 = 3 <= bufLen && (out[bufLen - 3] & 0xf0) == 0xe0;
-                    bool t2 = 2 <= bufLen && (out[bufLen - 2] & 0xe0) == 0xc0;
-                    bool t1 = 1 <= bufLen && (out[bufLen - 1] & 0x80) == 0;
-                    bool t0 = 0 == bufLen;
-
-                    ASSERTV(bufLen, 1 == t0 + t1 + t2 + t3 + t4);
-
-                    switch (outLen - bufLen) {
-                      case 0: {
-                        ASSERT(!(t0 | t1 | t2 | t3) && t4);
-                      } break;
-                      case 1: {
-                        ASSERT(!(t0 | t1 | t2) && (t3 | t4));
-                      } break;
-                      case 2: {
-                        ASSERT(!(t0 | t1) && (t2 | t3 | t4));
-                      } break;
-                      default: {
-                        ; // do nothing
-                      } break;
                     }
                 }
             }
