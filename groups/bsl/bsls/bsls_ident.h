@@ -92,6 +92,15 @@
 //                                     // with '$'
 //..
 
+#undef BDE_OMIT_INTERNAL_DEPRECATED
+#ifdef BDE_FORCE_OMIT_INTERNAL_DEPRECATED
+    #define BDE_OMIT_INTERNAL_DEPRECATED
+#endif
+
+#undef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifdef BDE_FORCE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    #define BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#endif
 
 /* ident string intentionally omitted for this header (do not add to binaries)
  * Its use is expected to be so extensive that the cost outweighs benefit
