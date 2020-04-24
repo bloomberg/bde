@@ -1,5 +1,22 @@
-bsl-internal (3.52.0.0) unstable; urgency=low
+bsl-internal (3.53.0.0) unstable; urgency=low
 
+  * 0739bbf45 Bumped version to 3.53.0.0
+  * 8927efb57 Merge pull request #2779 from afeher/drqs-157961303-fix-map-test-drivers-sun
+  * 896dbff7d Merge pull request #2777 from afeher/drqs-157960635-fix-multiset-test-on-sun
+  * a670b8723 Merge pull request #2775 from afeher/drqs-157952290-fix-multimap-test-on-sun
+  * db04bdf6b Merge pull request #2768 from osubbotin/review/omit-deprecated
+  * c400c0329 Merge pull request #2774 from afeher/drqs-157937050-fix-hastable-test-on-sun
+  * 83c419a46 Merge pull request #2773 from afeher/drqs-157900947-fix-deque_test-on-sun
+  * 87ee1479d Merge pull request #2772 from afeher/drqs-157856446-split-vector-test-drivers-SUN
+  * 4c7ff7ff0 Merge pull request #2764 from afeher/gcc-on-darwin-code-fixes
+  * 648d13a1c balcl_option.h: 'bdedox' conversion fix: doc-only
+  * 497d6106e Merge pull request #2749 from bchapman/balst-open-source-drqs-147852908
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Apr 2020 11:34:17 -0400
+
+bsl-internal (3.52.0.0) git; urgency=low
+
+  * 10f9c910f Changelog for version 3.52.0.0
   * b72bb6053 Bumped version to 3.52.0.0
   * f91d32f72 Merge pull request #2746 from afeher/fix-bsls_ident-undef
   * c469c4d30 Merge pull request #2744 from afeher/fix-smartptr-test-drivers
@@ -10,7 +27,7 @@ bsl-internal (3.52.0.0) unstable; urgency=low
   * 638e3c5c7 Merge pull request #2728 from afeher/drqs-142188247-assign-shared_ptr-from-managedptr
   * 18686f3d3 Merge pull request #2733 from sbreitst/balcl_option-drqs-156728040
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Apr 2020 11:08:47 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Apr 2020 11:17:14 -0400
 
 bsl-internal (3.51.0.0) git; urgency=low
 
