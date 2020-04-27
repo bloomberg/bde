@@ -11,12 +11,14 @@
 #include <bslmt_rwmutex.h>
 
 #include <bslmt_barrier.h>
+#include <bslmt_platform.h>
+#include <bslmt_readlockguard.h>
 #include <bslmt_readerwriterlock.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
-#include <bslmt_platform.h>
+#include <bslmt_writelockguard.h>
 
 #include <bslim_testutil.h>
 
@@ -796,6 +798,83 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // COMPATIBILITY WITH GUARDS
+        //
+        // Concerns:
+        //: 1 That the component under test is compatible with
+        //:   'bslmt::ReadLockGuard'.
+        //:
+        //: 2 That the component under test is compatible with
+        //:   'bslmt::WriteLockGuard'.
+        //:
+        //
+        // Plan:
+        //: 1 Create a 'bslmt::ReaderWriterMutex' object.
+        //:
+        //: 2 In a block, lock the object for read with a guard.  As the class
+        //:   under test has no accessors to confirm that a 'RWMutex' has been
+        //:   locked by the same tread, all we can do is confirm that guard
+        //:   compiles.
+        //:
+        //: 3 In a block, lock the object for write with a guard.  As the class
+        //:   under test has no accessors to confirm that a 'RWMutex' has been
+        //:   locked by the same tread, all we can do is confirm that guard
+        //:   compiles.
+        //
+        // Testing:
+        //   bslmt::ReadLockGuard<Obj>
+        //   bslmt::WriteLockGuard<Obj>
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "COMPATIBILITY WITH GUARDS AND ASSERTS\n"
+                             "=====================================\n";
+
+        Obj mX;
+
+        if (verbose) cout << "Observed use with read lock guard\n";
+        {
+            bslmt::ReadLockGuard<Obj> guard(&mX);
+
+            (void) guard;
+        }
+
+        if (verbose) cout << "Observed use with write lock guard\n";
+        {
+            bslmt::WriteLockGuard<Obj> guard(&mX);
+
+            (void) guard;
+        }
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing: breathing test" << endl
+                          << "=========================="
+                          << endl;
+        Obj mutex;
+        bslmt::Barrier startBarrier(3), endBarrier(3);
+
+        bslmt::ThreadUtil::Handle t1, t2;
+
+        ReaderThread readerThread(&startBarrier, &endBarrier, &mutex);
+
+        if (0 != bslmt::ThreadUtil::create(&t1, readerThread) ||
+            0 != bslmt::ThreadUtil::create(&t2, readerThread)) {
+            ASSERT(!"Could not create threads!! Bad state! Failing test.");
+        }
+        else {
+           startBarrier.wait();
+           ASSERT(0 != mutex.tryLockWrite());
+           endBarrier.wait();
+
+           ASSERT(0 == bslmt::ThreadUtil::join(t1));
+           ASSERT(0 == bslmt::ThreadUtil::join(t2));
+        }
+      } break;
       case -1: {
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
          cout << "Running POSIX speed test" << endl;
@@ -851,31 +930,6 @@ int main(int argc, char *argv[])
 
          bslmt::ReaderWriterLock lock;
          ASSERT(0 == benchmarkRecursion(&lock, "PURE BCE"));
-      } break;
-
-      case 1: {
-        if (verbose) cout << "Testing: breathing test" << endl
-                          << "=========================="
-                          << endl;
-        Obj mutex;
-        bslmt::Barrier startBarrier(3), endBarrier(3);
-
-        bslmt::ThreadUtil::Handle t1, t2;
-
-        ReaderThread readerThread(&startBarrier, &endBarrier, &mutex);
-
-        if (0 != bslmt::ThreadUtil::create(&t1, readerThread) ||
-            0 != bslmt::ThreadUtil::create(&t2, readerThread)) {
-            ASSERT(!"Could not create threads!! Bad state! Failing test.");
-        }
-        else {
-           startBarrier.wait();
-           ASSERT(0 != mutex.tryLockWrite());
-           endBarrier.wait();
-
-           ASSERT(0 == bslmt::ThreadUtil::join(t1));
-           ASSERT(0 == bslmt::ThreadUtil::join(t2));
-        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

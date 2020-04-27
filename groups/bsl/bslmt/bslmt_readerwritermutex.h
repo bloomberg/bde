@@ -11,7 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslmt::ReaderWriterMutex: multi-reader/single-writer lock class
 //
-//@SEE_ALSO: bslmt_readerwriterlock
+//@SEE_ALSO: bslmt_readerwriterlock, bslmt_readlockguard,
+//           bslmt_writelockguard, bslmt_readerwriterlockassert
 //
 //@DESCRIPTION: This component defines an efficient multi-reader/single-writer
 // lock mechanism, 'bslmt::ReaderWriterMutex'.  It is designed to allow
@@ -30,6 +31,23 @@ BSLS_IDENT("$Id: $")
 // (e.g., the mutex obtained on Linux), this reader-writer lock is writer
 // biased since writers can re-acquire the lock in the presence of readers but
 // readers will not be able to re-acquire the lock in the presence of writers.
+//
+///'bslmt' Read/Write Locking Components
+///- - - - - - - - - - - - - - - - - - -
+//: o 'bslmt::ReaderWriterMutex' (defined in this component).  Preferred for
+//:   most use-cases, has been shown to be faster than
+//:   'bslmt::ReaderWriterLock' under most conditions and is generally the best
+//:   choice.
+//:
+//: o 'bslmt::ReaderWriterLock': Preferred only when very long hold times are
+//:   anticipated.  It also provides 'upgrade*' methods from a locked-for-read
+//:   state to a locked-for-write state, but the use of this feature is
+//:   discouraged as it has performed poorly on benchmarks.
+//:
+//: o 'bslmt::RWMutex': Deprecated.
+//
+// Note that for extremely short hold times and very high concurrency, a
+// 'bslmt::Mutex' might outperform all of the above.
 //
 ///Usage
 ///-----
@@ -183,6 +201,7 @@ class ReaderWriterMutex {
     // DATA
     ReaderWriterMutexImpl<bsls::AtomicOperations, Mutex, Semaphore> d_impl;
 
+  private:
     // NOT IMPLEMENTED
     ReaderWriterMutex(const ReaderWriterMutex&);
     ReaderWriterMutex& operator=(const ReaderWriterMutex&);

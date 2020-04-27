@@ -1,7 +1,11 @@
 // bslmt_readerwritermutex.t.cpp                                      -*-C++-*-
 
 #include <bslmt_readerwritermutex.h>
+
+#include <bslmt_readerwriterlockassert.h>
+#include <bslmt_readlockguard.h>
 #include <bslmt_rwmutex.h>
+#include <bslmt_writelockguard.h>
 
 #include <bslmt_semaphore.h>
 #include <bslmt_threadutil.h>
@@ -45,10 +49,16 @@ using namespace bsl;
 // [ 4] bool isLocked() const;
 // [ 4] bool isLockedRead() const;
 // [ 4] bool isLockedWrite() const;
+//
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] WRITER BIAS
-// [ 5] USAGE EXAMPLE
+// [ 5] CONCERN: works with bslmt::ReadLockGuard<Obj>
+// [ 5] CONCERN: works with bslmt::WriteLockGuard<Obj>
+// [ 5] CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED
+// [ 5] CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ
+// [ 5] CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE
+// [ 6] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -113,6 +123,7 @@ struct ThreadData {
 
     ThreadData() : d_mutex_p(0), d_count(0) {}
 
+    explicit
     ThreadData(Obj *pObj) : d_mutex_p(pObj), d_count(0) {}
 };
 
@@ -353,7 +364,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -387,6 +398,88 @@ int main(int argc, char *argv[])
     account.deposit(paycheckInPennies);
     ASSERT(15075 == account.balanceInPennies());
 //..
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // COMPATIBILITY WITH GUARDS AND ASSERTS
+        //
+        // Concerns:
+        //: 1 That the component under test is compatible with
+        //:   'bslmt::ReadLockGuard'.
+        //:
+        //: 2 That the component under test is compatible with
+        //:   'bslmt::WriteLockGuard'.
+        //:
+        //: 3 That the component under test is compatible with
+        //:   BSLMT_READERWRITERLOCKASSERT_IS_LOCKED{,_READ,_WRITE}.
+        //:
+        //
+        // Plan:
+        //: 1 Create a 'bslmt::ReaderWriterMutex' object.
+        //:
+        //: 2 Confirm that it is unlocked by calling all the 'isLocked*'
+        //:   methods.
+        //:
+        //: 3 In a block, lock the object for read with a guard, then confirm
+        //:   its state with the accessors, and with asserts.
+        //:
+        //: 4 Leave the block, and confirm that it is unlocked by calling all
+        //:   the 'isLocked*' methods.
+        //:
+        //: 5 In a block, lock the object for write with a guard, then confirm
+        //:   its state with the accessors, and with asserts.
+        //:
+        //: 6 Leave the block, and confirm that it is unlocked by calling all
+        //:   the 'isLocked*' methods.
+        //
+        // Testing:
+        //   CONCERN: works with bslmt::ReadLockGuard<Obj>
+        //   CONCERN: works with bslmt::WriteLockGuard<Obj>
+        //   CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED
+        //   CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ
+        //   CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "COMPATIBILITY WITH GUARDS AND ASSERTS\n"
+                             "=====================================\n";
+
+        Obj mX;    const Obj& X = mX;
+
+        ASSERT(!X.isLocked());
+        ASSERT(!X.isLockedRead());
+        ASSERT(!X.isLockedWrite());
+
+        if (verbose) cout << "Observed use with read lock guard\n";
+        {
+            bslmt::ReadLockGuard<Obj> guard(&mX);
+
+            ASSERT( X.isLocked());
+            ASSERT( X.isLockedRead());
+            ASSERT(!X.isLockedWrite());
+
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&X);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&X);
+        }
+
+        ASSERT(!X.isLocked());
+        ASSERT(!X.isLockedRead());
+        ASSERT(!X.isLockedWrite());
+
+        if (verbose) cout << "Observed use with write lock guard\n";
+        {
+            bslmt::WriteLockGuard<Obj> guard(&mX);
+
+            ASSERT( X.isLocked());
+            ASSERT(!X.isLockedRead());
+            ASSERT( X.isLockedWrite());
+
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&X);
+            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&X);
+        }
+
+        ASSERT(!X.isLocked());
+        ASSERT(!X.isLockedRead());
+        ASSERT(!X.isLockedWrite());
       } break;
       case 4: {
         // --------------------------------------------------------------------

@@ -342,21 +342,34 @@
  required number is reached, the threads are released and can continue
  processing.
 
-/One Writer/Multiple Readers: 'bslmt::ReaderWriterLock'
-/- - - - - - - - - - - - - - - - - - - - - - - - - - -
- Component 'bslmt_readerwriterlock' provides a single class,
- 'bslmt::ReaderWriterLock', that supports multi-reader, single-writer locks.
- Applications can use 'bslmt::ReaderWriterLock' to allow concurrent read access
- from multiple threads to data that changes infrequently.  By calling
- 'bslmt::ReaderWriterLock::lockRead()', reading threads are not blocked until a
- writing thread requests a write lock (for instance, by calling
- 'bslmt::ReaderWriterLock::lockWrite()').  While the write lock is in effect,
- access is serialized and all threads that have called 'lockRead()' will wait
- until the write lock is released with
- 'bslmt::ReaderWriterLock::unlockWrite()'.
+/'bslmt' read/write Locking Components
+/- - - - - - - - - - - - - - - - - - -
+ There are 3 components that provide locking mechanisms that allows multiple
+ threads to simultaneously lock for read, while providing exclusive access to
+ a thread locking for write.
 
- Note that reader/writer locks also have their own guards, provided by
- 'bslmt_readlockguard' and 'bslmt_writelockguard' components.
+: o 'bslmt::ReaderWriterMutex': Preferred for most use-cases, has been shown to
+:   be faster than 'bslmt::ReaderWriterLock': under most conditions and is
+:   generally the best choice.
+:
+: o 'bslmt::ReaderWriterLock': Preferred only when very long hold times are
+:   anticipated.  It also provides 'upgrade*' methods from a locked-for-read
+:   state to a lockedfor-write state, but the use of this feature is
+:   discouraged as it has performed poorly on benchmarks.
+:
+: o 'bslmt::RWMutex': Deprecated.
+
+ Note that for extremely short hold times and very high concurrency, a
+ 'bslmt::Mutex' might outperform all of the above.
+
+ Also note that reader/writer locks also have their own guards, provided by the
+ templated 'bslmt::ReadLockGuard' and 'bslmt::WriteLockGuard' classes, which
+ work on locks of all 3 types.
+
+ Also note that assertions to verify locking are available from
+ 'bslmt_readerwriterlockassert', which work on locks of type
+ 'bslmt::ReaderWriterMutex' and 'bslmt::ReaderWriterLock', but not
+ 'bslmt::RWMutex'.
 
 /Recursive Write Locks: 'bslmt::RecursiveRWLock'
 / - - - - - - - - - - - - - - - - - - - - - - -

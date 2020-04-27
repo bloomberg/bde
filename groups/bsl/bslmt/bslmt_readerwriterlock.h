@@ -18,7 +18,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslmt::ReaderWriterLock: multi-reader/single-writer lock class
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmt_readerwritermutex, bslmt_readlockguard,
+//           bslmt_writelockguard, bslmt_readerwriterlockassert
 //
 //@DESCRIPTION: This component defines an efficient multi-reader/single-writer
 // lock (RW-Lock) mechanism, 'bslmt::ReaderWriterLock'.  It is designed to
@@ -34,6 +35,28 @@ BSLS_IDENT("$Id: $")
 //
 // This implementation gives preference to writers, which can lead to reader
 // "starvation" in applications with continuous writes.
+//
+///Comparison between 'bslmt' Reader-Writer Locks
+/// - - - - - - - - - - - - - - - - - - - - - - -
+//: o 'bslmt::ReaderWriterLock' (defined in this component).  Preferred only
+//:   when very long hold times are anticipated.  Provides 'upgrade*' methods
+//:   from a locked-for-read state to a locked-for-write state, but the use of
+//:   this feature is discouraged as it has performed poorly on benchmarks.
+//:
+//: o 'bslmt::ReaderWriterMutex': Preferred for most use-cases.  Doesn't offer
+//:   the 'upgrade' function, but performs better than
+//:   'bslmt::ReaderWriterLock' under most conditions.
+//:
+//: o 'bslmt::RWMutex': Deprecated.
+//
+// Note that for extremely short hold times and very high concurrency, a
+// 'bslmt::Mutex' might outperform all of the above.
+//
+// Also note that lock guards are provide by 'bslmt_readlockguard' and
+// 'bslmt_writelockguard'.
+//
+// Also note that asserts to verify locking are provided by
+// 'bslmt_readerwriterlockassert'.
 //
 ///Read and Write Locks
 ///--------------------

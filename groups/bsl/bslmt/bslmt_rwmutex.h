@@ -20,7 +20,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslmt::RWMutex: platform-independent wrapper of an RW mutex
 //
-//@SEE_ALSO: bslmt_readerwriterlock
+//@SEE_ALSO: bslmt_readerwritermutex, bslmt_readerwriterlock,
+//           bslmt_readlockguard, bslmt_writelockguard
 //
 //@DESCRIPTION: This component provides a class, 'bslmt::RWMutex', that defines
 // a platform-independent RW mutex.  An RW mutex provides for a shared "read"
