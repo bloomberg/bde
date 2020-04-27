@@ -1362,7 +1362,7 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
     return numBytes;
 }
 
-Utf8Util::size_type Utf8Util::readIfValid(ReturnCode     *returnCode,
+Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
                                           char           *outputBuffer,
                                           size_type       outputBufferLength,
                                           bsl::streambuf *input)
@@ -1531,7 +1531,7 @@ Utf8Util::size_type Utf8Util::readIfValid(ReturnCode     *returnCode,
     return pc - outputBuffer;
 }
 
-const char *Utf8Util::toAscii(ReturnCode returnCode)
+const char *Utf8Util::returnCodeToString(int returnCode)
 {
 #undef  U_ASCII_CASE
 #define U_ASCII_CASE(ec)    case ec: return #ec
@@ -1553,12 +1553,6 @@ const char *Utf8Util::toAscii(ReturnCode returnCode)
 }
 
 }  // close package namespace
-
-bsl::ostream& operator<<(bsl::ostream& stream, bdlde::Utf8Util::ReturnCode ec)
-{
-    return stream << bdlde::Utf8Util::toAscii(ec);
-}
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

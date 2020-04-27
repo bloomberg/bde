@@ -74,7 +74,7 @@ using bsl::size_t;
 // [ 8] bool isValid(const char **, const char *, int);
 // [ 8] IntPtr numCodePointsIfValid(const char **, const char *);
 // [ 8] IntPtr numCodePointsIfValid(const char **, const char *, int);
-// [ 8] int readValidUtf8ToBuffer(char *, size_t *, streambuf *);
+// [ 8] size_t readIfValid(int *, char *, size_t, streambuf *);
 // [ 7] IntPtr advanceIfValid(int *, const char **, const char *, int);
 // [ 7] IntPtr advanceIfValid(int*,const char**,const char *, int, int);
 // [ 7] IntPtr advanceRaw(const char **, const char *, int);
@@ -116,6 +116,7 @@ using bsl::size_t;
 // [ 9] 'isValid' on correct input plus incorrect input
 // [ 9] 'numCodePointsIfValid' on correct input plus incorrect input
 // [ 9] 'readValidUtf8ToBuffer' on correct input plus incorrect input
+// [ 9] 'readIfValid' on correct input plus incorrect input
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
 
@@ -3374,7 +3375,7 @@ int main(int argc, char *argv[])
         //   'advanceIfValid' on correct input plus incorrect input
         //   'isValid' on correct input plus incorrect input
         //   'numCodePointsIfValid' on correct input plus incorrect input
-        //   'readValidUtf8ToBuffer' on correct input plus incorrect input
+        //   'readIfValid' on correct input plus incorrect input
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CORRECT + BROKEN GLASS\n"
@@ -3543,8 +3544,7 @@ int main(int argc, char *argv[])
                     out.resize(0);
                     out.resize(outLen + 1, badChar);
 
-                    Obj::ReturnCode rc;
-                    IntPtr intBufLen = Obj::readIfValid(&rc,
+                    IntPtr intBufLen = Obj::readIfValid(&sts,
                                                         &out[0],
                                                         outLen,
                                                         &fsb);
@@ -3556,13 +3556,13 @@ int main(int argc, char *argv[])
                                                         intBufLen <= validLen);
                     ASSERT(badChar == out[outLen]);
 
-                    if (rc == RETURN_CODE) {
+                    if (sts == RETURN_CODE) {
                         ASSERT(intBufLen == validLen);
                         ASSERT(0 == validLen || 0 < intBufLen);
                     }
                     else {
-                        ASSERTV(rc, RETURN_CODE,
-                                              Obj::e_OUTPUT_BUFFER_FULL == rc);
+                        ASSERTV(sts, RETURN_CODE,
+                                             Obj::e_OUTPUT_BUFFER_FULL == sts);
                         ASSERTV(outLen, intStrLen, outLen - 3 <= intStrLen);
                     }
 
@@ -3641,8 +3641,7 @@ int main(int argc, char *argv[])
                     out.resize(0);
                     out.resize(outLen + 1, badChar);
 
-                    Obj::ReturnCode rc;
-                    IntPtr intBufLen = Obj::readIfValid(&rc,
+                    IntPtr intBufLen = Obj::readIfValid(&sts,
                                                         &out[0],
                                                         outLen,
                                                         &fsb);
@@ -3654,13 +3653,13 @@ int main(int argc, char *argv[])
                     ASSERTV(dumpStr(str), intBufLen, outLen,
                                                         intBufLen <= validLen);
 
-                    if (rc == RETURN_CODE) {
+                    if (sts == RETURN_CODE) {
                         ASSERT(intBufLen == validLen);
                         ASSERT(0 == validLen || 0 < intBufLen);
                     }
                     else {
-                        ASSERTV(rc, RETURN_CODE,
-                                              Obj::e_OUTPUT_BUFFER_FULL == rc);
+                        ASSERTV(sts, RETURN_CODE,
+                                             Obj::e_OUTPUT_BUFFER_FULL == sts);
                         ASSERTV(outLen, intStrLen, outLen - 3 <= intStrLen);
                     }
 
@@ -3738,7 +3737,7 @@ int main(int argc, char *argv[])
         //   bool isValid(const char **, const char *, int);
         //   IntPtr numCodePointsIfValid(const char **, const char *);
         //   IntPtr numCodePointsIfValid(const char **, const char *, int);
-        //   int readValidUtf8ToBuffer(char *, size_t *, streambuf *);
+        //   size_t readIfValid(int *, char *, size_t, streambuf *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING EXHAUSTIVE CORRECT SEQUENCES\n"
@@ -3892,14 +3891,13 @@ int main(int argc, char *argv[])
 
                     const bool inputValid = Obj::isValid(begin, sbLen);
 
-                    Obj::ReturnCode rc;
-                    IntPtr intBufLen = Obj::readIfValid(&rc,
+                    IntPtr intBufLen = Obj::readIfValid(&sts,
                                                         &out[0],
                                                         outLen,
                                                         &fsb);
                     ASSERT(0 <= intBufLen);
 
-                    switch (rc) {
+                    switch (sts) {
                       case Obj::e_SUCCESS: {
                         ASSERT(intBufLen == sbLen);
                       } break;
@@ -3917,7 +3915,7 @@ int main(int argc, char *argv[])
                         ASSERT(ii <= end);
                       } break;
                       default: {
-                        ASSERTV(rc, 0 && "unexpected error");
+                        ASSERTV(sts, 0 && "unexpected error");
                       }
                     }
 
@@ -3932,8 +3930,8 @@ int main(int argc, char *argv[])
                     ASSERT(Obj::isValid(&out[0], intBufLen));
 
                     if (inputValid) {
-                        ASSERT(Obj::e_OUTPUT_BUFFER_FULL == rc || 0 == rc);
-                        ASSERT((Obj::e_OUTPUT_BUFFER_FULL == rc) ==
+                        ASSERT(Obj::e_OUTPUT_BUFFER_FULL == sts || 0 == sts);
+                        ASSERT((Obj::e_OUTPUT_BUFFER_FULL == sts) ==
                                        (outLen - 4 < static_cast<int>(sbLen)));
 
                         if (4 == outLen && 0 < sbLen) {
@@ -3945,9 +3943,9 @@ int main(int argc, char *argv[])
                         }
                     }
                     else {
-                        ASSERT(0 != rc);
-                        ASSERTV(rc, sbLen + 3 > outLen ||
-                                         Obj::e_END_OF_INPUT_TRUNCATION == rc);
+                        ASSERT(0 != sts);
+                        ASSERTV(sts, sbLen + 3 > outLen ||
+                                        Obj::e_END_OF_INPUT_TRUNCATION == sts);
                     }
                 }
             }

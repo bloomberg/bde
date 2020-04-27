@@ -644,7 +644,7 @@ struct Utf8Util {
         // is undefined unless 'string' contains valid UTF-8.  Note that
         // 'string' may contain less than 'length' Unicode code points.
 
-    static size_type readIfValid(ReturnCode     *returnCode,
+    static size_type readIfValid(int            *returnCode,
                                  char           *outputBuffer,
                                  size_type       outputBufferLength,
                                  bsl::streambuf *input);
@@ -661,10 +661,10 @@ struct Utf8Util {
         // '*returnCode == e_OUTPUT_BUFFER_FULL' may be returned with up to 3
         // unfilled bytes at the end of 'outputBuffer'.
 
-    static const char *toAscii(ReturnCode errorCode);
-        // Write a string indicating which value of the specified 'ReturnCode'
-        // was passed.  If 'errorCode' does not represent a valid value of
-        // 'ReturnCode' return "(* unrecognized value *)";
+    static const char *returnCodeToString(int returnCode);
+        // Return a null-terminated string describing which value of the
+        // 'ReturnCode' enum is matched by 'errorCode', or
+        // '(* unrecognized value *)' if no value in 'ReturnCode' is matched.
 };
 
 // ============================================================================
@@ -737,12 +737,6 @@ Utf8Util::IntPtr Utf8Util::numCharactersRaw(const char *string,
 }
 
 }  // close package namespace
-
-bsl::ostream& operator<<(bsl::ostream& stream, bdlde::Utf8Util::ReturnCode
-                                                                   returnCode);
-    // Output a string representation of the specified 'ec' to the specifed
-    // 'stream', and return 'stream'.
-
 }  // close enterprise namespace
 
 #endif
