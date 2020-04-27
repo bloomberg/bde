@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 // type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', time
 // should be expressed as an absolute offset since the epoch of this clock
 // (which matches the epoch used in
-// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///WARNING: Synchronization Required on Destruction
 ///------------------------------------------------
