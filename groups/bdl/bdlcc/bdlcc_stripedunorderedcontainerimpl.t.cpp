@@ -1272,13 +1272,17 @@ class TestDriver {
     };
 
     // PUBLIC DATA
-    static bool  s_testCase12_found;
-    static KEY   s_testCase12_key;
-    static int   s_testCase12_valueId;
-    static VALUE s_testCase12_value;
+    static bool              s_testCase12_found;
+    static KEY               s_testCase12_key;
+    static int               s_testCase12_valueId;
+    static VALUE             s_testCase12_value;
+    static bslma::Allocator *s_testCase12_alloc;
         // Places for the test case 12 functor to put a copy of its 'found'
         // input, 'key' input, the identifier of its '*value' input, and to
-        // obtain a value to be set to '*value', respectively.
+        // obtain a value to be set to '*value', respectively.  'alloc' - if
+        // non-null - is used by the test case 12 functor to allocate and
+        // deallocate a single byte, which acts as a hook for testing exception
+        // safety using 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST'.
 
     static KEY   s_testCase13_key;
     static int   s_testCase13_valueId;
@@ -1302,6 +1306,7 @@ class TestDriver {
     static void testCase10();
     static void testCase11();
     static void testCase12();
+    static void testCase12_noncopyable();
     static void testCase13();
     static void testCase14();
     static void testCase15();
@@ -1376,7 +1381,7 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase13Updater::operator()(
 {
     s_testCase13_key     = key;
     s_testCase13_valueId = TstFacility::getIdentifier(*value);
-    *value            = s_testCase13_value;
+    *value               = s_testCase13_value;
     return d_success;
 }
 
@@ -1384,22 +1389,25 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 bool TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_found;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-KEY TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_key = KEY();
+KEY TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_key;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 int TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_valueId;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-VALUE TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_value = VALUE();
+VALUE TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_value;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-KEY TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_key = KEY();
+bslma::Allocator *TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_alloc;
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+KEY TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_key;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 int TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_valueId;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-VALUE TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_value = VALUE();
+VALUE TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_value;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 int TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase14_count;
@@ -1419,6 +1427,14 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase12Updater::operator()(
         s_testCase12_valueId = 0;
     }
     *value = s_testCase12_value;
+
+    if (s_testCase12_alloc) {
+        // Allocate and deallocate a single byte.  This operation acts as a
+        // hook for testing exception safety using
+        // 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' where 'allocate' would throw a
+        // 'bad_alloc'.
+        s_testCase12_alloc->deallocate(s_testCase12_alloc->allocate(1));
+    }
     return true;
 }
 
@@ -3239,7 +3255,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     //
     // Concerns:
     //: 1 When 'setComputedValue' adds an element, the element has the expected
-    //:   key and value, and returns 0.
+    //:   key and value, and returns 0 for the number of updated elements.
     //:
     //: 2 When 'setComputedValue' updates element(s), all elements with that
     //:   given key, and no others, are updated to the given value, and the
@@ -3449,6 +3465,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             }
 
             // Exception testing - check missing value
+            s_testCase12_alloc = &supplied;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
 
                 s_testCase12_value = VALUES[LENGTH + 2].second;
@@ -3456,6 +3473,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
                 mX.setComputedValueFirst(VALUES[LENGTH + 2].first,
                                          testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            s_testCase12_alloc = 0;
         } // END Testing 'setComputedValueFirst' with unique values
     } // END 'setComputedValueFirst'
     // No change in default memory allocation if 'VALUE' is non-allocating.
@@ -3569,6 +3587,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             }
 
             // Exception testing - check missing value
+            s_testCase12_alloc = &supplied;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
 
                 s_testCase12_value = VALUES[LENGTH + 2].second;
@@ -3576,6 +3595,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
                 mX.setComputedValueAll(VALUES[LENGTH + 2].first,
                                        testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            s_testCase12_alloc = 0;
         } // END Testing 'e_ALL' with unique values
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERT(dam.isTotalSame());
@@ -3681,11 +3701,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             }
 
             // Exception testing - check missing value
+            s_testCase12_alloc = &supplied;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
                 s_testCase12_value = VALUES[LENGTH + 2].second;
                 mX.setComputedValueAll(VALUES[LENGTH + 2].first,
                                        testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            s_testCase12_alloc = 0;
         } // END Test updating duplicate keys.
     } // END 'setComputedValueAll'
     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
@@ -3805,13 +3827,384 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             }
 
             // Exception testing - check missing value
+            s_testCase12_alloc = &supplied;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
                 s_testCase12_value = VALUES[LENGTH + 2].second;
                 mX.setComputedValueFirst(VALUES[LENGTH + 2].first,
                                          testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            s_testCase12_alloc = 0;
         } // END Test updating duplicate keys.
     } // END 'setComputedValueFirst' with duplicate keys
+
+    // CONCERN: In no case does memory come from the default allocator.
+    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        ASSERT(dam.isTotalSame());
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
+{
+    // ------------------------------------------------------------------------
+    // TEST 'setComputedValue' for noncopyable values
+    //
+    // Concerns:
+    //: 1 When 'setComputedValue' adds an element, the element has the expected
+    //:   key and value, and returns 0 for the number of updated elements.
+    //:
+    //: 2 When 'setComputedValue' updates an element, all elements with that
+    //:   given key, and no others, are updated to the given value, and the
+    //:   number of elements updated is returned.
+    //:
+    //: 3 Elements having the specified 'key' are found irrespective of the
+    //:   bucket in which they reside.
+    //:
+    //: 4 When an element is added, the memory allocated increases, the number
+    //:   of elements increases by 1, and the number of elements in the target
+    //:   bucket increases by 1.
+    //:
+    //: 5 The expected 'functor' is called with the expected arguments.
+    //:   1 If 'found' is 'true', the value of the existing element is found at
+    //:     the provided address.
+    //:   2 If 'found' is 'false', 'VALUE()' is found
+    //:
+    //: 6 When the 'functor' changes the value of the provide value address,
+    //:   the element has its value changed.
+    //:
+    //: 7 Any memory allocation is exception neutral.
+    //:
+    //: 8 QoI: When element(s) are updated, and the 'VALUE' type is
+    //:   non-allocating, no memory is allocated or deallocated.
+    //:
+    //: 9 QoI: There is no temporary memory allocation from any allocator.
+    //
+    // Plan:
+    //: 1 Test the empty hash map in a standalone case.
+    //:
+    //: 2 For hash maps of varying lengths, we:
+    //:   1 Update one existing key.
+    //:   2 Confirm that the return value is correct.
+    //:   3 The size of the container does not change.
+    //:   4 The size of the bucket does not change.
+    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
+    //:   6 Confirm that the value(s) associated with the key were updated to
+    //:     the new value.
+    //:   7 Confirm that no other elements have changed.
+    //:   8 Insert one missing key.
+    //:   9 Confirm that the return value is correct.
+    //:  10 The size of the container increases by 1.
+    //:  11 The size of the bucket increases by 1.
+    //:  12 Memory in use has increased.
+    //:  13 Confirm that the new element has the given key and value.
+    //:  14 Confirm that no other elements have changed.
+    //:
+    //: 3 P-2 is repeated for containers having different configurations:
+    //:   1 Unique keys, 'setComputedValueFirst'
+    //:   2 Unique keys, 'setComputedValueAll'
+    //
+    // Testing:
+    //   int setComputedValueAll(const KEY& key, functor);
+    //   int setComputedValueFirst(const KEY& key, functor);
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << endl
+        << "TEST 'setComputedValue'" << endl
+        << "=======================" << endl;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+    bsl::vector<VALUE>   valueVec(1, &scratch);
+    VALUE&               value = valueVec[0];
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+    // This is equivalent to 'testCase11' in 'StripedUnorderedMap' and
+    // 'testCase14' in 'StripedUnorderedMultiMap.
+    {
+        if (veryVerbose) cout << endl
+            << "Test 'setComputedValueFirst'" << endl;
+
+        if (veryVeryVerbose) {
+            cout << "KEY  " << ": " << bsls::NameOf<KEY>() << "\n"
+                << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
+                << "HASH " << ": " << bsls::NameOf<HASH>() << "\n"
+                << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        }
+
+        // contains 52 distinct increasing values
+        bsltf::TestValuesArray<KEY>   KEYS;
+        bsltf::TestValuesArray<VALUE> VALUES;
+
+        const bsl::size_t    MAX_LENGTH = 15;
+        bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+        TestCase12Updater    testCase12Updater;
+
+        // Test empty hash map.
+        {
+            Obj mX(8, 4, &supplied);  const Obj& X = mX;
+
+            // Check missing value for 'setComputedValueFirst'.
+            int rc1 = mX.setComputedValueFirst(KEYS[0],
+                testCase12Updater);
+            ASSERTV(rc1, 0 == rc1);
+            ASSERTV(1 == X.size());
+
+            bsl::size_t rc = X.getValue(&value, KEYS[0]);
+            ASSERTV(1 == rc);
+            ASSERTV(areEqual(value, VALUE()));
+
+            // Check missing value for 'setComputedValueAll'.
+            rc1 = mX.setComputedValueAll(KEYS[1],
+                testCase12Updater);
+            ASSERTV(rc1, 0 == rc1);
+            ASSERTV(2 == X.size());
+
+            rc = X.getValue(&value, KEYS[1]);
+            ASSERTV(1 == rc);
+            ASSERTV(areEqual(value, VALUE()));
+        }
+        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+            ASSERT(dam.isTotalSame());
+        }
+
+        // Testing 'e_FIRST' with unique values.
+        for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
+
+            Obj mX(8, 4, &supplied);  const Obj& X = mX;
+
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                // Do not use 'insert' for non-copyable value types
+                s_testCase12_value = VALUES[tj];
+                mX.setComputedValueFirst(KEYS[tj], testCase12Updater);
+            }
+            ASSERTV(LENGTH == X.size());
+
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            bsl::size_t bucketCount = X.bucketCount();
+            bsl::size_t bucketIdx = X.bucketIndex(KEYS[LENGTH - 1]);
+            bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+            s_testCase12_value = VALUES[LENGTH];
+
+            // Check existing value
+            int rc1 = mX.setComputedValueFirst(KEYS[LENGTH - 1],
+                testCase12Updater);
+            ASSERTV(rc1, 1 == rc1);
+            ASSERTV(true == s_testCase12_found);
+            ASSERTV(KEYS[LENGTH - 1], s_testCase12_key,
+                areEqual(KEYS[LENGTH - 1], s_testCase12_key));
+            ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1]),
+                s_testCase12_valueId,
+                TstFacility::getIdentifier(VALUES[LENGTH - 1])
+                == s_testCase12_valueId);
+
+            // Update did not change size.
+            ASSERTV(LENGTH == X.size());
+
+            // Bucket size did not change.
+            ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
+
+            // Confirm the value has changed to the new value.
+            bsl::size_t rc = X.getValue(&value, KEYS[LENGTH - 1]);
+            ASSERTV(1 == rc);
+            ASSERTV(areEqual(value, VALUES[LENGTH]));
+
+            // No change in memory allocation if VALUE is non-allocating.
+            if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+                ASSERTV(sam.isInUseSame());
+            }
+            // Confirm that other values have not changed.
+            for (bsl::size_t tj = 0; tj < LENGTH - 1; ++tj) {
+                rc = X.getValue(&value, KEYS[tj]);
+                ASSERTV(1 == rc);
+                ASSERTV(areEqual(value, VALUES[tj]));
+            }
+
+            sam.reset();
+
+            bucketIdx = X.bucketIndex(KEYS[LENGTH + 1]);
+            oldBucketSize = X.bucketSize(bucketIdx);
+            s_testCase12_value = VALUES[LENGTH + 1];
+
+            // Check missing value.
+            rc1 = mX.setComputedValueFirst(KEYS[LENGTH + 1],
+                testCase12Updater);
+            ASSERTV(rc1, 0 == rc1);
+
+            ASSERTV(false == s_testCase12_found);
+            ASSERTV(KEYS[LENGTH + 1], s_testCase12_key,
+                areEqual(KEYS[LENGTH + 1], s_testCase12_key));
+
+            // Insert increased size by 1.
+            ASSERTV(LENGTH + 1 == X.size());
+
+            // Bucket size increased by 1 if no rehash.
+            if (bucketCount == X.bucketCount()) {
+                ASSERTV(oldBucketSize + 1 == X.bucketSize(bucketIdx));
+            }
+
+            // Confirm the new element key and value.
+            rc = X.getValue(&value, KEYS[LENGTH + 1]);
+            ASSERTV(1 == rc);
+            ASSERTV(areEqual(value, VALUES[LENGTH + 1]));
+
+            // Memory was allocated.
+            ASSERTV(sam.isInUseUp());
+
+            // Confirm that other values have not changed.
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                rc = X.getValue(&value, KEYS[tj]);
+                ASSERTV(1 == rc);
+                ASSERTV(areEqual(value,
+                    tj == LENGTH - 1 ? VALUES[LENGTH] :
+                    VALUES[tj]));
+            }
+
+            // Exception testing - check missing value
+            s_testCase12_alloc = &supplied;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
+
+                s_testCase12_value = VALUES[LENGTH + 2];
+
+                mX.setComputedValueFirst(KEYS[LENGTH + 2],
+                    testCase12Updater);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            s_testCase12_alloc = 0;
+        } // END Testing 'setComputedValueFirst' with unique values
+    } // END 'setComputedValueFirst'
+    // No change in default memory allocation if 'VALUE' is non-allocating.
+    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        ASSERT(dam.isTotalSame());
+    }
+
+    // This is equivalent to 'testCase15' in 'StripedUnorderedMultiMap'.
+    {
+        if (veryVerbose) cout << endl
+            << "Test 'setComputedValueAll'" << endl;
+
+        // contains 52 distinct increasing values
+        bsltf::TestValuesArray<KEY>   KEYS;
+        bsltf::TestValuesArray<VALUE> VALUES;
+
+        const bsl::size_t    MAX_LENGTH = 9;
+        bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+        TestCase12Updater    testCase12Updater;
+
+        // Test updating unique keys.
+        for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
+
+            Obj  mX(128, 8, &supplied);  const Obj& X = mX;
+
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                // Do not use 'insert' for non-copyable value types
+                s_testCase12_value = VALUES[tj];
+                mX.setComputedValueFirst(KEYS[tj], testCase12Updater);
+            }
+            ASSERTV(LENGTH == X.size());
+
+            bslma::TestAllocatorMonitor sam(&supplied);
+
+            bsl::size_t bucketCount = X.bucketCount();
+            bsl::size_t bucketIdx = X.bucketIndex(KEYS[LENGTH - 1]);
+            bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+            s_testCase12_value = VALUES[LENGTH];
+
+            // Check existing value.
+            int rc1 = mX.setComputedValueAll(KEYS[LENGTH - 1],
+                testCase12Updater);
+            ASSERTV(rc1, 1 == rc1);
+            ASSERTV(true == s_testCase12_found);
+            ASSERTV(KEYS[LENGTH - 1], s_testCase12_key,
+                areEqual(KEYS[LENGTH - 1], s_testCase12_key));
+
+            ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1]),
+                s_testCase12_valueId,
+                TstFacility::getIdentifier(VALUES[LENGTH - 1])
+                == s_testCase12_valueId);
+            // Update did not change size.
+            ASSERTV(LENGTH == X.size());
+
+            // Bucket size did not change.
+            ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
+
+            // Confirm the value has changed to the new value.
+            bsl::size_t rc = X.getValue(&value, KEYS[LENGTH - 1]);
+            ASSERTV(1 == rc);
+            ASSERTV(areEqual(value, VALUES[LENGTH]));
+
+            // No change in memory allocation if VALUE is non-allocating.
+            if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+                ASSERTV(sam.isInUseSame());
+            }
+
+            // Confirm that other values have not changed.
+            for (bsl::size_t tj = 0; tj < LENGTH - 1; ++tj) {
+                rc = X.getValue(&value, KEYS[tj]);
+                ASSERTV(1 == rc);
+                ASSERTV(areEqual(value, VALUES[tj]));
+            }
+
+            sam.reset();
+
+            bucketIdx = X.bucketIndex(KEYS[LENGTH + 1]);
+            oldBucketSize = X.bucketSize(bucketIdx);
+
+            s_testCase12_value = VALUES[LENGTH + 1];
+
+            // Check missing value.
+            rc1 = mX.setComputedValueAll(KEYS[LENGTH + 1],
+                testCase12Updater);
+            ASSERTV(rc1, 0 == rc1);
+
+            ASSERTV(false == s_testCase12_found);
+            ASSERTV(KEYS[LENGTH + 1], s_testCase12_key,
+                areEqual(KEYS[LENGTH + 1], s_testCase12_key));
+
+            // Insert increased size by 1.
+            ASSERTV(LENGTH + 1 == X.size());
+
+            // Bucket size increased by 1 if no rehash.
+            if (bucketCount == X.bucketCount()) {
+                ASSERTV(oldBucketSize + 1 == X.bucketSize(bucketIdx));
+            }
+
+            // Confirm the new element key and value.
+            rc = X.getValue(&value, KEYS[LENGTH + 1]);
+            ASSERTV(1 == rc);
+            ASSERTV(areEqual(value, VALUES[LENGTH + 1]));
+
+            // Memory was allocated.
+            ASSERTV(sam.isInUseUp());
+
+            // Confirm that other values have not changed.
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                rc = X.getValue(&value, KEYS[tj]);
+                ASSERTV(1 == rc);
+                ASSERTV(areEqual(value,
+                    tj == LENGTH - 1 ? VALUES[LENGTH] :
+                    VALUES[tj]));
+            }
+
+            // Exception testing - check missing value
+            s_testCase12_alloc = &supplied;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
+
+                s_testCase12_value = VALUES[LENGTH + 2];
+
+                mX.setComputedValueAll(KEYS[LENGTH + 2],
+                    testCase12Updater);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            s_testCase12_alloc = 0;
+        } // END Testing 'e_ALL' with unique values
+        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+            ASSERT(dam.isTotalSame());
+        }
+    } // END 'setComputedValueAll'
 
     // CONCERN: In no case does memory come from the default allocator.
     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
@@ -7797,6 +8190,9 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         RUN_EACH_TYPE(TestDriver, testCase12, TEST_TYPES_REGULAR);
+        TestDriver<
+            bsltf::AllocTestType,
+            bsltf::NonCopyConstructibleTestType>::testCase12_noncopyable();
       } break;
       case 11: {
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR);

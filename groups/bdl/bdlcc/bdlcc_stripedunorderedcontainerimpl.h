@@ -103,6 +103,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #include <bslma_destructionutil.h>
 #include <bslma_destructorproctor.h>
+#include <bslma_rawdeleterproctor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_movableref.h>
@@ -185,6 +186,17 @@ class StripedUnorderedContainerImpl_Node {
         // pointer to the next node.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
+
+    StripedUnorderedContainerImpl_Node(
+                       const KEY&                          key,
+                       StripedUnorderedContainerImpl_Node *nextPtr,
+                       bslma::Allocator                   *basicAllocator = 0);
+        // Create a 'bdlcc::StripedUnorderedContainerImpl_Node' object having
+        // the specified 'key' and a value initialized to 'VALUE()', and with
+        // the specified 'nextPtr' pointer to the next node.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ~StripedUnorderedContainerImpl_Node();
         // Destroy this object.
@@ -1226,6 +1238,25 @@ StripedUnorderedContainerImpl_Node<KEY, VALUE>::
 }
 
 template <class KEY, class VALUE>
+StripedUnorderedContainerImpl_Node<KEY, VALUE>::
+    StripedUnorderedContainerImpl_Node(
+        const KEY&                          key,
+        StripedUnorderedContainerImpl_Node *nextPtr,
+        bslma::Allocator                   *basicAllocator)
+: d_next_p(nextPtr)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    bslma::ConstructionUtil::construct(d_key.address(),
+                                       d_allocator_p,
+                                       key);
+    bslma::DestructorProctor<KEY> proctor(&d_key.object());
+
+    bslma::ConstructionUtil::construct(d_value.address(), d_allocator_p);
+    proctor.release();
+}
+
+
+template <class KEY, class VALUE>
 inline
 StripedUnorderedContainerImpl_Node<KEY, VALUE>::
                                           ~StripedUnorderedContainerImpl_Node()
@@ -1995,15 +2026,20 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValue(
     }
 
     // Not found - process as false, and return 0.
-    VALUE value = VALUE();
-
-    visitor(&value, key);
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *addNode =
                                                            new (*d_allocator_p)
                  StripedUnorderedContainerImpl_Node<KEY, VALUE>(key,
-                                                                value,
                                                                 NULL,
                                                                 d_allocator_p);
+    {
+        bslma::RawDeleterProctor<
+            StripedUnorderedContainerImpl_Node<KEY, VALUE>,
+            bslma::Allocator>
+            proctor(addNode, d_allocator_p);
+
+        visitor(&addNode->value(), key);
+        proctor.release();
+    }
 
     if (bucket.head() == NULL) {
         bucket.setHead(addNode);
