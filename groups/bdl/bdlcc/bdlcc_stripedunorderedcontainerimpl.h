@@ -192,10 +192,11 @@ class StripedUnorderedContainerImpl_Node {
                        StripedUnorderedContainerImpl_Node *nextPtr,
                        bslma::Allocator                   *basicAllocator = 0);
         // Create a 'bdlcc::StripedUnorderedContainerImpl_Node' object having
-        // the specified 'key' and a value initialized to VALUE(), and with the
-        // specified 'nextPtr' pointer to the next node.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // the specified 'key' and a value initialized to 'VALUE()', and with
+        // the specified 'nextPtr' pointer to the next node.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ~StripedUnorderedContainerImpl_Node();
         // Destroy this object.

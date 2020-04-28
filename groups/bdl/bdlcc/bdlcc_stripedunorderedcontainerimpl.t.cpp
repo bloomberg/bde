@@ -1279,7 +1279,10 @@ class TestDriver {
     static bslma::Allocator *s_testCase12_alloc;
         // Places for the test case 12 functor to put a copy of its 'found'
         // input, 'key' input, the identifier of its '*value' input, and to
-        // obtain a value to be set to '*value', respectively.
+        // obtain a value to be set to '*value', respectively.  'alloc' - if
+        // non-null - is used by the test case 12 functor to allocate and
+        // deallocate a single byte, which acts as a hook for testing exception
+        // safety using 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST'.
 
     static KEY   s_testCase13_key;
     static int   s_testCase13_valueId;
@@ -1425,8 +1428,11 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase12Updater::operator()(
     }
     *value = s_testCase12_value;
 
-    // Exception hook
     if (s_testCase12_alloc) {
+        // Allocate and deallocate a single byte.  This operation acts as a
+        // hook for testing exception safety using
+        // 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' where 'allocate' would throw a
+        // 'bad_alloc'.
         s_testCase12_alloc->deallocate(s_testCase12_alloc->allocate(1));
     }
     return true;
@@ -3249,7 +3255,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     //
     // Concerns:
     //: 1 When 'setComputedValue' adds an element, the element has the expected
-    //:   key and value, and returns 0.
+    //:   key and value, and returns 0 for the number of updated elements.
     //:
     //: 2 When 'setComputedValue' updates element(s), all elements with that
     //:   given key, and no others, are updated to the given value, and the
@@ -3845,9 +3851,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
     //
     // Concerns:
     //: 1 When 'setComputedValue' adds an element, the element has the expected
-    //:   key and value, and returns 0.
+    //:   key and value, and returns 0 for the number of updated elements.
     //:
-    //: 2 When 'setComputedValue' updates element, all elements with that
+    //: 2 When 'setComputedValue' updates an element, all elements with that
     //:   given key, and no others, are updated to the given value, and the
     //:   number of elements updated is returned.
     //:
