@@ -204,7 +204,8 @@ BSLS_IDENT("$Id: $")
 #include <string>      // for 'native_std::char_traits'
 #include <functional>  // for 'native_std::less', 'native_std::greater_equal'
 
-#define BDE_DISABLE_CPP17_ABI  // Temporary workaround before switching to cpp17
+//#define BDE_DISABLE_CPP17_ABI  // Temporary workaround before switching to cpp17
+#undef BDE_DISABLE_CPP17_ABI
 
 #ifndef BDE_DISABLE_CPP17_ABI
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
