@@ -1,8 +1,6 @@
 // baljsn_encoder.t.cpp                                               -*-C++-*-
 #include <baljsn_encoder.h>
-
-#include <s_baltst_address.h>
-#include <s_baltst_employee.h>
+#include <baljsn_encoder_testtypes.h>
 
 #include <balb_testmessages.h>
 
@@ -43,6 +41,8 @@
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
+#include <bslim_printer.h>
+
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
@@ -57,6 +57,9 @@
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
+
+#include <s_baltst_address.h>
+#include <s_baltst_employee.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -133,6 +136,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
+#define LOOP1_ASSERT_EQ(L,X,Y) ASSERTV(L,X,Y,X == Y)
+#define LOOP1_ASSERT_NE(L,X,Y) ASSERTV(L,X,Y,X != Y)
+
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
@@ -144,230 +150,15 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef baljsn::Encoder                       Obj;
-typedef baljsn::Encoder_EncodeImpl            Impl;
+typedef baljsn::Encoder_EncodeImplUtil        ImplUtil;
 typedef baljsn::EncoderOptions                Options;
 typedef baljsn::EncoderOptions::EncodingStyle Style;
-typedef bsls::Types::Int64                   Int64;
-typedef bsls::Types::Uint64                  Uint64;
+typedef bsls::Types::Int64                    Int64;
+typedef bsls::Types::Uint64                   Uint64;
 
 // ============================================================================
 //                          GLOBAL DATA FOR TESTING
 // ----------------------------------------------------------------------------
-
-const char XML_SCHEMA[] =
-
-"<?xml version='1.0' encoding='UTF-8'?>"
-"<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"
-"           xmlns:bdem='http://bloomberg.com/schemas/bdem'"
-"           bdem:package='bala'"
-"           elementFormDefault='qualified'>"
-""
-"<xs:complexType name='Choice1'>"
-"  <xs:choice>"
-"    <xs:element name='selection1' type='xs:int'/>"
-"    <xs:element name='selection2' type='xs:double'/>"
-"    <xs:element name='selection3' type='Sequence4'/>"
-"    <xs:element name='selection4' type='Choice2'/>"
-"  </xs:choice>"
-"</xs:complexType>"
-""
-"<xs:complexType name='Choice2'>"
-"  <xs:choice>"
-"    <xs:element name='selection1' type='xs:boolean'/>"
-"    <xs:element name='selection2' type='xs:string'/>"
-"    <xs:element name='selection3' type='Choice1'/>"
-"    <xs:element name='selection4' type='xs:unsignedInt'/>"
-"  </xs:choice>"
-"</xs:complexType>"
-""
-"<xs:complexType name='Choice3'>"
-"  <xs:choice>"
-"    <xs:element name='selection1' type='Sequence6'/>"
-"    <xs:element name='selection2' type='xs:unsignedByte'/>"
-"    <xs:element name='selection3' type='CustomString'/>"
-"    <xs:element name='selection4' type='CustomInt'/>"
-"  </xs:choice>"
-"</xs:complexType>"
-""
-"<xs:simpleType name='CustomInt'>"
-"  <xs:restriction base='xs:int'>"
-"    <xs:maxInclusive value='1000'/>"
-"  </xs:restriction>"
-"</xs:simpleType>"
-""
-"<xs:simpleType name='CustomString'>"
-"  <xs:restriction base='xs:string'>"
-"    <xs:maxLength value='8'/>"
-"  </xs:restriction>"
-"</xs:simpleType>"
-""
-"<xs:simpleType name='Enumerated' bdem:preserveEnumOrder='true'>"
-"  <xs:restriction base='xs:string'>"
-"     <xs:enumeration value='NEW_YORK'/>"
-"     <xs:enumeration value='NEW_JERSEY'/>"
-"     <xs:enumeration value='LONDON'/>"
-"  </xs:restriction>"
-"</xs:simpleType>"
-""
-"<xs:complexType name='Sequence1'>"
-"  <xs:sequence>"
-"    <xs:element name='element1' type='Choice3' minOccurs='0'/>"
-"    <xs:element name='element2' type='Choice1' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element3' type='Choice2' />"
-"    <xs:element name='element4' type='Choice1' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element5' type='Choice3' minOccurs='0' maxOccurs='unbounded'/>"
-"  </xs:sequence>"
-"</xs:complexType>"
-""
-"<xs:complexType name='Sequence2'>"
-"  <xs:sequence>"
-"    <xs:element name='element1' type='CustomString' />"
-"    <xs:element name='element2' type='xs:unsignedByte' />"
-"    <xs:element name='element3' type='xs:dateTime' />"
-"    <xs:element name='element4' type='Choice1' minOccurs='0'/>"
-"    <xs:element name='element5' type='xs:double' minOccurs='0'/>"
-"  </xs:sequence>"
-"</xs:complexType>"
-""
-"<xs:complexType name='Sequence3'>"
-"  <xs:sequence>"
-"    <xs:element name='element1' type='Enumerated' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element2' type='xs:string' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element3' type='xs:boolean' minOccurs='0'/>"
-"    <xs:element name='element4' type='xs:string' minOccurs='0'/>"
-"    <xs:element name='element5' type='Sequence5' minOccurs='0'/>"
-"    <xs:element name='element6' type='Enumerated' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"  </xs:sequence>"
-"</xs:complexType>"
-""
-"<xs:complexType name='Sequence4'>"
-"  <xs:sequence>"
-"    <xs:element name='element1' type='Sequence3' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element2' type='Choice1' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element3' type='xs:hexBinary' minOccurs='0'/>"
-"    <xs:element name='element4' type='xs:int' minOccurs='0'/>"
-"    <xs:element name='element5' type='xs:dateTime' minOccurs='0'/>"
-"    <xs:element name='element6' type='CustomString' minOccurs='0'/>"
-"    <xs:element name='element7' type='Enumerated' minOccurs='0'/>"
-"    <xs:element name='element8' type='xs:boolean' />"
-"    <xs:element name='element9' type='xs:string' />"
-"    <xs:element name='element10' type='xs:double' />"
-"    <xs:element name='element11' type='xs:hexBinary' />"
-"    <xs:element name='element12' type='xs:int' />"
-"    <xs:element name='element13' type='Enumerated' />"
-"    <xs:element name='element14' type='xs:boolean' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element15' type='xs:double' minOccurs='0' maxOccurs='unbounded'/>"
-// "    <xs:element name='element16' type='xs:hexBinary' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element17' type='xs:int' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element18' type='xs:dateTime' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element19' type='CustomString' minOccurs='0' maxOccurs='unbounded'/>"
-"  </xs:sequence>"
-"</xs:complexType>"
-""
-"<xs:complexType name='Sequence5'>"
-"  <xs:sequence>"
-"    <xs:element name='element1' type='Sequence3' />"
-"    <xs:element name='element2' type='xs:boolean' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element3' type='xs:double' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-// "    <xs:element name='element4' type='xs:hexBinary' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element5' type='xs:int' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element6' type='xs:dateTime' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element7' type='Sequence3' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"  </xs:sequence>"
-"</xs:complexType>"
-""
-"<xs:complexType name='Sequence6'>"
-"  <xs:sequence>"
-"    <xs:element name='element1' type='xs:unsignedByte' minOccurs='0'/>"
-"    <xs:element name='element2' type='CustomString' minOccurs='0'/>"
-"    <xs:element name='element3' type='CustomInt' minOccurs='0'/>"
-"    <xs:element name='element4' type='xs:unsignedInt'/>"
-"    <xs:element name='element5' type='xs:unsignedByte' />"
-"    <xs:element name='element6' type='CustomInt' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element7' type='CustomString' />"
-"    <xs:element name='element8' type='CustomInt' />"
-"    <xs:element name='element9' type='xs:unsignedInt' minOccurs='0'/>"
-"    <xs:element name='element10' type='xs:unsignedByte' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element11' type='CustomString' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element12' type='xs:unsignedInt' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element13' type='xs:unsignedByte' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element14' type='CustomInt' minOccurs='0' maxOccurs='unbounded'/>"
-"    <xs:element name='element15' type='xs:unsignedInt' nillable='true' minOccurs='0' maxOccurs='unbounded'/>"
-"  </xs:sequence>"
-"</xs:complexType>"
-""
-"<xs:complexType name='VoidSequence'>"
-"  <xs:sequence/>"
-"</xs:complexType>"
-""
-"<xs:complexType name='UnsignedSequence'>"
-"  <xs:sequence>"
-"    <xs:element name='element1' type='xs:unsignedInt'/>"
-"    <xs:element name='element2' type='xs:unsignedShort'/>"
-"    <xs:element name='element3' type='xs:unsignedLong'/>"
-"  </xs:sequence>"
-"</xs:complexType>"
-""
-"<xs:complexType name='SequenceWithAnonymity'>"
-"  <xs:sequence>"
-"    <xs:choice>"
-"      <xs:element name='selection1' type='Sequence6'/>"
-"      <xs:element name='selection2' type='xs:unsignedByte'/>"
-"      <xs:element name='selection3' type='CustomString'/>"
-"      <xs:element name='selection4' type='CustomInt'/>"
-"    </xs:choice>"
-"    <xs:choice>"
-"      <xs:element name='selection5' type='xs:boolean'/>"
-"      <xs:element name='selection6' type='xs:string'/>"
-"    </xs:choice>"
-"    <xs:choice minOccurs='0' maxOccurs='1'>"
-"      <xs:element name='selection7' type='Sequence4'/>"
-"      <xs:element name='selection8' type='Choice2'/>"
-"    </xs:choice>"
-"    <xs:element name='element4' type='Sequence6'/>"
-"  </xs:sequence>"
-"</xs:complexType>    "
-""
-"<xs:complexType name='FeatureTestMessage'>"
-"  <xs:choice>"
-"    <xs:element name='selection1'  type='Sequence1'/>"
-"    <xs:element name='selection2'  type='xs:hexBinary'/>"
-"    <xs:element name='selection3'  type='Sequence2'/>"
-"    <xs:element name='selection4'  type='Sequence3'/>"
-"    <xs:element name='selection5'  type='xs:dateTime'/>"
-"    <xs:element name='selection6'  type='CustomString'/>"
-"    <xs:element name='selection7'  type='Enumerated'/>"
-"    <xs:element name='selection8'  type='Choice3'/>"
-"    <xs:element name='selection9'  type='VoidSequence'/>"
-"    <xs:element name='selection10' type='UnsignedSequence'/>"
-"    <xs:element name='selection11' type='SequenceWithAnonymity'/>"
-"  </xs:choice>"
-"</xs:complexType>"
-""
-"  <xs:complexType name='SimpleRequest'>"
-"    <xs:sequence>"
-"      <xs:element name='data'           type='xs:string'/>"
-"      <xs:element name='responseLength' type='xs:int'/>"
-"    </xs:sequence>"
-"  </xs:complexType>"
-""
-"  <xs:complexType name='Request'>"
-"    <xs:choice>"
-"      <xs:element name='simpleRequest' type='SimpleRequest'/>"
-"      <xs:element name='featureRequest' type='FeatureTestMessage'/>"
-"    </xs:choice>"
-"  </xs:complexType>"
-" "
-"  <xs:complexType name='Response'>"
-"    <xs:choice>"
-"      <xs:element name='responseData'    type='xs:string'/>"
-"      <xs:element name='featureResponse' type='FeatureTestMessage'/>"
-"    </xs:choice>"
-"  </xs:complexType>"
-""
-"  <xs:element name='Obj' type='FeatureTestMessage'/>"
-""
-"</xs:schema>";
 
 static const struct {
     int         d_line;  // source line number
@@ -28844,6 +28635,581 @@ static const int NUM_JSON_COMPACT_MESSAGES =
 BSLMF_ASSERT(NUM_JSON_PRETTY_MESSAGES == NUM_XML_TEST_MESSAGES);
 BSLMF_ASSERT(NUM_JSON_COMPACT_MESSAGES == NUM_XML_TEST_MESSAGES);
 
+namespace BloombergLP {
+
+namespace ese { class EmptySequenceExampleSequence; }
+namespace ese { class EmptySequenceExample; }
+namespace ese {
+class EmptySequenceExampleSequence {
+  public:
+    enum { NUM_ATTRIBUTES = 0 };
+    static const char CLASS_NAME[];
+
+  public:
+    static int                        maxSupportedBdexVersion();
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
+                                                       const char *name,
+                                                       int         nameLength);
+    EmptySequenceExampleSequence();
+    EmptySequenceExampleSequence(const EmptySequenceExampleSequence& original);
+    ~EmptySequenceExampleSequence();
+    EmptySequenceExampleSequence& operator=(
+                                      const EmptySequenceExampleSequence& rhs);
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+    //int     fromAggregate(const bcem_Aggregate& aggregate);
+    void    reset();
+    template <class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <class MANIPULATOR>
+    int           manipulateAttribute(MANIPULATOR&  manipulator,
+                                      const char   *name,
+                                      int           nameLength);
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+    //int     toAggregate(bcem_Aggregate *result) const;
+    template <class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+    template <class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+};
+inline
+bool operator==(const EmptySequenceExampleSequence& lhs,
+                const EmptySequenceExampleSequence& rhs);
+inline
+bool operator!=(const EmptySequenceExampleSequence& lhs,
+                const EmptySequenceExampleSequence& rhs);
+inline
+bsl::ostream& operator<<(bsl::ostream&                       stream,
+                         const EmptySequenceExampleSequence& rhs);
+}
+
+BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(
+                                             ese::EmptySequenceExampleSequence)
+namespace ese {
+class EmptySequenceExample {
+    int                          d_simpleValue;
+    EmptySequenceExampleSequence d_sequence;
+
+  public:
+    enum { ATTRIBUTE_ID_SIMPLE_VALUE = 0, ATTRIBUTE_ID_SEQUENCE = 1 };
+    enum { NUM_ATTRIBUTES = 2 };
+    enum { ATTRIBUTE_INDEX_SIMPLE_VALUE = 0, ATTRIBUTE_INDEX_SEQUENCE = 1 };
+    static const char                CLASS_NAME[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    static int                        maxSupportedBdexVersion();
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
+                                                       const char *name,
+                                                       int         nameLength);
+    EmptySequenceExample();
+    EmptySequenceExample(const EmptySequenceExample& original);
+    ~EmptySequenceExample();
+    EmptySequenceExample& operator=(const EmptySequenceExample& rhs);
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+    //int     fromAggregate(const bcem_Aggregate& aggregate);
+    void    reset();
+    template <class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <class MANIPULATOR>
+    int  manipulateAttribute(MANIPULATOR&  manipulator,
+                             const char   *name,
+                             int           nameLength);
+    int& simpleValue();
+    EmptySequenceExampleSequence& sequence();
+    bsl::ostream&                 print(bsl::ostream& stream,
+                                        int           level = 0,
+                                        int           spacesPerLevel = 4) const;
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+    //int     toAggregate(bcem_Aggregate *result) const;
+    template <class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+    template <class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <class ACCESSOR>
+    int                                 accessAttribute(ACCESSOR&   accessor,
+                                                        const char *name,
+                                                        int         nameLength) const;
+    int                                 simpleValue() const;
+    const EmptySequenceExampleSequence& sequence() const;
+};
+inline
+bool operator==(const EmptySequenceExample& lhs,
+                const EmptySequenceExample& rhs);
+inline
+bool operator!=(const EmptySequenceExample& lhs,
+                const EmptySequenceExample& rhs);
+inline
+bsl::ostream& operator<<(bsl::ostream&               stream,
+                         const EmptySequenceExample& rhs);
+}
+BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(ese::EmptySequenceExample)
+namespace ese {
+inline
+int EmptySequenceExampleSequence::maxSupportedBdexVersion()
+{
+    return 1;
+}
+template <class STREAM>
+STREAM& EmptySequenceExampleSequence::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+template <class MANIPULATOR>
+int EmptySequenceExampleSequence::manipulateAttributes(
+                                                      MANIPULATOR& manipulator)
+{
+    (void)manipulator;
+    int ret = 0;
+    return ret;
+}
+template <class MANIPULATOR>
+int EmptySequenceExampleSequence::manipulateAttribute(MANIPULATOR& manipulator,
+                                                      int          id)
+{
+    (void)manipulator;
+    enum { NOT_FOUND = -1 };
+    switch (id) {
+      default:
+        return NOT_FOUND;
+    }
+}
+template <class MANIPULATOR>
+int EmptySequenceExampleSequence::manipulateAttribute(
+                                                     MANIPULATOR&  manipulator,
+                                                     const char   *name,
+                                                     int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+                                                                   nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+template <class STREAM>
+STREAM& EmptySequenceExampleSequence::bdexStreamOut(STREAM& stream,
+                                                    int     version) const
+{
+    switch (version) {
+      case 1: {
+      } break;
+    }
+    return stream;
+}
+template <class ACCESSOR>
+int EmptySequenceExampleSequence::accessAttributes(ACCESSOR& accessor) const
+{
+    (void)accessor;
+    int ret = 0;
+    return ret;
+}
+template <class ACCESSOR>
+int EmptySequenceExampleSequence::accessAttribute(ACCESSOR& accessor,
+                                                  int       id) const
+{
+    (void)accessor;
+    enum { NOT_FOUND = -1 };
+    switch (id) {
+      default:
+        return NOT_FOUND;
+    }
+}
+template <class ACCESSOR>
+int EmptySequenceExampleSequence::accessAttribute(ACCESSOR&   accessor,
+                                                  const char *name,
+                                                  int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+                                                                   nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+inline
+int EmptySequenceExample::maxSupportedBdexVersion()
+{
+    return 1;
+}
+template <class STREAM>
+STREAM& EmptySequenceExample::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_simpleValue, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_sequence, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+template <class MANIPULATOR>
+int EmptySequenceExample::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+    ret = manipulator(&d_simpleValue,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIMPLE_VALUE]);
+    if (ret) {
+        return ret;
+    }
+    ret = manipulator(&d_sequence,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SEQUENCE]);
+    if (ret) {
+        return ret;
+    }
+    return ret;
+}
+template <class MANIPULATOR>
+int EmptySequenceExample::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+    switch (id) {
+      case ATTRIBUTE_ID_SIMPLE_VALUE: {
+        return manipulator(&d_simpleValue,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIMPLE_VALUE]);
+      } break;
+      case ATTRIBUTE_ID_SEQUENCE: {
+        return manipulator(&d_sequence,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SEQUENCE]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+template <class MANIPULATOR>
+int EmptySequenceExample::manipulateAttribute(MANIPULATOR&  manipulator,
+                                              const char   *name,
+                                              int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+                                                                   nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+inline
+int& EmptySequenceExample::simpleValue()
+{
+    return d_simpleValue;
+}
+inline
+EmptySequenceExampleSequence& EmptySequenceExample::sequence()
+{
+    return d_sequence;
+}
+template <class STREAM>
+STREAM& EmptySequenceExample::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_simpleValue, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_sequence, 1);
+      } break;
+    }
+    return stream;
+}
+template <class ACCESSOR>
+int EmptySequenceExample::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+    ret = accessor(d_simpleValue                                      ,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIMPLE_VALUE]);
+    if (ret) {
+        return ret;
+    }
+    ret = accessor(d_sequence, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SEQUENCE]);
+    if (ret) {
+        return ret;
+    }
+    return ret;
+}
+template <class ACCESSOR>
+int EmptySequenceExample::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+    switch (id) {
+      case ATTRIBUTE_ID_SIMPLE_VALUE: {
+        return accessor(d_simpleValue,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIMPLE_VALUE]);
+      } break;
+      case ATTRIBUTE_ID_SEQUENCE: {
+        return accessor(d_sequence,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SEQUENCE]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+template <class ACCESSOR>
+int EmptySequenceExample::accessAttribute(ACCESSOR&   accessor,
+                                          const char *name,
+                                          int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+                                                                   nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+inline
+int EmptySequenceExample::simpleValue() const
+{
+    return d_simpleValue;
+}
+inline
+const EmptySequenceExampleSequence& EmptySequenceExample::sequence() const
+{
+    return d_sequence;
+}
+}
+inline
+bool ese::operator==(const ese::EmptySequenceExampleSequence& ,
+                     const ese::EmptySequenceExampleSequence&)
+{
+    return true;
+}
+inline
+bool ese::operator!=(const ese::EmptySequenceExampleSequence& ,
+                     const ese::EmptySequenceExampleSequence&)
+{
+    return false;
+}
+inline
+bsl::ostream& ese::operator<<(bsl::ostream&                            stream,
+                              const ese::EmptySequenceExampleSequence& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+inline
+bool ese::operator==(const ese::EmptySequenceExample& lhs,
+                     const ese::EmptySequenceExample& rhs)
+{
+    return lhs.simpleValue() == rhs.simpleValue() &&
+           lhs.sequence() == rhs.sequence();
+}
+inline
+bool ese::operator!=(const ese::EmptySequenceExample& lhs,
+                     const ese::EmptySequenceExample& rhs)
+{
+    return lhs.simpleValue() != rhs.simpleValue() ||
+           lhs.sequence() != rhs.sequence();
+}
+inline
+bsl::ostream& ese::operator<<(bsl::ostream&                    stream,
+                              const ese::EmptySequenceExample& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+namespace ese {
+const char EmptySequenceExampleSequence::CLASS_NAME[] =
+    "EmptySequenceExampleSequence";
+const bdlat_AttributeInfo *EmptySequenceExampleSequence::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
+{
+    (void)name;
+    (void)nameLength;
+    return 0;
+}
+const bdlat_AttributeInfo *EmptySequenceExampleSequence::lookupAttributeInfo(
+                                                                        int id)
+{
+    switch (id) {
+      default:
+        return 0;
+    }
+}
+EmptySequenceExampleSequence::EmptySequenceExampleSequence()
+{
+}
+EmptySequenceExampleSequence::EmptySequenceExampleSequence(
+                                  const EmptySequenceExampleSequence& original)
+{
+    (void)original;
+}
+EmptySequenceExampleSequence::~EmptySequenceExampleSequence()
+{
+}
+EmptySequenceExampleSequence& EmptySequenceExampleSequence::operator=(
+                                       const EmptySequenceExampleSequence& rhs)
+{
+    (void)rhs;
+    return *this;
+}
+/*
+int EmptySequenceExampleSequence::fromAggregate(
+                                               const bcem_Aggregate& aggregate)
+{
+    (void)aggregate;
+    return 0;
+}
+*/
+void EmptySequenceExampleSequence::reset()
+{
+}
+bsl::ostream& EmptySequenceExampleSequence::print(
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
+{
+    (void)level;
+    (void)spacesPerLevel;
+    return stream;
+}
+/*
+int EmptySequenceExampleSequence::toAggregate(bcem_Aggregate *result) const
+{
+    (void)result;
+    return 0;
+}
+*/
+const char EmptySequenceExample::CLASS_NAME[] = "EmptySequenceExample";
+const bdlat_AttributeInfo EmptySequenceExample::ATTRIBUTE_INFO_ARRAY[] = {
+    {ATTRIBUTE_ID_SIMPLE_VALUE,
+     "simpleValue",
+     sizeof("simpleValue") - 1,
+     "",
+     bdlat_FormattingMode::e_DEC},
+    {ATTRIBUTE_ID_SEQUENCE,
+     "Sequence",
+     sizeof("Sequence") - 1,
+     "",
+     bdlat_FormattingMode::e_DEFAULT | bdlat_FormattingMode::e_UNTAGGED}};
+const bdlat_AttributeInfo *EmptySequenceExample::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
+{
+    for (int i = 0; i < 2; ++i) {
+        const bdlat_AttributeInfo& attributeInfo =
+            EmptySequenceExample::ATTRIBUTE_INFO_ARRAY[i];
+        if (nameLength == attributeInfo.d_nameLength &&
+            0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength)) {
+            return &attributeInfo;
+        }
+    }
+    return 0;
+}
+const bdlat_AttributeInfo *EmptySequenceExample::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_SIMPLE_VALUE:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIMPLE_VALUE];
+      case ATTRIBUTE_ID_SEQUENCE:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SEQUENCE];
+      default:
+        return 0;
+    }
+}
+EmptySequenceExample::EmptySequenceExample()
+: d_simpleValue()
+, d_sequence()
+{
+}
+EmptySequenceExample::EmptySequenceExample(
+                                          const EmptySequenceExample& original)
+: d_simpleValue(original.d_simpleValue)
+, d_sequence(original.d_sequence)
+{
+}
+EmptySequenceExample::~EmptySequenceExample()
+{
+}
+EmptySequenceExample& EmptySequenceExample::operator=(
+                                               const EmptySequenceExample& rhs)
+{
+    if (this != &rhs) {
+        d_simpleValue = rhs.d_simpleValue;
+        d_sequence    = rhs.d_sequence;
+    }
+    return *this;
+}
+/*
+int EmptySequenceExample::fromAggregate(const bcem_Aggregate& aggregate)
+{
+    int rc;
+    if ((rc = bcem_AggregateUtil::fromAggregate(
+             &d_simpleValue, aggregate, ATTRIBUTE_ID_SIMPLE_VALUE)) ||
+        (rc = bcem_AggregateUtil::fromAggregate(
+             &d_sequence, aggregate, ATTRIBUTE_ID_SEQUENCE))) {
+        return rc;
+    }
+    return 0;
+}
+*/
+void EmptySequenceExample::reset()
+{
+    bdlat_ValueTypeFunctions::reset(&d_simpleValue);
+    bdlat_ValueTypeFunctions::reset(&d_sequence);
+}
+bsl::ostream& EmptySequenceExample::print(bsl::ostream& stream,
+                                          int           level,
+                                          int           spacesPerLevel) const
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("simpleValue", d_simpleValue);
+    printer.printAttribute("sequence", d_sequence);
+    printer.end();
+    return stream;
+}
+/*
+int EmptySequenceExample::toAggregate(bcem_Aggregate *result) const
+{
+    int rc;
+    rc = bcem_AggregateUtil::toAggregate(result                    ,
+                                         ATTRIBUTE_ID_SIMPLE_VALUE ,
+                                         d_simpleValue);
+    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
+        return rc;
+    }
+    rc = bcem_AggregateUtil::toAggregate(result                ,
+                                         ATTRIBUTE_ID_SEQUENCE ,
+                                         d_sequence);
+    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
+        return rc;
+    }
+    return 0;
+}
+*/
+}
+}  // close enterprise namespace
 
 // ============================================================================
 //                              BDLAT TEST TYPES
@@ -29031,8 +29397,7 @@ void testNumber()
 
         Obj  encoder;
         bsl::ostringstream oss;
-        Impl impl(&encoder, oss.rdbuf(), Options());
-        ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+        ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
 
         bsl::string result = oss.str();
         ASSERTV(LINE, result, EXP, result == EXP);
@@ -29040,6 +29405,113 @@ void testNumber()
 }
 
 }  // close unnamed namespace
+
+// ============================================================================
+//                          TEST ENTITY DECLARATIONS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace {
+namespace u {
+
+                               // ===============
+                               // struct TestUtil
+                               // ===============
+
+struct TestUtil {
+    // CLASS METHODS
+    template <class VALUE_TYPE>
+    static void assertEncodedValueIsEqual(
+                      const int                          LINE,
+                      const baljsn::EncodingStyle::Value ENCODING_STYLE,
+                      const bool                         ENCODE_NULL_ELEMENTS,
+                      const VALUE_TYPE&                  VALUE,
+                      const bslstl::StringRef&           EXPECTED_JSON_STRING);
+};
+
+                   // =======================================
+                   // class AssertEncodedValueIsEqualFunction
+                   // =======================================
+
+class AssertEncodedValueIsEqualFunction {
+
+  public:
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    void operator()(
+                const int                          LINE,
+                const baljsn::EncodingStyle::Value ENCODING_STYLE,
+                const bool                         ENCODE_NULL_ELEMENTS,
+                const VALUE_TYPE&                  VALUE,
+                const bslstl::StringRef&           EXPECTED_JSON_STRING) const;
+};
+
+}  // close u namespace
+}  // close unnamed namespace
+}  // close enterprise namespace
+
+// ============================================================================
+//                          TEST ENTITY DEFINITIONS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace {
+namespace u {
+
+                               // ---------------
+                               // struct TestUtil
+                               // ---------------
+
+// CLASS METHODS
+template <class VALUE_TYPE>
+void TestUtil::assertEncodedValueIsEqual(
+                       const int                          LINE,
+                       const baljsn::EncodingStyle::Value ENCODING_STYLE,
+                       const bool                         ENCODE_NULL_ELEMENTS,
+                       const VALUE_TYPE&                  VALUE,
+                       const bslstl::StringRef&           EXPECTED_JSON_STRING)
+{
+    bdlsb::MemOutStreamBuf outStreamBuf;
+    bsl::ostream           outStream(&outStreamBuf);
+
+    baljsn::EncoderOptions options;
+    options.setEncodingStyle(ENCODING_STYLE);
+    options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
+    options.setInitialIndentLevel(0);
+    options.setSpacesPerLevel(4);
+
+    baljsn::Encoder encoder;
+    int rc = encoder.encode(&outStreamBuf, VALUE, &options);
+    LOOP1_ASSERT_EQ(LINE, 0, rc);
+
+    const bslstl::StringRef jsonStringRef(outStreamBuf.data(),
+                                          outStreamBuf.length());
+    LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringRef);
+}
+
+                   // ---------------------------------------
+                   // class AssertEncodedValueIsEqualFunction
+                   // ---------------------------------------
+
+// ACCESSORS
+template <class VALUE_TYPE>
+void AssertEncodedValueIsEqualFunction::operator()(
+                 const int                          LINE,
+                 const baljsn::EncodingStyle::Value ENCODING_STYLE,
+                 const bool                         ENCODE_NULL_ELEMENTS,
+                 const VALUE_TYPE&                  VALUE,
+                 const bslstl::StringRef&           EXPECTED_JSON_STRING) const
+{
+    TestUtil::assertEncodedValueIsEqual(LINE,
+                                        ENCODING_STYLE,
+                                        ENCODE_NULL_ELEMENTS,
+                                        VALUE,
+                                        EXPECTED_JSON_STRING);
+}
+
+}  // close u namespace
+}  // close unnamed namespace
+}  // close enterprise namespace
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -29053,12 +29525,12 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
-    (void)XML_SCHEMA;
+    //(void)XML_SCHEMA;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 15: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -29168,6 +29640,504 @@ int main(int argc, char *argv[])
     ASSERT(EXP_OUTPUT == os.str());
 //..
       } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING DEGENERATE CHOICE VALUES
+        //   This case tests that the encoder emits valid JSON when encoding
+        //   choices that have active selections with the "untagged" formatting
+        //   mode and the empty value.  More specifically, that the encoder
+        //   encodes such choices as an empty object "{}".  Note that, while
+        //   the encoded JSON is valid, it is not in possible for the decoder
+        //   to decode the encoded representation back to the same value
+        //   because the member name that is ordinarily required to
+        //   disambiguate the selection is not present.
+        //
+        // Concerns:
+        //: 1 The encoder emits empty-object token sequences for choice values
+        //:   having an empty selection with the untagged formatting mode.
+        //
+        // Plan:
+        //: 1 Define a choice type that has 1 selection, which is an empty,
+        //:   anonymous sequence.
+        //:
+        //: 2 Identify the 2 boolean options that affect relevant aspects of
+        //:   the encoding of such choices:
+        //:
+        //:   1 Whether the encoding style is compact or pretty
+        //:
+        //:   2 Whether or not to encode empty values
+        //:
+        //: 3 For each combination a compact or pretty encoding style, and a
+        //:   'true' or 'false' empty-value encoding setting, perform the
+        //:   following:
+        //:
+        //:   1 Encode the choice using the specified encoding style and
+        //:     empty-value encoding setting
+        //:
+        //:   2 Verify that the emitted JSON is an empty-object
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING DEGENERATE CHOICE VALUES"
+                 << endl
+                 << "================================"
+                 << endl;
+
+        const u::AssertEncodedValueIsEqualFunction t;
+
+        static const baljsn::EncodingStyle::Value C =
+            baljsn::EncodingStyle::e_COMPACT;
+        static const baljsn::EncodingStyle::Value P =
+            baljsn::EncodingStyle::e_PRETTY;
+
+        static const bool T = true;
+        static const bool F = false;
+
+        // 'Type0' is unsupported and causes the encoder to violate the
+        // invariants of the formatter.  This was last verified April 20, 2020.
+        //typedef baljsn::EncoderTestDegenerateChoice0 Type0;
+        typedef baljsn::EncoderTestDegenerateChoice1 Type1;
+
+        // Do not test degenerate choice type 0.
+        //Type0 obj0;
+        //obj0.makeChoice();
+
+        Type1  obj1;
+        obj1.makeSequence();
+
+        //               ENCODE EMPTIES
+        //              .--------------
+        // LINE STYLE  /  OBJECT EXPECTED RESULT
+        // ---- ----- --- ------ --------------------------------------
+        // do not test degenerate choice type 0
+        //t( L_  , C   , F , obj0 , "{}"                                 );
+        //t( L_  , C   , T , obj0 , "{}"                                 );
+        //t( L_  , P   , F , obj0 , "{\n\n}\n"                           );
+        //t( L_  , P   , T , obj0 , "{\n\n}\n"                           );
+        t( L_  , C   , F , obj1 , "{}"                                 );
+        t( L_  , C   , T , obj1 , "{}"                                 );
+        t( L_  , P   , F , obj1 , "{\n\n}\n"                           );
+        t( L_  , P   , T , obj1 , "{\n\n}\n"                           );
+
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING SEQUENCES WITH ATTRIBUTES OF ALL VALUE CATEGORIES
+        //   This case tests that the encoder emits valid JSON when encoding
+        //   sequence attributes having any of the 7 'bdlat' value categories
+        //   that the encoder supports for attributes.
+        //
+        // Concerns:
+        //: 1 Regardless of value category, the encoder emits a valid and
+        //:   correct JSON representation of a sequence attribute.
+        //
+        // Plan:
+        //: 1 Define a sequence type that has 7 attributes whose types cover
+        //:   all 7 'bdlat' value categories that are supported for selections.
+        //:
+        //: 2 Identify the 2 boolean options that affect relevant aspects of
+        //:   the encoding of such sequences:
+        //:
+        //:   1 Whether the encoding style is compact or pretty
+        //:
+        //:   2 Whether or not to encode empty values
+        //:
+        //: 3 For each combination a compact or pretty encoding style, and a
+        //:   'true' or 'false' empty-value encoding setting, perform the
+        //:   following:
+        //:
+        //:   1 Encode the sequence using the specified encoding style and
+        //:     empty-value encoding setting
+        //:
+        //:   2 Verify that the emitted JSON is valid
+        //:
+        //:   3 Verify that the emitted JSON is a correct representation of
+        //:     the encoded object
+        //
+        // Testing:
+        //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING SEQUENCES WITH ATTRIBUTES OF ALL VALUE CATEGORIES"
+                 << endl
+                 << "========================================================="
+                 << endl;
+
+        const u::AssertEncodedValueIsEqualFunction t;
+
+        static const baljsn::EncodingStyle::Value C =
+            baljsn::EncodingStyle::e_COMPACT;
+        static const baljsn::EncodingStyle::Value P =
+            baljsn::EncodingStyle::e_PRETTY;
+
+        static const bool T = true;
+        static const bool F = false;
+
+        typedef baljsn::EncoderTestSequenceWithAllCategories Type;
+
+        Type obj;
+        obj.choice().makeSelection0();
+
+        //               ENCODE EMPTIES
+        //              .--------------
+        // LINE STYLE  /  OBJECT EXPECTED RESULT
+        // ---- ----- --- ------ --------------------------------------
+        t( L_  , C   , F , obj , "{"
+                                     "\"charArray\":\"\","
+                                     "\"choice\":{\"selection0\":0},"
+                                     "\"customizedType\":\"\","
+                                     "\"enumeration\":\"A\","
+                                     "\"sequence\":{\"attribute\":0},"
+                                     "\"simple\":0"
+                                 "}"                                   );
+
+        t( L_  , C   , T , obj , "{"
+                                     "\"charArray\":\"\","
+                                     "\"choice\":{\"selection0\":0},"
+                                     "\"customizedType\":\"\","
+                                     "\"enumeration\":\"A\","
+                                     "\"nullableValue\":null,"
+                                     "\"sequence\":{\"attribute\":0},"
+                                     "\"simple\":0"
+                                 "}"                                   );
+
+        t( L_  , P   , F , obj , "{\n"
+                                 "    \"charArray\" : \"\",\n"
+                                 "    \"choice\" : {\n"
+                                 "        \"selection0\" : 0\n"
+                                 "    },\n"
+                                 "    \"customizedType\" : \"\",\n"
+                                 "    \"enumeration\" : \"A\",\n"
+                                 "    \"sequence\" : {\n"
+                                 "        \"attribute\" : 0\n"
+                                 "    },\n"
+                                 "    \"simple\" : 0\n"
+                                 "}\n"                                 );
+
+        t( L_  , P   , T , obj , "{\n"
+                                 "    \"charArray\" : \"\",\n"
+                                 "    \"choice\" : {\n"
+                                 "        \"selection0\" : 0\n"
+                                 "    },\n"
+                                 "    \"customizedType\" : \"\",\n"
+                                 "    \"enumeration\" : \"A\",\n"
+                                 "    \"nullableValue\" : null,\n"
+                                 "    \"sequence\" : {\n"
+                                 "        \"attribute\" : 0\n"
+                                 "    },\n"
+                                 "    \"simple\" : 0\n"
+                                 "}\n"                                 );
+
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING CHOICES WITH SELECTIONS OF ALL VALUE CATEGORIES
+        //   This case tests that the encoder emits valid JSON when encoding
+        //   a choice selection having any of the 6 'bdlat' value categories
+        //   that the encoder supports for selections.
+        //
+        // Concerns:
+        //: 1 Regardless of value category, the encoder emits a valid and
+        //:   correct JSON representation of a choice selection.
+        //
+        // Plan:
+        //: 1 Define a choice type that has 6 selections whose types cover
+        //:   all 6 'bdlat' value categories that are supported for selections.
+        //:
+        //: 2 Identify the 2 boolean options that affect relevant aspects of
+        //:   the encoding of such choices:
+        //:
+        //:   1 Whether the encoding style is compact or pretty
+        //:
+        //:   2 Whether or not to encode empty values
+        //:
+        //: 3 For each combination of one of the 6 selections, a compact or
+        //:   pretty encoding style, and a 'true' or 'false' empty-value
+        //:   encoding setting, perform the following:
+        //:
+        //:   1 Encode the selection using the specified encoding style and
+        //:     empty-value encoding setting
+        //:
+        //:   2 Verify that the emitted JSON is valid
+        //:
+        //:   3 Verify that the emitted JSON is a correct representation of
+        //:     the encoded object
+        //
+        // Testing:
+        //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING CHOICES WITH SELECTIONS OF ALL VALUE CATEGORIES"
+                 << endl
+                 << "======================================================="
+                 << endl;
+
+        const u::AssertEncodedValueIsEqualFunction t;
+
+        static const baljsn::EncodingStyle::Value C =
+            baljsn::EncodingStyle::e_COMPACT;
+        static const baljsn::EncodingStyle::Value P =
+            baljsn::EncodingStyle::e_PRETTY;
+
+        static const bool T = true;
+        static const bool F = false;
+
+        typedef baljsn::EncoderTestChoiceWithAllCategories Type;
+
+        Type obj0;
+        Type obj1;
+        Type obj2;
+        Type obj3;
+        Type obj4;
+        Type obj5;
+
+        obj0.makeCharArray();
+        obj1.makeChoice();
+        obj1.choice().makeSelection0();
+        obj2.makeCustomizedType();
+        obj3.makeEnumeration();
+        obj4.makeSequence();
+        obj5.makeSimple();
+
+        //               ENCODE EMPTIES
+        //              .--------------
+        // LINE STYLE  /  OBJECT EXPECTED RESULT
+        // ---- ----- --- ------ ---------------------------------------
+        t( L_  , C   , F , obj0 , "{\"charArray\":\"\"}"                );
+        t( L_  , C   , F , obj1 , "{\"choice\":{\"selection0\":0}}"     );
+        t( L_  , C   , F , obj2 , "{\"customizedType\":\"\"}"           );
+        t( L_  , C   , F , obj3 , "{\"enumeration\":\"A\"}"             );
+        t( L_  , C   , F , obj4 , "{\"sequence\":{\"attribute\":0}}"    );
+        t( L_  , C   , F , obj5 , "{\"simple\":0}"                      );
+
+        t( L_  , C   , T , obj0 , "{\"charArray\":\"\"}"                );
+        t( L_  , C   , T , obj1 , "{\"choice\":{\"selection0\":0}}"     );
+        t( L_  , C   , T , obj2 , "{\"customizedType\":\"\"}"           );
+        t( L_  , C   , T , obj3 , "{\"enumeration\":\"A\"}"             );
+        t( L_  , C   , T , obj4 , "{\"sequence\":{\"attribute\":0}}"    );
+        t( L_  , C   , T , obj5 , "{\"simple\":0}"                      );
+
+        t( L_  , P   , F , obj0 , "{\n"
+                                  "    \"charArray\" : \"\"\n"
+                                  "}\n"                                 );
+        t( L_  , P   , F , obj1 , "{\n"
+                                  "    \"choice\" : {\n"
+                                  "        \"selection0\" : 0\n"
+                                  "    }\n"
+                                  "}\n"                                 );
+        t( L_  , P   , F , obj2 , "{\n"
+                                  "    \"customizedType\" : \"\"\n"
+                                  "}\n"                                 );
+        t( L_  , P   , F , obj3 , "{\n"
+                                  "    \"enumeration\" : \"A\"\n"
+                                  "}\n"                                 );
+        t( L_  , P   , F , obj4 , "{\n"
+                                  "    \"sequence\" : {\n"
+                                  "        \"attribute\" : 0\n"
+                                  "    }\n"
+                                  "}\n"                                 );
+        t( L_  , P   , F , obj5 , "{\n"
+                                  "    \"simple\" : 0\n"
+                                  "}\n"                                 );
+
+        t( L_  , P   , T , obj0 , "{\n"
+                                  "    \"charArray\" : \"\"\n"
+                                  "}\n"                                 );
+        t( L_  , P   , T , obj1 , "{\n"
+                                  "    \"choice\" : {\n"
+                                  "        \"selection0\" : 0\n"
+                                  "    }\n"
+                                  "}\n"                                 );
+        t( L_  , P   , T , obj2 , "{\n"
+                                  "    \"customizedType\" : \"\"\n"
+                                  "}\n"                                 );
+        t( L_  , P   , T , obj3 , "{\n"
+                                  "    \"enumeration\" : \"A\"\n"
+                                  "}\n"                                 );
+        t( L_  , P   , T , obj4 , "{\n"
+                                  "    \"sequence\" : {\n"
+                                  "        \"attribute\" : 0\n"
+                                  "    }\n"
+                                  "}\n"                                 );
+        t( L_  , P   , T , obj5 , "{\n"
+                                  "    \"simple\" : 0\n"
+                                  "}\n"                                 );
+
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING FORMATTING OF SEQUENCES WITH EMPTY ELEMENTS
+        //   This case tests that the encoder emits valid JSON when encoding
+        //   sequences having attributes with untagged-empty-sequence type.
+        //
+        // Concerns:
+        //: 1 The encoder emits no tokens for sequence attributes having
+        //:   untagged-empty-sequence type.
+        //
+        // Plan:
+        //: 1 Define 14 types that enumerate the first 14 elements of the
+        //:   depth-ordered enumeration of sequences having attributes of
+        //:   either integer or untagged-empty-sequence type.
+        //:
+        //: 2 Identify the 2 boolean options that affect relevant aspects of
+        //:   the encoding of sequences with untagged-empty-sequence types:
+        //:
+        //:   1 Whether the encoding style is compact or pretty
+        //:
+        //:   2 Whether or not to encode empty values
+        //:
+        //: 3 For each combination of one of the 14 types, a compact or pretty
+        //:   encoding style, and a 'true' or 'false' empty-value encoding
+        //:   setting, perform the following:
+        //:
+        //:   1 Encode a default-initialized object of each type.
+        //:
+        //:   2 Verify that the emitted JSON is valid.
+        //:
+        //:   3 Verify that the emitted JSON is the correct representation of
+        //:     the encoded object.
+        //
+        // Testing:
+        //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING FORMATTING OF SEQUENCES WITH EMPTY ELEMENTS"
+                 << endl
+                 << "==================================================="
+                 << endl;
+
+        const u::AssertEncodedValueIsEqualFunction t;
+
+        static const baljsn::EncodingStyle::Value C =
+            baljsn::EncodingStyle::e_COMPACT;
+        static const baljsn::EncodingStyle::Value P =
+            baljsn::EncodingStyle::e_PRETTY;
+
+        static const bool T = true;
+        static const bool F = false;
+
+        typedef baljsn::EncoderTestSequenceWithUntagged0  T0;
+        typedef baljsn::EncoderTestSequenceWithUntagged1  T1;
+        typedef baljsn::EncoderTestSequenceWithUntagged2  T2;
+        typedef baljsn::EncoderTestSequenceWithUntagged3  T3;
+        typedef baljsn::EncoderTestSequenceWithUntagged4  T4;
+        typedef baljsn::EncoderTestSequenceWithUntagged5  T5;
+        typedef baljsn::EncoderTestSequenceWithUntagged6  T6;
+        typedef baljsn::EncoderTestSequenceWithUntagged7  T7;
+        typedef baljsn::EncoderTestSequenceWithUntagged8  T8;
+        typedef baljsn::EncoderTestSequenceWithUntagged9  T9;
+        typedef baljsn::EncoderTestSequenceWithUntagged10 T10;
+        typedef baljsn::EncoderTestSequenceWithUntagged11 T11;
+        typedef baljsn::EncoderTestSequenceWithUntagged12 T12;
+        typedef baljsn::EncoderTestSequenceWithUntagged13 T13;
+        typedef baljsn::EncoderTestSequenceWithUntagged14 T14;
+
+        const T0  obj0;
+        const T1  obj1;
+        const T2  obj2;
+        const T3  obj3;
+        const T4  obj4;
+        const T5  obj5;
+        const T6  obj6;
+        const T7  obj7;
+        const T8  obj8;
+        const T9  obj9;
+        const T10 obj10;
+        const T11 obj11;
+        const T12 obj12;
+        const T13 obj13;
+        const T14 obj14;
+
+        //               ENCODE EMPTIES
+        //              .--------------
+        // LINE STYLE  /  OBJECT EXPECTED RESULT
+        // ---- ----- --- ------ ---------------------------------------
+        t( L_  , C   , F , obj0 , "{}"                                  );
+        t( L_  , C   , F , obj1 , "{}"                                  );
+        t( L_  , C   , F , obj2 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , F , obj3 , "{}"                                  );
+        t( L_  , C   , F , obj4 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , F , obj5 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , F , obj6 , "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , F , obj7 , "{}"                                  );
+        t( L_  , C   , F , obj8 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , F , obj9 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , F , obj10, "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , F , obj11, "{\"attribute0\":0}"                  );
+        t( L_  , C   , F , obj12, "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , F , obj13, "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , F , obj14,
+                 "{\"attribute0\":0,\"attribute1\":0,\"attribute2\":0}" );
+
+        t( L_  , C   , T , obj0 , "{}"                                  );
+        t( L_  , C   , T , obj1 , "{}"                                  );
+        t( L_  , C   , T , obj2 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , T , obj3 , "{}"                                  );
+        t( L_  , C   , T , obj4 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , T , obj5 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , T , obj6 , "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , T , obj7 , "{}"                                  );
+        t( L_  , C   , T , obj8 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , T , obj9 , "{\"attribute0\":0}"                  );
+        t( L_  , C   , T , obj10, "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , T , obj11, "{\"attribute0\":0}"                  );
+        t( L_  , C   , T , obj12, "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , T , obj13, "{\"attribute0\":0,\"attribute1\":0}" );
+        t( L_  , C   , T , obj14,
+            "{\"attribute0\":0,\"attribute1\":0,\"attribute2\":0}"      );
+
+        t( L_  , P   , F , obj0 , "{\n\n}\n"                            );
+        t( L_  , P   , F , obj1 , "{\n\n}\n"                            );
+        t( L_  , P   , F , obj2 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj3 , "{\n\n}\n"                            );
+        t( L_  , P   , F , obj4 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj5 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj6 ,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , F , obj7 , "{\n\n}\n"                            );
+        t( L_  , P   , F , obj8 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj9 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj10,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , F , obj11, "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj12,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , F , obj13,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , F , obj14,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0,\n"
+           "    \"attribute2\" : 0\n}\n"                                );
+
+        t( L_  , P   , T , obj0 , "{\n\n}\n"                            );
+        t( L_  , P   , T , obj1 , "{\n\n}\n"                            );
+        t( L_  , P   , T , obj2 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj3 , "{\n\n}\n"                            );
+        t( L_  , P   , T , obj4 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj5 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj6 ,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , T , obj7 , "{\n\n}\n"                            );
+        t( L_  , P   , T , obj8 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj9 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj10,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , T , obj11, "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj12,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , T , obj13,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+        t( L_  , P   , T , obj14,
+           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0,\n"
+           "    \"attribute2\" : 0\n}\n"                                );
+
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TESTING the log buffer clears on each 'encode' call
@@ -29195,7 +30165,7 @@ int main(int argc, char *argv[])
         //:   message if and only if the last operation fails.
         //
         // Testing:
-        //   int encode(bsl::streambuf *streambuf, cnost TYPE& v, options);
+        //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
         // --------------------------------------------------------------------
 
         if (veryVerbose)
@@ -30062,10 +31032,8 @@ int main(int argc, char *argv[])
         {
             const balb::VoidSequence X;
 
-            Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), Options());
-            ASSERTV(0 == impl.encode(X, 0));
+            ASSERTV(0 == ImplUtil::encode(&oss, X));
 
             bsl::string result = oss.str();
             ASSERTV(result, result == "{}");
@@ -30080,10 +31048,8 @@ int main(int argc, char *argv[])
                                  -720);
 
             {
-                Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 const char *EXP =
                     "{"
@@ -30101,19 +31067,16 @@ int main(int argc, char *argv[])
                 // 'element4' is an unselected Choice.  Ensure encode sequence
                 // propagate errors.
 
-                Obj  encoder;
+                bsl::ostringstream lss;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 != impl.encode(X, 0));
-                ASSERTV("" != encoder.loggedMessages());
+                ASSERTV(0 != ImplUtil::encode(&lss, &oss, X));
+                ASSERTV("" != lss.str());
             }
 
             mX.element4().value().makeSelection1(99);
             {
-                Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
                 const char *EXP =
                     "{"
                         "\"element1\":\"Hello\","
@@ -30174,19 +31137,16 @@ int main(int argc, char *argv[])
             {
                 // Test that it fails without selection.
 
-                Obj  encoder;
+                bsl::ostringstream lss;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 != impl.encode(X, 0));
-                ASSERTV("" != encoder.loggedMessages());
+                ASSERTV(0 != ImplUtil::encode(&lss, &oss, X));
+                ASSERTV("" != lss.str());
             }
             {
                 mX.makeSelection1(true);
 
-                Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 bsl::string result = oss.str();
                 ASSERTV(result, result == "{\"selection1\":true}");
@@ -30194,10 +31154,8 @@ int main(int argc, char *argv[])
             {
                 mX.makeSelection2("A quick brown fox");
 
-                Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 bsl::string result = oss.str();
                 ASSERTV(result,
@@ -30206,19 +31164,16 @@ int main(int argc, char *argv[])
             {
                 mX.makeSelection3();
 
-                Obj  encoder;
+                bsl::ostringstream lss;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 != impl.encode(X, 0));
-                ASSERTV("" != encoder.loggedMessages());
+                ASSERTV(0 != ImplUtil::encode(&lss, &oss, X));
+                ASSERTV("" != lss.str());
             }
             {
                 mX.selection3().makeSelection1(42);
 
-                Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 bsl::string result = oss.str();
                 ASSERTV(result,
@@ -30262,10 +31217,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(X); P(EXP); }
 
-                Obj encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), options);
-                ASSERTV(LINE, 0 == impl.encode(X, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, X, options));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -30308,10 +31261,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(X); P(EXP); }
 
-                Obj encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), options);
-                ASSERTV(LINE, 0 == impl.encode(X, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, X, options));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -30387,10 +31338,8 @@ int main(int argc, char *argv[])
                 const bsl::vector<char> VALUE(INPUT, INPUT + LENGTH);
 
                 {
-                    Obj  encoder;
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), Options());
-                    ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+                    ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
 
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
@@ -30400,10 +31349,8 @@ int main(int argc, char *argv[])
                     Options options;
                     options.setEncodeEmptyArrays(true);
 
-                    Obj  encoder;
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), options);
-                    ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+                    ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE, options));
 
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
@@ -30522,10 +31469,8 @@ int main(int argc, char *argv[])
                 options.setSpacesPerLevel(SPL);
                 options.setEncodeEmptyArrays(EEA);
 
-                Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), options);
-                ASSERTV(LINE, 0 == impl.encode(value, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, value, options));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -30983,11 +31928,9 @@ int main(int argc, char *argv[])
             bdlb::NullableValue<int> mX;
             const bdlb::NullableValue<int>& X = mX;
 
-            Obj  encoder;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 bsl::string result = oss.str();
                 ASSERTV(result, result == "null");
@@ -30996,8 +31939,7 @@ int main(int argc, char *argv[])
             mX = 0;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 bsl::string result = oss.str();
                 ASSERTV(result, result == "0");
@@ -31006,8 +31948,7 @@ int main(int argc, char *argv[])
             mX = 42;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 bsl::string result = oss.str();
                 ASSERTV(result, result == "42");
@@ -31016,8 +31957,7 @@ int main(int argc, char *argv[])
             mX.reset();
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(0 == impl.encode(X, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, X));
 
                 bsl::string result = oss.str();
                 ASSERTV(result, result == "null");
@@ -31057,10 +31997,8 @@ int main(int argc, char *argv[])
             exp += balb::Enumerated::toString(X);
             exp += '\"';
 
-            Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), Options());
-            ASSERTV(ti, 0 == impl.encode(X, 0));
+            ASSERTV(ti, 0 == ImplUtil::encode(&oss, X));
 
             bsl::string result = oss.str();
             ASSERTV(ti, result, exp, result == exp);
@@ -31218,11 +32156,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Encode Date" << endl;
             {
                 const char *EXP = expectedDate[ti];
-                Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(theDate, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, theDate));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31231,11 +32167,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Encode DateTz" << endl;
             {
                 const char *EXP = expectedDateTz[ti];
-                Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(theDateTz, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, theDateTz));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31244,11 +32178,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Encode Time" << endl;
             {
                 const char *EXP = expectedTime[ti];
-                Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(theTime, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, theTime));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31257,11 +32189,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Encode TimeTz" << endl;
             {
                 const char *EXP = expectedTimeTz[ti];
-                Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(theTimeTz, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, theTimeTz));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31270,11 +32200,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Encode Datetime" << endl;
             {
                 const char *EXP = expectedDatetime[ti];
-                Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(theDatetime, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, theDatetime));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31283,11 +32211,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Encode DatetimeTz" << endl;
             {
                 const char *EXP = expectedDatetimeTz[ti];
-                Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(theDatetimeTz, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, theDatetimeTz));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31309,11 +32235,9 @@ int main(int argc, char *argv[])
             for (int pi = 0; pi <= 6; ++pi) {
                 const char *EXP = expectedDatetime[pi];
                 bsl::ostringstream oss;
-                Obj  encoder;
                 Options opt;
                 opt.setDatetimeFractionalSecondPrecision(pi);
-                Impl impl(&encoder, oss.rdbuf(), opt);
-                ASSERTV(0 == impl.encode(theDatetime, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, theDatetime, opt));
                 bsl::string result = oss.str();
                 ASSERTV(pi, result, EXP, result == EXP);
             }
@@ -31335,11 +32259,9 @@ int main(int argc, char *argv[])
             for (int pi = 0; pi <= 6; ++pi) {
                 const char *EXP = expectedDatetimeTz[pi];
                 bsl::ostringstream oss;
-                Obj  encoder;
                 Options opt;
                 opt.setDatetimeFractionalSecondPrecision(pi);
-                Impl impl(&encoder, oss.rdbuf(), opt);
-                ASSERTV(0 == impl.encode(theDatetimeTz, 0));
+                ASSERTV(0 == ImplUtil::encode(&oss, theDatetimeTz, opt));
                 bsl::string result = oss.str();
                 ASSERTV(pi, result, EXP, result == EXP);
             }
@@ -31402,10 +32324,8 @@ int main(int argc, char *argv[])
                 const double      VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
 
-                Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31414,25 +32334,24 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Encode invalid double" << endl;
         {
-            Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), Options());
+
+            oss.clear();
+            ASSERTV(0 != ImplUtil::encode(
+                             &oss, bsl::numeric_limits<double>::infinity()));
+
+            oss.clear();
+            ASSERTV(0 != ImplUtil::encode(
+                             &oss, bsl::numeric_limits<double>::infinity()));
+
+            oss.clear();
+            ASSERTV(0 != ImplUtil::encode(
+                             &oss, bsl::numeric_limits<double>::quiet_NaN()));
 
             oss.clear();
             ASSERTV(0 !=
-                    impl.encode(bsl::numeric_limits<double>::infinity(), 0));
-
-            oss.clear();
-            ASSERTV(0 !=
-                    impl.encode(bsl::numeric_limits<double>::infinity(), 0));
-
-            oss.clear();
-            ASSERTV(0 !=
-                    impl.encode(bsl::numeric_limits<double>::quiet_NaN(), 0));
-
-            oss.clear();
-            ASSERTV(0 !=
-                 impl.encode(bsl::numeric_limits<double>::signaling_NaN(), 0));
+                    ImplUtil::encode(
+                        &oss, bsl::numeric_limits<double>::signaling_NaN()));
         }
 
         if (verbose) cout << "Encode int" << endl;
@@ -31512,11 +32431,9 @@ int main(int argc, char *argv[])
                 const int         LINE  = DATA[ti].d_line;
                 const char        VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
-                Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -31556,13 +32473,11 @@ int main(int argc, char *argv[])
                 const int         LINE  = DATA[ti].d_line;
                 const char *const VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
-                Obj  encoder;
 
                 if (veryVeryVerbose) cout << "Test 'char *'" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), Options());
-                    ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+                    ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
 
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
@@ -31571,8 +32486,8 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test 'string'" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), Options());
-                    ASSERTV(LINE, 0 == impl.encode(bsl::string(VALUE), 0));
+                    ASSERTV(LINE,
+                            0 == ImplUtil::encode(&oss, bsl::string(VALUE)));
 
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
@@ -31581,10 +32496,9 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test Customized" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf(), Options());
                     balb::CustomString str;
                     if (0 == str.fromString(VALUE)) {
-                        ASSERTV(LINE, 0 == impl.encode(str, 0));
+                        ASSERTV(LINE, 0 == ImplUtil::encode(&oss, str));
 
                         bsl::string result = oss.str();
                         ASSERTV(LINE, result, EXP, result == EXP);
@@ -31616,10 +32530,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Encode 'true'" << endl;
         {
-            Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), Options());
-            ASSERTV(0 == impl.encode(true, 0));
+            ASSERTV(0 == ImplUtil::encode(&oss, true));
 
             bsl::string result = oss.str();
             ASSERTV(result, result == "true");
@@ -31627,10 +32539,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Encode 'false'" << endl;
         {
-            Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf(), Options());
-            ASSERTV(0 == impl.encode(false, 0));
+            ASSERTV(0 == ImplUtil::encode(&oss, false));
 
             bsl::string result = oss.str();
             ASSERTV(result, result == "false");
@@ -31733,6 +32643,14 @@ int main(int argc, char *argv[])
                 P(oss.str()); P(bsl::string(jsonTextPretty));
             }
         }
+
+        ese::EmptySequenceExample sequenceExample;
+        sequenceExample.simpleValue() = 1;
+
+        bsl::stringstream ss;
+        encoder.encode(ss, sequenceExample);
+
+        ASSERTV(ss.str(), "{\"simpleValue\":1}" == ss.str());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

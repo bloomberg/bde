@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           elementFormDefault='qualified'
+           targetNamespace='baljsn'>
+
+  <xs:complexType name='EncoderTestAddress'>
+    <xs:sequence>
+      <xs:element name='street' type='xs:string'/>
+      <xs:element name='city'   type='xs:string'/>
+      <xs:element name='state'  type='xs:string'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestEmployee'>
+    <xs:sequence>
+      <xs:element name='name'        type='xs:string'/>
+      <xs:element name='homeAddress' type='EncoderTestAddress'/>
+      <xs:element name='age'         type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+                  <!-- Depth-Ordered Enumeration of Sequences
+                    With Tagged and Untagged Attributes -->
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged0'>
+    <xs:sequence>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged1'>
+    <xs:sequence>
+      <xs:sequence/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged2'>
+    <xs:sequence>
+      <xs:element name='attribute0' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged3'>
+    <xs:sequence>
+      <xs:sequence/>
+      <xs:sequence/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged4'>
+    <xs:sequence>
+      <xs:sequence/>
+      <xs:element name='attribute0' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged5'>
+    <xs:sequence>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:sequence/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged6'>
+    <xs:sequence>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:element name='attribute1' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged7'>
+    <xs:sequence>
+      <xs:sequence/>
+      <xs:sequence/>
+      <xs:sequence/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged8'>
+    <xs:sequence>
+      <xs:sequence/>
+      <xs:sequence/>
+      <xs:element name='attribute0' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged9'>
+    <xs:sequence>
+      <xs:sequence/>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:sequence/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged10'>
+    <xs:sequence>
+      <xs:sequence/>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:element name='attribute1' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged11'>
+    <xs:sequence>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:sequence/>
+      <xs:sequence/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged12'>
+    <xs:sequence>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:sequence/>
+      <xs:element name='attribute1' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged13'>
+    <xs:sequence>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:element name='attribute1' type='xs:int'/>
+      <xs:sequence/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithUntagged14'>
+    <xs:sequence>
+      <xs:element name='attribute0' type='xs:int'/>
+      <xs:element name='attribute1' type='xs:int'/>
+      <xs:element name='attribute2' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+          <!-- A Choice That Has Selections of All Type Categories -->
+
+  <xs:complexType name='EncoderTestChoiceWithAllCategories'>
+    <xs:choice>
+      <!-- Character Array -->
+      <xs:element name='charArray'
+                  type='xs:hexBinary'/>
+
+      <!-- Array -->
+      <!-- Array-typed Selections are not directly supported -->
+      <!--
+      <xs:element name='array'
+                  type='xs:int'
+                  maxOccurs='unbounded'/>
+      -->
+
+      <!-- Choice -->
+      <xs:element name='choice'
+                  type='EncoderTestChoiceWithAllCategoriesChoice'/>
+
+      <!-- Customized Type -->
+      <xs:element name='customizedType'
+                  type='EncoderTestChoiceWithAllCategoriesCustomizedType'/>
+
+      <!-- Enumeration -->
+      <xs:element name='enumeration'
+                  type='EncoderTestChoiceWithAllCategoriesEnumeration'/>
+
+      <!-- NullableValue -->
+      <!-- NullableValue-typed Selections are not directly supported -->
+      <!--
+      <xs:element name='nullableValue'
+                  type='xs:int'
+                  minOccurs='0'
+                  maxOccurs='1'/>
+      -->
+
+      <!-- Sequence -->
+      <xs:element name='sequence'
+                  type='xs:EncoderTestChoiceWithAllCategoriesSequence'/>
+
+      <!-- Simple -->
+      <xs:element name='simple'
+                  type='xs:int'/>
+
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestChoiceWithAllCategoriesChoice'>
+    <xs:choice>
+      <xs:element name='selection0' type='xs:int'/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:simpleType name='EncoderTestChoiceWithAllCategoriesCustomizedType'>
+    <xs:restriction base='xs:string'>
+      <xs:maxLength value='10'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name='EncoderTestChoiceWithAllCategoriesEnumeration'
+                 bdem:preserveEnumOrder='1'>
+    <xs:restriction base='xs:string'>
+      <xs:enumeration value='A'/>
+      <xs:enumeration value='B'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name='EncoderTestChoiceWithAllCategoriesSequence'>
+    <xs:sequence>
+      <xs:element name='attribute' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+         <!-- A Sequence That Has Attributes of All Type Categories -->
+
+  <xs:complexType name='EncoderTestSequenceWithAllCategories'>
+    <xs:sequence>
+      <!-- Character Array -->
+      <xs:element name='charArray'
+                  type='xs:hexBinary'/>
+
+      <!-- Array -->
+      <xs:element name='array'
+                  type='xs:int'
+                  maxOccurs='unbounded'/>
+
+      <!-- Choice -->
+      <xs:element name='choice'
+                  type='EncoderTestSequenceWithAllCategoriesChoice'/>
+
+      <!-- Customized Type -->
+      <xs:element name='customizedType'
+                  type='EncoderTestSequenceWithAllCategoriesCustomizedType'/>
+
+      <!-- Enumeration -->
+      <xs:element name='enumeration'
+                  type='EncoderTestSequenceWithAllCategoriesEnumeration'/>
+
+      <!-- NullableValue -->
+      <xs:element name='nullableValue'
+                  type='xs:int'
+                  minOccurs='0'
+                  maxOccurs='1'/>
+
+      <!-- Sequence -->
+      <xs:element name='sequence'
+                  type='xs:EncoderTestSequenceWithAllCategoriesSequence'/>
+
+      <!-- Simple -->
+      <xs:element name='simple'
+                  type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='EncoderTestSequenceWithAllCategoriesChoice'>
+    <xs:choice>
+      <xs:element name='selection0' type='xs:int'/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:simpleType name='EncoderTestSequenceWithAllCategoriesCustomizedType'>
+    <xs:restriction base='xs:string'>
+      <xs:maxLength value='10'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name='EncoderTestSequenceWithAllCategoriesEnumeration'
+                 bdem:preserveEnumOrder='1'>
+    <xs:restriction base='xs:string'>
+      <xs:enumeration value='A'/>
+      <xs:enumeration value='B'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name='EncoderTestSequenceWithAllCategoriesSequence'>
+    <xs:sequence>
+      <xs:element name='attribute' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+                          <!-- Degenerate Choices -->
+
+  <!-- The following is unsupported -->
+  <!--
+  <xs:complexType name='EncoderTestDegenerateChoice0'>
+    <xs:choice>
+      <xs:choice/>
+    </xs:choice>
+  </xs:complexType>
+  -->
+
+  <xs:complexType name='EncoderTestDegenerateChoice1'>
+    <xs:choice>
+      <xs:sequence/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

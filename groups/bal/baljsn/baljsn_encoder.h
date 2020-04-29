@@ -147,6 +147,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_print.h>
 
+#include <bdlsb_memoutstreambuf.h>
+
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
@@ -177,13 +179,9 @@ class Encoder {
     // DATA
     bsl::ostringstream d_logStream;  // stream used for logging
 
-    // FRIENDS
-    friend class Encoder_EncodeImpl;
-
     // NOT IMPLEMENTED
     Encoder(const Encoder&);
 
-  private:
     // PRIVATE MANIPULATORS
     bsl::ostream& logStream();
         // Return the stream for logging.
@@ -258,253 +256,1165 @@ class Encoder {
         // log is reset each time 'encode' is called.
 };
 
-                          // ========================
-                          // class Encoder_EncodeImpl
-                          // ========================
+                        // =============================
+                        // struct Encoder_EncodeImplUtil
+                        // =============================
 
-class Encoder_EncodeImpl {
-    // This class implements the parameterized 'encode' functions that encode
-    // 'bdlat' types in the JSON format.  This is a component-private class and
-    // should not be used outside of this component.
+struct Encoder_EncodeImplUtil {
+    // This component-private utility 'struct' provides a suite of functions
+    // that encode 'bdlat' types in the JSON format.
+
+    // TYPES
+    typedef Encoder_EncodeImplUtil ThisUtil;
+        // 'ThisUtil' is a convenience alias for this utility 'struct'.
+
+    typedef int FormattingMode;
+        // 'FormattingMode' is an alias to the type of an 'int'-valued
+        // 'bdlat_FormattingMode' bit-field.  A 'FormattingMode' value is not
+        // valid unless it is equal to an enumerator of 'bdlat_FormattingMode'
+        // or a valid bitwise-or of two or more such enumerators.  See the
+        // component-level documentation of {'bdlat_formattingmode'} for a
+        // description of the set of valid formatting-mode values.
+
+    // CLASS METHODS
+
+                              // Document Encoding
+
+    static void openDocument(bsl::ostream          *outputStream,
+                             const EncoderOptions&  options);
+        // Print the sequence of characters that designate the start of a JSON
+        // document to the specified 'outputStream' according to the specified
+        // encoding 'options'.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the start of a JSON document.
+
+    static void closeDocument(bsl::ostream          *outputStream,
+                              const EncoderOptions&  options);
+        // Print the sequence of characters that designate the end of a JSON
+        // document to the specified 'outputStream' according to the specified
+        // encoding 'options'.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the end of a JSON document.
+
+                               // Value Encoding
+
+    template <class TYPE>
+    static int encode(bsl::ostream          *jsonStream,
+                      const TYPE&            value,
+                      const EncoderOptions&  options = EncoderOptions());
+        // Encode the JSON representation of the specified 'value' to the
+        // specified 'jsonStream'.  Optionally specify 'options' to configure
+        // aspects of the JSON representation of the 'value'.  If 'options' is
+        // not specified, the default 'EncoderOptions' value is used.  Return 0
+        // on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless the specified 'TYPE' satisfies both the static and
+        // dynamic requirements of one 'bdlat' type-category concept.  See the
+        // component-level documentation of {'baljsn_encoderoptions'} for a
+        // description of the effects, if any, of each option in the 'options'
+        // on the JSON representation of the 'value'.  See the package-level
+        // documentation of {'bdlat'} for a description of the available
+        // type-category concepts.
+
+    template <class TYPE>
+    static int encode(
+                     bsl::ostream          *logStream,
+                     bsl::ostream          *jsonStream,
+                     const TYPE&            value,
+                     const EncoderOptions&  options = EncoderOptions());
+        // Encode the JSON representation of the specified 'value' to the
+        // specified 'jsonStream'.  If this operation is not successful, load
+        // an unspecified, human-readable description of the error condition to
+        // the specified 'logStream'.  Optionally specify 'options' to
+        // configure aspects of the JSON representation of the 'value'.  If
+        // 'options' is not specified, the default 'EncoderOptions' value is
+        // used.  Return 0 on success, and a non-zero value otherwise.  The
+        // behavior is undefined unless the specified 'TYPE' satisfies both the
+        // static and dynamic requirements of one 'bdlat' type-category
+        // concept.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'value'.  See the package-level documentation of {'bdlat'} for an
+        // introduction to the requirements of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int encode(bool                  *valueIsEmpty,
+                      Formatter             *formatter,
+                      bsl::ostream          *logStream,
+                      const TYPE&            value,
+                      FormattingMode         formattingMode,
+                      const EncoderOptions&  options,
+                      bool                   isFirstMember);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter', according to the specified
+        // 'formattingMode'.  If the representation contains no text, load the
+        // value 'true' into 'valueIsEmpty' and the value 'false' otherwise.
+        // If the specified 'isFirstMember' option is 'true', then the
+        // representation of the value contains no leading sequence delimiter,
+        // and does contain such a delimiter if the remaining representation is
+        // non-empty otherwise.  Use the specified 'options' to configure
+        // aspects of the JSON representation of the 'value'.  If this
+        // operation is not successful, load an unspecified, human-readable
+        // description of the error condition to the specified 'logStream'.
+        // Return 0 on success, and a non-zero value otherwise.  The behavior
+        // is undefined unless the specified 'TYPE' satisfies both the static
+        // and dynamic requirements of one of the 'bdlat' type-category
+        // concepts.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'value'.  See the package-level documentation of {'bdlat'} for an
+        // introduction to the requirements of 'bdlat' type-category concepts.
+
+                                 // Validation
+
+    template <class TYPE>
+    static int validate(bsl::ostream               *logStream,
+                        const TYPE&                 value,
+                        bdlat_TypeCategory::Choice  category);
+    template <class TYPE, class CATEGORY>
+    static int validate(bsl::ostream *logStream,
+                        const TYPE&   value,
+                        CATEGORY      category);
+        // Determine if the specified 'value' having the specified 'bdlat'
+        // 'category' satisfies the requirements for encoding using this
+        // component.  If the 'value' meets the encoding requirements, return
+        // 0, otherwise load an unspecified, human-readable description of the
+        // requirements that are not satisfied by the 'value' and return a
+        // non-zero value.  For values satisfying the 'bdlat' 'Choice'
+        // type-category concept, the value of the  'selectionId' attribute
+        // must not be undefined.  For values satisfying the requirements of
+        // other 'bdlat' type-category concepts, there are no further
+        // requirements for encoding using this component.  See the
+        // package-level documentation of {'bdlat'} for an introduction to the
+        // requirements of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int validateChoice(bsl::ostream *logStream, const TYPE& value);
+        // Determine if the specified 'value' satisfies the requirements for
+        // encoding using this component.  If the 'value' meets the encoding
+        // requirements, return 0, otherwise load an unspecified,
+        // human-readable description of the requirements that are not
+        // satisfied by the 'value' to the specified 'logStream' and return a
+        // non-zero value.  The 'value' is required to not have an undefined
+        // 'selectionId'.
+
+             // Encoding Values That Have Specific Type Categories
+
+    static int encodeCharArray(Formatter                *formatter,
+                               const bsl::vector<char>&  value,
+                               const EncoderOptions&     options);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter'.  Use the specified 'options' to
+        // configure aspects of the JSON representation of the 'value'.  Return
+        // 0 on success, and a non-zero value otherwise.
+
+    template <class TYPE>
+    static int encodeArray(bool                  *valueIsEmpty,
+                           Formatter             *formatter,
+                           bsl::ostream          *logStream,
+                           const TYPE&            value,
+                           const EncoderOptions&  options);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter'.  If the representation contains no text,
+        // load the value 'true' into 'valueIsEmpty' and the value 'false'
+        // otherwise.  Use the specified 'options' to configure aspects of the
+        // JSON representation of the 'value'.  If this operation is not
+        // successful, load an unspecified, human-readable description of the
+        // error condition to the specified 'logStream'.  Return 0 on success,
+        // and a non-zero value otherwise.  The behavior is undefined unless
+        // the specified 'TYPE' satisfies both the static and dynamic
+        // requirements of the 'Array' 'bdlat' type-category concept.  See the
+        // component-level documentation of {'baljsn_encoderoptions'} for a
+        // description of the effects, if any, of each option in the 'options'
+        // on the JSON representation of the 'value'.  See the package-level
+        // documentation of {'bdlat'} for an introduction to the requirements
+        // of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int encodeChoice(bool                  *valueIsEmpty,
+                            Formatter             *formatter,
+                            bsl::ostream          *logStream,
+                            const TYPE&            value,
+                            FormattingMode         formattingMode,
+                            const EncoderOptions&  options,
+                            bool                   isFirstMember);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter', according to the specified
+        // 'formattingMode' .  If the representation contains no text, load the
+        // value 'true' into 'valueIsEmpty' and the value 'false' otherwise.
+        // If the specified 'isFirstMember' option is 'true', then the
+        // representation of the value contains no leading sequence delimiter,
+        // and does contain such a delimiter otherwise.  Use the specified
+        // 'options' to configure aspects of the JSON representation of the
+        // 'value'.  If this operation is not successful, load an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'logStream'.  Return 0 on success, and a non-zero value otherwise.
+        // The behavior is undefined unless the specified 'TYPE' satisfies both
+        // the static and dynamic requirements of the 'Choice' 'bdlat'
+        // type-category concept.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'value'.  See the package-level documentation of {'bdlat'} for an
+        // introduction to the requirements of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int encodeCustomizedType(bool                  *valueIsEmpty,
+                                    Formatter             *formatter,
+                                    bsl::ostream          *logStream,
+                                    const TYPE&            value,
+                                    FormattingMode         formattingMode,
+                                    const EncoderOptions&  options,
+                                    bool                   isFirstMember);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter', according to the specified
+        // 'formattingMode' .  If the representation contains no text, load the
+        // value 'true' into 'valueIsEmpty' and the value 'false' otherwise.
+        // If the specified 'isFirstMember' option is 'true', then the
+        // representation of the value contains no leading sequence delimiter,
+        // and does contain such a delimiter otherwise.  Use the specified
+        // 'options' to configure aspects of the JSON representation of the
+        // 'value'.  If this operation is not successful, load an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'logStream'.  Return 0 on success, and a non-zero value otherwise.
+        // The behavior is undefined unless the specified 'TYPE' satisfies both
+        // the static and dynamic requirements of the 'CustomizedType' 'bdlat'
+        // type-category concept.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'value'.  See the package-level documentation of {'bdlat'} for an
+        // introduction to the requirements of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int encodeEnumeration(Formatter             *formatter,
+                                 const TYPE&            value,
+                                 const EncoderOptions&  options);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter'.  Use the specified 'options' to
+        // configure aspects of the JSON representation of the 'value'.  Return
+        // 0 on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless the specified 'TYPE' satisfies both the static and
+        // dynamic requirements of the 'Enumeration' 'bdlat' type-category
+        // concept.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'value'.  See the package-level documentation of {'bdlat'} for an
+        // introduction to the requirements of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int encodeNullableValue(bool                  *valueIsEmpty,
+                                   Formatter             *formatter,
+                                   bsl::ostream          *logStream,
+                                   const TYPE&            value,
+                                   FormattingMode         formattingMode,
+                                   const EncoderOptions&  options,
+                                   bool                   isFirstMember);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter', according to the specified
+        // 'formattingMode'.  If the representation contains no text, load the
+        // value 'true' into 'valueIsEmpty' and the value 'false' otherwise.
+        // If the specified 'isFirstMember' option is 'true', then the
+        // representation of the value contains no leading sequence delimiter,
+        // and does contain such a delimiter otherwise.  Use the specified
+        // 'options' to configure aspects of the JSON representation of the
+        // 'value'.  If this operation is not successful, load an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'logStream'.  Return 0 on success, and a non-zero value otherwise.
+        // The behavior is undefined unless the specified 'TYPE' satisfies both
+        // the static and dynamic requirements of the 'NullableValue' 'bdlat'
+        // type-category concept.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'value'.  See the package-level documentation of {'bdlat'} for an
+        // introduction to the requirements of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int encodeSequence(bool                  *valueIsEmpty,
+                              Formatter             *formatter,
+                              bsl::ostream          *logStream,
+                              const TYPE&            value,
+                              FormattingMode         formattingMode,
+                              const EncoderOptions&  options,
+                              bool                   isFirstMember);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter', according to the specified
+        // 'formattingMode'.  If the representation contains no text, load the
+        // value 'true' into 'valueIsEmpty' and the value 'false' otherwise.
+        // If the specified 'isFirstMember' option is 'true', then the
+        // representation of the value contains no leading sequence delimiter,
+        // and does contain such a delimiter otherwise.  Use the specified
+        // 'options' to configure aspects of the JSON representation of the
+        // 'value'.  If this operation is not successful, load an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'logStream'.  Return 0 on success, and a non-zero value otherwise.
+        // The behavior is undefined unless the specified 'TYPE' satisfies both
+        // the static and dynamic requirements of the 'Sequence' 'bdlat'
+        // type-category concept.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'value'.  See the package-level documentation of {'bdlat'} for an
+        // introduction to the requirements of 'bdlat' type-category concepts.
+
+    template <class TYPE>
+    static int encodeSimpleValue(Formatter             *formatter,
+                                 const TYPE&            value,
+                                 const EncoderOptions&  options);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter'.  Use the specified 'options' to
+        // configure aspects of the JSON representation of the 'value'.  Return
+        // 0 on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless the specified 'TYPE' satisfies both the static and
+        // dynamic requirements of the 'Simple' 'bdlat' type-category concept.
+        // See the component-level documentation of {'baljsn_encoderoptions'}
+        // for a description of the effects, if any, of each option in the
+        // 'options' on the JSON representation of the 'value'.  See the
+        // package-level documentation of {'bdlat'} for an introduction to the
+        // requirements of 'bdlat' type-category concepts.
+
+                    // Encoding Value Prefixes and Suffixes
+
+    static void encodeObjectPrefix(bool           *prefixIsEmpty,
+                                   Formatter      *formatter,
+                                   FormattingMode  formattingMode);
+        // If the specified 'formattingMode' does not have the
+        // 'bdlat_FormattingMode::e_UNTAGGED' bit set, encode a "left brace"
+        // JSON token to the specified 'formatter', and encoding nothing to the
+        // 'formatter' otherwise.  If this operation encodes a token to the
+        // formatter, load the value 'false' to the specified 'prefixIsEmpty',
+        // and the value 'true' otherwise.
+
+    static void encodeObjectSuffix(bool           *suffixIsEmpty,
+                                   Formatter      *formatter,
+                                   FormattingMode  formattingMode);
+        // If the specified 'formattingMode' does not have the
+        // 'bdlat_FormattingMode::e_UNTAGGED' bit set, encode a "right brace"
+        // JSON token to the specified 'formatter', and encoding nothing to the
+        // 'formatter' otherwise.  If this operation encodes a token to the
+        // 'formatter', load the value 'false' to the specified
+        // 'suffixIsEmpty', and the value 'true' otherwise.
+
+                  // Encoding Arrays That Have Specific Shapes
+
+    static void encodeEmptyArray(Formatter *formatter);
+        // Encode the representation of the empty-array JSON value to the
+        // specified 'formatter'.
+
+    template <class TYPE>
+    static int encodeNonEmptyArray(Formatter             *formatter,
+                                   bsl::ostream          *logStream,
+                                   const TYPE&            value,
+                                   const EncoderOptions&  options);
+        // Encode the JSON representation of the specified 'value' to the
+        // specified JSON 'formatter'.  Use the specified 'options' to
+        // configure aspects of the JSON representation of the 'value'.  If
+        // this operation is not successful, load an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'logStream'.  Return 0 on success, and a non-zero value otherwise.
+        // The behavior is undefined unless the 'value' is non-empty and the
+        // specified 'TYPE' satisfies both the static and dynamic requirements
+        // of the 'Array' 'bdlat' type-category concept.  See the
+        // component-level documentation of {'baljsn_encoderoptions'} for a
+        // description of the effects, if any, of each option in the 'options'
+        // on the JSON representation of the 'selection'.  See the
+        // package-level documentation of {'bdlat'} for an introduction to the
+        // requirements of 'bdlat' type-category concepts.
+
+                        // Encoding Generalized Members
+
+    static int encodeMember(bool                      *memberIsEmpty,
+                            Formatter                 *formatter,
+                            bsl::ostream              *logStream,
+                            const bslstl::StringRef&   memberName,
+                            const bsl::vector<char>&   member,
+                            FormattingMode             formattingMode,
+                            const EncoderOptions&      options,
+                            bool                       isFirstMember,
+                            bdlat_TypeCategory::Array  category);
+    template <class TYPE>
+    static int encodeMember(bool                      *memberIsEmpty,
+                            Formatter                 *formatter,
+                            bsl::ostream              *logStream,
+                            const bslstl::StringRef&   memberName,
+                            const TYPE&                member,
+                            FormattingMode             formattingMode,
+                            const EncoderOptions&      options,
+                            bool                       isFirstMember,
+                            bdlat_TypeCategory::Array  category);
+    template <class TYPE, class OTHER_CATEGORY>
+    static int encodeMember(bool                     *memberIsEmpty,
+                            Formatter                *formatter,
+                            bsl::ostream             *logStream,
+                            const bslstl::StringRef&  memberName,
+                            const TYPE&               member,
+                            FormattingMode            formattingMode,
+                            const EncoderOptions&     options,
+                            bool                      isFirstMember,
+                            OTHER_CATEGORY            category);
+        // Encode the JSON representation of the specified object 'member'
+        // having the specified 'memberName' to the specified JSON 'formatter',
+        // according to the specified 'formattingMode'.  If the representation
+        // contains no text, load the value 'true' to 'memberIsEmpty' and the
+        // value 'false' otherwise.  If the specified 'isFirstMember' option is
+        // 'true', then the representation of the member contains no leading
+        // sequence delimiter, and does contain such a delimiter otherwise.
+        // Use the specified 'options' to configure aspects of the JSON
+        // representation of the 'member'.  If this operation is not
+        // successful, load an unspecified, human-readable description of the
+        // error condition to the specified 'logStream'.  Return 0 on success,
+        // and a non-zero value otherwise.  The behavior is undefined unless
+        // the specified 'TYPE' satisfies both the static and dynamic
+        // requirements of the specified 'category' 'bdlat' type-category
+        // concept.  See the component-level documentation of
+        // {'baljsn_encoderoptions'} for a description of the effects, if any,
+        // of each option in the 'options' on the JSON representation of the
+        // 'selection'.  See the package-level documentation of {'bdlat'} for
+        // an introduction to the requirements of 'bdlat' type-category
+        // concepts.
+
+    static int encodeMemberPrefix(Formatter                *formatter,
+                                  bsl::ostream             *logStream,
+                                  const bslstl::StringRef&  memberName,
+                                  bool                      isFirstMember);
+    static int encodeMemberPrefix(Formatter                *formatter,
+                                  bsl::ostream             *logStream,
+                                  const bslstl::StringRef&  memberName,
+                                  FormattingMode            formattingMode,
+                                  bool                      isFirstMember);
+    static int encodeMemberPrefix(bool                     *prefixIsEmpty,
+                                  Formatter                *formatter,
+                                  bsl::ostream             *logStream,
+                                  const bslstl::StringRef&  memberName,
+                                  FormattingMode            formattingMode,
+                                  bool                      isFirstMember);
+        // If the specified 'isFirstMember' flag is 'false', encode a "comma"
+        // JSON token to the specified 'formatter', and do not encode a "comma"
+        // JSON token otherwise.  If the specified 'formattingMode' does not
+        // have the 'bdlat_FormattingMode::e_UNTAGGED' bit set, encode a JSON
+        // "string" token having the specified 'memberName' contents, and
+        // encode a JSON "colon" token after the string, and do not encode
+        // these tokens otherwise.  If this operation is not successful, load
+        // an unspecified, human-readable description of the error condition to
+        // the specified 'logStream'.  Optionally specify 'prefixIsEmpty'.  If
+        // this operation encodes a token to the formatter, load the value
+        // 'false' to 'prefixIsEmpty' if specified, and the value 'true'
+        // otherwise.  Return 0 on success, and a non-zero value otherwise.
+
+                             // Encoding Selections
+
+    template <class TYPE>
+    static int encodeSelection(bool                     *selectionIsEmpty,
+                               Formatter                *formatter,
+                               bsl::ostream             *logStream,
+                               const bslstl::StringRef&  selectionName,
+                               const TYPE&               selection,
+                               FormattingMode            formattingMode,
+                               const EncoderOptions&     options,
+                               bool                      isFirstMember);
+    template <class TYPE>
+    static int encodeSelection(
+                          bool                               *selectionIsEmpty,
+                          Formatter                          *formatter,
+                          bsl::ostream                       *logStream,
+                          const bslstl::StringRef&            selectionName,
+                          const TYPE&                         selection,
+                          FormattingMode                      formattingMode,
+                          const EncoderOptions&               options,
+                          bool                                isFirstMember,
+                          bdlat_TypeCategory::CustomizedType  category);
+    template <class TYPE, class OTHER_CATEGORY>
+    static int encodeSelection(bool                     *selectionIsEmpty,
+                               Formatter                *formatter,
+                               bsl::ostream             *logStream,
+                               const bslstl::StringRef&  selectionName,
+                               const TYPE&               selection,
+                               FormattingMode            formattingMode,
+                               const EncoderOptions&     options,
+                               bool                      isFirstMember,
+                               OTHER_CATEGORY            category);
+        // Encode the JSON representation of the specified 'selection' having
+        // the specified 'selectionName' to the specified JSON 'formatter',
+        // according to the specified 'formattingMode'.  If the representation
+        // contains no text, load the value 'true' into the specified
+        // 'selectionIsEmpty' flag, and the value 'false' otherwise.  If the
+        // specified 'isFirstMember' option is 'true', then the representation
+        // of the selection contains no leading sequence delimiter, and does
+        // contain such a delimiter otherwise.  Use the specified 'options' to
+        // configure aspects of the JSON representation of the 'selection'.  If
+        // this operation is not successful, load an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'logStream'.  Return 0 on success, and a non-zero value otherwise.
+        // The behavior is undefined unless the 'attribute' satisfies both the
+        // static and dynamic requriements of the 'bdlat' type-category concept
+        // corresponding to the 'category', if specified.  See the
+        // component-level documentation of {'baljsn_encoderoptions'} for a
+        // description of the effects, if any, of each option in the 'options'
+        // on the JSON representation of the 'selection'.  See the
+        // package-level documentation of {'bdlat'} for an introduction to the
+        // requirements of 'bdlat' type-category concepts.
+
+                             // Encoding Attributes
+
+    template <class TYPE>
+    static int encodeAttribute(bool                     *attributeIsEmpty,
+                               Formatter                *formatter,
+                               bsl::ostream             *logStream,
+                               const bslstl::StringRef&  attributeName,
+                               const TYPE&               attribute,
+                               FormattingMode            formattingMode,
+                               const EncoderOptions&     options,
+                               bool                      isFirstElement);
+    static int encodeAttribute(bool                      *attributeIsEmpty,
+                               Formatter                 *formatter,
+                               bsl::ostream              *logStream,
+                               const bslstl::StringRef&   attributeName,
+                               const bsl::vector<char>&   attribute,
+                               FormattingMode             formattingMode,
+                               const EncoderOptions&      options,
+                               bool                       isFirstElement,
+                               bdlat_TypeCategory::Array  category);
+    template <class TYPE>
+    static int encodeAttribute(bool                     *attributeIsEmpty,
+                               Formatter                *formatter,
+                               bsl::ostream             *logStream,
+                               const bslstl::StringRef&  attributeName,
+                               const TYPE&               attribute,
+                               FormattingMode            formattingMode,
+                               const EncoderOptions&     options,
+                               bool                      isFirstElement,
+                               bdlat_TypeCategory::Array category);
+    template <class TYPE>
+    static int encodeAttribute(
+                          bool                               *attributeIsEmpty,
+                          Formatter                          *formatter,
+                          bsl::ostream                       *logStream,
+                          const bslstl::StringRef&            attributeName,
+                          const TYPE&                         attribute,
+                          FormattingMode                      formattingMode,
+                          const EncoderOptions&               options,
+                          bool                                isFirstElement,
+                          bdlat_TypeCategory::CustomizedType  category);
+    template <class TYPE>
+    static int encodeAttribute(
+                           bool                              *attributeIsEmpty,
+                           Formatter                         *formatter,
+                           bsl::ostream                      *logStream,
+                           const bslstl::StringRef&           attributeName,
+                           const TYPE&                        attribute,
+                           FormattingMode                     formattingMode,
+                           const EncoderOptions&              options,
+                           bool                               isFirstElement,
+                           bdlat_TypeCategory::NullableValue  category);
+    template <class TYPE, class OTHER_CATEGORY>
+    static int encodeAttribute(bool                     *attributeIsEmpty,
+                               Formatter                *formatter,
+                               bsl::ostream             *logStream,
+                               const bslstl::StringRef&  attributeName,
+                               const TYPE&               attribute,
+                               FormattingMode            formattingMode,
+                               const EncoderOptions&     options,
+                               bool                      isFirstElement,
+                               OTHER_CATEGORY            category);
+        // Encode the JSON representation of the specified 'attribute' having
+        // the specified 'attributeName' to the specified JSON 'formatter',
+        // according to the specified 'formattingMode'.  If the representation
+        // contains no text, load the value 'true' into the specified
+        // 'attributeIsEmpty' flag and the value 'false' otherwise.  If the
+        // specified 'isFirstMember' option is 'true', then the representation
+        // of the selection contains no leading sequence delimiter, and does
+        // contain such a delimiter otherwise.  Use the specified 'options' to
+        // configure aspects of the JSON representation of the 'selection'.  If
+        // this operation is not successful, load an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'logStream'.  Return 0 on success, and a non-zero value otherwise.
+        // Optionally specify a 'category' 'bdlat' type-category tag.  The
+        // behavior is undefined unless the 'attribute' satisfies both the
+        // static and dynamic requirements of the 'bdlat' type-category concept
+        // corresponding to the 'category', if specified.  See the
+        // component-level documentation of {'baljsn_encoderoptions'} for a
+        // description of the effects, if any, of each option in the 'options'
+        // on the JSON representation of the 'attribute'.  See the
+        // package-level documentation of {'bdlat'} for an introduction to the
+        // requirements of 'bdlat' type-category concepts.
+};
+
+                         // ===========================
+                         // struct Encoder_ValueVisitor
+                         // ===========================
+
+class Encoder_ValueVisitor {
+    // This component-private class provides a function object that closes over
+    // the 'formatter', 'logStream', 'formattingMode', 'options', and
+    // 'isFirstMember' arguments of the 'Encoder_EncodeImplUtil::encodeValue'
+    // function upon construction.  The function-call operator of this class
+    // accepts an object of an arbitrary type that satisfies the requirements
+    // of one of the 'bdlat' value-category concepts, and corresponds to the
+    // 'value' argument of the 'Encoder_EncodeImplUtil::encodeValue' function.
+    // The function-call operator invokes this function with the closed-over
+    // variables and the 'value'.
+    //
+    // Note that objects of this class satisfy the requirements of a 'bdlat'
+    // 'Accessor' function object, and may be arguments to functions that take
+    // such accessors.
+
+    // TYPES
+    typedef int FormattingMode;
+        // 'FormattingMode' is an alias to the type of an 'int'-valued
+        // 'bdlat_FormattingMode' bit-field.  A 'FormattingMode' value is not
+        // valid unless it is equal to an enumerator of 'bdlat_FormattingMode'
+        // or a valid bitwise-or of two or more such enumerators.  See the
+        // component-level documentation of {'bdlat_formattingmode'} for a
+        // description of the set of valid formatting-mode values.
 
     // DATA
-    Encoder              *d_encoder_p;                // encoder (held, !owned)
-    bsl::ostream          d_outputStream;             // stream for output
-    Formatter             d_formatter;                // formatter
-    const EncoderOptions *d_encoderOptions_p;         // encoder options
-    bool                  d_forceEmptyArrayEncoding;  // set to 'true' to force
-                                                      // encoding of Choice
-                                                      // selections that are
-                                                      // empty arrays even if
-                                                      // 'encodeEmptyArrays'
-                                                      // encoder option is
-                                                      // 'false'
+    bool                  d_valueIsEmpty;
+        // 'true' after invocation if the empty string represents the encoded
+        // value
 
-    // FRIENDS
-    friend struct Encoder_DynamicTypeDispatcher;
-    friend struct Encoder_ElementVisitor;
-    friend class Encoder_ChoiceVisitor;
-    friend class Encoder_SequenceVisitor;
+    Formatter            *d_formatter_p;
+        // wrapper around the output stream that determines the whitespace to
+        // emit around each JSON token
 
-  private:
-    // PRIVATE CLASS METHODS
-    template <class TYPE>
-    static bool isEmptyArray(const TYPE&, bslmf::MetaInt<0>);
-    template <class TYPE>
-    static bool isEmptyArray(const TYPE& value, bslmf::MetaInt<1>);
-    template <class TYPE>
-    static bool isEmptyArray(const TYPE& value);
-        // Return 'true' if the specified 'value' represents an empty array,
-        // and 'false' otherwise.
+    bsl::ostream         *d_logStream_p;
+        // human-readable descriptions of all encountered error conditions
 
-    // PRIVATE MANIPULATORS
-    bsl::ostream& logStream();
-        // Return the stream used for logging.
+    FormattingMode        d_formattingMode;
+        // 'bdlat_FormattingMode' value associated with an attribute,
+        // selection, or enumerator, and that controls some aspects of the
+        // token sequence to emit
 
-    int encodeImp(const bsl::vector<char>&  value,
-                  int,
-                  bdlat_TypeCategory::Array);
-    template <class TYPE>
-    int encodeImp(const TYPE& value, int mode, bdlat_TypeCategory::Array);
-    template <class TYPE>
-    int encodeImp(const TYPE& value, int mode, bdlat_TypeCategory::Choice);
-    template <class TYPE>
-    int encodeImp(const TYPE&                        value,
-                  int                                mode,
-                  bdlat_TypeCategory::CustomizedType);
-    template <class TYPE>
-    int encodeImp(const TYPE&                     value,
-                  int                             mode,
-                  bdlat_TypeCategory::DynamicType);
-    template <class TYPE>
-    int encodeImp(const TYPE&                     value,
-                  int                             mode,
-                  bdlat_TypeCategory::Enumeration);
-    template <class TYPE>
-    int encodeImp(const TYPE&                       value,
-                  int                               mode,
-                  bdlat_TypeCategory::NullableValue);
-    template <class TYPE>
-    int encodeImp(const TYPE& value, int mode, bdlat_TypeCategory::Sequence);
-    template <class TYPE>
-    int encodeImp(const TYPE& value, int, bdlat_TypeCategory::Simple);
-        // Encode the specified 'value', of a (template parameter) 'TYPE'
-        // corresponding to the specified 'bdlat' category, into JSON onto the
-        // 'streambuf' supplied at construction, using the specified formatting
-        // 'mode'.  Return 0 on success and a non-zero value otherwise.  The
-        // behavior is undefined unless 'value' corresponds to the specified
-        // 'bdlat' category and 'mode' is a valid formatting mode as specified
-        // in 'bdlat_FormattingMode'.
+    const EncoderOptions *d_options_p;
+        // options set by the caller of the encoding operation that controls
+        // some aspects of the token sequence to emit
+
+    bool                  d_isFirstMember;
+        // flag that indicates if the leading delimiter should be omitted if
+        // 'true', and preserved otherwise
 
   public:
     // CREATORS
-    Encoder_EncodeImpl(Encoder               *encoder,
-                       bsl::streambuf        *streambuf,
-                       const EncoderOptions&  options);
-        // Create a 'Encoder_EncodeImpl' object using the specified 'encoder'
-        // and 'options' and writing the encoded output to the specified
-        // 'streamBuf'.
-
-    //! ~Encoder_EncodeImpl() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    void openDocument();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of the document.
-
-    template <class TYPE>
-    int encode(const TYPE& value, int mode);
-        // Encode the specified 'value' in the JSON format using the specified
-        // formatting 'mode'.  Return 0 on success and a non-zero value
-        // otherwise.
-
-    void closeDocument();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of the document.
-
-    // ACCESSORS
-    const EncoderOptions *encoderOptions() const;
-        // Return a reference to the non-modifiable encoder options currently
-        // being used by this encoder.
-};
-
-                       // =============================
-                       // struct Encoder_ElementVisitor
-                       // =============================
-
-struct Encoder_ElementVisitor {
-    // This class encodes elements in an array or a choice in the JSON format.
-    // This is a component-private class and should not be used outside of this
-    // component.  Note that the operators provided in this 'class' match the
-    // function signatures required of visitors encoding elements of compatible
-    // types.
-
-    // DATA
-    Encoder_EncodeImpl *d_encoder_p;  // encoder (held, not owned)
-    int                 d_mode;       // formatting mode
-
-    // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of this
-    // struct.
+    Encoder_ValueVisitor(Formatter             *formatter,
+                         bsl::ostream          *logStream,
+                         FormattingMode         formattingMode,
+                         const EncoderOptions&  options,
+                         bool                   isFirstMember);
+        // Construct an 'Encoder_ValueVisitor' object having the specified
+        // 'formatter', 'logStream', 'formattingMode', 'options', and
+        // 'isFirstMember' attributes, and having a 'valueIsEmpty' attribute
+        // with the 'false' value.
 
     // MANIPULATORS
     template <class TYPE>
     int operator()(const TYPE& value);
-        // Encode the specified 'value' in the JSON format.  Return 0 on
-        // success and a non-zero value otherwise.
-
-    template <class TYPE, class INFO>
-    int operator()(const TYPE& value, const INFO& info);
-        // Encode the specified 'value' using the specified 'info' in the JSON
-        // format.  Return 0 on success and a non-zero value otherwise.
-};
-
-                       // ===========================
-                       // class Encoder_ChoiceVisitor
-                       // ===========================
-
-class Encoder_ChoiceVisitor {
-    // This functor class is used to sniff whether a choice's selection is an
-    // empty array.  The 'value' argument to 'operator()' is the selection;
-    // that method sets the 'd_isEmptyArrayFlag' flag to 'true' if 'value' is
-    // an empty array, and sets it to 'false' otherwise.  An object of this
-    // class should be passed as an argument to the
-    // 'bdlat_ChoiceFunctions::accessSelection' function.  Note that the
-    // operators provided in this 'class' match the function signatures
-    // required of visitors encoding elements of 'bdlat' choice types.
-
-    // DATA
-    bool d_isEmptyArrayFlag;  // flag indicating whether the selection of a
-                              // visited choice object is an empty array
-
-  public:
-    // CREATORS
-    explicit Encoder_ChoiceVisitor();
-        // Create an 'Encoder_ChoiceVisitor' object.
-
-    // MANIPULATORS
-    template <class TYPE, class INFO>
-    int operator()(const TYPE& value, const INFO&);
-        // Determine if the specified 'value' is an empty array.  Return 0 on
-        // success and a non-zero value otherwise.
+        // Invoke 'Encoder_EncodeImplUtil::encodeValue' with the specified
+        // 'value' and the 'formatter', 'logStream', 'formattingMode',
+        // 'options', and 'isFirstMember' attributes of this object.  If the
+        // JSON representation of the 'value' that results from this invocation
+        // is empty, set the 'valueIsEmpty' attribute of this object to 'true',
+        // and 'false' otherwise.  Return the result of the invocation.
 
     // ACCESSORS
-    bool isEmptyArray() const;
-        // Return the value of the is-empty-array flag.
+    bool valueIsEmpty() const;
+        // Return the value of the 'valueIsEmpty' attribute of this object.
 };
 
-                       // =============================
-                       // class Encoder_SequenceVisitor
-                       // =============================
+                       // ==============================
+                       // struct Encoder_ValueDispatcher
+                       // ==============================
 
-class Encoder_SequenceVisitor {
-    // This functor class encodes element in a sequence.  It should be passed
-    // as an argument to the 'bdlat_SequenceFunctions::accessAttributes'
-    // function.  Note that the operators provided in this 'class' match the
-    // function signatures required of visitors encoding elements of 'bdlat'
-    // sequence types.
+class Encoder_ValueDispatcher {
+    // This component-private class provides a function object that invokes one
+    // of the following "Categorized-Value Encoding" static member functions of
+    // 'Encoder_EncodeImplUtil':
+    //..
+    //  o 'encodeCharArray'
+    //  o 'encodeArray'
+    //  o 'encodeChoice'
+    //  o 'encodeCustomizedType'
+    //  o 'encodeEnumeration'
+    //  o 'encodeNullableValue'
+    //  o 'encodeSequence'
+    //  o 'encodeSimpleValue'
+    //..
+    // This class's constructor closes over the 'formatter', 'logStream',
+    // 'formattingMode', 'options', and 'isFirstMember' arguments shared
+    // between the above seven functions.  The function-call operator of this
+    // class provides an overload set that accepts an object that satisfies one
+    // of the 'bdlat' type-category concepts, and a 'bdlat_TypeCategory' tag
+    // type that corresponds to the object's 'bdlat' type category.  Each
+    // function-call-operator overload invokes its corresponding
+    // "Categorized-Value Encoding" function with the object and the
+    // 'formatter', 'logStream', 'formattingMode', 'options', and
+    // 'isFirstMember' supplied upon construction.
+    //
+    // Note that objects of this class satisfy the requirements of a
+    // function-object argument to the
+    // 'bdlat_TypeCategoryUtil::accessByCategory' function.
+
+    // TYPES
+    typedef int FormattingMode;
+        // 'FormattingMode' is an alias to the type of an 'int'-valued
+        // 'bdlat_FormattingMode' bit-field.  A 'FormattingMode' value is not
+        // valid unless it is equal to an enumerator of 'bdlat_FormattingMode'
+        // or a valid bitwise-or of two or more such enumerators.  See the
+        // component-level documentation of {'bdlat_formattingmode'} for a
+        // description of the set of valid formatting-mode values.
 
     // DATA
-    Encoder_EncodeImpl *d_encoder_p;       // encoder (held, not owned)
+    bool                  d_valueIsEmpty;
+        // 'true' after invocation if the empty string represents the encoded
+        // value
 
-    bool                d_isFirstElement;  // flag indicating if the current
-                                           // element is the first
+    Formatter            *d_formatter_p;
+        // wrapper around the output stream that determines the whitespace to
+        // emit around each JSON token
 
-  private:
-    // PRIVATE MANIPULATORS
-    template <class TYPE>
-    bool skipNullableAttribute(const TYPE&, bslmf::MetaInt<0>);
-    template <class TYPE>
-    bool skipNullableAttribute(const TYPE& value, bslmf::MetaInt<1>);
-    template <class TYPE>
-    bool skipNullableAttribute(const TYPE& value);
-        // Return 'true' if the specified 'value' represents a
-        // 'bdlat_NullableValue' type and should be skipped, and 'false'
-        // otherwise.
+    bsl::ostream         *d_logStream_p;
+        // human-readable descriptions of all encountered error conditions
+
+    int                   d_formattingMode;
+        // 'bdlat_FormattingMode' value associated with an attribute,
+        // selection, or enumerator, and that controls some aspects of the
+        // token sequence to emit
+
+    const EncoderOptions *d_options_p;
+        // options set by the caller of the encoding operation that controls
+        // some aspects of the token sequence to emit
+
+    bool                  d_isFirstMember;
+        // flag that indicates if the leading delimiter should be omitted if
+        // 'true', and preserved otherwise
 
   public:
     // CREATORS
-    explicit Encoder_SequenceVisitor(Encoder_EncodeImpl *encoder);
-        // Create a 'Encoder_SequenceVisitor' object using the specified
-        // 'encoder'.
+    Encoder_ValueDispatcher(Formatter             *formatter,
+                            bsl::ostream          *logStream,
+                            FormattingMode         formattingMode,
+                            const EncoderOptions&  options,
+                            bool                   isFirstMember);
+        // Construct an 'Encoder_ValueDispatcher' object having the specified
+        // 'formatter', 'logStream', 'formattingMode', 'options', and
+        // 'isFirstMember' attributes, and having a 'valueIsEmpty' attribute
+        // with the 'false' value.
+
+    // MANIPULATORS
+    int operator()(const bsl::vector<char>& value, bdlat_TypeCategory::Array);
+        // Invoke 'Encoder_EncodeImplUtil::encodeCharArray' with the specified
+        // 'value', and the 'formatter' and 'options' attributes of this
+        // object.  Load the value 'false' to the 'valueIsEmpty' attribute of
+        // this object.  Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE& value, bdlat_TypeCategory::Array);
+        // Invoke 'Encoder_EncodeImplUtil::encodeArray' with the specified
+        // 'value' and the 'formatter', 'logStream', and 'options' attributes
+        // of this object, as well as the value 'false' for the
+        // 'forceEmptyArrayEncoding' parameter.  If the JSON representation of
+        // the 'value' that results from the invocation is empty, set the
+        // 'valueIsEmpty' attribute of this object to 'true', and 'false'
+        // otherwise.  Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE& value, bdlat_TypeCategory::Choice);
+        // Invoke 'Encoder_EncodeImplUtil::encodeChoice' with the specified
+        // 'value', and the 'formatter', 'logStream', 'formattingMode', and
+        // 'options' attributes of this object.  If the JSON representation of
+        // the 'value' that results from the invocation is empty, set the
+        // 'valueIsEmpty' attribute of this object to 'true', and 'false'
+        // otherwise.  Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE& value, bdlat_TypeCategory::CustomizedType);
+        // Invoke 'Encoder_EncodeImplUtil::encodeCustomizedType' with the
+        // specified 'value', 'formatter', 'logStream', 'formattingMode', and
+        // 'options' attributes of this object.  If the JSON representation of
+        // the 'value' that results from the invocation is empty, set the
+        // 'valueIsEmpty' attribute of this object to 'true', and 'false'
+        // otherwise.  Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE& value, bdlat_TypeCategory::Enumeration);
+        // Invoke 'Encoder_EncodeImplUtil::encodeEnumeration' with the
+        // specified 'value', 'formatter', and 'options' attributes of this
+        // object.  Set the 'valueIsEmpty' attribute of this object to 'false'.
+        // Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE& value, bdlat_TypeCategory::NullableValue);
+        // Invoke 'Encoder_EncodeImplUtil::encodeNullableValue' with the
+        // specified 'value', 'formatter', 'logStream', 'formattingMode', and
+        // 'options' attributes of this object.  If the JSON representation of
+        // the 'value' that results from the invocation is empty, set the
+        // 'valueIsEmpty' attribute of this object to 'true', and 'false'
+        // otherwise.  Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE& value, bdlat_TypeCategory::Sequence);
+        // Invoke 'Encoder_EncodeImplUtil::encodeSequence' with the specified
+        // 'value', 'formatter', 'logStream', 'formattingMode', and 'options'
+        // attributes of this object.  If the JSON representation of
+        // the 'value' that results from the invocation is empty, set the
+        // 'valueIsEmpty' attribute of this object to 'true', and 'false'
+        // otherwise.  Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE& value, bdlat_TypeCategory::Simple);
+        // Invoke 'Encoder_EncodeImplUtil::encodeEnumeration' with the
+        // specified 'value', 'formatter', and 'options' attributes of this
+        // object.  Set the 'valueIsEmpty' attribute of this object to 'false'.
+        // Return the result of the invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE&, bslmf::Nil);
+        // The behavior of this function is undefined.
+
+    // ACCESSORS
+    bool valueIsEmpty() const;
+        // Return the value of the 'valueIsEmpty' attribute of this object.
+};
+
+
+                       // ==============================
+                       // class Encoder_SelectionVisitor
+                       // ==============================
+
+class Encoder_SelectionVisitor {
+    // This component-private class provides a function object that closes
+    // over the 'formatter', 'logStream', 'options', and 'isFirstMember'
+    // arguments of the 'Encoder_EncodeImplUtil::encodeSelection' function
+    // upon construction.  The function-call operator of this class accepts an
+    // object of an arbitrary type that satisfies the requirements of one of
+    // the 'bdlat' value-category concepts, and corresponds to the 'selection'
+    // argument of the 'Encoder_EncodeImplUtil::encodeSelection' function.
+    // The function-call operator invokes this function with the closed-over
+    // variables, the 'selection', and the 'selectionName'.
+    //
+    // Note that objects of this class satisfy the requirements of a
+    // function-object argument to the
+    // 'bdlat_ChoiceFunctions::accessSelection' function.
+
+    // DATA
+    bool                  d_selectionIsEmpty;
+        // 'true' after invocation if the empty string represents the encoded
+        // value
+
+    Formatter            *d_formatter_p;
+        // wrapper around the output stream that determines the whitespace to
+        // emit around each JSON token
+
+    bsl::ostream         *d_logStream_p;
+        // human-readable descriptions of all encountered error conditions
+
+    const EncoderOptions *d_options_p;
+        // options set by the caller of the encoding operation that controls
+        // some aspects of the token sequence to emit
+
+    bool                  d_isFirstMember;
+        // flag that indicates if the leading delimiter should be omitted if
+        // 'true', and preserved otherwise
+
+  public:
+    // CREATORS
+    Encoder_SelectionVisitor(Formatter             *formatter,
+                             bsl::ostream          *logStream,
+                             const EncoderOptions&  options,
+                             bool                   isFirstMember);
+        // Construct an 'Encoder_SelectionVisitor' object having the specified
+        // 'formatter', 'logStream', 'options', and 'isFirstMember' attributes,
+        // and having a 'selectionIsEmpty' attribute with the 'false' value.
 
     // MANIPULATORS
     template <class TYPE, class INFO>
-    int operator()(const TYPE& value, const INFO &info);
-        // Encode the specified 'value' using the specified 'info' in the JSON
-        // format.  Return 0 on success and a non-zero value otherwise.
+    int operator()(const TYPE& selection, const INFO& selectionInfo);
+        // Invoke 'Encoder_EncodeImplUtil::encodeSelection' with the specified
+        // 'selection', the 'name' of the 'selectionInfo' as the
+        // 'selectionName', and the 'formatter', 'logStream', 'options', and
+        // 'isFirstMember' attributes of this object.  If the JSON
+        // representation of the 'selection' that results from this invocation
+        // is empty, load the value 'true' into 'selectionIsEmpty', and load
+        // the value 'false' otherwise.  Return the result of the invocation.
+
+    // ACCESSORS
+    bool selectionIsEmpty() const;
+        // Return the value of the 'selectionIsEmpty' attribute of this object.
 };
 
-                    // ====================================
-                    // struct Encoder_DynamicTypeDispatcher
-                    // ====================================
+                      // =================================
+                      // class Encoder_SelectionDispatcher
+                      // =================================
 
-struct Encoder_DynamicTypeDispatcher {
-    // This class is used to dispatch the appropriate 'encodeImp' method for a
-    // 'bdlat' Dynamic type.  This is a component-private class and should not
-    // be used outside of this component.  Note that the operators provided in
-    // this 'class' match the function signatures required of visitors encoding
-    // elements of 'bdlat' dynamic types.
+class Encoder_SelectionDispatcher {
+    // This component-private class provides a function object that invokes
+    // one overload of the 'Encoder_EncodeImplUtil::encodeSelection
+    // static member function overload set.
+    // This class's constructor closes over the 'formatter', 'logStream',
+    // 'selectionName', 'options', and 'isFirstMember' arguments shared among
+    // each overload.  The function-call operator of this class provides an
+    // overload set that accepts a "selection" object that satisfies one of the
+    // 'bdlat' type-category concepts, and an optional 'bdlat_TypeCategory' tag
+    // type that corresponds to the selections's 'bdlat' type category.  Each
+    // function-call-operator overload invokes the corresponding
+    // 'Encoder_EncodeImplUtil::encodeSelection' overload with the selection
+    // and the 'formatter', 'logStream', 'selectionName', 'formattingMode',
+    // 'options', and 'isFirstMember' supplied upon construction.
+    //
+    // Note that objects of this class satisfy the requirements of a
+    // function-object argument to the
+    // 'bdlat_TypeCategoryUtil::accessByCategory' function, and a generic
+    // 'bdlat' "accessor."
+
+    // TYPES
+    typedef int FormattingMode;
+        // 'FormattingMode' is an alias to the type of an 'int'-valued
+        // 'bdlat_FormattingMode' bit-field.  A 'FormattingMode' value is not
+        // valid unless it is equal to an enumerator of 'bdlat_FormattingMode'
+        // or a valid bitwise-or of two or more such enumerators.  See the
+        // component-level documentation of {'bdlat_formattingmode'} for a
+        // description of the set of valid formatting-mode values.
 
     // DATA
-    Encoder_EncodeImpl *d_encoder_p;  // encoder (held, not owned)
-    int                 d_mode;       // formatting mode
+    bool                  d_selectionIsEmpty;
+        // 'true' after invocation if the empty string represents the encoded
+        // selection
 
+    Formatter            *d_formatter_p;
+        // wrapper around the output stream that determines the whitespace to
+        // emit around each JSON token
+
+    bsl::ostream         *d_logStream_p;
+        // human-readable descriptions of all encountered error conditions
+
+    bslstl::StringRef     d_selectionName;
+        // uniquely identifies the selection among all selections of one
+        // choice
+
+    FormattingMode        d_formattingMode;
+        // 'bdlat_FormattingMode' value associated with an attribute,
+        // selection, or enumerator, and that controls some aspects of the
+        // token sequence to emit
+
+    const EncoderOptions *d_options_p;
+        // options set by the caller of the encoding operation that controls
+        // some aspects of the token sequence to emit
+
+    bool                  d_isFirstMember;
+        // flag that indicates if the leading delimiter should be omitted if
+        // 'true', and preserved otherwise
+
+  public:
     // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of this
-    // struct.
+    Encoder_SelectionDispatcher(Formatter                *formatter,
+                                bsl::ostream             *logStream,
+                                const bslstl::StringRef&  selectionName,
+                                FormattingMode            formattingMode,
+                                const EncoderOptions&     options,
+                                bool                      isFirstMember);
+        // Construct an 'Encoder_SelectionDispatcher' object having the
+        // specified 'formatter', 'logStream', 'selectionName',
+        // 'formattingMode', 'options', and 'isFirstMember' attributes, and
+        // having a 'selectionIsEmpty' attribute with the 'false' value.
 
     // MANIPULATORS
     template <class TYPE>
+    int operator()(const TYPE& selection);
+        // Determine the "Categorized-Selection Encoding" function of
+        // 'Encoder_EncodeImplUtil' that corresponds with the 'bdlat' value
+        // category of the specified 'TYPE' of the specified 'selection'.
+        // Invoke this function with the specified 'selection' and the
+        // 'formatter', 'logStream', 'selectionName', 'formattingMode',
+        // 'options', and 'isFirstMember' attributes of this object.  If the
+        // JSON representation of the 'selection' that results from the
+        // invocation is empty, load the value 'true' to the 'selectionIsEmpty'
+        // attribute of this object, and load the value 'false' otherwise.
+        // Return the result of the invocation.
+
+    template <class TYPE, class CATEGORY>
+    int operator()(const TYPE& selection, CATEGORY category);
+        // Invoke 'Encoder_EncodeImplUtil::encodeSelection' with the
+        // specified 'selection' and 'category', and the 'formatter', 'logStream',
+        // 'selectionName', 'options', 'forattingMode', and 'isFirstMember'
+        // attributes of this object.  If the JSON representation of the
+        // 'selection' that results from the invocation is empty, load the value
+        // 'true' to the 'selectionIsEmpty' attribute of this object, and loda the
+        // value 'false' otherwise.  Return the result of the invocation.
+
+    template <class TYPE>
     int operator()(const TYPE&, bslmf::Nil);
-    template <class TYPE, class ANY_CATEGORY>
-    int operator()(const TYPE& value, ANY_CATEGORY category);
-        // Encode the specified 'value' of the specified 'bdlat' 'category' in
-        // the JSON format.  Return 0 on success and a non-zero value
-        // otherwise.
+        // The behavior of this function is undefined.
+
+    // ACCESSORS
+    bool selectionIsEmpty() const;
+        // Return the value of the 'selectionIsEmpty' attribute of this object.
+};
+
+                       // ==============================
+                       // class Encoder_AttributeVisitor
+                       // ==============================
+
+class Encoder_AttributeVisitor {
+    // This component-private class provides a function object that closes
+    // over the 'formatter', 'logStream', 'options', and 'isFirstMember'
+    // arguments of the 'Encoder_EncodeImplUtil::encodeAttribute' function
+    // upon construction.  The function-call operator of this class
+    // accepts an object of an arbitrary type that satisfies the requirements
+    // of one of the 'bdlat' value-category concepts, and corresponds to the
+    // 'selection' argument of the 'Encoder_EncodeImplUtil::encodeAttribute'
+    // function.  The function-call operator invokes this function with the
+    // closed-over variables, the 'attribute', and the 'attributeName'.
+    //
+    // Note that objects of this class satisfy the requirements of a
+    // function-object argument to the
+    // 'bdlat_SequenceFunctions::accessAttributes' function.
+
+    // DATA
+    Formatter            *d_formatter_p;
+        // wrapper around the output stream that determines the whitespace to
+        // emit around each JSON token
+
+    bsl::ostream         *d_logStream_p;
+        // human-readable descriptions of all encountered error conditions
+
+    const EncoderOptions *d_options_p;
+        // options set by the caller of the encoding operation that controls
+        // some aspects of the token sequence to emit
+
+    bool                  d_isFirstMember;
+        // flag that indicates if the leading delimiter should be omitted if
+        // 'true', and preserved otherwise
+
+  public:
+    // CREATORS
+    Encoder_AttributeVisitor(Formatter             *formatter,
+                             bsl::ostream          *logStream,
+                             const EncoderOptions&  options,
+                             bool                   isFirstMember);
+        // Construct an 'Encoder_AttributeVisitor' object having the specified
+        // 'formatter', 'logStream', 'options', and 'isFirstMember'
+        // attributes, and having an 'attributesAreEmpty' attribute with the
+        // 'false' value.
+
+    // MANIPULATORS
+    template <class TYPE, class INFO>
+    int operator()(const TYPE& attribute, const INFO &attributeInfo);
+        // Invoke 'Encoder_EncodeImplUtil::encodeAttribute' with the specified
+        // 'attribute', the 'name' of the 'attributeInfo' as the
+        // 'attributeName', and the 'formatter', 'logStream', 'options', and
+        // 'isFirstMember' attributes of this object.  If the JSON
+        // representation of the 'selection' that results from this invocation
+        // is empty, load the value 'true' into 'attributesAreEmpty', and load
+        // the value 'false' otherwise.  Return the result of the invocation.
+
+    // ACCESSORS
+    bool attributesAreEmpty() const;
+        // Return the value of the 'attributesAreEmpty' attribute of this
+        // object.
+};
+
+                      // =================================
+                      // class Encoder_AttributeDispatcher
+                      // =================================
+
+class Encoder_AttributeDispatcher {
+    // This component-private class provides a function object that invokes one
+    // overload of the 'Encoder_EncoderImplUtil::encodeAttribute' static member
+    // function overload set.  This class's constructor closes over the
+    // 'formatter', 'logStream', 'attributeName', 'formattingMode', 'options',
+    // and 'isFirstMember' arguments shared among each overload.  The
+    // function-call operator of this class provides an overload set that
+    // accepts an "attribute" object that satisfies one of the 'bdlat'
+    // value-category concepts, and an optional 'bdlat_TypeCategory' tag type
+    // that corresponds to the attributes 'bdlat' type category.  Each
+    // function-call-operator overload invokes its corresponding
+    // 'Encoder_EncodeImplUtil::encodeAttribute' function with the attribute
+    // and the 'formatter', 'logStream', 'attributeName', 'formattingMode',
+    // 'options', and 'isFirstMember' supplied upon construction.
+    //
+    // Note that objects of this class satisfy the requirements of a
+    // function-object argument to the
+    // 'bdlat_TypeCategoryUtil::accessByCategory' function, and a generic
+    // 'bdlat' "accessor."
+
+    // TYPES
+    typedef int FormattingMode;
+        // 'FormattingMode' is an alias to the type of an 'int'-valued
+        // 'bdlat_FormattingMode' bit-field.  A 'FormattingMode' value is not
+        // valid unless it is equal to an enumerator of 'bdlat_FormattingMode'
+        // or a valid bitwise-or of two or more such enumerators.  See the
+        // component-level documentation of {'bdlat_formattingmode'} for a
+        // description of the set of valid formatting-mode values.
+
+    // DATA
+    bool                  d_attributeIsEmpty;
+        // 'true' after invocation if the JSON representation of the attribute
+        // contains no tokens, and 'false' otherwise (if it does contain
+        // tokens)
+
+    Formatter            *d_formatter_p;
+        // wrapper around the output stream that determines the whitespace to
+        // emit around each JSON token
+
+    bsl::ostream         *d_logStream_p;
+        // human-readable descriptions of all encountered error conditions
+
+    bslstl::StringRef     d_attributeName;
+        // uniquely identifies the attribute among all attributes of one
+        // sequence
+
+    FormattingMode        d_formattingMode;
+        // 'bdlat_FormattingMode' value associated with an attribute,
+        // selection, or enumerator, and that controls some aspects of the
+        // token sequence to emit
+
+    const EncoderOptions *d_options_p;
+        // options set by the caller of the encoding operation that controls
+        // some aspects of the token sequence to emit
+
+    bool                  d_isFirstMember;
+        // flag that indicates if the leading delimiter should be omitted if
+        // 'true', and preserved otherwise
+
+  public:
+    // CREATORS
+    Encoder_AttributeDispatcher(Formatter                *formatter,
+                                bsl::ostream             *logStream,
+                                const bslstl::StringRef&  attributeName,
+                                FormattingMode            formattingMode,
+                                const EncoderOptions&     options,
+                                bool                      isFirstMember);
+        // Construct an 'Encoder_AttributeDispatcher' object having the
+        // specified 'formatter', 'logStream', 'attributeName', 'mode',
+        // 'options', and 'isFirstMember' attributes, and having an
+        // 'attributeIsEmpty' attribute with the 'false' value.
+
+    // MANIPULATORS
+    template <class TYPE>
+    int operator()(const TYPE& attribute);
+        // Determine the "Categorized-Attribute Encoding" function of
+        // 'Encoder_EncodeImplUtil' that corresponds with the 'bdlat'
+        // value category of the specified 'TYPE' of the specified 'attribute'.
+        // Invoke this function with the specified 'attribute' and the 'formatter',
+        // 'logStream', 'attributeName', 'options', 'mode', and 'isFirstMember'
+        // attributes of this object.  If the JSON representatino of the
+        // 'attribute' that results from the invocation is empty, load the
+        // value 'true' to the 'attributeIsEmpty' attribute of this object,
+        // and load the value 'false' otherwise.  Return the result of the
+        // invocation.
+
+    template <class TYPE, class CATEGORY>
+    int operator()(const TYPE& attribute, CATEGORY category);
+        // Invoke 'Encoder_EncodeImplUitl::encodeAttribute' with the specified
+        // 'attribute' and 'category', and the 'formatter', 'logStream',
+        // 'attributeName', 'options', 'formattingMode', and 'isFirstMember'
+        // attributes of this object.  If the JSON representation of the
+        // 'attribute' that results from the invocation is empty, load the
+        // value 'true' to the 'attributeIsEmpty' attribute of this object, and
+        // load the value 'false' otherwise.  Return the result of the
+        // invocation.
+
+    template <class TYPE>
+    int operator()(const TYPE&, bslmf::Nil);
+        // The behavior of this function is undefined.
+
+    // ACCESSORS
+    bool attributeIsEmpty() const;
+        // Return the value of the 'attributeIsEmpty' attribute of this object.
 };
 
 // ============================================================================
@@ -567,14 +1477,13 @@ int Encoder::encode(bsl::streambuf        *streamBuf,
         return -1;                                                    // RETURN
     }
 
-    Encoder_EncodeImpl encoderImpl(this, streamBuf, options);
+    bsl::ostream outputStream(streamBuf);
+    Encoder_EncodeImplUtil::openDocument(&outputStream, options);
 
-    encoderImpl.openDocument();
-
-    const int rc = encoderImpl.encode(value, 0);
-
+    const int rc = Encoder_EncodeImplUtil::encode(
+        &d_logStream, &outputStream, value, options);
     if (!rc) {
-        encoderImpl.closeDocument();
+        Encoder_EncodeImplUtil::closeDocument(&outputStream, options);
     }
 
     streamBuf->pubsync();
@@ -611,6 +1520,7 @@ int Encoder::encode(bsl::ostream&         stream,
 }
 
 template <class TYPE>
+inline
 int Encoder::encode(bsl::ostream&         stream,
                     const TYPE&           value,
                     const EncoderOptions *options)
@@ -626,424 +1536,1202 @@ bsl::string Encoder::loggedMessages() const
     return d_logStream.str();
 }
 
-                          // ------------------------
-                          // class Encoder_EncodeImpl
-                          // ------------------------
+                        // -----------------------------
+                        // struct Encoder_EncodeImplUtil
+                        // -----------------------------
 
-// PRIVATE CLASS METHODS
-template <class TYPE>
-inline
-bool Encoder_EncodeImpl::isEmptyArray(const TYPE&, bslmf::MetaInt<0>)
-{
-    return false;
-}
+// CLASS METHODS
 
-template <class TYPE>
+                         // Document Encoding Functions
+
 inline
-bool Encoder_EncodeImpl::isEmptyArray(const TYPE&       value,
-                                      bslmf::MetaInt<1>)
+void Encoder_EncodeImplUtil::openDocument(bsl::ostream *outputStream,
+                                      const EncoderOptions& options)
 {
-    if (bdlat_TypeCategory::e_ARRAY_CATEGORY ==
-                                  bdlat_TypeCategoryFunctions::select(value)) {
-        return 0 == bdlat_ArrayFunctions::size(value);                // RETURN
+    if (baljsn::EncoderOptions::e_PRETTY ==
+                                         options.encodingStyle()) {
+        bdlb::Print::indent(*outputStream,
+                            options.initialIndentLevel(),
+                            options.spacesPerLevel());
     }
-    return false;
+}
+
+inline
+void Encoder_EncodeImplUtil::closeDocument(bsl::ostream *outputStream,
+                                       const baljsn::EncoderOptions& options)
+{
+    if (baljsn::EncoderOptions::e_PRETTY ==
+                                         options.encodingStyle()) {
+        (*outputStream) << '\n';
+    }
+}
+
+                               // Value Encoding
+
+template <class TYPE>
+inline
+int Encoder_EncodeImplUtil::encode(bsl::ostream          *jsonStream,
+                                   const TYPE&            value,
+                                   const EncoderOptions&  options)
+{
+    bdlsb::MemOutStreamBuf logStreamBuf;
+    bsl::ostream logStream(&logStreamBuf);
+
+    return encode(&logStream, jsonStream, value, options);
 }
 
 template <class TYPE>
 inline
-bool Encoder_EncodeImpl::isEmptyArray(const TYPE& value)
+int Encoder_EncodeImplUtil::encode(bsl::ostream          *logStream,
+                                   bsl::ostream          *jsonStream,
+                                   const TYPE&            value,
+                                   const EncoderOptions&  options)
 {
-    return isEmptyArray(
-                 value,
-                 bslmf::MetaInt<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE>());
+    static const FormattingMode s_MODE = bdlat_FormattingMode::e_DEFAULT;
+    static const bool           s_FIRST_MEMBER_FLAG = false;
+
+    baljsn::Formatter formatter(*jsonStream,
+                                baljsn::EncoderOptions::e_PRETTY ==
+                                    options.encodingStyle(),
+                                options.initialIndentLevel(),
+                                options.spacesPerLevel());
+
+    bool valueIsEmpty = false;
+    return encode(&valueIsEmpty,
+                  &formatter,
+                  logStream,
+                  value,
+                  s_MODE,
+                  options,
+                  s_FIRST_MEMBER_FLAG);
 }
 
-// PRIVATE MANIPULATORS
-inline
-bsl::ostream& Encoder_EncodeImpl::logStream()
+template <class TYPE>
+int Encoder_EncodeImplUtil::encode(bool                  *valueIsEmpty,
+                                   Formatter             *formatter,
+                                   bsl::ostream          *logStream,
+                                   const TYPE&            value,
+                                   FormattingMode         formattingMode,
+                                   const EncoderOptions&  options,
+                                   bool                   isFirstMember)
 {
-    return d_encoder_p->logStream();
+    Encoder_ValueDispatcher proxy(formatter,
+                                  logStream,
+                                  formattingMode,
+                                  options,
+                                  isFirstMember);
+
+    int rc = bdlat_TypeCategoryUtil::accessByCategory(value, proxy);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    *valueIsEmpty = proxy.valueIsEmpty();
+    return 0;
+}
+
+                                 // Validation
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::validate(bsl::ostream               *logStream,
+                                     const TYPE&                 value,
+                                     bdlat_TypeCategory::Choice)
+{
+    return validateChoice(logStream, value);
+}
+
+template <class TYPE, class CATEGORY>
+inline
+int Encoder_EncodeImplUtil::validate(bsl::ostream *, const TYPE&, CATEGORY)
+{
+    return 0;
+}
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::validateChoice(bsl::ostream *logStream, const TYPE& value)
+{
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID ==
+        bdlat_ChoiceFunctions::selectionId(value)) {
+        (*logStream) << "Undefined selection for Choice object" << bsl::endl;
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+
+             // Encoding Values That Have Specific Type Categories
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeArray(
+                                bool                  *valueIsEmpty,
+                                Formatter             *formatter,
+                                bsl::ostream          *logStream,
+                                const TYPE&            value,
+                                const EncoderOptions&  options)
+{
+    const bool arrayIsEmpty = (0 == bdlat_ArrayFunctions::size(value));
+
+    if (arrayIsEmpty && !options.encodeEmptyArrays()) {
+        *valueIsEmpty = true;
+        return 0;                                                     // RETURN
+    }
+
+    if (arrayIsEmpty && options.encodeEmptyArrays()) {
+        ThisUtil::encodeEmptyArray(formatter);
+        *valueIsEmpty = false;
+        return 0;                                                     // RETURN
+    }
+
+    int rc =
+        ThisUtil::encodeNonEmptyArray(formatter, logStream, value, options);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    *valueIsEmpty = false;
+    return 0;
+}
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeChoice(bool                  *valueIsEmpty,
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         const TYPE&            value,
+                                         FormattingMode         formattingMode,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
+{
+    int rc = ThisUtil::validateChoice(logStream, value);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    bool prefixIsEmpty;
+    ThisUtil::encodeObjectPrefix(&prefixIsEmpty, formatter, formattingMode);
+
+    Encoder_SelectionVisitor visitor(formatter,
+                                     logStream,
+                                     options,
+                                     !prefixIsEmpty || isFirstMember);
+    rc = bdlat_ChoiceFunctions::accessSelection(value, visitor);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    bool suffixIsEmpty;
+    ThisUtil::encodeObjectSuffix(&suffixIsEmpty, formatter, formattingMode);
+
+    *valueIsEmpty = prefixIsEmpty && visitor.selectionIsEmpty() && suffixIsEmpty;
+    return 0;
 }
 
 template <class TYPE>
 inline
-int Encoder_EncodeImpl::encodeImp(const TYPE&                        value,
-                                  int                                mode,
-                                  bdlat_TypeCategory::CustomizedType)
+int Encoder_EncodeImplUtil::encodeCustomizedType(
+                                         bool                  *valueIsEmpty,
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         const TYPE&            value,
+                                         FormattingMode         formattingMode,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
 {
-    return encode(bdlat_CustomizedTypeFunctions::convertToBaseType(value),
-                  mode);
+    return ThisUtil::encode(
+        valueIsEmpty,
+        formatter,
+        logStream,
+        bdlat_CustomizedTypeFunctions::convertToBaseType(value),
+        formattingMode,
+        options,
+        isFirstMember);
 }
 
 template <class TYPE>
 inline
-int Encoder_EncodeImpl::encodeImp(const TYPE&                     value,
-                                  int                             mode,
-                                  bdlat_TypeCategory::DynamicType)
-{
-    Encoder_DynamicTypeDispatcher proxy = { this, mode };
-    return bdlat_TypeCategoryUtil::accessByCategory(value, proxy);
-}
-
-template <class TYPE>
-inline
-int Encoder_EncodeImpl::encodeImp(const TYPE&                     value,
-                                  int                             mode,
-                                  bdlat_TypeCategory::Enumeration)
+int Encoder_EncodeImplUtil::encodeEnumeration(
+                                         Formatter             *formatter,
+                                         const TYPE&            value,
+                                         const EncoderOptions&  options)
 {
     bsl::string valueString;
     bdlat_EnumFunctions::toString(&valueString, value);
-    return encode(valueString, mode);
+
+    return ThisUtil::encodeSimpleValue(formatter, valueString, options);
 }
 
 template <class TYPE>
-inline
-int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
-                                  int,
-                                  bdlat_TypeCategory::Simple)
-{
-    return d_formatter.putValue(value, d_encoderOptions_p);
-}
-
-template <class TYPE>
-int Encoder_EncodeImpl::encodeImp(const TYPE&                  value,
-                                  int                          mode,
-                                  bdlat_TypeCategory::Sequence)
-{
-    if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
-        d_formatter.openObject();
-    }
-
-    Encoder_SequenceVisitor visitor(this);
-
-    const int rc = bdlat_SequenceFunctions::accessAttributes(value, visitor);
-    if (rc) {
-        return rc;                                                    // RETURN
-    }
-
-    if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
-        d_formatter.closeObject();
-    }
-
-    return 0;
-}
-
-template <class TYPE>
-int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
-                                  int                        mode,
-                                  bdlat_TypeCategory::Choice)
-{
-    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID !=
-                                   bdlat_ChoiceFunctions::selectionId(value)) {
-        if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
-            d_formatter.openObject();
-        }
-
-        // Conditionally set the 'd_forceEmptyArrayEncoding' flag to 'true' if
-        // (1) we are about to access a Choice selection that is an empty
-        // array, and (2) the 'encodeEmptyArrays' encoder option is 'false'.
-        // Otherwise, such a Choice will encode as, e.g.:
-        //..
-        //  {"selection-name":}
-        //..
-        // which is invalid JSON.  If 'encodeEmptyArrays' were 'true', it would
-        // encode as:
-        //..
-        //  {"selection-name":[]}
-        //..
-        // The only other option is to encode as:
-        //..
-        //  {}
-        //..
-        // but that would lose the type of the selection altogether.
-
-        if (!d_encoderOptions_p->encodeEmptyArrays()) {
-            Encoder_ChoiceVisitor emptyArraySniffer;
-
-            bdlat_ChoiceFunctions::accessSelection(value, emptyArraySniffer);
-            if (emptyArraySniffer.isEmptyArray()) {
-                d_forceEmptyArrayEncoding = true;
-            }
-        }
-
-        Encoder_ElementVisitor visitor = { this, mode };
-
-        const int rc = bdlat_ChoiceFunctions::accessSelection(value, visitor);
-
-        // Regardless of the flag's current value, it should be 'false' after
-        // visiting the selection.
-
-        d_forceEmptyArrayEncoding = false;
-
-        if (rc) {
-            return rc;                                                // RETURN
-        }
-
-        if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
-            d_formatter.closeObject();
-        }
-    }
-    else {
-        logStream() << "Undefined selection for Choice object" << bsl::endl;
-        return -1;                                                    // RETURN
-    }
-    return 0;
-}
-
-template <class TYPE>
-int Encoder_EncodeImpl::encodeImp(const TYPE&               value,
-                                  int                       mode,
-                                  bdlat_TypeCategory::Array)
-{
-    const int size = static_cast<int>(bdlat_ArrayFunctions::size(value));
-    if (0 < size) {
-        d_formatter.openArray();
-
-        Encoder_ElementVisitor visitor = { this, mode };
-
-        int rc = bdlat_ArrayFunctions::accessElement(value, visitor, 0);
-        if (rc) {
-            return rc;                                                // RETURN
-        }
-
-        for (int i = 1; i < size; ++i) {
-            d_formatter.addArrayElementSeparator();
-            rc = bdlat_ArrayFunctions::accessElement(value, visitor, i);
-            if (rc) {
-                return rc;                                            // RETURN
-            }
-        }
-
-        d_formatter.closeArray();
-    }
-    else if (d_encoderOptions_p->encodeEmptyArrays()
-             || d_forceEmptyArrayEncoding) {
-        d_formatter.openArray(true);
-        d_formatter.closeArray(true);
-    }
-
-    return 0;
-}
-
-template <class TYPE>
-int Encoder_EncodeImpl::encodeImp(const TYPE&                       value,
-                                  int                               mode,
-                                  bdlat_TypeCategory::NullableValue)
+int Encoder_EncodeImplUtil::encodeNullableValue(
+                                         bool                  *valueIsEmpty,
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         const TYPE&            value,
+                                         FormattingMode         formattingMode,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
+    ///Implementation Note
+    ///- - - - - - - - - -
+    // This function purposefully ignores the 'EncodeNullElements' option in
+    // the specified 'options' and always encodes the specified 'value' (which
+    // may be null.)  The caller is responsible for checking the value of this
+    // option and deciding whether to obey the option or not.  Callers that
+    // encode nullable attributes of sequences must always obey the option.
+    // Callers that encode nullable selections of choices must never obey the
+    // option, and must always encode the value.
 {
     if (bdlat_NullableValueFunctions::isNull(value)) {
-        d_formatter.putNullValue();
+        formatter->putNullValue();
+        *valueIsEmpty = false;
         return 0;                                                     // RETURN
     }
 
-    Encoder_ElementVisitor visitor = { this, mode };
-    return bdlat_NullableValueFunctions::accessValue(value, visitor);
-}
-
-template <class TYPE>
-inline
-int Encoder_EncodeImpl::encode(const TYPE& value, int mode)
-{
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
-    return encodeImp(value, mode, TypeCategory());
-}
-
-// CREATORS
-inline
-Encoder_EncodeImpl::Encoder_EncodeImpl(Encoder               *encoder,
-                                       bsl::streambuf        *streambuf,
-                                       const EncoderOptions&  options)
-: d_encoder_p(encoder)
-, d_outputStream(streambuf)
-, d_formatter(d_outputStream,
-              baljsn::EncoderOptions::e_PRETTY == options.encodingStyle(),
-              options.initialIndentLevel(),
-              options.spacesPerLevel())
-, d_encoderOptions_p(&options)
-, d_forceEmptyArrayEncoding(false)
-{
-}
-
-inline
-void Encoder_EncodeImpl::openDocument()
-{
-    if (baljsn::EncoderOptions::e_PRETTY ==
-                                         d_encoderOptions_p->encodingStyle()) {
-        bdlb::Print::indent(d_outputStream,
-                            d_encoderOptions_p->initialIndentLevel(),
-                            d_encoderOptions_p->spacesPerLevel());
+    Encoder_ValueVisitor visitor(formatter,
+                                 logStream,
+                                 formattingMode,
+                                 options,
+                                 isFirstMember);
+    int rc = bdlat_NullableValueFunctions::accessValue(value, visitor);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
     }
-}
 
-inline
-void Encoder_EncodeImpl::closeDocument()
-{
-    if (baljsn::EncoderOptions::e_PRETTY ==
-                                         d_encoderOptions_p->encodingStyle()) {
-        d_outputStream << '\n';
-    }
-}
-
-// ACCESSORS
-inline
-const EncoderOptions *Encoder_EncodeImpl::encoderOptions() const
-{
-    return d_encoderOptions_p;
-}
-
-                       // ---------------------------
-                       // class Encoder_ChoiceVisitor
-                       // ---------------------------
-
-// CREATORS
-inline
-Encoder_ChoiceVisitor::Encoder_ChoiceVisitor()
-: d_isEmptyArrayFlag(false)
-{
-}
-
-// MANIPULATORS
-template <class TYPE, class INFO>
-inline
-int Encoder_ChoiceVisitor::operator()(const TYPE& value, const INFO&)
-{
-    // Determine if 'value' is an empty array and set flag accordingly.
-
-    d_isEmptyArrayFlag = Encoder_EncodeImpl::isEmptyArray(value);
-
+    *valueIsEmpty = visitor.valueIsEmpty();
     return 0;
 }
 
-// ACCESSORS
-inline
-bool Encoder_ChoiceVisitor::isEmptyArray() const
-{
-    return d_isEmptyArrayFlag;
-}
-
-                       // ------------------------------
-                       // struct Encoder_SequenceVisitor
-                       // ------------------------------
-
-// PRIVATE MANIPULATORS
 template <class TYPE>
-inline
-bool Encoder_SequenceVisitor::skipNullableAttribute(const TYPE&,
-                                                    bslmf::MetaInt<0>)
+int Encoder_EncodeImplUtil::encodeSequence(
+                                         bool                  *valueIsEmpty,
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         const TYPE&            value,
+                                         FormattingMode         formattingMode,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
 {
-    return false;
-}
+    bool prefixIsEmpty;
+    ThisUtil::encodeObjectPrefix(&prefixIsEmpty, formatter, formattingMode);
 
-template <class TYPE>
-bool Encoder_SequenceVisitor::skipNullableAttribute(const TYPE&       value,
-                                                    bslmf::MetaInt<1>)
-{
-    if (bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY ==
-                                  bdlat_TypeCategoryFunctions::select(value)) {
-        return bdlat_NullableValueFunctions::isNull(value)
-            && !d_encoder_p->encoderOptions()->encodeNullElements();  // RETURN
-    }
-    return false;
-}
-
-template <class TYPE>
-inline
-bool Encoder_SequenceVisitor::skipNullableAttribute(const TYPE& value)
-{
-    return skipNullableAttribute(value,
-                                 bslmf::MetaInt<bdlat_NullableValueFunctions
-                                            ::IsNullableValue<TYPE>::VALUE>());
-}
-
-// CREATORS
-inline
-Encoder_SequenceVisitor::Encoder_SequenceVisitor(Encoder_EncodeImpl *encoder)
-: d_encoder_p(encoder)
-, d_isFirstElement(true)
-{
-}
-
-// MANIPULATORS
-template <class TYPE, class INFO>
-int Encoder_SequenceVisitor::operator()(const TYPE& value, const INFO& info)
-{
-    // Determine if 'value' is null or an empty array where we don't want to
-    // encode empty arrays.  In either of those cases, do not encode 'value'.
-
-    if (skipNullableAttribute(value)
-     || (!d_encoder_p->encoderOptions()->encodeEmptyArrays()
-      && Encoder_EncodeImpl::isEmptyArray(value))) {
-        return 0;                                                     // RETURN
+    Encoder_AttributeVisitor visitor(formatter,
+                                     logStream,
+                                     options,
+                                     !prefixIsEmpty || isFirstMember);
+    int rc = bdlat_SequenceFunctions::accessAttributes(value, visitor);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
     }
 
-    if (!d_isFirstElement) {
-        d_encoder_p->d_formatter.closeMember();
-    }
+    bool suffixIsEmpty;
+    ThisUtil::encodeObjectSuffix(&suffixIsEmpty, formatter, formattingMode);
 
-    d_isFirstElement = false;
-
-    Encoder_ElementVisitor visitor = { d_encoder_p, info.formattingMode() };
-    return visitor(value, info);
+    *valueIsEmpty =
+        prefixIsEmpty && visitor.attributesAreEmpty() && suffixIsEmpty;
+    return 0;
 }
 
-                       // -----------------------------
-                       // struct Encoder_ElementVisitor
-                       // -----------------------------
-
-// MANIPULATORS
 template <class TYPE>
 inline
-int Encoder_ElementVisitor::operator()(const TYPE &value)
+int Encoder_EncodeImplUtil::encodeSimpleValue(Formatter             *formatter,
+                                              const TYPE&            value,
+                                              const EncoderOptions&  options)
 {
-    return d_encoder_p->encode(value, d_mode);
+    return formatter->putValue(value, &options);
 }
 
-template <class TYPE, class INFO>
-int Encoder_ElementVisitor::operator()(const TYPE& value, const INFO& info)
+                    // Encoding Value Prefixes and Suffixes
+
+inline
+void Encoder_EncodeImplUtil::encodeObjectPrefix(
+                                               bool           *prefixIsEmpty,
+                                               Formatter      *formatter,
+                                               FormattingMode  formattingMode)
 {
-    // Skip encoding of anonymous elements
+    if (bdlat_FormattingMode::e_UNTAGGED & formattingMode) {
+        *prefixIsEmpty = true;
+        return;                                                       // RETURN
+    }
 
-    const int mode = info.formattingMode();
-    if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
+    formatter->openObject();
 
-        const int rc = d_encoder_p->d_formatter.openMember(info.name());
+    *prefixIsEmpty = false;
+}
+
+inline
+void Encoder_EncodeImplUtil::encodeObjectSuffix(bool           *suffixIsEmpty,
+                                                Formatter      *formatter,
+                                                FormattingMode  formattingMode)
+{
+    if (bdlat_FormattingMode::e_UNTAGGED & formattingMode) {
+        *suffixIsEmpty = true;
+        return;                                                       // RETURN
+    }
+
+    formatter->closeObject();
+
+    *suffixIsEmpty = false;
+}
+
+                  // Encoding Arrays That Have Specific Shapes
+
+inline
+void Encoder_EncodeImplUtil::encodeEmptyArray(Formatter *formatter)
+{
+    formatter->openArray(true);
+    formatter->closeArray(true);
+}
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeNonEmptyArray(
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         const TYPE&            value,
+                                         const EncoderOptions&  options)
+{
+    const int size = static_cast<int>(bdlat_ArrayFunctions::size(value));
+    BSLS_ASSERT(0 < size);
+
+    formatter->openArray();
+
+    static const bool s_FIRST_VALUE_IS_FIRST_ELEMENT = true;
+    Encoder_ValueVisitor visitor(formatter,
+                                 logStream,
+                                 bdlat_FormattingMode::e_DEFAULT,
+                                 options,
+                                 s_FIRST_VALUE_IS_FIRST_ELEMENT);
+
+    int rc = bdlat_ArrayFunctions::accessElement(value, visitor, 0);
+    if (rc) {
+        return rc;                                                    // RETURN
+    }
+
+    for (int i = 1; i < size; ++i) {
+        if (!visitor.valueIsEmpty()) {
+            formatter->addArrayElementSeparator();
+        }
+
+        rc = bdlat_ArrayFunctions::accessElement(value, visitor, i);
         if (rc) {
-            d_encoder_p->logStream() << "Unable to encode element named: '"
-                                     << info.name() << "'." << bsl::endl;
             return rc;                                                // RETURN
         }
     }
 
-    const int rc = d_encoder_p->encode(value, mode);
-    if (rc) {
-        d_encoder_p->logStream() << "Unable to encode value of element "
-                                 << "named: '" << info.name() << "'."
-                                 << bsl::endl;
-        return rc;                                                    // RETURN
-    }
+    formatter->closeArray();
+
     return 0;
 }
 
-                    // ------------------------------------
-                    // struct Encoder_DynamicTypeDispatcher
-                    // ------------------------------------
+                        // Encoding Generalized Members
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeMember(
+                                      bool                      *memberIsEmpty,
+                                      Formatter                 *formatter,
+                                      bsl::ostream              *logStream,
+                                      const bslstl::StringRef&   memberName,
+                                      const TYPE&                member,
+                                      FormattingMode             formattingMode,
+                                      const EncoderOptions&      options,
+                                      bool                       isFirstMember,
+                                      bdlat_TypeCategory::Array  category)
+    ///Implementation Note
+    ///- - - - - - - - - -
+    // This function purposefully ignores the 'EncodeEmptyArrays' option in the
+    // specified 'options' and always encodes the value of the specified
+    // 'member' array.  The caller is responsible for checking the value of
+    // this option and deciding whether to obey the option or not.  Callers
+    // that encode array-valued attributes of sequences must always obey the
+    // option.  Callers that encode array-valued selections of choices must
+    // never obey the option, and must always encode the array value.
+{
+    int rc = ThisUtil::validate(logStream, member, category);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    rc = ThisUtil::encodeMemberPrefix(
+        formatter, logStream, memberName, formattingMode, isFirstMember);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    if (bdlat_ArrayFunctions::size(member) == 0) {
+        ThisUtil::encodeEmptyArray(formatter);
+
+        *memberIsEmpty = false;
+        return 0;                                                     // RETURN
+    }
+
+    rc = ThisUtil::encodeNonEmptyArray(formatter, logStream, member, options);
+    if (0 != rc) {
+        (*logStream) << "Unable to encode value of element "
+                     << "named: '" << memberName << "'." << bsl::endl;
+        return rc;                                                    // RETURN
+    }
+
+    *memberIsEmpty = false;
+    return 0;
+}
+
+template <class TYPE, class OTHER_CATEGORY>
+int Encoder_EncodeImplUtil::encodeMember(
+                                       bool                     *memberIsEmpty,
+                                       Formatter                *formatter,
+                                       bsl::ostream             *logStream,
+                                       const bslstl::StringRef&  memberName,
+                                       const TYPE&               member,
+                                       FormattingMode            formattingMode,
+                                       const EncoderOptions&     options,
+                                       bool                      isFirstMember,
+                                       OTHER_CATEGORY            category)
+{
+    int rc = ThisUtil::validate(logStream, member, category);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    bool prefixIsEmpty;
+    rc = ThisUtil::encodeMemberPrefix(&prefixIsEmpty,
+                                      formatter,
+                                      logStream,
+                                      memberName,
+                                      formattingMode,
+                                      isFirstMember);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    bool valueIsEmpty;
+    rc = ThisUtil::encode(&valueIsEmpty,
+                          formatter,
+                          logStream,
+                          member,
+                          formattingMode,
+                          options,
+                          !prefixIsEmpty || isFirstMember);
+    if (0 != rc) {
+        (*logStream) << "Unable to encode value of element "
+                     << "named: '" << memberName << "'."
+                     << bsl::endl;
+        return rc;                                                    // RETURN
+    }
+
+    BSLS_ASSERT(!valueIsEmpty || prefixIsEmpty);
+        // If the value is empty then the prefix is empty.  Otherwise, this
+        // function would produce invalid JSON because it would emit a member
+        // name token and a colon token, but no member value.
+
+    *memberIsEmpty = valueIsEmpty;
+    return 0;
+}
+
+inline
+int Encoder_EncodeImplUtil::encodeMemberPrefix(
+                                       Formatter                *formatter,
+                                       bsl::ostream             *logStream,
+                                       const bslstl::StringRef&  memberName,
+                                       bool                      isFirstMember)
+{
+    if (!isFirstMember) {
+        formatter->closeMember();
+    }
+
+    int rc = formatter->openMember(memberName);
+    if (0 != rc) {
+        (*logStream) << "Unable to encode element name: '" << memberName
+                     << "'." << bsl::endl;
+        return rc;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+inline
+int Encoder_EncodeImplUtil::encodeMemberPrefix(
+                                       Formatter                *formatter,
+                                       bsl::ostream             *logStream,
+                                       const bslstl::StringRef&  memberName,
+                                       FormattingMode            formattingMode,
+                                       bool                      isFirstMember)
+{
+    if (bdlat_FormattingMode::e_UNTAGGED & formattingMode) {
+        return 0;                                                     // RETURN
+    }
+
+    return ThisUtil::encodeMemberPrefix(
+        formatter, logStream, memberName, isFirstMember);
+}
+
+inline
+int Encoder_EncodeImplUtil::encodeMemberPrefix(
+                                       bool                     *prefixIsEmpty,
+                                       Formatter                *formatter,
+                                       bsl::ostream             *logStream,
+                                       const bslstl::StringRef&  memberName,
+                                       FormattingMode            formattingMode,
+                                       bool                      isFirstMember)
+{
+    if (bdlat_FormattingMode::e_UNTAGGED & formattingMode) {
+        *prefixIsEmpty = true;
+        return 0;                                                     // RETURN
+    }
+
+    int rc = ThisUtil::encodeMemberPrefix(
+        formatter, logStream, memberName, isFirstMember);
+    if (0 != rc) {
+        return rc;
+    }
+
+    *prefixIsEmpty = false;
+    return 0;
+}
+
+                             // Encoding Selections
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeSelection(
+                                    bool                     *selectionIsEmpty,
+                                    Formatter                *formatter,
+                                    bsl::ostream             *logStream,
+                                    const bslstl::StringRef&  selectionName,
+                                    const TYPE&               selection,
+                                    FormattingMode            formattingMode,
+                                    const EncoderOptions&     options,
+                                    bool                      isFirstMember)
+{
+    Encoder_SelectionDispatcher dispatcher(formatter,
+                                           logStream,
+                                           selectionName,
+                                           formattingMode,
+                                           options,
+                                           isFirstMember);
+
+    int rc =  bdlat_TypeCategoryUtil::accessByCategory(selection, dispatcher);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    *selectionIsEmpty = dispatcher.selectionIsEmpty();
+    return 0;
+}
+
+template <class TYPE>
+inline
+int Encoder_EncodeImplUtil::encodeSelection(
+                                    bool                     *selectionIsEmpty,
+                                    Formatter                *formatter,
+                                    bsl::ostream             *logStream,
+                                    const bslstl::StringRef&  selectionName,
+                                    const TYPE&               selection,
+                                    FormattingMode            formattingMode,
+                                    const EncoderOptions&     options,
+                                    bool                      isFirstMember,
+                                    bdlat_TypeCategory::CustomizedType)
+{
+    return ThisUtil::encodeSelection(
+        selectionIsEmpty,
+        formatter,
+        logStream,
+        selectionName,
+        bdlat_CustomizedTypeFunctions::convertToBaseType(selection),
+        formattingMode,
+        options,
+        isFirstMember);
+}
+
+template <class TYPE, class OTHER_CATEGORY>
+inline
+int Encoder_EncodeImplUtil::encodeSelection(
+                                    bool                     *selectionIsEmpty,
+                                    Formatter                *formatter,
+                                    bsl::ostream             *logStream,
+                                    const bslstl::StringRef&  selectionName,
+                                    const TYPE&               selection,
+                                    FormattingMode            formattingMode,
+                                    const EncoderOptions&     options,
+                                    bool                      isFirstMember,
+                                    OTHER_CATEGORY            category)
+{
+    return ThisUtil::encodeMember(selectionIsEmpty,
+                                  formatter,
+                                  logStream,
+                                  selectionName,
+                                  selection,
+                                  formattingMode,
+                                  options,
+                                  isFirstMember,
+                                  category);
+}
+
+                             // Encoding Attributes
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeAttribute(
+                                    bool                     *attributeIsEmpty,
+                                    Formatter                *formatter,
+                                    bsl::ostream             *logStream,
+                                    const bslstl::StringRef&  attributeName,
+                                    const TYPE&               attribute,
+                                    FormattingMode            formattingMode,
+                                    const EncoderOptions&     options,
+                                    bool                      isFirstElement)
+{
+    Encoder_AttributeDispatcher dispatcher(formatter,
+                                           logStream,
+                                           attributeName,
+                                           formattingMode,
+                                           options,
+                                           isFirstElement);
+
+    int rc = bdlat_TypeCategoryUtil::accessByCategory(attribute, dispatcher);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    *attributeIsEmpty = dispatcher.attributeIsEmpty();
+    return 0;
+}
+
+inline
+int Encoder_EncodeImplUtil::encodeAttribute(
+                                   bool                      *attributeIsEmpty,
+                                   Formatter                 *formatter,
+                                   bsl::ostream              *logStream,
+                                   const bslstl::StringRef&   attributeName,
+                                   const bsl::vector<char>&   attribute,
+                                   FormattingMode             formattingMode,
+                                   const EncoderOptions&      options,
+                                   bool                       isFirstMember,
+                                   bdlat_TypeCategory::Array  category)
+{
+    return ThisUtil::encodeMember(attributeIsEmpty,
+                                  formatter,
+                                  logStream,
+                                  attributeName,
+                                  attribute,
+                                  formattingMode,
+                                  options,
+                                  isFirstMember,
+                                  category);
+}
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeAttribute(
+                               bool                     *attributeIsEmpty,
+                               Formatter                *formatter,
+                               bsl::ostream             *logStream,
+                               const bslstl::StringRef&  attributeName,
+                               const TYPE&               attribute,
+                               FormattingMode            formattingMode,
+                               const EncoderOptions&     options,
+                               bool                      isFirstElement,
+                               bdlat_TypeCategory::Array category)
+{
+    const bool arrayIsEmpty = (0 == bdlat_ArrayFunctions::size(attribute));
+
+    if (!options.encodeEmptyArrays() && arrayIsEmpty) {
+        *attributeIsEmpty = true;
+        return 0;                                                     // RETURN
+    }
+
+    bool memberIsEmpty;
+    int rc = ThisUtil::encodeMember(&memberIsEmpty,
+                                    formatter,
+                                    logStream,
+                                    attributeName,
+                                    attribute,
+                                    formattingMode,
+                                    options,
+                                    isFirstElement,
+                                    category);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    BSLS_ASSERT(false == memberIsEmpty);
+
+    *attributeIsEmpty = false;
+    return 0;
+}
+
+template <class TYPE>
+inline
+int Encoder_EncodeImplUtil::encodeAttribute(
+                          bool                               *attributeIsEmpty,
+                          Formatter                          *formatter,
+                          bsl::ostream                       *logStream,
+                          const bslstl::StringRef&            attributeName,
+                          const TYPE&                         attribute,
+                          FormattingMode                      formattingMode,
+                          const EncoderOptions&               options,
+                          bool                                isFirstElement,
+                          bdlat_TypeCategory::CustomizedType)
+{
+    return ThisUtil::encodeAttribute(
+        attributeIsEmpty,
+        formatter,
+        logStream,
+        attributeName,
+        bdlat_CustomizedTypeFunctions::convertToBaseType(attribute),
+        formattingMode,
+        options,
+        isFirstElement);
+}
+
+template <class TYPE>
+int Encoder_EncodeImplUtil::encodeAttribute(
+                           bool                              *attributeIsEmpty,
+                           Formatter                         *formatter,
+                           bsl::ostream                      *logStream,
+                           const bslstl::StringRef&           attributeName,
+                           const TYPE&                        attribute,
+                           FormattingMode                     formattingMode,
+                           const EncoderOptions&              options,
+                           bool                               isFirstMember,
+                           bdlat_TypeCategory::NullableValue  category)
+{
+    if (bdlat_NullableValueFunctions::isNull(attribute) &&
+        !options.encodeNullElements()) {
+        *attributeIsEmpty = true;
+        return 0;                                                     // RETURN
+    }
+
+    return ThisUtil::encodeMember(attributeIsEmpty,
+                                  formatter,
+                                  logStream,
+                                  attributeName,
+                                  attribute,
+                                  formattingMode,
+                                  options,
+                                  isFirstMember,
+                                  category);
+}
+
+template <class TYPE, class OTHER_CATEGORY>
+inline
+int Encoder_EncodeImplUtil::encodeAttribute(
+                                    bool                     *attributeIsEmpty,
+                                    Formatter                *formatter,
+                                    bsl::ostream             *logStream,
+                                    const bslstl::StringRef&  attributeName,
+                                    const TYPE&               attribute,
+                                    FormattingMode            formattingMode,
+                                    const EncoderOptions&     options,
+                                    bool                      isFirstMember,
+                                    OTHER_CATEGORY            category)
+{
+    return ThisUtil::encodeMember(attributeIsEmpty,
+                                  formatter,
+                                  logStream,
+                                  attributeName,
+                                  attribute,
+                                  formattingMode,
+                                  options,
+                                  isFirstMember,
+                                  category);
+}
+
+                        // ---------------------------
+                        // struct Encoder_ValueVisitor
+                        // ---------------------------
+
+// CREATORS
+inline
+Encoder_ValueVisitor::Encoder_ValueVisitor(
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         FormattingMode         formattingMode,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
+: d_valueIsEmpty(false)
+, d_formatter_p(formatter)
+, d_logStream_p(logStream)
+, d_formattingMode(formattingMode)
+, d_options_p(&options)
+, d_isFirstMember(isFirstMember)
+{
+}
 
 // MANIPULATORS
 template <class TYPE>
 inline
-int Encoder_DynamicTypeDispatcher::operator()(const TYPE&, bslmf::Nil)
+int Encoder_ValueVisitor::operator()(const TYPE& value)
 {
-    BSLS_ASSERT_OPT(!"Should be unreachable!");
+    return Encoder_EncodeImplUtil::encode(&d_valueIsEmpty,
+                                          d_formatter_p,
+                                          d_logStream_p,
+                                          value,
+                                          d_formattingMode,
+                                          *d_options_p,
+                                          d_isFirstMember);
+}
 
+// ACCESSORS
+inline
+bool Encoder_ValueVisitor::valueIsEmpty() const
+{
+    return d_valueIsEmpty;
+}
+
+                       // ------------------------------
+                       // struct Encoder_ValueDispatcher
+                       // ------------------------------
+
+// CREATORS
+inline
+Encoder_ValueDispatcher::Encoder_ValueDispatcher(
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         FormattingMode         formattingMode,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
+: d_valueIsEmpty(false)
+, d_formatter_p(formatter)
+, d_logStream_p(logStream)
+, d_formattingMode(formattingMode)
+, d_options_p(&options)
+, d_isFirstMember(isFirstMember)
+{
+}
+
+// MANIPULATORS
+inline
+int Encoder_ValueDispatcher::operator()(const bsl::vector<char>&  value,
+                                        bdlat_TypeCategory::Array)
+{
+    d_valueIsEmpty = false;
+    return Encoder_EncodeImplUtil::encodeCharArray(
+        d_formatter_p, value, *d_options_p);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(const TYPE&               value,
+                                        bdlat_TypeCategory::Array)
+{
+    return Encoder_EncodeImplUtil::encodeArray(&d_valueIsEmpty,
+                                               d_formatter_p,
+                                               d_logStream_p,
+                                               value,
+                                               *d_options_p);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(const TYPE&                value,
+                                        bdlat_TypeCategory::Choice)
+{
+    return Encoder_EncodeImplUtil::encodeChoice(&d_valueIsEmpty,
+                                                d_formatter_p,
+                                                d_logStream_p,
+                                                value,
+                                                d_formattingMode,
+                                                *d_options_p,
+                                                d_isFirstMember);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(
+                                      const TYPE&                        value,
+                                      bdlat_TypeCategory::CustomizedType)
+{
+    return Encoder_EncodeImplUtil::encodeCustomizedType(&d_valueIsEmpty,
+                                                        d_formatter_p,
+                                                        d_logStream_p,
+                                                        value,
+                                                        d_formattingMode,
+                                                        *d_options_p,
+                                                        d_isFirstMember);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(const TYPE&                     value,
+                                        bdlat_TypeCategory::Enumeration)
+{
+    d_valueIsEmpty = false;
+    return Encoder_EncodeImplUtil::encodeEnumeration(
+        d_formatter_p, value, *d_options_p);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(
+                                       const TYPE&                       value,
+                                       bdlat_TypeCategory::NullableValue)
+{
+    return Encoder_EncodeImplUtil::encodeNullableValue(&d_valueIsEmpty,
+                                                       d_formatter_p,
+                                                       d_logStream_p,
+                                                       value,
+                                                       d_formattingMode,
+                                                       *d_options_p,
+                                                       d_isFirstMember);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(const TYPE&                  value,
+                                        bdlat_TypeCategory::Sequence)
+{
+    return Encoder_EncodeImplUtil::encodeSequence(&d_valueIsEmpty,
+                                                  d_formatter_p,
+                                                  d_logStream_p,
+                                                  value,
+                                                  d_formattingMode,
+                                                  *d_options_p,
+                                                  d_isFirstMember);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(const TYPE&                value,
+                                        bdlat_TypeCategory::Simple)
+{
+    d_valueIsEmpty = false;
+    return Encoder_EncodeImplUtil::encodeSimpleValue(
+        d_formatter_p, value, *d_options_p);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(const TYPE&, bslmf::Nil)
+{
+    BSLS_ASSERT_OPT(!"Unreachable");
     return -1;
 }
 
-template <class TYPE, class ANY_CATEGORY>
+// ACCESSORS
 inline
-int Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
-                                              ANY_CATEGORY category)
+bool Encoder_ValueDispatcher::valueIsEmpty() const
 {
-    return d_encoder_p->encodeImp(value, d_mode, category);
+    return d_valueIsEmpty;
+}
+
+                       // ------------------------------
+                       // class Encoder_SelectionVisitor
+                       // ------------------------------
+
+// CREATORS
+inline
+Encoder_SelectionVisitor::Encoder_SelectionVisitor(
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
+: d_selectionIsEmpty(false)
+, d_formatter_p(formatter)
+, d_logStream_p(logStream)
+, d_options_p(&options)
+, d_isFirstMember(isFirstMember)
+{
+}
+
+// MANIPULATORS
+template <class TYPE, class INFO>
+int Encoder_SelectionVisitor::operator()(const TYPE& selection,
+                                         const INFO& selectionInfo)
+{
+    const bslstl::StringRef selectionName(selectionInfo.name(),
+                                          selectionInfo.nameLength());
+
+    const int formattingMode = selectionInfo.formattingMode();
+
+    return Encoder_EncodeImplUtil::encodeSelection(&d_selectionIsEmpty,
+                                                   d_formatter_p,
+                                                   d_logStream_p,
+                                                   selectionName,
+                                                   selection,
+                                                   formattingMode,
+                                                   *d_options_p,
+                                                   d_isFirstMember);
+}
+
+// ACCESSORS
+inline
+bool Encoder_SelectionVisitor::selectionIsEmpty() const
+{
+    return d_selectionIsEmpty;
+}
+
+                      // ---------------------------------
+                      // class Encoder_SelectionDispatcher
+                      // ---------------------------------
+
+// CREATORS
+inline
+Encoder_SelectionDispatcher::Encoder_SelectionDispatcher(
+                                      Formatter                *formatter,
+                                      bsl::ostream             *logStream,
+                                      const bslstl::StringRef&  selectionName,
+                                      FormattingMode            formattingMode,
+                                      const EncoderOptions&     options,
+                                      bool                      isFirstMember)
+: d_selectionIsEmpty(false)
+, d_formatter_p(formatter)
+, d_logStream_p(logStream)
+, d_selectionName(selectionName)
+, d_formattingMode(formattingMode)
+, d_options_p(&options)
+, d_isFirstMember(isFirstMember)
+{
+}
+
+// ACCESSORS
+template <class TYPE>
+inline
+int Encoder_SelectionDispatcher::operator()(const TYPE& value)
+{
+    return bdlat_TypeCategoryUtil::accessByCategory(value, *this);
+}
+
+template <class TYPE, class CATEGORY>
+inline
+int Encoder_SelectionDispatcher::operator()(const TYPE& value,
+                                            CATEGORY    category)
+{
+    return Encoder_EncodeImplUtil::encodeSelection(&d_selectionIsEmpty,
+                                                   d_formatter_p,
+                                                   d_logStream_p,
+                                                   d_selectionName,
+                                                   value,
+                                                   d_formattingMode,
+                                                   *d_options_p,
+                                                   d_isFirstMember,
+                                                   category);
+}
+
+template <class TYPE>
+inline
+int Encoder_SelectionDispatcher::operator()(const TYPE&, bslmf::Nil)
+{
+    BSLS_ASSERT_OPT(!"Reachable");
+    return -1;
+}
+
+// ACCESSORS
+inline
+bool Encoder_SelectionDispatcher::selectionIsEmpty() const
+{
+    return d_selectionIsEmpty;
+}
+
+                       // ------------------------------
+                       // class Encoder_AttributeVisitor
+                       // ------------------------------
+
+// CREATORS
+inline
+Encoder_AttributeVisitor::Encoder_AttributeVisitor(
+                                         Formatter             *formatter,
+                                         bsl::ostream          *logStream,
+                                         const EncoderOptions&  options,
+                                         bool                   isFirstMember)
+: d_formatter_p(formatter)
+, d_logStream_p(logStream)
+, d_options_p(&options)
+, d_isFirstMember(isFirstMember)
+{
+}
+
+// MANIPULATORS
+template <class TYPE, class INFO>
+int Encoder_AttributeVisitor::operator()(const TYPE& attribute,
+                                         const INFO& attributeInfo)
+{
+    const bslstl::StringRef attributeName(attributeInfo.name(),
+                                          attributeInfo.nameLength());
+
+    const int formattingMode = attributeInfo.formattingMode();
+
+    bool attributeIsEmpty = false;
+
+    int rc = Encoder_EncodeImplUtil::encodeAttribute(&attributeIsEmpty,
+                                                     d_formatter_p,
+                                                     d_logStream_p,
+                                                     attributeName,
+                                                     attribute,
+                                                     formattingMode,
+                                                     *d_options_p,
+                                                     d_isFirstMember);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    if (!attributeIsEmpty) {
+        d_isFirstMember = false;
+    }
+
+    return 0;
+}
+
+// ACCESSORS
+inline
+bool Encoder_AttributeVisitor::attributesAreEmpty() const
+{
+    return d_isFirstMember;
+}
+
+                      // ---------------------------------
+                      // class Encoder_AttributeDispatcher
+                      // ---------------------------------
+
+// CREATORS
+inline
+Encoder_AttributeDispatcher::Encoder_AttributeDispatcher(
+                                      Formatter                *formatter,
+                                      bsl::ostream             *logStream,
+                                      const bslstl::StringRef&  attributeName,
+                                      FormattingMode            formattingMode,
+                                      const EncoderOptions&     options,
+                                      bool                      isFirstMember)
+: d_attributeIsEmpty(false)
+, d_formatter_p(formatter)
+, d_logStream_p(logStream)
+, d_attributeName(attributeName)
+, d_formattingMode(formattingMode)
+, d_options_p(&options)
+, d_isFirstMember(isFirstMember)
+{
+}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+int Encoder_AttributeDispatcher::operator()(const TYPE& value)
+{
+    return bdlat_TypeCategoryUtil::accessByCategory(value, *this);
+}
+
+template <class TYPE, class CATEGORY>
+inline
+int Encoder_AttributeDispatcher::operator()(const TYPE& attribute,
+                                            CATEGORY    category)
+{
+    return Encoder_EncodeImplUtil::encodeAttribute(&d_attributeIsEmpty,
+                                                   d_formatter_p,
+                                                   d_logStream_p,
+                                                   d_attributeName,
+                                                   attribute,
+                                                   d_formattingMode,
+                                                   *d_options_p,
+                                                   d_isFirstMember,
+                                                   category);
+}
+
+template <class TYPE>
+inline
+int Encoder_AttributeDispatcher::operator()(const TYPE&, bslmf::Nil)
+{
+    BSLS_ASSERT_OPT(!"Unreachable");
+    return -1;
+}
+
+// ACCESSORS
+inline
+bool Encoder_AttributeDispatcher::attributeIsEmpty() const
+{
+    return d_attributeIsEmpty;
 }
 
 // The 'Encoder_Formatter' 'class' has been replaced by the 'baljsn::Formatter'

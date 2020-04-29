@@ -3,6 +3,7 @@ baljsn_datumutil
 baljsn_decoder
 baljsn_decoderoptions
 baljsn_encoder
+baljsn_encoder_testtypes
 baljsn_encoderoptions
 baljsn_encodingstyle
 baljsn_formatter
