@@ -60,13 +60,13 @@ enum {
     k_MULTIPLEBYTE_TEST  = 0xC0,  // 2nd, 3rd, 4th byte
     k_MULTIPLEBYTE_RES   = 0X80,
 
-    e_END_OF_INPUT_TRUNCATION      = Utf8Util::e_END_OF_INPUT_TRUNCATION,
-    e_UNEXPECTED_CONTINUATION_OCTET= Utf8Util::e_UNEXPECTED_CONTINUATION_OCTET,
-    e_NON_CONTINUATION_OCTET       = Utf8Util::e_NON_CONTINUATION_OCTET,
-    e_NON_MINIMAL_ENCODING         = Utf8Util::e_NON_MINIMAL_ENCODING,
-    e_SEQUENCE_TOO_LONG            = Utf8Util::e_SEQUENCE_TOO_LONG,
-    e_VALUE_TOO_LARGE              = Utf8Util::e_VALUE_TOO_LARGE,
-    e_SURROGATE                    = Utf8Util::e_SURROGATE
+    k_END_OF_INPUT_TRUNCATION      = Utf8Util::k_END_OF_INPUT_TRUNCATION,
+    k_UNEXPECTED_CONTINUATION_OCTET= Utf8Util::k_UNEXPECTED_CONTINUATION_OCTET,
+    k_NON_CONTINUATION_OCTET       = Utf8Util::k_NON_CONTINUATION_OCTET,
+    k_NON_MINIMAL_ENCODING         = Utf8Util::k_NON_MINIMAL_ENCODING,
+    k_SEQUENCE_TOO_LONG            = Utf8Util::k_SEQUENCE_TOO_LONG,
+    k_VALUE_TOO_LARGE              = Utf8Util::k_VALUE_TOO_LARGE,
+    k_SURROGATE                    = Utf8Util::k_SURROGATE
 };
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
@@ -206,7 +206,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
 
             *invalidString = string;
 
-            return e_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
+            return k_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
           } break;
           U_CASE(0xc0): BSLA_FALLTHROUGH;
           U_CASE(0xd0): {
@@ -214,15 +214,15 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
-                return string[1] ? e_NON_CONTINUATION_OCTET
-                                 : e_END_OF_INPUT_TRUNCATION;         // RETURN
+                return string[1] ? k_NON_CONTINUATION_OCTET
+                                 : k_END_OF_INPUT_TRUNCATION;         // RETURN
             }
             const int value = get2ByteValue(string);
             if (UNLIKELY(value < k_MIN_2_BYTE_VALUE)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
-                return e_NON_MINIMAL_ENCODING;                        // RETURN
+                return k_NON_MINIMAL_ENCODING;                        // RETURN
             }
             string += 2;
           } break;
@@ -233,10 +233,10 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
 
                 *invalidString = string;
                 return isNotContinuation(string[1])
-                       ? (string[1] ? e_NON_CONTINUATION_OCTET
-                                    : e_END_OF_INPUT_TRUNCATION)
-                       : (string[2] ? e_NON_CONTINUATION_OCTET
-                                    : e_END_OF_INPUT_TRUNCATION);     // RETURN
+                       ? (string[1] ? k_NON_CONTINUATION_OCTET
+                                    : k_END_OF_INPUT_TRUNCATION)
+                       : (string[2] ? k_NON_CONTINUATION_OCTET
+                                    : k_END_OF_INPUT_TRUNCATION);     // RETURN
             }
 
             const int value = get3ByteValue(string);
@@ -245,8 +245,8 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
-                return value < k_MIN_3_BYTE_VALUE ? e_NON_MINIMAL_ENCODING
-                                                  : e_SURROGATE;      // RETURN
+                return value < k_MIN_3_BYTE_VALUE ? k_NON_MINIMAL_ENCODING
+                                                  : k_SURROGATE;      // RETURN
             }
             string += 3;
           } break;
@@ -259,13 +259,13 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
                 *invalidString = string;
 
                 return   isNotContinuation(string[1])
-                       ? (string[1] ? e_NON_CONTINUATION_OCTET
-                                    : e_END_OF_INPUT_TRUNCATION)
+                       ? (string[1] ? k_NON_CONTINUATION_OCTET
+                                    : k_END_OF_INPUT_TRUNCATION)
                        : isNotContinuation(string[2])
-                       ? (string[2] ? e_NON_CONTINUATION_OCTET
-                                    : e_END_OF_INPUT_TRUNCATION)
-                       : (string[3] ? e_NON_CONTINUATION_OCTET
-                                    : e_END_OF_INPUT_TRUNCATION);     // RETURN
+                       ? (string[2] ? k_NON_CONTINUATION_OCTET
+                                    : k_END_OF_INPUT_TRUNCATION)
+                       : (string[3] ? k_NON_CONTINUATION_OCTET
+                                    : k_END_OF_INPUT_TRUNCATION);     // RETURN
             }
 
             const int value = get4ByteValue(string);
@@ -275,8 +275,8 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
 
                 *invalidString = string;
                 return value > k_MAX_VALID
-                     ? e_VALUE_TOO_LARGE
-                     : e_NON_MINIMAL_ENCODING;                        // RETURN
+                     ? k_VALUE_TOO_LARGE
+                     : k_NON_MINIMAL_ENCODING;                        // RETURN
             }
 
             string += 4;
@@ -284,7 +284,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
           case 0xf8 >> 3: {
             *invalidString = string;
 
-            return e_SEQUENCE_TOO_LONG;                               // RETURN
+            return k_SEQUENCE_TOO_LONG;                               // RETURN
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -341,7 +341,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             *invalidString = pc;
 
-            return e_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
+            return k_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
           } break;
           U_CASE(0xc0): BSLA_FALLTHROUGH;
           U_CASE(0xd0): {
@@ -351,8 +351,8 @@ static int validateAndCountCodePoints(const char             **invalidString,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
-                return isNotContinuation(pc[1]) ? e_NON_CONTINUATION_OCTET
-                                                : e_NON_MINIMAL_ENCODING;
+                return isNotContinuation(pc[1]) ? k_NON_CONTINUATION_OCTET
+                                                : k_NON_MINIMAL_ENCODING;
                                                                       // RETURN
             }
 
@@ -369,11 +369,11 @@ static int validateAndCountCodePoints(const char             **invalidString,
                 *invalidString = pc;
 
                 if (isNotContinuation(pc[1]) | isNotContinuation(pc[2])) {
-                    return e_NON_CONTINUATION_OCTET;                  // RETURN
+                    return k_NON_CONTINUATION_OCTET;                  // RETURN
                 }
 
-                return value < k_MIN_3_BYTE_VALUE ? e_NON_MINIMAL_ENCODING
-                                                  : e_SURROGATE;      // RETURN
+                return value < k_MIN_3_BYTE_VALUE ? k_NON_MINIMAL_ENCODING
+                                                  : k_SURROGATE;      // RETURN
             }
 
             pc += 3;
@@ -391,11 +391,11 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
                 if (isNotContinuation(pc[1]) | isNotContinuation(pc[2]) |
                                                 isNotContinuation(pc[3])) {
-                    return e_NON_CONTINUATION_OCTET;                  // RETURN
+                    return k_NON_CONTINUATION_OCTET;                  // RETURN
                 }
 
-                return k_MAX_VALID < value ? e_VALUE_TOO_LARGE
-                                           : e_NON_MINIMAL_ENCODING;  // RETURN
+                return k_MAX_VALID < value ? k_VALUE_TOO_LARGE
+                                           : k_NON_MINIMAL_ENCODING;  // RETURN
             }
 
             pc += 4;
@@ -405,7 +405,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             *invalidString = pc;
 
-            return e_SEQUENCE_TOO_LONG;                               // RETURN
+            return k_SEQUENCE_TOO_LONG;                               // RETURN
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -443,7 +443,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             *invalidString = pc;
 
-            return e_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
+            return k_UNEXPECTED_CONTINUATION_OCTET;                   // RETURN
           } break;
           U_CASE(0xc0): BSLA_FALLTHROUGH;
           U_CASE(0xd0): {
@@ -451,7 +451,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
-                return e_END_OF_INPUT_TRUNCATION;                     // RETURN
+                return k_END_OF_INPUT_TRUNCATION;                     // RETURN
             }
 
             const int value = get2ByteValue(pc);
@@ -460,8 +460,8 @@ static int validateAndCountCodePoints(const char             **invalidString,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
-                return isNotContinuation(pc[1]) ? e_NON_CONTINUATION_OCTET
-                                                : e_NON_MINIMAL_ENCODING;
+                return isNotContinuation(pc[1]) ? k_NON_CONTINUATION_OCTET
+                                                : k_NON_MINIMAL_ENCODING;
                                                                       // RETURN
             }
 
@@ -474,8 +474,8 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
                 *invalidString = pc;
                 return 2 == length && isNotContinuation(pc[1])
-                     ? e_NON_CONTINUATION_OCTET
-                     : e_END_OF_INPUT_TRUNCATION;                     // RETURN
+                     ? k_NON_CONTINUATION_OCTET
+                     : k_END_OF_INPUT_TRUNCATION;                     // RETURN
             }
 
             const int value = get3ByteValue(pc);
@@ -487,10 +487,10 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
                 *invalidString = pc;
                 return (isNotContinuation(pc[1]) | isNotContinuation(pc[2]))
-                      ? e_NON_CONTINUATION_OCTET
+                      ? k_NON_CONTINUATION_OCTET
                       : value < k_MIN_3_BYTE_VALUE
-                      ? e_NON_MINIMAL_ENCODING
-                      : e_SURROGATE;                                  // RETURN
+                      ? k_NON_MINIMAL_ENCODING
+                      : k_SURROGATE;                                  // RETURN
             }
 
             delta = 3;
@@ -503,12 +503,12 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             for (unsigned ii = 1 ; ii < length; ++ii) {
                 if (isNotContinuation(pc[ii])) {
-                    return e_NON_CONTINUATION_OCTET;                  // RETURN
+                    return k_NON_CONTINUATION_OCTET;                  // RETURN
                 }
 
             }
 
-            return e_END_OF_INPUT_TRUNCATION;                         // RETURN
+            return k_END_OF_INPUT_TRUNCATION;                         // RETURN
           } break;
           case 0xf8 >> 3: {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -517,7 +517,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             *invalidString = pc;
 
-            return e_SEQUENCE_TOO_LONG;                               // RETURN
+            return k_SEQUENCE_TOO_LONG;                               // RETURN
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -561,8 +561,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                               // code point, and assigned to 'string' between
                               // iterations.
 
-    // Note that we keep 'string' pointing to the beginning of the Unicode
-    // code point being processed, and only advance it to the next code point
+    // Note that we keep 'string' pointing to the beginning of the Unicode code
+    // point being processed, and only advance it to the next code point
     // between iterations.
 
     for (; true; ++ret, string = next) {
@@ -614,7 +614,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           U_CASE(0xb0): {
             // binary: 10xxxxxx: error: unexpected continuation octet
 
-            *status = e_UNEXPECTED_CONTINUATION_OCTET;
+            *status = k_UNEXPECTED_CONTINUATION_OCTET;
 
             // no 'continue'; exit the loop
           } break;
@@ -628,8 +628,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // invalid continuation
 
-                *status = !*next ? e_END_OF_INPUT_TRUNCATION
-                                 : e_NON_CONTINUATION_OCTET;
+                *status = !*next ? k_END_OF_INPUT_TRUNCATION
+                                 : k_NON_CONTINUATION_OCTET;
                 break;
             }
 
@@ -640,7 +640,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = e_NON_MINIMAL_ENCODING;
+                *status = k_NON_MINIMAL_ENCODING;
                 break;
             }
 
@@ -654,10 +654,10 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = isNotContinuation(string[1])
-                        ? (string[1] ? e_NON_CONTINUATION_OCTET
-                                     : e_END_OF_INPUT_TRUNCATION)
-                        : (string[2] ? e_NON_CONTINUATION_OCTET
-                                     : e_END_OF_INPUT_TRUNCATION);
+                        ? (string[1] ? k_NON_CONTINUATION_OCTET
+                                     : k_END_OF_INPUT_TRUNCATION)
+                        : (string[2] ? k_NON_CONTINUATION_OCTET
+                                     : k_END_OF_INPUT_TRUNCATION);
 
                 break;
             }
@@ -671,7 +671,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = e_NON_MINIMAL_ENCODING;
+                *status = k_NON_MINIMAL_ENCODING;
                 break;
             }
 
@@ -680,7 +680,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // surrogate value
 
-                *status = e_SURROGATE;
+                *status = k_SURROGATE;
                 break;
             }
           } continue;
@@ -696,13 +696,13 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = isNotContinuation(string[1])
-                        ? (string[1] ? e_NON_CONTINUATION_OCTET
-                                     : e_END_OF_INPUT_TRUNCATION)
+                        ? (string[1] ? k_NON_CONTINUATION_OCTET
+                                     : k_END_OF_INPUT_TRUNCATION)
                         : isNotContinuation(string[2])
-                        ? (string[2] ? e_NON_CONTINUATION_OCTET
-                                     : e_END_OF_INPUT_TRUNCATION)
-                        : (string[3] ? e_NON_CONTINUATION_OCTET
-                                     : e_END_OF_INPUT_TRUNCATION);
+                        ? (string[2] ? k_NON_CONTINUATION_OCTET
+                                     : k_END_OF_INPUT_TRUNCATION)
+                        : (string[3] ? k_NON_CONTINUATION_OCTET
+                                     : k_END_OF_INPUT_TRUNCATION);
 
                 break;
             }
@@ -717,14 +717,14 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = e_NON_MINIMAL_ENCODING;
+                *status = k_NON_MINIMAL_ENCODING;
                 break;
             }
 
             if (UNLIKELY(k_MAX_VALID < value)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = e_VALUE_TOO_LARGE;
+                *status = k_VALUE_TOO_LARGE;
                 break;
             }
 
@@ -733,10 +733,9 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           case 0xf8 >> 3: {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            // binary: 11111xxx: illegal start of 5 (or more) octet
-            // sequence
+            // binary: 11111xxx: illegal start of 5 (or more) octet sequence
 
-            *status = e_SEQUENCE_TOO_LONG;
+            *status = k_SEQUENCE_TOO_LONG;
           } break;
 
           default: {
@@ -771,8 +770,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
     const char * const endOfInput = string + length;
 
-    // Note that we keep 'string' pointing to the beginning of the Unicode
-    // code point being processed, and only advance it to the next code point
+    // Note that we keep 'string' pointing to the beginning of the Unicode code
+    // point being processed, and only advance it to the next code point
     // between iterations.
 
     for (; true; ++ret, string = next) {
@@ -824,7 +823,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           U_CASE(0xb0): {
             // binary: 10xxxxxx: unexpected continuation octet
 
-            *status = e_UNEXPECTED_CONTINUATION_OCTET;
+            *status = k_UNEXPECTED_CONTINUATION_OCTET;
           } break;
 
           U_CASE(0xc0): BSLA_FALLTHROUGH;
@@ -836,7 +835,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // truncation of code point
 
-                *status = e_END_OF_INPUT_TRUNCATION;
+                *status = k_END_OF_INPUT_TRUNCATION;
                 break;
             }
 
@@ -845,7 +844,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // invalid continuation
 
-                *status = e_NON_CONTINUATION_OCTET;
+                *status = k_NON_CONTINUATION_OCTET;
                 break;
             }
 
@@ -856,7 +855,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = e_NON_MINIMAL_ENCODING;
+                *status = k_NON_MINIMAL_ENCODING;
                 break;
             }
           } continue;
@@ -868,8 +867,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = (next + 1 == endOfInput && isNotContinuation(*next))
-                        ? e_NON_CONTINUATION_OCTET
-                        : e_END_OF_INPUT_TRUNCATION;
+                        ? k_NON_CONTINUATION_OCTET
+                        : k_END_OF_INPUT_TRUNCATION;
 
                 break;
             }
@@ -878,7 +877,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                || UNLIKELY(isNotContinuation(*++next))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = e_NON_CONTINUATION_OCTET;
+                *status = k_NON_CONTINUATION_OCTET;
 
                 break;
             }
@@ -892,7 +891,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = e_NON_MINIMAL_ENCODING;
+                *status = k_NON_MINIMAL_ENCODING;
                 break;
             }
 
@@ -901,7 +900,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // surrogate value
 
-                *status = e_SURROGATE;
+                *status = k_SURROGATE;
                 break;
             }
           } continue;
@@ -912,10 +911,10 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
             if (UNLIKELY(string + 4 > endOfInput)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = e_END_OF_INPUT_TRUNCATION;
+                *status = k_END_OF_INPUT_TRUNCATION;
                 for ( ; next < endOfInput; ++next) {
                     if (isNotContinuation(*next)) {
-                        *status = e_NON_CONTINUATION_OCTET;
+                        *status = k_NON_CONTINUATION_OCTET;
 
                         break;
                     }
@@ -929,7 +928,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                || UNLIKELY(isNotContinuation(*++next))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = e_NON_CONTINUATION_OCTET;
+                *status = k_NON_CONTINUATION_OCTET;
 
                 break;
             }
@@ -942,8 +941,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                                                (value < k_MIN_4_BYTE_VALUE))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = k_MAX_VALID < value ? e_VALUE_TOO_LARGE
-                                              : e_NON_MINIMAL_ENCODING;
+                *status = k_MAX_VALID < value ? k_VALUE_TOO_LARGE
+                                              : k_NON_MINIMAL_ENCODING;
 
                 break;
             }
@@ -954,7 +953,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
             // binary: 11111xxx: invalid code point in all UTF-8 contexts.
 
-            *status = e_SEQUENCE_TOO_LONG;
+            *status = k_SEQUENCE_TOO_LONG;
           } break;
 
           default: {
@@ -1148,11 +1147,11 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
     return ret;
 }
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -AN01     // 'codepoint' parameter renamed for line
+// BDE_VERIFY pragma: push BDE_VERIFY pragma: -AN01     // 'codepoint'
+// parameter renamed for line
                                 // length.
-// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
-// BDE_VERIFY pragma: -SP03     // 'codepnt' is not a typo.
+// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.  BDE_VERIFY pragma:
+// -SP03     // 'codepnt' is not a typo.
 
 int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
 {
@@ -1167,12 +1166,11 @@ int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
     //..
     ///////////////////////// BEGIN VERBATIM RFC TEXT /////////////////////////
     // Char number range   |        UTF-8 octet sequence
-    //    (hexadecimal)    |              (binary)
+    // (hexadecimal)    |              (binary)
     // --------------------+---------------------------------------------
-    // 0000 0000-0000 007F | 0xxxxxxx
-    // 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-    // 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    // 0000 0000-0000 007F | 0xxxxxxx 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx 0001 0000-0010
+    // FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
     ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
 
     if (codepnt < 0x80U) {
@@ -1200,7 +1198,7 @@ int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
 
     // Invalid code point.
 
-    return e_VALUE_TOO_LARGE;
+    return k_VALUE_TOO_LARGE;
 }
 
 // BDE_VERIFY pragma: pop
@@ -1356,32 +1354,32 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
     }
 
     if (numBytes > string.length()) {
-        return e_END_OF_INPUT_TRUNCATION;                             // RETURN
+        return k_END_OF_INPUT_TRUNCATION;                             // RETURN
     }
 
     return numBytes;
 }
 
-Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
+Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                                           char           *outputBuffer,
                                           size_type       outputBufferLength,
                                           bsl::streambuf *input)
 {
     BSLS_ASSERT(4 <= outputBufferLength);
 
-    const char *end   = outputBuffer + outputBufferLength - 3;
-    char       *pc    = outputBuffer;
-    const int   eof   = bsl::char_traits<char>::eof();
-    ReturnCode  rc    = e_SUCCESS;
+    const char *end = outputBuffer + outputBufferLength - 3;
+    char       *pc  = outputBuffer;
+    const int   eof = bsl::char_traits<char>::eof();
+    int         rc  = 0;
     int         c;
 
     while (true) {
-        BSLS_ASSERT(e_SUCCESS == rc);
+        BSLS_ASSERT(0 == rc);
 
         if (UNLIKELY(end <= pc)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            rc = e_OUTPUT_BUFFER_FULL;;
+            rc = +1;
             break;
         }
 
@@ -1410,14 +1408,14 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
           U_CASE(0xb0): {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            rc = e_UNEXPECTED_CONTINUATION_OCTET;
+            rc = k_UNEXPECTED_CONTINUATION_OCTET;
           } break;
           U_CASE(0xc0): BSLA_FALLTHROUGH;
           U_CASE(0xd0): {
             if (UNLIKELY(eof == (c = input->sbumpc()))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                rc = e_END_OF_INPUT_TRUNCATION;
+                rc = k_END_OF_INPUT_TRUNCATION;
                 break;
             }
 
@@ -1428,8 +1426,8 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
                        | (value < k_MIN_2_BYTE_VALUE))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                rc = isNotContinuation(pc[1]) ? e_NON_CONTINUATION_OCTET
-                                              : e_NON_MINIMAL_ENCODING;
+                rc = isNotContinuation(pc[1]) ? k_NON_CONTINUATION_OCTET
+                                              : k_NON_MINIMAL_ENCODING;
                 break;
             }
 
@@ -1440,7 +1438,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
                 if (UNLIKELY(eof == (c = input->sbumpc()))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                    rc = e_END_OF_INPUT_TRUNCATION;
+                    rc = k_END_OF_INPUT_TRUNCATION;
                     bsl::memset(pc + 1, 0, 2);    // silence purify
                     break;
                 }
@@ -1450,21 +1448,21 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
                 if (UNLIKELY(isNotContinuation(pc[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                    rc = e_NON_CONTINUATION_OCTET;
+                    rc = k_NON_CONTINUATION_OCTET;
                     pc[2] = 0;                    // silence purify
                     break;
                 }
             }
 
             const int value = get3ByteValue(pc);
-            if (UNLIKELY((e_SUCCESS != rc)
+            if (UNLIKELY((0 != rc)
                        | (value < k_MIN_3_BYTE_VALUE)
                        | isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = rc ? rc : value < k_MIN_3_BYTE_VALUE
-                             ? e_NON_MINIMAL_ENCODING
-                             : e_SURROGATE;
+                             ? k_NON_MINIMAL_ENCODING
+                             : k_SURROGATE;
                 break;
             }
 
@@ -1475,7 +1473,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
                 if (UNLIKELY(eof == (c = input->sbumpc()))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                    rc = e_END_OF_INPUT_TRUNCATION;
+                    rc = k_END_OF_INPUT_TRUNCATION;
                     bsl::memset(pc + 1, 0, 3);    // silence purify
                     break;
                 }
@@ -1485,21 +1483,21 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
                 if (UNLIKELY(isNotContinuation(pc[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                    rc = e_NON_CONTINUATION_OCTET;
+                    rc = k_NON_CONTINUATION_OCTET;
                     bsl::memset(pc + 2, 0, 2);    // silence purify
                     break;
                 }
             }
 
             const int value = get4ByteValue(pc);
-            if (UNLIKELY((e_SUCCESS != rc)
+            if (UNLIKELY((0 != rc)
                        | (value < k_MIN_4_BYTE_VALUE)
                        | (value > k_MAX_VALID))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = rc ? rc
-                        : k_MAX_VALID < value ? e_VALUE_TOO_LARGE
-                                              : e_NON_MINIMAL_ENCODING;
+                        : k_MAX_VALID < value ? k_VALUE_TOO_LARGE
+                                              : k_NON_MINIMAL_ENCODING;
                 break;
             }
 
@@ -1510,7 +1508,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
 
             // binary: 11111xxx: invalid code point in all UTF-8 contexts.
 
-            rc = e_SEQUENCE_TOO_LONG;
+            rc = k_SEQUENCE_TOO_LONG;
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -1526,26 +1524,24 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *returnCode,
     BSLS_ASSERT(outputBuffer <= pc);
     BSLS_ASSERT(pc <= outputBuffer + outputBufferLength);
 
-    *returnCode = rc;
+    *status = rc;
 
     return pc - outputBuffer;
 }
 
-const char *Utf8Util::returnCodeToString(int returnCode)
+const char *Utf8Util::toErrorMessage(int errorStatus)
 {
 #undef  U_ASCII_CASE
-#define U_ASCII_CASE(ec)    case ec: return #ec
+#define U_ASCII_CASE(es)    case es: return #es
 
-    switch (returnCode) {
-      U_ASCII_CASE(e_SUCCESS);
-      U_ASCII_CASE(e_OUTPUT_BUFFER_FULL);
-      U_ASCII_CASE(e_END_OF_INPUT_TRUNCATION);
-      U_ASCII_CASE(e_UNEXPECTED_CONTINUATION_OCTET);
-      U_ASCII_CASE(e_NON_CONTINUATION_OCTET);
-      U_ASCII_CASE(e_NON_MINIMAL_ENCODING);
-      U_ASCII_CASE(e_SEQUENCE_TOO_LONG);
-      U_ASCII_CASE(e_VALUE_TOO_LARGE);
-      U_ASCII_CASE(e_SURROGATE);
+    switch (errorStatus) {
+      U_ASCII_CASE(k_END_OF_INPUT_TRUNCATION);
+      U_ASCII_CASE(k_UNEXPECTED_CONTINUATION_OCTET);
+      U_ASCII_CASE(k_NON_CONTINUATION_OCTET);
+      U_ASCII_CASE(k_NON_MINIMAL_ENCODING);
+      U_ASCII_CASE(k_SEQUENCE_TOO_LONG);
+      U_ASCII_CASE(k_VALUE_TOO_LARGE);
+      U_ASCII_CASE(k_SURROGATE);
       default: return "(* unrecognized value *)";
     }
 

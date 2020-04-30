@@ -341,6 +341,154 @@ BSLS_IDENT("$Id: $")
 //  assert(3 + 2 + 1 + 4 + 4 + 3 + 1 + 1     == result - start);
 //  assert(static_cast<int>(string.length()) == result - start);
 //..
+//
+///Example 3: Validating UTF-8 read from a 'bsl::streambuf':
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this usage example, we will demonstrate reading and validating UTF-8
+// from a stream.
+//
+// First, we write a function to read valid UTF-8 to a 'bsl::string'.  We don't
+// know how long the input will be, so we don't know how long to make the
+// string, so we will grow the string in small, 32-byte increments.
+//..
+//  int utf8StreambufToString(bsl::string    *output,
+//                            bsl::streambuf *sb)
+//      // Read valid UTF-8 from the specified streambuf 'sb' to the specified
+//      // 'output'.  Return 0 if the input was exhausted without encountering
+//      // any invalid UTF-8, and a non-zero value otherwise.  If invalid UTF-8
+//      // is encounted, log a mesage describing the problem after writing all
+//      // the valid UTF-8 preceding it to 'output'.  Note that after the call,
+//      // in no case will 'output' contain any invalid UTF-8.
+//  {
+//      enum { k_READ_LENGTH = 32 };
+//
+//      output->clear();
+//      while (true) {
+//          bsl::size_t len = output->length();
+//          output->resize(len + k_READ_LENGTH);
+//          int status;
+//          IntPtr numBytes = bdlde::Utf8Util::readIfValid(&status,
+//                                                         &(*output)[len],
+//                                                         k_READ_LENGTH,
+//                                                         sb);
+//          BSLS_ASSERT(0 <= numBytes);
+//          BSLS_ASSERT(numBytes <= k_READ_LENGTH);
+//
+//          output->resize(len + numBytes);
+//          if (0 < status) {
+//              // Buffer was full before the end of input was encounted.  Note
+//              // that 'numBytes' may be up to 3 bytes less than
+//              // 'k_READ_LENGTH'.
+//
+//              BSLS_ASSERT(k_READ_LENGTH - 4 < numBytes);
+//
+//              // Go on to grow the string and get more input.
+//
+//              continue;
+//          }
+//          else if (0 == status) {
+//              // Success!  We've reached the end of input without
+//              // encountering any invalid UTF-8.
+//
+//              return 0;                                             // RETURN
+//          }
+//          else {
+//              // Invalid UTF-8 encounted, the value of 'status' indicates the
+//              // exact nature of the problem.  'numBytes' returned from the
+//              // above call indicated the number of valid UTF-8 bytes read
+//              // before encountering the invalid UTF-8.
+//
+//              BSLS_LOG_ERROR("Invalid UTF-8 error %s at position %u.\n",
+//                             bdlde::Utf8Util::toErrorMessage(status),
+//                             static_cast<unsigned>(output->length()));
+//
+//              return -1;                                            // RETURN
+//          }
+//      }
+//  }
+//..
+// Then, in 'main', we try streaming an ASCII string (since ASCII is valid
+// UTF-8),
+//..
+//  bsl::stringstream ss;
+//  ss << "Hello, world!\n";
+//  bsl::string out;
+//  int rc = utf8StreambufToString(&out, ss.rdbuf());
+//  assert(0 == rc);
+//  assert("Hello, world!\n" == out);
+//..
+// and we observe that no error messages were logged.
+//
+// Next, we take a less trivial valid UTF-8 string of Chinese, and it's length,
+// 'validLen':
+//..
+//  static const char validChineseUtf8[] = {
+//      "\xe4\xb8\xad\xe5\x8d\x8e\xe4\xba\xba\xe6\xb0\x91\xe5\x85\xb1"
+//      "\xe5\x92\x8c\xe5\x9b\xbd\xef\xbc\x8c\xe9\x80\x9a\xe7\xa7\xb0"
+//      "\xe4\xb8\xad\xe5\x9b\xbd\x5b\xe6\xb3\xa8\x20\x33\x5d\xef\xbc"
+//      "\x8c\xe6\x98\xaf\xe4\xbd\x8d\xe6\x96\xbc\xe4\xba\x9a\xe6\xb4"
+//      "\xb2\xe6\x9d\xb1\xe9\x83\xa8\xe3\x80\x81\xe5\xa4\xaa\xe5\xb9"
+//      "\xb3\xe6\xb4\x8b\xe8\xa5\xbf\xe5\xb2\xb8\xe7\x9a\x84\xe4\xb8"
+//      "\x80\xe4\xb8\xaa\xe7\xa4\xbe\xe4\xbc\x9a\xe4\xb8\xbb\xe4\xb9"
+//      "\x89\xe5\x9b\xbd\xe5\xae\xb6\xe3\x80\x82\xe9\xa6\x96\xe9\x83"
+//      "\xbd\xe7\x82\xba\xe5\x8c\x97\xe4\xba\xac\xe3\x80\x82\xe5\x85"
+//      "\xb6\xe9\x99\x86\xe5\x9c\xb0\xe7\x96\x86\xe5\x9f\x9f\xe8\x88"
+//      "\x87\xe5\x91\xa8\xe9\x82\x8a\x31\x34\xe5\x80\x8b\xe5\x9c\x8b"
+//      "\xe5\xae\xb6\xe6\x8e\xa5\xe5\xa3\xa4\xef\xbc\x8c\xe9\x99\x86"
+//      "\xe5\x9c\xb0\xe5\x8f\x8a\xe6\xb9\x96\xe6\xb3\x8a\xe7\x9a\x84"
+//      "\xe6\x80\xbb\xe9\x9d\xa2\xe7\xa9\x8d\xe7\xba\xa6\x39\x36\x30"
+//      "\xe8\x90\xac\xe5\xb9\xb3\xe6\x96\xb9\xe5\x85\xac\xe9\x87\x8c"
+//      "\x5b\x31\x31\x5d\x5b\x31\x32\x5d\x5b\x31\x33\x5d\xef\xbc\x8c"
+//      "\xe6\x98\xaf\xe5\x85\xa8\xe4\xb8\x96\xe7\x95\x8c\xe9\x99\x86"
+//      "\xe5\x9c\xb0" };
+//  const bsl::size_t validLen = sizeof(validChineseUtf8) - 1;
+//..
+// Then, we print the length of the string:
+//..
+//  cout << "Length of Chinese string: " << validLen << endl;
+//..
+// and observe the output:
+//..
+//  Length of Chinese string: 258
+//..
+// Since our functions streams in only up to 32 bytes at a time, it will take
+// our function several iterations to input this string.
+//
+// Next, we stream the valid Chinese UTF-8 into 'out':
+//..
+//  ss.str("");
+//  ss << validChineseUtf8;
+//  rc = utf8StreambufToString(&out, ss.rdbuf());
+//  assert(0 == rc);
+//  assert(validChineseUtf8 == out);
+//..
+// and we see that it succeeds and we observe that no error message is logged.
+//
+// Then, we create another string which is our valid Chinese UTF-8 with more
+// appended to it.  The first byte of the appended string is '0xaf', which is a
+// UTF-8 continuation octet, which will be unexpected, meaning that the string
+// will have invalid UTF-8 at offset 258.
+//..
+//  bsl::string invalidUtf8Str(validChineseUtf8);
+//  invalidUtf8Str += "\xaf Keep cool with Coolidge!";
+//..
+// Now, we attempt to stream in the invalid UTF-8:
+//..
+//  ss.str("");
+//  ss << invalidUtf8Str;
+//  rc = utf8StreambufToString(&out, ss.rdbuf());
+//  assert(rc != 0);
+//  assert(invalidUtf8Str != out);
+//  assert(out.length() == validLen);
+//  assert(validChineseUtf8 == out);
+//..
+// And finally, we see that everything before the invalid UTF-8 was
+// successfully input, and the following message was logged by our function (on
+// a single line):
+//..
+//  ERROR .../bdlde_utf8util.t.cpp:2612 Invalid UTF-8 error
+//                             k_UNEXPECTED_CONTINUATION_OCTET at position 258.
+//..
 
 #include <bdlscm_version.h>
 
@@ -371,50 +519,42 @@ struct Utf8Util {
     typedef bsls::Types::size_type       size_type;
     typedef bsls::Types::IntPtr          IntPtr;
 
-    enum ReturnCode {
+    enum ErrorStatus {
         // For those functions in this 'struct' for which invalid UTF-8 input
         // is not undefined behavior, if invalid UTF-8 is passed, either the
         // return value or the 'status' code returned from the argument list
         // are set to one of these values (all of which are negative) to
         // indicate which type of UTF-8 error occurred.
 
-                     e_SUCCESS                       = 0,
+        k_END_OF_INPUT_TRUNCATION       = -3,
+           // The end of input from a 'streambuf' was reached partway through a
+           // multibyte UTF-8 sequence, or if the input was a buffer, the
+           // buffer ended partway through a multibyte sequence.
 
-                     e_OUTPUT_BUFFER_FULL            = -2,
-                        // Only returned when reading from a 'bsl::streambuf',
-                        // indicates that the buffer was full before end of
-                        // input was reached.
+        k_UNEXPECTED_CONTINUATION_OCTET = -4,
+           // A continuation byte was encountered when not within a multi-bytes
+           // sequence.
 
-                     e_END_OF_INPUT_TRUNCATION       = -3,
-                        // The end of input from a 'streambuf' was reached
-                        // partway through a multibyte UTF-8 sequence, or if
-                        // the input was a buffer, the buffer ended partway
-                        // through a multibyte sequence.
+        k_NON_CONTINUATION_OCTET        = -5,
+           // A non-continuation byte was encountered where a continuation byte
+           // was expected.  Note that this may include a '\0' in a non
+           // zero-terminated string that occurs where a continuation byte was
+           // expected.
 
-                     e_UNEXPECTED_CONTINUATION_OCTET = -4,
-                        // A continuation byte was encountered when not within
-                        // a multi-bytes sequence.
+        k_NON_MINIMAL_ENCODING          = -6,
+           // The unicode value encoded could have been encoded in a sequence
+           // of fewer bytes.
 
-                     e_NON_CONTINUATION_OCTET        = -5,
-                        // A non-continuation byte was encountered where a
-                        // continuation byte was expected.  Note that this may
-                        // include a '\0' in a non zero-terminated string that
-                        // occurs where a continuation byte was expected.
+        k_SEQUENCE_TOO_LONG             = -7,
+           // The start of the sequence indicated that the sequence was over 4
+           // bytes long.
 
-                     e_NON_MINIMAL_ENCODING          = -6,
-                        // The unicode value encoded could have been encoded in
-                        // a sequence of fewer bytes.
+        k_VALUE_TOO_LARGE               = -8,
+           // A value larger than 0x10FFFF was encoded.
 
-                     e_SEQUENCE_TOO_LONG             = -7,
-                        // The start of the sequence indicated that the
-                        // sequence was over 4 bytes long.
-
-                     e_VALUE_TOO_LARGE               = -8,
-                        // A value larger than 0x10FFFF was encoded.
-
-                     e_SURROGATE                     = -9
-                        // Illegal occurrance of unicode code point reserved
-                        // for surrogate values in UTF-16.
+        k_SURROGATE                     = -9
+           // Illegal occurrance of unicode code point reserved for surrogate
+           // values in UTF-16.
     };
 
     // CLASS METHODS
@@ -644,27 +784,28 @@ struct Utf8Util {
         // is undefined unless 'string' contains valid UTF-8.  Note that
         // 'string' may contain less than 'length' Unicode code points.
 
-    static size_type readIfValid(int            *returnCode,
+    static size_type readIfValid(int            *status,
                                  char           *outputBuffer,
                                  size_type       outputBufferLength,
                                  bsl::streambuf *input);
         // Read from the specified 'input', validating the UTF-8 in the
         // process, copying correct UTF-8 input into the specified
         // 'outputBuffer' of length 'outputBufferLength'.  Always return the
-        // number of bytes of valid UTF-8 written into the buffer.  Return a
-        // value from the 'ReturnCode' 'enum' to '*returnCode', 'e_SUCCESS' if
-        // end of file was reached, 'e_OUTPUT_BUFFER_FULL' if the buffer was
-        // full before end of file was reached, and other values if incorrect
-        // UTF-8 was encountered.  The contents of 'outputBuffer' following the
-        // correct UTF-8 is unspecified.  The behavior is undefined if
-        // 'outputBufferLength < 4'.  Note that
-        // '*returnCode == e_OUTPUT_BUFFER_FULL' may be returned with up to 3
-        // unfilled bytes at the end of 'outputBuffer'.
+        // number of bytes of valid UTF-8 written into the buffer.  If a UTF-8
+        // error is encountered in the input, set the specified 'status' to a
+        // value from the 'ErrorStatus' enum (all of which are negative)
+        // indicating what type of error occurred.  Otherwise, if end of input
+        // was reached, return 0, and return a positive value if the output
+        // buffer was full or nearly full before end of input was reached.  The
+        // contents of 'outputBuffer' following the correct UTF-8 is
+        // unspecified.  The behavior is undefined if 'outputBufferLength < 4'.
+        // Note that a positive value may be returned with up to 3 unfilled
+        // bytes at the end of 'outputBuffer'.
 
-    static const char *returnCodeToString(int returnCode);
+    static const char *toErrorMessage(int errorStatus);
         // Return a null-terminated string describing which value of the
-        // 'ReturnCode' enum is matched by 'errorCode', or
-        // '(* unrecognized value *)' if no value in 'ReturnCode' is matched.
+        // 'ErrorStatus' enum is matched by 'errorStatus', or
+        // '(* unrecognized value *)' if no value in 'ErrorStatus' is matched.
 };
 
 // ============================================================================
