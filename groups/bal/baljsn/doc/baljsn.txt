@@ -12,7 +12,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'baljsn' package currently has 12 components having 5 levels of physical
+ The 'baljsn' package currently has 13 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -31,6 +31,7 @@
      baljsn_tokenizer
 
   1. baljsn_decoderoptions
+     baljsn_encoder_testtypes                                         !PRIVATE!
      baljsn_encodingstyle
      baljsn_parserutil
 ..
@@ -51,6 +52,9 @@
 :
 : 'baljsn_encoder':
 :      Provide a JSON encoder for 'bdlat'-compatible types.
+:
+: 'baljsn_encoder_testtypes':                                         !PRIVATE!
+:      Provide value-semantic attribute classes
 :
 : 'baljsn_encoderoptions':
 :      Provide an attribute class for specifying JSON encoding options.
