@@ -1,5 +1,13 @@
-bsl-internal (3.53.0.0) unstable; urgency=low
+bsl-internal (3.54.0.0) unstable; urgency=low
 
+  * 5143fccc3 Bumped version to 3.54.0.0
+  * 2acca696b Merge pull request #2780 from rkhlebnikov/drqs-158146615-striped-containers-with-noncopyable-value-type
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 May 2020 10:51:38 -0400
+
+bsl-internal (3.53.0.0) git; urgency=low
+
+  * 6c42d15d9 Changelog for version 3.53.0.0
   * 0739bbf45 Bumped version to 3.53.0.0
   * 8927efb57 Merge pull request #2779 from afeher/drqs-157961303-fix-map-test-drivers-sun
   * 896dbff7d Merge pull request #2777 from afeher/drqs-157960635-fix-multiset-test-on-sun
@@ -12,7 +20,7 @@ bsl-internal (3.53.0.0) unstable; urgency=low
   * 648d13a1c balcl_option.h: 'bdedox' conversion fix: doc-only
   * 497d6106e Merge pull request #2749 from bchapman/balst-open-source-drqs-147852908
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Apr 2020 11:34:17 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Apr 2020 11:35:08 -0400
 
 bsl-internal (3.52.0.0) git; urgency=low
 
