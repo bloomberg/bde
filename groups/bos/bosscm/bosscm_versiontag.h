@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 #define BOS_VERSION_MAJOR 3
     // BOS release major version
 
-#define BOS_VERSION_MINOR 53
+#define BOS_VERSION_MINOR 54
     // BOS release major version
 
 #define BOS_VERSION BSL_MAKE_VERSION(BOS_VERSION_MAJOR, \
