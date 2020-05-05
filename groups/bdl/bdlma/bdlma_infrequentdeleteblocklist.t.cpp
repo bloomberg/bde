@@ -533,7 +533,8 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
 
-                const bsl::size_t sizeOfLastBlock = oa.lastAllocatedNumBytes();
+                const bsls::Types::Int64 sizeOfLastBlock =
+                                                    oa.lastAllocatedNumBytes();
 
                 if (veryVeryVerbose) { T_ P(sizeOfLastBlock) }
 
@@ -696,8 +697,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr          = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
