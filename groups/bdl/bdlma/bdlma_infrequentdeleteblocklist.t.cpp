@@ -14,6 +14,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_set.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -582,6 +583,10 @@ int main(int argc, char *argv[])
             const int NUM_DISTINCT_ALLOCATIONS = sizeof  DISTINCT_ALLOCATIONS
                                                / sizeof *DISTINCT_ALLOCATIONS;
 
+            bslma::TestAllocator sa("set", veryVeryVeryVerbose);
+
+            bsl::set<bsls::Types::Int64> sizesOfLastBlock(&sa);
+
             for (int ti = 1; ti <= NUM_DISTINCT_ALLOCATIONS; ++ti) {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -590,7 +595,7 @@ int main(int argc, char *argv[])
                 Obj mX(&oa);
 
                 for (int tj = 0; tj < ti; ++tj) {
-                    const int SIZE = DISTINCT_ALLOCATIONS[tj];
+                    const int SIZE = DISTINCT_ALLOCATIONS[tj] * 1024;
 
                     void *p = mX.allocate(SIZE);
                     if (veryVerbose) { T_; P_(SIZE); P(p); }
@@ -599,6 +604,8 @@ int main(int argc, char *argv[])
 
                 const bsls::Types::Int64 sizeOfLastBlock =
                                                     oa.lastAllocatedNumBytes();
+
+                sizesOfLastBlock.insert(sizeOfLastBlock);
 
                 if (veryVeryVerbose) { T_ P(sizeOfLastBlock) }
 
@@ -620,6 +627,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(ti, ti + 1 == oa.numBlocksInUse());
                 mX.release();
             }
+
+            ASSERT(NUM_DISTINCT_ALLOCATIONS == sizesOfLastBlock.size());
         }
 
         ASSERT(0 == da.numBlocksTotal());
