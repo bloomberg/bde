@@ -88,8 +88,10 @@ void InfrequentDeleteBlockList::release()
 
 void InfrequentDeleteBlockList::releaseAllButLastBlock()
 {
-    if (d_head_p == 0)
+    if (d_head_p == 0) {
         return;                                                       // RETURN
+    }
+
     Block *tail = d_head_p->d_next_p;
     d_head_p->d_next_p = 0;
     while (tail) {
