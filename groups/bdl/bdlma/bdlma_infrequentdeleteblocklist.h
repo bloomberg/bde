@@ -245,13 +245,13 @@ class InfrequentDeleteBlockList {
         // and has not already been released.
 
     void release();
-        // Deallocate all memory blocks managed by this object, returning it to
-        // its default-constructed state.
+        // Deallocate all memory blocks managed by this object, returning this
+        // object to its default-constructed state.
 
     void releaseAllButLastBlock();
-        // Deallocate all except the most-recently obtained of the memory
+        // Deallocate all except the most-recently obtained block of the memory
         // blocks managed by this object.  If no blocks are managed, this
-        // calling this method has no effect.
+        // method has no effect.
 
     // ACCESSORS
                                   // Aspects
