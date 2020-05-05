@@ -541,12 +541,14 @@ int main(int argc, char *argv[])
                 if ((ti & 1) == 0) {
                     if (veryVerbose) { cout << '\t' << "release" << '\n'; }
                     mX.release();
-                    LOOP_ASSERT(ti,  0 == oa.numBlocksInUse());
+                    LOOP_ASSERT(ti, 0 == oa.numBlocksInUse());
+                    LOOP_ASSERT(ti, 0 == oa.numBytesInUse());
 
                     for (int tj = 0; tj < ti; ++tj) {
                         const int SIZE = DATA[tj];
 
                         void *p = mX.allocate(SIZE);
+
                         if (veryVerbose) { T_; P_(SIZE); P(p); }
                     }
                     LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
@@ -569,6 +571,54 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(ti, ti + 1 == oa.numBlocksInUse());
                     mX.release();
                 }
+            }
+        }
+
+        if (verbose) cout
+                 << "\nAdditional test for 'releaseAllButLastBlock." << endl;
+        {
+
+            const int DISTINCT_ALLOCATIONS[]   = { 1, 2, 3, 4, 5 };
+            const int NUM_DISTINCT_ALLOCATIONS = sizeof  DISTINCT_ALLOCATIONS
+                                               / sizeof *DISTINCT_ALLOCATIONS;
+
+            for (int ti = 1; ti <= NUM_DISTINCT_ALLOCATIONS; ++ti) {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                if (veryVerbose) { P(ti) }
+
+                Obj mX(&oa);
+
+                for (int tj = 0; tj < ti; ++tj) {
+                    const int SIZE = DISTINCT_ALLOCATIONS[tj];
+
+                    void *p = mX.allocate(SIZE);
+                    if (veryVerbose) { T_; P_(SIZE); P(p); }
+                }
+                LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
+
+                const bsls::Types::Int64 sizeOfLastBlock =
+                                                    oa.lastAllocatedNumBytes();
+
+                if (veryVeryVerbose) { T_ P(sizeOfLastBlock) }
+
+                if (veryVerbose) { cout << '\t' << "releaseAllButLastBlock"
+                                                << '\n'; }
+                mX.releaseAllButLastBlock();
+                LOOP_ASSERT(ti,  1               == oa.numBlocksInUse());
+                LOOP_ASSERT(ti,  sizeOfLastBlock == oa.numBytesInUse());
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                for (int tj = 0; tj < ti; ++tj) {
+                    const int SIZE = DISTINCT_ALLOCATIONS[tj];
+
+                    void *p = mX.allocate(SIZE);
+
+                    if (veryVerbose) { T_ P_(SIZE) P(p) }
+                }
+                LOOP_ASSERT(ti, ti + 1 == oa.numBlocksInUse());
+                mX.release();
             }
         }
 
@@ -764,8 +814,8 @@ int main(int argc, char *argv[])
         }
 
         typedef bsls::AlignmentUtil U;
-        const int HDRSZ = sizeof(u::Block) -
-                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+        const int HDRSZ = sizeof(u::Block) - U::BSLS_MAX_ALIGNMENT;
 
         if (veryVerbose) { T_; P_(HDRSZ); P(U::BSLS_MAX_ALIGNMENT); }
 
