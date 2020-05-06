@@ -1,9 +1,17 @@
-bsl-internal (3.54.0.0) unstable; urgency=low
+bsl-internal (3.54.1.0) unstable; urgency=low
 
+  * c6949c788 Bumped version to 3.54.1.0
+  * af85e9428 Merge pull request #2784 from sbreitst/bdlma_infrequentdeleteblocklist-drqs-158142905
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 6 May 2020 15:38:11 -0400
+
+bsl-internal (3.54.0.0) git; urgency=low
+
+  * 89113474e Changelog for version 3.54.0.0
   * 5143fccc3 Bumped version to 3.54.0.0
   * 2acca696b Merge pull request #2780 from rkhlebnikov/drqs-158146615-striped-containers-with-noncopyable-value-type
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 May 2020 10:51:38 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 May 2020 10:52:26 -0400
 
 bsl-internal (3.53.0.0) git; urgency=low
 
