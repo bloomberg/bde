@@ -86,11 +86,26 @@ void InfrequentDeleteBlockList::release()
     }
 }
 
+void InfrequentDeleteBlockList::releaseAllButLastBlock()
+{
+    if (d_head_p == 0) {
+        return;                                                       // RETURN
+    }
+
+    Block *tail = d_head_p->d_next_p;
+    d_head_p->d_next_p = 0;
+    while (tail) {
+        void *lastBlock = tail;
+        tail = tail->d_next_p;
+        d_allocator_p->deallocate(lastBlock);
+    }
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

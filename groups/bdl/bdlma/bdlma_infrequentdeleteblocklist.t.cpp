@@ -5,6 +5,7 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -13,13 +14,14 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_set.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // A 'bdlma::InfrequentDeleteBlockList' is a mechanism (i.e., having state but
@@ -31,46 +33,55 @@ using namespace bsl;
 // the 'release' method (the 'deallocate' method has no effect), and upon
 // destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure that
 // these concerns are satisfied.
-//-----------------------------------------------------------------------------
-// [ 2] bdlma::InfrequentDeleteBlockList(bslma::Allocator *ba = 0);
-// [ 3] ~bdlma::InfrequentDeleteBlockList();
+// ----------------------------------------------------------------------------
+// CREATORS
+// [ 2] InfrequentDeleteBlockList(bslma::Allocator *ba = 0);
+// [ 3] ~InfrequentDeleteBlockList();
+//
+// MANIPULATORS
 // [ 2] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 3] void release();
+// [ 3] void releaseAllButLastBlock();
 //
-// // ACCESSORS
+// ACCESSORS
 // [ 2] bslma::Allocator *allocator() const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: There is no temporary allocation from any allocator.
 // [ 2] CONCERN: Precondition violations are detected when enabled.
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
@@ -79,7 +90,6 @@ void aSsErT(int c, const char *s, int i)
 #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -98,25 +108,27 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                               GLOBAL TYPEDEF
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef bdlma::InfrequentDeleteBlockList Obj;
 
-//=============================================================================
+// ============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // This type was copied from 'bdlma_infrequentdeleteblocklist.h' for testing
 // purposes.
+
+namespace {
+namespace u {
 
 struct Block {
     Block                               *d_next_p;
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
-static inline
 bsls::Types::size_type roundUp(bsls::Types::size_type x,
                                bsls::Types::size_type y)
     // Round up the specified 'x' to the nearest whole integer multiple of the
@@ -125,12 +137,19 @@ bsls::Types::size_type roundUp(bsls::Types::size_type x,
     return (x + y - 1) / y * y;
 }
 
-//=============================================================================
+}  // close namespace u
+}  // close unnamed namespace
+
+// ============================================================================
 //                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Memory Pools for Strings
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::InfrequentDeleteBlockList' object is commonly used to supply
 // memory to more elaborate memory managers that distribute parts of each
 // (larger) allocated memory block supplied by the
@@ -215,7 +234,7 @@ bsls::Types::size_type roundUp(bsls::Types::size_type x,
         ASSERT(0 < numBytes);
 
         if (k_THRESHOLD < numBytes) {
-            // Alloc separate block if above threshold.
+            // Allocate separate block if above threshold.
 
             return reinterpret_cast<char *>(
                                     d_blockList.allocate(numBytes));  // RETURN
@@ -277,23 +296,23 @@ bsls::Types::size_type roundUp(bsls::Types::size_type x,
 // is also destroyed, which in turn automatically deallocates all of its
 // managed memory blocks.
 
-//=============================================================================
+// ============================================================================
 //                                MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                test = argc > 1 ? atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    bslma::TestAllocator globalAllocator(veryVeryVerbose);
+    bslma::TestAllocator globalAllocator(veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
@@ -319,7 +338,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        bslma::TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVeryVerbose);
 
         if (verbose) cout << "Testing 'my_StrPool'." << endl;
         {
@@ -412,26 +431,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // DTOR & RELEASE
+        // DESTRUCTOR, 'release', AND 'releaseAllButLastBlock'
         //   Ensure that both the destructor and the 'release' method release
-        //   all memory allocated from the object allocator.
+        //   all memory allocated from the object allocator.  Ensure that
+        //   'releaseAllButLastBlock' frees all but the last-allocated block.
         //
         // Concerns:
         //: 1 All memory allocated from the object allocator is released at
         //:   destruction.
         //:
-        //: 2 All memory allocated from the object allocator is released by
-        //:   the 'release' method.
+        //: 2 All memory allocated from the object allocator is released by the
+        //:   'release' method and all but the last block is release by the
+        //:   'releaseAllButLastBlock' method.
         //:
-        //: 3 Additional allocations can be made from the object following
-        //:   a call to 'release'.
+        //: 3 Additional allocations can be made from the object following a
+        //:   call to 'release'.
         //
         // Plan:
         //: 1 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
-        //: 2 For 'N' in the range '[0 .. 4]':
+        //: 2 For 'N' in the range '[0 .. 8]':
         //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:   2 Use the default constructor and 'oa' to create a modifiable
@@ -443,20 +464,30 @@ int main(int argc, char *argv[])
         //:   4 Allow 'mX' to go out of scope and verify that the destructor
         //:     released all memory back to 'oa'.  (C-1)
         //:
-        //:  3 Repeat P-2 except invoke 'release' on 'mX' following P-2.3 and
-        //:    verify that 'release' released all memory back to 'oa'.  (C-2)
+        //: 3 For odd values of 'N' perform 3.1'; otherwise, perform 3.2 (C-2):
         //:
-        //:  4 Following each call to 'release', allocate 'N' additional blocks
-        //:    from 'mX' and verify that the requested number of blocks were
-        //:    allocated from 'oa'.  (C-3)
+        //:   1 Repeat P-2 except invoke 'release' on 'mX' following P-2.3 and
+        //:     verify that 'release' released all memory back to 'oa'.
+        //:
+        //:   2 Repeat P-2 except invoke 'releaseAllButLastBlock' on 'mX'
+        //:     following P-2.3 and verify that 'releaseAllButLastBlock'
+        //:     released all but one block to 'oa' and the size of that block
+        //:     has the size of the last allocation from 'oa' in P-2.
+        //:
+        //: 4 Following each call to 'release' 'releaseAllButLastBlock',
+        //:   allocate 'N' additional blocks from 'mX' and verify that the
+        //:   requested number of blocks were allocated from 'oa'.  (C-3)
         //
         // Testing:
-        //   ~bdlma::InfrequentDeleteBlockList();
+        //   ~InfrequentDeleteBlockList();
         //   void release();
+        //   void releaseAllButLastBlock();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "DTOR & RELEASE" << endl
-                                  << "==============" << endl;
+        if (verbose) cout
+              << endl
+              << "DESTRUCTOR, 'release', AND 'releaseAllButLastBlock'" << endl
+              << "===================================================" << endl;
 
         const int DATA[]   = { 1, 1, 16, 16, 256, 256, 1000, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -485,10 +516,13 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'release'." << endl;
+        if (verbose) cout
+                 << "\nTesting 'release' and 'releaseAllButLastBlock." << endl;
         {
             for (int ti = 0; ti <= NUM_DATA; ++ti) {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                if (veryVerbose) { P(ti) }
 
                 Obj mX(&oa);
 
@@ -500,17 +534,101 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
 
-                mX.release();
-                LOOP_ASSERT(ti,  0 == oa.numBlocksInUse());
+                const bsls::Types::Int64 sizeOfLastBlock =
+                                                    oa.lastAllocatedNumBytes();
+
+                if (veryVeryVerbose) { T_ P(sizeOfLastBlock) }
+
+                if ((ti & 1) == 0) {
+                    if (veryVerbose) { cout << '\t' << "release" << '\n'; }
+                    mX.release();
+                    LOOP_ASSERT(ti, 0 == oa.numBlocksInUse());
+                    LOOP_ASSERT(ti, 0 == oa.numBytesInUse());
+
+                    for (int tj = 0; tj < ti; ++tj) {
+                        const int SIZE = DATA[tj];
+
+                        void *p = mX.allocate(SIZE);
+
+                        if (veryVerbose) { T_; P_(SIZE); P(p); }
+                    }
+                    LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
+                } else {
+                    if (veryVerbose) { cout << '\t' << "releaseAllButLastBlock"
+                                                    << '\n'; }
+                    mX.releaseAllButLastBlock();
+                    LOOP_ASSERT(ti,  1               == oa.numBlocksInUse());
+                    LOOP_ASSERT(ti,  sizeOfLastBlock == oa.numBytesInUse());
+
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    for (int tj = 0; tj < ti; ++tj) {
+                        const int SIZE = DATA[tj];
+
+                        void *p = mX.allocate(SIZE);
+
+                        if (veryVerbose) { T_ P_(SIZE) P(p) }
+                    }
+                    LOOP_ASSERT(ti, ti + 1 == oa.numBlocksInUse());
+                    mX.release();
+                }
+            }
+        }
+
+        if (verbose) cout
+                 << "\nAdditional test for 'releaseAllButLastBlock." << endl;
+        {
+
+            const int DISTINCT_ALLOCATIONS[]   = { 1, 2, 3, 4, 5 };
+            const int NUM_DISTINCT_ALLOCATIONS = sizeof  DISTINCT_ALLOCATIONS
+                                               / sizeof *DISTINCT_ALLOCATIONS;
+
+            bslma::TestAllocator sa("set", veryVeryVeryVerbose);
+
+            bsl::set<bsls::Types::Int64> sizesOfLastBlock(&sa);
+
+            for (int ti = 1; ti <= NUM_DISTINCT_ALLOCATIONS; ++ti) {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                if (veryVerbose) { P(ti) }
+
+                Obj mX(&oa);
 
                 for (int tj = 0; tj < ti; ++tj) {
-                    const int SIZE = DATA[tj];
+                    const int SIZE = DISTINCT_ALLOCATIONS[tj] * 1024;
 
                     void *p = mX.allocate(SIZE);
                     if (veryVerbose) { T_; P_(SIZE); P(p); }
                 }
                 LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
+
+                const bsls::Types::Int64 sizeOfLastBlock =
+                                                    oa.lastAllocatedNumBytes();
+
+                sizesOfLastBlock.insert(sizeOfLastBlock);
+
+                if (veryVeryVerbose) { T_ P(sizeOfLastBlock) }
+
+                if (veryVerbose) { cout << '\t' << "releaseAllButLastBlock"
+                                                << '\n'; }
+                mX.releaseAllButLastBlock();
+                LOOP_ASSERT(ti,  1               == oa.numBlocksInUse());
+                LOOP_ASSERT(ti,  sizeOfLastBlock == oa.numBytesInUse());
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                for (int tj = 0; tj < ti; ++tj) {
+                    const int SIZE = DISTINCT_ALLOCATIONS[tj];
+
+                    void *p = mX.allocate(SIZE);
+
+                    if (veryVerbose) { T_ P_(SIZE) P(p) }
+                }
+                LOOP_ASSERT(ti, ti + 1 == oa.numBlocksInUse());
+                mX.release();
             }
+
+            ASSERT(NUM_DISTINCT_ALLOCATIONS == sizesOfLastBlock.size());
         }
 
         ASSERT(0 == da.numBlocksTotal());
@@ -518,7 +636,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR & ALLOCATE
+        // DEFAULT CONSTRUCTOR AND ALLOCATE
         //   Ensure that we can use the default constructor to create an
         //   object, and that we can 'allocate' memory from that object.
         //
@@ -614,14 +732,15 @@ int main(int argc, char *argv[])
         //:   regardless of how the object was constructed.  (C-10)
         //
         // Testing:
-        //   bdlma::InfrequentDeleteBlockList(bslma::Allocator *ba = 0);
+        //   InfrequentDeleteBlockList(bslma::Allocator *ba = 0);
         //   void *allocate(bsls::Types::size_type size);
-        //
         //   bslma::Allocator *allocator() const;
+        //   CONCERN: Precondition violations are detected when enabled.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "DEFAULT CTOR & ALLOCATE" << endl
-                                  << "=======================" << endl;
+        if (verbose) cout << endl
+                          << "DEFAULT CONSTRUCTOR AND ALLOCATE" << endl
+                          << "================================" << endl;
 
         if (verbose) cout << "\nTesting constructor." << endl;
 
@@ -629,14 +748,16 @@ int main(int argc, char *argv[])
 
             const char CONFIG = cfg;  // how we specify the allocator
 
+            if (veryVerbose) { P(CONFIG) }
+
             bslma::TestAllocator da("default",   veryVeryVeryVerbose);
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr          = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -702,8 +823,8 @@ int main(int argc, char *argv[])
         }
 
         typedef bsls::AlignmentUtil U;
-        const int HDRSZ = sizeof(Block) -
-                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+        const int HDRSZ = sizeof(u::Block) - U::BSLS_MAX_ALIGNMENT;
 
         if (veryVerbose) { T_; P_(HDRSZ); P(U::BSLS_MAX_ALIGNMENT); }
 
@@ -738,7 +859,7 @@ int main(int argc, char *argv[])
             { L_,    5 * HDRSZ - 16  },
 
             // For DRQS 78107275, we wish to attempt large allocations.
-            // Unfortunately, this causes intermittant failures in the nightly
+            // Unfortunately, this causes intermittent failures in the nightly
             // builds.  As such, we will "push the envelope" on 64-bit Linux
             // but perform a more moderate test elsewhere.
 
@@ -759,14 +880,15 @@ int main(int argc, char *argv[])
             const bsls::Types::size_type SIZE = DATA[ti].d_size;
 
             const bsls::Types::size_type EXP_SZ =
-                                  roundUp(SIZE + HDRSZ, U::BSLS_MAX_ALIGNMENT);
+                               u::roundUp(SIZE + HDRSZ, U::BSLS_MAX_ALIGNMENT);
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            Obj mX(&oa);
+            Obj   mX(&oa);
             void *p = mX.allocate(SIZE);  LOOP2_ASSERT(LINE, ti, p);
 
-            const void *EXP_P = (char *)oa.lastAllocatedAddress() + HDRSZ;
+            const void *EXP_P = static_cast<char *>(oa.lastAllocatedAddress())
+                              + HDRSZ;
 
             bsls::Types::size_type numBytes = oa.lastAllocatedNumBytes();
 
@@ -788,7 +910,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            Obj mX(&oa);
+            Obj   mX(&oa);
             void *p = mX.allocate(0);
 
             ASSERT(0 == p);

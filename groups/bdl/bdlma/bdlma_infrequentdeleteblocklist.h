@@ -25,6 +25,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Memory Pools for Strings
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::InfrequentDeleteBlockList' object is commonly used to supply
 // memory to more elaborate memory managers that distribute parts of each
 // (larger) allocated memory block supplied by the
@@ -109,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //      assert(0 < numBytes);
 //
 //      if (k_THRESHOLD < numBytes) {
-//          // Alloc separate block if above threshold.
+//          // Allocate separate block if above threshold.
 //
 //          return reinterpret_cast<char *>(
 //                                  d_blockList.allocate(numBytes));  // RETURN
@@ -241,8 +245,13 @@ class InfrequentDeleteBlockList {
         // and has not already been released.
 
     void release();
-        // Deallocate all memory blocks managed by this object, returning it to
-        // its default-constructed state.
+        // Deallocate all memory blocks managed by this object, returning this
+        // object to its default-constructed state.
+
+    void releaseAllButLastBlock();
+        // Deallocate all except the most-recently obtained block of the memory
+        // blocks managed by this object.  If no blocks are managed, this
+        // method has no effect.
 
     // ACCESSORS
                                   // Aspects
@@ -289,7 +298,7 @@ bslma::Allocator *InfrequentDeleteBlockList::allocator() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
