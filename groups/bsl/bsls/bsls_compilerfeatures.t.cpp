@@ -29,6 +29,7 @@
 // supported.
 //-----------------------------------------------------------------------------
 // [23] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
+// [31] BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 // [10] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 // [24] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
@@ -66,7 +67,8 @@
 // [18] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
-//=============================================================================
+// ----------------------------------------------------------------------------
+// [32] USAGE EXAMPLE
 
 using namespace BloombergLP;
 
@@ -1623,6 +1625,191 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 32: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+///Example 2: '__LINE__' macro multi-line value differences demonstration
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Note that this isn't an example of use, it is a demonstration of compiler
+// preprocessor behavior and the 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'
+// macro.
+//
+// Sometimes we write code that uses line numbers for logging or other
+// purposes.  Although most of the time the precise values of those line
+// numbers (in program output, such as assertions, or logs) is unimportant
+// (the output is read by humans who are good at finding the line that
+// actually emitted the text), sometimes programs read other programs' output.
+// In such cases the precise values for the line numbers may matter.  This
+// example demonstrates the two ways our currectly suported C++ compilers
+// generate line numbers in multi-line macro expansion contexts (from the
+// '__LINE__' macro), and how the presence (or absence) of the macro
+// 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which method the
+// current compiler uses.  First, we define a macro that uses '__LINE__' in its
+// replacement text:
+//..
+      #define THATS_MY_LINE(dummy) __LINE__
+//..
+// Note that this macro has the function-like syntax so we can easily span its
+// invocation to multiple lines.
+//
+// Next, we record the current line number in a constant, and also record the
+// line number from our macro, but we span the macro invocation multiple lines
+// to invoke the unspecified behavior.
+//
+// The two lines must follow each other due to working with line numbering:
+//..
+      const long A_LINE = __LINE__;
+      const long LINE_FROM_MACRO = THATS_MY_LINE
+          (
+               "dummy"
+          )
+          ;
+//..
+// We deliberately extended the macro invocation to more than 2 physical source
+// code lines so that we can demonstrate the two distinct behaviors: using the
+// line number of the first character or the last.  Extending the number of
+// lines *beyond* the macro invocation (by placing the semicolon on its own
+// line) has no effect on the line number substitution inside the macro.  The
+// dummy argument is required for C++03 compatibility.
+//
+// If we follow the definition of 'A_LINE' without any intervening empty lines
+// the line number of the first character of the macro invocation will be
+// 'A_LINE + 1', while the last falls on line 'A_LINE + 4'.
+//
+// Now we demonstrate the two different behaviors and how the presence of
+// 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which one will occur:
+//..
+      #ifdef BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+          ASSERT(A_LINE + 1 == LINE_FROM_MACRO);
+      #else
+          ASSERT(A_LINE + 4 == LINE_FROM_MACRO);
+      #endif
+//..
+// Finally note that WG14 N2322 defines this behavior is *unspecified*,
+// therefore it is in the realm of possibilities, although not likely (in C++
+// compilers) that further, more complicated or even indeterminite behaviors
+// may arise.
+#undef THATS_MY_LINE
+      } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'
+        //
+        // Note that in this test case we test "unspecified behavior", hence
+        // the assertions here serve as an early warning system to detect when
+        // compilers start to deviate from our assumptions.  It is, strictly
+        // speaking, not a "fault" or an "error" when unspecified behavior
+        // changes and our code does not know it, because that is what
+        // unspecified means: implementers of the preprocessor do not need to
+        // tell.  So we have no other way to find it out but to test.
+        //
+        // Also note that there are more distinct '__LINE__' use scenarios for
+        // which WG14 N2322 gives recommendations.  Our code is affected by one
+        // of those only, hence we have one macro in the header, and test for
+        // that one use case only ('__LINE__' subsitution value in replacement
+        // text of a macro that is invoked in a multiline manner).  There has
+        // been an experiment done for the other major case, see the
+        // conclusions within the test case.  There are no tests or compiler
+        // feature macro for that use case ('__LINE__' as a macro argument not
+        // in replacement text) because our code is not affected by that
+        // behavior (yet).
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' is defined whenever
+        //:   the preprocessor follows WG21 N2322 Recommended practice.
+        //:
+        //: 2 When 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' is not defined
+        //:   the preprocessor uses the line number of the last character of
+        //:   the macro invocation.
+        //
+        // Plan:
+        //: 1 Reuse the technique in {Example 2} to check that substituted
+        //:   line numbers match expectations to verify C-1 and C-2.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+             "\nTESTING 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'"
+             "\n===================================================\n");
+
+        if (veryVerbose) printf("'__LINE__' in substitution\n");
+        {
+#define BALL_LOG_LINENR_TESTER(dummy) __LINE__
+    // The dummy argument is required for C++03 compatibility
+
+            static const long k_LINE_BEFORE = __LINE__;
+            static const long k_LINE_MACRO  = BALL_LOG_LINENR_TESTER
+                (
+                    "dummy"
+                )
+                ;
+#undef BALL_LOG_LINENR_TESTER
+
+#ifdef BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+            ASSERTV(k_LINE_MACRO, k_LINE_BEFORE,
+                   (k_LINE_MACRO - k_LINE_BEFORE),
+                   (k_LINE_MACRO - k_LINE_BEFORE) == 1);  // C-1
+#else
+           ASSERTV(k_LINE_MACRO, k_LINE_BEFORE,
+                   (k_LINE_MACRO - k_LINE_BEFORE),
+                   (k_LINE_MACRO - k_LINE_BEFORE) == 4);  // C-2
+#endif
+        }
+
+        // The other use case where WG14 N2322 appears to have caused changes
+        // in preprocessor (compiler) behavior is the replacement value of
+        // '__LINE__' as a macro argument, in a context that is not macro
+        // replacement text.  In other words: passing in '__LINE__' to a
+        // macro from code that is not a macro.  The experiment we have done on
+        // that behavior is captured in this comment (code and all) so it is
+        // not lost to time, but no attempt will be made to indicate that
+        // behavior as a compiler feature as none of our code is affected by
+        // it, and none of us has seen production code ever been affected by
+        // it.  This variablity is also simple to work around by placing the
+        // macro invocation with the '__LINE__' argument into another macro,
+        // thereby changing the rules that apply.
+        //..
+        //    if (veryVerbose) printf("'__LINE__' as macro argument\n");
+        //    {
+        //        #define BALL_LOG_LINENR_TESTER2(passthrough) (passthrough)
+        //
+        //        static const long k_LINE_BEFORE = __LINE__;
+        //        static const long k_LINE_MACRO  = BALL_LOG_LINENR_TESTER2
+        //            (
+        //
+        //                __LINE__
+        //
+        //            )
+        //            ;
+        //        #undef BALL_LOG_LINENR_TESTER2
+        //
+        //        P(k_LINE_MACRO - k_LINE_BEFORE); // 6 or 4
+        //    }
+        //..
+        // Older compilers consistently substitute '__LINE__' with the line
+        // number of the last character of the macro invocation to which
+        // '__LINE__' is the argument (hence the value 6), while newer
+        // compilers (clang and gcc) report the number of the line '__LINE__'
+        // is on, as I believe WG14 N2322 recommends (hence the value 4).
+      } break;
       case 30: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'
@@ -2748,7 +2935,7 @@ will not improve the flavor.
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

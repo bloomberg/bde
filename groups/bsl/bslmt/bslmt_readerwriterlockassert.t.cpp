@@ -446,11 +446,14 @@ void myViolationHandler(const bsls::AssertViolation& violation)
     BSL::strcat(expectedText, level);
     BSL::strcat(expectedText, suffix);
 
-    ASSERT(expectedLine == violation.lineNumber());
-    ASSERT(0            == bsl::strcmp(expectedText, violation.comment()));
-    ASSERT(0            == bsl::strcmp(__FILE__, violation.fileName()));
-    ASSERT(0            == bsl::strcmp(expectedLevel,
-                                       violation.assertLevel()));
+    ASSERTV(expectedLine, violation.lineNumber(),
+            expectedLine == violation.lineNumber());
+    ASSERTV(expectedText, violation.comment(),
+            0 == bsl::strcmp(expectedText, violation.comment()));
+    ASSERTV(__FILE__, violation.fileName(),
+            0 == bsl::strcmp(__FILE__, violation.fileName()));
+    ASSERTV(expectedLevel, violation.assertLevel(),
+            0 == bsl::strcmp(expectedLevel, violation.assertLevel()));
 
     throw bsls::AssertTestException(violation.comment(),
                                     violation.fileName(),
@@ -519,16 +522,14 @@ void test()
                     break;
                   }
                   case 'b': {
-                    TestCase2::expectedLine = __LINE__ + 2;
-                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(
-                                                                  &rwLock);
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE(&rwLock);
                     ASSERTV(cfg, !"Reachable")
                     break;
                   }
                   case 'c': {
-                    TestCase2::expectedLine = __LINE__ + 2;
-                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(
-                                                                  &rwLock);
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE(&rwLock);
                     ASSERTV(cfg, !"Reachable")
                     break;
                   }
@@ -609,16 +610,14 @@ void test()
                     break;
                   }
                   case 'b': {
-                    TestCase2::expectedLine = __LINE__ + 2;
-                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT(
-                                                                  &rwLock);
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT(&rwLock);
                     ASSERTV(cfg, !"Reachable")
                     break;
                   }
                   case 'c': {
-                    TestCase2::expectedLine = __LINE__ + 2;
-                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(
-                                                                  &rwLock);
+                    TestCase2::expectedLine = __LINE__ + 1;
+                    BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(&rwLock);
                     ASSERTV(cfg, !"Reachable")
                     break;
                   }
@@ -821,7 +820,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

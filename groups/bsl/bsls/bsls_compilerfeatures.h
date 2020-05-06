@@ -12,6 +12,7 @@ BSLS_IDENT("$Id: $")
 //@MACROS
 //  BSLS_COMPILERFEATURES_CPLUSPLUS: Portable version of '__cplusplus'
 //  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: compiler bug
+//  BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST: __LINE__ value for multi-line
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
@@ -86,6 +87,21 @@ BSLS_IDENT("$Id: $")
 //:     memory leak in exception-safety tests for 'initializer_list'
 //:     constructors, so rises to the level of a generally supported
 //:     defect-detection macro.
+//:
+//: 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST':
+//:     The 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' macro is defined for
+//:     implementations that implement WG14 N2322
+//:     (http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2322.htm)
+//:     "Recommended practice" on the substitution value for the '__LINE__'
+//:     (predefined) preprocessor macro when expanding a macro that uses
+//:     '__LINE__' in its body, and that macro invocation spans multiple source
+//:     lines (logical or physical).  When macro is defined '__LINE__' is
+//:     substituted with the line number of the first character of the macro
+//:     name of the (multi-line) macro invocation.  When this macro is not
+//:     defined '__LINE__' is replaced (as traditional on older C++ compilers)
+//:     by the line number of the last character of the  macro invocation that
+//:     expands to a use of '__LINE__'.  See also
+//:     {Example 2: '__LINE__' macro multi-line value}.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES':
 //:     This macro is defined if alias templates are supported by the current
@@ -263,6 +279,68 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //..
 //
+///Example 2: '__LINE__' macro multi-line value differences demonstration
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Note that this isn't an example of use, it is a demonstration of compiler
+// preprocessor behavior and the 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'
+// macro.
+//
+// Sometimes we write code that uses line numbers for logging or other
+// purposes.  Although most of the time the precise values of those line
+// numbers (in program output, such as assertions, or logs) is unimportant
+// (the output is read by humans who are good at finding the line that
+// actually emitted the text), sometimes programs read other programs' output.
+// In such cases the precise values for the line numbers may matter.  This
+// example demonstrates the two ways our currectly suported C++ compilers
+// generate line numbers in multi-line macro expansion contexts (from the
+// '__LINE__' macro), and how the presence (or absence) of the macro
+// 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which method the
+// current compiler uses.  First, we define a macro that uses '__LINE__' in its
+// replacement text:
+//..
+//    #define THATS_MY_LINE(dummy) __LINE__
+//..
+// Note that this macro has the function-like syntax so we can easily span its
+// invocation to multiple lines.
+//
+// Next, we record the current line number in a constant, and also record the
+// line number from our macro, but we span the macro invocation multiple lines
+// to invoke the unspecified behavior.
+//
+// The two lines must follow each other due to working with line numbering:
+//..
+//    const long A_LINE = __LINE__;
+//    const long LINE_FROM_MACRO = THATS_MY_LINE
+//        (
+//            "dummy"
+//        )
+//.       ;
+//..
+// We deliberately extended the macro invocation to more than 2 physical source
+// code lines so that we can demonstrate the two distinct behaviors: using the
+// line number of the first character or the last.  Extending the number of
+// lines *beyond* the macro invocation (by placing the semicolon on its own
+// line) has no effect on the line number substitution inside the macro.  The
+// dummy argument is required for C++03 compatibility.
+//
+// If we follow the definition of 'A_LINE' without any intervening empty lines
+// the line number of the first character of the macro invocation will be
+// 'A_LINE + 1', while the last falls on line 'A_LINE + 4'.
+//
+// Now we demonstrate the two different behaviors and how the presence of
+// 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which one will occur:
+//..
+//    #ifdef BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+//        assert(A_LINE + 1 == LINE_FROM_MACRO);
+//    #else
+//        assert(A_LINE + 4 == LINE_FROM_MACRO);
+//    #endif
+//..
+// Finally note that WG14 N2322 defines this behavior is *unspecified*,
+// therefore it is in the realm of possibilities, although not likely (in C++
+// compilers) that further, more complicated or even indeterminite behaviors
+// may arise.
+//
 ///Bugs in Compilers
 ///-----------------
 //
@@ -281,6 +359,18 @@ BSLS_IDENT("$Id: $")
 //
 // Note that https://en.cppreference.com/w/cpp/compiler_support is a useful
 // reference for initial versions to test for support for various features.
+//
+///'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'
+///- - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler substitutes the '__LINE__' macro in
+// macro expansions with the line number of the first character of the macro
+// invocation, which is the recommended practice for the C preprocessor (see
+// WG14 N2322 at http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2322.htm).
+// Note that all BDE supported compilers that do not define this macro use the
+// line number of the last character of the macro invocation instead.
+//
+//: o Compilers that implement N2322 Recommended practice:
+//:   o GCC 9.0 and later
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -740,6 +830,9 @@ BSLS_IDENT("$Id: $")
 //   library, the full header is not implemented until gcc 5.0.
 #  endif
 # endif
+# if BSLS_PLATFORM_CMP_VERSION >= 90000
+#   define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+# endif
 # if __cplusplus >= 201402L
 #    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 #    define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
@@ -867,6 +960,9 @@ BSLS_IDENT("$Id: $")
         #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
     #endif
 #endif
+
+// clang does not yet follow WG14 N2322 Recommended practice
+// #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 #endif
 
 
@@ -972,6 +1068,8 @@ BSLS_IDENT("$Id: $")
 #  endif
 # endif
 
+// IBM Visual Age does not yet follow WG14 N2322 Recommended practice
+// #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 #endif
 
 // IBM Visual Age xlC 11.1 and better include increasing support for C++11
@@ -1038,6 +1136,9 @@ BSLS_IDENT("$Id: $")
 // # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 // # define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 // # define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+
+// IBM Visual Age suite does not yet follow WG14 N2322 Recommended practice
+// #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 #endif
 
 
@@ -1140,6 +1241,9 @@ BSLS_IDENT("$Id: $")
 
 // No C++17 features
 // # define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+
+// Oracle Solaris Studio does not yet follow WG14 N2322 Recommended practice
+// #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 #endif
 
 // ============================================================================
@@ -1236,7 +1340,7 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
