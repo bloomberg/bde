@@ -4149,6 +4149,7 @@ ConstructionUtil_Imp::construct(
 #endif
     }
     else {
+        // coverity[suspicious_sizeof]
         memset(voidify(address), 0, sizeof *address);
     }
 }
