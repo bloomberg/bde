@@ -4,13 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baljsn_tokenizer_cpp,"$Id$ $CSID$")
 
+#include <baljsn_parserutil.h>                 // for testing only
+
 #include <bdlb_chartype.h>
+#include <bdlde_utf8util.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bsl_cstring.h>
 #include <bsl_ios.h>
-#include <bsl_streambuf.h>
-
-#include <baljsn_parserutil.h>                 // for testing only
 
 // IMPLEMENTATION NOTES
 // --------------------
@@ -71,12 +72,35 @@ namespace baljsn {
 int Tokenizer::reloadStringBuffer()
 {
     d_stringBuffer.resize(k_MAX_STRING_SIZE);
-    const int numRead =
-                     static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[0],
-                                                           k_MAX_STRING_SIZE));
+
+    bsl::size_t numRead;
+    if (d_checkUtf8) {
+        if (utf8ErrorIsSet()) {
+            numRead = 0;
+        }
+        else {
+            int sts;
+            numRead = bdlde::Utf8Util::readIfValid(&sts,
+                                                   &d_stringBuffer[0],
+                                                   k_MAX_STRING_SIZE,
+                                                   d_streambuf_p);
+            d_utf8Offset += numRead;
+            if (sts < 0) {
+                // invalid UTF-8
+
+                numRead     = 0;
+                setUtf8ErrorMessage(sts);
+            }
+        }
+    }
+    else {
+        numRead = static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[0],
+                                                        k_MAX_STRING_SIZE));
+    }
+
     d_cursor = 0;
     d_stringBuffer.resize(numRead);
-    return numRead;
+    return static_cast<int>(numRead);
 }
 
 int Tokenizer::expandBufferForLargeValue()
@@ -84,9 +108,33 @@ int Tokenizer::expandBufferForLargeValue()
     const bsl::string::size_type currLength = d_stringBuffer.length();
     d_stringBuffer.resize(currLength + k_MAX_STRING_SIZE);
 
-    const int numRead =
-            static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
+    bsl::size_t numRead;
+    if (d_checkUtf8) {
+        if (utf8ErrorIsSet()) {
+            numRead = 0;
+        }
+        else {
+            int sts;
+            numRead = bdlde::Utf8Util::readIfValid(
+                                                  &sts,
+                                                  &d_stringBuffer[d_valueIter],
+                                                  k_MAX_STRING_SIZE,
+                                                  d_streambuf_p);
+            d_utf8Offset += numRead;
+            if (sts < 0) {
+                // invalid UTF-8
+
+                numRead     = 0;
+                setUtf8ErrorMessage(sts);
+            }
+        }
+    }
+    else {
+        numRead = static_cast<int>(
+                             d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
                                                   k_MAX_STRING_SIZE));
+    }
+
     d_stringBuffer.resize(currLength + numRead);
     return numRead ? 0 : -1;
 }
@@ -100,31 +148,36 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
     d_valueIter  = d_valueIter - d_valueBegin;
     d_valueBegin = 0;
 
-    const int numRead =
-       static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
+    bsl::size_t numRead;
+    if (d_checkUtf8) {
+        if (utf8ErrorIsSet()) {
+            numRead = 0;
+        }
+        else {
+            int sts;
+            numRead = bdlde::Utf8Util::readIfValid(
+                                               &sts,
+                                               &d_stringBuffer[d_valueIter],
+                                               k_MAX_STRING_SIZE - d_valueIter,
+                                               d_streambuf_p);
+            d_utf8Offset += numRead;
+            if (sts < 0) {
+                // invalid UTF-8
+
+                numRead     = 0;
+                setUtf8ErrorMessage(sts);
+            }
+        }
+    }
+    else {
+        numRead = static_cast<int>(
+                        d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
                                              k_MAX_STRING_SIZE - d_valueIter));
+    }
 
     d_stringBuffer.resize(d_valueIter + numRead);
 
-    return numRead;
-}
-
-int Tokenizer::skipWhitespace()
-{
-    while (true) {
-        bsl::size_t pos = d_stringBuffer.find_first_not_of(WHITESPACE,
-                                                           d_cursor);
-        if (bsl::string::npos != pos) {
-            d_cursor = pos;
-            break;
-        }
-
-        const int numRead = reloadStringBuffer();
-        if (0 == numRead) {
-            return -1;                                                // RETURN
-        }
-    }
-    return 0;
+    return static_cast<int>(numRead);
 }
 
 int Tokenizer::extractStringValue()
@@ -189,6 +242,20 @@ int Tokenizer::extractStringValue()
     return 0;
 }
 
+void Tokenizer::setUtf8ErrorMessage(int utf8ErrorStatus)
+{
+    BSLS_ASSERT(utf8ErrorStatus < 0);
+
+    bdlsb::FixedMemOutStreamBuf sb(d_utf8MessageBuffer,
+                                   k_UTF8_MESSAGE_BUFFER_SIZE);
+    bsl::ostream os(&sb);
+
+    os << "UTF-8 error " << bdlde::Utf8Util::toErrorMessage(utf8ErrorStatus) <<
+                                    " at offset " << d_utf8Offset << bsl::ends;
+    BSLS_ASSERT(bsl::strlen(d_utf8MessageBuffer) < k_UTF8_MESSAGE_BUFFER_SIZE);
+    BSLS_ASSERT(*d_utf8MessageBuffer);
+}
+
 int Tokenizer::skipNonWhitespaceOrTillToken()
 {
     bool firstTime = true;
@@ -210,8 +277,11 @@ int Tokenizer::skipNonWhitespaceOrTillToken()
 
             if (firstTime) {
                 const int numRead = moveValueCharsToStartAndReloadBuffer();
-
                 if (0 == numRead) {
+                    if (utf8ErrorIsSet()) {
+                        return -1;                                    // RETURN
+                    }
+
                     d_valueEnd = d_valueIter;
                     return 0;                                         // RETURN
                 }
@@ -227,6 +297,24 @@ int Tokenizer::skipNonWhitespaceOrTillToken()
         else {
             d_valueEnd = d_valueIter;
             return 0;                                                 // RETURN
+        }
+    }
+    return 0;
+}
+
+int Tokenizer::skipWhitespace()
+{
+    while (true) {
+        bsl::size_t pos = d_stringBuffer.find_first_not_of(WHITESPACE,
+                                                           d_cursor);
+        if (bsl::string::npos != pos) {
+            d_cursor = pos;
+            break;
+        }
+
+        const int numRead = reloadStringBuffer();
+        if (0 == numRead) {
+            return -1;                                                // RETURN
         }
     }
     return 0;
@@ -581,6 +669,9 @@ int Tokenizer::resetStreamBufGetPointer()
     const bsl::streamoff newPos = d_streambuf_p->pubseekoff(-numExtraCharsRead,
                                                             bsl::ios_base::cur,
                                                             bsl::ios_base::in);
+    if (numExtraCharsRead) {
+        *d_utf8MessageBuffer = '\0';
+    }
 
     return newPos >= 0 ? 0 : -1;
 }

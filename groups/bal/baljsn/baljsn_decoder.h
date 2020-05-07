@@ -173,7 +173,7 @@ class Decoder {
 
     // DATA
     bsl::ostringstream  d_logStream;            // stream to record errors
-    Tokenizer    d_tokenizer;            // JSON tokenizer
+    Tokenizer           d_tokenizer;            // JSON tokenizer
     bsl::string         d_elementName;          // current element name
     int                 d_currentDepth;         // current decoding depth
     int                 d_maxDepth;             // max decoding depth
@@ -897,7 +897,7 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
         return -1;                                                    // RETURN
     }
 
-    d_tokenizer.reset(streamBuf);
+    d_tokenizer.reset(streamBuf, options.validateInputIsUtf8());
     d_tokenizer.setAllowStandAloneValues(false);
     d_tokenizer.setAllowHeterogenousArrays(false);
 

@@ -3,7 +3,15 @@
 
 #include <baljsn_parserutil.h>
 
+#include <bdlde_utf8util.h>
+#include <bdlsb_memoutstreambuf.h>            // for testing only
+#include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
+#include <bdlsb_fixedmeminstreambuf.h>        // for testing only
+
 #include <bslim_testutil.h>
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
@@ -12,14 +20,6 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-
-#include <bdlsb_memoutstreambuf.h>            // for testing only
-#include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
-#include <bdlsb_fixedmeminstreambuf.h>        // for testing only
 
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
@@ -48,7 +48,7 @@ using bsl::endl;
 // [ 2] ~baljsn::Tokenizer();
 //
 // MANIPULATORS
-// [ 9] void reset(bsl::streambuf &streamBuf);
+// [ 9] void reset(bsl::streambuf &streamBuf, bool checkUtf8);
 // [12] void resetStreamBufGetPointer();
 // [13] void setAllowStandAloneValues(bool value);
 // [14] void setAllowHeterogenousArrays(bool value);
@@ -59,9 +59,11 @@ using bsl::endl;
 // [13] bool allowStandAloneValues() const;
 // [14] bool allowHeterogenousArrays() const;
 // [ 3] int value(bslstl::StringRef *data) const;
+// [17] bool utf8ErrorIsSet() const;
+// [17} const char *utf8ErrorMessage(const char *) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [17] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -113,7 +115,150 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baljsn::Tokenizer Obj;
+typedef baljsn::Tokenizer   Obj;
+typedef bdlde::Utf8Util     Utf8Util;
+typedef bsls::Types::IntPtr IntPtr;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
+
+const char *LARGE_STRING_C_STR =
+            "\"selection11selection1element1255element43123123123elementasdd52"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6LONDONLONDONelement2truetrueelement31.51.5element4ent2tue"
+            "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
+            "element2element4element5element1element1element2element4elemendt5"
+            "element1element1element2element4element6LONDONLONDONelement2trdue"
+            "trueelement31.51.5element4element5-980123-980123element6ent2tuesd"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7sdsdd"
+            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
+            "-980123-980123element62012-08-18T132500.000+00005element4element5"
+            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "selection11selection1element1255element43123123123elementasdd5234"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
+            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
+            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000df"
+            "selection11selection1element1255element43123123123elementasdd5255"
+            "element6999999element7customelement8999element10255255elementsd11"
+            "element12element13255255element14element1531231231233123123112323"
+            "selection6arbitrarystringvalueselection7element1element1elements2"
+            "element4element5element1element1element2element4element5elemenst1"
+            "element1element2element4element6LONDONLONDONelement2truetruement6"
+            "element31.51.5element4element5-980123-980123element6elemen123t608"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
+            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
+            "element5-980123-980123element62012-08-18T132500.000+0000element68"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
+            "element2element4element5element1element1element2element4edlement5"
+            "element1element1element2element4element6LONDONLONDONelemendt2true"
+            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
+            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
+            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
+            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000df"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemensaft2"
+            "selection11selection1element1255element43123123123elemensdfft5255"
+            "element6999999element7customelement8999element10255255elementdf11"
+            "element12element13255255element14element15312312312331231231d2dd3"
+            "selection6arbitrarystringvalueselection7element1element1elemednt2"
+            "element4element5element1element1element2element4element5elemdent1"
+            "element1element2element4element6LONDONLONDONelement2truasdfdetrue"
+            "element31.51.5element4element5-980123-980123element6ement2truetre"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elasdffement7"
+            "element6LONDONLONDONelement2truetrueelement31.51.5element4ent2tue"
+            "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
+            "element2element4element5element1element1element2element4elemendt5"
+            "element1element1element2element4element6LONDONLONDONelement2trdue"
+            "trueelement31.51.5element4element5-980123-980123element6ent2tuesd"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7sdsdd"
+            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
+            "-980123-980123element62012-08-18T132500.000+00005element4element5"
+            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LOND12345678";
+
+struct BreakAllocator : public bslma::TestAllocator {
+    // CREATOR
+    BreakAllocator() : bslma::TestAllocator() {}
+
+    // MANIPULATOR
+    virtual void *allocate(size_type size)
+    {
+        return bslma::TestAllocator::allocate(size);
+    }
+};
 
 bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
 {
@@ -141,12 +286,13 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
                            int                 NAVAIL,
                            const bsl::string&  EXPECTED,
                            bool                sbEmptyInitially,
+                           bool                checkUtf8,
                            bool                checkNumAvailAfterReset = true)
 {
     Obj mX;  const Obj& X = mX;
     ASSERTV(LINE, X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-    mX.reset(sb);
+    mX.reset(sb, checkUtf8);
 
     for (int i = 0; i < NADV; ++i) {
         ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
@@ -154,7 +300,8 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
 
     bsl::streamsize numAvail = sb->in_avail();
     if (sbEmptyInitially) {
-        ASSERTV(LINE, numAvail, 0 == numAvail || -1 == numAvail);
+        ASSERTV(LINE, numAvail, (0 <= numAvail && numAvail < 4) ||
+                                                               -1 == numAvail);
     }
 
     int rc = mX.resetStreamBufGetPointer();
@@ -175,12 +322,155 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
     }
 }
 
+const Utf8Util::ErrorStatus EIT = Utf8Util::k_END_OF_INPUT_TRUNCATION;
+const Utf8Util::ErrorStatus UCO = Utf8Util::k_UNEXPECTED_CONTINUATION_OCTET;
+const Utf8Util::ErrorStatus NCO = Utf8Util::k_NON_CONTINUATION_OCTET;
+const Utf8Util::ErrorStatus NME = Utf8Util::k_NON_MINIMAL_ENCODING;
+const Utf8Util::ErrorStatus STL = Utf8Util::k_SEQUENCE_TOO_LONG;
+const Utf8Util::ErrorStatus VTL = Utf8Util::k_VALUE_TOO_LARGE;
+const Utf8Util::ErrorStatus SUR = Utf8Util::k_SURROGATE;
+
+
+static const struct Utf8Data {
+    int         d_lineNum;    // source line number
+
+    const char *d_utf8_p;     // UTF-8 input string
+
+    int         d_status;
+                              // number of UTF-8 code points (or "ErrorStatus'
+                              // if invalid.  Note that all the 'ErrorStatus'
+                              // enums are -ve.
+
+    int         d_errOffset;  // byte offset to first invalid sequence;
+                              // -1 if valid
+} UTF8_DATA[] = {
+    { L_, "",                               0, -1   },
+    { L_, "Hello",                          5, -1   },
+    { L_, "\x80",                         UCO,  0   },
+    { L_, "\x85p",                        UCO,  0   },
+    { L_, "a\x85",                        UCO,  1   },
+    { L_, "\x90",                         UCO,  0   },
+    { L_, " \x91",                        UCO,  1   },
+    { L_, "\x9a",                         UCO,  0   },
+    { L_, "\xf0",                         EIT,  0   },                        \
+    { L_, "\xf0\x80",                     EIT,  0   },
+    { L_, "\xf0\x80\x80",                 EIT,  0   },
+    { L_, "\xf0 ",                        NCO,  0   },
+    { L_, "\xf0\x80 ",                    NCO,  0   },
+    { L_, "\xf0\x80\x80 ",                NCO,  0   },
+    { L_, "\xe0\x80",                     EIT,  0   },
+    { L_, "\xe0",                         EIT,  0   },
+    { L_, "\xe0\x80 ",                    NCO,  0   },
+    { L_, "\xe0 ",                        NCO,  0   },
+    { L_, "\xf8\xaf\xaf\xaf",             STL,  0   },
+    { L_, "\xf8\x80\x80\x80",             STL,  0   },
+    { L_, "\xf8",                         STL,  0   },
+    { L_, "\xf9",                         STL,  0   },
+    { L_, "\xf0\x80\x80\x80",             NME,  0   },
+    { L_, "\xf0\x8a\xaa\xaa",             NME,  0   },
+    { L_, "\xf0\x8f\xbf\xbf",             NME,  0   },    // max NME
+    { L_, "\xf0\x90\x80\x80",               1, -1   },    // min legal
+    { L_, "\xf1\x80\x80\x80",               1, -1   },    // norm legal
+    { L_, "\xf1\xaa\xaa\xaa",               1, -1   },    // norm legal
+    { L_, "\xf4\x8f\xbf\xbf",               1, -1   },    // max legal
+    { L_, "\xf4\x90\x80\x80",             VTL,  0   },    // min VTL
+    { L_, "\xf4\x90\xbf\xbf",             VTL,  0   },    //     VTL
+    { L_, "\xf4\xa0\x80\x80",             VTL,  0   },    //     VTL
+    { L_, "\xf7\xbf\xbf\xbf",             VTL,  0   },    // max VTL
+
+    { L_, "\xe0\x80\x80",                 NME,  0   },
+    { L_, "\xe0\x9a\xaa",                 NME,  0   },
+    { L_, "\xe0\x9f\xbf",                 NME,  0   },    // max NME
+    { L_, "\xe0\xa0\x80",                   1, -1   },    // min legal
+    { L_, "\xef\xbf\xbf",                   1, -1   },    // max
+
+    { L_, "\xc0\x80",                     NME,  0   },
+    { L_, "\xc0\xaa",                     NME,  0   },
+    { L_, "\xc0\xbf",                     NME,  0   },
+    { L_, "\xc1\x81",                     NME,  0   },
+    { L_, "\xc1\xbf",                     NME,  0   },    // max NME
+    { L_, "\xc2\x80",                       1, -1   },    // min legal
+    { L_, "\xd0\xb0",                       1, -1   },
+    { L_, "\xdf\xbf",                       1, -1   },    // max
+
+    { L_, "\xc2",                         EIT,  0   },
+    { L_, " \xc2",                        EIT,  1   },
+    { L_, "\xc2 ",                        NCO,  0   },
+    { L_, "\xc2\xc2",                     NCO,  0   },
+    { L_, "\xc2\xef",                     NCO,  0   },
+
+    { L_, "\xef",                         EIT,  0   },
+    { L_, " \xef",                        EIT,  1   },
+    { L_, "\xef ",                        NCO,  0   },
+    { L_, "\xef\xef ",                    NCO,  0   },
+    { L_, "\xef \xef",                    NCO,  0   },
+
+    { L_, "\xef\xbf",                     EIT,  0   },
+    { L_, "\xef\xbf",                     EIT,  0   },
+    { L_, " \xef\xbf@",                   NCO,  1   },
+    { L_, " \xef\xbf@",                   NCO,  1   },
+    { L_, "\xef\xbf ",                    NCO,  0   },
+    { L_, "\xef\xbf ",                    NCO,  0   },
+    { L_, "\xef\xbf\xef",                 NCO,  0   },
+
+    { L_, "\xed\xa0\x80",                 SUR,  0   },
+    { L_, "\xed\xb0\x85 ",                SUR,  0   },
+    { L_, "\xed\xbf\xbf",                 SUR,  0   },
+
+    { L_, LARGE_STRING_C_STR + 1,        8177, -1   },
+
+    { L_, "123456\xe0\x80\x80",           NME,  6   },
+    { L_, "1234567\xe0\x80\x80",          NME,  7   },
+    { L_, "12345678\xe0\x80\x80",         NME,  8   },
+    { L_, "12345678A\xe0\x80\x80",        NME,  9   },
+    { L_, "12345678AB\xe0\x80\x80",       NME, 10   },
+    { L_, "12345678ABC\xe0\x80\x80",      NME, 11   },
+
+    { L_, "1\xef\xbf\xbf",                  2, -1   },
+    { L_, "12\xef\xbf\xbf",                 3, -1   },
+    { L_, "123\xef\xbf\xbf",                4, -1   },
+    { L_, "1234\xef\xbf\xbf",               5, -1   },
+    { L_, "12345\xef\xbf\xbf",              6, -1   },
+    { L_, "123456\xef\xbf\xbf",             7, -1   },
+    { L_, "1234567\xef\xbf\xbf",            8, -1   },
+    { L_, "12345678\xef\xbf\xbf",           9, -1   },
+    { L_, "12345678A\xef\xbf\xbf",         10, -1   },
+    { L_, "12345678AB\xef\xbf\xbf",        11, -1   },
+    { L_, "12345678ABC\xef\xbf\xbf",       12, -1   },
+
+    { L_, "1\xf1\xaa\xaa\xaa",              2, -1   },
+    { L_, "12\xf1\xaa\xaa\xaa",             3, -1   },
+    { L_, "123\xf1\xaa\xaa\xaa",            4, -1   },
+    { L_, "1234\xf1\xaa\xaa\xaa",           5, -1   },
+    { L_, "12345\xf1\xaa\xaa\xaa",          6, -1   },
+    { L_, "123456\xf1\xaa\xaa\xaa",         7, -1   },
+    { L_, "1234567\xf1\xaa\xaa\xaa",        8, -1   },
+    { L_, "12345678\xf1\xaa\xaa\xaa",       9, -1   },
+    { L_, "12345678A\xf1\xaa\xaa\xaa",     10, -1   },
+    { L_, "12345678AB\xf1\xaa\xaa\xaa",    11, -1   },
+    { L_, "12345678ABC\xf1\xaa\xaa\xaa",   12, -1   },
+    { L_, "12345678ABCD\xf1\xaa\xaa\xaa",  13, -1   },
+    { L_, "12345678ABCDE\xf1\xaa\xaa\xaa", 14, -1   },
+
+    { L_, "1\xf4\xa0\x80\x80",            VTL,  1   },
+    { L_, "12\xf4\xa0\x80\x80",           VTL,  2   },
+    { L_, "123\xf4\xa0\x80\x80",          VTL,  3   },
+    { L_, "1234\xf4\xa0\x80\x80",         VTL,  4   },
+    { L_, "12345\xf4\xa0\x80\x80",        VTL,  5   },
+    { L_, "123456\xf4\xa0\x80\x80",       VTL,  6   },
+    { L_, "1234567\xf4\xa0\x80\x80",      VTL,  7   },
+    { L_, "12345678\xf4\xa0\x80\x80",     VTL,  8   },
+    { L_, "12345678A\xf4\xa0\x80\x80",    VTL,  9   },
+    { L_, "12345678AB\xf4\xa0\x80\x80",   VTL, 10   },
+    { L_, "12345678ABC\xf4\xa0\x80\x80",  VTL, 11   },
+    { L_, "12345678ABCD\xf4\xa0\x80\x80", VTL, 12   },
+    { L_, "12345678ABCDE\xf4\xa0\x80\x80",VTL, 13   },
+};
+enum { k_NUM_UTF8_DATA = sizeof UTF8_DATA / sizeof *UTF8_DATA };
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
-
-typedef bsls::Types::Int64  Int64;
-typedef bsls::Types::Uint64 Uint64;
 
 int main(int argc, char *argv[])
 {
@@ -196,7 +486,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -243,7 +533,7 @@ int main(int argc, char *argv[])
 // streambuf with it:
 //..
     baljsn::Tokenizer tokenizer;
-    tokenizer.reset(&isb);
+    tokenizer.reset(&isb, false);
 //..
 // Next, we will create an address record type and object.
 //..
@@ -318,6 +608,221 @@ int main(int argc, char *argv[])
     ASSERT(10022           == address.d_zipcode);
 //..
       } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING UTF8
+        //
+        // Concerns:
+        //: 1 That the tokenizer can accurately detect and report invalid
+        //:   UTF-8.
+        //:   o The tokenizer accurately idenifies the type of error.
+        //:
+        //:   o The tokenizer accurately identifies the offset of the error.
+        //:
+        //: 2 That the tokenizer in UTF-8 mode can work on strings that fill up
+        //:   more than one buffer, or that exactly fill up a buffer.
+        //:
+        //: 3 That the tokenizer will work on strings ending with a quad octet
+        //:   UTF-8 sequence that exactly fills up the buffer.
+        //:
+        // Plan:
+        //: 1 Create large table, 'UTF8_DATA' contain valid and invalid UTF-8
+        //:   sequence, include a very large valid sequence that nearly fills
+        //:   up the buffer.
+        //:
+        //: 2 Iterate through the table, visiting only valid UTF-8 strings.
+        //:   o Nest a loop iterating through the same table, again visting
+        //:     only valid UTF-8 strings.
+        //:
+        //:   o Splice the strings from the inner and outer loops together,
+        //:     surrounded by double quotes.
+        //:
+        //:   o Initialize a stringstream to the spliced string.
+        //:
+        //:   o Reset the tokenizer to the stringstreams 'streambuf'.
+        //:
+        //:   o Call 'advanceToNextToken' and observe:
+        //:     1 It returns 0.
+        //:
+        //:     2 The tokenizer does not report a UTF-8 error.
+        //:
+        //:     3 Call 'value' on the tokenizer and observe the result matches
+        //:       the spliced string.
+        //:
+        //:   o Finish the nested loop and start another nested loop, this time
+        //:     iterating through invalid UTF-8 sequences.
+        //:
+        //:   o Create a string that is '"' + the valid string + the invalid
+        //:     string.
+        //:
+        //:   o Initialize a stringstream to the spliced string.
+        //:
+        //:   o Reset the tokenizer to the stringstreams 'streambuf'.
+        //:
+        //:   o Call 'advanceToNextToken' and observe:
+        //:     1 It does not return 0.
+        //:
+        //:     2 The tokenizer reports a UTF-8 error.
+        //:
+        //:     3 The tokenizer correctly reports the type of the error.
+        //:
+        //:     4 The tokenizer correctly reports the offset of the beginning
+        //:       of the invalid UTF-8 code point.
+        //:
+        //:   o If the type of error was end of input truncation, append a '"'
+        //:     to the string, initialize the stringstream to it, reset the
+        //:     tokenizer to the 'streambuf', and repeat the above steps,
+        //:     except this time expecting a non-continuation octet error.
+        //
+        // Testing:
+        //   bool utf8ErrorIsSet() const;
+        //   const char *utf8ErrorMessage(const char *) const;
+        // --------------------------------------------------------------------
+
+        bslma::TestAllocator sa;
+        bsl::string str(&sa);
+        bsl::istringstream iss(&sa);
+
+        for (int ti = 0; ti < k_NUM_UTF8_DATA; ++ti) {
+            const Utf8Data&   idata   = UTF8_DATA[ti];
+            const int         ILINE   = idata.d_lineNum;
+            const char       *IUTF8   = idata.d_utf8_p;
+            const int         ISTATUS = idata.d_status;
+            const int         IERROFF = idata.d_errOffset;
+
+            ASSERT((0 <= ISTATUS) == (-1 == IERROFF));
+
+            if (ISTATUS < 0) continue;
+
+            // IUTF8 is valid UTF-8
+
+            str.clear();
+            str += '"';
+            str += IUTF8;
+
+            if (veryVerbose) { cout << "  ";    P(str); }
+
+            const bsl::size_t ILEN = str.length();
+
+            {
+                int sts;
+                const char *end;
+                IntPtr numCodePoints = Utf8Util::advanceIfValid(&sts,
+                                                                &end,
+                                                                str.c_str(),
+                                                                INT_MAX);
+                ASSERT(0 <= numCodePoints);
+                ASSERTV(ILINE, numCodePoints, ISTATUS + 1 == numCodePoints);
+            }
+
+            for (int tj = 0; tj < k_NUM_UTF8_DATA; ++tj) {
+                const Utf8Data&    jdata   = UTF8_DATA[tj];
+                const int          JLINE   = jdata.d_lineNum;
+                const char        *JUTF8   = jdata.d_utf8_p;
+                const int          JSTATUS = jdata.d_status;
+
+                if (JSTATUS < 0) continue;
+
+                str.resize(ILEN);
+                str += JUTF8;
+                str += '"';
+
+                iss.str(str);
+
+                Obj mX;  const Obj& X = mX;
+                ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
+                ASSERTV(X.allowStandAloneValues(), X.allowStandAloneValues());
+
+                ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
+                ASSERTV(ILINE, JLINE, !bsl::strcmp(X.utf8ErrorMessage("woof"),
+                                                   "woof"));
+
+                mX.reset(iss.rdbuf(), true);
+
+                ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
+                ASSERTV(ILINE, JLINE, !bsl::strcmp(X.utf8ErrorMessage("arf"),
+                                                   "arf"));
+
+                ASSERTV(ILINE, JLINE, 0 == mX.advanceToNextToken());
+
+                ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
+                ASSERTV(ILINE, JLINE, !bsl::strcmp(X.utf8ErrorMessage("meow"),
+                                                   "meow"));
+                ASSERTV(X.tokenType(), Obj::e_ELEMENT_VALUE == X.tokenType());
+
+                bslstl::StringRef sr;
+                ASSERT(0 == X.value(&sr));
+                ASSERTV(str, sr, str == sr);
+            }
+
+            for (int tj = 0; tj < k_NUM_UTF8_DATA; ++tj) {
+                const Utf8Data&    jdata   = UTF8_DATA[tj];
+                const int          JLINE   = jdata.d_lineNum;
+                const char        *JUTF8   = jdata.d_utf8_p;
+                int                JSTATUS = jdata.d_status;
+                const int          JERROFF = jdata.d_errOffset;
+
+                if (0 <= JSTATUS) continue;
+
+                const bsl::size_t  ERROFF  = JERROFF + ILEN;
+
+                str.resize(ILEN);
+                str += JUTF8;
+
+                char errOffStr[256];
+                bdlsb::FixedMemOutStreamBuf sb(errOffStr, sizeof(errOffStr));
+                bsl::ostream ostr(&sb);
+                ostr << "UTF-8 error " << Utf8Util::toErrorMessage(JSTATUS) <<
+                                          " at offset " << ERROFF << bsl::ends;
+                ASSERT(bsl::strlen(errOffStr) < sizeof(errOffStr));
+
+                iss.str(str);
+
+                Obj mX;  const Obj& X = mX;
+                ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
+                ASSERTV(X.allowStandAloneValues(), X.allowStandAloneValues());
+
+                mX.reset(iss.rdbuf(), true);
+
+                ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
+
+                if (veryVeryVerbose) { cout << "    ";    P(str); }
+
+
+                ASSERTV(ILINE, JLINE, X.utf8ErrorIsSet());
+                const char *utf8Msg = X.utf8ErrorMessage("purr");
+                ASSERTV(ILINE, JLINE, utf8Msg, errOffStr,
+                                         0 == bsl::strcmp(utf8Msg, errOffStr));
+
+                if (EIT == JSTATUS) {
+                    // Now expect 'NCO' (Non Continuation Octet)
+
+                    sb.pubsetbuf(errOffStr, sizeof(errOffStr));
+                    bsl::ostream ostr2(&sb);
+                    ostr2 << "UTF-8 error " << Utf8Util::toErrorMessage(NCO) <<
+                                          " at offset " << ERROFF << bsl::ends;
+                    ASSERT(bsl::strlen(errOffStr) < sizeof(errOffStr));
+
+                    str += '"';
+                    iss.str(str);
+
+                    mX.reset(iss.rdbuf(), true);
+
+                    ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
+                    ASSERTV(ILINE, JLINE, !bsl::strcmp(
+                                                 X.utf8ErrorMessage("bow wow"),
+                                                  "bow wow"));
+
+                    ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
+                    ASSERTV(ILINE, JLINE, X.utf8ErrorIsSet());
+
+                    utf8Msg = X.utf8ErrorMessage("growl");
+                    ASSERTV(ILINE, JLINE, utf8Msg, errOffStr,
+                                         0 == bsl::strcmp(utf8Msg, errOffStr));
+                }
+            }
+        }
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING that arrays of heterogenous types are handled correctly
@@ -355,13 +860,17 @@ int main(int argc, char *argv[])
         candidates.reserve(NUM_VALUES * NUM_VALUES * NUM_VALUES * NUM_VALUES *
                            NUM_VALUES);
 
-        for(bsl::size_t LENGTH = 0; LENGTH < 6; ++LENGTH) {
-            bsl::string       separator = "";
+        enum { k_LENGTH_MOD = 6 };
+        for (int ti = 0; ti < 2 * k_LENGTH_MOD; ++ti) {
+            const bsl::size_t LENGTH     = ti % k_LENGTH_MOD;
+            const bool        CHECK_UTF8 = k_LENGTH_MOD <= ti;
+
+            bsl::string       separator  = "";
 
             candidates.clear();
             candidates.push_back("[ ");
 
-            for(bsl::size_t i = 0; i < LENGTH; ++i) {
+            for (bsl::size_t i = 0; i < LENGTH; ++i) {
                 bsl::vector<bsl::string> inputs = candidates;
                 candidates.clear();
 
@@ -388,7 +897,7 @@ int main(int argc, char *argv[])
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
 
-                mX.reset(iss.rdbuf());
+                mX.reset(iss.rdbuf(), CHECK_UTF8);
                 bsl::size_t item_count = 0;
 
                 while (0 == mX.advanceToNextToken()) {
@@ -451,7 +960,7 @@ int main(int argc, char *argv[])
             cout << endl
                  << "TESTING that truncated data is handled correctly" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_numPreAdvances;
@@ -539,12 +1048,14 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int             LINE        = DATA[ti].d_line;
-            const string          TEXT        = DATA[ti].d_text_p;
-            const int             NUM_PREADVS = DATA[ti].d_numPreAdvances;
-            const Obj::TokenType  EXP_TOKEN   = DATA[ti].d_expTokenType;
-            const char           *EXP_VALUE   = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&           data        = DATA[ti % NUM_DATA];
+            const int             LINE        = data.d_line;
+            const string          TEXT        = data.d_text_p;
+            const int             NUM_PREADVS = data.d_numPreAdvances;
+            const Obj::TokenType  EXP_TOKEN   = data.d_expTokenType;
+            const char           *EXP_VALUE   = data.d_value_p;
+            const bool            CHECK_UTF8  = NUM_DATA <= ti;
 
             bsl::istringstream is(TEXT);
 
@@ -556,7 +1067,7 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(is.rdbuf());
+            mX.reset(is.rdbuf(), CHECK_UTF8);
 
             // NUM_PREADVS advances should be successful.
 
@@ -642,7 +1153,7 @@ int main(int argc, char *argv[])
                  << "TESTING 'allowHeterogenousArrays' option" << endl
                  << "========================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_numAdvances;
@@ -709,14 +1220,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            NUM_ADV   = DATA[ti].d_numAdvances;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            NUM_ADV    = data.d_numAdvances;
             const bool           ALLOW_HETEROGENOUS_ARRAYS
-                                          = DATA[ti].d_allowHeterogenousArrays;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
+                                            = data.d_allowHeterogenousArrays;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -730,7 +1243,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.allowHeterogenousArrays(),
                     true == X.allowHeterogenousArrays());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             mX.setAllowHeterogenousArrays(ALLOW_HETEROGENOUS_ARRAYS);
             ASSERTV(X.allowHeterogenousArrays(), ALLOW_HETEROGENOUS_ARRAYS,
@@ -914,7 +1427,7 @@ int main(int argc, char *argv[])
      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\""
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             bool            d_allowStandAloneValues;
@@ -1125,14 +1638,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
             const bool           ALLOW_STAND_ALONE_VALUES
-                                           = DATA[ti].d_allowStandAloneValues;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+                                            = data.d_allowStandAloneValues;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -1146,7 +1661,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.allowStandAloneValues(),
                     true == X.allowStandAloneValues());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             mX.setAllowStandAloneValues(ALLOW_STAND_ALONE_VALUES);
             ASSERTV(X.allowStandAloneValues(), ALLOW_STAND_ALONE_VALUES,
@@ -1229,7 +1744,7 @@ int main(int argc, char *argv[])
      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_numAdvances;
@@ -1440,13 +1955,15 @@ int main(int argc, char *argv[])
 
         const int BUFSIZE = 8192;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE   = DATA[ti].d_line;
-            const string         TEXT   = DATA[ti].d_text_p;
-            const int            NADV   = DATA[ti].d_numAdvances;
-            const int            NAVAIL = DATA[ti].d_numAvail;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            NADV       = data.d_numAdvances;
+            const int            NAVAIL     = data.d_numAvail;
             const bsl::string    EXPECTED(TEXT.end() - NAVAIL, TEXT.end());
-            const bool           EMPTY = TEXT.size() < BUFSIZE;
+            const bool           EMPTY      = TEXT.size() < BUFSIZE;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 P_(LINE) P_(TEXT)  P_(TEXT.size())  P_(NADV) P(NAVAIL)
@@ -1468,7 +1985,8 @@ int main(int argc, char *argv[])
                                       NADV,
                                       NAVAIL,
                                       EXPECTED,
-                                      EMPTY);
+                                      EMPTY,
+                                      CHECK_UTF8);
             }
 
             // 'bdlsb::FixedMemInStreamBuf'
@@ -1485,7 +2003,8 @@ int main(int argc, char *argv[])
                                       NADV,
                                       NAVAIL,
                                       EXPECTED,
-                                      EMPTY);
+                                      EMPTY,
+                                      CHECK_UTF8);
             }
         }
       } break;
@@ -1519,7 +2038,7 @@ int main(int argc, char *argv[])
                           << "TESTING that strings with escaped quotes "
                           << "are handled correctly" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_value_p;
         } DATA[] = {
@@ -1728,9 +2247,11 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::ostringstream os;
             os << "{\"n\":" << EXP_VALUE << "}";
@@ -1745,7 +2266,7 @@ int main(int argc, char *argv[])
             Obj mX(&ta);  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             int rc;
             do {
@@ -1795,138 +2316,15 @@ int main(int argc, char *argv[])
                           << "TESTING that large values (greater than 8K) "
                           << "are handled correctly" << endl;
 
-        const bsl::string LARGE_STRING =
-            "\"selection11selection1element1255element43123123123elementasdd52"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrueelement31.51.5element4ent2tue"
-            "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
-            "element2element4element5element1element1element2element4elemendt5"
-            "element1element1element2element4element6LONDONLONDONelement2trdue"
-            "trueelement31.51.5element4element5-980123-980123element6ent2tuesd"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7sdsdd"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+00005element4element5"
-            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000ds"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "selection11selection1element1255element43123123123elementasdd5234"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
-            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000df"
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+0000980123elemefnt608"
-            "2012-08-18T132500.000+0000element7element62012-08-18T132501230000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelems12ent1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000df"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemensaft2"
-            "selection11selection1element1255element43123123123elemensdfft5255"
-            "element6999999element7customelement8999element10255255elementdf11"
-            "element12element13255255element14element15312312312331231231d2dd3"
-            "selection6arbitrarystringvalueselection7element1element1elemednt2"
-            "element4element5element1element1element2element4element5elemdent1"
-            "element1element2element4element6LONDONLONDONelement2truasdfdetrue"
-            "element31.51.5element4element5-980123-980123element6ement2truetre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elasdffement7"
-            "element6LONDONLONDONelement2truetrueelement31.51.5element4ent2tue"
-            "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
-            "element2element4element5element1element1element2element4elemendt5"
-            "element1element1element2element4element6LONDONLONDONelement2trdue"
-            "trueelement31.51.5element4element5-980123-980123element6ent2tuesd"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7sdsdd"
-            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
-            "-980123-980123element62012-08-18T132500.000+00005element4element5"
-            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
-            "element2element4element5element1element1element2element4eledment5"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000ds"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "element1element1element2element4element6LONDONLONDONelement2dtrue"
-            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000ds"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
-            "trueelement31.51.5element4element5-980123-980123element62010000ds"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "2012-08-18T132500.000+0000element7element6LOND12345678";
+        const bsl::string LARGE_STRING(LARGE_STRING_C_STR);
 
-        const struct {
+        enum Allocs { e_FALSE,
+                      e_TRUE,
+                      e_TRUE_IF_UTF8 };
+        const struct Data {
             int               d_line;
             const bsl::string d_suffixText;
-            bool              d_allocatesMemory;
+            Allocs            d_allocatesMemory;
         } DATA[] = {
 
         //Line   Suffix Text                             Allocates memory flag
@@ -1936,37 +2334,44 @@ int main(int argc, char *argv[])
 
         // 32-bit
 
-        {   L_,  "12345678ABC\"",                         false              },
-        {   L_,  "12345678ABCD\"",                        false              },
-        {   L_,  "12345678ABCDE\"",                       true               },
-        {   L_,  "12345678ABCDEF\"",                      true               },
-        {   L_,  "12345678ABCDE12345678901234567890\"",   true               },
+        {   L_,  "12345678A\"",                           e_FALSE            },
+        {   L_,  "12345678AB\"",                          e_TRUE_IF_UTF8     },
+        {   L_,  "12345678ABCDE\"",                       e_TRUE             },
+        {   L_,  "12345678ABCDEF\"",                      e_TRUE             },
+        {   L_,  "12345678ABCDE12345678901234567890\"",   e_TRUE             },
 
 #elif defined(BSLS_PLATFORM_CPU_64_BIT)
         // 64-bit
 
-        {   L_,  "ABC\"",                                 false              },
-        {   L_,  "ABCD\"",                                false              },
+        {   L_,  "ABC\"",                                 e_FALSE            },
+        {   L_,  "ABCD\"",                                e_FALSE            },
 
 #if !defined(BSLS_PLATFORM_CMP_AIX)
         // AIX
 
-        {   L_,  "12345678ABCD\"",                        false              },
-        {   L_,  "12345678ABCDE\"",                       true               },
+        {   L_,  "12345678A\"",                           e_FALSE            },
+        {   L_,  "12345678AB\"",                          e_TRUE_IF_UTF8     },
+        {   L_,  "12345678ABCDE\"",                       e_TRUE             },
 #endif
 
-        {   L_,  "ABCDE12345678901234567890\"",           true               },
+        {   L_,  "ABCDE12345678901234567890\"",           e_TRUE             },
 
 #endif
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int    LINE   = DATA[ti].d_line;
-            const string SUFFIX = DATA[ti].d_suffixText;
-            const bool   ALLOC  = DATA[ti].d_allocatesMemory;
-            const string TEXT   = LARGE_STRING + SUFFIX;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&  data       = DATA[ti % NUM_DATA];
+            const int    LINE       = data.d_line;
+            const string SUFFIX     = data.d_suffixText;
+            const string TEXT       = LARGE_STRING + SUFFIX;
+            const bool   CHECK_UTF8 = NUM_DATA <= ti;
+            const bool   ALLOC      = e_FALSE == data.d_allocatesMemory
+                                    ? false
+                                    : e_TRUE  == data.d_allocatesMemory
+                                    ? true
+                                    : CHECK_UTF8;
 
             if (veryVerbose) {
                 P(LINE) P(TEXT) P(TEXT.size()) P(ALLOC)
@@ -1977,10 +2382,12 @@ int main(int argc, char *argv[])
 
             bsl::istringstream is(os.str());
 
-            bslma::TestAllocator ta;
+            bslma::TestAllocator tta;
+            BreakAllocator        ba;
+            bslma::TestAllocator& ta = ALLOC ? tta : ba;
 
             Obj mX(&ta);  const Obj& X = mX;
-            mX.reset(is.rdbuf());
+            mX.reset(is.rdbuf(), CHECK_UTF8);
 
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
@@ -1991,9 +2398,9 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, 0                   == mX.advanceToNextToken());
             ASSERTV(Obj::e_ELEMENT_VALUE == X.tokenType());
 
-            bslstl::StringRef data;
-            ASSERTV(0                      == X.value(&data));
-            ASSERTV(LINE, TEXT, data, TEXT == data);
+            bslstl::StringRef sr;
+            ASSERTV(0                      == X.value(&sr));
+            ASSERTV(LINE, TEXT, sr, TEXT == sr);
 
             if (ALLOC) {
                 ASSERTV(LINE, TEXT.size(), ta.numBlocksTotal() > 0);
@@ -2007,7 +2414,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        {
+        for (int tj = 0; tj < 2; ++tj) {
+            const bool CHECK_UTF8 = tj;
+
             bsl::ostringstream os;
             os << "{\"Sequence\":{";
             for (int ti = 0; ti < NUM_DATA; ++ ti) {
@@ -2035,7 +2444,7 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            mX.reset(is.rdbuf());
+            mX.reset(is.rdbuf(), CHECK_UTF8);
 
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
@@ -2164,7 +2573,7 @@ int main(int argc, char *argv[])
                  << "TESTING 'advanceToNextToken' TO 'e_END_ARRAY'" << endl
                  << "=============================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_preMoves;
@@ -3068,14 +3477,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            PRE_MOVES = DATA[ti].d_preMoves;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const bool           HAS_VALUE = DATA[ti].d_hasValue;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            PRE_MOVES  = data.d_preMoves;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           HAS_VALUE  = data.d_hasValue;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -3087,7 +3498,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
@@ -3170,7 +3581,7 @@ int main(int argc, char *argv[])
                       << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
                       << "========================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_preMoves;
@@ -3409,14 +3820,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            PRE_MOVES = DATA[ti].d_preMoves;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const bool           HAS_VALUE = DATA[ti].d_hasValue;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            PRE_MOVES  = data.d_preMoves;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           HAS_VALUE  = data.d_hasValue;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -3428,7 +3841,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
@@ -3520,7 +3933,7 @@ int main(int argc, char *argv[])
                 << "TESTING 'advanceToNextToken' TO 'e_END_OBJECT'" << endl
                 << "==============================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_preMoves;
@@ -4243,14 +4656,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            PRE_MOVES = DATA[ti].d_preMoves;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const bool           HAS_VALUE = DATA[ti].d_hasValue;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            PRE_MOVES  = data.d_preMoves;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           HAS_VALUE  = data.d_hasValue;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -4262,7 +4677,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
@@ -4352,7 +4767,7 @@ int main(int argc, char *argv[])
                      << "TESTING 'advanceToNextToken' TO 'e_VALUE'" << endl
                      << "=========================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_preMoves;
@@ -5149,14 +5564,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            PRE_MOVES = DATA[ti].d_preMoves;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const bool           HAS_VALUE = DATA[ti].d_hasValue;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            PRE_MOVES  = data.d_preMoves;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           HAS_VALUE  = data.d_hasValue;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= 2;
 
             bsl::istringstream iss(TEXT);
 
@@ -5168,7 +5585,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -5253,7 +5670,7 @@ int main(int argc, char *argv[])
                       << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
                       << "========================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_preMoves;
@@ -5691,14 +6108,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            PRE_MOVES = DATA[ti].d_preMoves;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const bool           HAS_VALUE = DATA[ti].d_hasValue;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            PRE_MOVES  = data.d_preMoves;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           HAS_VALUE  = data.d_hasValue;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -5710,7 +6129,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -5795,7 +6214,7 @@ int main(int argc, char *argv[])
               << "TESTING 'advanceToNextToken' TO 'e_START_OBJECT'" << endl
               << "================================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_preMoves;
@@ -6453,14 +6872,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            PRE_MOVES = DATA[ti].d_preMoves;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const bool           HAS_VALUE = DATA[ti].d_hasValue;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            PRE_MOVES  = data.d_preMoves;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           HAS_VALUE  = data.d_hasValue;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -6472,7 +6893,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -6563,7 +6984,7 @@ int main(int argc, char *argv[])
                     << "TESTING 'advanceToNextToken' FIRST CHARACTER" << endl
                     << "============================================" << endl;
 
-        const struct {
+        const struct Data {
             int             d_line;
             const char     *d_text_p;
             int             d_preMoves;
@@ -6750,14 +7171,16 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int            LINE      = DATA[ti].d_line;
-            const string         TEXT      = DATA[ti].d_text_p;
-            const int            PRE_MOVES = DATA[ti].d_preMoves;
-            const bool           IS_VALID  = DATA[ti].d_validFlag;
-            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
-            const bool           HAS_VALUE = DATA[ti].d_hasValue;
-            const string         EXP_VALUE = DATA[ti].d_value_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ ti) {
+            const Data&          data       = DATA[ti % NUM_DATA];
+            const int            LINE       = data.d_line;
+            const string         TEXT       = data.d_text_p;
+            const int            PRE_MOVES  = data.d_preMoves;
+            const bool           IS_VALID   = data.d_validFlag;
+            const Obj::TokenType EXP_TOKEN  = data.d_expTokenType;
+            const bool           HAS_VALUE  = data.d_hasValue;
+            const string         EXP_VALUE  = data.d_value_p;
+            const bool           CHECK_UTF8 = NUM_DATA <= ti;
 
             bsl::istringstream iss(TEXT);
 
@@ -6769,7 +7192,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf());
+            mX.reset(iss.rdbuf(), CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());

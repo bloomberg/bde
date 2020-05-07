@@ -493,7 +493,7 @@ int DatumUtil::decode(bdld::ManagedDatum *result,
         buffer.buffer(), sizeof(buffer));
 
     baljsn::Tokenizer tokenizer(&bsa);
-    tokenizer.reset(jsonBuffer);
+    tokenizer.reset(jsonBuffer, false);
 
     // Advance from e_BEGIN
     tokenizer.advanceToNextToken();
