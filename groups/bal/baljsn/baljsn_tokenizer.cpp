@@ -89,12 +89,6 @@ int Tokenizer::reloadStringBuffer()
 
             d_readStatus = 0;
         }
-        else if (d_readStatus < 0) {
-            // invalid UTF-8
-
-            d_readOffset += numRead;
-            numRead = 0;
-        }
     }
     else {
         numRead = static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[0],
@@ -131,12 +125,6 @@ int Tokenizer::expandBufferForLargeValue()
             BSLS_ASSERT(k_MAX_STRING_SIZE < numRead + 4);
 
             d_readStatus = 0;
-        }
-        else if (d_readStatus < 0) {
-            // invalid UTF-8
-
-            d_readOffset += numRead;
-            numRead = 0;
         }
     }
     else {
@@ -178,12 +166,6 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
             BSLS_ASSERT(k_MAX_STRING_SIZE - d_valueIter < numRead + 4);
 
             d_readStatus = 0;
-        }
-        else if (d_readStatus < 0) {
-            // invalid UTF-8
-
-            d_readOffset += numRead;
-            numRead = 0;
         }
     }
     else {

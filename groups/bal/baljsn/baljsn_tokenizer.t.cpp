@@ -816,9 +816,9 @@ int main(int argc, char *argv[])
                     ASSERT(ERROFF  == X.readOffset());
                     ASSERT(NCO == X.readStatus());
 
-                    sOff = iss.rdbuf()->pubseekoff(0,
-                                                   bsl::ios_base::cur,
-                                                   bsl::ios_base::in);
+                    Uint64 sOff = iss.rdbuf()->pubseekoff(0,
+                                                          bsl::ios_base::cur,
+                                                          bsl::ios_base::in);
                     ASSERT(ERROFF < sOff);
                 }
             }
