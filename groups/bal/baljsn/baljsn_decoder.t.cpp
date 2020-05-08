@@ -24,9 +24,9 @@
 #include <bdlb_chartype.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>  // for printing vector
-#include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlde_utf8util.h>
 #include <bdlsb_fixedmeminstreambuf.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslmt_testutil.h>
 
@@ -33987,7 +33987,9 @@ namespace s_baltst {
 inline
 int Colors::fromString(Value *result, const bsl::string& string)
 {
-    return fromString(result, string.c_str(), string.length());
+    return fromString(result,
+                      string.c_str(),
+                      static_cast<int>(string.length()));
 }
 
 inline
@@ -34423,6 +34425,8 @@ void constructFeatureTestMessage(
 
 namespace CASE5 {
 
+bool checkUtf8;
+
 struct ThreadData {
     const bsl::vector<balb::FeatureTestMessage> *d_testObjects_p;
     bool                                         d_veryVerbose;
@@ -34448,6 +34452,7 @@ extern "C" void *threadFunction(void *data)
         {
             balb::FeatureTestMessage  value;
             baljsn::DecoderOptions     options;
+            options.setValidateInputIsUtf8(checkUtf8);
             baljsn::Decoder            decoder;
             bdlsb::FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
 
@@ -34460,6 +34465,7 @@ extern "C" void *threadFunction(void *data)
         {
             balb::FeatureTestMessage  value;
             baljsn::DecoderOptions     options;
+            options.setValidateInputIsUtf8(checkUtf8);
             baljsn::Decoder            decoder;
             bdlsb::FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
             bsl::istream              iss(&isb);
@@ -34485,6 +34491,7 @@ extern "C" void *threadFunction(void *data)
             balb::FeatureTestMessage value;
 
             baljsn::DecoderOptions     options;
+            options.setValidateInputIsUtf8(checkUtf8);
             baljsn::Decoder            decoder;
             bdlsb::FixedMemInStreamBuf isb(COMPACT.data(), COMPACT.length());
             bsl::istream              iss(&isb);
@@ -34958,7 +34965,9 @@ namespace case4 {
 inline
 int Color::fromString(Value *result, const bsl::string& string)
 {
-    return fromString(result, string.c_str(), string.length());
+    return fromString(result,
+                      string.c_str(),
+                      static_cast<int>(string.length()));
 }
 
                                // --------------
@@ -35939,8 +35948,8 @@ bsl::ostream& HexBinaryCustomizedType::print(
     else {
         stream << 'x'
                << '\''
-               << bdlb::PrintStringSingleLineHexDumper(&d_value[0],
-                                                      d_value.size())
+               << bdlb::PrintStringSingleLineHexDumper(
+                                 &d_value[0], static_cast<int>(d_value.size()))
                << '\'';
     }
     return stream;
@@ -36500,7 +36509,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -36606,6 +36615,211 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 9: {
+        // ------------------------------------------------------------------
+        // TESTING UTF-8 DETECTION
+        //
+        // Conserns:
+        //: 1 That, when UTF-8 validation is enabled, the decoder can detect
+        //:   invalid UTF-8.
+        //:
+        //: 2 That the message logged when UTF-8 occurs correctly describes
+        //:   the nature of the UTF-8 error.
+        //:
+        //: 3 The the message logged contains the offset of the UTF-8 error
+        //:   in the 'streambuf'.
+        //:
+        //: 4 That the message accurately describes the context in which the
+        //:   offending invalid UTF-8 sequences occurred (this was especially a
+        //:   worry, because the tokenizer reads data 8K at at time, and we
+        //:   didn't want to be giving decoder messages describing a context at
+        //:   the start of the buffer when in fac the invalid UTF-8 was several
+        //:   kilobytes later).
+        //
+        // Plan:
+        //: 1 Start out with 'pattern', a valid UTF-8 string of JSON input for
+        //:   an object of type 'test::Employee".
+        //:
+        //: 2 Create a table 'UTF8_DATA', where every row of the table has
+        //:   either 'Tokenizer::k_EOF', or an 'enum' from
+        //:   'bdlde::Utf8Util::ErrorStatus' indicating a type of invalid
+        //:   UTF-8, and a string with a sequence of that type of bad UTF-8.
+        //:
+        //: 3 Create a table 'FIND_DATA' consisting of strings to search for,
+        //:   in sequence, through 'pattern', and for each string, some
+        //:   context-appropriate strings (separated by '\t') that we expect to
+        //:   be logged if an error were to be encountered at that point in
+        //:   'pattern'.
+        //:
+        //: 4 Iterate through 'FIND_DATA' forwarding to each point in 'pattern'
+        //:   identified by the string in 'FIND_DATA'.  Go twice, once at the
+        //:   beginning of the string from 'FIND_DATA', and once at the end of
+        //:   it.  Keep a bool 'AFTER' to indicate whether we are before or
+        //:   after that substring.
+        //:
+        //: 5 In a nested loop, iterate through 'UTF-8' data
+        //:   o splice the invalid UTF-8 sequence right at the point indicated
+        //:     by 'FIND_DATA' into the string
+        //:
+        //:   o attempt to decode the string
+        //:
+        //:   o observe that this failed, and that the message logged by the
+        //:     decoder includes
+        //:     1 the appropriate message describing the type of UTF-8 error or
+        //:       end of file
+        //:
+        //:     2 the offset at which the problem occurs
+        //:
+        //:     3 a description of the context appropriate to the location of
+        //:       the problematic input in 'pattern'.
+        //:
+        //: 6 In the last iteration, the bool 'FINAL' is set, and the
+        //:   problematic input (or EOF) is after the closing '}' of input, and
+        //:   we observe that there was no error, and no error was logged.
+        // ------------------------------------------------------------------
+
+        const char *pattern =
+                "{\n"
+                "       \"name\" : \"Bob \xca\xbf\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street \xf1\x80\x80\x80\",\n"
+                "           \"city\" : \"Some City \xe0\xa0\xbf\",\n"
+                "           \"state\" : \"Some State \xcf\x80\"\n"
+                "       },\n"
+                "       \"age\" : 21\n"
+                "}";
+
+        typedef bdlde::Utf8Util Util;
+
+        const bsl::size_t npos = bsl::string::npos;
+
+        static const struct Utf8Data {
+            int                d_line;
+            int                d_status;
+            const char        *d_sequence;
+        } UTF8_DATA[] = {
+            { L_, baljsn::Tokenizer::k_EOF,              ""                 },
+            { L_, Util::k_END_OF_INPUT_TRUNCATION,       "\xc7"             },
+            { L_, Util::k_UNEXPECTED_CONTINUATION_OCTET, "\xa4"             },
+            { L_, Util::k_NON_CONTINUATION_OCTET,        "\xc7?"            },
+            { L_, Util::k_NON_MINIMAL_ENCODING,          "\xc0\x83"         },
+            { L_, Util::k_SEQUENCE_TOO_LONG,             "\xfa\0x80"        },
+            { L_, Util::k_VALUE_TOO_LARGE,               "\xf4\xa0\x80\x80" },
+            { L_, Util::k_SURROGATE,                     "\xed\xb0\x85"     }
+        };
+        enum { k_NUM_UTF8_DATA = sizeof UTF8_DATA / sizeof *UTF8_DATA };
+
+        static const struct FindData {
+            int         d_line;
+            const char *d_findStr;
+            const char *d_expStrings;
+        } FIND_DATA[] = {
+            { L_, "{"   , "advancing to the first token\t"
+                                                    "Expecting a '{' or '['" },
+            { L_, " "   , "reading token after '{'" },
+            { L_, "\""  , "reading token after '{'" },
+            { L_, "name", "reading token after '{'" },
+            { L_, ":"   , "reading value for attribute 'name'" },
+            { L_, "o"   , "reading value for attribute 'name'" },
+            { L_, ","   , "reading token after value for attribute 'name'" },
+            { L_, "A"   , "reading token after value for attribute 'name'" },
+            { L_, "{"   , "reading value for attribute 'homeAddress'" },
+            { L_, "ee"  , "reading token after '{'\t"
+                         "Could not decode sequence\terror decoding element" },
+            { L_, "Str" , "reading value for attribute 'street'\t"
+                         "Could not decode sequence\terror decoding element" },
+            { L_, ":"   , "reading value for attribute 'city'\t"
+                         "Could not decode sequence\terror decoding element" },
+            { L_, " "   , "reading value for attribute 'city'\t"
+                         "Could not decode sequence\terror decoding element" },
+            { L_, "C"   , "reading value for attribute 'city'\t"
+                         "Could not decode sequence\terror decoding element" },
+            { L_, "}"   , "reading token after value for attribute 'state'\t"
+                         "Could not decode sequence\terror decoding element" },
+            { L_, ","   , "reading token after value for attribute 'state'"},
+            { L_, "2"   , "reading value for attribute 'age'"},
+            { L_, "}"   , "reading token after value for attribute 'age'" } };
+        enum { k_NUM_FIND_DATA = sizeof FIND_DATA / sizeof *FIND_DATA };
+
+        bool done = false;
+        const char *pf = pattern;
+        for (int tf = 0; tf < 2 * k_NUM_FIND_DATA; ++tf) {
+            const FindData&   findData = FIND_DATA[tf / 2];
+            const int         FLINE    = findData.d_line;
+            const char       *FIND_STR = findData.d_findStr;
+            const char       *EXP_STRS = findData.d_expStrings;
+            const bool        AFTER    = tf & 1;
+            const bool        FINAL    = 2 * k_NUM_FIND_DATA-1 == tf;
+
+            done |= FINAL;
+
+            pf = AFTER ? pf + bsl::strlen(FIND_STR)
+                       : bsl::strstr(pf, FIND_STR);
+            ASSERT(pf);
+            ASSERT(!FINAL == !!*pf);
+
+            const bsl::size_t ERROFF   = pf - pattern;
+
+            char offBuf[16];
+            bdlsb::FixedMemOutStreamBuf sb(offBuf, sizeof(offBuf));
+            bsl::ostream os(&sb);
+            os << ERROFF << bsl::ends;
+
+            for (int tu = 0; tu < k_NUM_UTF8_DATA; ++tu) {
+                const Utf8Data& utf8Data = UTF8_DATA[tu];
+                const int       ULINE    = utf8Data.d_line;
+                const int       UERR     = utf8Data.d_status;
+                const char     *USEQ     = utf8Data.d_sequence;
+                const char     *UMSG     = baljsn::Tokenizer::k_EOF == UERR
+                                         ? "Error: unexpected end of file"
+                                         : Util::toErrorMessage(UERR);
+
+                bsl::string str(pattern, pf - pattern);
+                str += USEQ;
+                if (baljsn::Tokenizer::k_EOF != UERR &&
+                                     Util::k_END_OF_INPUT_TRUNCATION != UERR) {
+                    str += pf;
+                }
+
+                bsl::istringstream iss(str);
+
+                test::Employee bob;
+
+                baljsn::DecoderOptions options;
+                options.setValidateInputIsUtf8(true);
+                baljsn::Decoder        decoder;
+                ASSERTV(FIND_STR, USEQ, str, FINAL ==
+                                    (0 == decoder.decode(iss, &bob, options)));
+                const bsl::string& logMsg = decoder.loggedMessages();
+
+                if (FINAL) {
+                    ASSERT(logMsg.empty());
+                }
+                else {
+                    ASSERTV(ULINE, UMSG, logMsg, npos != logMsg.find(UMSG));
+                    ASSERTV(ULINE, UMSG, offBuf, npos != logMsg.find(offBuf));
+                }
+
+                if (veryVerbose) {
+                    P_(str);    P(logMsg);
+                }
+
+                if (!AFTER) {
+                    const char *pEnd = "";
+                    for (const char *pe = EXP_STRS; pe; pe = *pEnd ? pEnd+1 :
+                                                                           0) {
+                        pEnd = bsl::strstr(pe, "\t");
+                        pEnd = pEnd ? pEnd : pe + bsl::strlen(pe);
+                        bsl::string exp(pe, pEnd - pe);
+
+                        ASSERTV(FLINE, FIND_STR, str, logMsg, exp,
+                                                     npos != logMsg.find(exp));
+                    }
+                }
+            }
+        }
+        ASSERT(done);
       } break;
       case 8: {
         // ------------------------------------------------------------------
@@ -36779,14 +36993,20 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
-        for (int i = 0; i != NUM_DATA; ++i) {
-            const int                LINE         = DATA[i].d_line;
-            const Instruction *const INSTRUCTIONS = DATA[i].d_instructions;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const int                tj           = ti / 2;
+            const bool               UTF8         = ti & 1;
+            const int                LINE         = DATA[tj].d_line;
+            const Instruction *const INSTRUCTIONS = DATA[tj].d_instructions;
             const SuccessStatus      DECODE_SUCCESS_STATUS =
-                DATA[i].d_decodeSuccessStatus;
-            const bslstl::StringRef LOGGED_MESSAGES = DATA[i].d_loggedMessages;
+                                                    DATA[tj].
+                                                         d_decodeSuccessStatus;
+            const bslstl::StringRef  LOGGED_MESSAGES =
+                                                    DATA[tj].d_loggedMessages;
 
             typedef baljsn::Decoder Obj;
+            baljsn::DecoderOptions options;
+            options.setValidateInputIsUtf8(UTF8);
             Obj mX;
 
             int decodeStatus = 0;
@@ -36804,8 +37024,7 @@ int main(int argc, char *argv[])
                                                            string.length());
 
                       SOType output;
-                      decodeStatus |= mX.decode(&streamBuf, &output,
-                                                baljsn::DecoderOptions());
+                      decodeStatus |= mX.decode(&streamBuf, &output, options);
                   } break;
                   case FOId: {
                       const bslstl::StringRef string(instructionPtr->d_string);
@@ -36813,8 +37032,7 @@ int main(int argc, char *argv[])
                                                            string.length());
 
                       FOType output;
-                      decodeStatus |= mX.decode(&streamBuf, &output,
-                                                baljsn::DecoderOptions());
+                      decodeStatus |= mX.decode(&streamBuf, &output, options);
                   } break;
                 }
             }
@@ -36884,15 +37102,18 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int          LINE   = DATA[ti].d_lineNum;
-            const bsl::string& TEXT   = DATA[ti].d_text_p;
-            const bsl::string& OUTPUT = DATA[ti].d_output_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const int          tj     = ti / 2;
+            const bool         UTF8   = ti & 1;
+            const int          LINE   = DATA[tj].d_lineNum;
+            const bsl::string& TEXT   = DATA[tj].d_text_p;
+            const bsl::string& OUTPUT = DATA[tj].d_output_p;
 
             test::Palette obj;
             bsl::istringstream iss(OUTPUT);
 
             baljsn::DecoderOptions options;
+            options.setValidateInputIsUtf8(UTF8);
             baljsn::Decoder        decoder;
             const int rc = decoder.decode(iss, &obj, options);
             ASSERTV(LINE, rc, 0 == rc);
@@ -36904,7 +37125,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        {
+        for (int tu = 0; tu < 2; ++tu) {
+            const bool UTF8 = tu;
+
             const bsl::string& ALL_OUTPUT   =
                 "{ \"colors\" : [\n"
                                    "\"RED\\/GREEN\",    \n"
@@ -36920,6 +37143,7 @@ int main(int argc, char *argv[])
             bsl::istringstream iss(ALL_OUTPUT);
 
             baljsn::DecoderOptions options;
+            options.setValidateInputIsUtf8(UTF8);
             baljsn::Decoder        decoder;
             const int rc = decoder.decode(iss, &obj, options);
             ASSERTV(rc, 0 == rc);
@@ -37003,12 +37227,14 @@ int main(int argc, char *argv[])
             };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int         LINE        = DATA[i].d_line;
-            const char       *INPUT       = DATA[i].d_input_p;
-            const char       *OUTPUT      = DATA[i].d_output_p;
-            const int         LEN         = DATA[i].d_outputLen;
-            const bool        IS_VALID    = DATA[i].d_isValid;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const int   tj          = ti / 2;
+            const bool  UTF8        = ti & 1;
+            const int   LINE        = DATA[tj].d_line;
+            const char *INPUT       = DATA[tj].d_input_p;
+            const char *OUTPUT      = DATA[tj].d_output_p;
+            const int   LEN         = DATA[tj].d_outputLen;
+            const bool  IS_VALID    = DATA[tj].d_isValid;
 
             bsl::vector<char> vc(OUTPUT, OUTPUT + LEN);
             const bsl::vector<char>& VC = vc;
@@ -37025,6 +37251,7 @@ int main(int argc, char *argv[])
             bsl::istringstream is(os.str());
 
             baljsn::DecoderOptions options;
+            options.setValidateInputIsUtf8(UTF8);
             baljsn::Decoder        decoder;
             const int rc = decoder.decode(is, &value, options);
             if (veryVerbose) {
@@ -37094,24 +37321,28 @@ int main(int argc, char *argv[])
 
         using namespace CASE5;
 
-        bsl::vector<balb::FeatureTestMessage> testObjects;
-        constructFeatureTestMessage(&testObjects);
+        for (int tu = 0; tu < 2; ++tu) {
+            checkUtf8 = tu;
 
-        ThreadData threadData;
-        threadData.d_testObjects_p = &testObjects;
-        threadData.d_veryVerbose   = veryVerbose;
+            bsl::vector<balb::FeatureTestMessage> testObjects;
+            constructFeatureTestMessage(&testObjects);
 
-        const int NUM_THREADS = 20;
-        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
+            ThreadData threadData;
+            threadData.d_testObjects_p = &testObjects;
+            threadData.d_veryVerbose   = veryVerbose;
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i],
-                                                 &threadFunction,
-                                                 &threadData));
-        }
+            const int NUM_THREADS = 20;
+            bslmt::ThreadUtil::Handle handles[NUM_THREADS];
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                ASSERT(0 == bslmt::ThreadUtil::create(&handles[i],
+                                                     &threadFunction,
+                                                     &threadData));
+            }
+
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
+            }
         }
       } break;
       case 4: {
@@ -37166,14 +37397,19 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE  = DATA[ti].d_lineNum;
-                const bsl::string&  INPUT = DATA[ti].d_text_p;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const int           tj    = ti / 2;
+                const bool          UTF8  = ti & 1;
+                const int           LINE  = DATA[tj].d_lineNum;
+                const bsl::string&  INPUT = DATA[tj].d_text_p;
                 balb::SimpleRequest value;
 
                 bsl::istringstream iss(INPUT);
 
                 baljsn::DecoderOptions options;
+                if (UTF8) {
+                    options.setValidateInputIsUtf8(true);
+                }
                 baljsn::Decoder        decoder;
 
                 const baljsn::DecoderOptions& mO = options;
@@ -38103,14 +38339,19 @@ int main(int argc, char *argv[])
 
         // Testing sequences
         {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE  = DATA[ti].d_lineNum;
-                const bsl::string& INPUT = DATA[ti].d_text_p;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const int          tj    = ti / 2;
+                const bool         UTF8  = ti & 1;
+                const int          LINE  = DATA[tj].d_lineNum;
+                const bsl::string& INPUT = DATA[tj].d_text_p;
                 case4::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
                 baljsn::DecoderOptions options;
+                if (UTF8) {
+                    options.setValidateInputIsUtf8(true);
+                }
                 baljsn::Decoder        decoder;
                 const int RC = decoder.decode(iss, &bob, options);
                 ASSERTV(LINE, RC, 0 != RC);
@@ -38122,14 +38363,20 @@ int main(int argc, char *argv[])
 
         // Testing choices
         {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE  = DATA[ti].d_lineNum;
-                const bsl::string& INPUT = DATA[ti].d_text_p;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const int          tj    = ti / 2;
+                const bool         UTF8  = ti & 1;
+                const int          LINE  = DATA[tj].d_lineNum;
+                const bsl::string& INPUT = DATA[tj].d_text_p;
+
                 case4::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
                 baljsn::DecoderOptions options;
+                if (UTF8) {
+                    options.setValidateInputIsUtf8(true);
+                }
                 baljsn::Decoder        decoder;
                 const int RC = decoder.decode(iss, &bob, options);
                 ASSERTV(LINE, RC, 0 != RC);
@@ -38259,14 +38506,20 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE  = DATA[ti].d_lineNum;
-                const bsl::string& INPUT = DATA[ti].d_text_p;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const int          tj    = ti / 2;
+                const bool         UTF8  = ti & 1;
+                const int          LINE  = DATA[tj].d_lineNum;
+                const bsl::string& INPUT = DATA[tj].d_text_p;
+
                 case4::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
                 baljsn::DecoderOptions options;
+                if (UTF8) {
+                    options.setValidateInputIsUtf8(true);
+                }
                 baljsn::Decoder        decoder;
                 const int RC = decoder.decode(iss, &bob, options);
                 ASSERTV(LINE, RC, 0 != RC);
@@ -38819,13 +39072,18 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int          LINE     = DATA[ti].d_lineNum;
-            const bsl::string& jsonText = DATA[ti].d_text_p;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const int          tj       = ti / 2;
+            const bool         UTF8     = ti & 1;
+            const int          LINE     = DATA[tj].d_lineNum;
+            const bsl::string& jsonText = DATA[tj].d_text_p;
 
             // Without skipping option
             baljsn::Decoder        decoder;
             baljsn::DecoderOptions options;
+            if (UTF8) {
+                options.setValidateInputIsUtf8(true);
+            }
             const baljsn::DecoderOptions& mO = options;
 
             options.setSkipUnknownElements(false);
@@ -38912,10 +39170,12 @@ int main(int argc, char *argv[])
         bsl::vector<balb::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
 
-        for (int ti = 0; ti < NUM_JSON_PRETTY_MESSAGES; ++ti) {
-            const int          LINE   = JSON_PRETTY_MESSAGES[ti].d_line;
-            const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
-            const balb::FeatureTestMessage& EXP = testObjects[ti];
+        for (int ti = 0; ti < 2 * NUM_JSON_PRETTY_MESSAGES; ++ti) {
+            const int          tj     = ti / 2;
+            const bool         UTF8   = ti & 1;
+            const int          LINE   = JSON_PRETTY_MESSAGES[tj].d_line;
+            const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[tj].d_input_p;
+            const balb::FeatureTestMessage& EXP = testObjects[tj];
 
             if (veryVerbose) {
                 P(ti);    P(LINE);    P(PRETTY);
@@ -38923,8 +39183,11 @@ int main(int argc, char *argv[])
             }
 
             {
-                balb::FeatureTestMessage value;
+                balb::FeatureTestMessage   value;
                 baljsn::DecoderOptions     options;
+                if (UTF8) {
+                    options.setValidateInputIsUtf8(true);
+                }
                 baljsn::Decoder            decoder;
                 bdlsb::FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
 
@@ -38938,6 +39201,9 @@ int main(int argc, char *argv[])
             {
                 balb::FeatureTestMessage  value;
                 baljsn::DecoderOptions     options;
+                if (UTF8) {
+                    options.setValidateInputIsUtf8(true);
+                }
                 baljsn::Decoder            decoder;
                 bdlsb::FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
                 bsl::istream              iss(&isb);
@@ -38950,10 +39216,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
-            const int          LINE    = JSON_COMPACT_MESSAGES[ti].d_line;
-            const bsl::string& COMPACT = JSON_COMPACT_MESSAGES[ti].d_input_p;
-            const balb::FeatureTestMessage& EXP = testObjects[ti];
+        for (int ti = 0; ti < 2 * NUM_JSON_COMPACT_MESSAGES; ++ti) {
+            const int          tj      = ti / 2;
+            const bool         UTF8    = ti & 1;
+            const int          LINE    = JSON_COMPACT_MESSAGES[tj].d_line;
+            const bsl::string& COMPACT = JSON_COMPACT_MESSAGES[tj].d_input_p;
+            const balb::FeatureTestMessage& EXP = testObjects[tj];
 
             if (veryVerbose) {
                 P(ti);    P(LINE);    P(COMPACT);
@@ -38964,6 +39232,9 @@ int main(int argc, char *argv[])
                 balb::FeatureTestMessage value;
 
                 baljsn::DecoderOptions     options;
+                if (UTF8) {
+                    options.setValidateInputIsUtf8(true);
+                }
                 baljsn::Decoder            decoder;
                 bdlsb::FixedMemInStreamBuf isb(COMPACT.data(),
                                               COMPACT.length());
@@ -39007,13 +39278,16 @@ int main(int argc, char *argv[])
             "       \"age\" : 21\n"
             "}";
 
-        {
+        for (int tu = 0; tu < 2; ++tu) {
             test::Employee bob;
 
             bsl::istringstream iss(jsonText);
 
             baljsn::DecoderOptions options;
             baljsn::Decoder        decoder;
+            if (tu) {
+                options.setValidateInputIsUtf8(true);
+            }
             ASSERTV(0 == decoder.decode(iss, &bob, options));
 
             ASSERTV(bob.name(), "Bob"         == bob.name());
