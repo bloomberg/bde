@@ -74,23 +74,26 @@ int Tokenizer::reloadStringBuffer()
     d_stringBuffer.resize(k_MAX_STRING_SIZE);
 
     bsl::size_t numRead;
-    if (d_checkUtf8) {
-        if (utf8ErrorIsSet()) {
-            numRead = 0;
-        }
-        else {
-            int sts;
-            numRead = bdlde::Utf8Util::readIfValid(&sts,
-                                                   &d_stringBuffer[0],
-                                                   k_MAX_STRING_SIZE,
-                                                   d_streambuf_p);
-            d_utf8Offset += numRead;
-            if (sts < 0) {
-                // invalid UTF-8
+    if (d_readStatus) {
+        numRead = 0;
+    }
+    else if (d_checkUtf8) {
+        numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
+                                               &d_stringBuffer[0],
+                                               k_MAX_STRING_SIZE,
+                                               d_streambuf_p);
+        if (0 < d_readStatus) {
+            // should be buffer full
 
-                numRead     = 0;
-                setUtf8ErrorMessage(sts);
-            }
+            BSLS_ASSERT(k_MAX_STRING_SIZE < numRead + 4);
+
+            d_readStatus = 0;
+        }
+        else if (d_readStatus < 0) {
+            // invalid UTF-8
+
+            d_readOffset += numRead;
+            numRead = 0;
         }
     }
     else {
@@ -98,6 +101,11 @@ int Tokenizer::reloadStringBuffer()
                                                         k_MAX_STRING_SIZE));
     }
 
+    if (0 == d_readStatus && 0 == numRead) {
+        d_readStatus = k_EOF;
+    }
+
+    d_readOffset += numRead;
     d_cursor = 0;
     d_stringBuffer.resize(numRead);
     return static_cast<int>(numRead);
@@ -109,24 +117,26 @@ int Tokenizer::expandBufferForLargeValue()
     d_stringBuffer.resize(currLength + k_MAX_STRING_SIZE);
 
     bsl::size_t numRead;
-    if (d_checkUtf8) {
-        if (utf8ErrorIsSet()) {
-            numRead = 0;
-        }
-        else {
-            int sts;
-            numRead = bdlde::Utf8Util::readIfValid(
-                                                  &sts,
-                                                  &d_stringBuffer[d_valueIter],
-                                                  k_MAX_STRING_SIZE,
-                                                  d_streambuf_p);
-            d_utf8Offset += numRead;
-            if (sts < 0) {
-                // invalid UTF-8
+    if (d_readStatus) {
+        numRead = 0;
+    }
+    else if (d_checkUtf8) {
+        numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
+                                               &d_stringBuffer[d_valueIter],
+                                               k_MAX_STRING_SIZE,
+                                               d_streambuf_p);
+        if (0 < d_readStatus) {
+            // should be buffer full
 
-                numRead     = 0;
-                setUtf8ErrorMessage(sts);
-            }
+            BSLS_ASSERT(k_MAX_STRING_SIZE < numRead + 4);
+
+            d_readStatus = 0;
+        }
+        else if (d_readStatus < 0) {
+            // invalid UTF-8
+
+            d_readOffset += numRead;
+            numRead = 0;
         }
     }
     else {
@@ -135,6 +145,11 @@ int Tokenizer::expandBufferForLargeValue()
                                                   k_MAX_STRING_SIZE));
     }
 
+    if (0 == numRead && 0 == d_readStatus) {
+        d_readStatus = k_EOF;
+    }
+
+    d_readOffset += numRead;
     d_stringBuffer.resize(currLength + numRead);
     return numRead ? 0 : -1;
 }
@@ -149,24 +164,26 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
     d_valueBegin = 0;
 
     bsl::size_t numRead;
-    if (d_checkUtf8) {
-        if (utf8ErrorIsSet()) {
-            numRead = 0;
-        }
-        else {
-            int sts;
-            numRead = bdlde::Utf8Util::readIfValid(
-                                               &sts,
+    if (d_readStatus) {
+        numRead = 0;
+    }
+    else if (d_checkUtf8) {
+        numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
                                                &d_stringBuffer[d_valueIter],
                                                k_MAX_STRING_SIZE - d_valueIter,
                                                d_streambuf_p);
-            d_utf8Offset += numRead;
-            if (sts < 0) {
-                // invalid UTF-8
+        if (0 < d_readStatus) {
+            // should be buffer full
 
-                numRead     = 0;
-                setUtf8ErrorMessage(sts);
-            }
+            BSLS_ASSERT(k_MAX_STRING_SIZE - d_valueIter < numRead + 4);
+
+            d_readStatus = 0;
+        }
+        else if (d_readStatus < 0) {
+            // invalid UTF-8
+
+            d_readOffset += numRead;
+            numRead = 0;
         }
     }
     else {
@@ -175,6 +192,11 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
                                              k_MAX_STRING_SIZE - d_valueIter));
     }
 
+    if (0 == d_readStatus && 0 == numRead) {
+        d_readStatus = k_EOF;
+    }
+
+    d_readOffset += numRead;
     d_stringBuffer.resize(d_valueIter + numRead);
 
     return static_cast<int>(numRead);
@@ -242,20 +264,6 @@ int Tokenizer::extractStringValue()
     return 0;
 }
 
-void Tokenizer::setUtf8ErrorMessage(int utf8ErrorStatus)
-{
-    BSLS_ASSERT(utf8ErrorStatus < 0);
-
-    bdlsb::FixedMemOutStreamBuf sb(d_utf8MessageBuffer,
-                                   k_UTF8_MESSAGE_BUFFER_SIZE);
-    bsl::ostream os(&sb);
-
-    os << "UTF-8 error " << bdlde::Utf8Util::toErrorMessage(utf8ErrorStatus) <<
-                                    " at offset " << d_utf8Offset << bsl::ends;
-    BSLS_ASSERT(bsl::strlen(d_utf8MessageBuffer) < k_UTF8_MESSAGE_BUFFER_SIZE);
-    BSLS_ASSERT(*d_utf8MessageBuffer);
-}
-
 int Tokenizer::skipNonWhitespaceOrTillToken()
 {
     bool firstTime = true;
@@ -278,7 +286,7 @@ int Tokenizer::skipNonWhitespaceOrTillToken()
             if (firstTime) {
                 const int numRead = moveValueCharsToStartAndReloadBuffer();
                 if (0 == numRead) {
-                    if (utf8ErrorIsSet()) {
+                    if (d_readStatus < 0) {
                         return -1;                                    // RETURN
                     }
 
@@ -670,7 +678,7 @@ int Tokenizer::resetStreamBufGetPointer()
                                                             bsl::ios_base::cur,
                                                             bsl::ios_base::in);
     if (numExtraCharsRead) {
-        *d_utf8MessageBuffer = '\0';
+        d_readStatus = 0;
     }
 
     return newPos >= 0 ? 0 : -1;

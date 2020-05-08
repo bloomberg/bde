@@ -732,27 +732,26 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
                 ASSERTV(X.allowStandAloneValues(), X.allowStandAloneValues());
-
-                ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
-                ASSERTV(ILINE, JLINE, !bsl::strcmp(X.utf8ErrorMessage("woof"),
-                                                   "woof"));
+                ASSERT(!X.readStatus());
 
                 mX.reset(iss.rdbuf(), true);
 
-                ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
-                ASSERTV(ILINE, JLINE, !bsl::strcmp(X.utf8ErrorMessage("arf"),
-                                                   "arf"));
-
                 ASSERTV(ILINE, JLINE, 0 == mX.advanceToNextToken());
-
-                ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
-                ASSERTV(ILINE, JLINE, !bsl::strcmp(X.utf8ErrorMessage("meow"),
-                                                   "meow"));
                 ASSERTV(X.tokenType(), Obj::e_ELEMENT_VALUE == X.tokenType());
+                ASSERT(!X.readStatus());
 
                 bslstl::StringRef sr;
                 ASSERT(0 == X.value(&sr));
                 ASSERTV(str, sr, str == sr);
+
+                Uint64 sOff = iss.rdbuf()->pubseekoff(0,
+                                                      bsl::ios_base::cur,
+                                                      bsl::ios_base::in);
+                ASSERT(str.length() == sOff);
+
+                ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
+                ASSERTV(X.tokenType(), Obj::e_ERROR == X.tokenType());
+                ASSERTV(baljsn::Tokenizer::k_EOF == X.readStatus());
             }
 
             for (int tj = 0; tj < k_NUM_UTF8_DATA; ++tj) {
@@ -788,37 +787,39 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { cout << "    ";    P(str); }
 
+                ASSERT(ERROFF  == X.readOffset());
+                ASSERT(JSTATUS == X.readStatus());
 
-                ASSERTV(ILINE, JLINE, X.utf8ErrorIsSet());
-                const char *utf8Msg = X.utf8ErrorMessage("purr");
-                ASSERTV(ILINE, JLINE, utf8Msg, errOffStr,
-                                         0 == bsl::strcmp(utf8Msg, errOffStr));
+                ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
+
+                ASSERT(ERROFF  == X.readOffset());
+                ASSERT(JSTATUS == X.readStatus());
+                Uint64 sOff = iss.rdbuf()->pubseekoff(0,
+                                                      bsl::ios_base::cur,
+                                                      bsl::ios_base::in);
+                ASSERT(ERROFF < sOff);
 
                 if (EIT == JSTATUS) {
                     // Now expect 'NCO' (Non Continuation Octet)
-
-                    sb.pubsetbuf(errOffStr, sizeof(errOffStr));
-                    bsl::ostream ostr2(&sb);
-                    ostr2 << "UTF-8 error " << Utf8Util::toErrorMessage(NCO) <<
-                                          " at offset " << ERROFF << bsl::ends;
-                    ASSERT(bsl::strlen(errOffStr) < sizeof(errOffStr));
 
                     str += '"';
                     iss.str(str);
 
                     mX.reset(iss.rdbuf(), true);
+                    ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
 
-                    ASSERTV(ILINE, JLINE, !X.utf8ErrorIsSet());
-                    ASSERTV(ILINE, JLINE, !bsl::strcmp(
-                                                 X.utf8ErrorMessage("bow wow"),
-                                                  "bow wow"));
+                    ASSERT(ERROFF  == X.readOffset());
+                    ASSERT(NCO == X.readStatus());
 
                     ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
-                    ASSERTV(ILINE, JLINE, X.utf8ErrorIsSet());
 
-                    utf8Msg = X.utf8ErrorMessage("growl");
-                    ASSERTV(ILINE, JLINE, utf8Msg, errOffStr,
-                                         0 == bsl::strcmp(utf8Msg, errOffStr));
+                    ASSERT(ERROFF  == X.readOffset());
+                    ASSERT(NCO == X.readStatus());
+
+                    sOff = iss.rdbuf()->pubseekoff(0,
+                                                   bsl::ios_base::cur,
+                                                   bsl::ios_base::in);
+                    ASSERT(ERROFF < sOff);
                 }
             }
         }
@@ -1073,7 +1074,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_PREADVS; ++i) {
                 int rc = mX.advanceToNextToken();
-                ASSERTV(LINE, rc, !rc);
+                ASSERTV(LINE, CHECK_UTF8, rc, !rc);
             }
 
             // Confirm the state after the pre-advances.
@@ -1668,8 +1669,8 @@ int main(int argc, char *argv[])
                     ALLOW_STAND_ALONE_VALUES == X.allowStandAloneValues());
 
             if (IS_VALID) {
-                ASSERTV(LINE, 0 == mX.advanceToNextToken());
-                ASSERTV(LINE, X.tokenType(), EXP_TOKEN,
+                ASSERTV(LINE, CHECK_UTF8, 0 == mX.advanceToNextToken());
+                ASSERTV(LINE, CHECK_UTF8, X.tokenType(), EXP_TOKEN,
                         EXP_TOKEN == X.tokenType());
 
                 if (Obj::e_ELEMENT_VALUE == EXP_TOKEN) {

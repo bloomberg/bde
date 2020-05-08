@@ -177,6 +177,8 @@ class Tokenizer {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    enum { k_EOF = +1 };
+
   private:
     // TYPES
     enum ContextType {
@@ -197,6 +199,8 @@ class Tokenizer {
         k_STACKBUFSIZE             = 256,
         k_UTF8_MESSAGE_BUFFER_SIZE = 256
     };
+
+
 
     // DATA
     bsls::AlignedBuffer<k_BUFSIZE>
@@ -223,7 +227,7 @@ class Tokenizer {
 
     bsl::size_t         d_valueIter;        // cursor for iterating value
 
-    Uint64              d_utf8Offset;       // unused unless UTF-8 checking is
+    Uint64              d_readOffset;       // unused unless UTF-8 checking is
                                             // enabled -- offset in the
                                             // streambuf after the last byte of
                                             // valid UTF-8 read
@@ -231,6 +235,10 @@ class Tokenizer {
     TokenType           d_tokenType;        // token type
 
     bsl::vector<char>   d_contextStack;     // context type stack
+
+    int                 d_readStatus;       // status of last read from
+                                            // '*d_streambuf_p'.  Returned by
+                                            // 'readStatus()'
 
     bool                d_allowStandAloneValues;
                                             // option for allowing stand alone
@@ -241,12 +249,6 @@ class Tokenizer {
                                             // heterogenous values
 
     bool                d_checkUtf8;        // enables UTF-8 validation
-
-    char                d_utf8MessageBuffer[k_UTF8_MESSAGE_BUFFER_SIZE];
-                                            // buffer for storing utf8 messages
-                                            // empty string if checking is
-                                            // disabled or no errors have been
-                                            // encountered
 
     // PRIVATE MANIPULATORS
     int extractStringValue();
@@ -287,7 +289,7 @@ class Tokenizer {
 
     void setUtf8ErrorMessage(int utf8ErrorStatus);
         // Set the UTF-8 message string to reflect the contents of
-        // 'utf8ErrorStatus' and 'd_utf8Offset'.  The behavior is undefined
+        // 'utf8ErrorStatus' and 'd_readOffset'.  The behavior is undefined
         // unless 'utf8ErrorStatus < 0' and 'utf8ErrorStatus' is one of the
         // values defined in the 'enum' 'bdlde::Utf8Util::ErrorStatus'.
 
@@ -375,17 +377,19 @@ class Tokenizer {
     TokenType tokenType() const;
         // Return the token type of the current token.
 
-    bool utf8ErrorIsSet() const;
-        // Return 'true' if a UTF-8 error message has occurred and 'false'
-        // otherwise.
+    int readStatus() const;
+        // The status of the last read from the 'streambuf'.
+        //: o Zero if success.
+        //:
+        //: o negative if UTF-8 error, according to
+        //:   'bdlde::Utf8Util:: ErrorStatus'
+        //:
+        //: o +1 if no data could be read before EOF
 
-    const char *utf8ErrorMessage(const char *notUtf8ErrorString) const;
-        // Return a pointer to a C-string containing an error message
-        // describing a UTF-8 error that occurred.  If no such error occurred,
-        // the specified 'notUtf8String' is returned.  The behavior is
-        // undefined if '0 == notUtf8String'.  Note that if an error has
-        // occurred, the string returned will contain a description of the type
-        // of UTF-8 error and the offset in the streambuf at which it occurred.
+    bsls::Types::Uint64 readOffset() const;
+        // The number of valid bytes read so far.  If bad UTF-8 was
+        // encountered, this is the offset of the beginning of the invalid
+        // UTF-8 sequence.
 
     int value(bslstl::StringRef *data) const;
         // Load into the specified 'data' the value of the specified token if
@@ -438,9 +442,10 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_valueBegin(0)
 , d_valueEnd(0)
 , d_valueIter(0)
-, d_utf8Offset(0)
+, d_readOffset(0)
 , d_tokenType(e_BEGIN)
 , d_contextStack(200, &d_stackAllocator)
+, d_readStatus(0)
 , d_allowStandAloneValues(true)
 , d_allowHeterogenousArrays(true)
 , d_checkUtf8(false)
@@ -448,7 +453,6 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
     d_contextStack.clear();
     pushContext(e_OBJECT_CONTEXT);
-    d_utf8MessageBuffer[0] = '\0';
 }
 
 inline
@@ -467,21 +471,16 @@ void Tokenizer::reset(bsl::streambuf *streambuf, bool checkUtf8)
     d_valueEnd    = 0;
     d_valueIter   = 0;
     d_tokenType   = e_BEGIN;
+    d_readStatus  = 0;
     d_checkUtf8   = checkUtf8;
 
-    if (checkUtf8) {
-        bsl::streamoff pos = d_streambuf_p->pubseekoff(0,
-                                                       bsl::ios_base::cur,
-                                                       bsl::ios_base::in);
-        d_utf8Offset = 0 <= pos ? pos : 0;
-    }
-    else {
-        d_utf8Offset  = 0;
-    }
+    bsl::streamoff pos = d_streambuf_p->pubseekoff(0,
+                                                   bsl::ios_base::cur,
+                                                   bsl::ios_base::in);
+    d_readOffset = 0 <= pos ? pos : 0;
 
     d_contextStack.clear();
     pushContext(e_OBJECT_CONTEXT);
-    d_utf8MessageBuffer[0] = '\0';
 }
 
 inline
@@ -516,18 +515,15 @@ Tokenizer::TokenType Tokenizer::tokenType() const
 }
 
 inline
-bool Tokenizer::utf8ErrorIsSet() const
+int Tokenizer::readStatus() const
 {
-    return *d_utf8MessageBuffer;
+    return d_readStatus;
 }
 
 inline
-const char *Tokenizer::utf8ErrorMessage(const char *notUtf8ErrorString) const
+bsls::Types::Uint64 Tokenizer::readOffset() const
 {
-    BSLS_ASSERT(notUtf8ErrorString);
-
-    return *d_utf8MessageBuffer ? d_utf8MessageBuffer
-                                : notUtf8ErrorString;
+    return d_readOffset;
 }
 
 }  // close package namespace
