@@ -167,7 +167,7 @@ BSLS_IDENT("$Id: $")
 // Finally, we notice that the search correctly ignored the appearance of the
 // word "united" (all lower case) in the second sentence.
 //
-// {'bslstl_default'|Example 1} shows how the same problem is addressed using
+// {'bslstl_defaultsearcher'|Example 1} shows how the same problem is addressed using
 // 'bsl::default_searcher'.
 //
 ///Example 2: Defining a Comparator and Hash
@@ -243,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //             == bsl::strlen(word));
 //..
 //
-// {'bslstl_default'|Example 2} shows how the same problem is addressed using
+// {'bslstl_defaultsearcher'|Example 2} shows how the same problem is addressed using
 // 'bsl::default_searcher'.
 //
 ///Example 3: Non-'char' Searches
