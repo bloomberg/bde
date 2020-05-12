@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_ios.h>
+#include <bsl_iosfwd.h>        // bsl::streambuf, bsl::char_traits<char>::eof()
 
 // LOCAL MACROS
 
@@ -32,6 +32,14 @@ namespace {
 using namespace BloombergLP;
 
 typedef bdlde::Utf8Util Utf8Util;
+
+// We want our case statements in these functions to look at the high-order 5
+// bits the the first byte of new UTF-8 sequence.  In most cases the lowest
+// order of these bits is unimportant, except in the case of the high-order 4
+// bites being '0xf', in which case it's legal if the 5th bit is 0, and
+// 'k_INVALID_INITIAL_OFFSET' if the 5th bit is 1.  'U_CASE' expands to 2 cases
+// with differing values of the 5th bit, with the first of these cases falling
+// through to the second.
 
 #undef  U_CASE
 #define U_CASE(byte)    case (byte >> 3): BSLA_FALLTHROUGH;                   \
@@ -63,16 +71,16 @@ enum {
     k_END_OF_INPUT_TRUNCATION      = Utf8Util::k_END_OF_INPUT_TRUNCATION,
     k_UNEXPECTED_CONTINUATION_OCTET= Utf8Util::k_UNEXPECTED_CONTINUATION_OCTET,
     k_NON_CONTINUATION_OCTET       = Utf8Util::k_NON_CONTINUATION_OCTET,
-    k_NON_MINIMAL_ENCODING         = Utf8Util::k_NON_MINIMAL_ENCODING,
-    k_SEQUENCE_TOO_LONG            = Utf8Util::k_SEQUENCE_TOO_LONG,
-    k_VALUE_TOO_LARGE              = Utf8Util::k_VALUE_TOO_LARGE,
+    k_OVERLONG_ENCODING            = Utf8Util::k_OVERLONG_ENCODING,
+    k_INVALID_INITIAL_OCTET        = Utf8Util::k_INVALID_INITIAL_OCTET,
+    k_VALUE_LARGER_THAN_0X10FFFF   = Utf8Util::k_VALUE_LARGER_THAN_0X10FFFF,
     k_SURROGATE                    = Utf8Util::k_SURROGATE
 };
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
 bool isValidUtf8(const char *character)
-    // Return 'true' if 'character' points to a valid UTF-8 codepoint.
+    // Return 'true' if 'character' points to a valid UTF-8 code point.
 {
     return (character[0] & k_ONEBYTEHEAD_TEST)   == k_ONEBYTEHEAD_RES ||
           ((character[1] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
@@ -86,9 +94,9 @@ bool isValidUtf8(const char *character)
 #endif // defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
 int utf8Size(char character)
-    // Return the length of the UTF-8 codepoint for which the specified
+    // Return the length of the UTF-8 code point for which the specified
     // 'character' is the first 'char'.  The behavior is undefined unless
-    // 'character' is the first 'char' of a UTF-8 codepoint.
+    // 'character' is the first 'char' of a UTF-8 code point.
 {
     if ((character & k_ONEBYTEHEAD_TEST) == k_ONEBYTEHEAD_RES) {
         return 1;                                                     // RETURN
@@ -222,7 +230,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
-                return k_NON_MINIMAL_ENCODING;                        // RETURN
+                return k_OVERLONG_ENCODING;                           // RETURN
             }
             string += 2;
           } break;
@@ -245,7 +253,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
-                return value < k_MIN_3_BYTE_VALUE ? k_NON_MINIMAL_ENCODING
+                return value < k_MIN_3_BYTE_VALUE ? k_OVERLONG_ENCODING
                                                   : k_SURROGATE;      // RETURN
             }
             string += 3;
@@ -275,8 +283,8 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
 
                 *invalidString = string;
                 return value > k_MAX_VALID
-                     ? k_VALUE_TOO_LARGE
-                     : k_NON_MINIMAL_ENCODING;                        // RETURN
+                     ? k_VALUE_LARGER_THAN_0X10FFFF
+                     : k_OVERLONG_ENCODING;                           // RETURN
             }
 
             string += 4;
@@ -284,7 +292,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
           case 0xf8 >> 3: {
             *invalidString = string;
 
-            return k_SEQUENCE_TOO_LONG;                               // RETURN
+            return k_INVALID_INITIAL_OCTET;                           // RETURN
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -352,7 +360,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
                 *invalidString = pc;
                 return isNotContinuation(pc[1]) ? k_NON_CONTINUATION_OCTET
-                                                : k_NON_MINIMAL_ENCODING;
+                                                : k_OVERLONG_ENCODING;
                                                                       // RETURN
             }
 
@@ -372,7 +380,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
                     return k_NON_CONTINUATION_OCTET;                  // RETURN
                 }
 
-                return value < k_MIN_3_BYTE_VALUE ? k_NON_MINIMAL_ENCODING
+                return value < k_MIN_3_BYTE_VALUE ? k_OVERLONG_ENCODING
                                                   : k_SURROGATE;      // RETURN
             }
 
@@ -394,8 +402,8 @@ static int validateAndCountCodePoints(const char             **invalidString,
                     return k_NON_CONTINUATION_OCTET;                  // RETURN
                 }
 
-                return k_MAX_VALID < value ? k_VALUE_TOO_LARGE
-                                           : k_NON_MINIMAL_ENCODING;  // RETURN
+                return k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
+                                           : k_OVERLONG_ENCODING;     // RETURN
             }
 
             pc += 4;
@@ -405,7 +413,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             *invalidString = pc;
 
-            return k_SEQUENCE_TOO_LONG;                               // RETURN
+            return k_INVALID_INITIAL_OCTET;                           // RETURN
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -461,7 +469,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
                 *invalidString = pc;
                 return isNotContinuation(pc[1]) ? k_NON_CONTINUATION_OCTET
-                                                : k_NON_MINIMAL_ENCODING;
+                                                : k_OVERLONG_ENCODING;
                                                                       // RETURN
             }
 
@@ -489,7 +497,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
                 return (isNotContinuation(pc[1]) | isNotContinuation(pc[2]))
                       ? k_NON_CONTINUATION_OCTET
                       : value < k_MIN_3_BYTE_VALUE
-                      ? k_NON_MINIMAL_ENCODING
+                      ? k_OVERLONG_ENCODING
                       : k_SURROGATE;                                  // RETURN
             }
 
@@ -517,7 +525,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             *invalidString = pc;
 
-            return k_SEQUENCE_TOO_LONG;                               // RETURN
+            return k_INVALID_INITIAL_OCTET;                           // RETURN
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -640,7 +648,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = k_NON_MINIMAL_ENCODING;
+                *status = k_OVERLONG_ENCODING;
                 break;
             }
 
@@ -671,7 +679,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = k_NON_MINIMAL_ENCODING;
+                *status = k_OVERLONG_ENCODING;
                 break;
             }
 
@@ -717,14 +725,14 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = k_NON_MINIMAL_ENCODING;
+                *status = k_OVERLONG_ENCODING;
                 break;
             }
 
             if (UNLIKELY(k_MAX_VALID < value)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = k_VALUE_TOO_LARGE;
+                *status = k_VALUE_LARGER_THAN_0X10FFFF;
                 break;
             }
 
@@ -735,7 +743,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
             // binary: 11111xxx: illegal start of 5 (or more) octet sequence
 
-            *status = k_SEQUENCE_TOO_LONG;
+            *status = k_INVALID_INITIAL_OCTET;
           } break;
 
           default: {
@@ -855,7 +863,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = k_NON_MINIMAL_ENCODING;
+                *status = k_OVERLONG_ENCODING;
                 break;
             }
           } continue;
@@ -891,7 +899,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
                 // non-minimal encoding
 
-                *status = k_NON_MINIMAL_ENCODING;
+                *status = k_OVERLONG_ENCODING;
                 break;
             }
 
@@ -941,8 +949,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
                                                (value < k_MIN_4_BYTE_VALUE))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = k_MAX_VALID < value ? k_VALUE_TOO_LARGE
-                                              : k_NON_MINIMAL_ENCODING;
+                *status = k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
+                                              : k_OVERLONG_ENCODING;
 
                 break;
             }
@@ -953,7 +961,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
             // binary: 11111xxx: invalid code point in all UTF-8 contexts.
 
-            *status = k_SEQUENCE_TOO_LONG;
+            *status = k_INVALID_INITIAL_OCTET;
           } break;
 
           default: {
@@ -1148,12 +1156,10 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
 }
 
 // BDE_VERIFY pragma: push BDE_VERIFY pragma: -AN01     // 'codepoint'
-// parameter renamed for line
-                                // length.
-// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.  BDE_VERIFY pragma:
-// -SP03     // 'codepnt' is not a typo.
+// parameter renamed for line length.
+// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
 
-int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
+int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codePoint)
 {
     BSLS_ASSERT(output);
 
@@ -1173,41 +1179,41 @@ int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codepnt)
     // FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
     ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
 
-    if (codepnt < 0x80U) {
-        output->push_back(static_cast<char>(codepnt));
+    if (codePoint < 0x80U) {
+        *output += static_cast<char>( codePoint);
         return 0;                                                     // RETURN
     }
-    else if (codepnt < 0x800U) {
-        output->push_back(static_cast<char>((codepnt >>   6)          | 0xC0));
-        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+    else if (codePoint < 0x800U) {
+        *output += static_cast<char>( (codePoint >>  6)          | 0xC0);
+        *output += static_cast<char>( (codePoint        & 0x3FU) | 0x80);
         return 0;                                                     // RETURN
     }
-    else if (codepnt < 0x10000U) {
-        output->push_back(static_cast<char>((codepnt  >> 12)          | 0xE0));
-        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
-        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+    else if (codePoint < 0x10000U) {
+        *output += static_cast<char>(( codePoint >> 12)          | 0xE0);
+        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
+        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
         return 0;                                                     // RETURN
     }
-    else if (codepnt < 0x110000U) {
-        output->push_back(static_cast<char>((codepnt  >> 18)          | 0xF0));
-        output->push_back(static_cast<char>(((codepnt >> 12) & 0x3FU) | 0x80));
-        output->push_back(static_cast<char>(((codepnt >>  6) & 0x3FU) | 0x80));
-        output->push_back(static_cast<char>((codepnt         & 0x3FU) | 0x80));
+    else if (codePoint < 0x110000U) {
+        *output += static_cast<char>(( codePoint >> 18)          | 0xF0);
+        *output += static_cast<char>(((codePoint >> 12) & 0x3FU) | 0x80);
+        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
+        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
         return 0;                                                     // RETURN
     }
 
     // Invalid code point.
 
-    return k_VALUE_TOO_LARGE;
+    return k_VALUE_LARGER_THAN_0X10FFFF;
 }
 
 // BDE_VERIFY pragma: pop
 
-int Utf8Util::getByteSize(const char* codepoint)
+int Utf8Util::getByteSize(const char* codePoint)
 {
-    BSLS_ASSERT_SAFE(isValidUtf8(codepoint));
+    BSLS_ASSERT_SAFE(isValidUtf8(codePoint));
 
-    return utf8Size(codepoint[0]);
+    return utf8Size(codePoint[0]);
 }
 
 bool Utf8Util::isValid(const char **invalidString, const char *string)
@@ -1427,7 +1433,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = isNotContinuation(pc[1]) ? k_NON_CONTINUATION_OCTET
-                                              : k_NON_MINIMAL_ENCODING;
+                                              : k_OVERLONG_ENCODING;
                 break;
             }
 
@@ -1461,7 +1467,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = rc ? rc : value < k_MIN_3_BYTE_VALUE
-                             ? k_NON_MINIMAL_ENCODING
+                             ? k_OVERLONG_ENCODING
                              : k_SURROGATE;
                 break;
             }
@@ -1496,8 +1502,8 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = rc ? rc
-                        : k_MAX_VALID < value ? k_VALUE_TOO_LARGE
-                                              : k_NON_MINIMAL_ENCODING;
+                        : k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
+                                              : k_OVERLONG_ENCODING;
                 break;
             }
 
@@ -1508,7 +1514,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
             // binary: 11111xxx: invalid code point in all UTF-8 contexts.
 
-            rc = k_SEQUENCE_TOO_LONG;
+            rc = k_INVALID_INITIAL_OCTET;
           } break;
           default: {
             BSLS_ASSERT_OPT(0 && "unreachable");
@@ -1529,19 +1535,19 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
     return pc - outputBuffer;
 }
 
-const char *Utf8Util::toErrorMessage(int errorStatus)
+const char *Utf8Util::toAscii(int errorStatus)
 {
 #undef  U_ASCII_CASE
-#define U_ASCII_CASE(es)    case es: return #es
+#define U_ASCII_CASE(es)    case k_ ## es: return #es
 
     switch (errorStatus) {
-      U_ASCII_CASE(k_END_OF_INPUT_TRUNCATION);
-      U_ASCII_CASE(k_UNEXPECTED_CONTINUATION_OCTET);
-      U_ASCII_CASE(k_NON_CONTINUATION_OCTET);
-      U_ASCII_CASE(k_NON_MINIMAL_ENCODING);
-      U_ASCII_CASE(k_SEQUENCE_TOO_LONG);
-      U_ASCII_CASE(k_VALUE_TOO_LARGE);
-      U_ASCII_CASE(k_SURROGATE);
+      U_ASCII_CASE(END_OF_INPUT_TRUNCATION);
+      U_ASCII_CASE(UNEXPECTED_CONTINUATION_OCTET);
+      U_ASCII_CASE(NON_CONTINUATION_OCTET);
+      U_ASCII_CASE(OVERLONG_ENCODING);
+      U_ASCII_CASE(INVALID_INITIAL_OCTET);
+      U_ASCII_CASE(VALUE_LARGER_THAN_0X10FFFF);
+      U_ASCII_CASE(SURROGATE);
       default: return "(* unrecognized value *)";
     }
 
