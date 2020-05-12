@@ -246,7 +246,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
             string += 3;
           } break;
           case 0xf: {
-            if (0x8 & *string) {
+            if (UNLIKELY(0x8 & *string)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
@@ -377,16 +377,9 @@ static int validateAndCountCodePoints(const char             **invalidString,
             pc += 3;
           } break;
           case 0xf: {
-            if (0x8 & *pc) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-                *invalidString = pc;
-
-                return k_INVALID_INITIAL_OCTET;                       // RETURN
-            }
-
             const int value = get4ByteValue(pc);
-            if (UNLIKELY(isNotContinuation(pc[1])
+            if (UNLIKELY(!!(0x8 & *pc)
+                       | isNotContinuation(pc[1])
                        | isNotContinuation(pc[2])
                        | isNotContinuation(pc[3])
                        | (value < k_MIN_4_BYTE_VALUE)
@@ -394,6 +387,10 @@ static int validateAndCountCodePoints(const char             **invalidString,
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
+
+                if (0x8 & *pc) {
+                    return k_INVALID_INITIAL_OCTET;                   // RETURN
+                }
 
                 if (isNotContinuation(pc[1]) | isNotContinuation(pc[2]) |
                                                 isNotContinuation(pc[3])) {
@@ -496,7 +493,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
             ++count;
           } break;
           case 0xf: {
-            if (0x8 & *pc) {
+            if (UNLIKELY(0x8 & *pc)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 // binary: 11111xxx: invalid code point in all UTF-8 contexts.
@@ -687,7 +684,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           case 0xf: {
             // binary: 1111xxxx: 4 octet sequence (only legal if 11110xxx).
 
-            if (0x8 & *string) {
+            if (UNLIKELY(0x8 & *string)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 // binary: 11111xxx: illegal start of 5 (or more) octet
@@ -908,7 +905,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           } continue;
 
           case 0xf: {
-            if (0x8 & *string) {
+            if (UNLIKELY(0x8 & *string)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 // binary: 11111xxx: invalid code point in all UTF-8 contexts.
@@ -1471,7 +1468,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
             pc += 3;
           } continue;
           case 0xf: {
-            if (0x8 & *pc) {
+            if (UNLIKELY(0x8 & *pc)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 // binary: 11111xxx: invalid code point in all UTF-8 contexts.
