@@ -10,9 +10,562 @@
 #include <balber_berutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balber_berutil_cpp, "$Id$ $CSID$")
 
-// IMPLEMENTATION NOTES:
+#include <bdlt_prolepticdateimputil.h>
+
+#include <bdlt_iso8601util.h>
+
+#include <bdlb_bitutil.h>
+
+#include <bdlsb_fixedmemoutstreambuf.h>
+
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
+#include <bdlt_datetz.h>
+#include <bdlt_time.h>
+#include <bdlt_timetz.h>
+
+#include <bdldfp_decimalconvertutil.h>
+
+#include <bslmf_assert.h>
+
+#include <bslmt_once.h>
+
+#include <bsls_assert.h>
+#include <bsls_log.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
+
+#include <bsl_cstdint.h>
+#include <bsl_cstring.h>
+
+namespace BloombergLP {
+namespace balber {
+namespace {
+
+                   // ======================================
+                   // struct BerUtil_64BitFloatingPointMasks
+                   // ======================================
+
+struct BerUtil_64BitFloatingPointMasks {
+    // This internal-linkage, component-private utility 'struct' provides a
+    // namespace for a suite of 64-bit mask constants used in the construction
+    // of floating-point values.
+    //
+    // Note that the constants in this component have integral values that are
+    // too large to be used as enumerators on some platforms.
+
+    // CLASS DATA
+    static const bsls::Types::Uint64 k_DOUBLE_EXPONENT_MASK;
+    static const bsls::Types::Uint64 k_DOUBLE_MANTISSA_MASK;
+    static const bsls::Types::Uint64 k_DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
+    static const bsls::Types::Uint64 k_DOUBLE_SIGN_MASK;
+};
+
+                   // --------------------------------------
+                   // struct BerUtil_64BitFloatingPointMasks
+                   // --------------------------------------
+
+// CLASS DATA
+const bsls::Types::Uint64
+    BerUtil_64BitFloatingPointMasks::k_DOUBLE_EXPONENT_MASK =
+        0x7FF0000000000000ULL;
+
+const bsls::Types::Uint64
+    BerUtil_64BitFloatingPointMasks::k_DOUBLE_MANTISSA_MASK =
+        0x000FFFFFFFFFFFFFULL;
+
+const bsls::Types::Uint64
+    BerUtil_64BitFloatingPointMasks::k_DOUBLE_MANTISSA_IMPLICIT_ONE_MASK =
+        0x0010000000000000ULL;
+
+const bsls::Types::Uint64 BerUtil_64BitFloatingPointMasks::k_DOUBLE_SIGN_MASK =
+    0x8000000000000000ULL;
+
+}  // close unnamed namespace
+
+                               // --------------
+                               // struct BerUtil
+                               // --------------
+
+// CLASS METHODS
+int BerUtil::getIdentifierOctets(bsl::streambuf         *streamBuf,
+                                 BerConstants::TagClass *tagClass,
+                                 BerConstants::TagType  *tagType,
+                                 int                    *tagNumber,
+                                 int                    *accumNumBytesConsumed)
+{
+    return BerUtil_IdentifierImpUtil::getIdentifierOctets(
+        tagClass, tagType, tagNumber, accumNumBytesConsumed, streamBuf);
+}
+
+int BerUtil::putIdentifierOctets(bsl::streambuf         *streamBuf,
+                                 BerConstants::TagClass  tagClass,
+                                 BerConstants::TagType   tagType,
+                                 int                     tagNumber)
+{
+    return BerUtil_IdentifierImpUtil::putIdentifierOctets(
+        streamBuf, tagClass, tagType, tagNumber);
+}
+
+                      // --------------------------------
+                      // struct BerUtil_IdentifierImpUtil
+                      // --------------------------------
+
+// CLASS METHODS
+int BerUtil_IdentifierImpUtil::getIdentifierOctets(
+                                 BerConstants::TagClass *tagClass,
+                                 BerConstants::TagType  *tagType,
+                                 int                    *tagNumber,
+                                 int                    *accumNumBytesConsumed,
+                                 bsl::streambuf         *streamBuf)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    int nextOctet = streamBuf->sbumpc();
+
+    if (bsl::streambuf::traits_type::eof() == nextOctet) {
+        return FAILURE;                                               // RETURN
+    }
+
+    ++*accumNumBytesConsumed;
+
+    *tagClass =
+        static_cast<BerConstants::TagClass>(nextOctet & k_TAG_CLASS_MASK);
+
+    *tagType = static_cast<BerConstants::TagType>(nextOctet & k_TAG_TYPE_MASK);
+
+    if (k_TAG_NUMBER_MASK != (nextOctet & k_TAG_NUMBER_MASK)) {
+        // The tag number fits in a single octet.
+
+        *tagNumber = nextOctet & k_TAG_NUMBER_MASK;
+        return SUCCESS;                                               // RETURN
+    }
+
+    *tagNumber = 0;
+
+    for (int i = 0; i < k_MAX_TAG_NUMBER_OCTETS; ++i) {
+        nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        ++*accumNumBytesConsumed;
+
+        *tagNumber <<= k_NUM_VALUE_BITS_IN_TAG_OCTET;
+        *tagNumber |= nextOctet & k_SEVEN_BITS_MASK;
+
+        if (!(nextOctet & k_CHAR_MSB_MASK)) {
+            return SUCCESS;                                           // RETURN
+        }
+    }
+
+    return FAILURE;
+}
+
+int BerUtil_IdentifierImpUtil::putIdentifierOctets(
+                                             bsl::streambuf         *streamBuf,
+                                             BerConstants::TagClass  tagClass,
+                                             BerConstants::TagType   tagType,
+                                             int                     tagNumber)
+    // Write the specified 'tag*' to the specified 'streamBuf'.
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    if (tagNumber < 0) {
+        return FAILURE;                                               // RETURN
+    }
+
+    const unsigned char tagClassUchar = static_cast<unsigned char>(tagClass);
+    const unsigned char tagTypeUchar  = static_cast<unsigned char>(tagType);
+
+    if (tagNumber <= k_MAX_TAG_NUMBER_IN_ONE_OCTET) {
+        unsigned char octet = static_cast<unsigned char>(
+            tagClassUchar | tagTypeUchar | tagNumber);
+
+        return octet == streamBuf->sputc(octet) ? SUCCESS : FAILURE;  // RETURN
+    }
+
+    // Send multiple identifier octets.
+
+    unsigned char firstOctet = static_cast<unsigned char>(
+        tagClassUchar | tagTypeUchar | k_TAG_NUMBER_MASK);
+
+    if (firstOctet != streamBuf->sputc(firstOctet)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    // Find the number of octets required.
+
+    int numOctetsRequired = 0;
+
+    {
+        enum { INT_NUM_BITS = sizeof(int) * Constants::k_NUM_BITS_PER_OCTET };
+
+        int          shift = 0;
+        unsigned int mask  = k_SEVEN_BITS_MASK;
+
+        for (int i = 0; INT_NUM_BITS > shift; ++i) {
+            if (tagNumber & mask) {
+                numOctetsRequired = i + 1;
+            }
+
+            shift += k_NUM_VALUE_BITS_IN_TAG_OCTET;
+            mask <<= k_NUM_VALUE_BITS_IN_TAG_OCTET;
+        }
+    }
+
+    BSLS_ASSERT(numOctetsRequired <= k_MAX_TAG_NUMBER_OCTETS);
+
+    // Put all octets except the last one.
+
+    int shift = (numOctetsRequired - 1) * k_NUM_VALUE_BITS_IN_TAG_OCTET;
+    unsigned int mask = k_SEVEN_BITS_MASK << shift;
+
+    for (int i = 0; i < numOctetsRequired - 1; ++i) {
+        unsigned char nextOctet = static_cast<unsigned char>(
+            (mask & tagNumber) >> shift | k_CHAR_MSB_MASK);
+
+        if (nextOctet != streamBuf->sputc(nextOctet)) {
+            return FAILURE;                                           // RETURN
+        }
+
+        shift -= k_NUM_VALUE_BITS_IN_TAG_OCTET;
+        mask = k_SEVEN_BITS_MASK << shift;
+    }
+
+    // Put the final octet.
+
+    tagNumber &= k_SEVEN_BITS_MASK;
+
+    return tagNumber == streamBuf->sputc(static_cast<char>(tagNumber))
+               ? SUCCESS
+               : FAILURE;
+}
+
+                           // ---------------------
+                           // BerUtil_LengthImpUtil
+                           // ---------------------
+
+// CLASS METHODS
+
+// Length Decoding Functions
+
+int BerUtil_LengthImpUtil::getLength(int            *result,
+                                     int            *accumNumBytesConsumed,
+                                     bsl::streambuf *streamBuf)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    int nextOctet = streamBuf->sbumpc();
+    if (bsl::streambuf::traits_type::eof() == nextOctet) {
+        return FAILURE;                                               // RETURN
+    }
+
+    ++*accumNumBytesConsumed;
+
+    if (nextOctet == k_INDEFINITE_LENGTH_OCTET) {
+        *result = k_INDEFINITE_LENGTH;
+
+        return SUCCESS;                                               // RETURN
+    }
+
+    unsigned int numOctets = static_cast<unsigned int>(nextOctet);
+
+    // Length has been transmitted in short form.
+
+    if (!(numOctets & k_LONG_FORM_LENGTH_FLAG_MASK)) {
+        *result = numOctets;
+        return SUCCESS;                                               // RETURN
+    }
+
+    // Length has been transmitted in long form.
+
+    numOctets &= k_LONG_FORM_LENGTH_VALUE_MASK;
+
+    if (numOctets > sizeof(int)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    *result = 0;
+    for (unsigned int i = 0; i < numOctets; ++i) {
+        nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        *result <<= Constants::k_NUM_BITS_PER_OCTET;
+        *result |= nextOctet;
+    }
+
+    *accumNumBytesConsumed += numOctets;
+
+    return SUCCESS;
+}
+
+int BerUtil_LengthImpUtil::getEndOfContentOctets(
+                                         int            *accumNumBytesConsumed,
+                                         bsl::streambuf *streamBuf)
+{
+    *accumNumBytesConsumed += 2;
+
+    char buffer[2];
+    if (sizeof(buffer) != streamBuf->sgetn(buffer, sizeof(buffer))) {
+        return -1;                                                    // RETURN
+    }
+
+    if ('\x00' != buffer[0] || '\x00' != buffer[1]) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+// Length Encoding Functions
+
+int BerUtil_LengthImpUtil::putLength(bsl::streambuf *streamBuf, int length)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    if (length < 0) {
+        return FAILURE;                                               // RETURN
+    }
+
+    if (length <= 127) {
+        const char lengthChar = static_cast<char>(length);
+        return length == streamBuf->sputc(lengthChar) ? SUCCESS
+                                                      : FAILURE;      // RETURN
+    }
+
+    // length > 127.
+
+    int numOctets = sizeof(int);
+    for (unsigned int mask = ~(static_cast<unsigned int>(-1) >>
+                               Constants::k_NUM_BITS_PER_OCTET);
+         !(length & mask);
+         mask >>= Constants::k_NUM_BITS_PER_OCTET) {
+        --numOctets;
+    }
+
+    unsigned char lengthOctet =
+        static_cast<unsigned char>(numOctets | k_LONG_FORM_LENGTH_FLAG_MASK);
+    if (lengthOctet != streamBuf->sputc(lengthOctet)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    return RawIntegerUtil::putIntegerGivenLength(streamBuf, length, numOctets);
+}
+
+int BerUtil_LengthImpUtil::putIndefiniteLengthOctet(bsl::streambuf *streamBuf)
+{
+    // Extra unsigned char cast needed to suppress warning on Windows.
+    int writtenOctet = streamBuf->sputc(static_cast<char>(
+        static_cast<unsigned char>(k_INDEFINITE_LENGTH_OCTET)));
+
+    if (k_INDEFINITE_LENGTH_OCTET != writtenOctet) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+int BerUtil_LengthImpUtil::putEndOfContentOctets(bsl::streambuf *streamBuf)
+{
+    const char buffer[2] = {'\x00', '\x00'};
+
+    if (sizeof(buffer) != streamBuf->sputn(buffer, sizeof(buffer))) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+                       // -----------------------------
+                       // struct BerUtil_IntegerImpUtil
+                       // -----------------------------
+
+// CLASS METHODS
+int BerUtil_IntegerImpUtil::getNumOctetsToStream(short value)
+{
+    // This overload of 'numBytesToStream' is optimized for a 16-bit 'value'.
+
+    if (0 == value) {
+        return 1;                                                     // RETURN
+    }
+
+    int numBits;
+    if (value > 0) {
+        // For positive values, all but one 0 bits on the left are redundant.
+        //: o 'find1AtLargestIndex' returns '[0 .. 14]' (since bit 15 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 15]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
+
+        numBits = 31 -
+                  bdlb::BitUtil::numLeadingUnsetBits(
+                      static_cast<bsl::uint32_t>(value)) +
+                  2;
+    }
+    else {
+        // For negative values, all but: one 1 bits on the left are redundant.
+        //: o 'find0AtLargestIndex' returns '[0 .. 14]' (since bit 15 is 1).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 15]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
+
+        numBits = 31 -
+                  bdlb::BitUtil::numLeadingUnsetBits(
+                      ~static_cast<bsl::uint32_t>(value)) +
+                  2;
+    }
+
+    // Round up to correct number of bytes:
+
+    return (numBits + Constants::k_NUM_BITS_PER_OCTET - 1) /
+           Constants::k_NUM_BITS_PER_OCTET;
+}
+
+int BerUtil_IntegerImpUtil::getNumOctetsToStream(int value)
+{
+    // This overload of 'numBytesToStream' is optimized for a 32-bit 'value'.
+
+    if (0 == value) {
+        return 1;                                                     // RETURN
+    }
+
+    int numBits;
+    if (value > 0) {
+        // For positive values, all but one 0 bits on the left are redundant.
+        //: o 'find1AtLargestIndex' returns '[0 .. 30]' (since bit 31 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
+
+        numBits = 31 -
+                  bdlb::BitUtil::numLeadingUnsetBits(
+                      static_cast<bsl::uint32_t>(value)) +
+                  2;
+    }
+    else {
+        // For negative values, all but one 1 bits on the left are redundant.
+        //: o 'find0AtLargestIndex' returns '[0 .. 30]' (since bit 31 is 1).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
+
+        numBits = 31 -
+                  bdlb::BitUtil::numLeadingUnsetBits(
+                      ~static_cast<bsl::uint32_t>(value)) +
+                  2;
+    }
+
+    // Round up to correct number of bytes:
+
+    return (numBits + Constants::k_NUM_BITS_PER_OCTET - 1) /
+           Constants::k_NUM_BITS_PER_OCTET;
+}
+
+int BerUtil_IntegerImpUtil::getNumOctetsToStream(long long value)
+{
+    // This overload of 'numBytesToStream' is optimized for a 64-bit 'value'.
+
+    if (0 == value) {
+        return 1;                                                     // RETURN
+    }
+
+    int numBits;
+    if (value > 0) {
+        // For positive values, all but one 0 bits on the left are redundant.
+        //: o 'find1AtLargestIndex64' returns '[0 .. 62]' (since bit 63 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 63]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
+
+        numBits = 63 -
+                  bdlb::BitUtil::numLeadingUnsetBits(
+                      static_cast<bsl::uint64_t>(value)) +
+                  2;
+    }
+    else {
+        // For negative values, all but one 1 bits on the left are redundant.
+        //: o 'find1AtLargestIndex64' returns '[0 .. 62]' (since bit 63 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 63]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
+
+        numBits = 63 -
+                  bdlb::BitUtil::numLeadingUnsetBits(
+                      ~static_cast<bsl::uint64_t>(value)) +
+                  2;
+    }
+
+    // Round up to correct number of bytes:
+
+    return (numBits + Constants::k_NUM_BITS_PER_OCTET - 1) /
+           Constants::k_NUM_BITS_PER_OCTET;
+}
+
+int BerUtil_IntegerImpUtil::getIntegerValue(long long      *value,
+                                            bsl::streambuf *streamBuf,
+                                            int             length)
+{
+    // IMPLEMENTATION NOTE: This overload of the 'getIntegerValue' function
+    // template, for 'long long', is warranted solely for performance reasons:
+    // the template definition performs up to 8 shift operations (which on
+    // 32-bit SPARC are quite slow for 'long long').  This implementation
+    // breaks up the 'long long' into high- and low-order words to perform the
+    // shifts on 'int' instead of 'long long'.
+
+    enum { SUCCESS = 0, FAILURE = -1 };
+    static const int SIGN_BIT_MASK = 0x80;
+
+    if (static_cast<unsigned>(length) > sizeof(long long)) {
+        // Overflow.
+
+        return FAILURE;                                               // RETURN
+    }
+
+    int          sign    = (streamBuf->sgetc() & SIGN_BIT_MASK) ? -1 : 0;
+    unsigned int valueLo = sign;
+    unsigned int valueHi = sign;
+
+    // Decode high-order word.
+
+    for (; length > static_cast<int>(sizeof(int)); --length) {
+        int nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        valueHi <<= Constants::k_NUM_BITS_PER_OCTET;
+        valueHi |= static_cast<unsigned char>(nextOctet);
+    }
+
+    // Decode low-order word.
+
+    for (; length > 0; --length) {
+        int nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        valueLo <<= Constants::k_NUM_BITS_PER_OCTET;
+        valueLo |= static_cast<unsigned char>(nextOctet);
+    }
+
+    // Combine low and high word into a long word.
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    reinterpret_cast<unsigned int *>(value)[1] = valueLo;
+    reinterpret_cast<unsigned int *>(value)[0] = valueHi;
+#else
+    reinterpret_cast<unsigned int *>(value)[0] = valueLo;
+    reinterpret_cast<unsigned int *>(value)[1] = valueHi;
+#endif
+    return SUCCESS;
+}
+
+                    // -----------------------------------
+                    // struct BerUtil_FloatingPointImpUtil
+                    // -----------------------------------
+
+///Implementation Note:
+///--------------------
 //
 // The IEEE 754 single precision floating point representation is:
 //..
@@ -112,766 +665,77 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 //: 5 The bias value is added to the exponent to get its final value.
 //: 6 Assemble the double value from the mantissa, exponent, and sign values.
 
-#include <bdlt_prolepticdateimputil.h>
+// PRIVATE CLASS METHODS
 
-#include <bdlt_iso8601util.h>
+// Utilities
 
-#include <bdlb_bitutil.h>
-
-#include <bdlsb_fixedmemoutstreambuf.h>
-
-#include <bdlt_date.h>
-#include <bdlt_datetime.h>
-#include <bdlt_datetimetz.h>
-#include <bdlt_datetz.h>
-#include <bdlt_time.h>
-#include <bdlt_timetz.h>
-
-#include <bdldfp_decimalconvertutil.h>
-
-#include <bslmf_assert.h>
-
-#include <bslmt_once.h>
-
-#include <bsls_assert.h>
-#include <bsls_log.h>
-#include <bsls_platform.h>
-#include <bsls_types.h>
-
-#include <bsl_cstring.h>
-#include <bsl_cstdint.h>
-
-
-namespace BloombergLP {
-
-namespace {
-
-BSLMF_ASSERT(sizeof(int)       == sizeof(float));
-BSLMF_ASSERT(sizeof(long long) == sizeof(double));
-
-const bsls::Types::Uint64 DOUBLE_EXPONENT_MASK = 0x7ff0000000000000ULL;
-const bsls::Types::Uint64 DOUBLE_MANTISSA_MASK = 0x000fffffffffffffULL;
-const bsls::Types::Uint64 DOUBLE_MANTISSA_IMPLICIT_ONE_MASK
-                                               = 0x0010000000000000ULL;
-const bsls::Types::Uint64 DOUBLE_SIGN_MASK     = 0x8000000000000000ULL;
-
-enum {
-    // These constants are used by the implementation of this component.
-
-    TAG_CLASS_MASK  = 0xC0,   // mask for tag class  from first octet
-    TAG_TYPE_MASK   = 0x20,   // mask for tag type   from first octet
-    TAG_NUMBER_MASK = 0x1f,   // mask for tag number from first octet
-
-    MAX_TAG_NUMBER_IN_ONE_OCTET        =    30,  // the maximum tag number if
-                                                 // the tag has one octet
-
-    NUM_VALUE_BITS_IN_TAG_OCTET        =     7,  // number of bits used for the
-                                                 // tag number in multi-octet
-                                                 // tags
-
-    LONG_FORM_LENGTH_FLAG_MASK         =  0x80,  // mask that indicates a
-                                                 // "long-form" length
-
-    LONG_FORM_LENGTH_VALUE_MASK        =  0x7f,  // mask for value from
-                                                 // "long-form" length
-
-    NUM_BITS_IN_ONE_TAG_OCTET          =     7,
-
-    MAX_TAG_NUMBER_OCTETS              =
-                          (sizeof(int) * balber::BerUtil_Imp::e_BITS_PER_OCTET)
-                         / NUM_VALUE_BITS_IN_TAG_OCTET + 1,
-
-    REAL_BINARY_ENCODING               =  0x80,  // value that indicates that
-                                                 // real encoding is used
-
-    DOUBLE_EXPONENT_SHIFT              =    52,
-    DOUBLE_OUTPUT_LENGTH               =    10,
-    DOUBLE_EXPONENT_MASK_FOR_TWO_BYTES = 0x7ff,
-    DOUBLE_NUM_EXPONENT_BITS           =    11,
-    DOUBLE_NUM_MANTISSA_BITS           =    52,
-    DOUBLE_NUM_EXPONENT_BYTES          =     2,
-    DOUBLE_NUM_MANTISSA_BYTES          =     7,
-    DOUBLE_BIAS                        =  1023,
-
-    CHAR_MSB_MASK                      =  0x80,
-    INT_MSB_MASK                       =  1 <<
-                     (sizeof(int) * balber::BerUtil_Imp::e_BITS_PER_OCTET - 1),
-    SEVEN_BITS_MASK                    =  0x7f,
-
-    POSITIVE_INFINITY_ID               =  0x40,
-    NEGATIVE_INFINITY_ID               =  0x41,
-    NAN_ID                             =  0x42,
-
-    DOUBLE_INFINITY_EXPONENT_ID        = 0x7ff,
-
-    INFINITY_MANTISSA_ID               =     0,
-
-    BINARY_POSITIVE_NUMBER_ID          =  0x80,
-    BINARY_NEGATIVE_NUMBER_ID          =  0xc0,
-
-    REAL_SIGN_MASK                     =  0x40,
-    REAL_BASE_MASK                     =  0x20,
-    REAL_SCALE_FACTOR_MASK             =  0x0c,
-    REAL_EXPONENT_LENGTH_MASK          =  0x03,
-
-    BER_RESERVED_BASE                  = 3,
-    REAL_MULTIPLE_EXPONENT_OCTETS      = 4,
-
-    REAL_BASE_SHIFT                    = 4,
-    REAL_SCALE_FACTOR_SHIFT            = 2,
-
-    EPOCH_SERIAL_DATE                  = 737425,  // Serial date for 1/1/2020
-
-    HOURS_PER_DAY                      = 24,
-    MINUTES_PER_HOUR                   = 60,
-    SECONDS_PER_MINUTE                 = 60,
-
-    MILLISECS_PER_SEC                  =    1000,
-    MILLISECS_PER_MIN                  = SECONDS_PER_MINUTE
-                                       * MILLISECS_PER_SEC,
-    MILLISECS_PER_HOUR                 = MINUTES_PER_HOUR
-                                       * MILLISECS_PER_MIN,
-    MILLISECS_PER_DAY                  = 86400000,
-
-    TIMEZONE_LENGTH                    =     2,
-    MIN_OFFSET                         = -1439,
-    MAX_OFFSET                         =  1439
-};
-
-// HELPER FUNCTIONS
-
-void assembleDouble(double    *value,
-                    long long  exponent,
-                    long long  mantissa,
-                    int        sign)
-    // Assemble the specified '*value' such that it has the specified
-    // 'exponent', specified 'mantissa', and specified 'sign' values.
+void BerUtil_FloatingPointImpUtil::assembleDouble(double    *value,
+                                                  long long  exponent,
+                                                  long long  mantissa,
+                                                  int        sign)
 {
+    typedef BerUtil_64BitFloatingPointMasks WideBitMasks;
+
     unsigned long long longLongValue;
 
-    longLongValue  = (unsigned long long) exponent << DOUBLE_EXPONENT_SHIFT;
-    longLongValue |= mantissa & DOUBLE_MANTISSA_MASK;
+    longLongValue = static_cast<unsigned long long>(exponent)
+                    << k_DOUBLE_EXPONENT_SHIFT;
+    longLongValue |= mantissa & WideBitMasks::k_DOUBLE_MANTISSA_MASK;
 
     if (sign) {
-        longLongValue |= DOUBLE_SIGN_MASK;
+        longLongValue |= WideBitMasks::k_DOUBLE_SIGN_MASK;
     }
 
     bsl::memcpy(value, &longLongValue, sizeof(double));
 }
 
-inline
-void parseDouble(int       *exponent,
-                 long long *mantissa,
-                 int       *sign,
-                 double     value)
-    // Parse the specified 'value' and populate the specified 'exponent',
-    // specified 'mantissa', and specified 'sign' values from their value of
-    // exponent, mantissa, and sign in 'value' respectively.
+void BerUtil_FloatingPointImpUtil::normalizeMantissaAndAdjustExp(
+                                                       long long *mantissa,
+                                                       int       *exponent,
+                                                       bool       denormalized)
 {
-    unsigned long long longLongValue;
-    bsl::memcpy(&longLongValue, &value, sizeof(unsigned long long));
+    typedef BerUtil_64BitFloatingPointMasks WideBitMasks;
 
-    *sign     = longLongValue & DOUBLE_SIGN_MASK ? 1 : 0;
-    *exponent = static_cast<int>(
-              (longLongValue & DOUBLE_EXPONENT_MASK) >> DOUBLE_EXPONENT_SHIFT);
-    *mantissa = longLongValue & DOUBLE_MANTISSA_MASK;
-}
-
-inline
-void normalizeMantissaAndAdjustExp(long long *mantissa,
-                                   int       *exponent,
-                                   bool       denormalized)
-    // Normalize the specified '*mantissa' value by prepending the implicit 1
-    // and adjusting the implicit decimal point to after the right most 1 bit.
-    // Adjust the '*exponent' value accordingly.  Use the specified
-    // 'denormalized' to decide if the value is normalized or not.
-{
     if (!denormalized) {
         // If number is not denormalized then need to prefix with implicit one.
 
-        *mantissa |= DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
+        *mantissa |= WideBitMasks::k_DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
     }
 
-    int shift = bdlb::BitUtil::numTrailingUnsetBits((bsl::uint64_t) *mantissa);
+    int shift = bdlb::BitUtil::numTrailingUnsetBits(
+        static_cast<bsl::uint64_t>(*mantissa));
     *mantissa >>= shift;
-    *exponent -= (DOUBLE_NUM_MANTISSA_BITS - shift);
+    *exponent -= (k_DOUBLE_NUM_MANTISSA_BITS - shift);
 
     if (denormalized) {
         *exponent += 1;
     }
 }
 
-template <typename TYPE>
-inline
-int getValueUsingIso8601(bsl::streambuf *streamBuf,
-                         TYPE           *value,
-                         int             length)
-    // Load into the specified 'value' the object in the ISO 8601 format of the
-    // specified 'length' reading from the specified 'streamBuf'.  Return 0 on
-    // success and a non-zero value otherwise.
+void BerUtil_FloatingPointImpUtil::parseDouble(int       *exponent,
+                                               long long *mantissa,
+                                               int       *sign,
+                                               double     value)
 {
-    enum { FAILURE = -1 };
+    typedef BerUtil_64BitFloatingPointMasks WideBitMasks;
 
-    if (length <= 0) {
-        return FAILURE;                                               // RETURN
-    }
+    unsigned long long longLongValue;
+    bsl::memcpy(&longLongValue, &value, sizeof(unsigned long long));
 
-    char localBuf[32];         // for common case where length < 32
-    bsl::vector<char> vecBuf;  // for length >= 32
-    char *buf;
-
-    if (length < 32) {
-        buf = localBuf;
-    }
-    else {
-        vecBuf.resize(length);
-        buf = &vecBuf[0];  // First byte of contiguous string
-    }
-
-    const bsl::streamsize bytesConsumed = streamBuf->sgetn(buf, length);
-    if (static_cast<int>(bytesConsumed) != length) {
-        return FAILURE;                                               // RETURN
-    }
-
-    return bdlt::Iso8601Util::parse(value, buf, length);
+    *sign     = longLongValue & WideBitMasks::k_DOUBLE_SIGN_MASK ? 1 : 0;
+    *exponent = static_cast<int>(
+        (longLongValue & WideBitMasks::k_DOUBLE_EXPONENT_MASK) >>
+        k_DOUBLE_EXPONENT_SHIFT);
+    *mantissa = longLongValue & WideBitMasks::k_DOUBLE_MANTISSA_MASK;
 }
 
-template <typename TYPE>
-inline
-int putValueUsingIso8601(bsl::streambuf                  *streamBuf,
-                         const TYPE&                      value,
-                         const balber::BerEncoderOptions *options)
-    // Write to the specified 'streamBuf' the length and the value of the
-    // specified 'value' in the ISO 8601 format using the specified 'options'.
-    // Return 0 on success and a non-zero value otherwise.
-{
-    char buf[bdlt::Iso8601Util::k_MAX_STRLEN];
-    bdlt::Iso8601UtilConfiguration config;
-    int datetimeFractionalSecondPrecision = options?
-                              options->datetimeFractionalSecondPrecision() : 6;
-    config.setFractionalSecondPrecision(datetimeFractionalSecondPrecision);
-    int len = bdlt::Iso8601Util::generate(buf, sizeof(buf), value, config);
+// CLASS METHODS
 
-    return balber::BerUtil_Imp::putStringValue(streamBuf, buf, len);
-}
+// Decoding
 
-void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
-    // Read from the specified 'streamBuf' and load into the specified 'offset'
-    // the value of the time zone offset.
-{
-    const int firstOctet  = streamBuf->sbumpc();
-    const int secondOctet = streamBuf->sbumpc();
-
-    *offset = (short) ((firstOctet << 8) | secondOctet);
-}
-
-void putTimezoneOffset(bsl::streambuf *streamBuf, short offset)
-    // Write to the specified 'streamBuf' the value of the specified time zone
-    // 'offset'.  The behavior is undefined unless
-    // 'MIN_OFFSET <= offset <= MAX_OFFSET'.
-{
-    BSLS_ASSERT(MIN_OFFSET <= offset);
-    BSLS_ASSERT(offset <= MAX_OFFSET);
-
-    streamBuf->sputc((char )((offset & 0xFF00) >> 8));
-    streamBuf->sputc((char) (offset & 0xFF));
-}
-
-void putChars(bsl::streambuf *streamBuf, char value, int numChars)
-    // Write to the specified 'streamBuf' the specified 'numChars' characters
-    // having the specified 'value'.  The behavior is undefined unless
-    // '0 <= numChars'.
-{
-    BSLS_ASSERT(0 <= numChars);
-
-    const int k_MIN_BINARY_DATETIMETZ_LENGTH = 7;
-    char buffer[k_MIN_BINARY_DATETIMETZ_LENGTH];
-    bsl::memset(buffer, value, numChars);
-
-    streamBuf->sputn(buffer, numChars);
-}
-
-bsls::Types::Int64 getSerialDateValue(const bdlt::Date& value)
-    // Return the binary proleptic serial value, in number of days', of the
-    // specified date 'value' from the predefined epoch date.  Note that the
-    // serial value could be negative if 'value' occurs before the predefined
-    // epoch date.
-{
-    const int serialDate = bdlt::ProlepticDateImpUtil::ymdToSerial(
-                                                                 value.year(),
-                                                                 value.month(),
-                                                                 value.day());
-
-    const bsls::Types::Int64 dateOffset = serialDate - EPOCH_SERIAL_DATE;
-
-    return dateOffset;
-}
-
-bsls::Types::Int64 getSerialTimeValue(const bdlt::Time& value)
-    // Return the binary serial value, in number of milli seconds, of the
-    // specified time 'value' from midnight.
-{
-    const bdlt::Time defaultTime;
-    return (value - defaultTime).totalMilliseconds();
-}
-
-bsls::Types::Int64 getSerialDatetimeValue(const bdlt::Datetime& value)
-    // Return the binary serial value, in number of milli seconds, of the
-    // specified datetime 'value' from midnight of the predefined epoch date
-    // value.  Note that the serial value could be negative if the date
-    // corresponding to 'value' occurs before the predefined epoch date.
-{
-    const bsls::Types::Int64 serialDate = getSerialDateValue(value.date());
-    const bsls::Types::Int64 serialTime = getSerialTimeValue(value.time());
-    const bsls::Types::Int64 serialDatetime =
-                                   serialDate * MILLISECS_PER_DAY + serialTime;
-
-    return serialDatetime;
-}
-
-}  // close unnamed namespace
-
-namespace balber {
-                               // --------------
-                               // struct BerUtil
-                               // --------------
-
-int BerUtil::getIdentifierOctets(
-                            bsl::streambuf         *streamBuf,
-                            BerConstants::TagClass *tagClass,
-                            BerConstants::TagType  *tagType,
-                            int                    *tagNumber,
-                            int                    *accumNumBytesConsumed)
-{
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    int nextOctet = streamBuf->sbumpc();
-
-    if (bsl::streambuf::traits_type::eof() == nextOctet) {
-        return FAILURE;                                               // RETURN
-    }
-
-    ++*accumNumBytesConsumed;
-
-    *tagClass = static_cast<BerConstants::TagClass>
-                                                  (nextOctet & TAG_CLASS_MASK);
-
-    *tagType = static_cast<BerConstants::TagType>
-                                                   (nextOctet & TAG_TYPE_MASK);
-
-    if (TAG_NUMBER_MASK != (nextOctet & TAG_NUMBER_MASK)) {
-        // The tag number fits in a single octet.
-
-        *tagNumber = nextOctet & TAG_NUMBER_MASK;
-        return SUCCESS;                                               // RETURN
-    }
-
-    *tagNumber = 0;
-
-    for (int i = 0; i < MAX_TAG_NUMBER_OCTETS; ++i) {
-        nextOctet = streamBuf->sbumpc();
-        if (bsl::streambuf::traits_type::eof() == nextOctet) {
-            return FAILURE;                                           // RETURN
-        }
-
-        ++*accumNumBytesConsumed;
-
-        *tagNumber <<= NUM_VALUE_BITS_IN_TAG_OCTET;
-        *tagNumber  |= nextOctet & SEVEN_BITS_MASK;
-
-        if (!(nextOctet & CHAR_MSB_MASK)) {
-            return SUCCESS;                                           // RETURN
-        }
-    }
-
-    return FAILURE;
-}
-
-int BerUtil::putIdentifierOctets(bsl::streambuf              *streamBuf,
-                                      BerConstants::TagClass  tagClass,
-                                      BerConstants::TagType   tagType,
-                                      int                     tagNumber)
-    // Write the specified 'tag*' to the specified 'streamBuf'.
-{
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    if (tagNumber < 0) {
-        return FAILURE;                                               // RETURN
-    }
-
-    if (tagNumber <= MAX_TAG_NUMBER_IN_ONE_OCTET) {
-        unsigned char octet = static_cast<unsigned char>(tagClass
-                                                         | tagType
-                                                         | tagNumber);
-
-        return octet == streamBuf->sputc(octet) ? SUCCESS
-                                                : FAILURE;            // RETURN
-    }
-
-    // Send multiple identifier octets.
-
-    unsigned char firstOctet = static_cast<unsigned char>(tagClass
-                                                          | tagType
-                                                          | TAG_NUMBER_MASK);
-
-    if (firstOctet != streamBuf->sputc(firstOctet)) {
-        return FAILURE;                                               // RETURN
-    }
-
-    // Find the number of octets required.
-
-    int numOctetsRequired = 0;
-
-    {
-        enum {
-            INT_NUM_BITS = sizeof(int) * BerUtil_Imp::e_BITS_PER_OCTET
-        };
-
-        int          shift = 0;
-        unsigned int mask  = SEVEN_BITS_MASK;
-
-        for (int i = 0; INT_NUM_BITS > shift; ++i) {
-            if (tagNumber & mask) {
-                numOctetsRequired = i + 1;
-            }
-
-            shift += NUM_VALUE_BITS_IN_TAG_OCTET;
-            mask <<= NUM_VALUE_BITS_IN_TAG_OCTET;
-        }
-    }
-
-    BSLS_ASSERT(numOctetsRequired <= MAX_TAG_NUMBER_OCTETS);
-
-    // Put all octets except the last one.
-
-    int          shift = (numOctetsRequired - 1) * NUM_VALUE_BITS_IN_TAG_OCTET;
-    unsigned int mask  = SEVEN_BITS_MASK << shift;
-
-    for (int i = 0; i < numOctetsRequired - 1; ++i) {
-        unsigned char nextOctet = static_cast<unsigned char>(
-                                  (mask & tagNumber) >> shift | CHAR_MSB_MASK);
-
-        if (nextOctet != streamBuf->sputc(nextOctet)) {
-            return FAILURE;                                           // RETURN
-        }
-
-        shift -= NUM_VALUE_BITS_IN_TAG_OCTET;
-        mask   = SEVEN_BITS_MASK << shift;
-    }
-
-    // Put the final octet.
-
-    tagNumber &= SEVEN_BITS_MASK;
-
-    return tagNumber == streamBuf->sputc(static_cast<char>(tagNumber))
-           ? SUCCESS
-           : FAILURE;
-}
-
-                             // ------------------
-                             // struct BerUtil_Imp
-                             // ------------------
-
-int BerUtil_Imp::getBinaryDateValue(bsl::streambuf  *streamBuf,
-                                    bdlt::Date      *value,
-                                    int              length)
-{
-    bsls::Types::Int64 serialDate;
-    getIntegerValue(streamBuf, &serialDate, length);
-
-    int year, month, day;
-    bdlt::ProlepticDateImpUtil::serialToYmd(
-                                         &year,
-                                         &month,
-                                         &day,
-                                         static_cast<int>(
-                                              serialDate + EPOCH_SERIAL_DATE));
-
-    return value->setYearMonthDayIfValid(year, month, day);
-}
-
-int BerUtil_Imp::getBinaryTimeValue(bsl::streambuf *streamBuf,
-                                    bdlt::Time     *value,
-                                    int             length)
-{
-    bsls::Types::Int64 serialTime;
-    getIntegerValue(streamBuf, &serialTime, length);
-
-    const int hour     = static_cast<int>(serialTime / MILLISECS_PER_HOUR);
-    const int minute   = static_cast<int>(
-                                (serialTime - hour * MILLISECS_PER_HOUR)
-                                                          / MILLISECS_PER_MIN);
-    const int second   = static_cast<int>((serialTime
-                       - hour * MILLISECS_PER_HOUR
-                       - minute * MILLISECS_PER_MIN) / MILLISECS_PER_SEC);
-    const int millisec = static_cast<int>(serialTime
-                       - hour * MILLISECS_PER_HOUR
-                       - minute * MILLISECS_PER_MIN
-                       - second * MILLISECS_PER_SEC);
-
-    return value->setTimeIfValid(hour, minute, second, millisec);
-}
-
-int BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
-                                        bdlt::Datetime *value,
-                                        int             length)
-{
-    if (length > k_MIN_BINARY_DATETIMETZ_LENGTH) {
-        short offset;
-        getTimezoneOffset(streamBuf, &offset);
-
-        length -= TIMEZONE_LENGTH;
-    }
-
-    bsls::Types::Int64 serialDatetime;
-    getIntegerValue(streamBuf, &serialDatetime, length);
-
-    bsls::Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
-
-    if (serialDatetime < 0) {
-        --serialDate;
-        if (EPOCH_SERIAL_DATE == -serialDate) {
-            ++serialDate;
-        }
-    }
-
-    const int serialTime = static_cast<int>(serialDatetime
-                                             - serialDate * MILLISECS_PER_DAY);
-
-    int hour           = serialTime / MILLISECS_PER_HOUR;
-
-    const int minute   = (serialTime - hour * MILLISECS_PER_HOUR)
-                                                           / MILLISECS_PER_MIN;
-    const int second   = (serialTime
-                       - hour * MILLISECS_PER_HOUR
-                       - minute * MILLISECS_PER_MIN) / MILLISECS_PER_SEC;
-    const int millisec = serialTime
-                       - hour * MILLISECS_PER_HOUR
-                       - minute * MILLISECS_PER_MIN
-                       - second * MILLISECS_PER_SEC;
-
-    if (24 == hour) {
-        hour = 0;
-        ++serialDate;
-    }
-
-    int year, month, day;
-    bdlt::ProlepticDateImpUtil::serialToYmd(
-                                         &year,
-                                         &month,
-                                         &day,
-                                         static_cast<int>(
-                                              serialDate + EPOCH_SERIAL_DATE));
-
-    return value->setDatetimeIfValid(year,
-                                     month,
-                                     day,
-                                     hour,
-                                     minute,
-                                     second,
-                                     millisec);
-}
-
-int BerUtil_Imp::getBinaryDateTzValue(bsl::streambuf *streamBuf,
-                                      bdlt::DateTz   *value,
-                                      int             length)
-{
-    short offset = 0;
-    if (length >= k_MIN_BINARY_DATETZ_LENGTH) {
-        getTimezoneOffset(streamBuf, &offset);
-
-        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
-            *value = bdlt::DateTz();
-            return -1;                                                // RETURN
-        }
-
-        length -= TIMEZONE_LENGTH;
-    }
-
-    bdlt::Date localDate;
-    getBinaryDateValue(streamBuf, &localDate, length);
-
-    return value->setDateTzIfValid(localDate, offset);
-}
-
-int BerUtil_Imp::getBinaryTimeTzValue(bsl::streambuf *streamBuf,
-                                      bdlt::TimeTz   *value,
-                                      int             length)
-{
-    short offset = 0;
-    if (length >= k_MIN_BINARY_TIMETZ_LENGTH) {
-        getTimezoneOffset(streamBuf, &offset);
-
-        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
-            *value = bdlt::TimeTz();
-            return -1;                                                // RETURN
-        }
-
-        length -= TIMEZONE_LENGTH;
-    }
-
-    bdlt::Time localTime;
-    getBinaryTimeValue(streamBuf, &localTime, length);
-
-    return value->setTimeTzIfValid(localTime, offset);
-}
-
-int BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf   *streamBuf,
-                                          bdlt::DatetimeTz *value,
-                                          int               length)
-{
-    short offset = 0;
-    if (length >= k_MIN_BINARY_DATETIMETZ_LENGTH) {
-        getTimezoneOffset(streamBuf, &offset);
-
-        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
-            *value = bdlt::DatetimeTz();
-            return -1;                                                // RETURN
-        }
-
-        length -= TIMEZONE_LENGTH;
-    }
-
-    bdlt::Datetime localDatetime;
-    getBinaryDatetimeValue(streamBuf, &localDatetime, length);
-    return value->setDatetimeTzIfValid(localDatetime, offset);
-}
-
-int BerUtil_Imp::putBinaryDateValue(bsl::streambuf    *streamBuf,
-                                    const bdlt::Date&  value)
-{
-    const bsls::Types::Int64 serialDate = getSerialDateValue(value);
-    const int                length     = numBytesToStream(serialDate);
-
-    BSLS_ASSERT(length <= k_MAX_BINARY_DATE_LENGTH);
-
-    putLength(streamBuf, length);
-    return putIntegerGivenLength(streamBuf, serialDate, length);
-}
-
-int BerUtil_Imp::putBinaryTimeValue(bsl::streambuf    *streamBuf,
-                                    const bdlt::Time&  value)
-{
-    const bsls::Types::Int64 serialTime = getSerialTimeValue(value);
-    const int               length     = numBytesToStream(serialTime);
-
-    BSLS_ASSERT(length <= k_MAX_BINARY_TIME_LENGTH);
-
-    putLength(streamBuf, length);
-    return putIntegerGivenLength(streamBuf, serialTime, length);
-}
-
-int BerUtil_Imp::putBinaryDatetimeValue(bsl::streambuf        *streamBuf,
-                                        const bdlt::Datetime&  value)
-{
-    const bsls::Types::Int64 serialDatetime = getSerialDatetimeValue(value);
-    int                     length         = numBytesToStream(serialDatetime);
-
-    if (length >= k_MIN_BINARY_DATETIMETZ_LENGTH) {
-        putLength(streamBuf, length + TIMEZONE_LENGTH);
-        putTimezoneOffset(streamBuf, 0);
-    }
-    else {
-        putLength(streamBuf, length);
-    }
-    return putIntegerGivenLength(streamBuf, serialDatetime, length);
-}
-
-int BerUtil_Imp::putBinaryDateTzValue(bsl::streambuf     *streamBuf,
-                                           const bdlt::DateTz&  value)
-{
-    const bdlt::Date& date   = value.localDate();
-    short            offset = static_cast<short>(value.offset());
-
-    if (!offset) {
-        return putBinaryDateValue(streamBuf, date);                   // RETURN
-    }
-
-    const bsls::Types::Int64 serialDate = getSerialDateValue(date);
-    int                     length     = numBytesToStream(serialDate)
-                                       + TIMEZONE_LENGTH;
-
-    if (length < k_MIN_BINARY_DATETZ_LENGTH) {
-        const char padChar      = serialDate < 0 ? char(-1) : char(0);
-        const int  numPadOctets = k_MIN_BINARY_DATETZ_LENGTH - length;
-
-        putLength(streamBuf, k_MIN_BINARY_DATETZ_LENGTH);
-        putTimezoneOffset(streamBuf, offset);
-        putChars(streamBuf, padChar, numPadOctets);
-    }
-    else {
-        putLength(streamBuf, length);
-        putTimezoneOffset(streamBuf, offset);
-    }
-    return putIntegerGivenLength(streamBuf,
-                                 serialDate,
-                                 length - TIMEZONE_LENGTH);
-}
-
-int BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf      *streamBuf,
-                                      const bdlt::TimeTz&  value)
-{
-    const bdlt::Time& time   = value.localTime();
-    short            offset = static_cast<short>(value.offset());
-
-    if (!offset) {
-        return putBinaryTimeValue(streamBuf, time);                   // RETURN
-    }
-
-    const bsls::Types::Int64 serialTime = getSerialTimeValue(time);
-    const int               length     = numBytesToStream(serialTime)
-                                       + TIMEZONE_LENGTH;
-
-    if (length < k_MIN_BINARY_TIMETZ_LENGTH) {
-        const int  numPadOctets = k_MIN_BINARY_TIMETZ_LENGTH - length;
-
-        putLength(streamBuf, k_MIN_BINARY_TIMETZ_LENGTH);
-        putTimezoneOffset(streamBuf, offset);
-        putChars(streamBuf, 0, numPadOctets);
-    }
-    else {
-        putLength(streamBuf, length);
-        putTimezoneOffset(streamBuf, offset);
-    }
-    return putIntegerGivenLength(streamBuf,
-                                 serialTime,
-                                 length - TIMEZONE_LENGTH);
-}
-
-int BerUtil_Imp::putBinaryDatetimeTzValue(bsl::streambuf          *streamBuf,
-                                          const bdlt::DatetimeTz&  value)
-{
-    const bdlt::Datetime& datetime = value.localDatetime();
-    short                offset   = static_cast<short>(value.offset());
-
-    if (!offset) {
-        return putBinaryDatetimeValue(streamBuf, datetime);           // RETURN
-    }
-
-    const bsls::Types::Int64 serialDatetime = getSerialDatetimeValue(datetime);
-    const int               length         = numBytesToStream(serialDatetime)
-                                           + TIMEZONE_LENGTH;
-
-    if (length < k_MIN_BINARY_DATETIMETZ_LENGTH) {
-        const char padChar      = serialDatetime < 0 ? char(-1) : char(0);
-        const int  numPadOctets = k_MIN_BINARY_DATETIMETZ_LENGTH - length;
-
-        putLength(streamBuf, k_MIN_BINARY_DATETIMETZ_LENGTH);
-        putTimezoneOffset(streamBuf, offset);
-        putChars(streamBuf, padChar, numPadOctets);
-    }
-    else {
-        putLength(streamBuf, length);
-        putTimezoneOffset(streamBuf, offset);
-    }
-    return putIntegerGivenLength(streamBuf,
-                                 serialDatetime,
-                                 length - TIMEZONE_LENGTH);
-}
-
-int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
-                                double         *value,
-                                int             length)
+int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
+                                                 bsl::streambuf *streamBuf,
+                                                 int             length)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
@@ -880,40 +744,32 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
         return SUCCESS;                                               // RETURN
     }
 
-    int nextOctet = stream->sbumpc();
+    int nextOctet = streamBuf->sbumpc();
 
-    if (POSITIVE_INFINITY_ID == nextOctet) {
-        assembleDouble(value,
-                       DOUBLE_INFINITY_EXPONENT_ID,
-                       INFINITY_MANTISSA_ID,
-                       0);
+    if (k_POSITIVE_INFINITY_ID == nextOctet) {
+        assembleDouble(
+            value, k_DOUBLE_INFINITY_EXPONENT_ID, k_INFINITY_MANTISSA_ID, 0);
         return SUCCESS;                                               // RETURN
     }
-    else if (NEGATIVE_INFINITY_ID == nextOctet) {
-        assembleDouble(value,
-                       DOUBLE_INFINITY_EXPONENT_ID,
-                       INFINITY_MANTISSA_ID,
-                       1);
+    else if (k_NEGATIVE_INFINITY_ID == nextOctet) {
+        assembleDouble(
+            value, k_DOUBLE_INFINITY_EXPONENT_ID, k_INFINITY_MANTISSA_ID, 1);
         return SUCCESS;                                               // RETURN
     }
-    else if (NAN_ID == nextOctet) {
-        assembleDouble(value,
-                       DOUBLE_INFINITY_EXPONENT_ID,
-                       1,
-                       0);
+    else if (k_NAN_ID == nextOctet) {
+        assembleDouble(value, k_DOUBLE_INFINITY_EXPONENT_ID, 1, 0);
         return SUCCESS;                                               // RETURN
-
     }
 
-    if (!(nextOctet & (unsigned  char) REAL_BINARY_ENCODING)) {
+    if (!(nextOctet & static_cast<unsigned char>(k_REAL_BINARY_ENCODING))) {
         // Encoding is decimal, return as that is not handled currently.
 
         return FAILURE;                                               // RETURN
     }
 
-    int sign = nextOctet & REAL_SIGN_MASK ? 1 : 0;
-    int base = (nextOctet & REAL_BASE_MASK) >> REAL_BASE_SHIFT;
-    if (BER_RESERVED_BASE == base) {
+    int sign = nextOctet & k_REAL_SIGN_MASK ? 1 : 0;
+    int base = (nextOctet & k_REAL_BASE_MASK) >> k_REAL_BASE_SHIFT;
+    if (k_BER_RESERVED_BASE == base) {
         // Base value is not supported.
 
         return FAILURE;                                               // RETURN
@@ -921,17 +777,17 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
 
     base *= 8;
 
-    int scaleFactor = (nextOctet & REAL_SCALE_FACTOR_MASK)
-                                                    >> REAL_SCALE_FACTOR_SHIFT;
-    int expLength   = (nextOctet & REAL_EXPONENT_LENGTH_MASK) + 1;
+    int scaleFactor =
+        (nextOctet & k_REAL_SCALE_FACTOR_MASK) >> k_REAL_SCALE_FACTOR_SHIFT;
+    int expLength = (nextOctet & k_REAL_EXPONENT_LENGTH_MASK) + 1;
 
-    if (REAL_MULTIPLE_EXPONENT_OCTETS == expLength) {
+    if (k_REAL_MULTIPLE_EXPONENT_OCTETS == expLength) {
         // Exponent length is encoded in the following octet.
 
-        expLength = stream->sbumpc();
+        expLength = streamBuf->sbumpc();
 
-        if (bsl::streambuf::traits_type::eof() == expLength
-         || (unsigned) expLength > sizeof(long long)) {
+        if (bsl::streambuf::traits_type::eof() == expLength ||
+            static_cast<unsigned>(expLength) > sizeof(long long)) {
             // Exponent values that take greater than sizeof(long long) octets
             // are not handled by this implementation.
 
@@ -940,7 +796,7 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
     }
 
     long long exponent;
-    if (getIntegerValue(stream, &exponent, expLength)) {
+    if (IntegerUtil::getIntegerValue(&exponent, streamBuf, expLength)) {
         return FAILURE;                                               // RETURN
     }
 
@@ -951,28 +807,30 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
     }
     exponent -= scaleFactor;
 
-    long long mantissa = 0;
+    long long mantissa       = 0;
     int       mantissaLength = length - expLength - 1;
-    if (getIntegerValue(stream, &mantissa, mantissaLength)) {
+    if (IntegerUtil::getIntegerValue(&mantissa, streamBuf, mantissaLength)) {
         return FAILURE;                                               // RETURN
     }
 
-    int shift = bdlb::BitUtil::numLeadingUnsetBits((bsl::uint64_t) mantissa);
+    int shift = bdlb::BitUtil::numLeadingUnsetBits(
+        static_cast<bsl::uint64_t>(mantissa));
     if (64 == shift) {
         return FAILURE;                                               // RETURN
     }
 
     // Subtract the number of exponent bits and the sign bit.
 
-    shift            -= DOUBLE_NUM_EXPONENT_BITS + 1;
-    exponent         += DOUBLE_BIAS + DOUBLE_NUM_MANTISSA_BITS - shift - 1;
+    shift -= k_DOUBLE_NUM_EXPONENT_BITS + 1;
+    exponent += k_DOUBLE_BIAS + k_DOUBLE_NUM_MANTISSA_BITS - shift - 1;
 
-    if (exponent > 0) { // Normal number
+    if (exponent > 0) {  // Normal number
         // Shift the mantissa left by shift amount, account for the implicit
         // one, and then removing it.
 
+        typedef BerUtil_64BitFloatingPointMasks WideBitMasks;
         mantissa <<= shift + 1;
-        mantissa &= ~DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
+        mantissa &= ~WideBitMasks::k_DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
     }
     else {
         // Denormalized number: shift mantissa only, no implicit one.
@@ -986,127 +844,180 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
     return SUCCESS;
 }
 
-int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
-                                 long long      *value,
-                                 int             length)
+int BerUtil_FloatingPointImpUtil::getDecimal64Value(
+                                                  bdldfp::Decimal64 *value,
+                                                  bsl::streambuf    *streamBuf,
+                                                  int                length)
 {
-    // IMPLEMENTATION NOTE: This overload of the 'getIntegerValue' function
-    // template, for 'long long', is warranted solely for performance reasons:
-    // the template definition performs up to 8 shift operations (which on
-    // 32-bit SPARC are quite slow for 'long long').  This implementation
-    // breaks up the 'long long' into high- and low-order words to perform the
-    // shifts on 'int' instead of 'long long'.
-
-    enum { SUCCESS = 0, FAILURE = -1 };
-    static const int SIGN_BIT_MASK = 0x80;
-
-    if ((unsigned) length > sizeof(long long)) {
-        // Overflow.
-
-        return FAILURE;                                               // RETURN
+    if (k_MAX_MULTI_WIDTH_ENCODING_SIZE < length) {
+        return -1;                                                    // RETURN
     }
 
-    int sign = (streamBuf->sgetc() & SIGN_BIT_MASK) ? -1 : 0;
-    unsigned int valueLo = sign;
-    unsigned int valueHi = sign;
-
-    // Decode high-order word.
-
-    for ( ; length > (int) sizeof(int); --length) {
-        int nextOctet = streamBuf->sbumpc();
-        if (bsl::streambuf::traits_type::eof() == nextOctet) {
-            return FAILURE;                                           // RETURN
-        }
-
-        valueHi <<= e_BITS_PER_OCTET;
-        valueHi |= (unsigned char) nextOctet;
+    unsigned char         buffer[k_MAX_MULTI_WIDTH_ENCODING_SIZE];
+    const bsl::streamsize bytesConsumed =
+        streamBuf->sgetn(reinterpret_cast<char *>(buffer), length);
+    if (bytesConsumed != length) {
+        return -1;                                                    // RETURN
     }
 
-    // Decode low-order word.
-
-    for ( ; length > 0; --length) {
-        int nextOctet = streamBuf->sbumpc();
-        if (bsl::streambuf::traits_type::eof() == nextOctet) {
-            return FAILURE;                                           // RETURN
-        }
-
-        valueLo <<= e_BITS_PER_OCTET;
-        valueLo |= (unsigned char) nextOctet;
-    }
-
-    // Combine low and high word into a long word.
-#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
-    reinterpret_cast<unsigned int*>(value)[1] = valueLo;
-    reinterpret_cast<unsigned int*>(value)[0] = valueHi;
-#else
-    reinterpret_cast<unsigned int*>(value)[0] = valueLo;
-    reinterpret_cast<unsigned int*>(value)[1] = valueHi;
-#endif
-    return SUCCESS;
+    *value = bdldfp::DecimalConvertUtil::decimal64FromMultiWidthEncoding(
+        buffer, length);
+    return 0;
 }
 
-int BerUtil_Imp::getLength(bsl::streambuf *streamBuf,
-                           int            *result,
-                           int            *accumNumBytesConsumed)
+// Encoding
+
+int BerUtil_FloatingPointImpUtil::putDecimal64Value(
+                                                  bsl::streambuf    *streamBuf,
+                                                  bdldfp::Decimal64  value)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    unsigned char          buffer[k_MAX_MULTI_WIDTH_ENCODING_SIZE];
+    bsls::Types::size_type length =
+        bdldfp::DecimalConvertUtil::decimal64ToMultiWidthEncoding(buffer,
+                                                                  value);
 
-    int nextOctet = streamBuf->sbumpc();
-    if (bsl::streambuf::traits_type::eof() == nextOctet) {
-        return FAILURE;                                               // RETURN
+    if (0 != LengthUtil::putLength(streamBuf, static_cast<int>(length))) {
+        return -1;                                                    // RETURN
     }
 
-    ++*accumNumBytesConsumed;
-
-    if (nextOctet == BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET) {
-        *result = BerUtil_Imp::e_INDEFINITE_LENGTH;
-
-        return SUCCESS;                                               // RETURN
+    if (static_cast<bsl::streamsize>(length) !=
+        streamBuf->sputn(reinterpret_cast<char *>(buffer), length)) {
+        return -1;                                                    // RETURN
     }
 
-    unsigned int numOctets = (unsigned int) nextOctet;
-
-    // Length has been transmitted in short form.
-
-    if (!(numOctets & LONG_FORM_LENGTH_FLAG_MASK)) {
-        *result = numOctets;
-        return SUCCESS;                                               // RETURN
-    }
-
-    // Length has been transmitted in long form.
-
-    numOctets &= LONG_FORM_LENGTH_VALUE_MASK;
-
-    if (numOctets > sizeof(int)) {
-        return FAILURE;                                               // RETURN
-    }
-
-    *result = 0;
-    for (unsigned int i = 0; i < numOctets; ++i) {
-        nextOctet = streamBuf->sbumpc();
-        if (bsl::streambuf::traits_type::eof() == nextOctet) {
-            return FAILURE;                                           // RETURN
-        }
-
-        *result <<= BerUtil_Imp::e_BITS_PER_OCTET;
-        *result |=  nextOctet;
-    }
-
-    *accumNumBytesConsumed += numOctets;
-
-    return SUCCESS;
+    return 0;
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bsl::string              *value,
-                          int                       length,
-                          const BerDecoderOptions&  options)
+int BerUtil_FloatingPointImpUtil::putDoubleValue(bsl::streambuf *streamBuf,
+                                                 double          value)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
+    // If 0 == value, put out length = 0 and return.
+
+    if (0.0 == value) {
+        return 0 == streamBuf->sputc(0) ? SUCCESS : FAILURE;          // RETURN
+    }
+
+    // Else parse double value.
+
+    int       exponent, sign;
+    long long mantissa;
+
+    parseDouble(&exponent, &mantissa, &sign, value);
+
+    // Check for special cases +/- infinity and NaN.
+
+    if (k_DOUBLE_INFINITY_EXPONENT_ID == exponent) {
+        if (k_INFINITY_MANTISSA_ID == mantissa) {
+            char signOctet =
+                sign ? k_NEGATIVE_INFINITY_ID : k_POSITIVE_INFINITY_ID;
+
+            return (1 == streamBuf->sputc(1) &&
+                    signOctet == streamBuf->sputc(signOctet))
+                       ? SUCCESS
+                       : FAILURE;                                     // RETURN
+        }
+        else {
+            // For NaN use bit pattern 0x42.
+
+            char NaN = k_NAN_ID;
+            return (1 == streamBuf->sputc(1) && NaN == streamBuf->sputc(NaN))
+                       ? SUCCESS
+                       : FAILURE;                                     // RETURN
+        }
+    }
+
+    bool denormalized = 0 == exponent ? true : false;
+
+    // Normalize the mantissa, get its actual value and adjust the exponent
+    // accordingly.
+
+    normalizeMantissaAndAdjustExp(&mantissa, &exponent, denormalized);
+
+    exponent -= k_DOUBLE_BIAS;
+
+    int expLength = IntegerUtil::getNumOctetsToStream(exponent);
+    int manLength = IntegerUtil::getNumOctetsToStream(mantissa);
+
+    // Put out the length = expLength + manLength + 1.
+
+    char totalLength = static_cast<char>(expLength + manLength + 1);
+    if (totalLength != streamBuf->sputc(totalLength)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    unsigned char firstOctet =
+        sign ? k_BINARY_NEGATIVE_NUMBER_ID : k_BINARY_POSITIVE_NUMBER_ID;
+
+    if (2 == expLength) {
+        // Two exponent octets will be sent out.
+
+        firstOctet |= 1;
+    }
+
+    if (firstOctet != streamBuf->sputc(firstOctet)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    // Put out the exponent and mantissa.
+
+    return IntegerUtil::putIntegerGivenLength(
+               streamBuf, exponent, expLength) ||
+                   IntegerUtil::putIntegerGivenLength(
+                       streamBuf, mantissa, manLength)
+               ? FAILURE
+               : SUCCESS;
+}
+
+                        // ----------------------------
+                        // struct BerUtil_StringImpUtil
+                        // ----------------------------
+
+// CLASS METHODS
+
+// Utilities
+
+int BerUtil_StringImpUtil::putChars(bsl::streambuf *streamBuf,
+                                    char            value,
+                                    int             numChars)
+{
+    BSLS_ASSERT(0 <= numChars);
+
+    enum { k_LOCAL_BUFFER_SIZE = 16 };
+
+    const int numLoops     = numChars / k_LOCAL_BUFFER_SIZE;
+    const int numRemaining = numChars % k_LOCAL_BUFFER_SIZE;
+    BSLS_ASSERT(numLoops * k_LOCAL_BUFFER_SIZE + numRemaining == numChars);
+
+    char buffer[k_LOCAL_BUFFER_SIZE];
+    bsl::memset(buffer, value, numChars);
+
+    for (int i = 0; i != numLoops; ++i) {
+        if (k_LOCAL_BUFFER_SIZE !=
+            streamBuf->sputn(buffer, k_LOCAL_BUFFER_SIZE)) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    if (numRemaining != streamBuf->sputn(buffer, numRemaining)) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+// 'bsl::string' Decoding
+
+int BerUtil_StringImpUtil::getStringValue(bsl::string              *value,
+                                          bsl::streambuf           *streamBuf,
+                                          int                       length,
+                                          const BerDecoderOptions&  options)
+{
     if (0 == length) {
         if (options.defaultEmptyStrings() && !value->empty()) {
-            BSLMT_ONCE_DO {
+            BSLMT_ONCE_DO
+            {
                 BSLS_LOG_WARN("[BDE_INTERNAL] The current process will decode "
                               "an empty string as the default value for an "
                               "element in the type currently being decoded.  "
@@ -1121,350 +1032,399 @@ int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
             value->clear();
         }
 
-        return SUCCESS;                                               // RETURN
+        return 0;                                                     // RETURN
     }
     else if (length < 0) {
-        return FAILURE;                                               // RETURN
+        return -1;                                                    // RETURN
     }
 
     value->resize(length);
 
     const bsl::streamsize bytesConsumed =
-                                        streamBuf->sgetn(&(*value)[0], length);
+        streamBuf->sgetn(&(*value)[0], length);
+    if (length != bytesConsumed) {
+        return -1;                                                    // RETURN
+    }
 
-    return length == bytesConsumed ? SUCCESS : FAILURE;
+    return 0;
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bdlt::Date               *value,
-                          int                       length,
-                          const BerDecoderOptions&)
+                       // -----------------------------
+                       // struct BerUtil_Iso8601ImpUtil
+                       // -----------------------------
+
+// CLASS METHODS
+
+// Decoding
+
+int BerUtil_Iso8601ImpUtil::getDateValue(bdlt::Date     *value,
+                                         bsl::streambuf *streamBuf,
+                                         int             length)
 {
-    return length > k_MAX_BINARY_DATE_LENGTH
-         ? getValueUsingIso8601(streamBuf, value, length)
-         : getBinaryDateValue(streamBuf, value, length);
+    return getValue(value, streamBuf, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bdlt::Datetime           *value,
-                          int                       length,
-                          const BerDecoderOptions&)
+int BerUtil_Iso8601ImpUtil::getDateTzValue(bdlt::DateTz   *value,
+                                           bsl::streambuf *streamBuf,
+                                           int             length)
 {
-    return length > k_MAX_BINARY_DATETIMETZ_LENGTH
-         ? getValueUsingIso8601(streamBuf, value, length)
-         : getBinaryDatetimeValue(streamBuf, value, length);
+    return getValue(value, streamBuf, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bdlt::DatetimeTz         *value,
-                          int                       length,
-                          const BerDecoderOptions&)
+int BerUtil_Iso8601ImpUtil::getDatetimeValue(bdlt::Datetime *value,
+                                             bsl::streambuf *streamBuf,
+                                             int             length)
 {
-    return length > k_MAX_BINARY_DATETIMETZ_LENGTH
-         ? getValueUsingIso8601(streamBuf, value, length)
-         : getBinaryDatetimeTzValue(streamBuf, value, length);
+    return getValue(value, streamBuf, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bdlt::DateTz             *value,
-                          int                       length,
-                          const BerDecoderOptions&)
+int BerUtil_Iso8601ImpUtil::getDatetimeTzValue(bdlt::DatetimeTz *value,
+                                               bsl::streambuf   *streamBuf,
+                                               int               length)
 {
-    return length > k_MAX_BINARY_DATETZ_LENGTH
-         ? getValueUsingIso8601(streamBuf, value, length)
-         : getBinaryDateTzValue(streamBuf, value, length);
+    return getValue(value, streamBuf, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bdlt::Time               *value,
-                          int                       length,
-                          const BerDecoderOptions&)
+int BerUtil_Iso8601ImpUtil::getTimeValue(bdlt::Time     *value,
+                                         bsl::streambuf *streamBuf,
+                                         int             length)
 {
-    return length > k_MAX_BINARY_TIME_LENGTH
-         ? getValueUsingIso8601(streamBuf, value, length)
-         : getBinaryTimeValue(streamBuf, value, length);
+    return getValue(value, streamBuf, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bdlt::TimeTz             *value,
-                          int                       length,
-                          const BerDecoderOptions&)
+int BerUtil_Iso8601ImpUtil::getTimeTzValue(bdlt::TimeTz   *value,
+                                           bsl::streambuf *streamBuf,
+                                           int             length)
 {
-    return length > k_MAX_BINARY_TIMETZ_LENGTH
-         ? getValueUsingIso8601(streamBuf, value, length)
-         : getBinaryTimeTzValue(streamBuf, value, length);
+    return getValue(value, streamBuf, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
-                          bdldfp::Decimal64        *value,
-                          int                       length,
-                          const BerDecoderOptions&)
+// Encoding
+
+int BerUtil_Iso8601ImpUtil::putDateValue(bsl::streambuf          *streamBuf,
+                                         const bdlt::Date&        value,
+                                         const BerEncoderOptions *options)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    unsigned char buf[8];
-    if (static_cast<bsl::size_t>(length) > sizeof(buf)) {
-        return FAILURE;
-    }
-
-    const bsl::streamsize bytesConsumed =
-                        streamBuf->sgetn(reinterpret_cast<char*>(buf), length);
-
-    if (bytesConsumed != length) {
-        return FAILURE;                                               // RETURN
-    }
-
-
-    *value = bdldfp::DecimalConvertUtil::decimal64FromMultiWidthEncoding(
-        buf, length);
-
-    return SUCCESS;
+    return putValue(streamBuf, value, options);
 }
 
-
-int BerUtil_Imp::numBytesToStream(short value)
+int BerUtil_Iso8601ImpUtil::putDateTzValue(bsl::streambuf          *streamBuf,
+                                           const bdlt::DateTz&      value,
+                                           const BerEncoderOptions *options)
 {
-    // This overload of 'numBytesToStream' is optimized for a 16-bit 'value'.
-
-    if (0 == value) {
-        return 1;                                                     // RETURN
-    }
-
-    int numBits;
-    if (value > 0) {
-        // For positive values, all but one 0 bits on the left are redundant.
-        //: o 'find1AtLargestIndex' returns '[0 .. 14]' (since bit 15 is 0).
-        //: o Add 1 to convert from an index to a count in range '[1 .. 15]'.
-        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
-
-        numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits((bsl::uint32_t) value)
-                + 2;
-    }
-    else {
-        // For negative values, all but: one 1 bits on the left are redundant.
-        //: o 'find0AtLargestIndex' returns '[0 .. 14]' (since bit 15 is 1).
-        //: o Add 1 to convert from an index to a count in range '[1 .. 15]'.
-        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
-
-        numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits(~ (bsl::uint32_t) value)
-                + 2;
-    }
-
-    // Round up to correct number of bytes:
-
-    return (numBits + e_BITS_PER_OCTET - 1) / e_BITS_PER_OCTET;
+    return putValue(streamBuf, value, options);
 }
 
-int BerUtil_Imp::numBytesToStream(int value)
+int BerUtil_Iso8601ImpUtil::putDatetimeValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Datetime&    value,
+                                            const BerEncoderOptions *options)
 {
-    // This overload of 'numBytesToStream' is optimized for a 32-bit 'value'.
-
-    if (0 == value) {
-        return 1;                                                     // RETURN
-    }
-
-    int numBits;
-    if (value > 0) {
-        // For positive values, all but one 0 bits on the left are redundant.
-        //: o 'find1AtLargestIndex' returns '[0 .. 30]' (since bit 31 is 0).
-        //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
-        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
-
-        numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits((bsl::uint32_t) value)
-                + 2;
-    }
-    else {
-        // For negative values, all but one 1 bits on the left are redundant.
-        //: o 'find0AtLargestIndex' returns '[0 .. 30]' (since bit 31 is 1).
-        //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
-        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
-
-        numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits(~ (bsl::uint32_t) value)
-                + 2;
-    }
-
-    // Round up to correct number of bytes:
-
-    return (numBits + e_BITS_PER_OCTET - 1) / e_BITS_PER_OCTET;
+    return putValue(streamBuf, value, options);
 }
 
-int BerUtil_Imp::numBytesToStream(long long value)
+int BerUtil_Iso8601ImpUtil::putDatetimeTzValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::DatetimeTz&  value,
+                                            const BerEncoderOptions *options)
 {
-    // This overload of 'numBytesToStream' is optimized for a 64-bit 'value'.
-
-    if (0 == value) {
-        return 1;                                                     // RETURN
-    }
-
-    int numBits;
-    if (value > 0) {
-        // For positive values, all but one 0 bits on the left are redundant.
-        //: o 'find1AtLargestIndex64' returns '[0 .. 62]' (since bit 63 is 0).
-        //: o Add 1 to convert from an index to a count in range '[1 .. 63]'.
-        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
-
-        numBits = 63
-                - bdlb::BitUtil::numLeadingUnsetBits((bsl::uint64_t) value)
-                + 2;
-    }
-    else {
-        // For negative values, all but one 1 bits on the left are redundant.
-        //: o 'find1AtLargestIndex64' returns '[0 .. 62]' (since bit 63 is 0).
-        //: o Add 1 to convert from an index to a count in range '[1 .. 63]'.
-        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
-
-        numBits = 63
-                - bdlb::BitUtil::numLeadingUnsetBits(~ (bsl::uint64_t) value)
-                + 2;
-    }
-
-    // Round up to correct number of bytes:
-
-    return (numBits + e_BITS_PER_OCTET - 1) / e_BITS_PER_OCTET;
+    return putValue(streamBuf, value, options);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                          bdldfp::Decimal64        value,
-                          const BerEncoderOptions *)
+int BerUtil_Iso8601ImpUtil::putTimeValue(bsl::streambuf          *streamBuf,
+                                         const bdlt::Time&        value,
+                                         const BerEncoderOptions *options)
 {
-
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    unsigned char buf[8];
-    bsls::Types::size_type length =
-        bdldfp::DecimalConvertUtil::decimal64ToMultiWidthEncoding(buf, value);
-    putLength(streamBuf, static_cast<int>(length));
-
-    if (static_cast<bsl::streamsize>(length) ==
-        streamBuf->sputn(reinterpret_cast<char*>(buf), length)) {
-        return SUCCESS;
-    }
-    else {
-        return FAILURE;
-    }
+    return putValue(streamBuf, value, options);
 }
 
-int BerUtil_Imp::putDoubleValue(bsl::streambuf *stream, double value)
+int BerUtil_Iso8601ImpUtil::putTimeTzValue(bsl::streambuf          *streamBuf,
+                                           const bdlt::TimeTz&      value,
+                                           const BerEncoderOptions *options)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    return putValue(streamBuf, value, options);
+}
 
-    // If 0 == value, put out length = 0 and return.
+                    // ------------------------------------
+                    // struct BerUtil_TimezoneOffsetImpUtil
+                    // ------------------------------------
 
-    if (0.0 == value) {
-        return 0 == stream->sputc(0) ? SUCCESS : FAILURE;             // RETURN
+// CLASS METHODS
+bool BerUtil_TimezoneOffsetImpUtil::isValidTimezoneOffsetInMinutes(int value)
+{
+    return (k_MIN_OFFSET <= value) && (k_MAX_OFFSET >= value);
+}
+
+int BerUtil_TimezoneOffsetImpUtil::getTimezoneOffsetInMinutes(
+                                                     int            *value,
+                                                     bsl::streambuf *streamBuf)
+{
+    char buffer[2];
+
+    if (sizeof(buffer) != streamBuf->sgetn(buffer, sizeof(buffer))) {
+        return -1;                                                    // RETURN
     }
 
-    // Else parse double value.
+    const unsigned short firstOctet =
+        static_cast<unsigned short>(buffer[0]) & 0xFF;
 
-    int       exponent, sign;
-    long long mantissa;
+    const unsigned short secondOctet =
+        static_cast<unsigned short>(buffer[1]) & 0xFF;
 
-    parseDouble(&exponent, &mantissa, &sign, value);
+    *value = static_cast<short>((firstOctet << 8) | secondOctet);
+    return 0;
+}
 
-    // Check for special cases +/- infinity and NaN.
+int BerUtil_TimezoneOffsetImpUtil::getTimezoneOffsetInMinutesIfValid(
+                                                     int            *value,
+                                                     bsl::streambuf *streamBuf)
+{
+    int tempValue = 0;
+    if (0 != getTimezoneOffsetInMinutes(&tempValue, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
 
-    if (DOUBLE_INFINITY_EXPONENT_ID == exponent) {
-        if (INFINITY_MANTISSA_ID == mantissa) {
-            char signOctet = sign
-                           ? NEGATIVE_INFINITY_ID
-                           : POSITIVE_INFINITY_ID;
+    if (!isValidTimezoneOffsetInMinutes(tempValue)) {
+        return -1;                                                    // RETURN
+    }
 
-            return (1        == stream->sputc(1)
-                && signOctet == stream->sputc(signOctet))
-                 ? SUCCESS
-                 : FAILURE;                                           // RETURN
+    *value = tempValue;
+    return 0;
+}
+
+int BerUtil_TimezoneOffsetImpUtil::putTimezoneOffsetInMinutes(
+                                                     bsl::streambuf *streamBuf,
+                                                     int             value)
+{
+    BSLS_ASSERT(isValidTimezoneOffsetInMinutes(value));
+
+    const char buffer[2] = {static_cast<char>((value & 0xFF00) >> 8),
+                            static_cast<char>((value & 0x00FF) >> 0)};
+
+    if (sizeof(buffer) != streamBuf->sputn(buffer, sizeof(buffer))) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+                         // --------------------------
+                         // struct BerUtil_DateImpUtil
+                         // --------------------------
+
+// PRIVATE CLASS METHODS
+
+// 'bdlt::Date' Decoding
+
+int BerUtil_DateImpUtil::getIso8601DateValue(bdlt::Date     *value,
+                                             bsl::streambuf *streamBuf,
+                                             int             length)
+{
+    return Iso8601Util::getDateValue(value, streamBuf, length);
+}
+
+int BerUtil_DateImpUtil::getCompactBinaryDateValue(bdlt::Date     *value,
+                                                   bsl::streambuf *streamBuf,
+                                                   int             length)
+{
+    bsls::Types::Int64 daysSinceEpoch;
+    if (0 !=
+        IntegerUtil::getIntegerValue(&daysSinceEpoch, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return daysSinceEpochToDate(value, daysSinceEpoch);
+}
+
+// 'bdlt::Date' Encoding
+
+int BerUtil_DateImpUtil::putIso8601DateValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Date&        value,
+                                            const BerEncoderOptions *options)
+{
+    return Iso8601Util::putDateValue(streamBuf, value, options);
+}
+
+int BerUtil_DateImpUtil::putCompactBinaryDateValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Date&        value,
+                                            const BerEncoderOptions *)
+{
+    bsls::Types::Int64 daysSinceEpoch;
+    dateToDaysSinceEpoch(&daysSinceEpoch, value);
+
+    const int length = IntegerUtil::getNumOctetsToStream(daysSinceEpoch);
+    BSLS_ASSERT(length <= k_MAX_COMPACT_BINARY_DATE_LENGTH);
+
+    if (0 != LengthUtil::putLength(streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, daysSinceEpoch, length);
+}
+
+// 'bdlt::DateTz' Decoding
+
+int BerUtil_DateImpUtil::getIso8601DateTzValue(bdlt::DateTz   *value,
+                                               bsl::streambuf *streamBuf,
+                                               int             length)
+{
+    return Iso8601Util::getDateTzValue(value, streamBuf, length);
+}
+
+int BerUtil_DateImpUtil::getCompactBinaryDateValue(bdlt::DateTz   *value,
+                                                   bsl::streambuf *streamBuf,
+                                                   int             length)
+{
+    bdlt::Date localDate;
+    if (0 != getCompactBinaryDateValue(&localDate, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    enum {
+        k_TIMEZONE_OFFSET = 0,
+    };
+
+    return value->setDateTzIfValid(localDate, k_TIMEZONE_OFFSET);
+}
+
+int BerUtil_DateImpUtil::getCompactBinaryDateTzValue(bdlt::DateTz   *value,
+                                                     bsl::streambuf *streamBuf,
+                                                     int             length)
+{
+    int timezoneOffsetInMinutes = 0;
+    if (length >= k_MIN_COMPACT_BINARY_DATETZ_LENGTH) {
+        if (0 != TimezoneUtil::getTimezoneOffsetInMinutesIfValid(
+                     &timezoneOffsetInMinutes, streamBuf)) {
+            *value = bdlt::DateTz();
+            return -1;                                                // RETURN
         }
-        else {
-            // For NaN use bit pattern 0x42.
 
-            char NaN = NAN_ID;
-            return (1        == stream->sputc(1)
-                && NaN       == stream->sputc(NaN))
-                ? SUCCESS
-                : FAILURE;                                            // RETURN
-        }
+        length -= TimezoneUtil::k_TIMEZONE_LENGTH;
     }
 
-    bool denormalized = 0 == exponent ? true : false;
-
-    // Normalize the mantissa, get its actual value and adjust the exponent
-    // accordingly.
-
-    normalizeMantissaAndAdjustExp(&mantissa, &exponent, denormalized);
-
-    exponent -= DOUBLE_BIAS;
-
-    int expLength = numBytesToStream(exponent);
-    int manLength = numBytesToStream(mantissa);
-
-    // Put out the length = expLength + manLength + 1.
-
-    char totalLength = static_cast<char>(expLength + manLength + 1);
-    if (totalLength != stream->sputc(totalLength)) {
-        return FAILURE;                                               // RETURN
+    bdlt::Date localDate;
+    if (0 != getCompactBinaryDateValue(&localDate, streamBuf, length)) {
+        return -1;                                                    // RETURN
     }
 
-    unsigned char firstOctet = sign
-                             ? BINARY_NEGATIVE_NUMBER_ID
-                             : BINARY_POSITIVE_NUMBER_ID;
-
-    if (2 == expLength) {
-        // Two exponent octets will be sent out.
-
-        firstOctet |= 1;
-    }
-
-    if (firstOctet != stream->sputc(firstOctet)) {
-        return FAILURE;                                               // RETURN
-    }
-
-    // Put out the exponent and mantissa.
-
-    return putIntegerGivenLength(stream, exponent, expLength)
-        || putIntegerGivenLength(stream, mantissa, manLength)
-         ? FAILURE : SUCCESS;
+    return value->setDateTzIfValid(localDate, timezoneOffsetInMinutes);
 }
 
-int BerUtil_Imp::putLength(bsl::streambuf *streamBuf, int length)
+// 'bdlt::DateTz' Encoding
+
+int BerUtil_DateImpUtil::putIso8601DateTzValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::DateTz&      value,
+                                            const BerEncoderOptions *options)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    if (length < 0) {
-        return FAILURE;                                               // RETURN
-    }
-
-    if (length <= 127) {
-        const char lengthChar = static_cast<char>(length);
-        return length == streamBuf->sputc(lengthChar)
-             ? SUCCESS
-             : FAILURE;                                               // RETURN
-    }
-
-    // length > 127.
-
-    int numOctets = sizeof(int);
-    for (unsigned int mask = ~((unsigned int) -1 >> e_BITS_PER_OCTET);
-         !(length & mask);
-         mask >>= e_BITS_PER_OCTET) {
-        --numOctets;
-    }
-
-    unsigned char lengthOctet = static_cast<unsigned char>(
-                                       numOctets | LONG_FORM_LENGTH_FLAG_MASK);
-    if (lengthOctet != streamBuf->sputc(lengthOctet)) {
-        return FAILURE;                                               // RETURN
-    }
-
-    return putIntegerGivenLength(streamBuf, length, numOctets);
+    return Iso8601Util::putDateTzValue(streamBuf, value, options);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                          const bdlt::Date&        value,
-                          const BerEncoderOptions *options)
+int BerUtil_DateImpUtil::putCompactBinaryDateValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::DateTz&      value,
+                                            const BerEncoderOptions *options)
+{
+    BSLS_ASSERT_SAFE(0 == value.offset());
+    return putCompactBinaryDateValue(streamBuf, value.localDate(), options);
+}
+
+int BerUtil_DateImpUtil::putCompactBinaryDateTzValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::DateTz&      value,
+                                            const BerEncoderOptions *)
+{
+    const bdlt::Date& date   = value.localDate();
+    const int         offset = value.offset();
+
+    BSLS_ASSERT(0 != offset);
+
+    bsls::Types::Int64 daysSinceEpoch;
+    dateToDaysSinceEpoch(&daysSinceEpoch, date);
+
+    const int length = IntegerUtil::getNumOctetsToStream(daysSinceEpoch) +
+                       TimezoneUtil::k_TIMEZONE_LENGTH;
+
+    if (k_MIN_COMPACT_BINARY_DATETZ_LENGTH > length) {
+        if (0 != LengthUtil::putLength(streamBuf,
+                                       k_MIN_COMPACT_BINARY_DATETZ_LENGTH)) {
+            return -1;                                                // RETURN
+        }
+
+        if (0 != TimezoneUtil::putTimezoneOffsetInMinutes(streamBuf, offset)) {
+            return -1;                                                // RETURN
+        }
+
+        const char padChar =
+            daysSinceEpoch < 0 ? static_cast<char>(-1) : static_cast<char>(0);
+        const int numPadOctets = k_MIN_COMPACT_BINARY_DATETZ_LENGTH - length;
+        if (0 != StringUtil::putChars(streamBuf, padChar, numPadOctets)) {
+            return -1;                                                // RETURN
+        }
+
+        return IntegerUtil::putIntegerGivenLength(
+            streamBuf, daysSinceEpoch, length - TimezoneUtil::k_TIMEZONE_LENGTH);
+                                                                      // RETURN
+    }
+
+    if (0 != LengthUtil::putLength(streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (0 != TimezoneUtil::putTimezoneOffsetInMinutes(streamBuf, offset)) {
+        return -1;                                                    // RETURN
+    }
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, daysSinceEpoch, length - TimezoneUtil::k_TIMEZONE_LENGTH);
+}
+
+// CLASS METHODS
+
+// 'bdlt::Date' Decoding
+
+int BerUtil_DateImpUtil::getDateValue(bdlt::Date     *value,
+                                      bsl::streambuf *streamBuf,
+                                      int             length)
+{
+    char firstByte;
+    if (0 != StreambufUtil::peekChar(&firstByte, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    bool                reserved;
+    DateEncoding::Value encoding;
+    detectDateEncoding(&reserved, &encoding, length, firstByte);
+
+    if (reserved) {
+        return -1;                                                    // RETURN
+    }
+
+    switch (encoding) {
+      case DateEncoding::e_ISO8601_DATE: {
+        return getIso8601DateValue(value, streamBuf, length);         // RETURN
+      } break;
+      case DateEncoding::e_COMPACT_BINARY_DATE: {
+        return getCompactBinaryDateValue(value, streamBuf, length);   // RETURN
+      } break;
+    }
+
+    BSLS_ASSERT_OPT(!"Reachable");
+#if BSLA_UNREACHABLE_IS_ACTIVE
+    BSLA_UNREACHABLE;
+#else
+    return -1;                                                        // RETURN
+#endif
+}
+
+// 'bdlt::Date' Encoding
+
+int BerUtil_DateImpUtil::putDateValue(bsl::streambuf          *streamBuf,
+                                      const bdlt::Date&        value,
+                                      const BerEncoderOptions *options)
 {
     // Applications can create invalid 'bdlt::Date' objects in optimized build
     // modes.  As this function assumes that 'value' is valid, it is possible
@@ -1473,69 +1433,73 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
     // So to identify such errors early, we return an error if 'value' is not
     // valid.
 
-    if (0 != const_cast<bdlt::Date&>(value).addDaysIfValid(0)) {
+    bdlt::Date valueCopy(value);
+    if (0 != valueCopy.addDaysIfValid(0)) {
         return -1;                                                    // RETURN
     }
 
-    return options && options->encodeDateAndTimeTypesAsBinary()
-         ? putBinaryDateValue(streamBuf, value)
-        : putValueUsingIso8601(streamBuf, value, options);
+    switch (selectDateEncoding(value, options)) {
+      case DateEncoding::e_ISO8601_DATE: {
+        return putIso8601DateValue(streamBuf, value, options);
+      } break;
+      case DateEncoding::e_COMPACT_BINARY_DATE: {
+        return putCompactBinaryDateValue(streamBuf, value, options);
+      } break;
+    }
+
+    BSLS_ASSERT_OPT(!"Reachable");
+#if BSLA_UNREACHABLE_IS_ACTIVE
+    BSLA_UNREACHABLE;
+#else
+    return -1;                                                        // RETURN
+#endif
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                          const bdlt::Datetime&    value,
-                          const BerEncoderOptions *options)
+// 'bdlt::DateTz' Decoding
+
+int BerUtil_DateImpUtil::getDateTzValue(bdlt::DateTz   *value,
+                                        bsl::streambuf *streamBuf,
+                                        int             length)
 {
-    // Applications can create invalid 'bdlt::Datetime' objects in optimized
-    // build modes.  As this function assumes that 'value' is valid, it is
-    // possible to encode an invalid 'bdlt::Datetime' without returning an
-    // error.  Decoding the corresponding output can result in hard-to-trace
-    // decoding errors.  So to identify such errors early, we return an error
-    // if 'value' is not valid.
-
-    const bdlt::Time& time = value.time();
-    bdlt::Date        date = value.date();
-
-    if (0 != date.addDaysIfValid(0)
-     || !bdlt::Time::isValid(time.hour(),
-                            time.minute(),
-                            time.second(),
-                            time.millisecond())) {
+    char firstByte;
+    if (0 != StreambufUtil::peekChar(&firstByte, streamBuf)) {
         return -1;                                                    // RETURN
     }
 
-    return options && options->encodeDateAndTimeTypesAsBinary()
-         ? putBinaryDatetimeValue(streamBuf, value)
-         : putValueUsingIso8601(streamBuf, value, options);
-}
+    bool                  reserved;
+    DateTzEncoding::Value encoding;
+    detectDateTzEncoding(&reserved, &encoding, length, firstByte);
 
-int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                          const bdlt::DatetimeTz&  value,
-                          const BerEncoderOptions *options)
-{
-    // Applications can create invalid 'bdlt::DatetimeTz' objects in optimized
-    // build modes.  As this function assumes that 'value' is valid, it is
-    // possible to encode an invalid 'bdlt::DatetimeTz' without returning an
-    // error.  Decoding the corresponding output can result in hard-to-trace
-    // decoding errors.  So to identify such errors early, we return an error
-    // if 'value' is not valid.
-
-    const bdlt::DateTz& dateTz = value.dateTz();
-    const bdlt::TimeTz& timeTz = value.timeTz();
-    if (0 != dateTz.localDate().addDaysIfValid(0)
-     || !bdlt::DateTz::isValid(dateTz.localDate(), dateTz.offset())
-     || !bdlt::TimeTz::isValid(timeTz.utcTime(),   timeTz.offset())) {
+    if (reserved) {
         return -1;                                                    // RETURN
     }
 
-    return options && options->encodeDateAndTimeTypesAsBinary()
-         ? putBinaryDatetimeTzValue(streamBuf, value)
-         : putValueUsingIso8601(streamBuf, value, options);
+    switch (encoding) {
+      case DateTzEncoding::e_ISO8601_DATETZ: {
+        return getIso8601DateTzValue(value, streamBuf, length);       // RETURN
+      } break;
+      case DateTzEncoding::e_COMPACT_BINARY_DATE: {
+        return getCompactBinaryDateValue(value, streamBuf, length);   // RETURN
+      } break;
+      case DateTzEncoding::e_COMPACT_BINARY_DATETZ: {
+        return getCompactBinaryDateTzValue(value, streamBuf, length);
+                                                                      // RETURN
+      } break;
+    }
+
+    BSLS_ASSERT_OPT(!"Reachable");
+#if BSLA_UNREACHABLE_IS_ACTIVE
+    BSLA_UNREACHABLE;
+#else
+    return -1;                                                        // RETURN
+#endif
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                          const bdlt::DateTz&      value,
-                          const BerEncoderOptions *options)
+// 'bdlt::DateTz' Encoding
+
+int BerUtil_DateImpUtil::putDateTzValue(bsl::streambuf          *streamBuf,
+                                        const bdlt::DateTz&      value,
+                                        const BerEncoderOptions *options)
 {
     // Applications can create invalid 'bdlt::DateTz' objects in optimized
     // build modes.  As this function assumes that 'value' is valid, it is
@@ -1544,32 +1508,767 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
     // errors.  So to identify such errors early, we return an error if 'value'
     // is not valid.
 
-    if (0 != value.localDate().addDaysIfValid(0)
-     || !bdlt::DateTz::isValid(value.localDate(), value.offset())) {
+    if (0 != value.localDate().addDaysIfValid(0) ||
+        !bdlt::DateTz::isValid(value.localDate(), value.offset())) {
         return -1;                                                    // RETURN
     }
 
-    return options && options->encodeDateAndTimeTypesAsBinary()
-        ? putBinaryDateTzValue(streamBuf, value)
-        : putValueUsingIso8601(streamBuf, value, options);
+    switch (selectDateTzEncoding(value, options)) {
+      case DateTzEncoding::e_ISO8601_DATETZ: {
+        return putIso8601DateTzValue(streamBuf, value, options);      // RETURN
+      } break;
+      case DateTzEncoding::e_COMPACT_BINARY_DATE: {
+        return putCompactBinaryDateValue(streamBuf, value, options);
+                                                                      // RETURN
+      } break;
+      case DateTzEncoding::e_COMPACT_BINARY_DATETZ: {
+        return putCompactBinaryDateTzValue(streamBuf, value, options);
+                                                                      // RETURN
+      } break;
+    }
+
+    BSLS_ASSERT_OPT(!"Reachable");
+#if BSLA_UNREACHABLE_IS_ACTIVE
+    BSLA_UNREACHABLE;
+#else
+    return -1;                                                        // RETURN
+#endif
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                          const bdlt::Time&        value,
-                          const BerEncoderOptions *options)
+                         // --------------------------
+                         // struct BerUtil_TimeImpUtil
+                         // --------------------------
+
+// PRIVATE CLASS METHODS
+
+// 'bdlt::Time' Decoding
+
+int BerUtil_TimeImpUtil::getCompactBinaryTimeValue(bdlt::Time     *value,
+                                                   bsl::streambuf *streamBuf,
+                                                   int             length)
 {
-    return options && options->encodeDateAndTimeTypesAsBinary()
-        ? putBinaryTimeValue(streamBuf, value)
-        : putValueUsingIso8601(streamBuf, value, options);
+    int millisecondsSinceMidnight;
+    if (0 != IntegerUtil::getIntegerValue(
+                 &millisecondsSinceMidnight, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return millisecondsSinceMidnightToTime(value, millisecondsSinceMidnight);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                          const bdlt::TimeTz&      value,
-                          const BerEncoderOptions *options)
+int BerUtil_TimeImpUtil::getExtendedBinaryTimeValue(bdlt::Time     *value,
+                                                    bsl::streambuf *streamBuf,
+                                                    int             length)
 {
-    return options && options->encodeDateAndTimeTypesAsBinary()
-        ? putBinaryTimeTzValue(streamBuf, value)
-        : putValueUsingIso8601(streamBuf, value, options);
+    if (k_EXTENDED_BINARY_TIME_LENGTH != length) {
+        return -1;                                                    // RETURN
+    }
+
+    DateAndTimeHeader header;
+    if (0 != DateAndTimeHeaderUtil::getValue(&header, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (!header.isExtendedBinary()) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 microsecondsSinceMidnight;
+    if (0 != IntegerUtil::get40BitIntegerValue(&microsecondsSinceMidnight,
+                                               streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    return microsecondsSinceMidnightToTime(value, microsecondsSinceMidnight);
+}
+
+// 'bdlt::Time' Encoding
+
+int BerUtil_TimeImpUtil::putCompactBinaryTimeValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Time&        value,
+                                            const BerEncoderOptions *)
+{
+    int millisecondsSinceMidnight;
+    timeToMillisecondsSinceMidnight(&millisecondsSinceMidnight, value);
+
+    const int length =
+        IntegerUtil::getNumOctetsToStream(millisecondsSinceMidnight);
+
+    BSLS_ASSERT(length <= k_MAX_COMPACT_BINARY_TIME_LENGTH);
+
+    if (0 != LengthUtil::putLength(streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, millisecondsSinceMidnight, length);
+}
+
+int BerUtil_TimeImpUtil::putExtendedBinaryTimeValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Time&        value,
+                                            const BerEncoderOptions *)
+{
+    if (0 != LengthUtil::putLength(streamBuf, k_EXTENDED_BINARY_TIME_LENGTH)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (0 != DateAndTimeHeaderUtil::putExtendedBinaryWithoutTimezoneValue(
+                 streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 microsecondsSinceMidnight;
+    timeToMicrosecondsSinceMidnight(&microsecondsSinceMidnight, value);
+
+    return IntegerUtil::put40BitIntegerValue(streamBuf,
+                                             microsecondsSinceMidnight);
+}
+
+// 'bdlt::TimeTz' Decoding
+
+int BerUtil_TimeImpUtil::getCompactBinaryTimeValue(bdlt::TimeTz   *value,
+                                                   bsl::streambuf *streamBuf,
+                                                   int             length)
+{
+    bdlt::Time localTime;
+    if (0 != getCompactBinaryTimeValue(&localTime, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    enum {
+        k_TIMEZONE_OFFSET = 0,
+    };
+
+    return value->setTimeTzIfValid(localTime, k_TIMEZONE_OFFSET);
+}
+
+int BerUtil_TimeImpUtil::getCompactBinaryTimeTzValue(bdlt::TimeTz   *value,
+                                                     bsl::streambuf *streamBuf,
+                                                     int             length)
+{
+    int timezoneOffsetInMinutes = 0;
+    if (length >= k_MIN_COMPACT_BINARY_TIMETZ_LENGTH) {
+        typedef BerUtil_TimezoneOffsetImpUtil TimezoneUtil;
+
+        if (0 != TimezoneUtil::getTimezoneOffsetInMinutesIfValid(
+                     &timezoneOffsetInMinutes, streamBuf)) {
+            *value = bdlt::TimeTz();
+            return -1;                                                // RETURN
+        }
+
+        length -= TimezoneUtil::k_TIMEZONE_LENGTH;
+    }
+
+    bdlt::Time localTime;
+    if (0 != getCompactBinaryTimeValue(&localTime, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return value->setTimeTzIfValid(localTime, timezoneOffsetInMinutes);
+}
+
+int BerUtil_TimeImpUtil::getExtendedBinaryTimeTzValue(
+                                                     bdlt::TimeTz   *value,
+                                                     bsl::streambuf *streamBuf,
+                                                     int             length)
+{
+    if (k_EXTENDED_BINARY_TIMETZ_LENGTH != length) {
+        return -1;                                                    // RETURN
+    }
+
+    DateAndTimeHeader header;
+    if (0 != DateAndTimeHeaderUtil::getValue(&header, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (!header.isExtendedBinary()) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 microseconds;
+    if (0 != IntegerUtil::get40BitIntegerValue(&microseconds, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    bdlt::Time localTime;
+    if (0 != microsecondsSinceMidnightToTime(&localTime, microseconds)) {
+        return -1;                                                    // RETURN
+    }
+
+    return value->setTimeTzIfValid(localTime,
+                                   header.timezoneOffsetInMinutes());
+}
+
+// 'bdlt::TimeTz' Encoding
+
+int BerUtil_TimeImpUtil::putCompactBinaryTimeValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::TimeTz&      value,
+                                            const BerEncoderOptions *options)
+{
+    BSLS_ASSERT(0 == value.offset());
+
+    const bdlt::Time& time = value.localTime();
+
+    return putCompactBinaryTimeValue(streamBuf, time, options);
+}
+
+int BerUtil_TimeImpUtil::putCompactBinaryTimeTzValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::TimeTz&      value,
+                                            const BerEncoderOptions *options)
+{
+    const bdlt::Time& time   = value.localTime();
+    const int         offset = value.offset();
+
+    if (!offset) {
+        return putCompactBinaryTimeValue(streamBuf, time, options);   // RETURN
+    }
+
+    int serialTime;
+    timeToMillisecondsSinceMidnight(&serialTime, time);
+
+    const int length = IntegerUtil::getNumOctetsToStream(serialTime) +
+                       TimezoneUtil::k_TIMEZONE_LENGTH;
+
+    if (k_MIN_COMPACT_BINARY_TIMETZ_LENGTH > length) {
+        const int numPadOctets = k_MIN_COMPACT_BINARY_TIMETZ_LENGTH - length;
+
+        if (0 != LengthUtil::putLength(streamBuf,
+                                       k_MIN_COMPACT_BINARY_TIMETZ_LENGTH)) {
+            return -1;                                                // RETURN
+        }
+
+        if (0 != TimezoneUtil::putTimezoneOffsetInMinutes(streamBuf, offset)) {
+            return -1;                                                // RETURN
+        }
+
+        if (0 != StringUtil::putChars(streamBuf, 0, numPadOctets)) {
+            return -1;                                                // RETURN
+        }
+
+        return IntegerUtil::putIntegerGivenLength(
+            streamBuf, serialTime, length - TimezoneUtil::k_TIMEZONE_LENGTH);
+    }
+
+    if (0 != LengthUtil::putLength(streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (0 != TimezoneUtil::putTimezoneOffsetInMinutes(streamBuf, offset)) {
+        return -1;                                                    // RETURN
+    }
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, serialTime, length - TimezoneUtil::k_TIMEZONE_LENGTH);
+}
+
+int BerUtil_TimeImpUtil::putExtendedBinaryTimeTzValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::TimeTz&      value,
+                                            const BerEncoderOptions *)
+{
+    if (0 !=
+        LengthUtil::putLength(streamBuf, k_EXTENDED_BINARY_TIMETZ_LENGTH)) {
+        return -1;                                                    // RETURN
+    }
+
+    const bdlt::Time localTime = value.localTime();
+    const int        offset    = value.offset();
+
+    if (0 != DateAndTimeHeaderUtil::putExtendedBinaryWithTimezoneValue(
+                 streamBuf, offset)) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 microsecondsSinceMidnight;
+    timeToMicrosecondsSinceMidnight(&microsecondsSinceMidnight, localTime);
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, microsecondsSinceMidnight, 5);
+}
+
+                       // ------------------------------
+                       // struct BerUtil_DatetimeImpUtil
+                       // ------------------------------
+
+// PRIVATE CLASS METHODS
+
+// Utilities
+
+void BerUtil_DatetimeImpUtil::datetimeToMillisecondsSinceEpoch(
+                              bsls::Types::Int64    *millisecondsSinceEpoch,
+                              const bdlt::Datetime&  value)
+{
+    bsls::Types::Int64 daysSinceEpoch;
+    DateUtil::dateToDaysSinceEpoch(&daysSinceEpoch, value.date());
+
+    int millisecondsSinceMidnight;
+    TimeUtil::timeToMillisecondsSinceMidnight(&millisecondsSinceMidnight,
+                                              value.time());
+
+    typedef bdlt::TimeUnitRatio Ratio;
+    *millisecondsSinceEpoch =
+        daysSinceEpoch * Ratio::k_MILLISECONDS_PER_DAY +
+        millisecondsSinceMidnight;
+}
+
+int BerUtil_DatetimeImpUtil::millisecondsSinceEpochToDatetime(
+                                    bdlt::Datetime     *value,
+                                    bsls::Types::Int64  millisecondsSinceEpoch)
+{
+    typedef bdlt::TimeUnitRatio Ratio;
+
+    bsls::Types::Int64 daysSinceEpoch =
+        millisecondsSinceEpoch / Ratio::k_MILLISECONDS_PER_DAY;
+
+    if (millisecondsSinceEpoch < 0) {
+        --daysSinceEpoch;
+        if (DateUtil::k_COMPACT_BINARY_DATE_EPOCH == -daysSinceEpoch) {
+            ++daysSinceEpoch;
+        }
+    }
+
+    const int millisecondsSinceMidnight =
+        static_cast<int>(millisecondsSinceEpoch -
+                         daysSinceEpoch * Ratio::k_MILLISECONDS_PER_DAY);
+
+    int hour = millisecondsSinceMidnight / Ratio::k_MILLISECONDS_PER_HOUR;
+
+    const int minute = (millisecondsSinceMidnight -
+                        hour * Ratio::k_MILLISECONDS_PER_HOUR_32) /
+                       Ratio::k_MILLISECONDS_PER_MINUTE_32;
+
+    const int second =
+        (millisecondsSinceMidnight - hour * Ratio::k_MILLISECONDS_PER_HOUR_32 -
+         minute * Ratio::k_MILLISECONDS_PER_MINUTE_32) /
+        Ratio::k_MILLISECONDS_PER_SECOND_32;
+
+    const int millisec = millisecondsSinceMidnight -
+                         hour * Ratio::k_MILLISECONDS_PER_HOUR_32 -
+                         minute * Ratio::k_MILLISECONDS_PER_MINUTE_32 -
+                         second * Ratio::k_MILLISECONDS_PER_SECOND_32;
+
+    if (24 == hour) {
+        hour = 0;
+        ++daysSinceEpoch;
+    }
+
+    const int daysSince0001Jan01 = static_cast<int>(
+        daysSinceEpoch + DateUtil::k_COMPACT_BINARY_DATE_EPOCH);
+
+    if (!bdlt::ProlepticDateImpUtil::isValidSerial(daysSince0001Jan01)) {
+        return -1;                                                    // RETURN
+    }
+
+    int year, month, day;
+    bdlt::ProlepticDateImpUtil::serialToYmd(
+        &year, &month, &day, daysSince0001Jan01);
+
+    return value->setDatetimeIfValid(
+        year, month, day, hour, minute, second, millisec);
+}
+
+// 'bdlt::Datetime' Decoding
+
+int BerUtil_DatetimeImpUtil::getIso8601DatetimeValue(bdlt::Datetime *value,
+                                                     bsl::streambuf *streamBuf,
+                                                     int             length)
+{
+    return Iso8601Util::getDatetimeValue(value, streamBuf, length);
+}
+
+int BerUtil_DatetimeImpUtil::getCompactBinaryDatetimeValue(
+                                                     bdlt::Datetime *value,
+                                                     bsl::streambuf *streamBuf,
+                                                     int             length)
+{
+    bsls::Types::Int64 millisecondsSinceEpoch;
+    if (0 != IntegerUtil::getIntegerValue(
+                 &millisecondsSinceEpoch, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return millisecondsSinceEpochToDatetime(value, millisecondsSinceEpoch);
+}
+
+int BerUtil_DatetimeImpUtil::getCompactBinaryDatetimeTzValue(
+                                                     bdlt::Datetime *value,
+                                                     bsl::streambuf *streamBuf,
+                                                     int             length)
+{
+    BSLS_ASSERT(length >= k_MIN_COMPACT_BINARY_DATETIMETZ_LENGTH);
+
+    int offset;
+    if (0 != TimezoneUtil::getTimezoneOffsetInMinutes(&offset, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 millisecondsSinceEpoch;
+    if (0 != IntegerUtil::getIntegerValue(
+                 &millisecondsSinceEpoch,
+                 streamBuf,
+                 length - TimezoneUtil::k_TIMEZONE_LENGTH)) {
+        return -1;                                                    // RETURN
+    }
+
+    return millisecondsSinceEpochToDatetime(value, millisecondsSinceEpoch);
+}
+
+int BerUtil_DatetimeImpUtil::getExtendedBinaryDatetimeValue(
+                                                     bdlt::Datetime *value,
+                                                     bsl::streambuf *streamBuf,
+                                                     int             length)
+{
+    if (k_EXTENDED_BINARY_DATETIME_LENGTH != length) {
+        return -1;                                                    // RETURN
+    }
+
+    DateAndTimeHeader header;
+    if (0 != DateAndTimeHeaderUtil::getValue(&header, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (!header.isExtendedBinary()) {
+        return -1;                                                    // RETURN
+    }
+
+    int daysSince0001Jan01;
+    if (0 != IntegerUtil::getIntegerValue(&daysSince0001Jan01, streamBuf, 3)) {
+        return -1;                                                    // RETURN
+    }
+
+    ++daysSince0001Jan01;
+
+    if (!bdlt::ProlepticDateImpUtil::isValidSerial(daysSince0001Jan01)) {
+        return -1;                                                    // RETURN
+    }
+
+    int year;
+    int month;
+    int day;
+
+    bdlt::ProlepticDateImpUtil::serialToYmd(
+        &year, &month, &day, daysSince0001Jan01);
+
+    const bdlt::Date date(year, month, day);
+
+    bsls::Types::Int64 microsecondsSinceMidnight;
+    if (0 != IntegerUtil::get40BitIntegerValue(&microsecondsSinceMidnight,
+                                               streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    bdlt::Time time;
+    if (0 != TimeUtil::microsecondsSinceMidnightToTime(
+                 &time, microsecondsSinceMidnight)) {
+        return -1;                                                    // RETURN
+    }
+
+    value->setDatetime(date, time);
+    return 0;
+}
+
+// 'bdlt::Datetime' Encoding
+
+int BerUtil_DatetimeImpUtil::putIso8601DatetimeValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Datetime&    value,
+                                            const BerEncoderOptions *options)
+{
+    return Iso8601Util::putDatetimeValue(streamBuf, value, options);
+}
+
+int BerUtil_DatetimeImpUtil::putCompactBinaryDatetimeValue(
+                                       bsl::streambuf          *streamBuf,
+                                       bsls::Types::Int64       serialDatetime,
+                                       int                      length,
+                                       const BerEncoderOptions *)
+{
+    if (0 != LengthUtil::putLength(streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, serialDatetime, length);
+}
+
+int BerUtil_DatetimeImpUtil::putCompactBinaryDatetimeValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Datetime&    value,
+                                            const BerEncoderOptions *options)
+{
+    bsls::Types::Int64 millisecondsSinceEpoch;
+    datetimeToMillisecondsSinceEpoch(&millisecondsSinceEpoch, value);
+
+    const int length =
+        IntegerUtil::getNumOctetsToStream(millisecondsSinceEpoch);
+
+    return putCompactBinaryDatetimeValue(
+        streamBuf, millisecondsSinceEpoch, length, options);
+}
+
+int BerUtil_DatetimeImpUtil::putCompactBinaryDatetimeTzValue(
+                               bsl::streambuf          *streamBuf,
+                               bsls::Types::Int64       millisecondsSinceEpoch,
+                               int                      length,
+                               const BerEncoderOptions *)
+{
+    enum { k_TIMEZONE_OFFSET = 0 };
+
+    BSLS_ASSERT(k_MIN_COMPACT_BINARY_DATETIMETZ_LENGTH <= length);
+
+    if (0 != LengthUtil::putLength(streamBuf,
+                                   length + TimezoneUtil::k_TIMEZONE_LENGTH)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (0 != TimezoneUtil::putTimezoneOffsetInMinutes(streamBuf,
+                                                      k_TIMEZONE_OFFSET)) {
+        return -1;                                                    // RETURN
+    }
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, millisecondsSinceEpoch, length);
+}
+
+int BerUtil_DatetimeImpUtil::putExtendedBinaryDatetimeValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::Datetime&    value,
+                                            const BerEncoderOptions *)
+{
+    if (0 !=
+        LengthUtil::putLength(streamBuf, k_EXTENDED_BINARY_DATETIME_LENGTH)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (0 != DateAndTimeHeaderUtil::putExtendedBinaryWithoutTimezoneValue(
+                 streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    const bdlt::Date date       = value.date();
+    const int        serialDate = bdlt::ProlepticDateImpUtil::ymdToSerial(
+                                      date.year(), date.month(), date.day()) -
+                           1;
+
+    if (0 != IntegerUtil::putIntegerGivenLength(streamBuf, serialDate, 3)) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 microsecondsSinceMidnight;
+    TimeUtil::timeToMicrosecondsSinceMidnight(&microsecondsSinceMidnight,
+                                              value.time());
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, microsecondsSinceMidnight, 5);
+}
+
+// 'bdlt::DatetimeTz' Decoding
+
+int BerUtil_DatetimeImpUtil::getIso8601DatetimeTzValue(
+                                                   bdlt::DatetimeTz *value,
+                                                   bsl::streambuf   *streamBuf,
+                                                   int               length)
+{
+    return Iso8601Util::getDatetimeTzValue(value, streamBuf, length);
+}
+
+int BerUtil_DatetimeImpUtil::getCompactBinaryDatetimeValue(
+                                                   bdlt::DatetimeTz *value,
+                                                   bsl::streambuf   *streamBuf,
+                                                   int               length)
+{
+    BSLS_ASSERT(length < k_MIN_COMPACT_BINARY_DATETIMETZ_LENGTH);
+
+    enum { k_TIMEZONE_OFFSET = 0 };
+
+    bdlt::Datetime localDatetime;
+    if (0 !=
+        getCompactBinaryDatetimeValue(&localDatetime, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return value->setDatetimeTzIfValid(localDatetime, k_TIMEZONE_OFFSET);
+}
+
+int BerUtil_DatetimeImpUtil::getCompactBinaryDatetimeTzValue(
+                                                   bdlt::DatetimeTz *value,
+                                                   bsl::streambuf   *streamBuf,
+                                                   int               length)
+{
+    BSLS_ASSERT(length >= k_MIN_COMPACT_BINARY_DATETIMETZ_LENGTH);
+
+    int timezoneOffsetInMinutes = 0;
+    if (0 != TimezoneUtil::getTimezoneOffsetInMinutesIfValid(
+                 &timezoneOffsetInMinutes, streamBuf)) {
+        *value = bdlt::DatetimeTz();
+        return -1;                                                    // RETURN
+    }
+
+    length -= TimezoneUtil::k_TIMEZONE_LENGTH;
+
+    bdlt::Datetime localDatetime;
+    if (0 !=
+        getCompactBinaryDatetimeValue(&localDatetime, streamBuf, length)) {
+        return -1;                                                    // RETURN
+    }
+
+    return value->setDatetimeTzIfValid(localDatetime, timezoneOffsetInMinutes);
+}
+
+int BerUtil_DatetimeImpUtil::getExtendedBinaryDatetimeTzValue(
+                                                   bdlt::DatetimeTz *value,
+                                                   bsl::streambuf   *streamBuf,
+                                                   int               length)
+{
+    if (k_EXTENDED_BINARY_DATETIMETZ_LENGTH != length) {
+        return -1;                                                    // RETURN
+    }
+
+    DateAndTimeHeader header;
+    if (0 != DateAndTimeHeaderUtil::getValue(&header, streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (!header.isExtendedBinary()) {
+        return -1;                                                    // RETURN
+    }
+
+    int daysSince0001Jan01;
+    if (0 != IntegerUtil::getIntegerValue(&daysSince0001Jan01, streamBuf, 3)) {
+        return -1;                                                    // RETURN
+    }
+
+    ++daysSince0001Jan01;
+
+    if (!bdlt::ProlepticDateImpUtil::isValidSerial(daysSince0001Jan01)) {
+        return -1;                                                    // RETURN
+    }
+
+    int year;
+    int month;
+    int day;
+    bdlt::ProlepticDateImpUtil::serialToYmd(
+        &year, &month, &day, daysSince0001Jan01);
+
+    const bdlt::Date date(year, month, day);
+
+    bsls::Types::Int64 microsecondsSinceMidnight;
+    if (0 != IntegerUtil::get40BitIntegerValue(&microsecondsSinceMidnight,
+                                               streamBuf)) {
+        return -1;                                                    // RETURN
+    }
+
+    bdlt::Time time;
+    if (0 != TimeUtil::microsecondsSinceMidnightToTime(
+                 &time, microsecondsSinceMidnight)) {
+        return -1;                                                    // RETURN
+    }
+
+    const bdlt::Datetime datetime(date, time);
+
+    return value->setDatetimeTzIfValid(datetime,
+                                       header.timezoneOffsetInMinutes());
+}
+
+// 'bdlt::DatetimeTz' Encoding
+
+int BerUtil_DatetimeImpUtil::putIso8601DatetimeTzValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::DatetimeTz&  value,
+                                            const BerEncoderOptions *options)
+{
+    return Iso8601Util::putDatetimeTzValue(streamBuf, value, options);
+}
+
+int BerUtil_DatetimeImpUtil::putCompactBinaryDatetimeTzValue(
+                              bsl::streambuf          *streamBuf,
+                              int                      timezoneOffsetInMinutes,
+                              bsls::Types::Int64       serialDatetime,
+                              int                      serialDatetimeLength,
+                              const BerEncoderOptions *)
+{
+    if (!TimezoneUtil::isValidTimezoneOffsetInMinutes(
+            timezoneOffsetInMinutes)) {
+        return -1;                                                    // RETURN
+    }
+
+    const int totalLength =
+        TimezoneUtil::k_TIMEZONE_LENGTH + serialDatetimeLength;
+
+    if (totalLength < k_MIN_COMPACT_BINARY_DATETIMETZ_LENGTH) {
+        const char padChar =
+            serialDatetime < 0 ? static_cast<char>(-1) : static_cast<char>(0);
+        const int numPadOctets =
+            k_MIN_COMPACT_BINARY_DATETIMETZ_LENGTH - totalLength;
+
+        if (0 != LengthUtil::putLength(
+                     streamBuf, k_MIN_COMPACT_BINARY_DATETIMETZ_LENGTH)) {
+            return -1;                                                // RETURN
+        }
+
+        if (0 != TimezoneUtil::putTimezoneOffsetInMinutes(
+                     streamBuf, timezoneOffsetInMinutes)) {
+            return -1;                                                // RETURN
+        }
+
+        if (0 != StringUtil::putChars(streamBuf, padChar, numPadOctets)) {
+            return -1;                                                // RETURN
+        }
+    }
+    else {
+        if (0 != LengthUtil::putLength(streamBuf, totalLength)) {
+            return -1;                                                // RETURN
+        }
+
+        if (0 != TimezoneUtil::putTimezoneOffsetInMinutes(
+                     streamBuf, timezoneOffsetInMinutes)) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, serialDatetime, serialDatetimeLength);
+}
+
+int BerUtil_DatetimeImpUtil::putExtendedBinaryDatetimeTzValue(
+                                            bsl::streambuf          *streamBuf,
+                                            const bdlt::DatetimeTz&  value,
+                                            const BerEncoderOptions *)
+{
+    if (0 != LengthUtil::putLength(streamBuf,
+                                   k_EXTENDED_BINARY_DATETIMETZ_LENGTH)) {
+        return -1;                                                    // RETURN
+    }
+
+    const bdlt::Datetime localDatetime = value.localDatetime();
+    const bdlt::Date     localDate     = localDatetime.date();
+    const bdlt::Time     localTime     = localDatetime.time();
+    const int            offset        = value.offset();
+
+    if (0 != DateAndTimeHeaderUtil::putExtendedBinaryWithTimezoneValue(
+                 streamBuf, offset)) {
+        return -1;                                                    // RETURN
+    }
+
+    const int serialDate =
+        bdlt::ProlepticDateImpUtil::ymdToSerial(
+            localDate.year(), localDate.month(), localDate.day()) -
+        1;
+
+    if (0 != IntegerUtil::putIntegerGivenLength(streamBuf, serialDate, 3)) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 microsecondsSinceMidnight;
+    TimeUtil::timeToMicrosecondsSinceMidnight(&microsecondsSinceMidnight,
+                                              localTime);
+
+    return IntegerUtil::putIntegerGivenLength(
+        streamBuf, microsecondsSinceMidnight, 5);
 }
 
 }  // close package namespace

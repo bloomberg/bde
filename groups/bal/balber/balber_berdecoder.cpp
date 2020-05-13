@@ -260,7 +260,7 @@ int BerDecoder_Node::readTagHeader()
 
 int BerDecoder_Node::readTagTrailer()
 {
-    if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
+    if (BerUtil::k_INDEFINITE_LENGTH == d_expectedLength) {
         if (0 != BerUtil::getEndOfContentOctets(d_decoder->d_streamBuf,
                                                 &d_consumedTailBytes)) {
             return logError("Error reading end-of-contents octets");  // RETURN
@@ -286,7 +286,7 @@ int BerDecoder_Node::skipField()
                                                                       // RETURN
     }
 
-    if (BerUtil::e_INDEFINITE_LENGTH != d_expectedLength) {
+    if (BerUtil::k_INDEFINITE_LENGTH != d_expectedLength) {
         // We would do this, but not every streambuf is seekable:
         //..
         //  d_decoder->d_streamBuf->pubseekoff(d_expectedLength,

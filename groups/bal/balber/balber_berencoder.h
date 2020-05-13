@@ -94,7 +94,7 @@ BSLS_IDENT("$Id: $")
 //
 //  rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
 //  assert(0                                    == rc);
-//  assert(balber::BerUtil::e_INDEFINITE_LENGTH == length);
+//  assert(balber::BerUtil::k_INDEFINITE_LENGTH == length);
 //..
 // The 'UNIVERSAL' value in 'tagClass' indicates that the 'tagNumber' value
 // represents a type in the BER standard, a 'BER_SEQUENCE', as we requested of

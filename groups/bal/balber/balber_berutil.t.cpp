@@ -1,4 +1,3 @@
-
 // balber_berutil.t.cpp                                               -*-C++-*-
 
 // ----------------------------------------------------------------------------
@@ -136,6 +135,9 @@ using namespace bsl;
 // [19] CONCERN: 'putValue' & 'getVaule' for date/time types brute force
 // [20] CONCERN: 'putValue' for date/time types
 // [21] CONCERN: 'getValue' for date/time and timezone variant types
+// [27] CONCERN: 'getValue' reports all failures to read from stream buffer
+// [28] CONCERN: 'put'- & 'getValue' for date/time types in extended binary fmt
+// [29] CONCERN: 'putValue' encoding formation selection
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -158,8 +160,13 @@ static void aSsErT(int c, const char *s, int i) {
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
 #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
+#define ASSERT_EQ(X,Y) ASSERTV(X,Y,X == Y)
+#define ASSERT_NE(X,Y) ASSERTV(X,Y,X != Y)
+
 #define LOOP1_ASSERT_EQ(L,X,Y) ASSERTV(L,X,Y,X == Y)
 #define LOOP1_ASSERT_NE(L,X,Y) ASSERTV(L,X,Y,X != Y)
+#define LOOP2_ASSERT_EQ(L,M,X,Y) ASSERTV(L,M,X,Y,X == Y)
+#define LOOP2_ASSERT_NE(L,M,X,Y) ASSERTV(L,M,X,Y,X != Y)
 
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
@@ -175,6 +182,78 @@ static void aSsErT(int c, const char *s, int i) {
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//              NON-STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define PRINT(STREAM, X)                                                      \
+    do {                                                                      \
+        (STREAM) << X;                                                        \
+    } while (false)
+
+#define PRINT_TAB(STREAM) PRINT(STREAM, "\t")
+#define PRINT_NEWLINE(STREAM) PRINT(STREAM, "\n")
+
+#define PRINT_VARIABLE(STREAM, X)                                             \
+    do {                                                                      \
+        (STREAM) << #X << ": " << (X);                                        \
+    } while (false)
+
+#define PRINT_UNLESS(STREAM, X)                                               \
+    do {                                                                      \
+        if (!(X)) {                                                           \
+            PRINT_VARIABLE(STREAM, X);                                        \
+            PRINT_NEWLINE(STREAM);                                            \
+        }                                                                     \
+    } while (false)
+
+#define PRINT_UNLESS1(STREAM, I, X)                                           \
+    do {                                                                      \
+        if (!(X)) {                                                           \
+            PRINT_VARIABLE(STREAM, I);                                        \
+            PRINT_TAB(STREAM);                                                \
+            PRINT_VARIABLE(STREAM, X);                                        \
+            PRINT_NEWLINE(STREAM);                                            \
+        }                                                                     \
+    } while (false)
+
+#define PRINT_UNLESS2(STREAM, I, J, X)                                        \
+    do {                                                                      \
+        if (!(X)) {                                                           \
+            PRINT_VARIABLE(STREAM, I);                                        \
+            PRINT_TAB(STREAM);                                                \
+            PRINT_VARIABLE(STREAM, J);                                        \
+            PRINT_TAB(STREAM);                                                \
+            PRINT_VARIABLE(STREAM, X);                                        \
+            PRINT_NEWLINE(STREAM);                                            \
+        }                                                                     \
+    } while (false)
+
+#define PRINT_UNLESS3(STREAM, I, J, K, X)                                     \
+    do {                                                                      \
+        if (!(X)) {                                                           \
+            PRINT_VARIABLE(STREAM, I);                                        \
+            PRINT_TAB(STREAM);                                                \
+            PRINT_VARIABLE(STREAM, J);                                        \
+            PRINT_TAB(STREAM);                                                \
+            PRINT_VARIABLE(STREAM, K);                                        \
+            PRINT_TAB(STREAM);                                                \
+            PRINT_VARIABLE(STREAM, X);                                        \
+            PRINT_NEWLINE(STREAM);                                            \
+        }                                                                     \
+    } while (false)
+
+#define PRINT_UNLESS_EQ(STREAM, X, Y) PRINT_UNLESS2(STREAM, X, Y, X == Y)
+#define PRINT_UNLESS_NE(STREAM, X, Y) PRINT_UNLESS2(STREAM, X, Y, X != Y)
+
+#define PRINT_LINE_UNLESS(STREAM, X) PRINT_UNLESS1(STREAM, __LINE__, X)
+
+#define PRINT_LINE_UNLESS_EQ(STREAM, X, Y)                                    \
+    PRINT_UNLESS3(STREAM, __LINE__, X, Y, X == Y)
+
+#define PRINT_LINE_UNLESS_NE(STREAM, X, Y)                                    \
+    PRINT_UNLESS3(STREAM, __LINE__, X, Y, X != Y)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -242,22 +321,29 @@ int compareBuffers(const char *stream, const char *buffer)
     return 0;
 }
 
-void printBuffer(const char *buffer, bsl::size_t length)
-    // Print the specified 'buffer' of the specified 'length' in hex form
+void printBuffer(bsl::ostream& stream, const char *buffer, bsl::size_t length)
+    // Print the specified 'buffer' of the specified 'length' in hex form to
+    // the specified 'stream'.
 {
-    cout << hex;
+    stream << hex;
     int numOutput = 0;
     for (bsl::size_t i = 0; i < length; ++i) {
         if ((unsigned char) buffer[i] < 16) {
-            cout << '0';
+            stream << '0';
         }
-        cout << (int) (unsigned char) buffer[i];
+        stream << (int) (unsigned char) buffer[i];
         numOutput += 2;
         if (0 == numOutput % 8) {
-            cout << " ";
+            stream << " ";
         }
     }
-    cout << dec << endl;
+    stream << dec << endl;
+}
+
+void printBuffer(const char *buffer, bsl::size_t length)
+    // Print the specified 'buffer' of the specified 'length' in hex form
+{
+    printBuffer(cout, buffer, length);
 }
 
 #define DOUBLE_MANTISSA_MASK   0xfffffffffffffLL
@@ -294,6 +380,97 @@ static bool veryVerbose     = false;
 static bool veryVeryVerbose = false;
 
 namespace u {
+
+                               // ===============
+                               // struct TestUtil
+                               // ===============
+
+struct TestUtil {
+    // This utility 'struct' provides a namespace for a suite of functions used
+    // by various tests in this test driver.
+
+    // CLASS METHODS
+    template <class TYPE>
+    static bool bytesDecodeToValue(bsl::ostream&  log,
+                                   const char    *buffer,
+                                   bsl::size_t    bufferLength,
+                                   const TYPE&    value,
+                                   int            numBytesConsumed);
+        // Return 'true' if 'balber::BerUtil::getValue' decodes the contents of
+        // the specified 'buffer' having the specified 'bufferLength' to the
+        // specified 'value' and consumes the specified 'numBytesConsumed' in
+        // the process, and return 'false' otherwise.  If 'buffer' does not
+        // successfully decode to 'value', then log an unspecified,
+        // human-readable description of the error condition to the specified
+        // 'log'.
+
+    template <class TYPE>
+    static bool valueEncodesToBytes(
+                       bsl::ostream&                     log,
+                       bsl::streambuf                   *bytes,
+                       const TYPE&                       value,
+                       const balber::BerEncoderOptions&  options,
+                       const char                       *hexadecimalExpression,
+                       bsl::size_t                       numBytesConsumed);
+        // Return 'true' if 'balber::BerUtil::putValue' encodes the specified
+        // 'value' to the bytes specified by the 'hexadecimalExpression' using
+        // the specified 'options' and consumes the specified
+        // 'numBytesConsumed' from the bytes specified by
+        // 'hexadecimalExpression' when doing so, and return 'false' otherwise.
+        // Load into the specified 'bytes' the encoded contents of 'value'.  If
+        // 'value' does not encode to the bytes specified by
+        // 'hexadecimalExpression', load an unspecified, human-readable
+        // description of the error condition to the specified 'log'.
+};
+
+
+                             // ==================
+                             // class Case27Tester
+                             // ==================
+
+class Case27Tester {
+    // This function-object class implements an operation that tests that
+    // 'getValue' returns a non-zero value when the supplied stream buffer
+    // reaches the end of its source before a value has finished being read.
+
+  public:
+    // ACCESSORS
+    template <class SIMPLE_TYPE>
+    void operator()(int LINE, const SIMPLE_TYPE& VALUE) const;
+        // Increment the 'testStatus' and log an unspecified human-readable
+        // error message mentioning the specified 'LINE' to 'bsl::cout' unless
+        // the conditions that are concerns in test case 27 are verified.  See
+        // the documentation for test case 27 for more details.
+};
+
+                            // =====================
+                            // struct ByteBufferUtil
+                            // =====================
+
+struct ByteBufferUtil {
+    // This utility 'struct' provides a namespace for a suite of function that
+    // operate arrays of 'char' values.
+
+    // CLASS METHODS
+    static int loadBuffer(int        *numBytesWritten,
+                          char       *buffer,
+                          int         bufferSize,
+                          const char *expression,
+                          int         expressionSize);
+        // Load to the specified 'buffer' the bytes corresponding to the
+        // sequence of big-endian hexadecimal digits defined by the specified
+        // 'expression' having the specified 'expressionSize' length.  Load to
+        // the specified 'numBytesWritten' the number of bytes loaded to the
+        // 'buffer'.  Return 0 on success, and a non-zero value otherwise.
+        // Return a non-zero value if the 'expression' defines a sequence of
+        // hexadecimal digits that is longer than 'buffer'.  The behavior is
+        // undefined unless 'expressionSize' matches the regular expression '('
+        // '|[A-F]|[0-9])*', where whitespace has no semantic meaning, 'A-F'
+        // indicate numerical values 10-15 respectively, and '0-9' indicate
+        // numeric values 0-9 respectively.  Each digit loaded to 'buffer' is
+        // defined by a pair of digits in 'expression'.  The behavior is
+        // undefined if 'expression' contains an odd number of digits.
+};
 
                           // =========================
                           // class RandomInputIterator
@@ -1642,16 +1819,251 @@ struct TestDataUtil {
     // this test driver.
 
     // CLASS DATA
-    static const char s_RANDOM_LOREM_IPSUM[];
-        // 5 paragraphs of randomly-generated "lorem ipsum" placeholder text.
+    enum {
+        k_EXTENDED_BINARY_MIN_BDE_VERSION = 35500
+    };
 
     static const unsigned char s_RANDOM_GARBAGE_1K[1024];
         // 1024 bytes sampled from '/dev/urandom'.
+
+    static const char s_RANDOM_LOREM_IPSUM[];
+        // 5 paragraphs of randomly-generated "lorem ipsum" placeholder text.
 };
 
 // ===========================================================================
 //                INLINE DEFINITIONS FOR ENTITIES FOR TESTING
 // ===========================================================================
+
+                               // ---------------
+                               // struct TestUtil
+                               // ---------------
+
+// CLASS METHODS
+template <class TYPE>
+bool TestUtil::bytesDecodeToValue(bsl::ostream&  log,
+                                  const char    *buffer,
+                                  bsl::size_t    bufferLength,
+                                  const TYPE&    value,
+                                  int            numBytesConsumed)
+{
+    bdlsb::FixedMemInStreamBuf valueInStreamBuf(buffer, bufferLength);
+
+    TYPE valueOut;
+    int  actualBytesConsumed = 0;
+
+    int rc =
+        Util::getValue(&valueInStreamBuf, &valueOut, &actualBytesConsumed);
+    PRINT_LINE_UNLESS_EQ(log, 0, rc);
+    if (0 != rc) {
+        return false;                                                 // RETURN
+    }
+
+    PRINT_LINE_UNLESS_EQ(log, actualBytesConsumed, numBytesConsumed);
+    if (actualBytesConsumed != numBytesConsumed) {
+        return false;                                                 // RETURN
+    }
+
+    PRINT_LINE_UNLESS_EQ(log, value, valueOut);
+    if (value != valueOut) {
+        return false;                                                 // RETURN
+    }
+
+    return true;
+}
+
+template <class TYPE>
+bool TestUtil::valueEncodesToBytes(
+                       bsl::ostream&                     log,
+                       bsl::streambuf                   *bytes,
+                       const TYPE&                       value,
+                       const balber::BerEncoderOptions&  options,
+                       const char                       *hexadecimalExpression,
+                       bsl::size_t                       numBytesConsumed)
+{
+    bdlsb::MemOutStreamBuf valueOutStreamBuf;
+
+    int rc = Util::putValue(&valueOutStreamBuf, value, &options);
+    PRINT_LINE_UNLESS_EQ(log, 0, rc);
+    if (0 != rc) {
+        return false;                                                 // RETURN
+    }
+
+    rc = compareBuffers(valueOutStreamBuf.data(), hexadecimalExpression);
+    PRINT_LINE_UNLESS_EQ(log, 0, rc);
+    if (0 != rc) {
+        if (veryVerbose) {
+            log << "ACTUAL: ";
+            printBuffer(
+                log, valueOutStreamBuf.data(), valueOutStreamBuf.length());
+        }
+
+        return false;                                                 // RETURN
+    }
+
+    PRINT_LINE_UNLESS_EQ(log, numBytesConsumed, valueOutStreamBuf.length());
+    if (numBytesConsumed != valueOutStreamBuf.length()) {
+        return false;                                                 // RETURN
+    }
+
+    bsl::copy(valueOutStreamBuf.data(),
+              valueOutStreamBuf.data() + valueOutStreamBuf.length(),
+              bsl::ostreambuf_iterator<char>(bytes));
+
+    return true;
+}
+
+                             // ------------------
+                             // class Case27Tester
+                             // ------------------
+
+// ACCESSORS
+template <class SIMPLE_TYPE>
+void Case27Tester::operator()(int LINE1, const SIMPLE_TYPE& VALUE) const
+{
+    static const struct {
+        int  d_line;
+        int  d_precision;   // datetime fractional second precision
+        int  d_conformance; // bde version conformance
+        bool d_binaryFlag;  // encode date and time types as binary
+    } DATA[] = {
+        { L_, 3,     0, false },
+        { L_, 3,     0, true  },
+        { L_, 3, 34400, false },
+        { L_, 3, 34400, true  },
+        { L_, 6,     0, false },
+        { L_, 6,     0, true  },
+        { L_, 6, 34400, false },
+        { L_, 6, 34400, true  }
+    };
+
+    static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+    for (int i = 0; i != NUM_DATA; ++i) {
+        const int LINE2 = DATA[i].d_line;
+        const int PRECISION = DATA[i].d_precision;
+        const int CONFORMANCE = DATA[i].d_conformance;
+        const bool BINARY_FLAG = DATA[i].d_binaryFlag;
+
+        bdlsb::MemOutStreamBuf outStreamBuf;
+
+        balber::BerEncoderOptions options;
+        options.bdeVersionConformance() = CONFORMANCE;
+        options.setDatetimeFractionalSecondPrecision(PRECISION);
+        options.setEncodeDateAndTimeTypesAsBinary(BINARY_FLAG);
+
+        int rc = Util::putValue(&outStreamBuf, VALUE, &options);
+        LOOP2_ASSERT_EQ(LINE1, LINE2, 0, rc);
+        if (0 != rc) continue;
+
+        bsl::size_t inStreamBufLength = 0;
+
+        do {
+            LOOP2_ASSERT(
+                LINE1, LINE2, inStreamBufLength <= outStreamBuf.length());
+            bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                                   inStreamBufLength);
+
+            SIMPLE_TYPE inValue;
+            int         accumNumBytesConsumed = 0;
+
+            rc =
+                Util::getValue(&inStreamBuf, &inValue, &accumNumBytesConsumed);
+
+            if (0 == rc) {
+                LOOP2_ASSERT_EQ(LINE1, LINE2, VALUE, inValue);
+                if (VALUE != inValue) continue;
+
+                LOOP2_ASSERT_EQ(LINE1,
+                                LINE2,
+                                static_cast<bsl::size_t>(accumNumBytesConsumed),
+                                inStreamBufLength);
+                if (static_cast<bsl::size_t>(accumNumBytesConsumed) !=
+                    inStreamBufLength) {
+                    continue;
+                }
+            }
+            else {
+                ++inStreamBufLength;
+            }
+        } while (0 != rc);
+
+        LOOP2_ASSERT_EQ(LINE1, LINE2, inStreamBufLength, outStreamBuf.length());
+
+    }
+}
+
+                            // ---------------------
+                            // struct ByteBufferUtil
+                            // ---------------------
+
+// CLASS METHODS
+int ByteBufferUtil::loadBuffer(int        *numBytesWritten,
+                               char       *buffer,
+                               int         bufferSize,
+                               const char *expression,
+                               int         expressionSize)
+{
+    enum MachineStateId {
+        e_NEEDS_HIGH_NIBBLE,
+        e_NEEDS_LOW_NIBBLE
+    };
+
+    MachineStateId state           = e_NEEDS_HIGH_NIBBLE;
+    unsigned char  stateHighNibble = 0;
+
+    *numBytesWritten = 0;
+    const char *const bufferEnd = buffer + bufferSize;
+
+    for (const char *eIt  = expression;
+                     eIt != expression + expressionSize;
+                   ++eIt) {
+        const char character = *eIt;
+
+        if (' ' == character) {
+            continue;                                               // CONTINUE
+        }
+
+        if (buffer == bufferEnd) {
+            return -1;                                                // RETURN
+        }
+
+        unsigned char currentNibble;
+        if ('A' <= character && character <= 'Z') {
+            currentNibble = static_cast<unsigned char>('\x0A') +
+                            (static_cast<unsigned char>(character) -
+                             static_cast<unsigned char>('A'));
+        }
+        else if ('0' <= character && character <= '9') {
+            currentNibble = static_cast<unsigned char>('\x00') +
+                            (static_cast<unsigned char>(character) -
+                             static_cast<unsigned char>('0'));
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+
+        switch (state) {
+          case e_NEEDS_HIGH_NIBBLE: {
+              stateHighNibble = static_cast<unsigned char>(currentNibble << 4);
+              state           = e_NEEDS_LOW_NIBBLE;
+          } break;
+          case e_NEEDS_LOW_NIBBLE: {
+            const char byte =
+                static_cast<char>(stateHighNibble | currentNibble);
+
+            *buffer++ = byte;
+            ++*numBytesWritten;
+            state = e_NEEDS_HIGH_NIBBLE;
+          } break;
+        }
+    }
+
+    if (e_NEEDS_HIGH_NIBBLE != state) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
 
                           // -------------------------
                           // class RandomInputIterator
@@ -3921,7 +4333,7 @@ void PutValueFingerprint_ImplUtil::putRandomValue(
     VALUE value;
     RandomValueUtil::load(&value, loader);
 
-    int rc = balber::BerUtil::putValue(streamBuf, value, &options);
+    int rc = Util::putValue(streamBuf, value, &options);
     BSLS_ASSERT(0 == rc);
 }
 
@@ -4395,24 +4807,21 @@ void GetValueFingerprint_ImplUtil::getRandomValue(
         VALUE originalValue;
         RandomValueUtil::load(&originalValue, loader);
 
-        int rc =
-            balber::BerUtil::putValue(&outStreamBuf, originalValue, &options);
+        int rc = Util::putValue(&outStreamBuf, originalValue, &options);
         BSLS_ASSERT(0 == rc);
     }
     else {
         VALUETZ originalValue;
         RandomValueUtil::load(&originalValue, loader);
 
-        int rc =
-            balber::BerUtil::putValue(&outStreamBuf, originalValue, &options);
+        int rc = Util::putValue(&outStreamBuf, originalValue, &options);
         BSLS_ASSERT(0 == rc);
     }
 
     bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
                                            outStreamBuf.length());
 
-    int rc =
-        balber::BerUtil::getValue(&inStreamBuf, value, accumNumBytesConsumed);
+    int rc = Util::getValue(&inStreamBuf, value, accumNumBytesConsumed);
     BSLS_ASSERT(0 == rc);
 }
 
@@ -4427,13 +4836,13 @@ void GetValueFingerprint_ImplUtil::getRandomValue(
     RandomValueUtil::load(&originalValue, loader);
 
     bdlsb::MemOutStreamBuf outStreamBuf;
-    int rc = balber::BerUtil::putValue(&outStreamBuf, originalValue, &options);
+    int rc = Util::putValue(&outStreamBuf, originalValue, &options);
     BSLS_ASSERT(0 == rc);
 
     bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
                                            outStreamBuf.length());
 
-    rc = balber::BerUtil::getValue(&inStreamBuf, value, accumNumBytesConsumed);
+    rc = Util::getValue(&inStreamBuf, value, accumNumBytesConsumed);
     BSLS_ASSERT(0 == rc);
 }
 
@@ -4900,7 +5309,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 27: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4982,7 +5391,4470 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
-        case 26: {
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING DATE/TIME FORMAT SELECTION
+        //   This case tests the encoding format that
+        //   'balber::BerUtil::putValue'  selects for data and time types given
+        //   a value to encode and a set of encoding options.
+        //
+        // Concerns:
+        //: 1 'putValue' selects the encoding format for all 'bdlt::Time',
+        //:   'bdlt::TimeTz', 'bdlt::Datetime', and 'bdlt::DatetimeTz' values
+        //:   according to the following algorithm:
+        //:  o if the 'EncodeDateAndTimeTypesAsBinary' option is 'false',
+        //:    use the ISO 8601 format, otherwise
+        //:  o if the 'BdeVersionConformance' option is no lower than
+        //:    35500, (indicating a BDE version no lower than 3.55.0) then
+        //:    use the extended-binary format if one or both
+        //:    of the following is true:
+        //:    o the 'DatetimeFractionalSecondPrecision' option is 6
+        //:    o the value of the 'time' or 'localTime' attribute, whichever
+        //:      is appropriate for the corresponding value, is '24:00:00',
+        //:      otherwise,
+        //:  o use the compact-binary format
+        //
+        // Plan:
+        //: 1 For a large selection of boundary values of the 'bdlt::Time',
+        //:   'bdlt::TimeTz', 'bdlt::Datetime', and 'bdlt::DatetimeTz' types,
+        //:   and combinations of each relevant encoding option as described in
+        //:   the above algorithm, encode the value using the configuration
+        //:   options and verify that the encoded representation is in the
+        //:   format prescribed by the above algorithm.
+        //
+        // Testing:
+        //   CONCERN: 'putValue' encoding formation selection
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING DATE/TIME FORMAT SELECTION"
+                      << bsl::endl
+                      << "=================================="
+                      << bsl::endl;
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Time' FORMAT SELECTION"
+                      << bsl::endl
+                      << "-------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 25;
+
+            static const int V =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+
+            static const bool T = true;
+            static const bool F = false;
+
+            enum ExpFormat {
+                BIN,
+                TXT
+            };
+
+            static const struct {
+                int         d_line;
+                int         d_bdeVersionConformance;
+                int         d_fractionalSecondPrecision;
+                bool        d_encodeDateAndTimeTypesAsBinary;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_millisecond;
+                int         d_microsecond;
+                ExpFormat   d_expFormat;
+                const char *d_exp;
+            } DATA[] = {
+{ L_,     0, 3, F,  0,  0,  0,   0,   0, TXT, "\x0C"    "00:00:00.000"    },
+{ L_,     0, 3, F,  0,  0,  0,   0,   1, TXT, "\x0C"    "00:00:00.000"    },
+{ L_,     0, 3, F,  0,  0,  0,   1,   0, TXT, "\x0C"    "00:00:00.001"    },
+{ L_,     0, 3, F,  0,  0,  1,   0,   0, TXT, "\x0C"    "00:00:01.000"    },
+{ L_,     0, 3, F,  0,  1,  0,   0,   0, TXT, "\x0C"    "00:01:00.000"    },
+{ L_,     0, 3, F,  1,  0,  0,   0,   0, TXT, "\x0C"    "01:00:00.000"    },
+{ L_,     0, 3, F,  0,  0,  0,   0, 999, TXT, "\x0C"    "00:00:00.000"    },
+{ L_,     0, 3, F,  0,  0,  0, 999,   0, TXT, "\x0C"    "00:00:00.999"    },
+{ L_,     0, 3, F,  0,  0, 59,   0,   0, TXT, "\x0C"    "00:00:59.000"    },
+{ L_,     0, 3, F,  0, 59,  0,   0,   0, TXT, "\x0C"    "00:59:00.000"    },
+{ L_,     0, 3, F, 23,  0,  0,   0,   0, TXT, "\x0C"    "23:00:00.000"    },
+{ L_,     0, 3, F, 23, 59, 59, 999, 999, TXT, "\x0C"    "23:59:59.999"    },
+{ L_,     0, 3, F, 24,  0,  0,   0,   0, TXT, "\x0C"    "24:00:00.000"    },
+
+{ L_,     0, 6, F,  0,  0,  0,   0,   0, TXT, "\x0F"    "00:00:00.000000" },
+{ L_,     0, 6, F,  0,  0,  0,   0,   1, TXT, "\x0F"    "00:00:00.000001" },
+{ L_,     0, 6, F,  0,  0,  0,   1,   0, TXT, "\x0F"    "00:00:00.001000" },
+{ L_,     0, 6, F,  0,  0,  1,   0,   0, TXT, "\x0F"    "00:00:01.000000" },
+{ L_,     0, 6, F,  0,  1,  0,   0,   0, TXT, "\x0F"    "00:01:00.000000" },
+{ L_,     0, 6, F,  1,  0,  0,   0,   0, TXT, "\x0F"    "01:00:00.000000" },
+{ L_,     0, 6, F,  0,  0,  0,   0, 999, TXT, "\x0F"    "00:00:00.000999" },
+{ L_,     0, 6, F,  0,  0,  0, 999,   0, TXT, "\x0F"    "00:00:00.999000" },
+{ L_,     0, 6, F,  0,  0, 59,   0,   0, TXT, "\x0F"    "00:00:59.000000" },
+{ L_,     0, 6, F,  0, 59,  0,   0,   0, TXT, "\x0F"    "00:59:00.000000" },
+{ L_,     0, 6, F, 23,  0,  0,   0,   0, TXT, "\x0F"    "23:00:00.000000" },
+{ L_,     0, 6, F, 23, 59, 59, 999, 999, TXT, "\x0F"    "23:59:59.999999" },
+{ L_,     0, 6, F, 24,  0,  0,   0,   0, TXT, "\x0F"    "24:00:00.000000" },
+
+{ L_,     0, 3, T,  0,  0,  0,   0,   0, BIN, "01                     00" },
+{ L_,     0, 3, T,  0,  0,  0,   0,   1, BIN, "01                     00" },
+{ L_,     0, 3, T,  0,  0,  0,   1,   0, BIN, "01                     01" },
+{ L_,     0, 3, T,  0,  0,  1,   0,   0, BIN, "02                  03 E8" },
+{ L_,     0, 3, T,  0,  1,  0,   0,   0, BIN, "03               00 EA 60" },
+{ L_,     0, 3, T,  1,  0,  0,   0,   0, BIN, "03               36 EE 80" },
+{ L_,     0, 3, T,  0,  0,  0,   0, 999, BIN, "01                     00" },
+{ L_,     0, 3, T,  0,  0,  0, 999,   0, BIN, "02                  03 E7" },
+{ L_,     0, 3, T,  0,  0, 59,   0,   0, BIN, "03               00 E6 78" },
+{ L_,     0, 3, T,  0, 59,  0,   0,   0, BIN, "03               36 04 20" },
+{ L_,     0, 3, T, 23,  0,  0,   0,   0, BIN, "04            04 EF 6D 80" },
+{ L_,     0, 3, T, 23, 59, 59, 999,   0, BIN, "04            05 26 5B FF" },
+{ L_,     0, 3, T, 23, 59, 59, 999, 999, BIN, "04            05 26 5B FF" },
+{ L_,     0, 3, T, 24,  0,  0,   0,   0, BIN, "01                     00" },
+
+{ L_,     0, 6, T,  0,  0,  0,   0,   0, BIN, "01                     00" },
+{ L_,     0, 6, T,  0,  0,  0,   0,   1, BIN, "01                     00" },
+{ L_,     0, 6, T,  0,  0,  0,   1,   0, BIN, "01                     01" },
+{ L_,     0, 6, T,  0,  0,  1,   0,   0, BIN, "02                  03 E8" },
+{ L_,     0, 6, T,  0,  1,  0,   0,   0, BIN, "03               00 EA 60" },
+{ L_,     0, 6, T,  1,  0,  0,   0,   0, BIN, "03               36 EE 80" },
+{ L_,     0, 6, T,  0,  0,  0,   0, 999, BIN, "01                     00" },
+{ L_,     0, 6, T,  0,  0,  0, 999,   0, BIN, "02                  03 E7" },
+{ L_,     0, 6, T,  0,  0, 59,   0,   0, BIN, "03               00 E6 78" },
+{ L_,     0, 6, T,  0, 59,  0,   0,   0, BIN, "03               36 04 20" },
+{ L_,     0, 6, T, 23,  0,  0,   0,   0, BIN, "04            04 EF 6D 80" },
+{ L_,     0, 6, T, 23, 59, 59, 999,   0, BIN, "04            05 26 5B FF" },
+{ L_,     0, 6, T, 23, 59, 59, 999, 999, BIN, "04            05 26 5B FF" },
+{ L_,     0, 6, T, 24,  0,  0,   0,   0, BIN, "01                     00" },
+
+{ L_, V    , 3, F,  0,  0,  0,   0,   0, TXT, "\x0C"    "00:00:00.000"    },
+{ L_, V    , 3, F,  0,  0,  0,   0,   1, TXT, "\x0C"    "00:00:00.000"    },
+{ L_, V    , 3, F,  0,  0,  0,   1,   0, TXT, "\x0C"    "00:00:00.001"    },
+{ L_, V    , 3, F,  0,  0,  1,   0,   0, TXT, "\x0C"    "00:00:01.000"    },
+{ L_, V    , 3, F,  0,  1,  0,   0,   0, TXT, "\x0C"    "00:01:00.000"    },
+{ L_, V    , 3, F,  1,  0,  0,   0,   0, TXT, "\x0C"    "01:00:00.000"    },
+{ L_, V    , 3, F,  0,  0,  0,   0, 999, TXT, "\x0C"    "00:00:00.000"    },
+{ L_, V    , 3, F,  0,  0,  0, 999,   0, TXT, "\x0C"    "00:00:00.999"    },
+{ L_, V    , 3, F,  0,  0, 59,   0,   0, TXT, "\x0C"    "00:00:59.000"    },
+{ L_, V    , 3, F,  0, 59,  0,   0,   0, TXT, "\x0C"    "00:59:00.000"    },
+{ L_, V    , 3, F, 23,  0,  0,   0,   0, TXT, "\x0C"    "23:00:00.000"    },
+{ L_, V    , 3, F, 23, 59, 59, 999, 999, TXT, "\x0C"    "23:59:59.999"    },
+{ L_, V    , 3, F, 24,  0,  0,   0,   0, TXT, "\x0C"    "24:00:00.000"    },
+
+{ L_, V    , 6, F,  0,  0,  0,   0,   0, TXT, "\x0F"    "00:00:00.000000" },
+{ L_, V    , 6, F,  0,  0,  0,   0,   1, TXT, "\x0F"    "00:00:00.000001" },
+{ L_, V    , 6, F,  0,  0,  0,   1,   0, TXT, "\x0F"    "00:00:00.001000" },
+{ L_, V    , 6, F,  0,  0,  1,   0,   0, TXT, "\x0F"    "00:00:01.000000" },
+{ L_, V    , 6, F,  0,  1,  0,   0,   0, TXT, "\x0F"    "00:01:00.000000" },
+{ L_, V    , 6, F,  1,  0,  0,   0,   0, TXT, "\x0F"    "01:00:00.000000" },
+{ L_, V    , 6, F,  0,  0,  0,   0, 999, TXT, "\x0F"    "00:00:00.000999" },
+{ L_, V    , 6, F,  0,  0,  0, 999,   0, TXT, "\x0F"    "00:00:00.999000" },
+{ L_, V    , 6, F,  0,  0, 59,   0,   0, TXT, "\x0F"    "00:00:59.000000" },
+{ L_, V    , 6, F,  0, 59,  0,   0,   0, TXT, "\x0F"    "00:59:00.000000" },
+{ L_, V    , 6, F, 23,  0,  0,   0,   0, TXT, "\x0F"    "23:00:00.000000" },
+{ L_, V    , 6, F, 23, 59, 59, 999, 999, TXT, "\x0F"    "23:59:59.999999" },
+{ L_, V    , 6, F, 24,  0,  0,   0,   0, TXT, "\x0F"    "24:00:00.000000" },
+
+{ L_, V    , 3, T,  0,  0,  0,   0,   0, BIN, "01                     00" },
+{ L_, V    , 3, T,  0,  0,  0,   0,   1, BIN, "01                     00" },
+{ L_, V    , 3, T,  0,  0,  0,   1,   0, BIN, "01                     01" },
+{ L_, V    , 3, T,  0,  0,  1,   0,   0, BIN, "02                  03 E8" },
+{ L_, V    , 3, T,  0,  1,  0,   0,   0, BIN, "03               00 EA 60" },
+{ L_, V    , 3, T,  1,  0,  0,   0,   0, BIN, "03               36 EE 80" },
+{ L_, V    , 3, T,  0,  0,  0,   0, 999, BIN, "01                     00" },
+{ L_, V    , 3, T,  0,  0,  0, 999,   0, BIN, "02                  03 E7" },
+{ L_, V    , 3, T,  0,  0, 59,   0,   0, BIN, "03               00 E6 78" },
+{ L_, V    , 3, T,  0, 59,  0,   0,   0, BIN, "03               36 04 20" },
+{ L_, V    , 3, T, 23,  0,  0,   0,   0, BIN, "04            04 EF 6D 80" },
+{ L_, V    , 3, T, 23, 59, 59, 999,   0, BIN, "04            05 26 5B FF" },
+{ L_, V    , 3, T, 23, 59, 59, 999, 999, BIN, "04            05 26 5B FF" },
+{ L_, V    , 3, T, 24,  0,  0,   0,   0, BIN, "07  80 00  14 1D D7 60 00" },
+
+{ L_, V    , 6, T,  0,  0,  0,   0,   0, BIN, "07  80 00  00 00 00 00 00" },
+{ L_, V    , 6, T,  0,  0,  0,   0,   1, BIN, "07  80 00  00 00 00 00 01" },
+{ L_, V    , 6, T,  0,  0,  0,   1,   0, BIN, "07  80 00  00 00 00 03 E8" },
+{ L_, V    , 6, T,  0,  0,  1,   0,   0, BIN, "07  80 00  00 00 0F 42 40" },
+{ L_, V    , 6, T,  0,  1,  0,   0,   0, BIN, "07  80 00  00 03 93 87 00" },
+{ L_, V    , 6, T,  1,  0,  0,   0,   0, BIN, "07  80 00  00 D6 93 A4 00" },
+{ L_, V    , 6, T,  0,  0,  0,   0, 999, BIN, "07  80 00  00 00 00 03 E7" },
+{ L_, V    , 6, T,  0,  0,  0, 999,   0, BIN, "07  80 00  00 00 0F 3E 58" },
+{ L_, V    , 6, T,  0,  0, 59,   0,   0, BIN, "07  80 00  00 03 84 44 C0" },
+{ L_, V    , 6, T,  0, 59,  0,   0,   0, BIN, "07  80 00  00 D3 00 1D 00" },
+{ L_, V    , 6, T, 23,  0,  0,   0,   0, BIN, "07  80 00  13 47 43 BC 00" },
+{ L_, V    , 6, T, 23, 59, 59, 999,   0, BIN, "07  80 00  14 1D D7 5C 18" },
+{ L_, V    , 6, T, 23, 59, 59, 999, 999, BIN, "07  80 00  14 1D D7 5F FF" },
+{ L_, V    , 6, T, 24,  0,  0,   0,   0, BIN, "07  80 00  14 1D D7 60 00" },
+
+{ L_,     0, 3, T, 24,  0,  0,   0,   0, BIN, "01                     00" },
+{ L_, V - 1, 3, T, 24,  0,  0,   0,   0, BIN, "01                     00" },
+{ L_, V    , 3, T, 24,  0,  0,   0,   0, BIN, "07  80 00  14 1D D7 60 00" },
+{ L_, V + 1, 3, T, 24,  0,  0,   0,   0, BIN, "07  80 00  14 1D D7 60 00" },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int  LINE      = DATA[i].d_line;
+                const int  VERSION   = DATA[i].d_bdeVersionConformance;
+                const int  PRECISION = DATA[i].d_fractionalSecondPrecision;
+                const bool BINARY = DATA[i].d_encodeDateAndTimeTypesAsBinary;
+                const int  HOUR   = DATA[i].d_hour;
+                const int  MINUTE = DATA[i].d_minute;
+                const int  SECOND = DATA[i].d_second;
+                const int  MILLISECOND       = DATA[i].d_millisecond;
+                const int  MICROSECOND       = DATA[i].d_microsecond;
+                const ExpFormat   EXP_FORMAT = DATA[i].d_expFormat;
+                const char *const EXP        = DATA[i].d_exp;
+
+                const bdlt::Time TIME(HOUR,
+                                      MINUTE,
+                                      SECOND,
+                                      MILLISECOND,
+                                      MICROSECOND);
+
+                bdlsb::MemOutStreamBuf outStreamBuf;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() = VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(BINARY);
+                options.setDatetimeFractionalSecondPrecision(PRECISION);
+
+                int rc = Util::putValue(&outStreamBuf, TIME, &options);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int bufferSize = 0;
+
+                switch (EXP_FORMAT) {
+                  case BIN: {
+                    rc = u::ByteBufferUtil::loadBuffer(
+                        &bufferSize,
+                        buffer,
+                        sizeof(buffer),
+                        EXP,
+                        static_cast<int>(bsl::strlen(EXP)));
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc)
+                        continue;  // CONTINUE
+                  } break;
+                  case TXT: {
+                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bufferSize = static_cast<int>(bsl::strlen(buffer));
+                  } break;
+                }
+
+                LOOP1_ASSERT_EQ(LINE,
+                                outStreamBuf.length(),
+                                static_cast<bsl::size_t>(bufferSize));
+                if (outStreamBuf.length() !=
+                    static_cast<bsl::size_t>(bufferSize)) continue; // CONTINUE
+
+                const bool BUFFERS_EQUAL = bsl::equal(
+                    buffer, buffer + bufferSize, outStreamBuf.data());
+                LOOP1_ASSERT(LINE, BUFFERS_EQUAL);
+                if (!BUFFERS_EQUAL && veryVerbose) {
+                    bsl::cout << "ACTUAL: ["
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
+                              << "]"
+                              << bsl::endl;
+                }
+
+                bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                                       outStreamBuf.length());
+
+                bdlt::Time time;
+                int        accumNumBytesConsumed = 0;
+
+                rc = Util::getValue(
+                    &inStreamBuf, &time, &accumNumBytesConsumed);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                if (TIME == bdlt::Time() && VERSION < V && BINARY) {
+                    LOOP1_ASSERT_EQ(LINE, time.hour(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.minute(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.second(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.millisecond(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.microsecond(), 0);
+                }
+                else if ((VERSION < V && BINARY) || 3 == PRECISION) {
+                    LOOP1_ASSERT_EQ(LINE, time.hour(), TIME.hour());
+                    LOOP1_ASSERT_EQ(LINE, time.minute(), TIME.minute());
+                    LOOP1_ASSERT_EQ(LINE, time.second(), TIME.second());
+                    LOOP1_ASSERT_EQ(
+                        LINE, time.millisecond(), TIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, time.microsecond(), 0);
+                }
+                else {
+                    LOOP1_ASSERT_EQ(LINE, time, TIME);
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::TimeTz' FORMAT SELECTION"
+                      << bsl::endl
+                      << "---------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 25;
+
+            static const int V =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+
+            static const bool T = true;
+            static const bool F = false;
+
+            enum ExpFormat {
+                BIN,
+                TXT
+            };
+
+            static const struct {
+                int d_line;
+                int d_bdeVersionConformance;
+                int d_fractionalSecondPrecision;
+                bool d_encodeDateAndTimeTypesAsBinary;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                int d_offset;
+                ExpFormat d_expFormat;
+                const char *d_exp;
+            } DATA[] = {
+{ L_,  0, 3, F,  0,  0,  0,   0,   0,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_,  0, 3, F,  0,  0,  0,   0,   0,    1, TXT, "\x12" "00:00:00.000+00:01" },
+{ L_,  0, 3, F,  0,  0,  0,   0,   0,   -1, TXT, "\x12" "00:00:00.000-00:01" },
+{ L_,  0, 3, F,  0,  0,  0,   0,   1,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_,  0, 3, F,  0,  0,  0,   1,   0,    0, TXT, "\x12" "00:00:00.001+00:00" },
+{ L_,  0, 3, F,  0,  0,  1,   0,   0,    0, TXT, "\x12" "00:00:01.000+00:00" },
+{ L_,  0, 3, F,  0,  1,  0,   0,   0,    0, TXT, "\x12" "00:01:00.000+00:00" },
+{ L_,  0, 3, F,  1,  0,  0,   0,   0,    0, TXT, "\x12" "01:00:00.000+00:00" },
+{ L_,  0, 3, F,  0,  0,  0,   0,   0, 1439, TXT, "\x12" "00:00:00.000+23:59" },
+{ L_,  0, 3, F,  0,  0,  0,   0,   0,-1439, TXT, "\x12" "00:00:00.000-23:59" },
+{ L_,  0, 3, F,  0,  0,  0,   0,   0,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_,  0, 3, F,  0,  0,  0,   0, 999,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_,  0, 3, F,  0,  0,  0, 999,   0,    0, TXT, "\x12" "00:00:00.999+00:00" },
+{ L_,  0, 3, F,  0,  0, 59,   0,   0,    0, TXT, "\x12" "00:00:59.000+00:00" },
+{ L_,  0, 3, F,  0, 59,  0,   0,   0,    0, TXT, "\x12" "00:59:00.000+00:00" },
+{ L_,  0, 3, F, 23,  0,  0,   0,   0,    0, TXT, "\x12" "23:00:00.000+00:00" },
+{ L_,  0, 3, F, 23, 59, 59, 999, 999, 1439, TXT, "\x12" "23:59:59.999+23:59" },
+{ L_,  0, 3, F, 23, 59, 59, 999, 999,-1439, TXT, "\x12" "23:59:59.999-23:59" },
+{ L_,  0, 3, F, 24,  0,  0,   0,   0,    0, TXT, "\x12" "24:00:00.000+00:00" },
+
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,    1, TXT, "\x15" "00:00:00.000000+00:01" },
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,   -1, TXT, "\x15" "00:00:00.000000-00:01" },
+{ L_,  0, 6, F,  0,  0,  0,   0,   1,    0, TXT, "\x15" "00:00:00.000001+00:00" },
+{ L_,  0, 6, F,  0,  0,  0,   1,   0,    0, TXT, "\x15" "00:00:00.001000+00:00" },
+{ L_,  0, 6, F,  0,  0,  1,   0,   0,    0, TXT, "\x15" "00:00:01.000000+00:00" },
+{ L_,  0, 6, F,  0,  1,  0,   0,   0,    0, TXT, "\x15" "00:01:00.000000+00:00" },
+{ L_,  0, 6, F,  1,  0,  0,   0,   0,    0, TXT, "\x15" "01:00:00.000000+00:00" },
+{ L_,  0, 6, F,  0,  0,  0,   0,   0, 1439, TXT, "\x15" "00:00:00.000000+23:59" },
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,-1439, TXT, "\x15" "00:00:00.000000-23:59" },
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
+{ L_,  0, 6, F,  0,  0,  0,   0, 999,    0, TXT, "\x15" "00:00:00.000999+00:00" },
+{ L_,  0, 6, F,  0,  0,  0, 999,   0,    0, TXT, "\x15" "00:00:00.999000+00:00" },
+{ L_,  0, 6, F,  0,  0, 59,   0,   0,    0, TXT, "\x15" "00:00:59.000000+00:00" },
+{ L_,  0, 6, F,  0, 59,  0,   0,   0,    0, TXT, "\x15" "00:59:00.000000+00:00" },
+{ L_,  0, 6, F, 23,  0,  0,   0,   0,    0, TXT, "\x15" "23:00:00.000000+00:00" },
+{ L_,  0, 6, F, 23, 59, 59, 999, 999, 1439, TXT, "\x15" "23:59:59.999999+23:59" },
+{ L_,  0, 6, F, 23, 59, 59, 999, 999,-1439, TXT, "\x15" "23:59:59.999999-23:59" },
+{ L_,  0, 6, F, 24,  0,  0,   0,   0,    0, TXT, "\x15" "24:00:00.000000+00:00" },
+
+{ L_,  0, 3, T,  0,  0,  0,   0,   0,    0, BIN, "01                  00" },
+{ L_,  0, 3, T,  0,  0,  0,   0,   0,    1, BIN, "05  00 01     00 00 00" },
+{ L_,  0, 3, T,  0,  0,  0,   0,   0,   -1, BIN, "05  FF FF     00 00 00" },
+{ L_,  0, 3, T,  0,  0,  0,   0,   1,    0, BIN, "01                  00" },
+{ L_,  0, 3, T,  0,  0,  0,   1,   0,    0, BIN, "01                  01" },
+{ L_,  0, 3, T,  0,  0,  1,   0,   0,    0, BIN, "02               03 E8" },
+{ L_,  0, 3, T,  0,  1,  0,   0,   0,    0, BIN, "03            00 EA 60" },
+{ L_,  0, 3, T,  1,  0,  0,   0,   0,    0, BIN, "03            36 EE 80" },
+{ L_,  0, 3, T,  0,  0,  0,   0,   0, 1439, BIN, "05  05 9F     00 00 00" },
+{ L_,  0, 3, T,  0,  0,  0,   0,   0,-1439, BIN, "05  FA 61     00 00 00" },
+{ L_,  0, 3, T,  0,  0,  0,   0, 999,    0, BIN, "01                  00" },
+{ L_,  0, 3, T,  0,  0,  0, 999,   0,    0, BIN, "02               03 E7" },
+{ L_,  0, 3, T,  0,  0, 59,   0,   0,    0, BIN, "03            00 E6 78" },
+{ L_,  0, 3, T,  0, 59,  0,   0,   0,    0, BIN, "03            36 04 20" },
+{ L_,  0, 3, T, 23,  0,  0,   0,   0,    0, BIN, "04         04 EF 6D 80" },
+{ L_,  0, 3, T, 23, 59, 59, 999,   0, 1439, BIN, "06  05 9F  05 26 5B FF" },
+{ L_,  0, 3, T, 23, 59, 59, 999,   0,-1439, BIN, "06  FA 61  05 26 5B FF" },
+{ L_,  0, 3, T, 23, 59, 59, 999, 999, 1439, BIN, "06  05 9F  05 26 5B FF" },
+{ L_,  0, 3, T, 23, 59, 59, 999, 999,-1439, BIN, "06  FA 61  05 26 5B FF" },
+{ L_,  0, 3, T, 24,  0,  0,   0,   0,    0, BIN, "01                  00" },
+
+{ L_,  0, 6, T,  0,  0,  0,   0,   0,    0, BIN, "01                  00" },
+{ L_,  0, 6, T,  0,  0,  0,   0,   0,    1, BIN, "05  00 01     00 00 00" },
+{ L_,  0, 6, T,  0,  0,  0,   0,   0,   -1, BIN, "05  FF FF     00 00 00" },
+{ L_,  0, 6, T,  0,  0,  0,   0,   1,    0, BIN, "01                  00" },
+{ L_,  0, 6, T,  0,  0,  0,   1,   0,    0, BIN, "01                  01" },
+{ L_,  0, 6, T,  0,  0,  1,   0,   0,    0, BIN, "02               03 E8" },
+{ L_,  0, 6, T,  0,  1,  0,   0,   0,    0, BIN, "03            00 EA 60" },
+{ L_,  0, 6, T,  1,  0,  0,   0,   0,    0, BIN, "03            36 EE 80" },
+{ L_,  0, 6, T,  0,  0,  0,   0,   0, 1439, BIN, "05  05 9F     00 00 00" },
+{ L_,  0, 6, T,  0,  0,  0,   0,   0,-1439, BIN, "05  FA 61     00 00 00" },
+{ L_,  0, 6, T,  0,  0,  0,   0, 999,    0, BIN, "01                  00" },
+{ L_,  0, 6, T,  0,  0,  0, 999,   0,    0, BIN, "02               03 E7" },
+{ L_,  0, 6, T,  0,  0, 59,   0,   0,    0, BIN, "03            00 E6 78" },
+{ L_,  0, 6, T,  0, 59,  0,   0,   0,    0, BIN, "03            36 04 20" },
+{ L_,  0, 6, T, 23,  0,  0,   0,   0,    0, BIN, "04         04 EF 6D 80" },
+{ L_,  0, 6, T, 23, 59, 59, 999,   0, 1439, BIN, "06  05 9F  05 26 5B FF" },
+{ L_,  0, 6, T, 23, 59, 59, 999,   0,-1439, BIN, "06  FA 61  05 26 5B FF" },
+{ L_,  0, 6, T, 23, 59, 59, 999, 999, 1439, BIN, "06  05 9F  05 26 5B FF" },
+{ L_,  0, 6, T, 23, 59, 59, 999, 999,-1439, BIN, "06  FA 61  05 26 5B FF" },
+{ L_,  0, 6, T, 24,  0,  0,   0,   0,    0, BIN, "01                  00" },
+
+{ L_, V , 3, F,  0,  0,  0,   0,   0,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_, V , 3, F,  0,  0,  0,   0,   0,    1, TXT, "\x12" "00:00:00.000+00:01" },
+{ L_, V , 3, F,  0,  0,  0,   0,   0,   -1, TXT, "\x12" "00:00:00.000-00:01" },
+{ L_, V , 3, F,  0,  0,  0,   0,   1,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_, V , 3, F,  0,  0,  0,   1,   0,    0, TXT, "\x12" "00:00:00.001+00:00" },
+{ L_, V , 3, F,  0,  0,  1,   0,   0,    0, TXT, "\x12" "00:00:01.000+00:00" },
+{ L_, V , 3, F,  0,  1,  0,   0,   0,    0, TXT, "\x12" "00:01:00.000+00:00" },
+{ L_, V , 3, F,  1,  0,  0,   0,   0,    0, TXT, "\x12" "01:00:00.000+00:00" },
+{ L_, V , 3, F,  0,  0,  0,   0,   0, 1439, TXT, "\x12" "00:00:00.000+23:59" },
+{ L_, V , 3, F,  0,  0,  0,   0,   0,-1439, TXT, "\x12" "00:00:00.000-23:59" },
+{ L_, V , 3, F,  0,  0,  0,   0,   0,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_, V , 3, F,  0,  0,  0,   0, 999,    0, TXT, "\x12" "00:00:00.000+00:00" },
+{ L_, V , 3, F,  0,  0,  0, 999,   0,    0, TXT, "\x12" "00:00:00.999+00:00" },
+{ L_, V , 3, F,  0,  0, 59,   0,   0,    0, TXT, "\x12" "00:00:59.000+00:00" },
+{ L_, V , 3, F,  0, 59,  0,   0,   0,    0, TXT, "\x12" "00:59:00.000+00:00" },
+{ L_, V , 3, F, 23,  0,  0,   0,   0,    0, TXT, "\x12" "23:00:00.000+00:00" },
+{ L_, V , 3, F, 23, 59, 59, 999, 999, 1439, TXT, "\x12" "23:59:59.999+23:59" },
+{ L_, V , 3, F, 23, 59, 59, 999, 999,-1439, TXT, "\x12" "23:59:59.999-23:59" },
+{ L_, V , 3, F, 24,  0,  0,   0,   0,    0, TXT, "\x12" "24:00:00.000+00:00" },
+
+{ L_, V , 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
+{ L_, V , 6, F,  0,  0,  0,   0,   0,    1, TXT, "\x15" "00:00:00.000000+00:01" },
+{ L_, V , 6, F,  0,  0,  0,   0,   0,   -1, TXT, "\x15" "00:00:00.000000-00:01" },
+{ L_, V , 6, F,  0,  0,  0,   0,   1,    0, TXT, "\x15" "00:00:00.000001+00:00" },
+{ L_, V , 6, F,  0,  0,  0,   1,   0,    0, TXT, "\x15" "00:00:00.001000+00:00" },
+{ L_, V , 6, F,  0,  0,  1,   0,   0,    0, TXT, "\x15" "00:00:01.000000+00:00" },
+{ L_, V , 6, F,  0,  1,  0,   0,   0,    0, TXT, "\x15" "00:01:00.000000+00:00" },
+{ L_, V , 6, F,  1,  0,  0,   0,   0,    0, TXT, "\x15" "01:00:00.000000+00:00" },
+{ L_, V , 6, F,  0,  0,  0,   0,   0, 1439, TXT, "\x15" "00:00:00.000000+23:59" },
+{ L_, V , 6, F,  0,  0,  0,   0,   0,-1439, TXT, "\x15" "00:00:00.000000-23:59" },
+{ L_, V , 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
+{ L_, V , 6, F,  0,  0,  0,   0, 999,    0, TXT, "\x15" "00:00:00.000999+00:00" },
+{ L_, V , 6, F,  0,  0,  0, 999,   0,    0, TXT, "\x15" "00:00:00.999000+00:00" },
+{ L_, V , 6, F,  0,  0, 59,   0,   0,    0, TXT, "\x15" "00:00:59.000000+00:00" },
+{ L_, V , 6, F,  0, 59,  0,   0,   0,    0, TXT, "\x15" "00:59:00.000000+00:00" },
+{ L_, V , 6, F, 23,  0,  0,   0,   0,    0, TXT, "\x15" "23:00:00.000000+00:00" },
+{ L_, V , 6, F, 23, 59, 59, 999, 999, 1439, TXT, "\x15" "23:59:59.999999+23:59" },
+{ L_, V , 6, F, 23, 59, 59, 999, 999,-1439, TXT, "\x15" "23:59:59.999999-23:59" },
+{ L_, V , 6, F, 24,  0,  0,   0,   0,    0, TXT, "\x15" "24:00:00.000000+00:00" },
+
+{ L_, V , 3, T,  0,  0,  0,   0,   0,    0, BIN, "01                     00" },
+{ L_, V , 3, T,  0,  0,  0,   0,   0,    1, BIN, "05  00 01        00 00 00" },
+{ L_, V , 3, T,  0,  0,  0,   0,   0,   -1, BIN, "05  FF FF        00 00 00" },
+{ L_, V , 3, T,  0,  0,  0,   0,   1,    0, BIN, "01                     00" },
+{ L_, V , 3, T,  0,  0,  0,   1,   0,    0, BIN, "01                     01" },
+{ L_, V , 3, T,  0,  0,  1,   0,   0,    0, BIN, "02                  03 E8" },
+{ L_, V , 3, T,  0,  1,  0,   0,   0,    0, BIN, "03               00 EA 60" },
+{ L_, V , 3, T,  1,  0,  0,   0,   0,    0, BIN, "03               36 EE 80" },
+{ L_, V , 3, T,  0,  0,  0,   0,   0, 1439, BIN, "05  05 9F        00 00 00" },
+{ L_, V , 3, T,  0,  0,  0,   0,   0,-1439, BIN, "05  FA 61        00 00 00" },
+{ L_, V , 3, T,  0,  0,  0,   0, 999,    0, BIN, "01                     00" },
+{ L_, V , 3, T,  0,  0,  0, 999,   0,    0, BIN, "02                  03 E7" },
+{ L_, V , 3, T,  0,  0, 59,   0,   0,    0, BIN, "03               00 E6 78" },
+{ L_, V , 3, T,  0, 59,  0,   0,   0,    0, BIN, "03               36 04 20" },
+{ L_, V , 3, T, 23,  0,  0,   0,   0,    0, BIN, "04            04 EF 6D 80" },
+{ L_, V , 3, T, 23, 59, 59, 999,   0, 1439, BIN, "06  05 9F     05 26 5B FF" },
+{ L_, V , 3, T, 23, 59, 59, 999,   0,-1439, BIN, "06  FA 61     05 26 5B FF" },
+{ L_, V , 3, T, 23, 59, 59, 999, 999, 1439, BIN, "06  05 9F     05 26 5B FF" },
+{ L_, V , 3, T, 23, 59, 59, 999, 999,-1439, BIN, "06  FA 61     05 26 5B FF" },
+{ L_, V , 3, T, 24,  0,  0,   0,   0,    0, BIN, "07  90 00  14 1D D7 60 00" },
+
+{ L_, V , 6, T,  0,  0,  0,   0,   0,    0, BIN, "07  90 00  00 00 00 00 00" },
+{ L_, V , 6, T,  0,  0,  0,   0,   0,    1, BIN, "07  90 01  00 00 00 00 00" },
+{ L_, V , 6, T,  0,  0,  0,   0,   0,   -1, BIN, "07  9F FF  00 00 00 00 00" },
+{ L_, V , 6, T,  0,  0,  0,   0,   1,    0, BIN, "07  90 00  00 00 00 00 01" },
+{ L_, V , 6, T,  0,  0,  0,   1,   0,    0, BIN, "07  90 00  00 00 00 03 E8" },
+{ L_, V , 6, T,  0,  0,  1,   0,   0,    0, BIN, "07  90 00  00 00 0F 42 40" },
+{ L_, V , 6, T,  0,  1,  0,   0,   0,    0, BIN, "07  90 00  00 03 93 87 00" },
+{ L_, V , 6, T,  1,  0,  0,   0,   0,    0, BIN, "07  90 00  00 D6 93 A4 00" },
+{ L_, V , 6, T,  0,  0,  0,   0,   0, 1439, BIN, "07  95 9F  00 00 00 00 00" },
+{ L_, V , 6, T,  0,  0,  0,   0,   0,-1439, BIN, "07  9A 61  00 00 00 00 00" },
+{ L_, V , 6, T,  0,  0,  0,   0, 999,    0, BIN, "07  90 00  00 00 00 03 E7" },
+{ L_, V , 6, T,  0,  0,  0, 999,   0,    0, BIN, "07  90 00  00 00 0F 3E 58" },
+{ L_, V , 6, T,  0,  0, 59,   0,   0,    0, BIN, "07  90 00  00 03 84 44 C0" },
+{ L_, V , 6, T,  0, 59,  0,   0,   0,    0, BIN, "07  90 00  00 D3 00 1D 00" },
+{ L_, V , 6, T, 23,  0,  0,   0,   0,    0, BIN, "07  90 00  13 47 43 BC 00" },
+{ L_, V , 6, T, 23, 59, 59, 999,   0, 1439, BIN, "07  95 9F  14 1D D7 5C 18" },
+{ L_, V , 6, T, 23, 59, 59, 999,   0,-1439, BIN, "07  9A 61  14 1D D7 5C 18" },
+{ L_, V , 6, T, 23, 59, 59, 999, 999, 1439, BIN, "07  95 9F  14 1D D7 5F FF" },
+{ L_, V , 6, T, 23, 59, 59, 999, 999,-1439, BIN, "07  9A 61  14 1D D7 5F FF" },
+{ L_, V , 6, T, 24,  0,  0,   0,   0,    0, BIN, "07  90 00  14 1D D7 60 00" },
+
+{ L_,  0, 3, T, 24,  0,  0,   0,   0,    0, BIN, "01                     00" },
+{ L_,V-1, 3, T, 24,  0,  0,   0,   0,    0, BIN, "01                     00" },
+{ L_,V  , 3, T, 24,  0,  0,   0,   0,    0, BIN, "07  90 00  14 1D D7 60 00" },
+{ L_,V+1, 3, T, 24,  0,  0,   0,   0,    0, BIN, "07  90 00  14 1D D7 60 00" },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int  LINE      = DATA[i].d_line;
+                const int  VERSION   = DATA[i].d_bdeVersionConformance;
+                const int  PRECISION = DATA[i].d_fractionalSecondPrecision;
+                const bool BINARY = DATA[i].d_encodeDateAndTimeTypesAsBinary;
+                const int  HOUR   = DATA[i].d_hour;
+                const int  MINUTE = DATA[i].d_minute;
+                const int  SECOND = DATA[i].d_second;
+                const int  MILLISECOND       = DATA[i].d_millisecond;
+                const int  MICROSECOND       = DATA[i].d_microsecond;
+                const int  OFFSET            = DATA[i].d_offset;
+                const ExpFormat   EXP_FORMAT = DATA[i].d_expFormat;
+                const char *const EXP        = DATA[i].d_exp;
+
+                const bdlt::Time TIME(HOUR, MINUTE, SECOND, MILLISECOND,
+                                      MICROSECOND);
+
+                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
+                bdlsb::MemOutStreamBuf outStreamBuf;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() = VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(BINARY);
+                options.setDatetimeFractionalSecondPrecision(PRECISION);
+
+                int rc = Util::putValue(&outStreamBuf, TIMETZ, &options);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int bufferSize = 0;
+
+                switch (EXP_FORMAT) {
+                  case BIN: {
+                    rc = u::ByteBufferUtil::loadBuffer(
+                        &bufferSize,
+                        buffer,
+                        sizeof(buffer),
+                        EXP,
+                        static_cast<int>(bsl::strlen(EXP)));
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc)
+                        continue;  // CONTINUE
+                  } break;
+                  case TXT: {
+                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bufferSize = static_cast<int>(bsl::strlen(buffer));
+                  } break;
+                }
+
+                LOOP1_ASSERT_EQ(LINE,
+                                outStreamBuf.length(),
+                                static_cast<bsl::size_t>(bufferSize));
+                if (outStreamBuf.length() !=
+                    static_cast<bsl::size_t>(bufferSize)) continue; // CONTINUE
+
+                const bool BUFFERS_EQUAL = bsl::equal(
+                    buffer, buffer + bufferSize, outStreamBuf.data());
+                LOOP1_ASSERT(LINE, BUFFERS_EQUAL);
+                if (!BUFFERS_EQUAL && veryVerbose && BINARY) {
+                    bsl::cout << "ACTUAL: [";
+                    bdlb::Print::singleLineHexDump(
+                        bsl::cout,
+                        outStreamBuf.data(),
+                        static_cast<int>(outStreamBuf.length()));
+                    bsl::cout << "]" << bsl::endl;
+                }
+                else if (!BUFFERS_EQUAL && veryVerbose) {
+                    bsl::cout << "ACTUAL: ["
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
+                              << "]"
+                              << bsl::endl;
+                }
+
+                bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                                       outStreamBuf.length());
+
+                bdlt::TimeTz timeTz;
+                int accumNumBytesConsumed = 0;
+
+                rc = Util::getValue(
+                    &inStreamBuf, &timeTz, &accumNumBytesConsumed);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                if (TIMETZ.localTime() == bdlt::Time() && VERSION < V &&
+                    BINARY) {
+                    const bdlt::Time& time = timeTz.localTime();
+                    LOOP1_ASSERT_EQ(LINE, time.hour(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.minute(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.second(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.millisecond(), 0);
+                    LOOP1_ASSERT_EQ(LINE, time.microsecond(), 0);
+                    LOOP1_ASSERT_EQ(LINE, timeTz.offset(), 0);
+                }
+                else if ((VERSION < V && BINARY) || 3 == PRECISION) {
+                    const bdlt::Time& TIME = TIMETZ.localTime();
+                    const bdlt::Time& time = timeTz.localTime();
+                    LOOP1_ASSERT_EQ(LINE, time.hour(), TIME.hour());
+                    LOOP1_ASSERT_EQ(LINE, time.minute(), TIME.minute());
+                    LOOP1_ASSERT_EQ(LINE, time.second(), TIME.second());
+                    LOOP1_ASSERT_EQ(
+                        LINE, time.millisecond(), TIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, timeTz.offset(), TIMETZ.offset());
+                }
+                else {
+                    LOOP1_ASSERT_EQ(LINE, timeTz, TIMETZ);
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Datetime' FORMAT SELECTION"
+                      << bsl::endl
+                      << "-----------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 30;
+
+            static const int V =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+
+            static const bool T = true;
+            static const bool F = false;
+
+            enum ExpFormat {
+                BIN,
+                TXT
+            };
+
+            static const struct {
+                int d_line;
+                int d_bdeVersionConformance;
+                int d_fractionalSecondPrecision;
+                bool d_encodeDateAndTimeTypesAsBinary;
+                int d_year;
+                int d_month;
+                int d_day;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                ExpFormat d_expFormat;
+                const char *d_exp;
+            } DATA[] = {
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:00.000"    },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0,   1, TXT,
+                                         "\x17" "0001-01-01T00:00:00.000"    },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   1,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:00.001"    },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  1,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:01.000"    },
+{ L_, 0, 3, F,    1,  1,  1,  0,  1,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:01:00.000"    },
+{ L_, 0, 3, F,    1,  1,  1,  1,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T01:00:00.000"    },
+{ L_, 0, 3, F,    1,  1,  2,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-02T00:00:00.000"    },
+{ L_, 0, 3, F,    1,  2,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-02-01T00:00:00.000"    },
+{ L_, 0, 3, F,    2,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0002-01-01T00:00:00.000"    },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0, 999, TXT,
+                                         "\x17" "0001-01-01T00:00:00.000"    },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0, 999,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:00.999"    },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0, 59,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:59.000"    },
+{ L_, 0, 3, F,    1,  1,  1,  0, 59,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:59:00.000"    },
+{ L_, 0, 3, F,    1,  1,  1, 23,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T23:00:00.000"    },
+{ L_, 0, 3, F,    1,  1, 31,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-31T00:00:00.000"    },
+{ L_, 0, 3, F,    1, 12,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-12-01T00:00:00.000"    },
+{ L_, 0, 3, F, 9999,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "9999-01-01T00:00:00.000"    },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999,   0, TXT,
+                                         "\x17" "9999-12-31T23:59:59.999"    },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999, 999, TXT,
+                                         "\x17" "9999-12-31T23:59:59.999"    },
+{ L_, 0, 3, F, 9999, 12, 31, 24,  0,  0,   0,   0, TXT,
+                                         "\x17" "9999-12-31T24:00:00.000"    },
+{ L_, 0, 3, F,    1,  1,  1, 24,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T24:00:00.000"    },
+
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.000000" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   1, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.000001" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   1,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.001000" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  1,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:01.000000" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  1,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:01:00.000000" },
+{ L_, 0, 6, F,    1,  1,  1,  1,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T01:00:00.000000" },
+{ L_, 0, 6, F,    1,  1,  2,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-02T00:00:00.000000" },
+{ L_, 0, 6, F,    1,  2,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-02-01T00:00:00.000000" },
+{ L_, 0, 6, F,    2,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0002-01-01T00:00:00.000000" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0, 999, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.000999" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0, 999,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.999000" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0, 59,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:59.000000" },
+{ L_, 0, 6, F,    1,  1,  1,  0, 59,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:59:00.000000" },
+{ L_, 0, 6, F,    1,  1,  1, 23,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T23:00:00.000000" },
+{ L_, 0, 6, F,    1,  1, 31,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-31T00:00:00.000000" },
+{ L_, 0, 6, F,    1, 12,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-12-01T00:00:00.000000" },
+{ L_, 0, 6, F, 9999,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "9999-01-01T00:00:00.000000" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0, TXT,
+                                         "\x1A" "9999-12-31T23:59:59.999000" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999, TXT,
+                                         "\x1A" "9999-12-31T23:59:59.999999" },
+{ L_, 0, 6, F, 9999, 12, 31, 24,  0,  0,   0,   0, TXT,
+                                         "\x1A" "9999-12-31T24:00:00.000000" },
+{ L_, 0, 6, F,    1,  1,  1, 24,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T24:00:00.000000" },
+
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0,   1, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   1,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 01" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  1,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E8" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  1,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6D 2A 60" },
+{ L_, 0, 3, T,    1,  1,  1,  1,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F A3 2E 80" },
+{ L_, 0, 3, T,    1,  1,  2,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 94 92 9C 00" },
+{ L_, 0, 3, T,    1,  2,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0E 2F 11 64 00" },
+{ L_, 0, 3, T,    2,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 14 E7 1D 6C 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0, 999, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0, 999,   0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E7" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0, 59,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6D 26 78" },
+{ L_, 0, 3, T,    1,  1,  1,  0, 59,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F A2 44 20" },
+{ L_, 0, 3, T,    1,  1,  1, 23,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 94 5B AD 80" },
+{ L_, 0, 3, T,    1,  1, 31,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0E 29 EB 08 00" },
+{ L_, 0, 3, T,    1, 12,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 14 47 78 48 00" },
+{ L_, 0, 3, T, 9999,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                           "09  00 00  00 E5 01 1C 07 C8 00" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 24,  0,  0,   0,   0, BIN,
+                                           "09  00 00  00 E5 08 6E 92 98 00" },
+{ L_, 0, 3, T,    1,  1,  1, 24,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0,   1, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   1,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 01" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  1,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E8" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  1,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6D 2A 60" },
+{ L_, 0, 6, T,    1,  1,  1,  1,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F A3 2E 80" },
+{ L_, 0, 6, T,    1,  1,  2,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 94 92 9C 00" },
+{ L_, 0, 6, T,    1,  2,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0E 2F 11 64 00" },
+{ L_, 0, 6, T,    2,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 14 E7 1D 6C 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0, 999, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0, 999,   0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E7" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0, 59,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6D 26 78" },
+{ L_, 0, 6, T,    1,  1,  1,  0, 59,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F A2 44 20" },
+{ L_, 0, 6, T,    1,  1,  1, 23,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 94 5B AD 80" },
+{ L_, 0, 6, T,    1,  1, 31,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0E 29 EB 08 00" },
+{ L_, 0, 6, T,    1, 12,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 14 47 78 48 00" },
+{ L_, 0, 6, T, 9999,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                           "09  00 00  00 E5 01 1C 07 C8 00" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 24,  0,  0,   0,   0, BIN,
+                                           "09  00 00  00 E5 08 6E 92 98 00" },
+{ L_, 0, 6, T,    1,  1,  1, 24,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:00.000"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   0,   1, TXT,
+                                         "\x17" "0001-01-01T00:00:00.000"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   1,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:00.001"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  1,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:01.000"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  1,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:01:00.000"    },
+{ L_, V, 3, F,    1,  1,  1,  1,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T01:00:00.000"    },
+{ L_, V, 3, F,    1,  1,  2,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-02T00:00:00.000"    },
+{ L_, V, 3, F,    1,  2,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-02-01T00:00:00.000"    },
+{ L_, V, 3, F,    2,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0002-01-01T00:00:00.000"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   0, 999, TXT,
+                                         "\x17" "0001-01-01T00:00:00.000"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0, 999,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:00.999"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0, 59,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:00:59.000"    },
+{ L_, V, 3, F,    1,  1,  1,  0, 59,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T00:59:00.000"    },
+{ L_, V, 3, F,    1,  1,  1, 23,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T23:00:00.000"    },
+{ L_, V, 3, F,    1,  1, 31,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-31T00:00:00.000"    },
+{ L_, V, 3, F,    1, 12,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-12-01T00:00:00.000"    },
+{ L_, V, 3, F, 9999,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x17" "9999-01-01T00:00:00.000"    },
+{ L_, V, 3, F, 9999, 12, 31, 23, 59, 59, 999,   0, TXT,
+                                         "\x17" "9999-12-31T23:59:59.999"    },
+{ L_, V, 3, F, 9999, 12, 31, 23, 59, 59, 999, 999, TXT,
+                                         "\x17" "9999-12-31T23:59:59.999"    },
+{ L_, V, 3, F, 9999, 12, 31, 24,  0,  0,   0,   0, TXT,
+                                         "\x17" "9999-12-31T24:00:00.000"    },
+{ L_, V, 3, F,    1,  1,  1, 24,  0,  0,   0,   0, TXT,
+                                         "\x17" "0001-01-01T24:00:00.000"    },
+
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.000000" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   1, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.000001" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   1,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.001000" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  1,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:01.000000" },
+{ L_, V, 6, F,    1,  1,  1,  0,  1,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:01:00.000000" },
+{ L_, V, 6, F,    1,  1,  1,  1,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T01:00:00.000000" },
+{ L_, V, 6, F,    1,  1,  2,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-02T00:00:00.000000" },
+{ L_, V, 6, F,    1,  2,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-02-01T00:00:00.000000" },
+{ L_, V, 6, F,    2,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0002-01-01T00:00:00.000000" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0, 999, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.000999" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0, 999,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:00.999000" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0, 59,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:00:59.000000" },
+{ L_, V, 6, F,    1,  1,  1,  0, 59,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T00:59:00.000000" },
+{ L_, V, 6, F,    1,  1,  1, 23,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T23:00:00.000000" },
+{ L_, V, 6, F,    1,  1, 31,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-31T00:00:00.000000" },
+{ L_, V, 6, F,    1, 12,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-12-01T00:00:00.000000" },
+{ L_, V, 6, F, 9999,  1,  1,  0,  0,  0,   0,   0, TXT,
+                                         "\x1A" "9999-01-01T00:00:00.000000" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0, TXT,
+                                         "\x1A" "9999-12-31T23:59:59.999000" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999, TXT,
+                                         "\x1A" "9999-12-31T23:59:59.999999" },
+{ L_, V, 6, F, 9999, 12, 31, 24,  0,  0,   0,   0, TXT,
+                                         "\x1A" "9999-12-31T24:00:00.000000" },
+{ L_, V, 6, F,    1,  1,  1, 24,  0,  0,   0,   0, TXT,
+                                         "\x1A" "0001-01-01T24:00:00.000000" },
+
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0,   1, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   1,   0, BIN,
+                                                     "06  C6 0D 8F 6C 40 01" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  1,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E8" },
+{ L_, V, 3, T,    1,  1,  1,  0,  1,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6D 2A 60" },
+{ L_, V, 3, T,    1,  1,  1,  1,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F A3 2E 80" },
+{ L_, V, 3, T,    1,  1,  2,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 94 92 9C 00" },
+{ L_, V, 3, T,    1,  2,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0E 2F 11 64 00" },
+{ L_, V, 3, T,    2,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 14 E7 1D 6C 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0, 999, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0, 999,   0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E7" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0, 59,   0,   0, BIN,
+                                                     "06  C6 0D 8F 6D 26 78" },
+{ L_, V, 3, T,    1,  1,  1,  0, 59,  0,   0,   0, BIN,
+                                                     "06  C6 0D 8F A2 44 20" },
+{ L_, V, 3, T,    1,  1,  1, 23,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0D 94 5B AD 80" },
+{ L_, V, 3, T,    1,  1, 31,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 0E 29 EB 08 00" },
+{ L_, V, 3, T,    1, 12,  1,  0,  0,  0,   0,   0, BIN,
+                                                     "06  C6 14 47 78 48 00" },
+{ L_, V, 3, T, 9999,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                           "09  00 00  00 E5 01 1C 07 C8 00" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 24,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  37 B9 DA  14 1D D7 60 00" },
+{ L_, V, 3, T,    1,  1,  1, 24,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  14 1D D7 60 00" },
+
+{ L_, V, 6, T,   1,   1,  1,  0,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0,   1, BIN,
+                                       "0A  80 00  00 00 00  00 00 00 00 01" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   1,   0, BIN,
+                                       "0A  80 00  00 00 00  00 00 00 03 E8" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  1,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  00 00 0F 42 40" },
+{ L_, V, 6, T,    1,  1,  1,  0,  1,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  00 03 93 87 00" },
+{ L_, V, 6, T,    1,  1,  1,  1,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  00 D6 93 A4 00" },
+{ L_, V, 6, T,    1,  1,  2,  0,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 01  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  2,  1,  0,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 1F  00 00 00 00 00" },
+{ L_, V, 6, T,    2,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 01 6D  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0, 999, BIN,
+                                       "0A  80 00  00 00 00  00 00 00 03 E7" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0, 999,   0, BIN,
+                                       "0A  80 00  00 00 00  00 00 0F 3E 58" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0, 59,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  00 03 84 44 C0" },
+{ L_, V, 6, T,    1,  1,  1,  0, 59,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  00 D3 00 1D 00" },
+{ L_, V, 6, T,    1,  1,  1, 23,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  13 47 43 BC 00" },
+{ L_, V, 6, T,    1,  1, 31,  0,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 1E  00 00 00 00 00" },
+{ L_, V, 6, T,    1, 12,  1,  0,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 01 4E  00 00 00 00 00" },
+{ L_, V, 6, T, 9999,  1,  1,  0,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  37 B8 6E  00 00 00 00 00" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0, BIN,
+                                       "0A  80 00  37 B9 DA  14 1D D7 5C 18" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999, BIN,
+                                       "0A  80 00  37 B9 DA  14 1D D7 5F FF" },
+{ L_, V, 6, T, 9999, 12, 31, 24,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  37 B9 DA  14 1D D7 60 00" },
+{ L_, V, 6, T,    1,  1,  1, 24,  0,  0,   0,   0, BIN,
+                                       "0A  80 00  00 00 00  14 1D D7 60 00" },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int  LINE      = DATA[i].d_line;
+                const int  VERSION   = DATA[i].d_bdeVersionConformance;
+                const int  PRECISION = DATA[i].d_fractionalSecondPrecision;
+                const bool BINARY = DATA[i].d_encodeDateAndTimeTypesAsBinary;
+                const int YEAR = DATA[i].d_year;
+                const int MONTH = DATA[i].d_month;
+                const int DAY = DATA[i].d_day;
+                const int  HOUR   = DATA[i].d_hour;
+                const int  MINUTE = DATA[i].d_minute;
+                const int  SECOND = DATA[i].d_second;
+                const int  MILLISECOND       = DATA[i].d_millisecond;
+                const int  MICROSECOND       = DATA[i].d_microsecond;
+                const ExpFormat   EXP_FORMAT = DATA[i].d_expFormat;
+                const char *const EXP        = DATA[i].d_exp;
+
+                const bdlt::Datetime DATETIME(YEAR        ,
+                                              MONTH       ,
+                                              DAY         ,
+                                              HOUR        ,
+                                              MINUTE      ,
+                                              SECOND      ,
+                                              MILLISECOND ,
+                                              MICROSECOND);
+
+                bdlsb::MemOutStreamBuf outStreamBuf;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() = VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(BINARY);
+                options.setDatetimeFractionalSecondPrecision(PRECISION);
+
+                int rc = Util::putValue(&outStreamBuf, DATETIME, &options);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int bufferSize = 0;
+
+                switch (EXP_FORMAT) {
+                  case BIN: {
+                    rc = u::ByteBufferUtil::loadBuffer(
+                        &bufferSize,
+                        buffer,
+                        sizeof(buffer),
+                        EXP,
+                        static_cast<int>(bsl::strlen(EXP)));
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc)
+                        continue;  // CONTINUE
+                  } break;
+                  case TXT: {
+                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bufferSize = static_cast<int>(bsl::strlen(buffer));
+                  } break;
+                }
+
+                LOOP1_ASSERT_EQ(LINE,
+                                outStreamBuf.length(),
+                                static_cast<bsl::size_t>(bufferSize));
+                if (outStreamBuf.length() !=
+                    static_cast<bsl::size_t>(bufferSize)) continue; // CONTINUE
+
+                const bool BUFFERS_EQUAL = bsl::equal(
+                    buffer, buffer + bufferSize, outStreamBuf.data());
+                LOOP1_ASSERT(LINE, BUFFERS_EQUAL);
+                if (!BUFFERS_EQUAL && veryVerbose && BINARY) {
+                    bsl::cout << "ACTUAL: [";
+                    bdlb::Print::singleLineHexDump(
+                        bsl::cout,
+                        outStreamBuf.data(),
+                        static_cast<int>(outStreamBuf.length()));
+                    bsl::cout << "]" << bsl::endl;
+                }
+                else if (!BUFFERS_EQUAL && veryVerbose) {
+                    bsl::cout << "ACTUAL: ["
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
+                              << "]"
+                              << bsl::endl;
+                }
+
+                bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                                       outStreamBuf.length());
+
+                bdlt::Datetime datetime;
+                int            accumNumBytesConsumed = 0;
+
+                rc = Util::getValue(
+                    &inStreamBuf, &datetime, &accumNumBytesConsumed);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                if (DATETIME.time() == bdlt::Time() && VERSION < V && BINARY) {
+                    LOOP1_ASSERT_EQ(LINE, datetime.year(), DATETIME.year());
+                    LOOP1_ASSERT_EQ(LINE, datetime.month(), DATETIME.month());
+                    LOOP1_ASSERT_EQ(LINE, datetime.day(), DATETIME.day());
+                    LOOP1_ASSERT_EQ(LINE, datetime.hour(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.minute(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.second(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.millisecond(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.microsecond(), 0);
+                }
+                else if ((VERSION < V && BINARY) || 3 == PRECISION) {
+                    LOOP1_ASSERT_EQ(LINE, datetime.year(), DATETIME.year());
+                    LOOP1_ASSERT_EQ(LINE, datetime.month(), DATETIME.month());
+                    LOOP1_ASSERT_EQ(LINE, datetime.day(), DATETIME.day());
+                    LOOP1_ASSERT_EQ(
+                        LINE, datetime.second(), DATETIME.second());
+                    LOOP1_ASSERT_EQ(
+                        LINE, datetime.millisecond(), DATETIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, datetime.microsecond(), 0);
+                }
+                else {
+                    LOOP1_ASSERT_EQ(LINE, datetime, DATETIME);
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::DatetimeTz' FORMAT SELECTION"
+                      << bsl::endl
+                      << "-------------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 38;
+
+            static const int V =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+
+            static const bool T = true;
+            static const bool F = false;
+
+            enum ExpFormat {
+                BIN,
+                TXT
+            };
+
+            static const struct {
+                int d_line;
+                int d_bdeVersionConformance;
+                int d_fractionalSecondPrecision;
+                bool d_encodeDateAndTimeTypesAsBinary;
+                int d_year;
+                int d_month;
+                int d_day;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                int d_offset;
+                ExpFormat d_expFormat;
+                const char *d_exp;
+            } DATA[] = {
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T00:00:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0,   0,     1, TXT,
+                                      "\x1D" "0001-01-01T00:00:00.000+00:01" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0,   0,    -1, TXT,
+                                      "\x1D" "0001-01-01T00:00:00.000-00:01" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0,   1,     0, TXT,
+                                      "\x1D" "0001-01-01T00:00:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   1,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T00:00:00.001+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  1,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T00:00:01.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  1,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T00:01:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  1,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T01:00:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  2,  0,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-02T00:00:00.000+00:00" },
+{ L_, 0, 3, F,    1,  2,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-02-01T00:00:00.000+00:00" },
+{ L_, 0, 3, F,    2,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0002-01-01T00:00:00.000+00:00" },
+{ L_, 0, 3, F,    2,  1,  1,  0,  0,  0,   0,   0,  1439, TXT,
+                                      "\x1D" "0002-01-01T00:00:00.000+23:59" },
+{ L_, 0, 3, F,    2,  1,  1,  0,  0,  0,   0,   0, -1439, TXT,
+                                      "\x1D" "0002-01-01T00:00:00.000-23:59" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0,   0, 999,     0, TXT,
+                                      "\x1D" "0001-01-01T00:00:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0,  0, 999,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T00:00:00.999+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  0,  0, 59,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T00:00:59.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1,  0, 59,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T00:59:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1, 23,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T23:00:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1, 31,  0,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-31T00:00:00.000+00:00" },
+{ L_, 0, 3, F,    1, 12,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-12-01T00:00:00.000+00:00" },
+{ L_, 0, 3, F, 9999,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "9999-01-01T00:00:00.000+00:00" },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999,   0,     0, TXT,
+                                      "\x1D" "9999-12-31T23:59:59.999+00:00" },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999,   0,  1439, TXT,
+                                      "\x1D" "9999-12-31T23:59:59.999+23:59" },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999,   0, -1439, TXT,
+                                      "\x1D" "9999-12-31T23:59:59.999-23:59" },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999, 999,     0, TXT,
+                                      "\x1D" "9999-12-31T23:59:59.999+00:00" },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999, 999,  1439, TXT,
+                                      "\x1D" "9999-12-31T23:59:59.999+23:59" },
+{ L_, 0, 3, F, 9999, 12, 31, 23, 59, 59, 999, 999, -1439, TXT,
+                                      "\x1D" "9999-12-31T23:59:59.999-23:59" },
+{ L_, 0, 3, F, 9999, 12, 31, 24,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "9999-12-31T24:00:00.000+00:00" },
+{ L_, 0, 3, F,    1,  1,  1, 24,  0,  0,   0,   0,     0, TXT,
+                                      "\x1D" "0001-01-01T24:00:00.000+00:00" },
+
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,     1, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000+00:01" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,    -1, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000-00:01" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   1,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000001+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   1,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.001000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  1,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:01.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  1,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:01:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  1,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T01:00:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  2,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-02T00:00:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  2,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-02-01T00:00:00.000000+00:00" },
+{ L_, 0, 6, F,    2,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0002-01-01T00:00:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,  1439, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000+23:59" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0,   0, -1439, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000-23:59" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0,   0, 999,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000999+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0,  0, 999,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.999000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0,  0, 59,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:59.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1,  0, 59,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:59:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1, 23,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T23:00:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  1, 31,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-31T00:00:00.000000+00:00" },
+{ L_, 0, 6, F,    1, 12,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-12-01T00:00:00.000000+00:00" },
+{ L_, 0, 6, F, 9999,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "9999-01-01T00:00:00.000000+00:00" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0,     0, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999000+00:00" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0,  1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999000+23:59" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0, -1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999000-23:59" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999,     0, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999999+00:00" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999,  1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999999+23:59" },
+{ L_, 0, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999, -1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999999-23:59" },
+{ L_, 0, 6, F, 9999, 12, 31, 24,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "9999-12-31T24:00:00.000000+00:00" },
+{ L_, 0, 6, F,    1,  1,  1, 24,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T24:00:00.000000+00:00" },
+
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0,   0,     1, BIN,
+                                           "08  00 01     C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0,   0,    -1, BIN,
+                                           "08  FF FF     C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0,   1,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   1,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 01" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  1,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E8" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  1,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6D 2A 60" },
+{ L_, 0, 3, T,    1,  1,  1,  1,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F A3 2E 80" },
+{ L_, 0, 3, T,    1,  1,  2,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 94 92 9C 00" },
+{ L_, 0, 3, T,    1,  2,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0E 2F 11 64 00" },
+{ L_, 0, 3, T,    2,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 14 E7 1D 6C 00" },
+{ L_, 0, 3, T,    2,  1,  1,  0,  0,  0,   0,   0,  1439, BIN,
+                                           "08  05 9F     C6 14 E7 1D 6C 00" },
+{ L_, 0, 3, T,    2,  1,  1,  0,  0,  0,   0,   0, -1439, BIN,
+                                           "08  FA 61     C6 14 E7 1D 6C 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0,   0, 999,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0,  0, 999,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E7" },
+{ L_, 0, 3, T,    1,  1,  1,  0,  0, 59,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6D 26 78" },
+{ L_, 0, 3, T,    1,  1,  1,  0, 59,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F A2 44 20" },
+{ L_, 0, 3, T,    1,  1,  1, 23,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 94 5B AD 80" },
+{ L_, 0, 3, T,    1,  1, 31,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0E 29 EB 08 00" },
+{ L_, 0, 3, T,    1, 12,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 14 47 78 48 00" },
+{ L_, 0, 3, T, 9999,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                           "09  00 00  00 E5 01 1C 07 C8 00" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0,     0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0,  1439, BIN,
+                                           "09  05 9F  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0, -1439, BIN,
+                                           "09  FA 61  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999,     0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999,  1439, BIN,
+                                           "09  05 9F  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999, -1439, BIN,
+                                           "09  FA 61  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 3, T, 9999, 12, 31, 24,  0,  0,   0,   0,     0, BIN,
+                                           "09  00 00  00 E5 08 6E 92 98 00" },
+{ L_, 0, 3, T,    1,  1,  1, 24,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0,   0,     1, BIN,
+                                           "08  00 01     C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0,   0,    -1, BIN,
+                                           "08  FF FF     C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0,   1,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   1,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 01" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  1,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E8" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  1,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6D 2A 60" },
+{ L_, 0, 6, T,    1,  1,  1,  1,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F A3 2E 80" },
+{ L_, 0, 6, T,    1,  1,  2,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 94 92 9C 00" },
+{ L_, 0, 6, T,    1,  2,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0E 2F 11 64 00" },
+{ L_, 0, 6, T,    2,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 14 E7 1D 6C 00" },
+{ L_, 0, 6, T,    2,  1,  1,  0,  0,  0,   0,   0,  1439, BIN,
+                                           "08  05 9F     C6 14 E7 1D 6C 00" },
+{ L_, 0, 6, T,    2,  1,  1,  0,  0,  0,   0,   0, -1439, BIN,
+                                           "08  FA 61     C6 14 E7 1D 6C 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0,   0, 999,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0,  0, 999,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E7" },
+{ L_, 0, 6, T,    1,  1,  1,  0,  0, 59,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6D 26 78" },
+{ L_, 0, 6, T,    1,  1,  1,  0, 59,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F A2 44 20" },
+{ L_, 0, 6, T,    1,  1,  1, 23,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 94 5B AD 80" },
+{ L_, 0, 6, T,    1,  1, 31,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0E 29 EB 08 00" },
+{ L_, 0, 6, T,    1, 12,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 14 47 78 48 00" },
+{ L_, 0, 6, T, 9999,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                           "09  00 00  00 E5 01 1C 07 C8 00" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0,     0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0,  1439, BIN,
+                                           "09  05 9F  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0, -1439, BIN,
+                                           "09  FA 61  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999,     0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999,  1439, BIN,
+                                           "09  05 9F  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999, -1439, BIN,
+                                           "09  FA 61  00 E5 08 73 B8 F3 FF" },
+{ L_, 0, 6, T, 9999, 12, 31, 24,  0,  0,   0,   0,     0, BIN,
+                                           "09  00 00  00 E5 08 6E 92 98 00" },
+{ L_, 0, 6, T,    1,  1,  1, 24,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T00:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   0,   1,     0, TXT,
+                                   "\x1D" "0001-01-01T00:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   1,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T00:00:00.001+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  1,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T00:00:01.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  1,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T00:01:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  1,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T01:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  2,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-02T00:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  2,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-02-01T00:00:00.000+00:00"    },
+{ L_, V, 3, F,    2,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0002-01-01T00:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0,   0, 999,     0, TXT,
+                                   "\x1D" "0001-01-01T00:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0,  0, 999,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T00:00:00.999+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0,  0, 59,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T00:00:59.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1,  0, 59,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T00:59:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1, 23,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T23:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1, 31,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-31T00:00:00.000+00:00"    },
+{ L_, V, 3, F,    1, 12,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-12-01T00:00:00.000+00:00"    },
+{ L_, V, 3, F, 9999,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "9999-01-01T00:00:00.000+00:00"    },
+{ L_, V, 3, F, 9999, 12, 31, 23, 59, 59, 999,   0,     0, TXT,
+                                   "\x1D" "9999-12-31T23:59:59.999+00:00"    },
+{ L_, V, 3, F, 9999, 12, 31, 23, 59, 59, 999, 999,     0, TXT,
+                                   "\x1D" "9999-12-31T23:59:59.999+00:00"    },
+{ L_, V, 3, F, 9999, 12, 31, 24,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "9999-12-31T24:00:00.000+00:00"    },
+{ L_, V, 3, F,    1,  1,  1, 24,  0,  0,   0,   0,     0, TXT,
+                                   "\x1D" "0001-01-01T24:00:00.000+00:00"    },
+
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,     1, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000+00:01" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,    -1, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000-00:01" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   1,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000001+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   1,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.001000+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  1,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:01.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0,  1,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:01:00.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  1,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T01:00:00.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  2,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-02T00:00:00.000000+00:00" },
+{ L_, V, 6, F,    1,  2,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-02-01T00:00:00.000000+00:00" },
+{ L_, V, 6, F,    2,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0002-01-01T00:00:00.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   0,  1439, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000+23:59" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0,   0, -1439, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000000-23:59" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0,   0, 999,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.000999+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0,  0, 999,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:00.999000+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0,  0, 59,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:00:59.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  1,  0, 59,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T00:59:00.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  1, 23,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T23:00:00.000000+00:00" },
+{ L_, V, 6, F,    1,  1, 31,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-31T00:00:00.000000+00:00" },
+{ L_, V, 6, F,    1, 12,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-12-01T00:00:00.000000+00:00" },
+{ L_, V, 6, F, 9999,  1,  1,  0,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "9999-01-01T00:00:00.000000+00:00" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0,     0, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999000+00:00" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0,  1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999000+23:59" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999,   0, -1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999000-23:59" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999,     0, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999999+00:00" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999,  1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999999+23:59" },
+{ L_, V, 6, F, 9999, 12, 31, 23, 59, 59, 999, 999, -1439, TXT,
+                                   "\x20" "9999-12-31T23:59:59.999999-23:59" },
+{ L_, V, 6, F, 9999, 12, 31, 24,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "9999-12-31T24:00:00.000000+00:00" },
+{ L_, V, 6, F,    1,  1,  1, 24,  0,  0,   0,   0,     0, TXT,
+                                   "\x20" "0001-01-01T24:00:00.000000+00:00" },
+
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0,   0,     1, BIN,
+                                           "08  00 01     C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0,   0,    -1, BIN,
+                                           "08  FF FF     C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0,   1,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   1,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 01" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  1,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E8" },
+{ L_, V, 3, T,    1,  1,  1,  0,  1,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6D 2A 60" },
+{ L_, V, 3, T,    1,  1,  1,  1,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F A3 2E 80" },
+{ L_, V, 3, T,    1,  1,  2,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 94 92 9C 00" },
+{ L_, V, 3, T,    1,  2,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0E 2F 11 64 00" },
+{ L_, V, 3, T,    2,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 14 E7 1D 6C 00" },
+{ L_, V, 3, T,    2,  1,  1,  0,  0,  0,   0,   0,  1439, BIN,
+                                           "08  05 9F     C6 14 E7 1D 6C 00" },
+{ L_, V, 3, T,    2,  1,  1,  0,  0,  0,   0,   0, -1439, BIN,
+                                           "08  FA 61     C6 14 E7 1D 6C 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0,   0, 999,     0, BIN,
+                                                     "06  C6 0D 8F 6C 40 00" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0,  0, 999,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6C 43 E7" },
+{ L_, V, 3, T,    1,  1,  1,  0,  0, 59,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F 6D 26 78" },
+{ L_, V, 3, T,    1,  1,  1,  0, 59,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 8F A2 44 20" },
+{ L_, V, 3, T,    1,  1,  1, 23,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0D 94 5B AD 80" },
+{ L_, V, 3, T,    1,  1, 31,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 0E 29 EB 08 00" },
+{ L_, V, 3, T,    1, 12,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                                     "06  C6 14 47 78 48 00" },
+{ L_, V, 3, T, 9999,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                           "09  00 00  00 E5 01 1C 07 C8 00" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0,     0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0,  1439, BIN,
+                                           "09  05 9F  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999,   0, -1439, BIN,
+                                           "09  FA 61  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999,     0, BIN,
+                                           "09  00 00  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999,  1439, BIN,
+                                           "09  05 9F  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 23, 59, 59, 999, 999, -1439, BIN,
+                                           "09  FA 61  00 E5 08 73 B8 F3 FF" },
+{ L_, V, 3, T, 9999, 12, 31, 24,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  37 B9 DA  14 1D D7 60 00" },
+{ L_, V, 3, T,    1,  1,  1, 24,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  14 1D D7 60 00" },
+
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0,   0,     1, BIN,
+                                       "0A  90 01  00 00 00  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0,   0,    -1, BIN,
+                                       "0A  9F FF  00 00 00  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0,   1,     0, BIN,
+                                       "0A  90 00  00 00 00  00 00 00 00 01" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   1,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 00 00 03 E8" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  1,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 00 0F 42 40" },
+{ L_, V, 6, T,    1,  1,  1,  0,  1,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 03 93 87 00" },
+{ L_, V, 6, T,    1,  1,  1,  1,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 D6 93 A4 00" },
+{ L_, V, 6, T,    1,  1,  2,  0,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 01  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  2,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 1F  00 00 00 00 00" },
+{ L_, V, 6, T,    2,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 01 6D  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0,   0,  1439, BIN,
+                                       "0A  95 9F  00 00 00  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0,   0, -1439, BIN,
+                                       "0A  9A 61  00 00 00  00 00 00 00 00" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0,   0, 999,     0, BIN,
+                                       "0A  90 00  00 00 00  00 00 00 03 E7" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0,  0, 999,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 00 0F 3E 58" },
+{ L_, V, 6, T,    1,  1,  1,  0,  0, 59,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 03 84 44 C0" },
+{ L_, V, 6, T,    1,  1,  1,  0, 59,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  00 D3 00 1D 00" },
+{ L_, V, 6, T,    1,  1,  1, 23,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  13 47 43 BC 00" },
+{ L_, V, 6, T,    1,  1, 31,  0,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 1E  00 00 00 00 00" },
+{ L_, V, 6, T,    1, 12,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 01 4E  00 00 00 00 00" },
+{ L_, V, 6, T, 9999,  1,  1,  0,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  37 B8 6E  00 00 00 00 00" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0,     0, BIN,
+                                       "0A  90 00  37 B9 DA  14 1D D7 5C 18" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0,  1439, BIN,
+                                       "0A  95 9F  37 B9 DA  14 1D D7 5C 18" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999,   0, -1439, BIN,
+                                       "0A  9A 61  37 B9 DA  14 1D D7 5C 18" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999,     0, BIN,
+                                       "0A  90 00  37 B9 DA  14 1D D7 5F FF" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999,  1439, BIN,
+                                       "0A  95 9F  37 B9 DA  14 1D D7 5F FF" },
+{ L_, V, 6, T, 9999, 12, 31, 23, 59, 59, 999, 999, -1439, BIN,
+                                       "0A  9A 61  37 B9 DA  14 1D D7 5F FF" },
+{ L_, V, 6, T, 9999, 12, 31, 24,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  37 B9 DA  14 1D D7 60 00" },
+{ L_, V, 6, T,    1,  1,  1, 24,  0,  0,   0,   0,     0, BIN,
+                                       "0A  90 00  00 00 00  14 1D D7 60 00" },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int  LINE      = DATA[i].d_line;
+                const int  VERSION   = DATA[i].d_bdeVersionConformance;
+                const int  PRECISION = DATA[i].d_fractionalSecondPrecision;
+                const bool BINARY = DATA[i].d_encodeDateAndTimeTypesAsBinary;
+                const int  YEAR   = DATA[i].d_year;
+                const int  MONTH  = DATA[i].d_month;
+                const int  DAY    = DATA[i].d_day;
+                const int  HOUR   = DATA[i].d_hour;
+                const int  MINUTE = DATA[i].d_minute;
+                const int  SECOND = DATA[i].d_second;
+                const int  MILLISECOND       = DATA[i].d_millisecond;
+                const int  MICROSECOND       = DATA[i].d_microsecond;
+                const int  OFFSET            = DATA[i].d_offset;
+                const ExpFormat   EXP_FORMAT = DATA[i].d_expFormat;
+                const char *const EXP        = DATA[i].d_exp;
+
+                const bdlt::Datetime DATETIME(YEAR        ,
+                                              MONTH       ,
+                                              DAY         ,
+                                              HOUR        ,
+                                              MINUTE      ,
+                                              SECOND      ,
+                                              MILLISECOND ,
+                                              MICROSECOND);
+
+                const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                bdlsb::MemOutStreamBuf outStreamBuf;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() = VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(BINARY);
+                options.setDatetimeFractionalSecondPrecision(PRECISION);
+
+                int rc = Util::putValue(&outStreamBuf, DATETIMETZ, &options);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int bufferSize = 0;
+
+                switch (EXP_FORMAT) {
+                  case BIN: {
+                    rc = u::ByteBufferUtil::loadBuffer(
+                        &bufferSize,
+                        buffer,
+                        sizeof(buffer),
+                        EXP,
+                        static_cast<int>(bsl::strlen(EXP)));
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc)
+                        continue;  // CONTINUE
+                  } break;
+                  case TXT: {
+                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bufferSize = static_cast<int>(bsl::strlen(buffer));
+                  } break;
+                }
+
+                LOOP1_ASSERT_EQ(LINE,
+                                outStreamBuf.length(),
+                                static_cast<bsl::size_t>(bufferSize));
+                if (outStreamBuf.length() !=
+                    static_cast<bsl::size_t>(bufferSize)) continue; // CONTINUE
+
+                const bool BUFFERS_EQUAL = bsl::equal(
+                    buffer, buffer + bufferSize, outStreamBuf.data());
+                LOOP1_ASSERT(LINE, BUFFERS_EQUAL);
+                if (!BUFFERS_EQUAL && veryVerbose && BINARY) {
+                    bsl::cout << "ACTUAL: [";
+                    bdlb::Print::singleLineHexDump(
+                        bsl::cout,
+                        outStreamBuf.data(),
+                        static_cast<int>(outStreamBuf.length()));
+                    bsl::cout << "]" << bsl::endl;
+                }
+                else if (!BUFFERS_EQUAL && veryVerbose) {
+                    bsl::cout << "ACTUAL: ["
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
+                              << "]"
+                              << bsl::endl;
+                }
+
+                bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                                       outStreamBuf.length());
+
+                bdlt::DatetimeTz datetimeTz;
+                int              accumNumBytesConsumed = 0;
+
+                rc = Util::getValue(
+                    &inStreamBuf, &datetimeTz, &accumNumBytesConsumed);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                if (DATETIMETZ.localDatetime().time() == bdlt::Time() &&
+                    VERSION < V && BINARY) {
+                    const bdlt::Datetime& DATETIME = DATETIMETZ.localDatetime();
+                    const bdlt::Datetime& datetime = datetimeTz.localDatetime();
+                    LOOP1_ASSERT_EQ(LINE, datetime.year(), DATETIME.year());
+                    LOOP1_ASSERT_EQ(LINE, datetime.month(), DATETIME.month());
+                    LOOP1_ASSERT_EQ(LINE, datetime.day(), DATETIME.day());
+                    LOOP1_ASSERT_EQ(LINE, datetime.hour(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.minute(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.second(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.millisecond(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetime.microsecond(), 0);
+                    LOOP1_ASSERT_EQ(LINE, datetimeTz.offset(), 0);
+                }
+                else if ((VERSION < V && BINARY) || 3 == PRECISION) {
+                    const bdlt::Datetime& DATETIME = DATETIMETZ.
+                    localDatetime();
+                    const bdlt::Datetime& datetime = datetimeTz.
+                    localDatetime();
+                    LOOP1_ASSERT_EQ(LINE, datetime.year(), DATETIME.year());
+                    LOOP1_ASSERT_EQ(LINE, datetime.month(), DATETIME.month());
+                    LOOP1_ASSERT_EQ(LINE, datetime.day(), DATETIME.day());
+                    LOOP1_ASSERT_EQ(LINE, datetime.hour(), DATETIME.hour());
+                    LOOP1_ASSERT_EQ(
+                        LINE, datetime.minute(), DATETIME.minute());
+                    LOOP1_ASSERT_EQ(
+                        LINE, datetime.second(), DATETIME.second());
+                    LOOP1_ASSERT_EQ(
+                        LINE, datetime.millisecond(), DATETIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, datetime.microsecond(), 0);
+                    LOOP1_ASSERT_EQ(
+                        LINE, datetimeTz.offset(), DATETIMETZ.offset());
+                }
+                else {
+                    LOOP1_ASSERT_EQ(LINE, datetimeTz, DATETIMETZ);
+                }
+            }
+        }
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING EXTENDED BINARY DATE/TIME FORMAT
+        //   This case tests the essential behavior of
+        //   'balber::BerUtil::putValue' and 'balber::BerUtil::getValue' for
+        //   the extended-binary representation of date and time types.
+        //
+        // Concerns:
+        //: 1 The encoded representation of all date and time types in the
+        //:   extended binary representation is correct w.r.t. the
+        //:   specification of the extended-binary representation.
+        //:
+        //: 2 Any error to write a character to the stream buffer during
+        //:   encoding an extended-binary formatted date or time type
+        //:   is propagated to the caller
+        //:
+        //: 3 When a decoding operation has proceeded for enough to determine
+        //:   it will decode using the extended-binary representation,
+        //:   encountering any bit pattern that is not a valid extended-binary
+        //:   representation causes the decoding operation to fail
+        //:
+        //: 4 The composition of decoding with encoding with the compact-binary
+        //:   representation is an isomorphism for all date and time types.
+        //:
+        //: 5 Decoding a 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' from a
+        //:   compact-binary encoded 'bdlt::Time' loads the expected value to
+        //:   the 'bdlt::Time' selection of the variant.
+        //:
+        //: 6 Decoding a 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' from a
+        //:   compact-binary encoded 'bdlt::TImeTz' loads the expected value to
+        //:   the 'bdlt::TimeTz' selection of the variant.
+        //:
+        //: 7 Decoding a
+        //:   'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' from a
+        //:   compact-binary encoded 'bdlt::Datetime' loads the expected value
+        //:   to the 'bdlt::Datetime' selection of the variant.
+        //:
+        //: 8 Decoding a
+        //:   'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' from a
+        //:   compact-binary encoded 'bdlt::DatetimeTz' loads the expected
+        //:   value to the 'bdlt::DatetimeTz' selection of the variant.
+        //
+        // Plan:
+        //: 1 Verify that the encoded representation of boundary 'bdlt::Time',
+        //:   'bdlt::TimeTz', 'bdlt::Datetime', and 'bdlt::DatetimeTz'
+        //:   values all conform to the specification of the compact-binary
+        //:   time representation when that representation is selected for use.
+        //:
+        //: 2 Verify that encoding extended-binary representations of boundary
+        //:   'bdlt::Time', 'bdlt::TimeTz', 'bdlt::Datetime', and
+        //:   'bdlt::DatetimeTz' values to fixed-size buffers that are too
+        //:   small always results in 'putValue' returning a non-zero status.
+        //:
+        //: 3 Verify that decoding many invalid bit-patterns as extended-binary
+        //:   representations of a 'bdlt::Time', 'bdlt::TimeTz',
+        //:   'bdlt::Datetime', or 'bdlt::DatetimeTz' always results in
+        //:   'getValue' returning a non-zero status.
+        //:
+        //: 4 Verify, for a large swatch of values, that decoding the encoding
+        //:   of a 'bdlt::Time', 'bdlt::TimeTz', 'bdlt::Datetime', or
+        //:   'bdlt::DatetimeTz' value in the extended-binary representation
+        //:   results in exactly that same value that was encoded.
+        //:   In essence, verify that 'getValue' composed with 'putValue' is
+        //:   an isomorphism when the extended-binary representation is chosen.
+        //
+        // Testing:
+        //   CONCERN: 'put'- & 'getValue' for date/time types in ext-bin fmt
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING EXTENDED BINARY DATE/TIME FORMAT"
+                      << bsl::endl
+                      << "========================================"
+                      << bsl::endl;
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Time' ENCODING"
+                      << bsl::endl
+                      << "-----------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int         d_line;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_millisecond;
+                int         d_microsecond;
+                const char *d_exp;
+            } DATA[] = {
+                { L_,  0,  0,  0,   0,   0, "07  80 00  00 00 00 00 00" },
+                { L_,  0,  0,  0,   0,   1, "07  80 00  00 00 00 00 01" },
+                { L_,  0,  0,  0,   1,   0, "07  80 00  00 00 00 03 E8" },
+                { L_,  0,  0,  1,   0,   0, "07  80 00  00 00 0F 42 40" },
+                { L_,  0,  1,  0,   0,   0, "07  80 00  00 03 93 87 00" },
+                { L_,  1,  0,  0,   0,   0, "07  80 00  00 D6 93 A4 00" },
+
+                { L_,  0,  0,  0,   0, 999, "07  80 00  00 00 00 03 E7" },
+                { L_,  0,  0,  0, 999,   0, "07  80 00  00 00 0F 3E 58" },
+                { L_,  0,  0, 59,   0,   0, "07  80 00  00 03 84 44 C0" },
+                { L_,  0, 59,  0,   0,   0, "07  80 00  00 D3 00 1D 00" },
+                { L_, 23,  0,  0,   0,   0, "07  80 00  13 47 43 BC 00" },
+
+                { L_, 23, 59, 59, 999, 999, "07  80 00  14 1D D7 5F FF" },
+                { L_, 24,  0,  0,   0,   0, "07  80 00  14 1D D7 60 00" },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            const balber::BerEncoderOptions& OPTIONS = options;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minute;
+                const int         SECOND      = DATA[i].d_second;
+                const int         MILLISECOND = DATA[i].d_millisecond;
+                const int         MICROSECOND = DATA[i].d_microsecond;
+                const char *const EXP         = DATA[i].d_exp;
+
+                // First, verify that the specified time value encodes to the
+                // specified byte array.
+
+                const bdlt::Time TIME(HOUR,
+                                      MINUTE,
+                                      SECOND,
+                                      MILLISECOND,
+                                      MICROSECOND);
+
+                static const int NUM_BYTES = 8;
+
+                bdlsb::MemOutStreamBuf timeOutBuffer;
+                const bool             timeEncodesToBytes =
+                    u::TestUtil::valueEncodesToBytes(
+                        cout, &timeOutBuffer, TIME, OPTIONS, EXP, NUM_BYTES);
+                LOOP1_ASSERT(LINE, timeEncodesToBytes);
+                if (!timeEncodesToBytes) {
+                    continue;
+                }
+
+                const bool bytesDecodeToTime =
+                    u::TestUtil::bytesDecodeToValue(cout,
+                                                    timeOutBuffer.data(),
+                                                    timeOutBuffer.length(),
+                                                    TIME,
+                                                    NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToTime);
+                if (!bytesDecodeToTime) {
+                    continue;
+                }
+
+                const bdlb::Variant2<bdlt::Time, bdlt::TimeTz> TIME_OR_TIMETZ(
+                                                                         TIME);
+
+                const bool bytesDecodeToVariant =
+                    u::TestUtil::bytesDecodeToValue(cout,
+                                                    timeOutBuffer.data(),
+                                                    timeOutBuffer.length(),
+                                                    TIME_OR_TIMETZ,
+                                                    NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToVariant);
+                if (!bytesDecodeToVariant) {
+                    continue;
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Time' ENCODING FAILURE MODES"
+                      << bsl::endl
+                      << "-------------------------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+            } DATA[] = {
+                { L_,  0,  0,  0,   0,   0 },
+                { L_,  0,  0,  0,   0,   1 },
+                { L_,  0,  0,  0,   1,   0 },
+                { L_,  0,  0,  1,   0,   0 },
+                { L_,  0,  1,  0,   0,   0 },
+                { L_,  1,  0,  0,   0,   0 },
+                { L_,  1,  1,  1,   1,   1 },
+                { L_,  0,  0,  0,   0, 999 },
+                { L_,  0,  0,  0, 999,   0 },
+                { L_,  0,  0, 59,   0,   0 },
+                { L_,  0, 59,  0,   0,   0 },
+                { L_, 23,  0,  0,   0,   0 },
+                { L_, 23, 59, 59, 999,   0 },
+                { L_, 23, 59, 59, 999, 999 },
+                { L_, 24,  0,  0,   0,   0 }
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE = DATA[i].d_line;
+                const int HOUR = DATA[i].d_hour;
+                const int MINUTE = DATA[i].d_minute;
+                const int SECOND = DATA[i].d_second;
+                const int MILLISECOND = DATA[i].d_millisecond;
+                const int MICROSECOND = DATA[i].d_microsecond;
+
+                const bdlt::Time TIME(HOUR        ,
+                                      MINUTE      ,
+                                      SECOND      ,
+                                      MILLISECOND ,
+                                      MICROSECOND);
+
+                bsl::vector<char> timeStreamBufPutArea;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(true);
+                options.setDatetimeFractionalSecondPrecision(6);
+
+                int timeStreamBufPutAreaSize = 0;
+                int rc = 0;
+
+                do {
+                    timeStreamBufPutArea.clear();
+                    timeStreamBufPutArea.resize(timeStreamBufPutAreaSize);
+
+                    bdlsb::FixedMemOutStreamBuf timeStreamBuf(
+                        timeStreamBufPutArea.data(),
+                        timeStreamBufPutArea.size());
+
+                    rc = Util::putValue(&timeStreamBuf, TIME, &options);
+                    if (0 != rc) {
+                        timeStreamBufPutAreaSize++;
+                    }
+                } while (0 != rc);
+
+                LOOP1_ASSERT_EQ(LINE, 8, timeStreamBufPutAreaSize);
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Time' DECODING FAILURE MODES"
+                      << bsl::endl
+                      << "-------------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 9;
+
+            static const struct {
+                int         d_line;
+                const char *d_exp;
+                bool        d_success;
+            } DATA[] = {
+                { L_, "01  80"                       , false },
+                { L_, "02  80 00"                    , false },
+                { L_, "03  80 00  00"                , false },
+                { L_, "04  80 00  00 00"             , false },
+                { L_, "05  80 00  00 00 00"          , false },
+                { L_, "06  80 00  00 00 00 00"       , false },
+                { L_, "07  80 00  00 00 00 00 00"    , true  },
+                { L_, "08  80 00  00 00 00 00 00  00", false },
+                    // Verify that the decode operation requires the value to
+                    // be at exactly 7 octets long (not counting the 1 byte
+                    // length prefix).
+
+                { L_, "07  7F FF  00 00 00 00 00"    , false },
+                { L_, "07  80 01  00 00 00 00 00"    , false },
+                    // Verify that off-by-1 numbers in the header cause
+                    // decoding failures.
+
+                { L_, "07  00 00  00 00 00 00 00"    , false },
+                { L_, "07  10 00  00 00 00 00 00"    , false },
+                { L_, "07  20 00  00 00 00 00 00"    , false },
+                { L_, "07  30 00  00 00 00 00 00"    , false },
+                { L_, "07  40 00  00 00 00 00 00"    , false },
+                { L_, "07  50 00  00 00 00 00 00"    , false },
+                { L_, "07  60 00  00 00 00 00 00"    , false },
+                { L_, "07  70 00  00 00 00 00 00"    , false },
+                { L_, "07  80 00  00 00 00 00 00"    , true  },
+                { L_, "07  90 00  00 00 00 00 00"    , true  },
+                { L_, "07  A0 00  00 00 00 00 00"    , false },
+                { L_, "07  B0 00  00 00 00 00 00"    , false },
+                { L_, "07  C0 00  00 00 00 00 00"    , false },
+                { L_, "07  D0 00  00 00 00 00 00"    , false },
+                { L_, "07  E0 00  00 00 00 00 00"    , false },
+                { L_, "07  F0 00  00 00 00 00 00"    , false },
+                    // Verify that the decode operation requires the control
+                    // nibble field of the header to be '0b1000'.
+
+                { L_, "07  80 01  00 00 00 00 00"    , false },
+                { L_, "07  80 02  00 00 00 00 00"    , false },
+                { L_, "07  80 04  00 00 00 00 00"    , false },
+                { L_, "07  80 08  00 00 00 00 00"    , false },
+                { L_, "07  80 10  00 00 00 00 00"    , false },
+                { L_, "07  80 20  00 00 00 00 00"    , false },
+                { L_, "07  80 40  00 00 00 00 00"    , false },
+                { L_, "07  80 80  00 00 00 00 00"    , false },
+                { L_, "07  81 00  00 00 00 00 00"    , false },
+                { L_, "07  82 00  00 00 00 00 00"    , false },
+                { L_, "07  84 00  00 00 00 00 00"    , false },
+                { L_, "07  88 00  00 00 00 00 00"    , false },
+                    // Verify that the decode operation requires the 12-bit
+                    // timezone field of the header to be 0.
+
+                { L_, "07  80 00  14 1D D7 60 00"    , true  },
+                { L_, "07  80 00  14 1D D7 60 01"    , false },
+                { L_, "07  80 00  FF FF FF FF FF"    , false },
+                    // Verify that the decode operation requires the number
+                    // of milliseconds since midnight to be a value less
+                    // than or equal to the number of microseconds in 24 hours.
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE    = DATA[i].d_line;
+                const char *const EXP     = DATA[i].d_exp;
+                const bool        SUCCESS = DATA[i].d_success;
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int  bufferSize;
+
+                int rc = u::ByteBufferUtil::loadBuffer(
+                    &bufferSize,
+                    buffer,
+                    sizeof(buffer),
+                    EXP,
+                    static_cast<int>(bsl::strlen(EXP)));
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlt::Time time;
+                    int        accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(
+                        &streamBuf, &time, &accumNumBytesConsumed);
+                    if (SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << time << bsl::endl;
+                        }
+                    }
+                }
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlb::Variant2<bdlt::Time, bdlt::TimeTz> timeOrTimeTz;
+                    int accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(
+                        &streamBuf, &timeOrTimeTz, &accumNumBytesConsumed);
+                    if (SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << timeOrTimeTz
+                                      << bsl::endl;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Time' ENCODING/DECODING ISOMORPHISM"
+                      << bsl::endl
+                      << "--------------------------------------------------"
+                      << bsl::endl;
+        {
+            // Note that the special case value of hour 24 is tested
+            // explicitly above.
+            static const int HOURS[] = {0,  1,  2,  3, 20, 21, 22, 23};
+
+            static const int NUM_HOURS = sizeof(HOURS) / sizeof(HOURS[0]);
+
+            static const int MINUTES[] = {
+                0, 1, 2, 3, 32, 33, 57, 58, 59};
+
+            static const int NUM_MINUTES = sizeof(MINUTES) / sizeof(MINUTES[0]);
+
+            static const int SECONDS[] = {
+                0, 1, 2, 3, 4, 5, 31, 32, 33, 57, 58, 59};
+
+            static const int NUM_SECONDS = sizeof(SECONDS) / sizeof(SECONDS[0]);
+
+            static const int MILLISECONDS[] = {
+                0,   1,   2,   3,   4,   5,   6,   7,   8,   15,
+                511, 512, 513, 997, 998, 999};
+
+            static const int NUM_MILLISECONDS = sizeof(MILLISECONDS) /
+                    sizeof(MILLISECONDS[0]);
+
+            static const int MICROSECONDS[] = {
+                0,   1,   2,   3,   4,   5,   6,   7,   8,   15,
+                511, 512, 513, 997, 998, 999};
+
+            static const int NUM_MICROSECONDS = sizeof(MICROSECONDS)
+                    / sizeof(MICROSECONDS[0]);
+
+            static const int NUM_DATA = NUM_HOURS * NUM_MINUTES * NUM_SECONDS *
+                                        NUM_MILLISECONDS * NUM_MICROSECONDS;
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() = u::TestDataUtil::
+            k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            bdlsb::MemOutStreamBuf     outStreamBuf;
+            bdlsb::FixedMemInStreamBuf inStreamBuf(0, 0);
+
+            bdlt::Time                               time;
+            bdlb::Variant2<bdlt::Time, bdlt::TimeTz> timeOrTimeTz;
+            int                                      accumNumBytesConsumed = 0;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE = i;
+
+                const int HOUR =
+                    HOURS[i / (NUM_MINUTES * NUM_SECONDS * NUM_MILLISECONDS *
+                               NUM_MICROSECONDS)];
+
+                const int MINUTE =
+                    MINUTES[(i / (NUM_SECONDS * NUM_MILLISECONDS *
+                                  NUM_MICROSECONDS)) %
+                            NUM_MINUTES];
+
+                const int SECOND =
+                    SECONDS[(i / (NUM_MILLISECONDS * NUM_MICROSECONDS)) %
+                            NUM_SECONDS];
+
+                const int MILLISECOND =
+                    MILLISECONDS[(i / NUM_MICROSECONDS) % NUM_MILLISECONDS];
+
+                const int MICROSECOND = MICROSECONDS[i % NUM_MICROSECONDS];
+
+                const bdlt::Time TIME(HOUR        ,
+                                      MINUTE      ,
+                                      SECOND      ,
+                                      MILLISECOND ,
+                                      MICROSECOND);
+
+                outStreamBuf.reset();
+                int rc = Util::putValue(&outStreamBuf, TIME, &options);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                {
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    accumNumBytesConsumed = 0;
+                    rc = Util::getValue(
+                        &inStreamBuf, &time, &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+                    LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+
+                    LOOP1_ASSERT_EQ(LINE, TIME, time);
+                    LOOP1_ASSERT_EQ(LINE, HOUR, time.hour());
+                    LOOP1_ASSERT_EQ(LINE, MINUTE, time.minute());
+                    LOOP1_ASSERT_EQ(LINE, SECOND, time.second());
+                    LOOP1_ASSERT_EQ(LINE, MILLISECOND, time.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, MICROSECOND, time.microsecond());
+                }
+
+                {
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    accumNumBytesConsumed = 0;
+                    rc = Util::getValue(
+                        &inStreamBuf, &timeOrTimeTz, &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+                    LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+
+                    LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::Time>());
+                    if (!timeOrTimeTz.is<bdlt::Time>()) {
+                        continue;
+                    }
+
+                    LOOP1_ASSERT_EQ(
+                        LINE, TIME, timeOrTimeTz.the<bdlt::Time>());
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::TimeTz' ENCODING"
+                      << bsl::endl
+                      << "-------------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                int d_offset;
+                const char *d_exp;
+            } DATA[] = {
+              { L_,  0,  0,  0,   0,   0,     0, "07  90 00  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0,     1, "07  90 01  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0,     2, "07  90 02  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0,   255, "07  90 FF  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0,  1439, "07  95 9F  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0,    -1, "07  9F FF  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0,    -2, "07  9F FE  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0,  -255, "07  9F 01  00 00 00 00 00" },
+              { L_,  0,  0,  0,   0,   0, -1439, "07  9A 61  00 00 00 00 00" },
+
+              { L_,  0,  0,  0,   0,   1,     0, "07  90 00  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1,     1, "07  90 01  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1,     2, "07  90 02  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1,   255, "07  90 FF  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1,  1439, "07  95 9F  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1,    -1, "07  9F FF  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1,    -2, "07  9F FE  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1,  -255, "07  9F 01  00 00 00 00 01" },
+              { L_,  0,  0,  0,   0,   1, -1439, "07  9A 61  00 00 00 00 01" },
+
+              { L_,  0,  0,  0,   1,   0,     0, "07  90 00  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0,     1, "07  90 01  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0,     2, "07  90 02  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0,   255, "07  90 FF  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0,  1439, "07  95 9F  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0,    -1, "07  9F FF  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0,    -2, "07  9F FE  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0,  -255, "07  9F 01  00 00 00 03 E8" },
+              { L_,  0,  0,  0,   1,   0, -1439, "07  9A 61  00 00 00 03 E8" },
+
+              { L_,  0,  0,  1,   0,   0,     0, "07  90 00  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0,     1, "07  90 01  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0,     2, "07  90 02  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0,   255, "07  90 FF  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0,  1439, "07  95 9F  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0,    -1, "07  9F FF  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0,    -2, "07  9F FE  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0,  -255, "07  9F 01  00 00 0F 42 40" },
+              { L_,  0,  0,  1,   0,   0, -1439, "07  9A 61  00 00 0F 42 40" },
+
+              { L_,  0,  1,  0,   0,   0,     0, "07  90 00  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0,     1, "07  90 01  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0,     2, "07  90 02  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0,   255, "07  90 FF  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0,  1439, "07  95 9F  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0,    -1, "07  9F FF  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0,    -2, "07  9F FE  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0,  -255, "07  9F 01  00 03 93 87 00" },
+              { L_,  0,  1,  0,   0,   0, -1439, "07  9A 61  00 03 93 87 00" },
+
+              { L_,  1,  0,  0,   0,   0,     0, "07  90 00  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0,     1, "07  90 01  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0,     2, "07  90 02  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0,   255, "07  90 FF  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0,  1439, "07  95 9F  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0,    -1, "07  9F FF  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0,    -2, "07  9F FE  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0,  -255, "07  9F 01  00 D6 93 A4 00" },
+              { L_,  1,  0,  0,   0,   0, -1439, "07  9A 61  00 D6 93 A4 00" },
+
+              { L_,  0,  0,  0,   0, 999,     0, "07  90 00  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999,     1, "07  90 01  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999,     2, "07  90 02  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999,   255, "07  90 FF  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999,  1439, "07  95 9F  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999,    -1, "07  9F FF  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999,    -2, "07  9F FE  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999,  -255, "07  9F 01  00 00 00 03 E7" },
+              { L_,  0,  0,  0,   0, 999, -1439, "07  9A 61  00 00 00 03 E7" },
+
+              { L_,  0,  0,  0, 999,   0,     0, "07  90 00  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0,     1, "07  90 01  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0,     2, "07  90 02  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0,   255, "07  90 FF  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0,  1439, "07  95 9F  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0,    -1, "07  9F FF  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0,    -2, "07  9F FE  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0,  -255, "07  9F 01  00 00 0F 3E 58" },
+              { L_,  0,  0,  0, 999,   0, -1439, "07  9A 61  00 00 0F 3E 58" },
+
+              { L_,  0,  0, 59,   0,   0,     0, "07  90 00  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0,     1, "07  90 01  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0,     2, "07  90 02  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0,   255, "07  90 FF  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0,  1439, "07  95 9F  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0,    -1, "07  9F FF  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0,    -2, "07  9F FE  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0,  -255, "07  9F 01  00 03 84 44 C0" },
+              { L_,  0,  0, 59,   0,   0, -1439, "07  9A 61  00 03 84 44 C0" },
+
+              { L_,  0, 59,  0,   0,   0,     0, "07  90 00  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0,     1, "07  90 01  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0,     2, "07  90 02  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0,   255, "07  90 FF  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0,  1439, "07  95 9F  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0,    -1, "07  9F FF  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0,    -2, "07  9F FE  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0,  -255, "07  9F 01  00 D3 00 1D 00" },
+              { L_,  0, 59,  0,   0,   0, -1439, "07  9A 61  00 D3 00 1D 00" },
+
+              { L_, 23,  0,  0,   0,   0,     0, "07  90 00  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0,     1, "07  90 01  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0,     2, "07  90 02  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0,   255, "07  90 FF  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0,  1439, "07  95 9F  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0,    -1, "07  9F FF  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0,    -2, "07  9F FE  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0,  -255, "07  9F 01  13 47 43 BC 00" },
+              { L_, 23,  0,  0,   0,   0, -1439, "07  9A 61  13 47 43 BC 00" },
+
+              { L_, 23, 59, 59, 999, 999,     0, "07  90 00  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999,     1, "07  90 01  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999,     2, "07  90 02  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999,   255, "07  90 FF  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999,  1439, "07  95 9F  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999,    -1, "07  9F FF  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999,    -2, "07  9F FE  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999,  -255, "07  9F 01  14 1D D7 5F FF" },
+              { L_, 23, 59, 59, 999, 999, -1439, "07  9A 61  14 1D D7 5F FF" },
+
+              { L_, 24,  0,  0,   0,   0,     0, "07  90 00  14 1D D7 60 00" },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() = u::TestDataUtil::
+            k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            const balber::BerEncoderOptions& OPTIONS = options;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minute;
+                const int         SECOND      = DATA[i].d_second;
+                const int         MILLISECOND = DATA[i].d_millisecond;
+                const int         MICROSECOND = DATA[i].d_microsecond;
+                const int         OFFSET      = DATA[i].d_offset;
+                const char *const EXP         = DATA[i].d_exp;
+
+                const bdlt::Time TIME(HOUR        ,
+                                      MINUTE      ,
+                                      SECOND      ,
+                                      MILLISECOND ,
+                                      MICROSECOND);
+
+                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
+                static const int NUM_BYTES = 8;
+
+                bdlsb::MemOutStreamBuf timeTzOutBuffer;
+                const bool             timeTzEncodesToBytes =
+                    u::TestUtil::valueEncodesToBytes(cout,
+                                                     &timeTzOutBuffer,
+                                                     TIMETZ,
+                                                     OPTIONS,
+                                                     EXP,
+                                                     NUM_BYTES);
+                LOOP1_ASSERT(LINE, timeTzEncodesToBytes);
+                if (!timeTzEncodesToBytes) {
+                    continue;
+                }
+
+                const bool bytesDecodeToTimeTz =
+                    u::TestUtil::bytesDecodeToValue(cout,
+                                                    timeTzOutBuffer.data(),
+                                                    timeTzOutBuffer.length(),
+                                                    TIMETZ,
+                                                    NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToTimeTz);
+                if (!bytesDecodeToTimeTz) {
+                    continue;
+                }
+
+                const bdlb::Variant2<bdlt::Time, bdlt::TimeTz> TIME_OR_TIMETZ(
+                                                                       TIMETZ);
+
+                const bool bytesDecodeToVariant =
+                    u::TestUtil::bytesDecodeToValue(cout,
+                                                    timeTzOutBuffer.data(),
+                                                    timeTzOutBuffer.length(),
+                                                    TIME_OR_TIMETZ,
+                                                    NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToVariant);
+                if (!bytesDecodeToVariant) {
+                    continue;
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::TimeTz' ENCODING FAILURE MODES"
+                      << bsl::endl
+                      << "---------------------------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                int d_offset;
+            } DATA[] = {
+                { L_,  0,  0,  0,   0,   0,     0 },
+                { L_,  0,  0,  0,   0,   0,     1 },
+                { L_,  0,  0,  0,   0,   0,    -1 },
+                { L_,  0,  0,  0,   0,   1,     0 },
+                { L_,  0,  0,  0,   1,   0,     0 },
+                { L_,  0,  0,  1,   0,   0,     0 },
+                { L_,  0,  1,  0,   0,   0,     0 },
+                { L_,  1,  0,  0,   0,   0,     0 },
+                { L_,  0,  0,  0,   0,   0,  1439 },
+                { L_,  0,  0,  0,   0,   0, -1439 },
+                { L_,  0,  0,  0,   0, 999,     0 },
+                { L_,  0,  0,  0, 999,   0,     0 },
+                { L_,  0,  0, 59,   0,   0,     0 },
+                { L_,  0, 59,  0,   0,   0,     0 },
+                { L_, 23,  0,  0,   0,   0,     0 },
+                { L_, 23, 59, 59, 999, 999,  1439 },
+                { L_, 23, 59, 59, 999, 999, -1439 },
+                { L_, 24,  0,  0,   0,   0,     0 },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE        = DATA[i].d_line;
+                const int HOUR        = DATA[i].d_hour;
+                const int MINUTE      = DATA[i].d_minute;
+                const int SECOND      = DATA[i].d_second;
+                const int MILLISECOND = DATA[i].d_millisecond;
+                const int MICROSECOND = DATA[i].d_microsecond;
+                const int OFFSET      = DATA[i].d_offset;
+
+                const bdlt::Time TIME(HOUR,
+                                      MINUTE,
+                                      SECOND,
+                                      MILLISECOND,
+                                      MICROSECOND);
+
+                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
+                bsl::vector<char> timeStreamBufPutArea;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() = u::TestDataUtil::
+                k_EXTENDED_BINARY_MIN_BDE_VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(true);
+                options.setDatetimeFractionalSecondPrecision(6);
+
+                int timeStreamBufPutAreaSize = 0;
+                int rc = 0;
+
+                do {
+                    timeStreamBufPutArea.clear();
+                    timeStreamBufPutArea.resize(timeStreamBufPutAreaSize);
+
+                    bdlsb::FixedMemOutStreamBuf timeStreamBuf(
+                        timeStreamBufPutArea.data(),
+                        timeStreamBufPutArea.size());
+
+                    rc = Util::putValue(&timeStreamBuf, TIMETZ, &options);
+
+                    if (0 != rc) {
+                        timeStreamBufPutAreaSize++;
+                    }
+                } while (0 != rc);
+
+                LOOP1_ASSERT_EQ(LINE, 8, timeStreamBufPutAreaSize);
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::TimeTz' DECODING FAILURE MODES"
+                      << bsl::endl
+                      << "---------------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 9;
+
+            static const struct {
+                int         d_line;
+                const char *d_exp;
+                bool        d_success;
+            } DATA[] = {
+                { L_, "01  80"                        , false },
+                { L_, "02  80 00"                     , false },
+                { L_, "03  80 00  00"                 , false },
+                { L_, "04  80 00  00 00"              , false },
+                { L_, "05  80 00  00 00 00"           , false },
+                { L_, "06  80 00  00 00 00 00"        , false },
+                { L_, "07  80 00  00 00 00 00 00"     , true  },
+                { L_, "08  80 00  00 00 00 00 00  00" , false },
+                    // Verify that the decode operation requires the value to
+                    // be at exactly 7 octets long (not counting the 1 byte
+                    // length prefix).
+
+                { L_, "07  7F FF  00 00 00 00 00"     , false },
+                { L_, "07  80 01  00 00 00 00 00"     , false },
+                    // Verify that off-by-1 numbers in the header cause
+                    // decoding failures.
+
+                { L_, "07  00 00  00 00 00 00 00"     , false },
+                { L_, "07  10 00  00 00 00 00 00"     , false },
+                { L_, "07  20 00  00 00 00 00 00"     , false },
+                { L_, "07  30 00  00 00 00 00 00"     , false },
+                { L_, "07  40 00  00 00 00 00 00"     , false },
+                { L_, "07  50 00  00 00 00 00 00"     , false },
+                { L_, "07  60 00  00 00 00 00 00"     , false },
+                { L_, "07  70 00  00 00 00 00 00"     , false },
+                { L_, "07  80 00  00 00 00 00 00"     , true  },
+                { L_, "07  90 00  00 00 00 00 00"     , true  },
+                { L_, "07  A0 00  00 00 00 00 00"     , false },
+                { L_, "07  B0 00  00 00 00 00 00"     , false },
+                { L_, "07  C0 00  00 00 00 00 00"     , false },
+                { L_, "07  D0 00  00 00 00 00 00"     , false },
+                { L_, "07  E0 00  00 00 00 00 00"     , false },
+                { L_, "07  F0 00  00 00 00 00 00"     , false },
+                    // Verify that the decode operation requires the control
+                    // nibble field of the header to be '0b1000' or '0b1001'.
+
+                { L_, "07  80 01  00 00 00 00 00"     , false },
+                { L_, "07  80 02  00 00 00 00 00"     , false },
+                { L_, "07  80 04  00 00 00 00 00"     , false },
+                { L_, "07  80 08  00 00 00 00 00"     , false },
+                { L_, "07  80 10  00 00 00 00 00"     , false },
+                { L_, "07  80 20  00 00 00 00 00"     , false },
+                { L_, "07  80 40  00 00 00 00 00"     , false },
+                { L_, "07  80 80  00 00 00 00 00"     , false },
+                { L_, "07  81 00  00 00 00 00 00"     , false },
+                { L_, "07  82 00  00 00 00 00 00"     , false },
+                { L_, "07  84 00  00 00 00 00 00"     , false },
+                { L_, "07  88 00  00 00 00 00 00"     , false },
+                    // Verify that the decode operation requires the 12-bit
+                    // timezone field of the header to be 0.
+
+                { L_, "07  80 00  14 1D D7 60 00"     , true  },
+                { L_, "07  90 00  14 1D D7 60 00"     , true  },
+                { L_, "07  80 00  14 1D D7 60 01"     , false },
+                { L_, "07  90 00  14 1D D7 60 01"     , false },
+                { L_, "07  80 00  FF FF FF FF FF"     , false },
+                { L_, "07  90 00  FF FF FF FF FF"     , false },
+                    // Verify that the decode operation requires the number
+                    // of milliseconds since midnight to be a value less
+                    // than or equal to the number of microseconds in 24 hours.
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE    = DATA[i].d_line;
+                const char *const EXP     = DATA[i].d_exp;
+                const bool        SUCCESS = DATA[i].d_success;
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int  bufferSize;
+
+                int rc = u::ByteBufferUtil::loadBuffer(
+                    &bufferSize,
+                    buffer,
+                    sizeof(buffer),
+                    EXP,
+                    static_cast<int>(bsl::strlen(EXP)));
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlt::TimeTz timeTz;
+                    int          accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(
+                        &streamBuf, &timeTz, &accumNumBytesConsumed);
+                    if (SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << timeTz << bsl::endl;
+                        }
+                    }
+                }
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlb::Variant2<bdlt::Time, bdlt::TimeTz> timeOrTimeTz;
+                    int accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(
+                        &streamBuf, &timeOrTimeTz, &accumNumBytesConsumed);
+                    if (SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << timeOrTimeTz
+                                      << bsl::endl;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::TimeTz' ENCODING/DECODING ISOMORPHISM"
+                      << bsl::endl
+                      << "----------------------------------------------------"
+                      << bsl::endl;
+        {
+            static const int HOURS[] = {0, 1, 2, 3, 20, 21, 22, 23};
+
+            static const int NUM_HOURS = sizeof(HOURS) / sizeof(HOURS[0]);
+
+            static const int MINUTES[] = {
+                0, 1, 2, 3, 32, 33, 57, 58, 59};
+
+            static const int NUM_MINUTES = sizeof(MINUTES) / sizeof(MINUTES[0]);
+
+            static const int SECONDS[] = {
+                0, 1, 2, 3, 4, 5, 31, 32, 33, 57, 58, 59};
+
+            static const int NUM_SECONDS = sizeof(SECONDS) / sizeof(SECONDS[0]);
+
+            static const int MILLISECONDS[] = {
+                0,   1,   2,   3,   4,   5,   6,   7,   8,   15,
+                511, 512, 513, 997, 998, 999};
+
+            static const int NUM_MILLISECONDS = sizeof(MILLISECONDS) /
+                    sizeof(MILLISECONDS[0]);
+
+            static const int MICROSECONDS[] = {
+                0,   1,   2,   3,   4,   5,   6,   7,   8,   15,
+                511, 512, 513, 997, 998, 999};
+
+            static const int NUM_MICROSECONDS = sizeof(MICROSECONDS)
+                    / sizeof(MICROSECONDS[0]);
+
+            static const int OFFSETS[] = {
+                -1439, -1438, -1024, -8 - 2, -1, 0, 1, 2, 8, 1024, 1438, 1439};
+
+            static const int NUM_OFFSETS =
+                sizeof(OFFSETS) / sizeof(OFFSETS[0]);
+
+            static const int NUM_DATA = NUM_HOURS * NUM_MINUTES * NUM_SECONDS *
+                                        NUM_MILLISECONDS * NUM_MICROSECONDS *
+                                        NUM_OFFSETS;
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() = u::TestDataUtil::
+            k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            bdlsb::MemOutStreamBuf     outStreamBuf;
+            bdlsb::FixedMemInStreamBuf inStreamBuf(0, 0);
+
+            bdlt::Time                               time;
+            bdlt::TimeTz                             timeTz;
+            bdlb::Variant2<bdlt::Time, bdlt::TimeTz> timeOrTimeTz;
+            int                                      accumNumBytesConsumed = 0;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE = i;
+
+                const int HOUR =
+                    HOURS[i / (NUM_MINUTES * NUM_SECONDS * NUM_MILLISECONDS *
+                               NUM_MICROSECONDS * NUM_OFFSETS)];
+
+                const int MINUTE =
+                    MINUTES[(i / (NUM_SECONDS * NUM_MILLISECONDS *
+                                  NUM_MICROSECONDS * NUM_OFFSETS)) %
+                            NUM_MINUTES];
+
+                const int SECOND =
+                    SECONDS[(i / (NUM_MILLISECONDS * NUM_MICROSECONDS *
+                                  NUM_OFFSETS)) %
+                            NUM_SECONDS];
+
+                const int MILLISECOND =
+                    MILLISECONDS[(i / (NUM_MICROSECONDS * NUM_OFFSETS)) %
+                                 NUM_MILLISECONDS];
+
+                const int MICROSECOND =
+                    MICROSECONDS[(i / NUM_OFFSETS) % NUM_MICROSECONDS];
+
+                const int OFFSET = OFFSETS[i % NUM_OFFSETS];
+
+                const bdlt::Time TIME(HOUR        ,
+                                      MINUTE      ,
+                                      SECOND      ,
+                                      MILLISECOND ,
+                                      MICROSECOND);
+
+                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
+                outStreamBuf.reset();
+                int rc = Util::putValue(&outStreamBuf, TIMETZ, &options);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                {
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    accumNumBytesConsumed = 0;
+                    rc = Util::getValue(
+                        &inStreamBuf, &timeTz, &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+                    LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, TIMETZ, timeTz);
+                }
+
+                {
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    accumNumBytesConsumed = 0;
+                    rc = Util::getValue(
+                        &inStreamBuf, &timeOrTimeTz, &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+                    LOOP1_ASSERT_EQ(LINE, 8, accumNumBytesConsumed);
+
+                    LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::TimeTz>());
+                    if (!timeOrTimeTz.is<bdlt::TimeTz>()) {
+                        continue;
+                    }
+
+                    LOOP1_ASSERT_EQ(
+                        LINE, TIMETZ, timeOrTimeTz.the<bdlt::TimeTz>());
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING TIME VARIANT DECODING"
+                      << bsl::endl
+                      << "-----------------------------"
+                      << bsl::endl;
+        {
+            enum Selection {
+                TIME,
+                TIMETZ
+            };
+
+            static const int NA = -1;
+
+            static const struct {
+                int         d_line;
+                const char *d_exp;
+                Selection   d_selection;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_millisecond;
+                int         d_microsecond;
+                int         d_offset;
+            } DATA[] = {
+  { L_, "07  80 00  00 00 00 00 00", TIME  ,  0,  0,  0,   0,   0, NA    },
+  { L_, "07  80 00  00 00 00 00 01", TIME  ,  0,  0,  0,   0,   1, NA    },
+  { L_, "07  80 00  00 00 00 03 E8", TIME  ,  0,  0,  0,   1,   0, NA    },
+  { L_, "07  80 00  00 00 0F 42 40", TIME  ,  0,  0,  1,   0,   0, NA    },
+  { L_, "07  80 00  00 03 93 87 00", TIME  ,  0,  1,  0,   0,   0, NA    },
+  { L_, "07  80 00  00 D6 93 A4 00", TIME  ,  1,  0,  0,   0,   0, NA    },
+
+  { L_, "07  80 00  00 00 00 03 E7", TIME  ,  0,  0,  0,   0, 999, NA    },
+  { L_, "07  80 00  00 00 0F 3E 58", TIME  ,  0,  0,  0, 999,   0, NA    },
+  { L_, "07  80 00  00 03 84 44 C0", TIME  ,  0,  0, 59,   0,   0, NA    },
+  { L_, "07  80 00  00 D3 00 1D 00", TIME  ,  0, 59,  0,   0,   0, NA    },
+  { L_, "07  80 00  13 47 43 BC 00", TIME  , 23,  0,  0,   0,   0, NA    },
+
+  { L_, "07  80 00  14 1D D7 5F FF", TIME  , 23, 59, 59, 999, 999, NA    },
+  { L_, "07  80 00  14 1D D7 60 00", TIME  , 24,  0,  0,   0,   0, NA    },
+
+  { L_, "07  90 00  00 00 00 00 00", TIMETZ,  0,  0,  0,   0,   0,     0 },
+  { L_, "07  90 01  00 00 00 00 00", TIMETZ,  0,  0,  0,   0,   0,     1 },
+  { L_, "07  9F FF  00 00 00 00 00", TIMETZ,  0,  0,  0,   0,   0,    -1 },
+  { L_, "07  90 00  00 00 00 00 01", TIMETZ,  0,  0,  0,   0,   1,     0 },
+  { L_, "07  90 00  00 00 00 03 E8", TIMETZ,  0,  0,  0,   1,   0,     0 },
+  { L_, "07  90 00  00 00 0F 42 40", TIMETZ,  0,  0,  1,   0,   0,     0 },
+  { L_, "07  90 00  00 03 93 87 00", TIMETZ,  0,  1,  0,   0,   0,     0 },
+  { L_, "07  90 00  00 D6 93 A4 00", TIMETZ,  1,  0,  0,   0,   0,     0 },
+
+  { L_, "07  95 9F  00 00 00 00 00", TIMETZ,  0,  0,  0,   0,   0,  1439 },
+  { L_, "07  9A 61  00 00 00 00 00", TIMETZ,  0,  0,  0,   0,   0, -1439 },
+  { L_, "07  90 00  00 00 00 03 E7", TIMETZ,  0,  0,  0,   0, 999,     0 },
+  { L_, "07  90 00  00 00 0F 3E 58", TIMETZ,  0,  0,  0, 999,   0,     0 },
+  { L_, "07  90 00  00 03 84 44 C0", TIMETZ,  0,  0, 59,   0,   0,     0 },
+  { L_, "07  90 00  00 D3 00 1D 00", TIMETZ,  0, 59,  0,   0,   0,     0 },
+  { L_, "07  90 00  13 47 43 BC 00", TIMETZ, 23,  0,  0,   0,   0,     0 },
+
+  { L_, "07  90 00  14 1D D7 5F FF", TIMETZ, 23, 59, 59, 999, 999,     0 },
+  { L_, "07  95 9F  14 1D D7 5F FF", TIMETZ, 23, 59, 59, 999, 999,  1439 },
+  { L_, "07  9A 61  14 1D D7 5F FF", TIMETZ, 23, 59, 59, 999, 999, -1439 },
+  { L_, "07  90 00  14 1D D7 60 00", TIMETZ, 24,  0,  0,   0,   0,     0 },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const char *const EXP         = DATA[i].d_exp;
+                const Selection   SELECTION   = DATA[i].d_selection;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minute;
+                const int         SECOND      = DATA[i].d_second;
+                const int         MILLISECOND = DATA[i].d_millisecond;
+                const int         MICROSECOND = DATA[i].d_microsecond;
+                const int         OFFSET      = DATA[i].d_offset;
+
+                static const int k_MAX_BUFFER_SIZE = 8;
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int  bufferSize;
+
+                int rc = u::ByteBufferUtil::loadBuffer(
+                    &bufferSize,
+                    buffer,
+                    sizeof(buffer),
+                    EXP,
+                    static_cast<int>(bsl::strlen(EXP)));
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                bdlb::Variant2<bdlt::Time, bdlt::TimeTz> timeOrTimeTz;
+                int accumNumBytesConsumed = 0;
+
+                rc = Util::getValue(
+                    &streamBuf, &timeOrTimeTz, &accumNumBytesConsumed);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                switch (SELECTION) {
+                  case TIME: {
+                      LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::Time>());
+                      if (!timeOrTimeTz.is<bdlt::Time>()) continue; // CONTINUE
+
+                      const bdlt::Time& TIME = timeOrTimeTz.the<bdlt::Time>();
+                      LOOP1_ASSERT_EQ(LINE, HOUR, TIME.hour());
+                      LOOP1_ASSERT_EQ(LINE, MINUTE, TIME.minute());
+                      LOOP1_ASSERT_EQ(LINE, SECOND, TIME.second());
+                      LOOP1_ASSERT_EQ(LINE, MILLISECOND, TIME.millisecond());
+                      LOOP1_ASSERT_EQ(LINE, MICROSECOND, TIME.microsecond());
+                  } break;
+                  case TIMETZ: {
+                      LOOP1_ASSERT(LINE, timeOrTimeTz.is<bdlt::TimeTz>());
+                      if (!timeOrTimeTz.is<bdlt::TimeTz>()) continue;
+                                                                    // CONTINUE
+
+                      const bdlt::TimeTz& TIMETZ =
+                          timeOrTimeTz.the<bdlt::TimeTz>();
+                      const bdlt::Time& TIME = TIMETZ.localTime();
+
+                      LOOP1_ASSERT_EQ(LINE, HOUR, TIME.hour());
+                      LOOP1_ASSERT_EQ(LINE, MINUTE, TIME.minute());
+                      LOOP1_ASSERT_EQ(LINE, SECOND, TIME.second());
+                      LOOP1_ASSERT_EQ(LINE, MILLISECOND, TIME.millisecond());
+                      LOOP1_ASSERT_EQ(LINE, MICROSECOND, TIME.microsecond());
+                      LOOP1_ASSERT_EQ(LINE, OFFSET, TIMETZ.offset());
+                  } break;
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Datetime' ENCODING"
+                      << bsl::endl
+                      << "---------------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int         d_line;
+                int         d_year;
+                int         d_month;
+                int         d_day;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_millisecond;
+                int         d_microsecond;
+                const char *d_exp;
+            } DATA[] = {
+
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0,
+                                       "0A  80 00  00 00 00  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   1,
+                                       "0A  80 00  00 00 00  00 00 00 00 01" },
+{ L_,    1,  1,  1,  0,  0,  0,   1,   0,
+                                       "0A  80 00  00 00 00  00 00 00 03 E8" },
+{ L_,    1,  1,  1,  0,  0,  1,   0,   0,
+                                       "0A  80 00  00 00 00  00 00 0F 42 40" },
+{ L_,    1,  1,  1,  0,  1,  0,   0,   0,
+                                       "0A  80 00  00 00 00  00 03 93 87 00" },
+{ L_,    1,  1,  1,  1,  0,  0,   0,   0,
+                                       "0A  80 00  00 00 00  00 D6 93 A4 00" },
+{ L_,    1,  1,  2,  0,  0,  0,   0,   0,
+                                       "0A  80 00  00 00 01  00 00 00 00 00" },
+{ L_,    1,  2,  1,  0,  0,  0,   0,   0,
+                                       "0A  80 00  00 00 1F  00 00 00 00 00" },
+{ L_,    2,  1,  1,  0,  0,  0,   0,   0,
+                                       "0A  80 00  00 01 6D  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0, 999,
+                                       "0A  80 00  00 00 00  00 00 00 03 E7" },
+{ L_,    1,  1,  1,  0,  0,  0, 999,   0,
+                                       "0A  80 00  00 00 00  00 00 0F 3E 58" },
+{ L_,    1,  1,  1,  0,  0, 59,   0,   0,
+                                       "0A  80 00  00 00 00  00 03 84 44 C0" },
+{ L_,    1,  1,  1,  0, 59,  0,   0,   0,
+                                       "0A  80 00  00 00 00  00 D3 00 1D 00" },
+{ L_,    1,  1,  1, 23,  0,  0,   0,   0,
+                                       "0A  80 00  00 00 00  13 47 43 BC 00" },
+{ L_,    1,  1, 31,  0,  0,  0,   0,   0,
+                                       "0A  80 00  00 00 1E  00 00 00 00 00" },
+{ L_,    1, 12,  1,  0,  0,  0,   0,   0,
+                                       "0A  80 00  00 01 4E  00 00 00 00 00" },
+{ L_, 9999,  1,  1,  0,  0,  0,   0,   0,
+                                       "0A  80 00  37 B8 6E  00 00 00 00 00" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,
+                                       "0A  80 00  37 B9 DA  14 1D D7 5C 18" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 999,
+                                       "0A  80 00  37 B9 DA  14 1D D7 5F FF" },
+{ L_, 9999, 12, 31, 24,  0,  0,   0,   0,
+                                       "0A  80 00  37 B9 DA  14 1D D7 60 00" },
+
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            const balber::BerEncoderOptions& OPTIONS = options;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const int         YEAR        = DATA[i].d_year;
+                const int         MONTH       = DATA[i].d_month;
+                const int         DAY         = DATA[i].d_day;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minute;
+                const int         SECOND      = DATA[i].d_second;
+                const int         MILLISECOND = DATA[i].d_millisecond;
+                const int         MICROSECOND = DATA[i].d_microsecond;
+                const char *const EXP         = DATA[i].d_exp;
+
+                const bdlt::Datetime DATETIME(YEAR        ,
+                                              MONTH       ,
+                                              DAY         ,
+                                              HOUR        ,
+                                              MINUTE      ,
+                                              SECOND      ,
+                                              MILLISECOND ,
+                                              MICROSECOND);
+
+                static const int NUM_BYTES = 11;
+
+                bdlsb::MemOutStreamBuf datetimeOutBuffer;
+                const bool             datetimeEncodesToBytes =
+                    u::TestUtil::valueEncodesToBytes(cout,
+                                                     &datetimeOutBuffer,
+                                                     DATETIME,
+                                                     OPTIONS,
+                                                     EXP,
+                                                     NUM_BYTES);
+                LOOP1_ASSERT(LINE, datetimeEncodesToBytes);
+                if (!datetimeEncodesToBytes) {
+                    continue;
+                }
+
+                const bool bytesDecodeToDatetime =
+                    u::TestUtil::bytesDecodeToValue(cout,
+                                                    datetimeOutBuffer.data(),
+                                                    datetimeOutBuffer.length(),
+                                                    DATETIME,
+                                                    NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToDatetime);
+                if (!bytesDecodeToDatetime) {
+                    continue;
+                }
+
+                const bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                DATETIME_OR_DATETIMETZ(DATETIME);
+
+                const bool bytesDecodeToVariant =
+                    u::TestUtil::bytesDecodeToValue(cout,
+                                                    datetimeOutBuffer.data(),
+                                                    datetimeOutBuffer.length(),
+                                                    DATETIME_OR_DATETIMETZ,
+                                                    NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToVariant);
+                if (!bytesDecodeToVariant) {
+                    continue;
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Datetime' ENCODING FAILURE MODES"
+                      << bsl::endl
+                      << "-----------------------------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_year;
+                int d_month;
+                int d_day;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+            } DATA[] = {
+                { L_,    1,  1,  1,  0,  0,  0,   0,   0 },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   1 },
+                { L_,    1,  1,  1,  0,  0,  0,   1,   0 },
+                { L_,    1,  1,  1,  0,  0,  1,   0,   0 },
+                { L_,    1,  1,  1,  0,  1,  0,   0,   0 },
+                { L_,    1,  1,  1,  1,  0,  0,   0,   0 },
+                { L_,    1,  1,  2,  0,  0,  0,   0,   0 },
+                { L_,    1,  2,  1,  0,  0,  0,   0,   0 },
+                { L_,    2,  1,  1,  0,  0,  0,   0,   0 },
+                { L_,    1,  1,  1,  0,  0,  0,   0, 999 },
+                { L_,    1,  1,  1,  0,  0,  0, 999,   0 },
+                { L_,    1,  1,  1,  0,  0, 59,   0,   0 },
+                { L_,    1,  1,  1,  0, 59,  0,   0,   0 },
+                { L_,    1,  1,  1, 23,  0,  0,   0,   0 },
+                { L_,    1,  1, 31,  0,  0,  0,   0,   0 },
+                { L_,    1, 12,  1,  0,  0,  0,   0,   0 },
+                { L_, 9999,  1,  1,  0,  0,  0,   0,   0 },
+                { L_, 9999, 12, 31, 23, 59, 59, 999,   0 },
+                { L_, 9999, 12, 31, 23, 59, 59, 999, 999 },
+                { L_,    1,  1,  1, 24,  0,  0,   0,   0 },
+                { L_, 9999, 12, 31, 24,  0,  0,   0,   0 }
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE        = DATA[i].d_line;
+                const int YEAR        = DATA[i].d_year;
+                const int MONTH       = DATA[i].d_month;
+                const int DAY         = DATA[i].d_day;
+                const int HOUR        = DATA[i].d_hour;
+                const int MINUTE      = DATA[i].d_minute;
+                const int SECOND      = DATA[i].d_second;
+                const int MILLISECOND = DATA[i].d_millisecond;
+                const int MICROSECOND = DATA[i].d_microsecond;
+
+                const bdlt::Datetime DATETIME(YEAR,
+                                              MONTH,
+                                              DAY,
+                                              HOUR,
+                                              MINUTE,
+                                              SECOND,
+                                              MILLISECOND,
+                                              MICROSECOND);
+
+                bsl::vector<char> streamBufPutArea;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() = u::TestDataUtil::
+                k_EXTENDED_BINARY_MIN_BDE_VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(true);
+                options.setDatetimeFractionalSecondPrecision(6);
+
+                int streamBufPutAreaSize = 0;
+                int rc = 0;
+
+                do {
+                    streamBufPutArea.clear();
+                    streamBufPutArea.resize(streamBufPutAreaSize);
+
+                    bdlsb::FixedMemOutStreamBuf timeStreamBuf(
+                        streamBufPutArea.data(),
+                        streamBufPutArea.size());
+
+                    rc = Util::putValue(&timeStreamBuf, DATETIME, &options);
+
+                    if (0 != rc) {
+                        streamBufPutAreaSize++;
+                    }
+                } while (0 != rc);
+
+                LOOP1_ASSERT_EQ(LINE, 11, streamBufPutAreaSize);
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::Datetime' DECODING FAILURE MODES"
+                      << bsl::endl
+                      << "-----------------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 25;
+
+            static const struct {
+                int         d_line;
+                const char *d_exp;
+                bool        d_success;
+                bool        d_variantSuccess;
+            } DATA[] = {
+              { L_, "01  80"                                 , true  , true  },
+
+              { L_, "02  80 00"                              , true  , true  },
+              { L_, "03  80 00  00"                          , true  , true  },
+              { L_, "04  80 00  00 00"                       , true  , true  },
+              { L_, "05  80 00  00 00 00"                    , true  , true  },
+              { L_, "06  80 00  00 00 00  00"                , false , false },
+              { L_, "07  80 00  00 00 00  00 00"             , true  , false },
+              { L_, "08  80 00  00 00 00  00 00 00"          , true  , false },
+              { L_, "09  80 00  00 00 00  00 00 00 00"       , true  , false },
+              { L_, "0A  80 00  00 00 00  00 00 00 00 00"    , true  , true  },
+              { L_, "0B  80 00  00 00 00  00 00 00 00 00  00", false , false },
+
+              { L_, "0A  7F FF  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 01  00 00 00  00 00 00 00 00"    , false , false },
+
+              { L_, "0A  00 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  10 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  20 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  30 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  40 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  50 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  60 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  70 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 00  00 00 00  00 00 00 00 00"    , true  , true  },
+              { L_, "0A  90 00  00 00 00  00 00 00 00 00"    , true  , true  },
+              { L_, "0A  A0 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  B0 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  C0 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  D0 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  E0 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  F0 00  00 00 00  00 00 00 00 00"    , false , false },
+
+              { L_, "0A  80 01  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 02  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 04  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 08  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 10  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 20  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 40  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 80  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  81 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  82 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  84 00  00 00 00  00 00 00 00 00"    , false , false },
+              { L_, "0A  88 00  00 00 00  00 00 00 00 00"    , false , false },
+
+              { L_, "0A  80 00  00 00 00  14 1D D7 60 00"    , true  , true  },
+              { L_, "0A  80 00  00 00 00  14 1D D7 60 01"    , false , false },
+              { L_, "0A  80 00  00 00 00  FF FF FF FF FF"    , false , false },
+
+              { L_, "0A  80 00  37 B9 DA  00 00 00 00 00"    , true  , true  },
+              { L_, "0A  80 00  37 B9 DB  00 00 00 00 00"    , false , false },
+              { L_, "0A  80 00  FF FF FF  00 00 00 00 00"    , false , false }
+            };
+
+            static const char NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE            = DATA[i].d_line;
+                const char *const EXP             = DATA[i].d_exp;
+                const bool        SUCCESS         = DATA[i].d_success;
+                const bool        VARIANT_SUCCESS = DATA[i].d_variantSuccess;
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int  bufferSize;
+
+                int rc = u::ByteBufferUtil::loadBuffer(
+                    &bufferSize,
+                    buffer,
+                    sizeof(buffer),
+                    EXP,
+                    static_cast<int>(bsl::strlen(EXP)));
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlt::Datetime datetime;
+                    int            accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(
+                        &streamBuf, &datetime, &accumNumBytesConsumed);
+                    if (SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE,
+                                        bufferSize,
+                                        accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << datetime << bsl::endl;
+                        }
+                    }
+                }
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                        datetimeOrDatetimeTz;
+                    int accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(&streamBuf,
+                                        &datetimeOrDatetimeTz,
+                                        &accumNumBytesConsumed);
+                    if (VARIANT_SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE,
+                                        bufferSize,
+                                        accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << datetimeOrDatetimeTz
+                                      << bsl::endl;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout
+                << bsl::endl
+                << "TESTING 'bdlt::Datetime' ENCODING/DECODING ISOMORPHISM"
+                << bsl::endl
+                << "------------------------------------------------------"
+                << bsl::endl;
+        {
+            static const int YEARS[] = {1, 2, 999, 1000, 1001, 9998, 9999};
+
+            static const int NUM_YEARS = sizeof(YEARS) / sizeof(YEARS[0]);
+
+            static const int MONTHS[] = {1, 2, 3, 11, 12};
+
+            static const int NUM_MONTHS = sizeof(MONTHS) / sizeof(MONTHS[0]);
+
+            static const int DAYS[] = {1, 2, 27, 28, 29, 30, 31};
+
+            static const int NUM_DAYS = sizeof(DAYS) / sizeof(DAYS[0]);
+
+            static const int HOURS[] = {0, 1, 11, 12, 13, 22, 23};
+
+            static const int NUM_HOURS = sizeof(HOURS) / sizeof(HOURS[0]);
+
+            static const int MINUTES[] = {0, 1, 29, 30, 31, 58, 59};
+
+            static const int NUM_MINUTES =
+                sizeof(MINUTES) / sizeof(MINUTES[0]);
+
+            static const int SECONDS[] = {0, 1, 29, 30, 31, 58, 59};
+
+            static const int NUM_SECONDS =
+                sizeof(SECONDS) / sizeof(SECONDS[0]);
+
+            static const int MILLISECONDS[] = {0, 1, 500, 998, 999};
+
+            static const int NUM_MILLISECONDS =
+                sizeof(MILLISECONDS) / sizeof(MILLISECONDS[0]);
+
+            static const int MICROSECONDS[] = {0, 1, 500, 998, 999};
+
+            static const int NUM_MICROSECONDS =
+                sizeof(MICROSECONDS) / sizeof(MICROSECONDS[0]);
+
+            static const int NUM_DATA = NUM_YEARS * NUM_DAYS * NUM_HOURS *
+                                        NUM_MINUTES * NUM_SECONDS *
+                                        NUM_MILLISECONDS * NUM_MICROSECONDS;
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() = u::TestDataUtil::
+            k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            bdlsb::MemOutStreamBuf     outStreamBuf;
+            bdlsb::FixedMemInStreamBuf inStreamBuf(0, 0);
+
+            bdlt::Datetime datetime;
+            bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                datetimeOrDatetimeTz;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE = i;
+
+                const int YEAR =
+                    YEARS[i /
+                          (NUM_DAYS * NUM_HOURS * NUM_MINUTES * NUM_SECONDS *
+                           NUM_MILLISECONDS * NUM_MICROSECONDS)];
+
+                const int MONTH =
+                    MONTHS[(i /
+                            (NUM_DAYS * NUM_HOURS * NUM_MINUTES * NUM_SECONDS *
+                             NUM_MILLISECONDS * NUM_MICROSECONDS)) %
+                           NUM_MONTHS];
+
+                const int DAY =
+                    DAYS[(i / (NUM_HOURS * NUM_MINUTES * NUM_SECONDS *
+                               NUM_MILLISECONDS * NUM_MICROSECONDS)) %
+                         NUM_DAYS];
+
+                if (!bdlt::ProlepticDateImpUtil::isValidYearMonthDay(
+                        YEAR, MONTH, DAY)) {
+                    continue;                                       // CONTINUE
+                }
+
+                const int HOUR = HOURS[i /
+                                       (NUM_MINUTES * NUM_SECONDS *
+                                        NUM_MILLISECONDS * NUM_MICROSECONDS) %
+                                       NUM_HOURS];
+
+                const int MINUTE =
+                    MINUTES[(i / (NUM_SECONDS * NUM_MILLISECONDS *
+                                  NUM_MICROSECONDS)) %
+                            NUM_MINUTES];
+
+                const int SECOND =
+                    SECONDS[(i / (NUM_MILLISECONDS * NUM_MICROSECONDS)) %
+                            NUM_SECONDS];
+
+                const int MILLISECOND =
+                    MILLISECONDS[(i / NUM_MICROSECONDS) % NUM_MILLISECONDS];
+
+                const int MICROSECOND =
+                    MICROSECONDS[i % NUM_MICROSECONDS];
+
+                const bdlt::Datetime DATETIME(YEAR        ,
+                                              MONTH       ,
+                                              DAY         ,
+                                              HOUR        ,
+                                              MINUTE      ,
+                                              SECOND      ,
+                                              MILLISECOND ,
+                                              MICROSECOND);
+
+                {
+                    outStreamBuf.reset();
+                    int rc = Util::putValue(&outStreamBuf, DATETIME, &options);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    int accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(
+                        &inStreamBuf, &datetime, &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+
+                    LOOP1_ASSERT_EQ(LINE, 11, accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, DATETIME, datetime);
+                }
+
+                {
+                    outStreamBuf.reset();
+                    int rc = Util::putValue(&outStreamBuf, DATETIME, &options);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    int accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(&inStreamBuf,
+                                        &datetimeOrDatetimeTz,
+                                        &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+
+                    LOOP1_ASSERT(LINE,
+                                 datetimeOrDatetimeTz.is<bdlt::Datetime>());
+                    if (!datetimeOrDatetimeTz.is<bdlt::Datetime>()) {
+                        continue;
+                    }
+
+                    LOOP1_ASSERT_EQ(LINE, 11, accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(
+                        LINE,
+                        DATETIME,
+                        datetimeOrDatetimeTz.the<bdlt::Datetime>());
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::DatetimeTz' ENCODING"
+                      << bsl::endl
+                      << "-----------------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_year;
+                int d_month;
+                int d_day;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                int d_offset;
+                const char *d_exp;
+            } DATA[] = {
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 00  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0,     1,
+                                       "0A  90 01  00 00 00  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0,    -1,
+                                       "0A  9F FF  00 00 00  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   1,     0,
+                                       "0A  90 00  00 00 00  00 00 00 00 01" },
+{ L_,    1,  1,  1,  0,  0,  0,   1,   0,     0,
+                                       "0A  90 00  00 00 00  00 00 00 03 E8" },
+{ L_,    1,  1,  1,  0,  0,  1,   0,   0,     0,
+                                       "0A  90 00  00 00 00  00 00 0F 42 40" },
+{ L_,    1,  1,  1,  0,  1,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 00  00 03 93 87 00" },
+{ L_,    1,  1,  1,  1,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 00  00 D6 93 A4 00" },
+{ L_,    1,  1,  2,  0,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 01  00 00 00 00 00" },
+{ L_,    1,  2,  1,  0,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 1F  00 00 00 00 00" },
+{ L_,    2,  1,  1,  0,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 01 6D  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0,  1439,
+                                       "0A  95 9F  00 00 00  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0, -1439,
+                                       "0A  9A 61  00 00 00  00 00 00 00 00" },
+{ L_,    1,  1,  1,  0,  0,  0,   0, 999,     0,
+                                       "0A  90 00  00 00 00  00 00 00 03 E7" },
+{ L_,    1,  1,  1,  0,  0,  0, 999,   0,     0,
+                                       "0A  90 00  00 00 00  00 00 0F 3E 58" },
+{ L_,    1,  1,  1,  0,  0, 59,   0,   0,     0,
+                                       "0A  90 00  00 00 00  00 03 84 44 C0" },
+{ L_,    1,  1,  1,  0, 59,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 00  00 D3 00 1D 00" },
+{ L_,    1,  1,  1, 23,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 00  13 47 43 BC 00" },
+{ L_,    1,  1, 31,  0,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 00 1E  00 00 00 00 00" },
+{ L_,    1, 12,  1,  0,  0,  0,   0,   0,     0,
+                                       "0A  90 00  00 01 4E  00 00 00 00 00" },
+{ L_, 9999,  1,  1,  0,  0,  0,   0,   0,     0,
+                                       "0A  90 00  37 B8 6E  00 00 00 00 00" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,     0,
+                                       "0A  90 00  37 B9 DA  14 1D D7 5C 18" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,  1439,
+                                       "0A  95 9F  37 B9 DA  14 1D D7 5C 18" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, -1439,
+                                       "0A  9A 61  37 B9 DA  14 1D D7 5C 18" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 999,     0,
+                                       "0A  90 00  37 B9 DA  14 1D D7 5F FF" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 999,  1439,
+                                       "0A  95 9F  37 B9 DA  14 1D D7 5F FF" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 999, -1439,
+                                       "0A  9A 61  37 B9 DA  14 1D D7 5F FF" },
+{ L_, 9999, 12, 31, 24,  0,  0,   0,   0,     0,
+                                       "0A  90 00  37 B9 DA  14 1D D7 60 00" },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() =
+                u::TestDataUtil::k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            const balber::BerEncoderOptions& OPTIONS = options;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const int         YEAR        = DATA[i].d_year;
+                const int         MONTH       = DATA[i].d_month;
+                const int         DAY         = DATA[i].d_day;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minute;
+                const int         SECOND      = DATA[i].d_second;
+                const int         MILLISECOND = DATA[i].d_millisecond;
+                const int         MICROSECOND = DATA[i].d_microsecond;
+                const int         OFFSET      = DATA[i].d_offset;
+                const char *const EXP         = DATA[i].d_exp;
+
+                const bdlt::Datetime DATETIME(YEAR        ,
+                                              MONTH       ,
+                                              DAY         ,
+                                              HOUR        ,
+                                              MINUTE      ,
+                                              SECOND      ,
+                                              MILLISECOND ,
+                                              MICROSECOND);
+
+                const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                static const int NUM_BYTES = 11;
+
+                bdlsb::MemOutStreamBuf datetimeTzOutBuffer;
+                const bool datetimeTzEncodesToBytes =
+                        u::TestUtil::valueEncodesToBytes(cout,
+                                                         &datetimeTzOutBuffer,
+                                                         DATETIMETZ,
+                                                         OPTIONS,
+                                                         EXP,
+                                                         NUM_BYTES);
+                LOOP1_ASSERT(LINE, datetimeTzEncodesToBytes);
+                if (!datetimeTzEncodesToBytes) {
+                    continue;
+                }
+
+                const bool bytesDecodeToDatetimeTz =
+                    u::TestUtil::bytesDecodeToValue(
+                        cout,
+                        datetimeTzOutBuffer.data(),
+                        datetimeTzOutBuffer.length(),
+                        DATETIMETZ,
+                        NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToDatetimeTz);
+                if (!bytesDecodeToDatetimeTz) {
+                    continue;
+                }
+
+                const bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                DATETIME_OR_DATETIMETZ(DATETIMETZ);
+
+                const bool bytesDecodeToVariant =
+                    u::TestUtil::bytesDecodeToValue(
+                        cout,
+                        datetimeTzOutBuffer.data(),
+                        datetimeTzOutBuffer.length(),
+                        DATETIME_OR_DATETIMETZ,
+                        NUM_BYTES);
+                LOOP1_ASSERT(LINE, bytesDecodeToVariant);
+                if (!bytesDecodeToVariant) {
+                    continue;
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::DatetimeTz' ENCODING FAILURE MODES"
+                      << bsl::endl
+                      << "-------------------------------------------------"
+                      << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_year;
+                int d_month;
+                int d_day;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                int d_offset;
+            } DATA[] = {
+                { L_,    1,  1,  1,  0,  0,  0,   0,   0,     0 },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   0,     1 },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   0,    -1 },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   1,     0 },
+                { L_,    1,  1,  1,  0,  0,  0,   1,   0,     0 },
+                { L_,    1,  1,  1,  0,  0,  1,   0,   0,     0 },
+                { L_,    1,  1,  1,  0,  1,  0,   0,   0,     0 },
+                { L_,    1,  1,  1,  1,  0,  0,   0,   0,     0 },
+                { L_,    1,  1,  2,  0,  0,  0,   0,   0,     0 },
+                { L_,    1,  2,  1,  0,  0,  0,   0,   0,     0 },
+                { L_,    2,  1,  1,  0,  0,  0,   0,   0,     0 },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   0,  1439 },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   0, -1439 },
+                { L_,    1,  1,  1,  0,  0,  0,   0, 999,     0 },
+                { L_,    1,  1,  1,  0,  0,  0, 999,   0,     0 },
+                { L_,    1,  1,  1,  0,  0, 59,   0,   0,     0 },
+                { L_,    1,  1,  1,  0, 59,  0,   0,   0,     0 },
+                { L_,    1,  1,  1, 23,  0,  0,   0,   0,     0 },
+                { L_,    1,  1, 31,  0,  0,  0,   0,   0,     0 },
+                { L_,    1, 12,  1,  0,  0,  0,   0,   0,     0 },
+                { L_, 9999,  1,  1,  0,  0,  0,   0,   0,     0 },
+                { L_, 9999, 12, 31,  0,  0,  0,   0,   0,     0 },
+                { L_, 9999, 12, 31,  0,  0,  0,   0,   0,  1439 },
+                { L_, 9999, 12, 31,  0,  0,  0,   0,   0, -1439 },
+                { L_, 9999, 12, 31, 23, 59, 59, 999,   0,  1439 },
+                { L_, 9999, 12, 31, 23, 59, 59, 999,   0, -1439 },
+                { L_, 9999, 12, 31, 23, 59, 59, 999, 999,  1439 },
+                { L_, 9999, 12, 31, 23, 59, 59, 999, 999, -1439 },
+                { L_,    1,  1,  1, 24,  0,  0,   0,   0,     0 },
+                { L_, 9999, 12, 31, 24,  0,  0,   0,   0,     0 },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE        = DATA[i].d_line;
+                const int YEAR        = DATA[i].d_year;
+                const int MONTH       = DATA[i].d_month;
+                const int DAY         = DATA[i].d_day;
+                const int HOUR        = DATA[i].d_hour;
+                const int MINUTE      = DATA[i].d_minute;
+                const int SECOND      = DATA[i].d_second;
+                const int MILLISECOND = DATA[i].d_millisecond;
+                const int MICROSECOND = DATA[i].d_microsecond;
+                const int OFFSET      = DATA[i].d_offset;
+
+                const bdlt::Datetime DATETIME(YEAR,
+                                              MONTH,
+                                              DAY,
+                                              HOUR,
+                                              MINUTE,
+                                              SECOND,
+                                              MILLISECOND,
+                                              MICROSECOND);
+
+                const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                bsl::vector<char> streamBufPutArea;
+
+                balber::BerEncoderOptions options;
+                options.bdeVersionConformance() = u::TestDataUtil::
+                k_EXTENDED_BINARY_MIN_BDE_VERSION;
+                options.setEncodeDateAndTimeTypesAsBinary(true);
+                options.setDatetimeFractionalSecondPrecision(6);
+
+                int streamBufPutAreaSize = 0;
+                int rc = 0;
+
+                do {
+                    streamBufPutArea.clear();
+                    streamBufPutArea.resize(streamBufPutAreaSize);
+
+                    bdlsb::FixedMemOutStreamBuf timeStreamBuf(
+                        streamBufPutArea.data(),
+                        streamBufPutArea.size());
+
+                    rc = Util::putValue(&timeStreamBuf, DATETIMETZ, &options);
+
+                    if (0 != rc) {
+                        streamBufPutAreaSize++;
+                    }
+                } while (0 != rc);
+
+                LOOP1_ASSERT_EQ(LINE, 11, streamBufPutAreaSize);
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdlt::DatetimeTz' DECODING FAILURE MODES"
+                      << bsl::endl
+                      << "-------------------------------------------------"
+                      << bsl::endl;
+        {
+            static const int k_MAX_BUFFER_SIZE = 25;
+
+            static const struct {
+                int         d_line;
+                const char *d_exp;
+                bool        d_success;
+            } DATA[] = {
+                { L_, "01  80"                                 , true  },
+                { L_, "02  80 00"                              , true  },
+                { L_, "03  80 00  00"                          , true  },
+                { L_, "04  80 00  00 00"                       , true  },
+                { L_, "05  80 00  00 00 00"                    , true  },
+                { L_, "06  80 00  00 00 00  00"                , false },
+                { L_, "07  80 00  00 00 00  00 00"             , false },
+                { L_, "08  80 00  00 00 00  00 00 00"          , false },
+                { L_, "09  80 00  00 00 00  00 00 00 00"       , false },
+                { L_, "0A  80 00  00 00 00  00 00 00 00 00"    , true  },
+                { L_, "0B  80 00  00 00 00  00 00 00 00 00  00", false },
+
+                { L_, "0A  7F FF  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 01  00 00 00  00 00 00 00 00"    , false },
+
+                { L_, "0A  00 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  10 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  20 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  30 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  40 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  50 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  60 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  70 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 00  00 00 00  00 00 00 00 00"    , true  },
+                { L_, "0A  90 00  00 00 00  00 00 00 00 00"    , true  },
+                { L_, "0A  A0 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  B0 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  C0 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  D0 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  E0 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  F0 00  00 00 00  00 00 00 00 00"    , false },
+
+                { L_, "0A  80 01  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 02  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 04  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 08  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 10  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 20  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 40  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  80 80  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  81 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  82 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  84 00  00 00 00  00 00 00 00 00"    , false },
+                { L_, "0A  88 00  00 00 00  00 00 00 00 00"    , false },
+
+                { L_, "0A  80 00  00 00 00  14 1D D7 60 00"    , true  },
+                { L_, "0A  80 00  00 00 00  14 1D D7 60 01"    , false },
+                { L_, "0A  80 00  00 00 00  FF FF FF FF FF"    , false },
+
+                { L_, "0A  80 00  37 B9 DA  00 00 00 00 00"    , true  },
+                { L_, "0A  80 00  37 B9 DB  00 00 00 00 00"    , false },
+                { L_, "0A  80 00  FF FF FF  00 00 00 00 00"    , false },
+            };
+
+            static const char NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE    = DATA[i].d_line;
+                const char *const EXP     = DATA[i].d_exp;
+                const bool        SUCCESS = DATA[i].d_success;
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int  bufferSize;
+
+                int rc = u::ByteBufferUtil::loadBuffer(
+                    &bufferSize,
+                    buffer,
+                    sizeof(buffer),
+                    EXP,
+                    static_cast<int>(bsl::strlen(EXP)));
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlt::DatetimeTz datetimeTz;
+                    int              accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(
+                        &streamBuf, &datetimeTz, &accumNumBytesConsumed);
+                    if (SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE,
+                                        bufferSize,
+                                        accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << datetimeTz << bsl::endl;
+                        }
+                    }
+                }
+
+                {
+                    bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                        datetimeOrDatetimeTz;
+                    int accumNumBytesConsumed = 0;
+
+                    rc = Util::getValue(&streamBuf,
+                                        &datetimeOrDatetimeTz,
+                                        &accumNumBytesConsumed);
+                    if (SUCCESS) {
+                        LOOP1_ASSERT_EQ(LINE, 0, rc);
+                        LOOP1_ASSERT_EQ(LINE,
+                                        bufferSize,
+                                        accumNumBytesConsumed);
+                    }
+                    else {
+                        LOOP1_ASSERT_NE(LINE, 0, rc);
+                        if (0 == rc) {
+                            bsl::cout << "ACTUAL: " << datetimeOrDatetimeTz
+                                      << bsl::endl;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout
+                << bsl::endl
+                << "TESTING 'bdlt::DatetimeTz' ENCODING/DECODING ISOMORPHISM"
+                << bsl::endl
+                << "--------------------------------------------------------"
+                << bsl::endl;
+        {
+            static const int YEARS[] = {1, 2, 999, 1000, 1001, 9998, 9999};
+
+            static const int NUM_YEARS = sizeof(YEARS) / sizeof(YEARS[0]);
+
+            static const int MONTHS[] = {1, 2, 3, 11, 12};
+
+            static const int NUM_MONTHS = sizeof(MONTHS) / sizeof(MONTHS[0]);
+
+            static const int DAYS[] = {1, 2, 27, 28, 29, 30, 31};
+
+            static const int NUM_DAYS = sizeof(DAYS) / sizeof(DAYS[0]);
+
+            static const int HOURS[] = {0, 1, 11, 12, 13, 22, 23};
+
+            static const int NUM_HOURS = sizeof(HOURS) / sizeof(HOURS[0]);
+
+            static const int MINUTES[] = {0, 1, 29, 30, 31, 58, 59};
+
+            static const int NUM_MINUTES =
+                sizeof(MINUTES) / sizeof(MINUTES[0]);
+
+            static const int SECONDS[] = {0, 1, 29, 30, 31, 58, 59};
+
+            static const int NUM_SECONDS =
+                sizeof(SECONDS) / sizeof(SECONDS[0]);
+
+            static const int MILLISECONDS[] = {0, 1, 500, 998, 999};
+
+            static const int NUM_MILLISECONDS =
+                sizeof(MILLISECONDS) / sizeof(MILLISECONDS[0]);
+
+            static const int MICROSECONDS[] = {0, 1, 500, 998, 999};
+
+            static const int NUM_MICROSECONDS =
+                sizeof(MICROSECONDS) / sizeof(MICROSECONDS[0]);
+
+            static const int OFFSETS[] = {
+                -1439, -1438, -1, 0, 1, 1438, 1439};
+
+            static const int NUM_OFFSETS = sizeof(OFFSETS) / sizeof(OFFSETS[0]);
+
+            static const int NUM_DATA = NUM_YEARS * NUM_DAYS * NUM_HOURS *
+                                        NUM_MINUTES * NUM_SECONDS *
+                                        NUM_MILLISECONDS * NUM_MICROSECONDS *
+                                        NUM_OFFSETS;
+
+            balber::BerEncoderOptions options;
+            options.bdeVersionConformance() = u::TestDataUtil::
+            k_EXTENDED_BINARY_MIN_BDE_VERSION;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            bdlsb::MemOutStreamBuf     outStreamBuf;
+            bdlsb::FixedMemInStreamBuf inStreamBuf(0, 0);
+
+            bdlt::DatetimeTz datetimeTz;
+            bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                datetimeOrDatetimeTz;
+            int accumNumBytesConsumed = 0;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int LINE = i;
+
+                const int YEAR =
+                    YEARS[i /
+                          (NUM_DAYS * NUM_HOURS * NUM_MINUTES * NUM_SECONDS *
+                           NUM_MILLISECONDS * NUM_MICROSECONDS * NUM_OFFSETS)];
+
+                const int MONTH =
+                    MONTHS[(i / (NUM_DAYS * NUM_HOURS * NUM_MINUTES *
+                                 NUM_SECONDS * NUM_MILLISECONDS *
+                                 NUM_MICROSECONDS * NUM_OFFSETS)) %
+                           NUM_MONTHS];
+
+                const int DAY = DAYS[(i / (NUM_HOURS * NUM_MINUTES *
+                                           NUM_SECONDS * NUM_MILLISECONDS *
+                                           NUM_MICROSECONDS * NUM_OFFSETS)) %
+                                     NUM_DAYS];
+
+                if (!bdlt::ProlepticDateImpUtil::isValidYearMonthDay(
+                        YEAR, MONTH, DAY)) {
+                    continue;                                       // CONTINUE
+                }
+
+                const int HOUR =
+                    HOURS[i /
+                          (NUM_MINUTES * NUM_SECONDS * NUM_MILLISECONDS *
+                           NUM_MICROSECONDS * NUM_OFFSETS) %
+                          NUM_HOURS];
+
+                const int MINUTE =
+                    MINUTES[(i / (NUM_SECONDS * NUM_MILLISECONDS *
+                                  NUM_MICROSECONDS * NUM_OFFSETS)) %
+                            NUM_MINUTES];
+
+                const int SECOND =
+                    SECONDS[(i / (NUM_MILLISECONDS * NUM_MICROSECONDS *
+                                  NUM_OFFSETS)) %
+                            NUM_SECONDS];
+
+                const int MILLISECOND =
+                    MILLISECONDS[(i / NUM_MICROSECONDS * NUM_OFFSETS) %
+                                 NUM_MILLISECONDS];
+
+                const int MICROSECOND =
+                    MICROSECONDS[(i / NUM_OFFSETS) % NUM_MICROSECONDS];
+
+                const int OFFSET = OFFSETS[i % NUM_OFFSETS];
+
+                const bdlt::Datetime DATETIME(YEAR        ,
+                                              MONTH       ,
+                                              DAY         ,
+                                              HOUR        ,
+                                              MINUTE      ,
+                                              SECOND      ,
+                                              MILLISECOND ,
+                                              MICROSECOND);
+
+                const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                outStreamBuf.reset();
+                int rc = Util::putValue(&outStreamBuf, DATETIMETZ, &options);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) {
+                    continue;
+                }
+
+                {
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    accumNumBytesConsumed = 0;
+                    rc = Util::getValue(
+                        &inStreamBuf, &datetimeTz, &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+                    LOOP1_ASSERT_EQ(LINE, 11, accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, DATETIMETZ, datetimeTz);
+                }
+
+                {
+                    inStreamBuf.pubsetbuf(outStreamBuf.data(),
+                                          outStreamBuf.length());
+
+                    accumNumBytesConsumed = 0;
+                    rc = Util::getValue(&inStreamBuf,
+                                        &datetimeOrDatetimeTz,
+                                        &accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(LINE, 0, rc);
+                    if (0 != rc) {
+                        continue;
+                    }
+
+                    LOOP1_ASSERT(LINE,
+                                 datetimeOrDatetimeTz.is<bdlt::DatetimeTz>());
+                    if (!datetimeOrDatetimeTz.is<bdlt::DatetimeTz>()) {
+                        continue;
+                    }
+                    LOOP1_ASSERT_EQ(LINE, 11, accumNumBytesConsumed);
+                    LOOP1_ASSERT_EQ(
+                        LINE,
+                        DATETIMETZ,
+                        datetimeOrDatetimeTz.the<bdlt::DatetimeTz>());
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout << bsl::endl
+                      << "TESTING DATETIME VARIANT DECODING"
+                      << bsl::endl
+                      << "---------------------------------"
+                      << bsl::endl;
+        {
+            enum Selection {
+                DATETIME,
+                DATETIMETZ
+            };
+
+            static const int NA = -1;
+
+            static const struct {
+                int         d_line;
+                const char *d_exp;
+                Selection   d_selection;
+                int         d_year;
+                int         d_month;
+                int         d_day;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_millisecond;
+                int         d_microsecond;
+                int         d_offset;
+            } DATA[] = {
+{ L_, "0A  80 00  00 00 00  00 00 00 00 00",
+                       DATETIME  ,    1,  1,  1,  0,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 00  00 00 00 00 01",
+                       DATETIME  ,    1,  1,  1,  0,  0,  0,   0,   1, NA    },
+{ L_, "0A  80 00  00 00 00  00 00 00 03 E8",
+                       DATETIME  ,    1,  1,  1,  0,  0,  0,   1,   0, NA    },
+{ L_, "0A  80 00  00 00 00  00 00 0F 42 40",
+                       DATETIME  ,    1,  1,  1,  0,  0,  1,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 00  00 03 93 87 00",
+                       DATETIME  ,    1,  1,  1,  0,  1,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 00  00 D6 93 A4 00",
+                       DATETIME  ,    1,  1,  1,  1,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 01  00 00 00 00 00",
+                       DATETIME  ,    1,  1,  2,  0,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 1F  00 00 00 00 00",
+                       DATETIME  ,    1,  2,  1,  0,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 01 6D  00 00 00 00 00",
+                       DATETIME  ,    2,  1,  1,  0,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 00  00 00 00 03 E7",
+                       DATETIME  ,    1,  1,  1,  0,  0,  0,   0, 999, NA    },
+{ L_, "0A  80 00  00 00 00  00 00 0F 3E 58",
+                       DATETIME  ,    1,  1,  1,  0,  0,  0, 999,   0, NA    },
+{ L_, "0A  80 00  00 00 00  00 03 84 44 C0",
+                       DATETIME  ,    1,  1,  1,  0,  0, 59,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 00  00 D3 00 1D 00",
+                       DATETIME  ,    1,  1,  1,  0, 59,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 00  13 47 43 BC 00",
+                       DATETIME  ,    1,  1,  1, 23,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 1E  00 00 00 00 00",
+                       DATETIME  ,    1,  1, 31,  0,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 01 4E  00 00 00 00 00",
+                       DATETIME  ,    1, 12,  1,  0,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  37 B8 6E  00 00 00 00 00",
+                       DATETIME  , 9999,  1,  1,  0,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  37 B9 DA  14 1D D7 5F FF",
+                       DATETIME  , 9999, 12, 31, 23, 59, 59, 999, 999, NA    },
+{ L_, "0A  80 00  00 00 00  14 1D D7 60 00",
+                       DATETIME  ,    1,  1,  1, 24,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  00 00 00  14 1D D7 60 00",
+                       DATETIME  ,    1,  1,  1, 24,  0,  0,   0,   0, NA    },
+{ L_, "0A  80 00  37 B9 DA  14 1D D7 60 00",
+                       DATETIME  , 9999, 12, 31, 24,  0,  0,   0,   0, NA    },
+{ L_, "0A  90 00  00 00 00  00 00 00 00 00",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 01  00 00 00  00 00 00 00 00",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   0,   0,     1 },
+{ L_, "0A  9F FF  00 00 00  00 00 00 00 00",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   0,   0,    -1 },
+{ L_, "0A  90 00  00 00 00  00 00 00 00 01",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   0,   1,     0 },
+{ L_, "0A  90 00  00 00 00  00 00 00 03 E8",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   1,   0,     0 },
+{ L_, "0A  90 00  00 00 00  00 00 0F 42 40",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  1,   0,   0,     0 },
+{ L_, "0A  90 00  00 00 00  00 03 93 87 00",
+                       DATETIMETZ,    1,  1,  1,  0,  1,  0,   0,   0,     0 },
+{ L_, "0A  90 00  00 00 00  00 D6 93 A4 00",
+                       DATETIMETZ,    1,  1,  1,  1,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  00 00 01  00 00 00 00 00",
+                       DATETIMETZ,    1,  1,  2,  0,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  00 00 1F  00 00 00 00 00",
+                       DATETIMETZ,    1,  2,  1,  0,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  00 01 6D  00 00 00 00 00",
+                       DATETIMETZ,    2,  1,  1,  0,  0,  0,   0,   0,     0 },
+{ L_, "0A  95 9F  00 00 00  00 00 00 00 00",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   0,   0,  1439 },
+{ L_, "0A  9A 61  00 00 00  00 00 00 00 00",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   0,   0, -1439 },
+{ L_, "0A  90 00  00 00 00  00 00 00 03 E7",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0,   0, 999,     0 },
+{ L_, "0A  90 00  00 00 00  00 00 0F 3E 58",
+                       DATETIMETZ,    1,  1,  1,  0,  0,  0, 999,   0,     0 },
+{ L_, "0A  90 00  00 00 00  00 03 84 44 C0",
+                       DATETIMETZ,    1,  1,  1,  0,  0, 59,   0,   0,     0 },
+{ L_, "0A  90 00  00 00 00  00 D3 00 1D 00",
+                       DATETIMETZ,    1,  1,  1,  0, 59,  0,   0,   0,     0 },
+{ L_, "0A  90 00  00 00 00  13 47 43 BC 00",
+                       DATETIMETZ,    1,  1,  1, 23,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  00 00 1E  00 00 00 00 00",
+                       DATETIMETZ,    1,  1, 31,  0,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  00 01 4E  00 00 00 00 00",
+                       DATETIMETZ,    1, 12,  1,  0,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  37 B8 6E  00 00 00 00 00",
+                       DATETIMETZ, 9999,  1,  1,  0,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  37 B9 DA  14 1D D7 5F FF",
+                       DATETIMETZ, 9999, 12, 31, 23, 59, 59, 999, 999,     0 },
+{ L_, "0A  95 9F  37 B9 DA  14 1D D7 5F FF",
+                       DATETIMETZ, 9999, 12, 31, 23, 59, 59, 999, 999,  1439 },
+{ L_, "0A  9A 61  37 B9 DA  14 1D D7 5F FF",
+                       DATETIMETZ, 9999, 12, 31, 23, 59, 59, 999, 999, -1439 },
+{ L_, "0A  90 00  00 00 00  14 1D D7 60 00",
+                       DATETIMETZ,    1,  1,  1, 24,  0,  0,   0,   0,     0 },
+{ L_, "0A  90 00  37 B9 DA  14 1D D7 60 00",
+                       DATETIMETZ, 9999, 12, 31, 24,  0,  0,   0,   0,     0 },
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const char *const EXP         = DATA[i].d_exp;
+                const Selection   SELECTION   = DATA[i].d_selection;
+                const int         YEAR        = DATA[i].d_year;
+                const int         MONTH       = DATA[i].d_month;
+                const int         DAY         = DATA[i].d_day;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minute;
+                const int         SECOND      = DATA[i].d_second;
+                const int         MILLISECOND = DATA[i].d_millisecond;
+                const int         MICROSECOND = DATA[i].d_microsecond;
+                const int         OFFSET      = DATA[i].d_offset;
+
+                static const int k_MAX_BUFFER_SIZE = 12;
+
+                char buffer[k_MAX_BUFFER_SIZE];
+                int  bufferSize;
+
+                int rc = u::ByteBufferUtil::loadBuffer(
+                    &bufferSize,
+                    buffer,
+                    sizeof(buffer),
+                    EXP,
+                    static_cast<int>(bsl::strlen(EXP)));
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
+
+                bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                    datetimeOrDatetimeTz;
+                int accumNumBytesConsumed = 0;
+
+                rc = Util::getValue(
+                    &streamBuf, &datetimeOrDatetimeTz, &accumNumBytesConsumed);
+                LOOP1_ASSERT_EQ(LINE, 0, rc);
+                if (0 != rc) continue;                              // CONTINUE
+
+                switch (SELECTION) {
+                  case DATETIME: {
+                    LOOP1_ASSERT(LINE,
+                                 datetimeOrDatetimeTz.is<bdlt::Datetime>());
+                    if (!datetimeOrDatetimeTz.is<bdlt::Datetime>())
+                        continue;                                   // CONTINUE
+
+                    const bdlt::Datetime& DATETIME =
+                        datetimeOrDatetimeTz.the<bdlt::Datetime>();
+                    LOOP1_ASSERT_EQ(LINE, YEAR, DATETIME.year());
+                    LOOP1_ASSERT_EQ(LINE, MONTH, DATETIME.month());
+                    LOOP1_ASSERT_EQ(LINE, DAY, DATETIME.day());
+                    LOOP1_ASSERT_EQ(LINE, HOUR, DATETIME.hour());
+                    LOOP1_ASSERT_EQ(LINE, MINUTE, DATETIME.minute());
+                    LOOP1_ASSERT_EQ(LINE, SECOND, DATETIME.second());
+                    LOOP1_ASSERT_EQ(LINE, MILLISECOND, DATETIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, MICROSECOND, DATETIME.microsecond());
+                  } break;
+                  case DATETIMETZ: {
+                    LOOP1_ASSERT(LINE,
+                                 datetimeOrDatetimeTz.is<bdlt::DatetimeTz>());
+                    if (!datetimeOrDatetimeTz.is<bdlt::DatetimeTz>())
+                        continue;                                   // CONTINUE
+
+                    const bdlt::DatetimeTz& DATETIMETZ =
+                        datetimeOrDatetimeTz.the<bdlt::DatetimeTz>();
+                    const bdlt::Datetime& DATETIME = DATETIMETZ.
+                    localDatetime();
+
+                    LOOP1_ASSERT_EQ(LINE, YEAR, DATETIME.year());
+                    LOOP1_ASSERT_EQ(LINE, MONTH, DATETIME.month());
+                    LOOP1_ASSERT_EQ(LINE, DAY, DATETIME.day());
+                    LOOP1_ASSERT_EQ(LINE, HOUR, DATETIME.hour());
+                    LOOP1_ASSERT_EQ(LINE, MINUTE, DATETIME.minute());
+                    LOOP1_ASSERT_EQ(LINE, SECOND, DATETIME.second());
+                    LOOP1_ASSERT_EQ(LINE, MILLISECOND, DATETIME.millisecond());
+                    LOOP1_ASSERT_EQ(LINE, MICROSECOND, DATETIME.microsecond());
+                    LOOP1_ASSERT_EQ(LINE, OFFSET, DATETIMETZ.offset());
+                  } break;
+                }
+            }
+        }
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' FAILURE REPORTING
+        //   This case tests that 'getValue' returns a non-zero value when
+        //   the stream buffer reaches the end of its source before a
+        //   value has finished being read.  Note that the "source" of a
+        //   'bsl::streambuf' is standard shorthand for the input-side of
+        //   the associated character sequence of the 'bsl::streambuf'.
+        //
+        // Concerns:
+        //: 1 For all 'Simple' types, 'getValue' returns a non-zero value
+        //:   when the stream buffer reaches the end of its source before
+        //:   the value has finished being read.
+        //
+        // Plan:
+        //: 1 For several boundary values of each supported 'Simple' type:
+        //:
+        //:   1 Encode the value to a buffer
+        //:
+        //:   2 Starting with a 1-byte view of the buffer, and repeatedly
+        //:     increasing the view size by 1 until the full buffer is visible:
+        //:
+        //:     1 Create an input stream given the view of the buffer and
+        //:       attempt to read back the same value
+        //:
+        //:     2a If the buffer is not the full view, verify that the read
+        //:        operation fails
+        //:
+        //:     2b If the buffer is the full view, verify that the read
+        //:        operation succeeds
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << bsl::endl
+                      << "TESTING 'getValue' FAILURE REPORTING"
+                      << bsl::endl
+                      << "===================================="
+                      << bsl::endl;
+
+        u::Case27Tester t;
+
+        // 'char'
+        t(L_, '\x00');
+        t(L_, '\x01');
+        t(L_, '\xFE');
+        t(L_, '\xFF');
+
+        // 'signed char'
+        t(L_, static_cast<signed char>('\x00'));
+        t(L_, static_cast<signed char>('\x01'));
+        t(L_, static_cast<signed char>('\xFE'));
+        t(L_, static_cast<signed char>('\xFF'));
+
+        // 'unsigned char'
+        t(L_, static_cast<unsigned char>('\x00'));
+        t(L_, static_cast<unsigned char>('\x01'));
+        t(L_, static_cast<unsigned char>('\xFE'));
+        t(L_, static_cast<unsigned char>('\xFF'));
+
+        // 'bool'
+        t(L_, true);
+        t(L_, false);
+
+        // 'int'
+        t(L_, INT_MIN    );
+        t(L_, INT_MIN + 1);
+        t(L_,          -1);
+        t(L_,           0);
+        t(L_,           1);
+        t(L_, INT_MAX - 1);
+        t(L_, INT_MAX    );
+
+        // 'unsigned int'
+        t(L_,           0u);
+        t(L_, UINT_MAX - 1);
+        t(L_, UINT_MAX    );
+
+        // 'bsls::Types::Int64'
+        t(L_, bsl::numeric_limits<bsls::Types::Int64>::min()    );
+        t(L_, bsl::numeric_limits<bsls::Types::Int64>::min() + 1);
+        t(L_, static_cast<bsls::Types::Int64>(-1)               );
+        t(L_, static_cast<bsls::Types::Int64>( 0)               );
+        t(L_, static_cast<bsls::Types::Int64>( 1)               );
+        t(L_, bsl::numeric_limits<bsls::Types::Int64>::max() - 1);
+        t(L_, bsl::numeric_limits<bsls::Types::Int64>::max()    );
+
+        // 'bsls::Types::Uint64'
+        t(L_, bsl::numeric_limits<bsls::Types::Uint64>::min()    );
+        t(L_, bsl::numeric_limits<bsls::Types::Uint64>::min() + 1);
+        t(L_, static_cast<bsls::Types::Uint64>(-1)               );
+        t(L_, static_cast<bsls::Types::Uint64>( 0)               );
+        t(L_, static_cast<bsls::Types::Uint64>( 1)               );
+        t(L_, bsl::numeric_limits<bsls::Types::Uint64>::max() - 1);
+        t(L_, bsl::numeric_limits<bsls::Types::Uint64>::max()    );
+
+        // 'float'
+        t(L_, bsl::numeric_limits<float>::min());
+        t(L_, -1.f);
+        t(L_, 0.f);
+        t(L_, 1.f);
+        t(L_, bsl::numeric_limits<float>::max());
+
+        // 'double'
+        t(L_, bsl::numeric_limits<double>::min());
+        t(L_, 1.0);
+        t(L_, 0.0);
+        t(L_, -1.0);
+        t(L_, bsl::numeric_limits<double>::max());
+
+        // 'bdldfp::Decimal64'
+        t(L_, bsl::numeric_limits<bdldfp::Decimal64>::min());
+        t(L_, bdldfp::Decimal64(-1.0));
+        t(L_, bdldfp::Decimal64(0.0));
+        t(L_, bdldfp::Decimal64(1.0));
+        t(L_, bsl::numeric_limits<bdldfp::Decimal64>::max());
+
+        // 'bsl::string'
+        t(L_, bsl::string("Lorem ipsum dolor sit amet"));
+
+        // 'bdlt::Date'
+        t(L_, bdlt::Date());
+        t(L_, bdlt::Date(1, 1, 1));
+        t(L_, bdlt::Date(9999, 12, 31));
+
+        // 'bdlt::DateTz'
+        t(L_, bdlt::DateTz(bdlt::Date(), 0));
+        t(L_, bdlt::DateTz(bdlt::Date(1, 1, 1), -1439));
+        t(L_, bdlt::DateTz(bdlt::Date(1, 1, 1), 0));
+        t(L_, bdlt::DateTz(bdlt::Date(1, 1, 1), 1439));
+        t(L_, bdlt::DateTz(bdlt::Date(9999, 12, 31), -1439));
+        t(L_, bdlt::DateTz(bdlt::Date(9999, 12, 31), 0));
+        t(L_, bdlt::DateTz(bdlt::Date(9999, 12, 31), 1439));
+
+        // 'bdlt::Datetime'
+        t(L_, bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0));
+        t(L_, bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 0));
+
+        // 'bdlt::DatetimeTz'
+        t(L_, bdlt::DatetimeTz(bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0), -1439));
+        t(L_, bdlt::DatetimeTz(bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0), 0));
+        t(L_, bdlt::DatetimeTz(bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0), 1439));
+        t(L_,
+          bdlt::DatetimeTz(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 0),
+                           -1439));
+        t(L_,
+          bdlt::DatetimeTz(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 0),
+                           -0));
+        t(L_,
+          bdlt::DatetimeTz(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 0),
+                           1439));
+
+        // 'bdlt::Time'
+        t(L_, bdlt::Time(0, 0, 0, 0, 0));
+        t(L_, bdlt::Time(23, 59, 59, 999, 0));
+
+        // 'bdlt::TimeTz'
+        t(L_, bdlt::TimeTz(bdlt::Time(0, 0, 0, 0, 0), -1439));
+        t(L_, bdlt::TimeTz(bdlt::Time(0, 0, 0, 0, 0), 0));
+        t(L_, bdlt::TimeTz(bdlt::Time(0, 0, 0, 0, 0), 1439));
+        t(L_, bdlt::TimeTz(bdlt::Time(23, 59, 59, 999, 0), -1439));
+        t(L_, bdlt::TimeTz(bdlt::Time(23, 59, 59, 999, 0), 0));
+        t(L_, bdlt::TimeTz(bdlt::Time(23, 59, 59, 999, 0), 1439));
+
+      } break;
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING 'getValue' BEHAVIORAL FINGERPRINT
         //   This case tests that the values decoded by
@@ -5504,7 +10376,7 @@ int main(int argc, char *argv[])
                 u::Md5State state;
                 u::Md5StateUtil::loadSeedValue(&state);
 
-                const unsigned char *dataIt  = k_DATA_BEGIN;
+                const unsigned char *dataIt;
                 const unsigned char *dataEnd = k_DATA_BEGIN;
                 for (const int *it  = CHUNK_SIZES;
                                 it != CHUNK_SIZES + k_NUM_CHUNK_SIZES;
@@ -5706,7 +10578,7 @@ int main(int argc, char *argv[])
             bdlb::Variant2<bdlt::Time, bdlt::TimeTz> value;
             const int length = static_cast<int>(bsl::strlen(EXP));
 
-            int rc = balber::BerUtil::getValue(&streamBuf, &value, length);
+            int rc = Util::getValue(&streamBuf, &value, length);
             LOOP1_ASSERT_EQ(LINE, 0, rc);
             if (0 != rc) continue;                                  // CONTINUE
 
@@ -9712,8 +14584,12 @@ int main(int argc, char *argv[])
             bdlsb::MemOutStreamBuf osb;
             ASSERT(SUCCESS == Util::putIndefiniteLengthOctet(&osb));
             ASSERT(1       == osb.length());
-            ASSERT(balber::BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET
-                           == (unsigned char)osb.data()[0]);
+
+            enum {
+                k_INDEFINITE_LENGTH_OCTET = 0x80
+            };
+
+            ASSERT(k_INDEFINITE_LENGTH_OCTET == (unsigned char)osb.data()[0]);
         }
 
         if (verbose) bsl::cout << "\nTesting 'putEndOfContentOctets'."
@@ -10324,7 +15200,8 @@ int main(int argc, char *argv[])
         {
             enum { SUCCESS = 0, FAILURE = -1 };
 
-            typedef balber::BerUtil_Imp Imp;
+            typedef balber::BerUtil_FloatingPointImpUtil DoubleUtil;
+            typedef balber::BerUtil_LengthImpUtil        LengthUtil;
 
             static const struct {
                 int         d_line;   // line number
@@ -10406,8 +15283,9 @@ int main(int argc, char *argv[])
 
                 {
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS  ==
-                                               Imp::putDoubleValue(&osb, VAL));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS ==
+                                    DoubleUtil::putDoubleValue(&osb, VAL));
                     LOOP_ASSERT(LINE, LEN      == (int)osb.length());
                     LOOP_ASSERT(LINE, 0        ==
                                               compareBuffers(osb.data(), EXP));
@@ -10423,13 +15301,12 @@ int main(int argc, char *argv[])
                     double val              = 0.0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
                     LOOP_ASSERT(LINE,
-                                SUCCESS == Imp::getLength(&isb,
-                                                          &length,
-                                                          &numBytesConsumed));
+                                SUCCESS ==
+                                    LengthUtil::getLength(
+                                        &length, &numBytesConsumed, &isb));
                     LOOP_ASSERT(LINE,
-                                SUCCESS == Imp::getDoubleValue(&isb,
-                                                               &val,
-                                                               length));
+                                SUCCESS == DoubleUtil::getDoubleValue(
+                                               &val, &isb, length));
                     numBytesConsumed += length;
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP3_ASSERT(LINE, VAL, val, val == VAL);
@@ -10511,8 +15388,9 @@ int main(int argc, char *argv[])
 
                     assembleDouble(&outVal, SIGN, EXPONENT, MANTISSA);
 
-                    LOOP_ASSERT(LINE, RESULT == Imp::putDoubleValue(&osb,
-                                                                    outVal));
+                    LOOP_ASSERT(LINE,
+                                RESULT ==
+                                    DoubleUtil::putDoubleValue(&osb, outVal));
                     if (SUCCESS == RESULT) {
                         LOOP_ASSERT(LINE, LEN == (int)osb.length());
                         LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(),
@@ -10532,13 +15410,12 @@ int main(int argc, char *argv[])
                         bdlsb::FixedMemInStreamBuf isb(osb.data(),
                                                       osb.length());
                         LOOP_ASSERT(LINE,
-                                SUCCESS == Imp::getLength(&isb,
-                                                          &length,
-                                                          &numBytesConsumed));
+                                    SUCCESS ==
+                                        LengthUtil::getLength(
+                                            &length, &numBytesConsumed, &isb));
                         LOOP_ASSERT(LINE,
-                                    SUCCESS == Imp::getDoubleValue(&isb,
-                                                                   &inVal,
-                                                                   length));
+                                    SUCCESS == DoubleUtil::getDoubleValue(
+                                                   &inVal, &isb, length));
                         numBytesConsumed += length;
                         LOOP_ASSERT(LINE, 0     == isb.length());
 
@@ -11099,7 +15976,7 @@ int main(int argc, char *argv[])
         {
             enum { SUCCESS = 0, FAILURE = -1 };
 
-            typedef balber::BerUtil_Imp Imp;
+            typedef balber::BerUtil_IntegerImpUtil IntegerUtil;
 
             static const struct {
                 int                 d_line;   // line number
@@ -11141,8 +16018,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(LL) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::putIntegerGivenLength(&osb, LL, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, LL, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
@@ -11152,8 +16030,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &ll, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &ll, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, ll == LL);
                 }
@@ -11176,8 +16055,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(VI) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::putIntegerGivenLength(&osb, VI, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, VI, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
@@ -11187,7 +16067,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
                     LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &vi, LEN));
+                                   IntegerUtil::getIntegerValue(&vi, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, vi == VI);
                 }
@@ -11210,8 +16090,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(L) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                     Imp::putIntegerGivenLength(&osb, L, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, L, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
@@ -11222,8 +16103,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::getIntegerValue(&isb, &l, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &l, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, l == L);
                 }
@@ -11247,8 +16129,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(S) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                     Imp::putIntegerGivenLength(&osb, S, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, S, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -11259,8 +16142,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &s, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &s, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, s == S);
                 }
@@ -11283,8 +16167,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(C) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::putIntegerGivenLength(&osb, C, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, C, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -11293,8 +16178,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &c, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &c, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, c == C);
                 }
@@ -11321,7 +16207,7 @@ int main(int argc, char *argv[])
         {
             enum { SUCCESS = 0, FAILURE = -1 };
 
-            typedef balber::BerUtil_Imp Imp;
+            typedef balber::BerUtil_IntegerImpUtil IntegerUtil;
 
             static const struct {
                 int         d_line;   // line number
@@ -11388,8 +16274,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(LL) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::putIntegerGivenLength(&osb, LL, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, LL, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -11398,8 +16285,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &ll, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &ll, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, ll == LL);
                 }
@@ -11422,8 +16310,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(VI) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::putIntegerGivenLength(&osb, VI, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, VI, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -11432,8 +16321,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &vi, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &vi, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, vi == VI);
                 }
@@ -11456,8 +16346,9 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(i) P_(L) P_(LEN) P(EXP) }
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                     Imp::putIntegerGivenLength(&osb, L, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, L, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -11468,8 +16359,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::getIntegerValue(&isb, &l, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &l, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, l == L);
                 }
@@ -11493,8 +16385,9 @@ int main(int argc, char *argv[])
                     short s;
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                     Imp::putIntegerGivenLength(&osb, S, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, S, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
@@ -11505,8 +16398,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &s, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &s, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, s == S);
                 }
@@ -11530,8 +16424,9 @@ int main(int argc, char *argv[])
                     char     c = 0;
 
                     bdlsb::MemOutStreamBuf osb;
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                    Imp::putIntegerGivenLength(&osb, C, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::putIntegerGivenLength(
+                                               &osb, C, LEN));
                     LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -11540,8 +16435,9 @@ int main(int argc, char *argv[])
                     }
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS ==
-                                   Imp::getIntegerValue(&isb, &c, LEN));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == IntegerUtil::getIntegerValue(
+                                               &c, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, c == C);
                 }
@@ -11602,9 +16498,11 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(i) P(VAL) }
 
+                typedef balber::BerUtil_IntegerImpUtil IntegerUtil;
+
                 LOOP3_ASSERT(
                             LINE, VAL, RES,
-                            RES == balber::BerUtil_Imp::numBytesToStream(VAL));
+                            RES == IntegerUtil::getNumOctetsToStream(VAL));
             }
         }
       } break;
@@ -11678,9 +16576,11 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(i) P(LL) }
 
+                typedef balber::BerUtil_IntegerImpUtil IntegerUtil;
+
                 LOOP4_ASSERT(
-                      LINE, LL, RES, balber::BerUtil_Imp::numBytesToStream(LL),
-                      RES == balber::BerUtil_Imp::numBytesToStream(LL));
+                      LINE, LL, RES, IntegerUtil::getNumOctetsToStream(LL),
+                      RES == IntegerUtil::getNumOctetsToStream(LL));
 
                 if (LL <= SHRT_MAX && LL >= SHRT_MIN) {
                     const short S = (short) LL;
@@ -11688,14 +16588,14 @@ int main(int argc, char *argv[])
                     const long  L = (long)  LL;
 
                     LOOP4_ASSERT(
-                        LINE, S, RES, balber::BerUtil_Imp::numBytesToStream(S),
-                        RES == balber::BerUtil_Imp::numBytesToStream(S));
+                        LINE, S, RES, IntegerUtil::getNumOctetsToStream(S),
+                        RES == IntegerUtil::getNumOctetsToStream(S));
                     LOOP4_ASSERT(
-                        LINE, I, RES, balber::BerUtil_Imp::numBytesToStream(I),
-                        RES == balber::BerUtil_Imp::numBytesToStream(I));
+                        LINE, I, RES, IntegerUtil::getNumOctetsToStream(I),
+                        RES == IntegerUtil::getNumOctetsToStream(I));
                     LOOP4_ASSERT(
-                        LINE, L, RES, balber::BerUtil_Imp::numBytesToStream(L),
-                        RES == balber::BerUtil_Imp::numBytesToStream(L));
+                        LINE, L, RES, IntegerUtil::getNumOctetsToStream(L),
+                        RES == IntegerUtil::getNumOctetsToStream(L));
                     continue;
                 }
 
@@ -11705,10 +16605,10 @@ int main(int argc, char *argv[])
 
                     LOOP3_ASSERT(
                               LINE, I, RES,
-                              RES == balber::BerUtil_Imp::numBytesToStream(I));
+                              RES == IntegerUtil::getNumOctetsToStream(I));
                     LOOP3_ASSERT(
                               LINE, L, RES,
-                              RES == balber::BerUtil_Imp::numBytesToStream(L));
+                              RES == IntegerUtil::getNumOctetsToStream(L));
                 }
             }
         }

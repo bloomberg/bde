@@ -751,7 +751,7 @@ BerDecoder_Node::hasMore()
 {
     BSLS_ASSERT(d_tagType == BerConstants::e_CONSTRUCTED);
 
-    if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
+    if (BerUtil::k_INDEFINITE_LENGTH == d_expectedLength) {
         return 0 != d_decoder->d_streamBuf->sgetc();
     }
 

@@ -724,7 +724,7 @@ static void usageExample()
 
     rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
     ASSERT(0                                    == rc);
-    ASSERT(balber::BerUtil::e_INDEFINITE_LENGTH == length);
+    ASSERT(balber::BerUtil::k_INDEFINITE_LENGTH == length);
 //..
 // The 'UNIVERSAL' value in 'tagClass' indicates that the 'tagNumber' value
 // represents a type in the BER standard, a 'BER_SEQUENCE', as we requested of
