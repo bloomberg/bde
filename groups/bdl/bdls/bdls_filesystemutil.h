@@ -640,7 +640,7 @@ struct FilesystemUtil {
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
-        // the working directory of the entire program, casuing attempts in
+        // the working directory of the entire program, causing attempts in
         // other threads to open files with relative path names to fail.
 
     static int visitTree(
