@@ -25,6 +25,8 @@
 #include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_assert.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
@@ -187,6 +189,16 @@ static bool verbose;
 static bool veryVerbose;
 static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
+
+static const bool k_HAS_MULTILINE_OFFSET =
+    // 'k_HAS_MULTILINE_OFFSET' is 'true' if the '__LINE__' macro is
+    // substituted by the line number of the last line of a macro invocation
+    // split on several lines; and it is 'false' if the first line is reported.
+#if defined(BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST)
+    false;
+#else
+    true;
+#endif
 
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -2184,7 +2196,7 @@ int main(int argc, char *argv[])
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERTV(ii,
@@ -2203,7 +2215,7 @@ int main(int argc, char *argv[])
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
             ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6,
                                                                             7);
             ASSERTV(ii,
@@ -2222,7 +2234,7 @@ int main(int argc, char *argv[])
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5,
                                                                       6, 7, 8);
             ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6,
                                                                          7, 8);
             ASSERTV(ii,
@@ -2241,7 +2253,7 @@ int main(int argc, char *argv[])
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5,
                                                                       6,7,8,9);
             ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5,
                                                                       6,7,8,9);
             ASSERTV(ii,
@@ -2403,7 +2415,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERTV(ii,
@@ -2427,7 +2439,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
             ASSERTV(ii,
@@ -2451,7 +2463,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
             ASSERTV(ii,
@@ -2475,7 +2487,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
             ASSERTV(ii,
@@ -2635,7 +2647,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERTV(ii,
@@ -2659,7 +2671,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
             ASSERTV(ii,
@@ -2683,7 +2695,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
             ASSERTV(ii,
@@ -2707,7 +2719,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
             ASSERTV(ii,
@@ -2866,7 +2878,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERTV(ii,
@@ -2890,7 +2902,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6,
                                                                             7);
             ASSERTV(ii,
@@ -2937,7 +2949,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
             ASSERTV(ii,
@@ -3096,7 +3108,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERTV(ii,
@@ -3120,7 +3132,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6,
                                                                             7);
             ASSERTV(ii,
@@ -3167,7 +3179,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
             ASSERTV(ii,
@@ -3326,7 +3338,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERTV(ii,
@@ -3350,7 +3362,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
             ASSERTV(ii,
@@ -3374,7 +3386,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
             ASSERTV(ii,
@@ -3398,7 +3410,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
             ASSERTV(ii,
@@ -3557,7 +3569,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
             ASSERTV(ii,
@@ -3581,7 +3593,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
             ASSERTV(ii,
@@ -3605,7 +3617,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
             ASSERTV(ii,
@@ -3629,7 +3641,7 @@ int main(int argc, char *argv[])
 
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                      TO->lastPublishedRecord();
-            const int LINE = L_ + 2;
+            const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
             ASSERTV(ii,
@@ -3700,7 +3712,7 @@ int main(int argc, char *argv[])
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGTHROTTLEVA(severity, n, p,"%s %d %d %d %d %d %d %d %d",
                                            longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
@@ -3739,7 +3751,7 @@ int main(int argc, char *argv[])
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGTHROTTLEVA_TRACE(n, p, "%s %d %d %d %d %d %d %d %d",
                                            longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
@@ -3776,7 +3788,7 @@ int main(int argc, char *argv[])
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, "%s %d %d %d %d %d %d %d %d",
                                            longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
@@ -3813,7 +3825,7 @@ int main(int argc, char *argv[])
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGTHROTTLEVA_INFO(n, p, "%s %d %d %d %d %d %d %d %d",
                                            longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
@@ -3850,7 +3862,7 @@ int main(int argc, char *argv[])
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGTHROTTLEVA_WARN(n, p, "%s %d %d %d %d %d %d %d %d",
                                            longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
@@ -3887,7 +3899,7 @@ int main(int argc, char *argv[])
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGTHROTTLEVA_ERROR(n, p, "%s %d %d %d %d %d %d %d %d",
                                            longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
@@ -3924,7 +3936,7 @@ int main(int argc, char *argv[])
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGTHROTTLEVA_FATAL(n, p, "%s %d %d %d %d %d %d %d %d",
                                            longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
@@ -3997,7 +4009,7 @@ int main(int argc, char *argv[])
 
             {
                 np += doTraces;
-                const int LINE = L_ + 3;
+                const int LINE = L_ + 1 + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
                     BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3,
                                                                             4);
@@ -4010,7 +4022,7 @@ int main(int argc, char *argv[])
 
             {
                 np += doTraces;
-                const int LINE = L_ + 3;
+                const int LINE = L_ + 1 + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
                     BALL_LOGTHROTTLEVA_FATAL(n, p,  FORMAT_SPEC_5_ARGS, 1, 2,
                                                                       3, 4, 5);
@@ -4071,7 +4083,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

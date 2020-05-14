@@ -39,6 +39,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_threadattributes.h>
@@ -46,6 +47,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
@@ -252,6 +254,16 @@ static bool veryVerbose;
 static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
+static const bool k_HAS_MULTILINE_OFFSET =
+    // 'k_HAS_MULTILINE_OFFSET' is 'true' if the '__LINE__' macro is
+    // substituted by the line number of the last line of a macro invocation
+    // split on several lines; and it is 'false' if the first line is reported.
+#if defined(BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST)
+    false;
+#else
+    true;
+#endif
+
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -353,8 +365,6 @@ void executeInParallel(
 
     delete [] threads;
 }
-
-const int FILL = 0xbb;
 
 inline
 char *messageBuffer()
@@ -10883,9 +10893,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'g';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
-                BALL_LOGVA(DEBUG, "%s %d %d %d %d %d",
-                                  longStr, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 1;
+                BALL_LOGVA(DEBUG, "%s %d %d %d %d %d", longStr, 2, 3, 4, 5, 6);
                 longStr[BUFLEN - 1] = '\0';
                 ASSERT(u::isRecordOkay(observer, CAT, DEBUG,
                                        FILE, LINE, longStr));
@@ -10894,7 +10903,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'h';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d",
                                   longStr, 2, 3, 4, 5, 6, 7);
                 longStr[BUFLEN - 1] = '\0';
@@ -10905,7 +10914,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'i';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d %d",
                                   longStr, 2, 3, 4, 5, 6, 7, 8);
                 longStr[BUFLEN - 1] = '\0';
@@ -10916,7 +10925,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'j';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d %d %d",
                                   longStr, 2, 3, 4, 5, 6, 7, 8, 9);
                 longStr[BUFLEN - 1] = '\0';
@@ -10987,7 +10996,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'q';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6);
                 longStr[BUFLEN - 1] = '\0';
@@ -10998,7 +11007,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'r';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7);
                 longStr[BUFLEN - 1] = '\0';
@@ -11009,7 +11018,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 's';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8);
                 longStr[BUFLEN - 1] = '\0';
@@ -11020,7 +11029,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 't';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8, 9);
                 longStr[BUFLEN - 1] = '\0';
@@ -11091,7 +11100,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'A';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6);
                 longStr[BUFLEN - 1] = '\0';
@@ -11102,7 +11111,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'B';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7);
                 longStr[BUFLEN - 1] = '\0';
@@ -11113,7 +11122,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'C';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8);
                 longStr[BUFLEN - 1] = '\0';
@@ -11124,7 +11133,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'D';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8, 9);
                 longStr[BUFLEN - 1] = '\0';
@@ -11195,7 +11204,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'K';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_INFO("%s %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6);
                 longStr[BUFLEN - 1] = '\0';
@@ -11206,7 +11215,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'L';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_INFO("%s %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7);
                 longStr[BUFLEN - 1] = '\0';
@@ -11217,7 +11226,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'M';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_INFO("%s %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8);
                 longStr[BUFLEN - 1] = '\0';
@@ -11228,7 +11237,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'N';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_INFO("%s %d %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8, 9);
                 longStr[BUFLEN - 1] = '\0';
@@ -11299,7 +11308,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'U';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_WARN("%s %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6);
                 longStr[BUFLEN - 1] = '\0';
@@ -11310,7 +11319,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'V';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_WARN("%s %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7);
                 longStr[BUFLEN - 1] = '\0';
@@ -11321,7 +11330,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'W';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_WARN("%s %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8);
                 longStr[BUFLEN - 1] = '\0';
@@ -11332,7 +11341,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'X';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_WARN("%s %d %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8, 9);
                 longStr[BUFLEN - 1] = '\0';
@@ -11403,7 +11412,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = '4';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6);
                 longStr[BUFLEN - 1] = '\0';
@@ -11414,7 +11423,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = '5';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7);
                 longStr[BUFLEN - 1] = '\0';
@@ -11425,7 +11434,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = '6';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8);
                 longStr[BUFLEN - 1] = '\0';
@@ -11436,7 +11445,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = '7';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8, 9);
                 longStr[BUFLEN - 1] = '\0';
@@ -11507,7 +11516,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'e';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6);
                 longStr[BUFLEN - 1] = '\0';
@@ -11518,7 +11527,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'f';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7);
                 longStr[BUFLEN - 1] = '\0';
@@ -11529,7 +11538,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'g';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8);
                 longStr[BUFLEN - 1] = '\0';
@@ -11540,7 +11549,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longStr[BUFLEN - 2] = 'h';
                 longStr[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 2;
+                const int LINE = L_ + (k_HAS_MULTILINE_OFFSET? 2 : 1);
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d %d %d %d",
                                  longStr, 2, 3, 4, 5, 6, 7, 8, 9);
                 longStr[BUFLEN - 1] = '\0';
@@ -12031,7 +12040,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
