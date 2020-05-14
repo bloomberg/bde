@@ -801,7 +801,10 @@ BSLS_IDENT("$Id: $")
 // as bugs compared to the final standard.  Therefore, BDE does not attempt to
 // support C++11 in GCC compilers prior to the 4.8 release.
 #if defined(BSLS_PLATFORM_CMP_GNU)
-# define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+
+# if BSLS_PLATFORM_CMP_VERSION < 110000
+#   define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+# endif
 
 # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 

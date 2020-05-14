@@ -281,7 +281,9 @@ class Base {
     Base(const Base& original) :d_data(original.d_data) {}
 
     //! ~Base() = default;
-    //! Base& operator=(const Base&) = default;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    Base& operator=(const Base&) = default;
+#endif
 
     // ACCESSORS
     operator int() const { return d_data; }
@@ -370,7 +372,10 @@ class Node {
     Node(const Node& original) :d_data(original.d_data) {}
 
     //! ~Node() = default;
-    //! Node& operator=(const Node&) = default;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    Node& operator=(const Node&) = default;
+#endif
+
 
     // ACCESSORS
     int data() const { return d_data; }
@@ -2328,7 +2333,9 @@ class my_NoAllocString : public my_AllocArgString<bsl::allocator<char> >
         // bslstl_pair attempted to construct a 'my_NoAllocString' incorrectly.
 
     //! ~my_NoAllocString() = default;
-    //! my_NoAllocString& operator=(const my_NoAllocString& rhs) = default;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    my_NoAllocString& operator=(const my_NoAllocString& rhs) = default;
+#endif
 };
 
 my_NoAllocString::my_NoAllocString()

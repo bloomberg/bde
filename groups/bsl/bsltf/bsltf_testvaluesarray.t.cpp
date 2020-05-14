@@ -1980,7 +1980,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
                 objPtr = new (foa) Obj(sa);
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad constructor config.");
+                BSLS_ASSERT_INVOKE_NORETURN("Bad constructor config.");
                 return;                                               // RETURN
               } break;
             }
@@ -2227,7 +2227,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
                     objPtr = new (foa) Obj(SPEC, sa);
                   } break;
                   default: {
-                    ASSERTV(LINE, CONFIG, !"Bad constructor config.");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad constructor config.");
                     return;                                           // RETURN
                   } break;
                 }

@@ -325,6 +325,13 @@ class bitset :
             // 'bsl::bitset'.
 
       public:
+        // CREATORS
+ #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+        reference(const reference& original) BSLS_KEYWORD_NOEXCEPT = default;
+            // Create a 'reference' object that refers to the same bit in the
+            // same bitset as the specified 'original'.
+#endif
+
         // MANIPULATORS
         reference& operator=(bool x) BSLS_KEYWORD_NOEXCEPT;
             // Assign to the bit referenced by this object the specified value

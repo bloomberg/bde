@@ -5973,7 +5973,7 @@ int main(int argc, char**argv)
                             cout << (char) w << endl;
                         }
                         else {
-                            cout << w << endl;
+                            cout << +w << endl;
                         }
                     }
                 }

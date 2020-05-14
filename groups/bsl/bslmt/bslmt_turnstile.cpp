@@ -35,7 +35,7 @@ void bslmt::Turnstile::reset(double                    rate,
                              const bsls::TimeInterval& startTime,
                              const bsls::TimeInterval& minTimeToCallSleep)
 {
-    d_interval  = static_cast<Int64>(k_MICROSECS_PER_SECOND / rate);
+    d_interval  = static_cast<Int64>(+k_MICROSECS_PER_SECOND / rate);
     d_timestamp = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 

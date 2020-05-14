@@ -5013,36 +5013,36 @@ struct Bind_CalcParameterMask {
         // be 0.  For nested 'Bind' types, the out-of-range value 31 will be
         // used.
 
-      , k_PARAM_MASK = Bind_ArgumentMask<Type1 >::k_VaL |
-                     Bind_ArgumentMask<Type2 >::k_VaL |
-                     Bind_ArgumentMask<Type3 >::k_VaL |
-                     Bind_ArgumentMask<Type4 >::k_VaL |
-                     Bind_ArgumentMask<Type5 >::k_VaL |
-                     Bind_ArgumentMask<Type6 >::k_VaL |
-                     Bind_ArgumentMask<Type7 >::k_VaL |
-                     Bind_ArgumentMask<Type8 >::k_VaL |
-                     Bind_ArgumentMask<Type9 >::k_VaL |
-                     Bind_ArgumentMask<Type10>::k_VaL |
-                     Bind_ArgumentMask<Type11>::k_VaL |
-                     Bind_ArgumentMask<Type12>::k_VaL |
-                     Bind_ArgumentMask<Type13>::k_VaL |
-                     Bind_ArgumentMask<Type14>::k_VaL
+      , k_PARAM_MASK = +Bind_ArgumentMask<Type1 >::k_VaL |
+                       +Bind_ArgumentMask<Type2 >::k_VaL |
+                       +Bind_ArgumentMask<Type3 >::k_VaL |
+                       +Bind_ArgumentMask<Type4 >::k_VaL |
+                       +Bind_ArgumentMask<Type5 >::k_VaL |
+                       +Bind_ArgumentMask<Type6 >::k_VaL |
+                       +Bind_ArgumentMask<Type7 >::k_VaL |
+                       +Bind_ArgumentMask<Type8 >::k_VaL |
+                       +Bind_ArgumentMask<Type9 >::k_VaL |
+                       +Bind_ArgumentMask<Type10>::k_VaL |
+                       +Bind_ArgumentMask<Type11>::k_VaL |
+                       +Bind_ArgumentMask<Type12>::k_VaL |
+                       +Bind_ArgumentMask<Type13>::k_VaL |
+                       +Bind_ArgumentMask<Type14>::k_VaL
          // Mask of which parameters are place-holders.
 
-       , k_PARAM_MASK2 = Bind_ArgumentMask<Type1 >::k_VaL +
-                       Bind_ArgumentMask<Type2 >::k_VaL +
-                       Bind_ArgumentMask<Type3 >::k_VaL +
-                       Bind_ArgumentMask<Type4 >::k_VaL +
-                       Bind_ArgumentMask<Type5 >::k_VaL +
-                       Bind_ArgumentMask<Type6 >::k_VaL +
-                       Bind_ArgumentMask<Type7 >::k_VaL +
-                       Bind_ArgumentMask<Type8 >::k_VaL +
-                       Bind_ArgumentMask<Type9 >::k_VaL +
-                       Bind_ArgumentMask<Type10>::k_VaL +
-                       Bind_ArgumentMask<Type11>::k_VaL +
-                       Bind_ArgumentMask<Type12>::k_VaL +
-                       Bind_ArgumentMask<Type13>::k_VaL +
-                       Bind_ArgumentMask<Type14>::k_VaL
+       , k_PARAM_MASK2 = +Bind_ArgumentMask<Type1 >::k_VaL +
+                         +Bind_ArgumentMask<Type2 >::k_VaL +
+                         +Bind_ArgumentMask<Type3 >::k_VaL +
+                         +Bind_ArgumentMask<Type4 >::k_VaL +
+                         +Bind_ArgumentMask<Type5 >::k_VaL +
+                         +Bind_ArgumentMask<Type6 >::k_VaL +
+                         +Bind_ArgumentMask<Type7 >::k_VaL +
+                         +Bind_ArgumentMask<Type8 >::k_VaL +
+                         +Bind_ArgumentMask<Type9 >::k_VaL +
+                         +Bind_ArgumentMask<Type10>::k_VaL +
+                         +Bind_ArgumentMask<Type11>::k_VaL +
+                         +Bind_ArgumentMask<Type12>::k_VaL +
+                         +Bind_ArgumentMask<Type13>::k_VaL +
+                         +Bind_ArgumentMask<Type14>::k_VaL
         // Mask of which parameters are place-holder calculated by addition
         // rather the by ORing.  If the given place-holder is used for multiple
         // arguments, the result of mask will be different from the ORed value

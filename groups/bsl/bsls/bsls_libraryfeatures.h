@@ -1041,8 +1041,8 @@ BSLS_IDENT("$Id: $")
            (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                            \
             BSLS_PLATFORM_CMP_VERSION >= 40800) ||                            \
             (defined(_GLIBCXX_USE_C99) && _GLIBCXX_USE_C99 == 1)
-        // snprintf is also available in C++03 builds with new gcc versions
 
+         // snprintf is also available in C++03 builds with new gcc versions
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF                 1
     #endif
     #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)

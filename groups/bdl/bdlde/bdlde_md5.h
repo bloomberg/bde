@@ -104,6 +104,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>
@@ -178,7 +179,9 @@ class Md5 {
         // Destroy this MD5 digest.
 
     // MANIPULATORS
-    // !Md5& operator=(const Md5& rhs);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    Md5& operator=(const Md5& rhs) = default;
+#endif
         // Assign to this MD5 digest the value of the specified 'rhs' MD5
         // digest and return a reference to this modifiable MD5 digest.  Note
         // that this method's definition is compiler generated.

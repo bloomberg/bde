@@ -92,9 +92,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmf_addlvaluereference.h>
 #include <bslmf_addrvaluereference.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 namespace BloombergLP {
@@ -158,6 +160,23 @@ struct TypeRep<TYPE&> {
 #endif
 
 }  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE>
+typename add_rvalue_reference<TYPE>::type declval() BSLS_KEYWORD_NOEXCEPT;
+        // Provide a reference to a 'TYPE' object.  This function has no body
+        // and must never be called at run time.  Thus, it does not matter if
+        // 'TYPE' has a default constructor or not.
+#else
+template <class TYPE>
+typename add_lvalue_reference<TYPE>::type declval() BSLS_KEYWORD_NOEXCEPT;
+        // Provide a reference to a 'TYPE' object.  This function has no body
+        // and must never be called at run time.  Thus, it does not matter if
+        // 'TYPE' has a default constructor or not.
+#endif
+}  // close namespace bsl
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================
@@ -170,11 +189,11 @@ struct TypeRep<TYPE&> {
 #define bslmf_TypeRep bslmf::TypeRep
     // This alias is defined for backward compatibility.
 
+namespace BloombergLP {
 typedef bslmf::MatchAnyType bslmf_AnyType;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-
 }  // close enterprise namespace
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #endif
 

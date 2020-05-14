@@ -501,7 +501,7 @@ class TestTypeNoAlloc {
         ++numCharCtorCalls;
     }
 
-    TestTypeNoAlloc(const TestTypeNoAlloc&  original)
+    TestTypeNoAlloc(const TestTypeNoAlloc& original)
     {
         d_u.d_char = original.d_u.d_char;
         ++numCopyCtorCalls;
@@ -568,6 +568,11 @@ class BitwiseMoveableTestType : public TestType {
     : TestType(original, ba)
     {
     }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    BitwiseMoveableTestType&
+    operator=(const BitwiseMoveableTestType& other) = default;
+#endif
 };
 
 // TRAITS
@@ -604,10 +609,15 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
         ++numCharCtorCalls;
     }
 
-    BitwiseCopyableTestType(const BitwiseCopyableTestType&  original)
+    BitwiseCopyableTestType(const BitwiseCopyableTestType& original)
     : TestTypeNoAlloc(original.datum())
     {
     }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    BitwiseCopyableTestType&
+    operator=(const BitwiseCopyableTestType& other) = default;
+#endif
 };
 
 // TRAITS

@@ -3,10 +3,7 @@
 
 #include <bslstl_vector.h>
 
-#include <bsltf_stdstatefulallocator.h>
-#include <bsltf_stdtestallocator.h>
-#include <bsltf_templatetestfacility.h>
-#include <bsltf_testvaluesarray.h>
+#include <bslalg_rangecompare.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -14,8 +11,6 @@
 #include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-
-#include <bslalg_rangecompare.h>
 
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
@@ -27,6 +22,11 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
+
+#include <bsltf_stdstatefulallocator.h>
+#include <bsltf_stdtestallocator.h>
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 #include <algorithm>
 #include <functional>
@@ -357,6 +357,10 @@ struct NonAllocCont {
   public:
     // CREATORS
     NonAllocCont() : d_vector(&bslma::MallocFreeAllocator::singleton()) {}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    NonAllocCont(const NonAllocCont& other) = default;
+#endif
 
     ~NonAllocCont() {}
 
@@ -3018,7 +3022,7 @@ void TestDriver<CONTAINER>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -4052,7 +4056,7 @@ void TestDriver<CONTAINER>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -4479,7 +4483,7 @@ void TestDriver<CONTAINER>::testCase8_propagate_on_container_swap_dispatch()
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -5039,7 +5043,7 @@ void TestDriver<CONTAINER>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const SPEC   = SPECS[ti];

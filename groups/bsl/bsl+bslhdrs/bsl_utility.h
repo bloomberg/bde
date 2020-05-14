@@ -17,6 +17,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_integersequence.h>
 #include <bslmf_makeintegersequence.h>
+#include <bslmf_matchanytype.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
@@ -39,7 +40,6 @@ namespace bsl {
 #endif  // BSL_OVERRIDES_STD
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::declval;
     using native_std::forward;
     using native_std::move;
     using native_std::move_if_noexcept;

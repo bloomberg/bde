@@ -1,16 +1,22 @@
 // bslma_allocatortraits.t.cpp                                        -*-C++-*-
 #include <bslma_allocatortraits.h>
+
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
+
+#include <bsla_nodiscard.h>
+
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_issame.h>
 #include <bslmf_removecv.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_util.h>
 
@@ -144,694 +150,6 @@ void aSsErT(int c, const char *s, int i) {
 
 #define LOOP_ASSERT_ISSAME(I,t1,t2) \
         LOOP_ASSERT(I, (bsl::is_same< t1,t2>::value))
-
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-// 'g_x' is a dummy object with a unique address
-struct Uniq { } g_x;
-
-// The following are default values for the 5 attributes of our test classes.
-char        const DFLT_A = ' ';
-int         const DFLT_B = 99;
-double      const DFLT_C = 1.0;
-const char *const DFLT_D = "hello";
-Uniq       *const DFLT_E = &g_x;
-
-//=============================================================================
-//                  GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
-
-// Most recent hint given to any allocator's 'allocate' member function.
-const void* g_lastHint;
-
-template <class TYPE>
-class NonBslmaAllocator
-{
-    // This class is a C++03-compliant allocator that does not conform to the
-    // 'bslma' allocator model.
-    bslma::Allocator *d_mechanism;
-
-  public:
-    // PUBLIC TYPES
-    typedef std::size_t     size_type;
-    typedef std::ptrdiff_t  difference_type;
-    typedef TYPE           *pointer;
-    typedef const TYPE     *const_pointer;
-    typedef TYPE&           reference;
-    typedef const TYPE&     const_reference;
-    typedef TYPE            value_type;
-
-    template <class OTHER>
-    struct rebind
-    {
-        typedef NonBslmaAllocator<OTHER> other;
-    };
-
-    // CREATORS
-    explicit NonBslmaAllocator(bslma::Allocator *basicAlloc = 0)
-        : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
-
-    // ALLOCATION FUNCTIONS
-    pointer allocate(size_type n, const void *hint = 0) {
-        g_lastHint = hint;
-        return pointer(d_mechanism->allocate(n * sizeof(TYPE)));
-    }
-
-    void deallocate(pointer p, size_type /* n */ = 1)
-        { d_mechanism->deallocate(p); }
-
-    // ELEMENT CREATION FUNCTIONS
-    template <class ELEMENT_TYPE>
-    void construct(ELEMENT_TYPE *p)
-    {
-        ::new (static_cast<void *>(p)) ELEMENT_TYPE();
-    }
-    template <class ELEMENT_TYPE, class A1>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1)
-    {
-        ::new (static_cast<void *>(p))
-            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1));
-    }
-    template <class ELEMENT_TYPE, class A1, class A2>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2)
-    {
-        ::new (static_cast<void *>(p))
-            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-                         BSLS_COMPILERFEATURES_FORWARD(A2, a2));
-    }
-
-    template <class ELEMENT_TYPE, class A1, class A2, class A3>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3)
-    {
-        ::new (static_cast<void *>(p))
-            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-                         BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-                         BSLS_COMPILERFEATURES_FORWARD(A3, a3));
-    }
-
-    template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4)
-    {
-        ::new (static_cast<void *>(p))
-            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-                         BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-                         BSLS_COMPILERFEATURES_FORWARD(A3, a3),
-                         BSLS_COMPILERFEATURES_FORWARD(A4, a4));
-    }
-
-    template <class ELEMENT_TYPE,
-              class A1,
-              class A2,
-              class A3,
-              class A4,
-              class A5>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A5) a5)
-    {
-        ::new (static_cast<void *>(p))
-            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-                         BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-                         BSLS_COMPILERFEATURES_FORWARD(A3, a3),
-                         BSLS_COMPILERFEATURES_FORWARD(A4, a4),
-                         BSLS_COMPILERFEATURES_FORWARD(A5, a5));
-    }
-
-    template <class ELEMENT_TYPE>
-    void destroy(ELEMENT_TYPE *p) { p->~ELEMENT_TYPE(); }
-
-    // ACCESSORS
-    pointer address(reference x) const { return &x; }
-    const_pointer address(const_reference x) const { return &x; }
-    size_type max_size() const { return INT_MAX / sizeof(TYPE); }
-
-    bslma::Allocator *mechanism() const { return d_mechanism; }
-};
-
-template <class TYPE_1, class TYPE_2>
-inline
-bool operator==(const NonBslmaAllocator<TYPE_1>& lhs,
-                const NonBslmaAllocator<TYPE_2>& rhs)
-{
-    return lhs.mechanism() == rhs.mechanism();
-}
-
-template <class TYPE_1, class TYPE_2>
-inline
-bool operator!=(const NonBslmaAllocator<TYPE_1>& lhs,
-                const NonBslmaAllocator<TYPE_2>& rhs)
-{
-    return lhs.mechanism() != rhs.mechanism();
-}
-
-template <class TYPE>
-class BslmaAllocator
-{
-    // This class is a C++03-compliant allocator that conforms to the 'bslma'
-    // allocator model (i.e., it is convertible from 'bslma::Allocator*'.
-    bslma::Allocator *d_mechanism;
-
-    typedef typename bslma::UsesBslmaAllocator<TYPE>::type IsBslma;
-
-  public:
-    // PUBLIC TYPES
-    typedef std::size_t     size_type;
-    typedef std::ptrdiff_t  difference_type;
-    typedef TYPE           *pointer;
-    typedef const TYPE     *const_pointer;
-    typedef TYPE&           reference;
-    typedef const TYPE&     const_reference;
-    typedef TYPE            value_type;
-
-    template <class OTHER>
-    struct rebind
-    {
-        typedef BslmaAllocator<OTHER> other;
-    };
-
-    // CREATORS
-    BslmaAllocator(bslma::Allocator *basicAlloc = 0)                // IMPLICIT
-        : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
-
-    // ALLOCATION FUNCTIONS
-    pointer allocate(size_type n, const void *hint = 0) {
-        g_lastHint = hint;
-        return pointer(d_mechanism->allocate(n * sizeof(TYPE)));
-    }
-
-    void deallocate(pointer p, size_type /* n */ = 1)
-        { d_mechanism->deallocate(p); }
-
-    // ELEMENT CREATION FUNCTIONS
-    template <class ELEMENT_TYPE>
-    void construct(ELEMENT_TYPE *p)
-    {
-        bslma::ConstructionUtil::construct(p, d_mechanism);
-    }
-    template <class ELEMENT_TYPE, class A1>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1)
-    {
-        bslma::ConstructionUtil::construct(
-            p, d_mechanism, BSLS_COMPILERFEATURES_FORWARD(A1, a1));
-    }
-    template <class ELEMENT_TYPE, class A1, class A2>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2));
-    }
-
-    template <class ELEMENT_TYPE, class A1, class A2, class A3>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-            BSLS_COMPILERFEATURES_FORWARD(A3, a3));
-    }
-
-    template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
-            BSLS_COMPILERFEATURES_FORWARD(A4, a4));
-    }
-
-    template <class ELEMENT_TYPE,
-              class A1,
-              class A2,
-              class A3,
-              class A4,
-              class A5>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A5) a5)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
-            BSLS_COMPILERFEATURES_FORWARD(A4, a4),
-            BSLS_COMPILERFEATURES_FORWARD(A5, a5));
-    }
-
-    template <class ELEMENT_TYPE>
-    void destroy(ELEMENT_TYPE *p) { p->~ELEMENT_TYPE(); }
-
-    // ACCESSORS
-    pointer address(reference x) const { return &x; }
-    const_pointer address(const_reference x) const { return &x; }
-    size_type max_size() const { return INT_MAX / sizeof(TYPE); }
-
-    bslma::Allocator *mechanism() const { return d_mechanism; }
-};
-
-template <class TYPE_1, class TYPE_2>
-inline
-bool operator==(const BslmaAllocator<TYPE_1>& lhs,
-                const BslmaAllocator<TYPE_2>& rhs)
-{
-    return lhs.mechanism() == rhs.mechanism();
-}
-
-template <class TYPE_1, class TYPE_2>
-inline
-bool operator!=(const BslmaAllocator<TYPE_1>& lhs,
-                const BslmaAllocator<TYPE_2>& rhs)
-{
-    return lhs.mechanism() != rhs.mechanism();
-}
-
-template <class TYPE>
-class FunkyPointer
-{
-    // Pointer-like class for testing use of non-raw pointers in allocators.
-    TYPE* d_imp;
-
-  public:
-    FunkyPointer() : d_imp(0) { }
-    FunkyPointer(TYPE* p, int) : d_imp(p) { }
-    FunkyPointer(const FunkyPointer<typename bsl::remove_cv<TYPE>::type>&
-                                                             other) // IMPLICIT
-        : d_imp(other.operator->()) { }
-
-    // Construct from null pointer
-    FunkyPointer(int FunkyPointer::*) : d_imp(0) { }                // IMPLICIT
-
-    TYPE& operator*() const { return *d_imp; }
-    TYPE* operator->() const { return d_imp; }
-};
-
-template <class TYPE>
-inline
-bool operator==(FunkyPointer<TYPE> lhs, FunkyPointer<TYPE> rhs)
-{
-    return lhs.operator->() == rhs.operator->();
-}
-
-template <class TYPE>
-inline
-bool operator!=(FunkyPointer<TYPE> lhs, FunkyPointer<TYPE> rhs)
-{
-    return lhs.operator->() != rhs.operator->();
-}
-
-template <class TYPE>
-class FunkyAllocator
-{
-    // Allocator that uses 'FunkyPointer' as its pointer type.  Not all
-    // allocator-aware classes can work with such an allocator, but
-    // 'allocator_traits' should work fine.
-    //
-    // This class is a C++03-compliant allocator that conforms to the 'bslma'
-    // allocator model (i.e., it is convertible from 'bslma::Allocator*'.
-    bslma::Allocator *d_mechanism;
-
-    void doConstruct(TYPE *p, const TYPE& val, bsl::false_type) {
-        ::new (static_cast<void *>(p)) TYPE(val);
-    }
-
-    void doConstruct(TYPE *p, const TYPE& val, bsl::true_type) {
-        ::new (static_cast<void *>(p)) TYPE(val, this->d_mechanism);
-    }
-
-  public:
-    // PUBLIC TYPES
-    typedef std::size_t           size_type;
-    typedef std::ptrdiff_t        difference_type;
-    typedef FunkyPointer<TYPE>       pointer;
-    typedef FunkyPointer<const TYPE> const_pointer;
-    typedef TYPE&                    reference;
-    typedef const TYPE&              const_reference;
-    typedef TYPE                     value_type;
-
-    template <class OTHER>
-    struct rebind
-    {
-        typedef FunkyAllocator<OTHER> other;
-    };
-
-    // CREATORS
-    FunkyAllocator(bslma::Allocator *basicAlloc = 0)                // IMPLICIT
-        : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
-
-    // ALLOCATION FUNCTIONS
-    pointer allocate(size_type n, const void *hint = 0) {
-        g_lastHint = hint;
-        return pointer(
-              static_cast<TYPE *>(d_mechanism->allocate(n * sizeof(TYPE))), 0);
-    }
-
-    void deallocate(pointer p, size_type /* n */ = 1)
-        { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
-
-    // ELEMENT CREATION FUNCTIONS
-    template <class ELEMENT_TYPE>
-    void construct(ELEMENT_TYPE *p)
-    {
-        bslma::ConstructionUtil::construct(p, d_mechanism);
-    }
-    template <class ELEMENT_TYPE, class A1>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1)
-    {
-        bslma::ConstructionUtil::construct(
-            p, d_mechanism, BSLS_COMPILERFEATURES_FORWARD(A1, a1));
-    }
-    template <class ELEMENT_TYPE, class A1, class A2>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2));
-    }
-
-    template <class ELEMENT_TYPE, class A1, class A2, class A3>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-            BSLS_COMPILERFEATURES_FORWARD(A3, a3));
-    }
-
-    template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
-            BSLS_COMPILERFEATURES_FORWARD(A4, a4));
-    }
-
-    template <class ELEMENT_TYPE,
-              class A1,
-              class A2,
-              class A3,
-              class A4,
-              class A5>
-    void construct(ELEMENT_TYPE *p,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(A5) a5)
-    {
-        bslma::ConstructionUtil::construct(
-            p,
-            d_mechanism,
-            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
-            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
-            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
-            BSLS_COMPILERFEATURES_FORWARD(A4, a4),
-            BSLS_COMPILERFEATURES_FORWARD(A5, a5));
-    }
-
-    template <class ELEMENT_TYPE>
-    void destroy(ELEMENT_TYPE *p) { p->~ELEMENT_TYPE(); }
-
-    // ACCESSORS
-    pointer address(reference x) const
-                               { return pointer(bsls::Util::addressOf(x), 0); }
-    const_pointer address(const_reference x) const
-                         { return const_pointer(bsls::Util::addressOf(x), 0); }
-    size_type max_size() const { return INT_MAX / sizeof(TYPE); }
-
-    bslma::Allocator *mechanism() const { return d_mechanism; }
-};
-
-template <class TYPE_1, class TYPE_2>
-inline
-bool operator==(const FunkyAllocator<TYPE_1>& lhs,
-                const FunkyAllocator<TYPE_2>& rhs)
-{
-    return lhs.mechanism() == rhs.mechanism();
-}
-
-template <class TYPE_1, class TYPE_2>
-inline
-bool operator!=(const FunkyAllocator<TYPE_1>& lhs,
-                const FunkyAllocator<TYPE_2>& rhs)
-{
-    return lhs.mechanism() != rhs.mechanism();
-}
-
-struct AttribStruct5
-{
-    // This test struct has up to 5 attributes of different types.  It is a
-    // simple aggregate type so it can be statically constructed.
-    char        d_a;
-    int         d_b;
-    double      d_c;
-    const char *d_d;
-    Uniq       *d_e;
-};
-
-class AttribClass5
-{
-    // This test class has up to 5 constructor arguments and does not use the
-    // 'bslma' allocator protocol.
-
-    AttribStruct5 d_attrib;
-
-    static int s_ctorCount;       // Count of constructor calls
-    static int s_dtorCount;       // Count of destructor calls
-    static int s_dtorScratchPad;  // Scratch area for dtor trace data
-
-  public:
-    static int ctorCount() { return s_ctorCount; }
-    static int dtorCount() { return s_dtorCount; }
-    static int dtorScratchPad() { return s_dtorScratchPad; }
-    static void setDtorScratchPad(int value) { s_dtorScratchPad = value; }
-
-    typedef bslma::Allocator* AllocatorType;
-
-    explicit AttribClass5(char        a = DFLT_A,
-                          int         b = DFLT_B,
-                          double      c = DFLT_C,
-                          const char *d = DFLT_D,
-                          Uniq       *e = DFLT_E)
-    {
-        AttribStruct5 values = { a, b, c, d, e };
-        d_attrib = values;
-        ++s_ctorCount;
-    }
-
-    AttribClass5(const AttribClass5& other)
-        : d_attrib(other.d_attrib) { ++s_ctorCount; }
-
-    ~AttribClass5()
-    {
-        s_dtorScratchPad = d_attrib.d_b;
-        ++s_dtorCount;
-    }
-
-    char        a() const { return d_attrib.d_a; }
-    int         b() const { return d_attrib.d_b; }
-    double      c() const { return d_attrib.d_c; }
-    const char *d() const { return d_attrib.d_d; }
-    Uniq       *e() const { return d_attrib.d_e; }
-
-    AllocatorType allocator() const { return bslma::Default::allocator(0); }
-};
-
-int AttribClass5::s_ctorCount = 0;
-int AttribClass5::s_dtorCount = 0;
-int AttribClass5::s_dtorScratchPad = 0;
-
-template <class ALLOC>
-class AttribClass5Alloc
-{
-    // This test class has up to 5 constructor arguments plus an (optional)
-    // allocator.  If the 'ALLOC' template argument is 'bsl::allocator', then
-    // this class conforms to the 'bslma' allocator model, otherwise it does
-    // not.
-
-    AttribClass5 d_attrib;
-    ALLOC        d_allocator;
-
-  public:
-    typedef ALLOC AllocatorType;
-
-    explicit AttribClass5Alloc(const ALLOC& alloc = ALLOC())
-        : d_attrib(), d_allocator(alloc) { }
-    explicit AttribClass5Alloc(char a, const ALLOC& alloc = ALLOC())
-        : d_attrib(a), d_allocator(alloc) { }
-    AttribClass5Alloc(char a, int b, const ALLOC& alloc = ALLOC())
-        : d_attrib(a, b), d_allocator(alloc) { }
-    AttribClass5Alloc(char a, int b, double c, const ALLOC& alloc = ALLOC())
-        : d_attrib(a, b, c), d_allocator(alloc) { }
-    AttribClass5Alloc(char a, int b, double c, const char *d,
-                      const ALLOC& alloc = ALLOC())
-        : d_attrib(a, b, c, d), d_allocator(alloc) { }
-    AttribClass5Alloc(char a, int b, double c, const char *d, Uniq *e,
-                      const ALLOC& alloc = ALLOC())
-        : d_attrib(a, b, c, d, e), d_allocator(alloc) { }
-    AttribClass5Alloc(const AttribClass5Alloc& other)
-        : d_attrib(other.d_attrib)
-        , d_allocator(bsl::is_convertible<bslma::Allocator*,ALLOC>::value ?
-                      ALLOC() : other.d_allocator)
-        { }
-    AttribClass5Alloc(const AttribClass5Alloc& other, const ALLOC& alloc)
-        : d_attrib(other.d_attrib), d_allocator(alloc) { }
-
-    char        a() const { return d_attrib.a(); }
-    int         b() const { return d_attrib.b(); }
-    double      c() const { return d_attrib.c(); }
-    const char *d() const { return d_attrib.d(); }
-    Uniq       *e() const { return d_attrib.e(); }
-
-    AllocatorType allocator() const { return d_allocator; }
-
-    friend void operator&(AttribClass5Alloc&) { }
-};
-
-// Set the 'UsesBslmaAllocator' trait.  If the allocator uses the bslma model,
-// then this trait will be true.
-namespace BloombergLP {
-namespace bslma {
-    template <class ALLOC>
-    struct UsesBslmaAllocator<AttribClass5Alloc<ALLOC> > :
-        bsl::is_convertible<bslma::Allocator*, ALLOC>::type
-    {
-    };
-}  // close namespace bslma
-}  // close enterprise namespace
-
-class AttribClass5bslma
-{
-    // This test class has up to 5 constructor arguments plus an (optional)
-    // address of a 'bslma::Allocator'.  This class conforms to the 'bslma'
-    // allocator model.
-
-    AttribClass5      d_attrib;
-    bslma::Allocator* d_allocator_p;
-
-  public:
-    BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5bslma,
-                                   bslma::UsesBslmaAllocator);
-
-    typedef bslma::Allocator* AllocatorType;
-
-    explicit AttribClass5bslma(bslma::Allocator *alloc = 0)
-        : d_attrib(), d_allocator_p(bslma::Default::allocator(alloc)) { }
-
-    explicit AttribClass5bslma(char a, bslma::Allocator *alloc = 0)
-        : d_attrib(a), d_allocator_p(bslma::Default::allocator(alloc)) { }
-    AttribClass5bslma(char a, int b, bslma::Allocator *alloc = 0)
-        : d_attrib(a, b), d_allocator_p(bslma::Default::allocator(alloc)) { }
-    AttribClass5bslma(char a, int b, double c, bslma::Allocator *alloc = 0)
-        : d_attrib(a, b, c)
-        , d_allocator_p(bslma::Default::allocator(alloc)) { }
-    AttribClass5bslma(char a, int b, double c, const char *d,
-                      bslma::Allocator *alloc = 0)
-        : d_attrib(a, b, c, d)
-        , d_allocator_p(bslma::Default::allocator(alloc)) { }
-    AttribClass5bslma(char a, int b, double c, const char *d, Uniq *e,
-                      bslma::Allocator *alloc = 0)
-        : d_attrib(a, b, c, d, e)
-        , d_allocator_p(bslma::Default::allocator(alloc)) { }
-    AttribClass5bslma(const AttribClass5bslma& other,
-                      bslma::Allocator *alloc = 0)
-        : d_attrib(other.d_attrib)
-        , d_allocator_p(bslma::Default::allocator(alloc)) { }
-
-    char        a() const { return d_attrib.a(); }
-    int         b() const { return d_attrib.b(); }
-    double      c() const { return d_attrib.c(); }
-    const char *d() const { return d_attrib.d(); }
-    Uniq       *e() const { return d_attrib.e(); }
-
-    bslma::Allocator *allocator() const { return d_allocator_p; }
-};
-
-template <class TYPE>
-bool
-matchAttrib(const TYPE& v, char a, int b, double c, const char *d, Uniq *e)
-{
-    return v.a() == a && v.b() == b && v.c() == c && v.d() == d && v.e() == e;
-}
-
-template <class TYPE, class ALLOC>
-bool
-matchAttrib(const TYPE&   v,
-            char          a,
-            int           b,
-            double        c,
-            const char   *d,
-            Uniq         *e,
-            const ALLOC&  alloc)
-{
-    return matchAttrib(v, a, b, c, d, e) && v.allocator() == alloc;
-}
-
-template <class TYPE>
-inline bool isMutable(TYPE& /* x */) { return true; }
-    // Return 'true'.  Preferred match if 'x' is a modifiable lvalue.
-
-template <class TYPE>
-inline bool isMutable(const TYPE& /* x */) { return false; }
-    // Return 'false'.  Preferred match if 'x' is an rvalue or const lvalue.
 
 //=============================================================================
 //               CLASSES AND FUNCTIONS FOR TESTING USAGE EXAMPLES
@@ -1237,6 +555,744 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
 //..
 
 //=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+// 'g_x' is a dummy object with a unique address
+struct Uniq { } g_x;
+
+// The following are default values for the 5 attributes of our test classes.
+char        const DFLT_A = ' ';
+int         const DFLT_B = 99;
+double      const DFLT_C = 1.0;
+const char *const DFLT_D = "hello";
+Uniq       *const DFLT_E = &g_x;
+
+//=============================================================================
+//                  GLOBAL HELPER CLASSES FOR TESTING
+//-----------------------------------------------------------------------------
+
+// Most recent hint given to any allocator's 'allocate' member function.
+const void* g_lastHint;
+
+                        // =======================
+                        // class NonBslmaAllocator
+                        // =======================
+
+template <class TYPE>
+class NonBslmaAllocator {
+    // This class is a C++03-compliant allocator that does not conform to the
+    // 'bslma' allocator model.
+    bslma::Allocator *d_mechanism;
+
+  public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef TYPE           *pointer;
+    typedef const TYPE     *const_pointer;
+    typedef TYPE&           reference;
+    typedef const TYPE&     const_reference;
+    typedef TYPE            value_type;
+
+    template <class OTHER>
+    struct rebind
+    {
+        typedef NonBslmaAllocator<OTHER> other;
+    };
+
+    // CREATORS
+    explicit NonBslmaAllocator(bslma::Allocator *basicAlloc = 0)
+        : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
+
+    // ALLOCATION FUNCTIONS
+    pointer allocate(size_type n, const void *hint = 0) {
+        g_lastHint = hint;
+        return pointer(d_mechanism->allocate(n * sizeof(TYPE)));
+    }
+
+    void deallocate(pointer p, size_type /* n */ = 1)
+        { d_mechanism->deallocate(p); }
+
+    // ELEMENT CREATION FUNCTIONS
+    template <class ELEMENT_TYPE>
+    void construct(ELEMENT_TYPE *p)
+    {
+        ::new (static_cast<void *>(p)) ELEMENT_TYPE();
+    }
+    template <class ELEMENT_TYPE, class A1>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1)
+    {
+        ::new (static_cast<void *>(p))
+            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1));
+    }
+    template <class ELEMENT_TYPE, class A1, class A2>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2)
+    {
+        ::new (static_cast<void *>(p))
+            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+                         BSLS_COMPILERFEATURES_FORWARD(A2, a2));
+    }
+
+    template <class ELEMENT_TYPE, class A1, class A2, class A3>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3)
+    {
+        ::new (static_cast<void *>(p))
+            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+                         BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+                         BSLS_COMPILERFEATURES_FORWARD(A3, a3));
+    }
+
+    template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4)
+    {
+        ::new (static_cast<void *>(p))
+            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+                         BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+                         BSLS_COMPILERFEATURES_FORWARD(A3, a3),
+                         BSLS_COMPILERFEATURES_FORWARD(A4, a4));
+    }
+
+    template <class ELEMENT_TYPE,
+              class A1,
+              class A2,
+              class A3,
+              class A4,
+              class A5>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A5) a5)
+    {
+        ::new (static_cast<void *>(p))
+            ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+                         BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+                         BSLS_COMPILERFEATURES_FORWARD(A3, a3),
+                         BSLS_COMPILERFEATURES_FORWARD(A4, a4),
+                         BSLS_COMPILERFEATURES_FORWARD(A5, a5));
+    }
+
+    template <class ELEMENT_TYPE>
+    void destroy(ELEMENT_TYPE *p) { p->~ELEMENT_TYPE(); }
+
+    // ACCESSORS
+    pointer address(reference x) const { return &x; }
+    const_pointer address(const_reference x) const { return &x; }
+    size_type max_size() const { return INT_MAX / sizeof(TYPE); }
+
+    bslma::Allocator *mechanism() const { return d_mechanism; }
+};
+
+template <class TYPE_1, class TYPE_2>
+inline
+bool operator==(const NonBslmaAllocator<TYPE_1>& lhs,
+                const NonBslmaAllocator<TYPE_2>& rhs)
+{
+    return lhs.mechanism() == rhs.mechanism();
+}
+
+template <class TYPE_1, class TYPE_2>
+inline
+bool operator!=(const NonBslmaAllocator<TYPE_1>& lhs,
+                const NonBslmaAllocator<TYPE_2>& rhs)
+{
+    return lhs.mechanism() != rhs.mechanism();
+}
+
+                        // ====================
+                        // class BslmaAllocator
+                        // ====================
+
+template <class TYPE>
+class BslmaAllocator
+{
+    // This class is a C++03-compliant allocator that conforms to the 'bslma'
+    // allocator model (i.e., it is convertible from 'bslma::Allocator*'.
+    bslma::Allocator *d_mechanism;
+
+    typedef typename bslma::UsesBslmaAllocator<TYPE>::type IsBslma;
+
+  public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef TYPE           *pointer;
+    typedef const TYPE     *const_pointer;
+    typedef TYPE&           reference;
+    typedef const TYPE&     const_reference;
+    typedef TYPE            value_type;
+
+    template <class OTHER>
+    struct rebind
+    {
+        typedef BslmaAllocator<OTHER> other;
+    };
+
+    // CREATORS
+    BslmaAllocator(bslma::Allocator *basicAlloc = 0)                // IMPLICIT
+        : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
+
+    // ALLOCATION FUNCTIONS
+    pointer allocate(size_type n, const void *hint = 0) {
+        g_lastHint = hint;
+        return pointer(d_mechanism->allocate(n * sizeof(TYPE)));
+    }
+
+    void deallocate(pointer p, size_type /* n */ = 1)
+        { d_mechanism->deallocate(p); }
+
+    // ELEMENT CREATION FUNCTIONS
+    template <class ELEMENT_TYPE>
+    void construct(ELEMENT_TYPE *p)
+    {
+        bslma::ConstructionUtil::construct(p, d_mechanism);
+    }
+    template <class ELEMENT_TYPE, class A1>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1)
+    {
+        bslma::ConstructionUtil::construct(
+            p, d_mechanism, BSLS_COMPILERFEATURES_FORWARD(A1, a1));
+    }
+    template <class ELEMENT_TYPE, class A1, class A2>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2));
+    }
+
+    template <class ELEMENT_TYPE, class A1, class A2, class A3>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+            BSLS_COMPILERFEATURES_FORWARD(A3, a3));
+    }
+
+    template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
+            BSLS_COMPILERFEATURES_FORWARD(A4, a4));
+    }
+
+    template <class ELEMENT_TYPE,
+              class A1,
+              class A2,
+              class A3,
+              class A4,
+              class A5>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A5) a5)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
+            BSLS_COMPILERFEATURES_FORWARD(A4, a4),
+            BSLS_COMPILERFEATURES_FORWARD(A5, a5));
+    }
+
+    template <class ELEMENT_TYPE>
+    void destroy(ELEMENT_TYPE *p) { p->~ELEMENT_TYPE(); }
+
+    // ACCESSORS
+    pointer address(reference x) const { return &x; }
+    const_pointer address(const_reference x) const { return &x; }
+    size_type max_size() const { return INT_MAX / sizeof(TYPE); }
+
+    bslma::Allocator *mechanism() const { return d_mechanism; }
+};
+
+template <class TYPE_1, class TYPE_2>
+inline
+bool operator==(const BslmaAllocator<TYPE_1>& lhs,
+                const BslmaAllocator<TYPE_2>& rhs)
+{
+    return lhs.mechanism() == rhs.mechanism();
+}
+
+template <class TYPE_1, class TYPE_2>
+inline
+bool operator!=(const BslmaAllocator<TYPE_1>& lhs,
+                const BslmaAllocator<TYPE_2>& rhs)
+{
+    return lhs.mechanism() != rhs.mechanism();
+}
+
+                        // ==================
+                        // class FunkyPointer
+                        // ==================
+
+template <class TYPE>
+class FunkyPointer
+{
+    // Pointer-like class for testing use of non-raw pointers in allocators.
+    TYPE* d_imp;
+
+  public:
+    FunkyPointer() : d_imp(0) { }
+    FunkyPointer(TYPE* p, int) : d_imp(p) { }
+    FunkyPointer(const FunkyPointer<typename bsl::remove_cv<TYPE>::type>&
+                                                          original) // IMPLICIT
+        : d_imp(original.operator->()) { }
+
+    // Construct from null pointer
+    FunkyPointer(int FunkyPointer::*) : d_imp(0) { }                // IMPLICIT
+
+    FunkyPointer&
+    operator=( const FunkyPointer<typename bsl::remove_cv<TYPE>::type>& rhs) {
+         d_imp = rhs.operator->();
+	 return *this;
+    }
+
+    TYPE& operator*() const { return *d_imp; }
+    TYPE* operator->() const { return d_imp; }
+};
+
+template <class TYPE>
+inline
+bool operator==(FunkyPointer<TYPE> lhs, FunkyPointer<TYPE> rhs)
+{
+    return lhs.operator->() == rhs.operator->();
+}
+
+template <class TYPE>
+inline
+bool operator!=(FunkyPointer<TYPE> lhs, FunkyPointer<TYPE> rhs)
+{
+    return lhs.operator->() != rhs.operator->();
+}
+
+                        // ====================
+                        // class FunkyAllocator
+                        // ====================
+
+template <class TYPE>
+class FunkyAllocator
+{
+    // Allocator that uses 'FunkyPointer' as its pointer type.  Not all
+    // allocator-aware classes can work with such an allocator, but
+    // 'allocator_traits' should work fine.
+    //
+    // This class is a C++03-compliant allocator that conforms to the 'bslma'
+    // allocator model (i.e., it is convertible from 'bslma::Allocator*'.
+    bslma::Allocator *d_mechanism;
+
+    void doConstruct(TYPE *p, const TYPE& val, bsl::false_type) {
+        ::new (static_cast<void *>(p)) TYPE(val);
+    }
+
+    void doConstruct(TYPE *p, const TYPE& val, bsl::true_type) {
+        ::new (static_cast<void *>(p)) TYPE(val, this->d_mechanism);
+    }
+
+  public:
+    // PUBLIC TYPES
+    typedef std::size_t           size_type;
+    typedef std::ptrdiff_t        difference_type;
+    typedef FunkyPointer<TYPE>       pointer;
+    typedef FunkyPointer<const TYPE> const_pointer;
+    typedef TYPE&                    reference;
+    typedef const TYPE&              const_reference;
+    typedef TYPE                     value_type;
+
+    template <class OTHER>
+    struct rebind
+    {
+        typedef FunkyAllocator<OTHER> other;
+    };
+
+    // CREATORS
+    FunkyAllocator(bslma::Allocator *basicAlloc = 0)                // IMPLICIT
+        : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
+
+    // ALLOCATION FUNCTIONS
+    pointer allocate(size_type n, const void *hint = 0) {
+        g_lastHint = hint;
+        return pointer(
+              static_cast<TYPE *>(d_mechanism->allocate(n * sizeof(TYPE))), 0);
+    }
+
+    void deallocate(pointer p, size_type /* n */ = 1)
+        { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
+
+    // ELEMENT CREATION FUNCTIONS
+    template <class ELEMENT_TYPE>
+    void construct(ELEMENT_TYPE *p)
+    {
+        bslma::ConstructionUtil::construct(p, d_mechanism);
+    }
+    template <class ELEMENT_TYPE, class A1>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1)
+    {
+        bslma::ConstructionUtil::construct(
+            p, d_mechanism, BSLS_COMPILERFEATURES_FORWARD(A1, a1));
+    }
+    template <class ELEMENT_TYPE, class A1, class A2>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2));
+    }
+
+    template <class ELEMENT_TYPE, class A1, class A2, class A3>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+            BSLS_COMPILERFEATURES_FORWARD(A3, a3));
+    }
+
+    template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
+            BSLS_COMPILERFEATURES_FORWARD(A4, a4));
+    }
+
+    template <class ELEMENT_TYPE,
+              class A1,
+              class A2,
+              class A3,
+              class A4,
+              class A5>
+    void construct(ELEMENT_TYPE *p,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A2) a2,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A3) a3,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A4) a4,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(A5) a5)
+    {
+        bslma::ConstructionUtil::construct(
+            p,
+            d_mechanism,
+            BSLS_COMPILERFEATURES_FORWARD(A1, a1),
+            BSLS_COMPILERFEATURES_FORWARD(A2, a2),
+            BSLS_COMPILERFEATURES_FORWARD(A3, a3),
+            BSLS_COMPILERFEATURES_FORWARD(A4, a4),
+            BSLS_COMPILERFEATURES_FORWARD(A5, a5));
+    }
+
+    template <class ELEMENT_TYPE>
+    void destroy(ELEMENT_TYPE *p) { p->~ELEMENT_TYPE(); }
+
+    // ACCESSORS
+    pointer address(reference x) const
+                               { return pointer(bsls::Util::addressOf(x), 0); }
+    const_pointer address(const_reference x) const
+                         { return const_pointer(bsls::Util::addressOf(x), 0); }
+    size_type max_size() const { return INT_MAX / sizeof(TYPE); }
+
+    bslma::Allocator *mechanism() const { return d_mechanism; }
+};
+
+template <class TYPE_1, class TYPE_2>
+inline
+bool operator==(const FunkyAllocator<TYPE_1>& lhs,
+                const FunkyAllocator<TYPE_2>& rhs)
+{
+    return lhs.mechanism() == rhs.mechanism();
+}
+
+template <class TYPE_1, class TYPE_2>
+inline
+bool operator!=(const FunkyAllocator<TYPE_1>& lhs,
+                const FunkyAllocator<TYPE_2>& rhs)
+{
+    return lhs.mechanism() != rhs.mechanism();
+}
+
+
+                        // ======================
+                        // class MinimalAllocator
+                        // ======================
+
+template <class TYPE>
+class MinimalAllocator {
+    // Allocator that ...
+    //
+    // This class is a C++11-compliant allocator that ....
+
+  public:
+    typedef TYPE value_type;
+
+    MinimalAllocator() BSLS_KEYWORD_NOEXCEPT {}
+    template<class U>
+    MinimalAllocator(const MinimalAllocator<U>&) BSLS_KEYWORD_NOEXCEPT {}
+
+    BSLA_NODISCARD
+    TYPE* allocate(size_t n) {
+        return ::operator new(n * sizeof(TYPE));
+    }
+
+    void deallocate(TYPE* p, size_t) {
+        ::operator delete(p);
+    }
+};
+
+
+struct AttribStruct5
+{
+    // This test struct has up to 5 attributes of different types.  It is a
+    // simple aggregate type so it can be statically constructed.
+    char        d_a;
+    int         d_b;
+    double      d_c;
+    const char *d_d;
+    Uniq       *d_e;
+};
+
+class AttribClass5
+{
+    // This test class has up to 5 constructor arguments and does not use the
+    // 'bslma' allocator protocol.
+
+    AttribStruct5 d_attrib;
+
+    static int s_ctorCount;       // Count of constructor calls
+    static int s_dtorCount;       // Count of destructor calls
+    static int s_dtorScratchPad;  // Scratch area for dtor trace data
+
+  public:
+    static int ctorCount() { return s_ctorCount; }
+    static int dtorCount() { return s_dtorCount; }
+    static int dtorScratchPad() { return s_dtorScratchPad; }
+    static void setDtorScratchPad(int value) { s_dtorScratchPad = value; }
+
+    typedef bslma::Allocator* AllocatorType;
+
+    explicit AttribClass5(char        a = DFLT_A,
+                          int         b = DFLT_B,
+                          double      c = DFLT_C,
+                          const char *d = DFLT_D,
+                          Uniq       *e = DFLT_E)
+    {
+        AttribStruct5 values = { a, b, c, d, e };
+        d_attrib = values;
+        ++s_ctorCount;
+    }
+
+    AttribClass5(const AttribClass5& other)
+        : d_attrib(other.d_attrib) { ++s_ctorCount; }
+
+    ~AttribClass5()
+    {
+        s_dtorScratchPad = d_attrib.d_b;
+        ++s_dtorCount;
+    }
+
+    char        a() const { return d_attrib.d_a; }
+    int         b() const { return d_attrib.d_b; }
+    double      c() const { return d_attrib.d_c; }
+    const char *d() const { return d_attrib.d_d; }
+    Uniq       *e() const { return d_attrib.d_e; }
+
+    AllocatorType allocator() const { return bslma::Default::allocator(0); }
+};
+
+int AttribClass5::s_ctorCount = 0;
+int AttribClass5::s_dtorCount = 0;
+int AttribClass5::s_dtorScratchPad = 0;
+
+template <class ALLOC>
+class AttribClass5Alloc
+{
+    // This test class has up to 5 constructor arguments plus an (optional)
+    // allocator.  If the 'ALLOC' template argument is 'bsl::allocator', then
+    // this class conforms to the 'bslma' allocator model, otherwise it does
+    // not.
+
+    AttribClass5 d_attrib;
+    ALLOC        d_allocator;
+
+  public:
+    typedef ALLOC AllocatorType;
+
+    explicit AttribClass5Alloc(const ALLOC& alloc = ALLOC())
+        : d_attrib(), d_allocator(alloc) { }
+    explicit AttribClass5Alloc(char a, const ALLOC& alloc = ALLOC())
+        : d_attrib(a), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, double c, const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b, c), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, double c, const char *d,
+                      const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b, c, d), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, double c, const char *d, Uniq *e,
+                      const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b, c, d, e), d_allocator(alloc) { }
+    AttribClass5Alloc(const AttribClass5Alloc& other)
+        : d_attrib(other.d_attrib)
+        , d_allocator(bsl::is_convertible<bslma::Allocator*,ALLOC>::value ?
+                      ALLOC() : other.d_allocator)
+        { }
+    AttribClass5Alloc(const AttribClass5Alloc& other, const ALLOC& alloc)
+        : d_attrib(other.d_attrib), d_allocator(alloc) { }
+
+    char        a() const { return d_attrib.a(); }
+    int         b() const { return d_attrib.b(); }
+    double      c() const { return d_attrib.c(); }
+    const char *d() const { return d_attrib.d(); }
+    Uniq       *e() const { return d_attrib.e(); }
+
+    AllocatorType allocator() const { return d_allocator; }
+
+    friend void operator&(AttribClass5Alloc&) { }
+};
+
+// Set the 'UsesBslmaAllocator' trait.  If the allocator uses the bslma model,
+// then this trait will be true.
+namespace BloombergLP {
+namespace bslma {
+    template <class ALLOC>
+    struct UsesBslmaAllocator<AttribClass5Alloc<ALLOC> > :
+        bsl::is_convertible<bslma::Allocator*, ALLOC>::type
+    {
+    };
+}  // close namespace bslma
+}  // close enterprise namespace
+
+class AttribClass5bslma
+{
+    // This test class has up to 5 constructor arguments plus an (optional)
+    // address of a 'bslma::Allocator'.  This class conforms to the 'bslma'
+    // allocator model.
+
+    AttribClass5      d_attrib;
+    bslma::Allocator* d_allocator_p;
+
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5bslma,
+                                   bslma::UsesBslmaAllocator);
+
+    typedef bslma::Allocator* AllocatorType;
+
+    explicit AttribClass5bslma(bslma::Allocator *alloc = 0)
+        : d_attrib(), d_allocator_p(bslma::Default::allocator(alloc)) { }
+
+    explicit AttribClass5bslma(char a, bslma::Allocator *alloc = 0)
+        : d_attrib(a), d_allocator_p(bslma::Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, bslma::Allocator *alloc = 0)
+        : d_attrib(a, b), d_allocator_p(bslma::Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, double c, bslma::Allocator *alloc = 0)
+        : d_attrib(a, b, c)
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, double c, const char *d,
+                      bslma::Allocator *alloc = 0)
+        : d_attrib(a, b, c, d)
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, double c, const char *d, Uniq *e,
+                      bslma::Allocator *alloc = 0)
+        : d_attrib(a, b, c, d, e)
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
+    AttribClass5bslma(const AttribClass5bslma& other,
+                      bslma::Allocator *alloc = 0)
+        : d_attrib(other.d_attrib)
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
+
+    char        a() const { return d_attrib.a(); }
+    int         b() const { return d_attrib.b(); }
+    double      c() const { return d_attrib.c(); }
+    const char *d() const { return d_attrib.d(); }
+    Uniq       *e() const { return d_attrib.e(); }
+
+    bslma::Allocator *allocator() const { return d_allocator_p; }
+};
+
+template <class TYPE>
+bool
+matchAttrib(const TYPE& v, char a, int b, double c, const char *d, Uniq *e)
+{
+    return v.a() == a && v.b() == b && v.c() == c && v.d() == d && v.e() == e;
+}
+
+template <class TYPE, class ALLOC>
+bool
+matchAttrib(const TYPE&   v,
+            char          a,
+            int           b,
+            double        c,
+            const char   *d,
+            Uniq         *e,
+            const ALLOC&  alloc)
+{
+    return matchAttrib(v, a, b, c, d, e) && v.allocator() == alloc;
+}
+
+template <class TYPE>
+inline bool isMutable(TYPE& /* x */) { return true; }
+    // Return 'true'.  Preferred match if 'x' is a modifiable lvalue.
+
+template <class TYPE>
+inline bool isMutable(const TYPE& /* x */) { return false; }
+    // Return 'false'.  Preferred match if 'x' is an rvalue or const lvalue.
+
+//=============================================================================
 //                  IMPLEMENTATION OF TEST CASES
 //-----------------------------------------------------------------------------
 
@@ -1554,6 +1610,55 @@ void testNestedTypedefs(const char* allocName)
     LOOP_ASSERT_ISSAME(allocName, void*, typename Traits::void_pointer);
     LOOP_ASSERT_ISSAME(allocName,
                        const void*, typename Traits::const_void_pointer);
+
+    // We check whether the propagate traits are derived from false_type by
+    // checking if a pointer to the trait class is convertible to a pointer to
+    // false_type.  We use pointer convertibility because it avoids
+    // user-defined conversions.  Convertibility from A* to B* implies either
+    // that cv-A is the same as B or cv-A is derived from B, which what we are
+    // looking for.
+    LOOP_ASSERT(allocName,
+                (bsl::is_convertible<
+                 typename Traits::propagate_on_container_copy_assignment*,
+                 bsl::false_type* >::value));
+    LOOP_ASSERT(allocName,
+                (bsl::is_convertible<
+                 typename Traits::propagate_on_container_move_assignment*,
+                 bsl::false_type* >::value));
+    LOOP_ASSERT(allocName,
+                (bsl::is_convertible<
+                 typename Traits::propagate_on_container_swap*,
+                 bsl::false_type* >::value));
+}
+
+template <class ALLOC>
+void testMinimalTypedefs(const char* allocName)
+{
+    if (verbose)
+        printf("Testing nested typedefs for allocator %s\n", allocName);
+
+    typedef allocator_traits<ALLOC> Traits;
+    typedef typename ALLOC::value_type value_type;
+
+    LOOP_ASSERT_ISSAME(allocName, value_type, typename Traits::value_type);
+    LOOP_ASSERT_ISSAME(allocName,
+                       value_type *,
+                       typename Traits::pointer);
+    LOOP_ASSERT_ISSAME(allocName,
+                       const value_type *,
+                       typename Traits::const_pointer);
+    LOOP_ASSERT_ISSAME(allocName,
+                       void *,
+                       typename Traits::void_pointer);
+    LOOP_ASSERT_ISSAME(allocName,
+                       const void *,
+                       typename Traits::const_void_pointer);
+    LOOP_ASSERT_ISSAME(allocName,
+                       std::ptrdiff_t,
+                       typename Traits::difference_type);
+    LOOP_ASSERT_ISSAME(allocName,
+                       std::size_t,
+                       typename Traits::size_type);
 
     // We check whether the propagate traits are derived from false_type by
     // checking if a pointer to the trait class is convertible to a pointer to
@@ -2350,6 +2455,9 @@ int main(int argc, char *argv[])
 #define TEST_NESTED_TYPEDEFS(ALLOC) \
         testNestedTypedefs<ALLOC >(#ALLOC);
 
+#define TEST_MINIMAL_TYPEDEFS(ALLOC) \
+        testMinimalTypedefs<ALLOC >(#ALLOC);
+
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
         typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
@@ -2357,22 +2465,27 @@ int main(int argc, char *argv[])
         TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AttribClass5>);
         TEST_NESTED_TYPEDEFS(BslmaAllocator<AttribClass5>);
         TEST_NESTED_TYPEDEFS(FunkyAllocator<AttribClass5>);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AttribClass5>);
 
         TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocNonBslma>);
         TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocNonBslma>);
         TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocNonBslma>);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocNonBslma>);
 
         TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocBslma>);
         TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocBslma>);
         TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocBslma>);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocBslma>);
 
         TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocFunky>);
         TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocFunky>);
         TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocFunky>);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocFunky>);
 
         TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AttribClass5bslma>);
         TEST_NESTED_TYPEDEFS(BslmaAllocator<AttribClass5bslma>);
         TEST_NESTED_TYPEDEFS(FunkyAllocator<AttribClass5bslma>);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AttribClass5bslma>);
 
 #undef TEST_NESTED_TYPEDEFS
       } break;

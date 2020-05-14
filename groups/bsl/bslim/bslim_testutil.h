@@ -148,49 +148,51 @@ BSLS_IDENT("$Id: $")
 #define BSLIM_TESTUTIL_ASSERT(X)                                              \
     aSsErT(!(X), #X, __LINE__);
 
+#define BSLIM_TESTUTIL_DEBUG_REP(X) BloombergLP::bslim::TestUtil::debugRep(X)
+
 #define BSLIM_TESTUTIL_LOOP0_ASSERT                                           \
     BSLIM_TESTUTIL_ASSERT
 
 #define BSLIM_TESTUTIL_LOOP_ASSERT(I,X)                                       \
-    if (!(X)) { bsl::cout << #I << ": " << (I) << "\n";                       \
+    if (!(X)) { bsl::cout << #I << ": " << BSLIM_TESTUTIL_DEBUG_REP(I) << "\n";\
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP1_ASSERT                                           \
     BSLIM_TESTUTIL_LOOP_ASSERT
 
 #define BSLIM_TESTUTIL_LOOP2_ASSERT(I,J,X)                                    \
-    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
-                          << #J << ": " << (J) << "\n";                       \
+    if (!(X)) { bsl::cout << #I << ": " << BSLIM_TESTUTIL_DEBUG_REP(I) << "\t"\
+                          << #J << ": " << BSLIM_TESTUTIL_DEBUG_REP(J) << "\n";\
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP3_ASSERT(I,J,K,X)                                  \
-    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
-                          << #J << ": " << (J) << "\t"                        \
-                          << #K << ": " << (K) << "\n";                       \
+    if (!(X)) { bsl::cout << #I << ": " << BSLIM_TESTUTIL_DEBUG_REP(I) << "\t"\
+                          << #J << ": " << BSLIM_TESTUTIL_DEBUG_REP(J) << "\t"\
+                          << #K << ": " << BSLIM_TESTUTIL_DEBUG_REP(K) << "\n";\
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)                                \
-    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
-                          << #J << ": " << (J) << "\t"                        \
-                          << #K << ": " << (K) << "\t"                        \
-                          << #L << ": " << (L) << "\n";                       \
+    if (!(X)) { bsl::cout << #I << ": " << BSLIM_TESTUTIL_DEBUG_REP(I) << "\t"\
+                          << #J << ": " << BSLIM_TESTUTIL_DEBUG_REP(J) << "\t"\
+                          << #K << ": " << BSLIM_TESTUTIL_DEBUG_REP(K) << "\t"\
+                          << #L << ": " << BSLIM_TESTUTIL_DEBUG_REP(L) << "\n";\
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)                              \
-    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
-                          << #J << ": " << (J) << "\t"                        \
-                          << #K << ": " << (K) << "\t"                        \
-                          << #L << ": " << (L) << "\t"                        \
-                          << #M << ": " << (M) << "\n";                       \
+    if (!(X)) { bsl::cout << #I << ": " << BSLIM_TESTUTIL_DEBUG_REP(I) << "\t"\
+                          << #J << ": " << BSLIM_TESTUTIL_DEBUG_REP(J) << "\t"\
+                          << #K << ": " << BSLIM_TESTUTIL_DEBUG_REP(K) << "\t"\
+                          << #L << ": " << BSLIM_TESTUTIL_DEBUG_REP(L) << "\t"\
+                          << #M << ": " << BSLIM_TESTUTIL_DEBUG_REP(M) << "\n";\
                aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)                            \
-    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
-                          << #J << ": " << (J) << "\t"                        \
-                          << #K << ": " << (K) << "\t"                        \
-                          << #L << ": " << (L) << "\t"                        \
-                          << #M << ": " << (M) << "\t"                        \
-                          << #N << ": " << (N) << "\n";                       \
+    if (!(X)) { bsl::cout << #I << ": " << BSLIM_TESTUTIL_DEBUG_REP(I) << "\t"\
+                          << #J << ": " << BSLIM_TESTUTIL_DEBUG_REP(J) << "\t"\
+                          << #K << ": " << BSLIM_TESTUTIL_DEBUG_REP(K) << "\t"\
+                          << #L << ": " << BSLIM_TESTUTIL_DEBUG_REP(L) << "\t"\
+                          << #M << ": " << BSLIM_TESTUTIL_DEBUG_REP(M) << "\t"\
+                          << #N << ": " << BSLIM_TESTUTIL_DEBUG_REP(N) << "\n";\
                aSsErT(1, #X, __LINE__); }
 
 // The 'BSLIM_TESTUTIL_EXPAND' macro is required to work around a preprocessor
@@ -222,11 +224,11 @@ BSLS_IDENT("$Id: $")
     // Quote identifier literally.
 
 #define BSLIM_TESTUTIL_P(X)                                                   \
-    bsl::cout << #X " = " << (X) << bsl::endl;
+    bsl::cout << #X " = " << BSLIM_TESTUTIL_DEBUG_REP(X) << bsl::endl;
     // Print identifier and its value.
 
 #define BSLIM_TESTUTIL_P_(X)                                                  \
-    bsl::cout << #X " = " << (X) << ", " << bsl::flush;
+    bsl::cout << #X " = " << BSLIM_TESTUTIL_DEBUG_REP(X) << ", " << bsl::flush;
     // 'P(X)' without '\n'
 
 #define BSLIM_TESTUTIL_L_                                                     \
@@ -277,6 +279,10 @@ struct TestUtil {
 
     static void setFunc(Func func);
         // Set the function to be called by 'callFunc' to the specified 'func'.
+
+    template <class T>
+    static const T& debugRep(const T& arg) { return arg; }
+    static int      debugRep(wchar_t  arg) { return arg; }
 };
 
 }  // close package namespace

@@ -86,6 +86,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>
+#include <bslma_allocatortraits.h>
 
 #include <bslmf_conditional.h>
 #include <bslmf_isconvertible.h>
@@ -244,6 +245,20 @@ class ContainerBase : public
                   ContainerBase_BslmaBase<ALLOCATOR>,
                   ContainerBase_NonBslmaBase<ALLOCATOR> >::type Base;
 
+  public:
+    // PUBLIC TYPES
+    typedef typename Base::AllocatorType              AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType>      AllocatorTraits;
+
+    typedef typename AllocatorTraits::size_type       size_type;
+    typedef typename AllocatorTraits::difference_type difference_type;
+    typedef typename AllocatorTraits::pointer         pointer;
+    typedef typename AllocatorTraits::const_pointer   const_pointer;
+    typedef typename AllocatorTraits::value_type      value_type;
+
+        // Restate required allocator types.  (Reduces use of 'typename' in
+        // interface.)
+
   private:
     // NOT IMPLEMENTED
     ContainerBase& operator=(const ContainerBase&);
@@ -251,29 +266,16 @@ class ContainerBase : public
   private:
     // PRIVATE MANIPULATORS
     template <class T>
-    typename ALLOCATOR::template rebind<T>::other
+    typename AllocatorTraits::template rebind_alloc<T>
     rebindAllocator(T*)
         // Return 'this->allocator()' rebound for type 'T'.  The 'T*' argument
         // is used only for template parameter deduction and is ignored.
     {
-        typedef typename ALLOCATOR::template rebind<T>::other Rebound;
+        typedef typename AllocatorTraits::template rebind_alloc<T> Rebound;
         return Rebound(this->allocator());
     }
 
   public:
-    // PUBLIC TYPES
-    typedef typename Base::AllocatorType            AllocatorType;
-
-    typedef typename AllocatorType::size_type       size_type;
-    typedef typename AllocatorType::difference_type difference_type;
-    typedef typename AllocatorType::pointer         pointer;
-    typedef typename AllocatorType::const_pointer   const_pointer;
-    typedef typename AllocatorType::reference       reference;
-    typedef typename AllocatorType::const_reference const_reference;
-    typedef typename AllocatorType::value_type      value_type;
-        // Restate required allocator types.  (Reduces use of 'typename' in
-        // interface.)
-
     // CREATORS
     ContainerBase(const ALLOCATOR& basicAllocator);
         // Construct this object using the specified 'basicAllocator' of the

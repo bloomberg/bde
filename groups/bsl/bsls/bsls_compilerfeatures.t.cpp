@@ -881,12 +881,14 @@ void runTest() {
         const MyWrapper X = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         (void)X;
     }
-    catch(int) {
+    catch(int count) {
         if (
-          u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
-            ASSERT(0 != MyType::s_liveCount);
-        else
-            ASSERT(0 == MyType::s_liveCount);
+        u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined) {
+            ASSERTV(count, MyType::s_liveCount, count == MyType::s_liveCount);
+        }
+        else {
+            ASSERTV(count, MyType::s_liveCount, 0 == MyType::s_liveCount);
+        }
     }
 # endif
 }

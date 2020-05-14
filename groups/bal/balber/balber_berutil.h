@@ -2328,14 +2328,14 @@ struct BerUtil_TimeImpUtil {
     // PRIVATE TYPES
     enum {
         k_EXTENDED_BINARY_TIME_LENGTH =
-            DateAndTimeHeaderUtil::k_HEADER_LENGTH +
-            IntegerUtil::k_40_BIT_INTEGER_LENGTH,  // = 7
+            +DateAndTimeHeaderUtil::k_HEADER_LENGTH +
+            +IntegerUtil::k_40_BIT_INTEGER_LENGTH,  // = 7
         // the number of content octets used by 'BerUtil' to encode
         // a time value using the extended-binary time and time zone format
 
         k_EXTENDED_BINARY_TIMETZ_LENGTH =
-            DateAndTimeHeaderUtil::k_HEADER_LENGTH +
-            IntegerUtil::k_40_BIT_INTEGER_LENGTH,  // = 7
+            +DateAndTimeHeaderUtil::k_HEADER_LENGTH +
+            +IntegerUtil::k_40_BIT_INTEGER_LENGTH,  // = 7
         // the number of contents octets used by 'BerUtil' to encode
         // a time and time zone value using the extended-binary time and
         // time zone format

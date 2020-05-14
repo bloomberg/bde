@@ -372,11 +372,9 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
-#include <new>
-
 #include <climits>
-
 #include <cstddef>
+#include <new>
 
 namespace bsl {
 
@@ -866,33 +864,37 @@ struct allocator_traits<allocator<TYPE> > {
     // 'allocator_traits' class template for 'bsl::allocator'.
 
     // PUBLIC TYPES
-    typedef allocator<TYPE>                           allocator_type;
-    typedef typename allocator<TYPE>::value_type      value_type;
+    typedef allocator<TYPE> allocator_type;
+    typedef TYPE            value_type;
 
-    typedef typename allocator<TYPE>::pointer         pointer;
-    typedef typename allocator<TYPE>::const_pointer   const_pointer;
-    typedef void                                     *void_pointer;
-    typedef void const                               *const_void_pointer;
-    typedef typename allocator<TYPE>::difference_type difference_type;
-    typedef typename allocator<TYPE>::size_type       size_type;
+    typedef TYPE           *pointer;
+    typedef TYPE const     *const_pointer;
+    typedef void           *void_pointer;
+    typedef void const     *const_void_pointer;
+    typedef std::ptrdiff_t  difference_type;
+    typedef std::size_t     size_type;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
-    using rebind_alloc =
-        typename allocator<TYPE>::template rebind<ELEMENT_TYPE>::other;
+    using rebind_alloc = allocator<ELEMENT_TYPE>;
 
     template <class ELEMENT_TYPE>
-    using rebind_traits = allocator_traits<rebind_alloc<ELEMENT_TYPE>>;
+    using rebind_traits = allocator_traits<allocator<ELEMENT_TYPE> >;
 #else
     template <class ELEMENT_TYPE>
-    struct rebind_alloc
-        : allocator<TYPE>::template rebind<ELEMENT_TYPE>::other
-    { };
+    struct rebind_alloc : allocator<ELEMENT_TYPE> {
+        rebind_alloc() : allocator<ELEMENT_TYPE>() {}
+
+        template <class OTHER_ALLOC>
+        rebind_alloc(const allocator<OTHER_ALLOC>& other)
+            : allocator<ELEMENT_TYPE>(other)
+        {
+        }
+    };
 
     template <class ELEMENT_TYPE>
     struct rebind_traits
-        : allocator_traits<
-              typename allocator<TYPE>::template rebind<ELEMENT_TYPE>::other>
+        : allocator_traits<allocator<ELEMENT_TYPE> >
     {
     };
 #endif

@@ -492,7 +492,7 @@ void TestDriver<VALUE>::testCase15_RunTest(Obj *object)
                           testArg(A10, MOVE_10));
       } break;
       default: {
-        ASSERTV(!"Invalid # of args!");
+        BSLS_ASSERT_INVOKE_NORETURN("Invalid # of args!");
       } break;
     }
 

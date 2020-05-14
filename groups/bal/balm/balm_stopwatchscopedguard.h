@@ -417,7 +417,7 @@ inline
 StopwatchScopedGuard::~StopwatchScopedGuard()
 {
     if (isActive()) {
-        d_collector_p->update(d_stopwatch.elapsedTime() * d_timeUnits);
+        d_collector_p->update(d_stopwatch.elapsedTime() * +d_timeUnits);
     }
 }
 

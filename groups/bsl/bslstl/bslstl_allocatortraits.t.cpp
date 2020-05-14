@@ -2008,7 +2008,8 @@ int main(int argc, char *argv[])
 
 #define TEST_MAX_SIZE(ALLOC) {                                              \
             ALLOC a;                                                        \
-            ASSERT(allocator_traits<ALLOC >::max_size(a) == a.max_size());  \
+            ASSERTV(allocator_traits<ALLOC >::max_size(a),   a.max_size(),  \
+                    allocator_traits<ALLOC >::max_size(a) == a.max_size()); \
         }
 
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
