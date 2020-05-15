@@ -1,5 +1,4 @@
 // bdlma_aligningallocator.h                                          -*-C++-*-
-
 #ifndef INCLUDED_BDLMA_ALIGNINGALLOCATOR
 #define INCLUDED_BDLMA_ALIGNINGALLOCATOR
 
@@ -21,6 +20,7 @@ BSLS_IDENT("$Id$")
 //   ,------------------------.
 //  ( bdlma::AligningAllocator )
 //   `------------------------'
+//               |       ctor/dtor
 //               |
 //               V
 //       ,----------------.
@@ -37,9 +37,16 @@ BSLS_IDENT("$Id$")
 // 'AligningAllocator' at construction is held, not owned.
 //
 // The allocator supplied to the aligning allocator must employ at least the
-// natural alignment strategy (see bsls_alignment).  Specifically, the aligning
-// allocator will fail to align the memory if the allocator passed to it
-// employs the 1-Byte alignment strategy.
+// natural alignment strategy (see {'bsls_alignment'}).  Specifically, the
+// aligning allocator will fail to properly align memory if the allocator
+// passed to it employs the 1-byte alignment strategy.
+//
+// Note that in order to provide the requested alignment an 'AligningAllocator'
+// will need to always overallocate memory from the underlying allocator.  This
+// can "waste" space equal to the alignment plus some extra bytes for
+// bookkeeping information.  For small allocations with large alignment values
+// this waste can be very impactful.  In general, this means this component
+// should be used with small alignments or with larger allocations.
 //
 ///Usage
 ///-----
@@ -88,7 +95,9 @@ BSLS_IDENT("$Id$")
 //      const char *string;
 //      for (int ii = 0; 0 != (string = stringArray[ii]); ++ii) {
 //          Node *newNode = static_cast<Node *>(allocator->allocate(
-//                                         Node::sizeNeededForString(string)));
+//                                     Node::sizeNeededForString(string)));
+//          assert(newNode != 0);
+//
 //          bsl::strcpy(newNode->d_string, string);
 //
 //          newNode->d_next = *head;
@@ -96,61 +105,65 @@ BSLS_IDENT("$Id$")
 //      }
 //  }
 //..
-// Next, the externally-supplied buffered sequential allocator that we are to
-// use:
+// Next, our example function will begin with the externally-supplied buffered
+// sequential allocator that we are to use:
 //..
-//  enum { k_BUFFER_SIZE = 4 * 1024 };
-//  char                               buffer4k[k_BUFFER_SIZE];
-//  bdlma::BufferedSequentialAllocator bsAlloc(buffer4k, k_BUFFER_SIZE);
+//  void printFromNodes(bsl::ostream *out) {
+//      enum { k_BUFFER_SIZE = 4 * 1024 };
+//      char                               buffer4k[k_BUFFER_SIZE];
+//      bdlma::BufferedSequentialAllocator bsAlloc(buffer4k, k_BUFFER_SIZE);
 //..
 // There is a problem here, in that the nodes must be aligned by
 // 'sizeof(Node *)', but our buffered sequential allocator, like most BDE
-// allocators, has a "natural alignment" strategy (see bsls_alignment), meaning
-// that it infers the required alignment from the size of the allocation
-// requested.  This would normally give us properly aligned memory if we were
-// allocating by 'sizeof(struct)', but our 'Node' objects are variable length,
-// which will mislead the allocator to sometimes align the new segments by less
-// than 'sizeof(Node *)'.
+// allocators, has a "natural alignment" strategy (see {'bsls_alignment'}),
+// meaning that it infers the required alignment from the size of the
+// allocation requested.  This would normally give us properly aligned memory
+// if we were allocating by 'sizeof(Node)', but our 'Node' objects are variable
+// length, which will mislead the allocator to sometimes align the new segments
+// by less than 'sizeof(Node *)'.
 //
 // Then, we solve this problem by using an aligning allocator to wrap the
 // buffered sequential allocator, ensuring that the memory will still come from
 // the buffered sequential allocator, but nonetheless be aligned to the
 // alignment requirement of 'Node'.
 //..
-//  enum { k_ALIGNMENT = bsls::AlignmentFromType<Node>::VALUE };
-//  bdlma::AligningAllocator aligningAllocator(k_ALIGNMENT, &bsAlloc);
+//      enum { k_ALIGNMENT = bsls::AlignmentFromType<Node>::VALUE };
+//      bdlma::AligningAllocator aligningAllocator(k_ALIGNMENT, &bsAlloc);
 //..
 // Next, we define a null-terminated array of strings we would like to store in
 // the list:
 //..
-//  const char *strings[] = {
-//      "A zinger is not a rebuttal.\n",
-//      "Humor is mankind's greatest blessing.\n",
-//      "As usual, the facts don't care about our feelings.\n",
-//      "Criticism is the only antidote to error.\n",
-//      "If you can't annoy somebody, there is little point in writing.\n",
-//      "Maybe all one can do is hope to end up with the right regrets.\n",
-//      "People may hear your words, but they feel your attitude.\n",
-//      "Imagination is a poor substitute for experience.\n",
-//      "We wanted a labor force, but human beings came.\n",
-//      "The reward of a thing well done is to have done it.\n",
-//      "Chance fights ever on the side of the prudent.\n",
-//      "The best time to make friends is before you need them.\n",
-//      0  };
+//      const char *strings[] = {
+//          "A zinger is not a rebuttal.\n",
+//          "Humor is mankind's greatest blessing.\n",
+//          "As usual, the facts don't care about our feelings.\n",
+//          "Criticism is the only antidote to error.\n",
+//          "If you can't annoy somebody, there is little point in writing.\n",
+//          "Maybe all one can do is hope to end up with the right regrets.\n",
+//          "People may hear your words, but they feel your attitude.\n",
+//          "Imagination is a poor substitute for experience.\n",
+//          "We wanted a labor force, but human beings came.\n",
+//          "The reward of a thing well done is to have done it.\n",
+//          "Chance fights ever on the side of the prudent.\n",
+//          "The best time to make friends is before you need them.\n",
+//          0  };
 //..
 // Now, we call the function to put the strings into a linked list, passing it
 // the aligning allocator:
 //..
-//  Node *head = 0;
-//  externalPopulateStringList(&head, strings, &aligningAllocator);
+//      Node *head = 0;
+//      externalPopulateStringList(&head, strings, &aligningAllocator);
 //..
 // Finally, we traverse the list and print out the strings, verifying that the
 // nodes are properly aligned:
 //..
-//  for (const Node *node = head; node; node = node->d_next) {
-//      assert(0 == (reinterpret_cast<bsl::size_t>(node) & (k_ALIGNMENT - 1)));
-//
-//      cout << node->d_string;
+//      for (const Node *node = head; node; node = node->d_next) {
+//          assert(0 == (reinterpret_cast<bsl::size_t>(node) &
+//                       (k_ALIGNMENT - 1)));
+//          if (out) {
+//              *out << node->d_string;
+//          }
+//      }
 //  }
 //..
 
@@ -158,6 +171,7 @@ BSLS_IDENT("$Id$")
 
 #include <bslma_allocator.h>
 
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
@@ -165,9 +179,9 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdlma {
 
-                         // =======================
-                         // class AligningAllocator
-                         // =======================
+                          // =======================
+                          // class AligningAllocator
+                          // =======================
 
 class AligningAllocator : public bslma::Allocator {
     // This 'class' provides a mechanism that serves as a wrapper around
@@ -178,39 +192,40 @@ class AligningAllocator : public bslma::Allocator {
     // DATA
     bsls::Types::size_type  d_mask;             // alignment - 1
 
-    bslma::Allocator       *d_heldAllocator_p;  // allocator passed at
+    bslma::Allocator       *d_allocator_p;      // allocator indicated at
                                                 // construction
+
+  private:
+    // NOT IMPLEMENTED
+    AligningAllocator(const AligningAllocator&) BSLS_KEYWORD_DELETED;
+    AligningAllocator& operator=(
+                                const AligningAllocator&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
-    explicit
-    AligningAllocator(bsls::Types::size_type  alignment,
-                      bslma::Allocator       *allocator = 0);
+    explicit AligningAllocator(bsls::Types::size_type  alignment,
+                               bslma::Allocator       *basicAllocator = 0);
         // Create an 'AligningAllocator' object that guarantees alignment by
-        // the specified 'alignment' of memory allocated.  Optionally specify
-        // 'allocator', the underlying allocator to be used for memory
-        // allocation.  If 'alignment' is greater than max alignment
-        // ('bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'), the alignment will be
-        // rounded down to max alignment.  The behavior is undefined unless
-        // 'alignment' is greater than 0 and a power of 2, unless the alignment
-        // strategy of 'allocator' is 'BSLS_MAXIMUM' or 'BSLS_NATURAL'.  If no
-        // 'allocator' is passed, the currently installed default allocator is
-        // used.
+        // the specified 'alignment' (in bytes) of memory allocated.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0 or not supplied, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // 'alignment' is a power of 2, and the alignment strategy of the
+        // alocator used to supply memory is 'BSLS_MAXIMUM' or 'BSLS_NATURAL'.
 
     // MANIPULATORS
-    virtual void *allocate(bsls::Types::size_type size);
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
         // returned with no other effect.  If this allocator cannot return the
         // requested number of bytes, then it will throw a 'std::bad_alloc'
         // exception in an exception-enabled build, or else will abort the
-        // program in a non-exception build.  The behavior is undefined unless
-        // '0 <= size'.  Note that the alignment of the address returned
-        // conforms to the platform requirement for any object of size 'size'
-        // and is also guaranteed to be at least the alignment passed to the
-        // constructor.
+        // program in a non-exception build.  Note that the alignment of the
+        // address returned conforms to the platform requirement for any object
+        // of size 'size' and is also guaranteed to be at least the alignment
+        // passed to the constructor.
 
-    virtual void deallocate(void *address);
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.  The
         // behavior is undefined unless 'address' was allocated using this
