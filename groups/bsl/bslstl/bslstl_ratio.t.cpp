@@ -1,5 +1,5 @@
-// bslstl_chrono.t.cpp                                                -*-C++-*-
-#include <bslstl_chrono.h>
+// bslstl_ratio.t.cpp                                                -*-C++-*-
+#include <bslstl_ratio.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -16,14 +16,17 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test a version of the ratio operations introduced
-// into the standard library in C++11 (and 14). We test to make sure that the
-// operations exist and are give sane resuts. The tests are not exhaustive.
+// The component under test implements a version of the ratio operations
+// introduced into the standard library in C++11 (and 14). We test to make
+// sure that the operations exist and give sane results. 
+// The tests are not exhaustive.
 //-----------------------------------------------------------------------------
 // Groups of operations tested:
 // * SI prefixes - kilo, mega, milli, etc
 // * Ratio comparisons - less/greater/equal, etc
+// ** This includes the '_v' inline variables
 // * Ratio operations - add/subtract/multiply/divide, etc.
+// ** There are no '_t' versions of these operations.
 // ----------------------------------------------------------------------------
 // [2] USAGE EXAMPLE
 
@@ -108,132 +111,6 @@ static bool veryVeryVeryVerbose;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-void testSI()
-{
-    ASSERT(bsl::atto::num  == 1 && bsl::atto::den  == 1000000000000000000ULL);
-    ASSERT(bsl::femto::num == 1 && bsl::femto::den == 1000000000000000ULL);
-    ASSERT(bsl::pico::num  == 1 && bsl::pico::den  == 1000000000000ULL);
-    ASSERT(bsl::nano::num  == 1 && bsl::nano::den  == 1000000000ULL);
-    ASSERT(bsl::micro::num == 1 && bsl::micro::den == 1000000ULL);
-    ASSERT(bsl::milli::num == 1 && bsl::milli::den == 1000ULL);
-    ASSERT(bsl::centi::num == 1 && bsl::centi::den == 100ULL);
-    ASSERT(bsl::deci::num  == 1 && bsl::deci::den  == 10ULL);
-    ASSERT(bsl::deca::num  == 10ULL && bsl::deca::den == 1);
-    ASSERT(bsl::hecto::num == 100ULL && bsl::hecto::den == 1);
-    ASSERT(bsl::kilo::num  == 1000ULL && bsl::kilo::den == 1);
-    ASSERT(bsl::mega::num  == 1000000ULL && bsl::mega::den == 1);
-    ASSERT(bsl::giga::num  == 1000000000ULL && bsl::giga::den == 1);
-    ASSERT(bsl::tera::num  == 1000000000000ULL && bsl::tera::den == 1);
-    ASSERT(bsl::peta::num  == 1000000000000000ULL && bsl::peta::den == 1);
-    ASSERT(bsl::exa::num   == 1000000000000000000ULL && std::exa::den == 1);
-
-#ifdef BSL_RATIO_SUPPORTS_EXTENDED_SI_TYPEDEFS
-    ASSERT(bsl::yocto::num  == 1 && 
-           bsl::yocto::den  == 1000000000000000000000000ULL);
-    ASSERT(bsl::zepto::num  == 1 && 
-           bsl::zepto::den  == 1000000000000000000000ULL);
-    ASSERT(bsl::zetta::num  == 1000000000000000000000ULL && 
-           std::zetta::den == 1);
-    ASSERT(bsl::yotta::num  == 1000000000000000000000000ULL &&
-           std::yotta::den == 1);
-#endif
-}
-
-void testRatioComparisons()
-{
-	typedef bsl::ratio<3, 2> three_halfs;
-	typedef bsl::ratio<3, 2> six_fourths;
-	typedef bsl::ratio<0, 1> zero;
-	typedef bsl::ratio<-2, 3> neg_two_thirds;
-
-	ASSERT( (bsl::ratio_less<neg_two_thirds, three_halfs>::value));
-	ASSERT( (bsl::ratio_less<neg_two_thirds, zero>::value));
-	ASSERT(!(bsl::ratio_less<three_halfs,zero>::value));
-	ASSERT(!(bsl::ratio_less<three_halfs, six_fourths>::value));
-
-	ASSERT( (bsl::ratio_less_equal<neg_two_thirds, three_halfs>::value));
-	ASSERT( (bsl::ratio_less_equal<neg_two_thirds, zero>::value));
-	ASSERT(!(bsl::ratio_less_equal<three_halfs,zero>::value));
-	ASSERT( (bsl::ratio_less_equal<three_halfs, six_fourths>::value));
-
-	ASSERT(!(bsl::ratio_greater<neg_two_thirds, three_halfs>::value));
-	ASSERT(!(bsl::ratio_greater<neg_two_thirds, zero>::value));
-	ASSERT( (bsl::ratio_greater<three_halfs,zero>::value));
-	ASSERT(!(bsl::ratio_greater<three_halfs, six_fourths>::value));
-
-	ASSERT(!(bsl::ratio_greater_equal<neg_two_thirds, three_halfs>::value));
-	ASSERT(!(bsl::ratio_greater_equal<neg_two_thirds, zero>::value));
-	ASSERT( (bsl::ratio_greater_equal<three_halfs,zero>::value));
-	ASSERT( (bsl::ratio_greater_equal<three_halfs, six_fourths>::value));
-
-	ASSERT(!(bsl::ratio_equal<neg_two_thirds, three_halfs>::value));
-	ASSERT(!(bsl::ratio_equal<neg_two_thirds, zero>::value));
-	ASSERT(!(bsl::ratio_equal<three_halfs,zero>::value));
-	ASSERT( (bsl::ratio_equal<three_halfs, six_fourths>::value));
-
-	ASSERT( (bsl::ratio_not_equal<neg_two_thirds, three_halfs>::value));
-	ASSERT( (bsl::ratio_not_equal<neg_two_thirds, zero>::value));
-	ASSERT( (bsl::ratio_not_equal<three_halfs,zero>::value));
-	ASSERT(!(bsl::ratio_not_equal<three_halfs, six_fourths>::value));
-
-//  same tests, with using the _v suffix
-	ASSERT( (bsl::ratio_less_v<neg_two_thirds, three_halfs>));
-	ASSERT( (bsl::ratio_less_v<neg_two_thirds, zero>));
-	ASSERT(!(bsl::ratio_less_v<three_halfs,zero>));
-	ASSERT(!(bsl::ratio_less_v<three_halfs, six_fourths>));
-
-	ASSERT( (bsl::ratio_less_equal_v<neg_two_thirds, three_halfs>));
-	ASSERT( (bsl::ratio_less_equal_v<neg_two_thirds, zero>));
-	ASSERT(!(bsl::ratio_less_equal_v<three_halfs,zero>));
-	ASSERT( (bsl::ratio_less_equal_v<three_halfs, six_fourths>));
-
-	ASSERT(!(bsl::ratio_greater_v<neg_two_thirds, three_halfs>));
-	ASSERT(!(bsl::ratio_greater_v<neg_two_thirds, zero>));
-	ASSERT( (bsl::ratio_greater_v<three_halfs,zero>));
-	ASSERT(!(bsl::ratio_greater_v<three_halfs, six_fourths>));
-
-	ASSERT(!(bsl::ratio_greater_equal_v<neg_two_thirds, three_halfs>));
-	ASSERT(!(bsl::ratio_greater_equal_v<neg_two_thirds, zero>));
-	ASSERT( (bsl::ratio_greater_equal_v<three_halfs,zero>));
-	ASSERT( (bsl::ratio_greater_equal_v<three_halfs, six_fourths>));
-
-	ASSERT(!(bsl::ratio_equal_v<neg_two_thirds, three_halfs>));
-	ASSERT(!(bsl::ratio_equal_v<neg_two_thirds, zero>));
-	ASSERT(!(bsl::ratio_equal_v<three_halfs,zero>));
-	ASSERT( (bsl::ratio_equal_v<three_halfs, six_fourths>));
-
-	ASSERT( (bsl::ratio_not_equal_v<neg_two_thirds, three_halfs>));
-	ASSERT( (bsl::ratio_not_equal_v<neg_two_thirds, zero>));
-	ASSERT( (bsl::ratio_not_equal_v<three_halfs,zero>));
-	ASSERT(!(bsl::ratio_not_equal_v<three_halfs, six_fourths>));
-}
-
-	
-void testRatioOperations()
-{
-	typedef bsl::ratio<3, 2> three_halfs;
-	typedef bsl::ratio<3, 2> six_fourths;
-	typedef bsl::ratio<0, 1> zero;
-	typedef bsl::ratio<-2, 3> neg_two_thirds;
-
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_add<zero, three_halfs>::type, three_halfs>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_add<three_halfs, six_fourths>::type, bsl::ratio<3,1>>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_add<three_halfs, neg_two_thirds>::type, bsl::ratio<5,6>>));
-
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_subtract<zero, three_halfs>::type, bsl::ratio<-3,2>>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_subtract<three_halfs, six_fourths>::type, zero>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_subtract<three_halfs, neg_two_thirds>::type, bsl::ratio<13,6>>));
-
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_multiply<zero, three_halfs>::type, zero>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_multiply<three_halfs, six_fourths>::type, bsl::ratio<9, 4>>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_multiply<three_halfs, neg_two_thirds>::type, bsl::ratio<-1,1>>));
-
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_divide<zero, three_halfs>::type, zero>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_divide<three_halfs, six_fourths>::type, bsl::ratio<1, 1>>));
-	ASSERT((bsl::ratio_equal_v<bsl::ratio_divide<three_halfs, neg_two_thirds>::type, bsl::ratio<-9,4>>));
-
-//	there are no '_t' shortcuts for these operations
-}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -270,10 +147,177 @@ int main(int argc, char *argv[])
                             "\n=====================\n");
 
       } break;
-    case 1: {
-    	testSI();
-    	testRatioComparisons();
-    	testRatioOperations();
+      case 1: {
+        // ----------------------------------------------------------------------
+        // TESTING the ratio operations
+        //
+        // Concerns:
+        //: 1 That the operations are successfully imported into the 'bsl'
+        //:   namespace from the underlying STL implementation.
+        //: 
+        //: 2 That the short versions of the comparison operators, such
+        //:   as 'ratio_less_v' exist and work even if the underlying STL
+        //:   does not provide them.
+        //
+        // Plan:
+        //: 1 Verify that the SI typedefs exist and have the correct 
+        //:   numerator and denominator.
+        //:
+        //: 2 Verify that the comparison operations exist and give 
+        //:   expected results. Check again for the '_v' versions.
+        //:
+        //: 3 Verify that the arithmetic operations exist and give
+        //:   expected results.
+        //
+        // ----------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting ratio operations"
+                            "\n======================================\n");
+
+        if (verbose) printf("\tTest SI unit prefixes.\n");
+        {
+            ASSERT(1 == bsl::deci::num);
+            ASSERT(1 == bsl::centi::num);
+            ASSERT(1 == bsl::milli::num);
+            ASSERT(1 == bsl::micro::num);
+            ASSERT(1 == bsl::nano::num);
+            ASSERT(1 == bsl::pico::num);
+            ASSERT(1 == bsl::femto::num);
+            ASSERT(1 == bsl::atto::num);
+
+            ASSERT(10ULL == bsl::deci::den);
+            ASSERT(100ULL == bsl::centi::den);
+            ASSERT(1000ULL == bsl::milli::den);
+            ASSERT(1000000ULL == bsl::micro::den);
+            ASSERT(1000000000ULL == bsl::nano::den);
+            ASSERT(1000000000000ULL == bsl::pico::den);
+            ASSERT(1000000000000000ULL == bsl::femto::den);
+            ASSERT(1000000000000000000ULL == bsl::atto::den);
+
+            ASSERT(1 == bsl::deca::den);
+            ASSERT(1 == bsl::hecto::den);
+            ASSERT(1 == bsl::kilo::den);
+            ASSERT(1 == bsl::mega::den);
+            ASSERT(1 == bsl::giga::den);
+            ASSERT(1 == bsl::tera::den);
+            ASSERT(1 == bsl::peta::den);
+            ASSERT(1 == bsl::exa::den);
+
+            ASSERT(10ULL == bsl::deca::num);
+            ASSERT(100ULL == bsl::hecto::num);
+            ASSERT(1000ULL == bsl::kilo::num);
+            ASSERT(1000000ULL == bsl::mega::num);
+            ASSERT(1000000000ULL == bsl::giga::num);
+            ASSERT(1000000000000ULL == bsl::tera::num);
+            ASSERT(1000000000000000ULL == bsl::peta::num);
+            ASSERT(1000000000000000000ULL == bsl::exa::num);
+
+        #ifdef BSL_RATIO_SUPPORTS_EXTENDED_SI_TYPEDEFS
+            ASSERT(1 == bsl::zepto::num);
+            ASSERT(1 == bsl::yocto::num);
+            ASSERT(1000000000000000000000ULL == bsl::zepto::den);
+            ASSERT(1000000000000000000000000ULL == bsl::yocto::den);
+
+            ASSERT(1 == std::zetta::den);
+            ASSERT(1 == std::yotta::den);
+            ASSERT(1000000000000000000000ULL == bsl::zetta::num);
+            ASSERT(1000000000000000000000000ULL == bsl::yotta::num);
+        #endif
+        }
+
+        if (verbose) printf("\tTest ratio comparisons.\n");
+        {
+            typedef bsl::ratio<3, 2> three_halfs;
+            typedef bsl::ratio<6, 4> six_fourths;
+            typedef bsl::ratio<0, 1> zero;
+            typedef bsl::ratio<-2, 3> neg_two_thirds;
+
+            ASSERT( (bsl::ratio_less<neg_two_thirds, three_halfs>::value));
+            ASSERT( (bsl::ratio_less<neg_two_thirds, zero>::value));
+            ASSERT(!(bsl::ratio_less<three_halfs,zero>::value));
+            ASSERT(!(bsl::ratio_less<three_halfs, six_fourths>::value));
+
+            ASSERT( (bsl::ratio_less_equal<neg_two_thirds, three_halfs>::value));
+            ASSERT( (bsl::ratio_less_equal<neg_two_thirds, zero>::value));
+            ASSERT(!(bsl::ratio_less_equal<three_halfs,zero>::value));
+            ASSERT( (bsl::ratio_less_equal<three_halfs, six_fourths>::value));
+
+            ASSERT(!(bsl::ratio_greater<neg_two_thirds, three_halfs>::value));
+            ASSERT(!(bsl::ratio_greater<neg_two_thirds, zero>::value));
+            ASSERT( (bsl::ratio_greater<three_halfs,zero>::value));
+            ASSERT(!(bsl::ratio_greater<three_halfs, six_fourths>::value));
+
+            ASSERT(!(bsl::ratio_greater_equal<neg_two_thirds, three_halfs>::value));
+            ASSERT(!(bsl::ratio_greater_equal<neg_two_thirds, zero>::value));
+            ASSERT( (bsl::ratio_greater_equal<three_halfs,zero>::value));
+            ASSERT( (bsl::ratio_greater_equal<three_halfs, six_fourths>::value));
+
+            ASSERT(!(bsl::ratio_equal<neg_two_thirds, three_halfs>::value));
+            ASSERT(!(bsl::ratio_equal<neg_two_thirds, zero>::value));
+            ASSERT(!(bsl::ratio_equal<three_halfs,zero>::value));
+            ASSERT( (bsl::ratio_equal<three_halfs, six_fourths>::value));
+
+            ASSERT( (bsl::ratio_not_equal<neg_two_thirds, three_halfs>::value));
+            ASSERT( (bsl::ratio_not_equal<neg_two_thirds, zero>::value));
+            ASSERT( (bsl::ratio_not_equal<three_halfs,zero>::value));
+            ASSERT(!(bsl::ratio_not_equal<three_halfs, six_fourths>::value));
+
+            // same tests, with using the _v suffix
+            ASSERT( (bsl::ratio_less_v<neg_two_thirds, three_halfs>));
+            ASSERT( (bsl::ratio_less_v<neg_two_thirds, zero>));
+            ASSERT(!(bsl::ratio_less_v<three_halfs,zero>));
+            ASSERT(!(bsl::ratio_less_v<three_halfs, six_fourths>));
+
+            ASSERT( (bsl::ratio_less_equal_v<neg_two_thirds, three_halfs>));
+            ASSERT( (bsl::ratio_less_equal_v<neg_two_thirds, zero>));
+            ASSERT(!(bsl::ratio_less_equal_v<three_halfs,zero>));
+            ASSERT( (bsl::ratio_less_equal_v<three_halfs, six_fourths>));
+
+            ASSERT(!(bsl::ratio_greater_v<neg_two_thirds, three_halfs>));
+            ASSERT(!(bsl::ratio_greater_v<neg_two_thirds, zero>));
+            ASSERT( (bsl::ratio_greater_v<three_halfs,zero>));
+            ASSERT(!(bsl::ratio_greater_v<three_halfs, six_fourths>));
+
+            ASSERT(!(bsl::ratio_greater_equal_v<neg_two_thirds, three_halfs>));
+            ASSERT(!(bsl::ratio_greater_equal_v<neg_two_thirds, zero>));
+            ASSERT( (bsl::ratio_greater_equal_v<three_halfs,zero>));
+            ASSERT( (bsl::ratio_greater_equal_v<three_halfs, six_fourths>));
+
+            ASSERT(!(bsl::ratio_equal_v<neg_two_thirds, three_halfs>));
+            ASSERT(!(bsl::ratio_equal_v<neg_two_thirds, zero>));
+            ASSERT(!(bsl::ratio_equal_v<three_halfs,zero>));
+            ASSERT( (bsl::ratio_equal_v<three_halfs, six_fourths>));
+
+            ASSERT( (bsl::ratio_not_equal_v<neg_two_thirds, three_halfs>));
+            ASSERT( (bsl::ratio_not_equal_v<neg_two_thirds, zero>));
+            ASSERT( (bsl::ratio_not_equal_v<three_halfs,zero>));
+            ASSERT(!(bsl::ratio_not_equal_v<three_halfs, six_fourths>));
+        }
+
+        if (verbose) printf("\tTest ratio arithmetic operations.\n");
+        {
+            typedef bsl::ratio<3, 2> three_halfs;
+            typedef bsl::ratio<3, 2> six_fourths;
+            typedef bsl::ratio<0, 1> zero;
+            typedef bsl::ratio<-2, 3> neg_two_thirds;
+
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_add<zero, three_halfs>::type, three_halfs>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_add<three_halfs, six_fourths>::type, bsl::ratio<3,1>>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_add<three_halfs, neg_two_thirds>::type, bsl::ratio<5,6>>));
+
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_subtract<zero, three_halfs>::type, bsl::ratio<-3,2>>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_subtract<three_halfs, six_fourths>::type, zero>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_subtract<three_halfs, neg_two_thirds>::type, bsl::ratio<13,6>>));
+
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_multiply<zero, three_halfs>::type, zero>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_multiply<three_halfs, six_fourths>::type, bsl::ratio<9, 4>>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_multiply<three_halfs, neg_two_thirds>::type, bsl::ratio<-1,1>>));
+
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_divide<zero, three_halfs>::type, zero>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_divide<three_halfs, six_fourths>::type, bsl::ratio<1, 1>>));
+            ASSERT((bsl::ratio_equal_v<bsl::ratio_divide<three_halfs, neg_two_thirds>::type, bsl::ratio<-9,4>>));
+        }
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -289,7 +333,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
