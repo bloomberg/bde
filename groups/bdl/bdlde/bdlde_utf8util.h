@@ -366,11 +366,11 @@ struct Utf8Util {
         // indicate which type of UTF-8 error occurred.
 
         k_END_OF_INPUT_TRUNCATION       = -1,
-           // The end of input was reached partway through a multi byte UTF-8
+           // The end of input was reached partway through a multibyte UTF-8
            // sequence.
 
         k_UNEXPECTED_CONTINUATION_OCTET = -2,
-           // A continuation byte was encountered when not within a multi byte
+           // A continuation byte was encountered when not within a multibyte
            // sequence.
 
         k_NON_CONTINUATION_OCTET        = -3,
@@ -382,8 +382,8 @@ struct Utf8Util {
            // of fewer bytes.
 
         k_INVALID_INITIAL_OCTET         = -5,
-           // A sequence began with an octet with its 5 highest order bits all
-           // set occurred, which is always invalid in UTF-8.
+           // A sequence began with an octet with its 5 highest-order bits all
+           // set, which is always invalid in UTF-8.
 
         k_VALUE_LARGER_THAN_0X10FFFF    = -6,
            // A value larger than 0x10FFFF was encoded.
@@ -475,12 +475,12 @@ struct Utf8Util {
         // the specified 'output' string.  Return 0 on success, and a non-zero
         // value otherwise.
 
-    static int getByteSize(const char* codepoint);
-        // Return the size in bytes of the specified UTF-8 'codepoint'.  The
-        // behavior is undefined unless 'codepoint' points to a valid UTF-8
-        // character in contiguous memory.  Note that a 'codepoint' pointing to
-        // a '\0' 'char' will result in a return value of '1', since the '\0'
-        // byte is a 1-byte encoding.
+    static int getByteSize(const char* string);
+        // Return the length (in bytes) of the specified UTF-8-encoded
+        // code point beginning at 'string'.  The behavior is undefined unless
+        // 'string' addresses valid UTF-8.  Note that the value returned will
+        // be in the range '[1 .. 4]'.  Also note that 1 is returned if
+        // '0 == *string' since '\0' is a valid 1-byte encoding.
 
     static bool isValid(const char *string);
         // Return 'true' if the specified 'string' contains valid UTF-8, and
@@ -521,6 +521,24 @@ struct Utf8Util {
         // is undefined unless 'string' refers to valid UTF-8.  Note that
         // 'string' may contain more than 'numCodePoints' encodings in which
         // case the trailing ones are ignored.
+
+    static IntPtr numCharacters(const char *string);
+        // Return the number of Unicode code points in the specified 'string'.
+        // 'string' is necessarily null-terminated, so it cannot contain
+        // embedded null bytes.  The behavior is undefined unless 'string'
+        // contains valid UTF-8.  Note that 'string' may contain less than
+        // 'bsl::strlen(string)' Unicode code points.
+        //
+        // DEPRECATED: Use 'numCodePointsRaw' instead.
+
+    static IntPtr numCharacters(const char *string, size_type length);
+        // Return the number of Unicode code points in the specified 'string'
+        // having the specified 'length' (in bytes).  'string' need not be
+        // null-terminated and can contain embedded null bytes.  The behavior
+        // is undefined unless 'string' contains valid UTF-8.  Note that
+        // 'string' may contain less than 'length' Unicode code points.
+        //
+        // DEPRECATED: Use 'numCodePointsRaw' instead.
 
     static IntPtr numCharactersIfValid(const char **invalidString,
                                        const char  *string);
@@ -566,24 +584,6 @@ struct Utf8Util {
         //
         // DEPRECATED: Use 'numCodePointsRaw' instead.
 
-    static IntPtr numCharacters(const char *string);
-        // Return the number of Unicode code points in the specified 'string'.
-        // 'string' is necessarily null-terminated, so it cannot contain
-        // embedded null bytes.  The behavior is undefined unless 'string'
-        // contains valid UTF-8.  Note that 'string' may contain less than
-        // 'bsl::strlen(string)' Unicode code points.
-        //
-        // DEPRECATED: Use 'numCodePointsRaw' instead.
-
-    static IntPtr numCharacters(const char *string, size_type length);
-        // Return the number of Unicode code points in the specified 'string'
-        // having the specified 'length' (in bytes).  'string' need not be
-        // null-terminated and can contain embedded null bytes.  The behavior
-        // is undefined unless 'string' contains valid UTF-8.  Note that
-        // 'string' may contain less than 'length' Unicode code points.
-        //
-        // DEPRECATED: Use 'numCodePointsRaw' instead.
-
     static IntPtr numCodePointsIfValid(const char **invalidString,
                                        const char  *string);
         // Return the number of Unicode code points in the specified 'string'
@@ -625,35 +625,33 @@ struct Utf8Util {
                                  char           *outputBuffer,
                                  size_type       outputBufferLength,
                                  bsl::streambuf *input);
-        // Read valid UTF-8 from the specified 'input' and load it into the
+        // Read from the specified 'input', copying valid UTF-8 to the
         // specified 'outputBuffer' having the specified 'outputBufferLength'
-        // (in bytes).  Load 'status' with 0 on success, a positive value if
-        // 'input' was not completely read (due to insufficient 'outputBuffer'
-        // capacity), and a negative value if 'input' contains invalid UTF-8.
-        // Return the number of bytes read from 'input' (this value may be
-        // non-zero even if 'status' indicates an error).  The 'input' will not
-        // be completely read, and 'status' will be a positive value, if
-        // 'outputBuffer' is filled (or nearly filled) before the end of
-        // 'input' was reached.  If an invalid UTF-8 sequence is detected, set
-        // 'status' to one of the enumerators in 'ErrorStatus'.  If 'status'
-        // indicates an error (i.e., is negative) the position in the 'input'
-        // sequence is unspecified.  The behavior is undefined if
-        // 'outputBufferLength < 4'.  Note that a positive value may be
-        // returned, indicating 'input' was not completely read, with up to 3
-        // unfilled bytes at the end of 'outputBuffer' (i.e., callers must use
-        // the returned number of bytes read to fully interpret the result of
-        // the call).  Also note that never is any invalid UTF-8 written to
-        // 'outputBuffer'.
+        // (in bytes).  Load 'status' with:
+        //: o A negative value from 'ErrorStatus' if invalid UTF-8 was
+        //:   encountered (without having written the invalid sequence to
+        //:   'outputBuffer').
+        //:
+        //: o A positive value if input was not completely read due to
+        //:   'outputBuffer' being filled (or nearly filled).
+        //:
+        //: o 0 if 'input' reached 'eof' without encountering any invalid UTF-8
+        //:   or prematurely exhausting 'outputBuffer'.
+        // Return the number of bytes of valid UTF-8 written to 'outputBuffer.
+        // The behavior is undefined unless '4 <= outputBufferLength'.  Note
+        // that this function will stop reading input when less than 4 bytes of
+        // space remain in outputBuffer to prevent the possibility of a 4-byte
+        // sequence being truncated partway through.  Also note that if invalid
+        // UTF-8 is encountered, 'input' is left in an unspecified state.
 
-    static const char *toAscii(int errorStatus);
+    static const char *toAscii(IntPtr errorStatus);
         // Return the non-modifiable string representation of the 'ErrorStatus'
-        // enumerator matching the specified 'value', if it exists,
-        // "OUTPUT_BUFFER_FULL" if '0 < errorStatus', and "(* unrecognized
-        // value *)" otherwise.  The string representation of an enumerator
-        // that matches 'value' is the enumerator name with the "k_" prefix
-        // elided.  Note that this method may be used to aid in interpreting
-        // status values that are returned from some methods in this utility.
-        // See 'ErrorStatus'.
+        // enumerator matching the specified 'value', if it exists, and "(*
+        // unrecognized value *)" otherwise.  The string representation of an
+        // enumerator that matches 'value' is the enumerator name with the "k_"
+        // prefix elided.  Note that this method may be used to aid in
+        // interpreting status values that are returned from some methods in
+        // this utility.  See 'ErrorStatus'.
 };
 
 // ============================================================================
@@ -670,8 +668,7 @@ bool Utf8Util::isValid(const char *string)
 {
     BSLS_ASSERT(string);
 
-    const char *dummy = 0;
-
+    const char *dummy;
     return isValid(&dummy, string);
 }
 
@@ -680,8 +677,7 @@ bool Utf8Util::isValid(const char *string, size_type length)
 {
     BSLS_ASSERT(string);
 
-    const char *dummy = 0;
-
+    const char *dummy;
     return isValid(&dummy, string, length);
 }
 

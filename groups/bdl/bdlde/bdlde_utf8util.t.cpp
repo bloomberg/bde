@@ -1,7 +1,7 @@
 // bdlde_utf8util.t.cpp                                               -*-C++-*-
 
 // ----------------------------------------------------------------------------
-// NOTICE
+//                                   NOTICE
 //
 // This component is not up to date with current BDE coding standards, and
 // should not be used as an example for new development.
@@ -48,72 +48,70 @@ using bsl::size_t;
 //                              Overview
 //                              --------
 //
-//: o Test cases 1-6 Test 'isValid', 'numCodePointsRaw', and
-//:   'numCodePointsIfValid'.
-//: o Regarding 'advanceRaw' and 'advanceIfValid' in cases 7-9:
-//:   1 Test that they correctly advance through a long string of multilingual
-//:     prose.
-//:   2 Test that they correctly advance through all possible combinations of
-//:     machine-generated correct UTF-8 input.
-//:   3 Test that 'advanceIfValid' works on all possible sequences of correct
-//:     input followed by all possible types of incorrect input.
-//: o Test case 10 Test 'numBytesIfValid'.
-//: o Test case 11 Test 'getByteSize'.
-//: o Test case 12 Test 'appendUtf8Character'.
+// To fit functions on one like, 'typedef const char cchar'.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [12] int appendUtf8Character(bsl::string *, unsigned int);
-// [11] int getByteSize(const char *);
-// [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
-// [ 8] IntPtr advanceIfValid(int *, const char **, const char *, int);
-// [ 8] IntPtr advanceIfValid(int *, const char **, const char *,int,int);
-// [ 8] IntPtr advanceRaw(const char **, const char *, int);
-// [ 8] IntPtr advanceRaw(const char **, const char *, int, int);
-// [ 8] bool isValid(const char *);
-// [ 8] bool isValid(const char *, int);
-// [ 8] bool isValid(const char **, const char *);
-// [ 8] bool isValid(const char **, const char *, int);
-// [ 8] IntPtr numCodePointsIfValid(const char **, const char *);
-// [ 8] IntPtr numCodePointsIfValid(const char **, const char *, int);
-// [ 8] size_t readIfValid(int *, char *, size_t, streambuf *);
+// [ 4] IntPtr advanceIfValid(int *, const char **, const char *, int);
+// [ 4] IntPtr advanceIfValid(int*,const char**,const char *,int,int);
 // [ 7] IntPtr advanceIfValid(int *, const char **, const char *, int);
 // [ 7] IntPtr advanceIfValid(int*,const char**,const char *,int,int);
+// [ 8] IntPtr advanceIfValid(int *, const char **, const char *, int);
+// [ 8] IntPtr advanceIfValid(int *, const char **, const char *,int,int);
+// [ 9] IntPtr advanceIfValid(int *, cchar **,  cchar *, IntPtr);
+// [ 9] IntPtr advanceIfValid(int *, cchar **, cchar *, size_t, IntPtr);
 // [ 7] IntPtr advanceRaw(const char **, const char *, int);
 // [ 7] IntPtr advanceRaw(const char **, const char *, int, int);
-// [ 6] bool isValid(const char *s);
-// [ 6] bool isValid(const char *s, int len);
-// [ 6] bool isValid(const char **err, const char *s);
-// [ 6] bool isValid(const char **err, const char *s, int len);
-// [ 6] IntPtr numCodePointsIfValid(**err, const char *s);
-// [ 6] IntPtr numCodePointsIfValid(**err, const char *s, int len);
-// [ 6] IntPtr numCharactersIfValid(**err, const char *s);
-// [ 6] IntPtr numCharactersIfValid(**err, const char *s, int len);
-// [ 5] IntPtr numCodePointsRaw(const char *s);
-// [ 5] IntPtr numCharacters(const char *s, int len);
-// [ 5] IntPtr numCharacters(const char *s);
-// [ 5] IntPtr numCharactersRaw(const char *s, int len);
-// [ 5] IntPtr numCharactersRaw(const char *s);
-// [ 5] IntPtr numCodePointsRaw(const char *s, int len);
-// [ 5] IntPtr numCodePoints(const char *s);
-// [ 5] IntPtr numCodePoints(const char *s, int len);
+// [ 8] IntPtr advanceRaw(const char **, const char *, int);
+// [ 8] IntPtr advanceRaw(const char **, const char *, int, int);
+// [12] int appendUtf8Character(bsl::string *, unsigned int);
+// [11] int getByteSize(const char *);
+// [ 3] bool isValid(const char *s);
+// [ 9] bool isValid(cchar *);
+// [ 3] bool isValid(const char *s, int len);
+// [ 9] bool isValid(cchar *, size_t);
+// [ 3] bool isValid(const char **err, const char *s);
+// [ 9] bool isValid(cchar **, cchar *);
+// [ 3] bool isValid(const char **err, const char *s, int len);
+// [ 9] bool isValid(cchar **, cchar *, size_t);
 // [ 4] bool isValid(const char *s);
 // [ 4] bool isValid(const char *s, int len);
 // [ 4] bool isValid(const char **err, const char *s);
 // [ 4] bool isValid(const char **err, const char *s, int len);
-// [ 4] IntPtr advanceIfValid(int *, const char **, const char *, int);
-// [ 4] IntPtr advanceIfValid(int*,const char**,const char *,int,int);
+// [ 6] bool isValid(const char *s);
+// [ 6] bool isValid(const char *s, int len);
+// [ 6] bool isValid(const char **err, const char *s);
+// [ 6] bool isValid(const char **err, const char *s, int len);
+// [ 8] bool isValid(const char *);
+// [ 8] bool isValid(const char *, int);
+// [ 8] bool isValid(const char **, const char *);
+// [ 8] bool isValid(const char **, const char *, int);
+// [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
+// [ 5] IntPtr numCharacters(const char *s);
+// [ 5] IntPtr numCharacters(const char *s, int len);
+// [ 6] IntPtr numCharactersIfValid(**err, const char *s);
+// [ 6] IntPtr numCharactersIfValid(**err, const char *s, int len);
+// [ 5] IntPtr numCharactersRaw(const char *s, int len);
+// [ 5] IntPtr numCharactersRaw(const char *s);
 // [ 4] IntPtr numCodePointsIfValid(**err, const char *s);
+// [ 9] IntPtr numCodePointsIfValid(cchar **, cchar *);
 // [ 4] IntPtr numCodePointsIfValid(**err, const char *s, int len);
-// [ 3] bool isValid(const char *s);
-// [ 3] bool isValid(const char *s, int len);
-// [ 3] bool isValid(const char **err, const char *s);
-// [ 3] bool isValid(const char **err, const char *s, int len);
+// [ 9] IntPtr numCodePointsIfValid(cchar **, const char *, int);
+// [ 9] IntPtr numCodePointsIfValid(cchar **, cchar *, IntPtr);
+// [ 6] IntPtr numCodePointsIfValid(**err, const char *s);
+// [ 8] IntPtr numCodePointsIfValid(const char **, const char *);
+// [ 6] IntPtr numCodePointsIfValid(**err, const char *s, int len);
+// [ 8] IntPtr numCodePointsIfValid(const char **, const char *, int);
+// [ 5] IntPtr numCodePointsRaw(const char *s);
+// [ 5] IntPtr numCodePointsRaw(const char *s, int len);
+// [ 8] size_t readIfValid(int *, char *, size_t, streambuf *);
+// [ 9] IntPtr readIfValid(int *, cchar *, size_t, streambuf *);
+// [13] const char *toAscii(IntPtr);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
-// [13] USAGE EXAMPLE 1
-// [14] USAGE EXAMPLE 2
-// [15] USAGE EXAMPLE 3
+// [14] USAGE EXAMPLE 1
+// [15] USAGE EXAMPLE 2
+// [16] USAGE EXAMPLE 3
 // [ 9] 'advanceIfValid' on correct input plus incorrect input
 // [ 9] 'isValid' on correct input plus incorrect input
 // [ 9] 'numCodePointsIfValid' on correct input plus incorrect input
@@ -1815,7 +1813,7 @@ bsl::string dumpStr(const bsl::string& str)
 
 static inline
 int intAbs(int x)
-    // Return roughly the absolute value of 'x'.
+    // Return roughly the absolute value of the specified 'x'.
 {
     x = x < 0 ? -x : x;
     return x < 0 ? ~x : x;
@@ -1926,7 +1924,7 @@ void appendRandCorrectCodePoint(bsl::string *dst,
                                 int          numBytes = -1)
     // Append a random valid UTF-8 character to the specified '*dst'.  The '\0'
     // byte is only possible if the specified 'useZero' is 'true'.  Optionally
-    // specify h 'numBytes'.  If '0 == numBytes' append a '\0', otherwise
+    // specify 'numBytes'.  If '0 == numBytes' append a '\0', otherwise
     // 'numBytes' is the length in bytes of the random sequence to be appended.
     // If 'numBytes' is not specified, a random value in the range '[ 1 .. 4 ]'
     // will be used.  The behavior is undefined if a value of 'numBytes'
@@ -1968,7 +1966,7 @@ void appendRandCorrectCodePoint(bsl::string *dst,
 }
 
 bsl::string code8(int b)
-    // Return the encoded representation of the specified 7-bit UTF-8 code
+    // Return the encoded representation of the specified 7-bit Unicode code
     // point 'b'.  Note that this is simply 'b'.
 {
     bsl::string ret;
@@ -1982,7 +1980,7 @@ bsl::string code8(int b)
 
 static
 bsl::string code16(int b)
-    // Return the encoded representation of the specified 2-byte UTF-8
+    // Return the encoded representation of the specified 2-byte Unicode
     // code point 'b'.
 {
     ASSERT(0 == (b & ~0x7ff));
@@ -1997,7 +1995,7 @@ bsl::string code16(int b)
 
 static
 bsl::string code24(int b)
-    // Return the encoded representation of the specified 3-byte UTF-8
+    // Return the encoded representation of the specified 3-byte Unicode
     // code point 'b'.
 {
     ASSERT(0 == (b & ~0xffff));
@@ -2013,7 +2011,7 @@ bsl::string code24(int b)
 
 static
 bsl::string code32(int b)
-    // Return the encoded representation of the specified 4-byte UTF-8
+    // Return the encoded representation of the specified 4-byte Unicode
     // code point 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
@@ -2030,7 +2028,8 @@ bsl::string code32(int b)
 
 static
 bsl::string utf8Encode(int b)
-    // Return the encoded representation of the specified UTF-8 code point 'b'.
+    // Return the encoded representation of the specified Unicode code point
+    // 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -2149,7 +2148,7 @@ bsls::Types::Uint64 randAccum = 0;
 static
 int intendedSequenceLength(char firstChar)
     // Return the length of a UTF-8 sequence that begins with the specified
-    // 'firstChar', or -1 if 'firstChar' is a continuation characters.
+    // 'firstChar', or -1 if 'firstChar' is a continuation character.
 {
     switch (static_cast<unsigned char>(firstChar) >> 4) {
       case 0x0:
@@ -2281,8 +2280,8 @@ int randValue(bool strict = false, bool never0 = false)
 
 static
 bool allValid(const bsl::string& str)
-    // Return true if all the UTF-8 code points in the specified 'str' are
-    // valid.
+    // Return 'true' if all the UTF-8 code points in the specified 'str' are
+    // valid and 'false' otherwise.
 {
     bool a = Obj::isValid(str.c_str());
     ASSERT(Obj::isValid(str.data(), str.length()) == a);
@@ -2303,6 +2302,9 @@ IntPtr allNumCodePoints(const bsl::string& str)
 static
 IntPtr allNumCodePointsIfValid(const char         **invalidPointArg,
                                const bsl::string&   str)
+    // Run both 'numCodePointsIfValid' overloads on the specied 'str' and check
+    // that they yeild identical results, and return those results.  Return the
+    // address of any invalid UTF-8 in the specified 'invalidPointArg'
 {
     *invalidPointArg = 0;
     const IntPtr ret = Obj::numCodePointsIfValid(invalidPointArg, str.c_str());
@@ -2320,10 +2322,15 @@ static
 IntPtr allAdvanceIfValid(int                 *statusArg,
                          const char         **invalidPointArg,
                          const bsl::string&   str)
+    // Run both the 4 and 5 argument overloads of 'advanceIfValid' on the
+    // specified 'str', check that they yield the seame results.  Return the
+    // number of code points, and set the specified 'statusArg' to the type of
+    // error encountered (or 0 if no error), and set the specified
+    // 'invalidPointArg' to the address if the first UTF-8 error.
 {
     const IntPtr infinity = bsl::numeric_limits<IntPtr>::max();
 
-    int         statusLocal = -1;
+    int         statusLocal = 100;
     const char *invalidPointLocal = 0;
 
     const IntPtr ret = Obj::advanceIfValid(statusArg,
@@ -2340,8 +2347,6 @@ IntPtr allAdvanceIfValid(int                 *statusArg,
 
     return ret;
 }
-
-
 
 static
 bsl::string clone(const char *pc, int length)
@@ -2394,7 +2399,7 @@ bsl::string clone(const char *pc, int length)
 static const struct {
     int           d_lineNum;    // source line number
     const char   *d_utf8_p;     // UTF-8 input string
-    unsigned int  d_codepoint;  // 32-bit code point value
+    unsigned int  d_codePoint;  // 32-bit code point value
 } legalCodepointData[] = {
     //L#      UTF-8          code point
     //--      -----          ----------
@@ -2552,7 +2557,7 @@ enum {
 namespace USAGE_3 {
 
 //
-///Example 3: Validating UTF-8 Read From a 'bsl::streambuf'
+///Example 3: Validating UTF-8 read from a 'bsl::streambuf'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this usage example, we will demonstrate reading and validating UTF-8
 // from a stream.
@@ -2586,8 +2591,8 @@ namespace USAGE_3 {
 
             output->resize(len + numBytes);
             if (0 < status) {
-                // Buffer was full before the end of input was encounted.  Note
-                // that 'numBytes' may be up to 3 bytes less than
+                // Buffer was full before the end of input was encountered.
+                // Note that 'numBytes' may be up to 3 bytes less than
                 // 'k_READ_LENGTH'.
 
                 BSLS_ASSERT(k_READ_LENGTH - 4 < numBytes);
@@ -2947,7 +2952,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3: 'readIfValid'
         //
@@ -2978,7 +2983,8 @@ int main(int argc, char *argv[])
         using namespace USAGE_3;
 
         // We decided not to include the following code in the usage example,
-        // then function by itself should be enough.  This tests the function.
+        // the function by itself should be enough without its call.  This
+        // tests the function.
 
         bsl::stringstream ss;
         ss << "Hello, world!\n";
@@ -3028,7 +3034,7 @@ int main(int argc, char *argv[])
         ASSERT(out.length() == validLen);
         ASSERT(validChineseUtf8 == out);
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2: 'advance'
         //
@@ -3141,7 +3147,7 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(string.length()) == result - start);
 //..
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'
         //
@@ -3191,8 +3197,8 @@ int main(int argc, char *argv[])
                                                      string.length()));
     ASSERT(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next, we encode a lone surrogate value, '0xd8ab', which we encode as the raw
-// 3 byte sequence "\xed\xa2\xab" to avoid validation.
+// Next, we encode a lone surrogate value, '0xd8ab', that we encode as the raw
+// 3-byte sequence "\xed\xa2\xab" to avoid validation:
 //..
     bsl::string stringWithSurrogate = string + "\xed\xa2\xab";
 //..
@@ -3239,7 +3245,7 @@ int main(int argc, char *argv[])
 // not valid UTF-8 (since ':' can be "encoded" in 1 byte):
 //..
     bsl::string stringWithOverlong = string;
-    stringWithOverlong += static_cast<char>(0xc0);        // start of 2 byte
+    stringWithOverlong += static_cast<char>(0xc0);        // start of 2-byte
                                                           // sequence
     stringWithOverlong += static_cast<char>(0x80 | ':');  // continuation byte
 
@@ -3260,6 +3266,60 @@ int main(int argc, char *argv[])
     ASSERT(bdlde::Utf8Util::k_OVERLONG_ENCODING == rc);
     ASSERT(invalidPosition == stringWithOverlong.data() + string.length());
 //..
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'toAscii'
+        //
+        // Concerns:
+        //: 1 That 'toAscii' correctly translates 'ErrorStatus' values to
+        //:   strings.
+        //
+        // Plan:
+        //: 1 Create a table of all valid 'ErrorStatus' values and their
+        //:   expected string forms.
+        //:
+        //: 2 Iterate through the table, calling 'toAscii' and checking its
+        //:   return value.
+        //
+        // Testing:
+        //   const char *toAscii(IntPtr);
+        // --------------------------------------------------------------------
+
+        static const char *NOT_FOUND = "(* unrecognized value *)";
+
+        static const struct Data {
+            IntPtr      d_status;
+            const char *d_expStr;
+        } DATA[] = {
+          { Obj::k_END_OF_INPUT_TRUNCATION,    "END_OF_INPUT_TRUNCATION" },
+          { Obj::k_UNEXPECTED_CONTINUATION_OCTET,
+                                              "UNEXPECTED_CONTINUATION_OCTET"},
+          { Obj::k_NON_CONTINUATION_OCTET,     "NON_CONTINUATION_OCTET" },
+          { Obj::k_OVERLONG_ENCODING,          "OVERLONG_ENCODING" },
+          { Obj::k_INVALID_INITIAL_OCTET,      "INVALID_INITIAL_OCTET" },
+          { Obj::k_VALUE_LARGER_THAN_0X10FFFF, "VALUE_LARGER_THAN_0X10FFFF" },
+          { Obj::k_SURROGATE,                  "SURROGATE" },
+          { 0,                                 NOT_FOUND },
+          { 1,                                 NOT_FOUND },
+          { 100,                               NOT_FOUND },
+          { Obj::k_END_OF_INPUT_TRUNCATION+1,  NOT_FOUND },
+          { Obj::k_SURROGATE - 1,              NOT_FOUND },
+          { 100,                               NOT_FOUND },
+          { -100,                              NOT_FOUND },
+          { INT_MAX,                           NOT_FOUND },
+          { INT_MIN,                           NOT_FOUND },
+          { LONG_MAX,                          NOT_FOUND },
+          { LONG_MIN,                          NOT_FOUND }
+        };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const IntPtr      STATUS  = DATA[ti].d_status;
+            const bsl::string EXP_STR = DATA[ti].d_expStr;
+
+            ASSERT(EXP_STR == Obj::toAscii(STATUS));
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -3287,7 +3347,7 @@ int main(int argc, char *argv[])
             const int     LINE      = legalCodepointData[ti].d_lineNum;
             const char   *UTF8      = legalCodepointData[ti].d_utf8_p;
             bsl::size_t   UTF8_LEN  = strlen(UTF8);
-            unsigned int  CODEPOINT = legalCodepointData[ti].d_codepoint;
+            unsigned int  CODEPOINT = legalCodepointData[ti].d_codePoint;
 
             bsl::string   empty;
             bsl::string   non_empty("Not an empty string");
@@ -3386,7 +3446,7 @@ int main(int argc, char *argv[])
                 ASSERT(Obj::IntPtr(UTF8.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 1));
 
-                // Embedded NUL's count as 1 byte.
+                // Embedded nulls count as 1 byte.
                 ASSERT(1 + Obj::IntPtr(UTF8.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 2));
 
@@ -3447,10 +3507,16 @@ int main(int argc, char *argv[])
         //: 9 We now repeat step '6'.
         //
         // Testing:
-        //   'advanceIfValid' on correct input plus incorrect input
-        //   'isValid' on correct input plus incorrect input
-        //   'numCodePointsIfValid' on correct input plus incorrect input
-        //   'readIfValid' on correct input plus incorrect input
+        //   IntPtr advanceIfValid(int *, cchar **,  cchar *, IntPtr);
+        //   IntPtr advanceIfValid(int *, cchar **, cchar *, size_t, IntPtr);
+        //   bool isValid(cchar *);
+        //   bool isValid(cchar *, size_t);
+        //   bool isValid(cchar **, cchar *);
+        //   bool isValid(cchar **, cchar *, size_t);
+        //   IntPtr numCodePointsIfValid(cchar **, cchar *);
+        //   IntPtr numCodePointsIfValid(cchar **, const char *, int);
+        //   IntPtr numCodePointsIfValid(cchar **, cchar *, IntPtr);
+        //   IntPtr readIfValid(int *, cchar *, size_t, streambuf *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CORRECT + BROKEN GLASS\n"
@@ -4366,8 +4432,8 @@ int main(int argc, char *argv[])
         //   IntPtr numCharactersRaw(const char *s, int len);
         //   IntPtr numCodePointsRaw(const char *s);
         //   IntPtr numCodePointsRaw(const char *s, int len);
-        //   IntPtr numCodePoints(const char *s);
-        //   IntPtr numCodePoints(const char *s, int len);
+        //   IntPtr numCharacters(const char *s);
+        //   IntPtr numCharacters(const char *s, int len);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING 'numCharactersRaw'" << endl
