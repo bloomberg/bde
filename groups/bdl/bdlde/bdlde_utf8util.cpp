@@ -382,7 +382,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
           } break;
           case 0xf: {
             const int value = get4ByteValue(pc);
-            if (UNLIKELY((0x8 & *pc)
+            if (UNLIKELY(bool(0x8 & *pc)
                        | isNotContinuation(pc[1])
                        | isNotContinuation(pc[2])
                        | isNotContinuation(pc[3])
