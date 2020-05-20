@@ -907,9 +907,10 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
         return -1;                                                    // RETURN
     }
 
-    d_tokenizer.reset(streamBuf, options.validateInputIsUtf8());
+    d_tokenizer.reset(streamBuf);
     d_tokenizer.setAllowStandAloneValues(false);
     d_tokenizer.setAllowHeterogenousArrays(false);
+    d_tokenizer.setAllowNonUTF8Tokens(!options.validateInputIsUtf8());
 
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 

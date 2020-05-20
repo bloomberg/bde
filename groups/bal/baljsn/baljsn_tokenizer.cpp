@@ -77,7 +77,12 @@ int Tokenizer::reloadStringBuffer()
     if (d_readStatus) {
         numRead = 0;
     }
-    else if (d_checkUtf8) {
+    else if (d_allowNonUTF8Tokens) {
+        numRead = static_cast<bsl::size_t>(
+                                      d_streambuf_p->sgetn(&d_stringBuffer[0],
+                                                           k_MAX_STRING_SIZE));
+    }
+    else {
         numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
                                                &d_stringBuffer[0],
                                                k_MAX_STRING_SIZE,
@@ -89,10 +94,6 @@ int Tokenizer::reloadStringBuffer()
 
             d_readStatus = 0;
         }
-    }
-    else {
-        numRead = static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[0],
-                                                        k_MAX_STRING_SIZE));
     }
 
     if (0 == d_readStatus && 0 == numRead) {
@@ -114,7 +115,12 @@ int Tokenizer::expandBufferForLargeValue()
     if (d_readStatus) {
         numRead = 0;
     }
-    else if (d_checkUtf8) {
+    else if (d_allowNonUTF8Tokens) {
+        numRead = static_cast<bsl::size_t>(
+                             d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
+                                                  k_MAX_STRING_SIZE));
+    }
+    else {
         numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
                                                &d_stringBuffer[d_valueIter],
                                                k_MAX_STRING_SIZE,
@@ -126,11 +132,6 @@ int Tokenizer::expandBufferForLargeValue()
 
             d_readStatus = 0;
         }
-    }
-    else {
-        numRead = static_cast<int>(
-                             d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
-                                                  k_MAX_STRING_SIZE));
     }
 
     if (0 == numRead && 0 == d_readStatus) {
@@ -155,7 +156,12 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
     if (d_readStatus) {
         numRead = 0;
     }
-    else if (d_checkUtf8) {
+    else if (d_allowNonUTF8Tokens) {
+        numRead = static_cast<bsl::size_t>(
+                        d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
+                                             k_MAX_STRING_SIZE - d_valueIter));
+    }
+    else {
         numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
                                                &d_stringBuffer[d_valueIter],
                                                k_MAX_STRING_SIZE - d_valueIter,
@@ -167,11 +173,6 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
 
             d_readStatus = 0;
         }
-    }
-    else {
-        numRead = static_cast<int>(
-                        d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
-                                             k_MAX_STRING_SIZE - d_valueIter));
     }
 
     if (0 == d_readStatus && 0 == numRead) {

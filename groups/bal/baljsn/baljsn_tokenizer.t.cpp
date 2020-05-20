@@ -48,7 +48,7 @@ using bsl::endl;
 // [ 2] ~baljsn::Tokenizer();
 //
 // MANIPULATORS
-// [ 9] void reset(bsl::streambuf &streamBuf, bool checkUtf8);
+// [ 9] void reset(bsl::streambuf &streamBuf);
 // [12] void resetStreamBufGetPointer();
 // [13] void setAllowStandAloneValues(bool value);
 // [14] void setAllowHeterogenousArrays(bool value);
@@ -292,7 +292,8 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
     Obj mX;  const Obj& X = mX;
     ASSERTV(LINE, X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-    mX.reset(sb, checkUtf8);
+    mX.reset(sb);
+    mX.setAllowNonUTF8Tokens(!checkUtf8);
 
     for (int i = 0; i < NADV; ++i) {
         ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
@@ -533,7 +534,7 @@ int main(int argc, char *argv[])
 // streambuf with it:
 //..
     baljsn::Tokenizer tokenizer;
-    tokenizer.reset(&isb, false);
+    tokenizer.reset(&isb);
 //..
 // Next, we will create an address record type and object.
 //..
@@ -732,9 +733,13 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
                 ASSERTV(X.allowStandAloneValues(), X.allowStandAloneValues());
+                ASSERTV(X.allowNonUTF8Tokens(), X.allowNonUTF8Tokens());
                 ASSERT(!X.readStatus());
 
-                mX.reset(iss.rdbuf(), true);
+                mX.reset(iss.rdbuf());
+                mX.setAllowNonUTF8Tokens(false);
+
+                ASSERTV(X.allowNonUTF8Tokens(), !X.allowNonUTF8Tokens());
 
                 ASSERTV(ILINE, JLINE, 0 == mX.advanceToNextToken());
                 ASSERTV(X.tokenType(), Obj::e_ELEMENT_VALUE == X.tokenType());
@@ -781,7 +786,8 @@ int main(int argc, char *argv[])
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
                 ASSERTV(X.allowStandAloneValues(), X.allowStandAloneValues());
 
-                mX.reset(iss.rdbuf(), true);
+                mX.reset(iss.rdbuf());
+                mX.setAllowNonUTF8Tokens(false);
 
                 ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
 
@@ -805,7 +811,8 @@ int main(int argc, char *argv[])
                     str += '"';
                     iss.str(str);
 
-                    mX.reset(iss.rdbuf(), true);
+                    mX.reset(iss.rdbuf());
+                    mX.setAllowNonUTF8Tokens(false);
                     ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
 
                     ASSERT(ERROFF  == X.readOffset());
@@ -898,7 +905,9 @@ int main(int argc, char *argv[])
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
 
-                mX.reset(iss.rdbuf(), CHECK_UTF8);
+                mX.reset(iss.rdbuf());
+                mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+
                 bsl::size_t item_count = 0;
 
                 while (0 == mX.advanceToNextToken()) {
@@ -1068,7 +1077,8 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(is.rdbuf(), CHECK_UTF8);
+            mX.reset(is.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             // NUM_PREADVS advances should be successful.
 
@@ -1244,7 +1254,8 @@ int main(int argc, char *argv[])
             ASSERTV(X.allowHeterogenousArrays(),
                     true == X.allowHeterogenousArrays());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             mX.setAllowHeterogenousArrays(ALLOW_HETEROGENOUS_ARRAYS);
             ASSERTV(X.allowHeterogenousArrays(), ALLOW_HETEROGENOUS_ARRAYS,
@@ -1662,7 +1673,8 @@ int main(int argc, char *argv[])
             ASSERTV(X.allowStandAloneValues(),
                     true == X.allowStandAloneValues());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             mX.setAllowStandAloneValues(ALLOW_STAND_ALONE_VALUES);
             ASSERTV(X.allowStandAloneValues(), ALLOW_STAND_ALONE_VALUES,
@@ -2267,7 +2279,8 @@ int main(int argc, char *argv[])
             Obj mX(&ta);  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             int rc;
             do {
@@ -2388,7 +2401,8 @@ int main(int argc, char *argv[])
             bslma::TestAllocator& ta = ALLOC ? tta : ba;
 
             Obj mX(&ta);  const Obj& X = mX;
-            mX.reset(is.rdbuf(), CHECK_UTF8);
+            mX.reset(is.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
@@ -2445,7 +2459,8 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            mX.reset(is.rdbuf(), CHECK_UTF8);
+            mX.reset(is.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
@@ -3499,7 +3514,8 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
@@ -3842,7 +3858,8 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
@@ -4678,7 +4695,8 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
@@ -5586,7 +5604,8 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -6130,7 +6149,8 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -6894,7 +6914,8 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -7193,7 +7214,8 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-            mX.reset(iss.rdbuf(), CHECK_UTF8);
+            mX.reset(iss.rdbuf());
+            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());

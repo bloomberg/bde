@@ -34425,11 +34425,10 @@ void constructFeatureTestMessage(
 
 namespace CASE5 {
 
-bool checkUtf8;
-
 struct ThreadData {
     const bsl::vector<balb::FeatureTestMessage> *d_testObjects_p;
     bool                                         d_veryVerbose;
+    bool                                         d_checkUtf8;
 };
 
 extern "C" void *threadFunction(void *data)
@@ -34452,7 +34451,7 @@ extern "C" void *threadFunction(void *data)
         {
             balb::FeatureTestMessage  value;
             baljsn::DecoderOptions     options;
-            options.setValidateInputIsUtf8(checkUtf8);
+            options.setValidateInputIsUtf8(threadData.d_checkUtf8);
             baljsn::Decoder            decoder;
             bdlsb::FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
 
@@ -34465,7 +34464,7 @@ extern "C" void *threadFunction(void *data)
         {
             balb::FeatureTestMessage  value;
             baljsn::DecoderOptions     options;
-            options.setValidateInputIsUtf8(checkUtf8);
+            options.setValidateInputIsUtf8(threadData.d_checkUtf8);
             baljsn::Decoder            decoder;
             bdlsb::FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
             bsl::istream              iss(&isb);
@@ -34491,7 +34490,7 @@ extern "C" void *threadFunction(void *data)
             balb::FeatureTestMessage value;
 
             baljsn::DecoderOptions     options;
-            options.setValidateInputIsUtf8(checkUtf8);
+            options.setValidateInputIsUtf8(threadData.d_checkUtf8);
             baljsn::Decoder            decoder;
             bdlsb::FixedMemInStreamBuf isb(COMPACT.data(), COMPACT.length());
             bsl::istream              iss(&isb);
@@ -36620,22 +36619,25 @@ int main(int argc, char *argv[])
         // ------------------------------------------------------------------
         // TESTING UTF-8 DETECTION
         //
-        // Conserns:
-        //: 1 That, when UTF-8 validation is enabled, the decoder can detect
-        //:   invalid UTF-8.
+        // The 'Decoder' type is able to do UTF-8 checking of input, which is
+        // enabled or disabled by a field in the 'DecoderOptions' object.
+        //
+        // Concerns:
+        //: 1 When UTF-8 validation is enabled, the decoder can detect invalid
+        //:   UTF-8.
         //:
-        //: 2 That the message logged when UTF-8 occurs correctly describes
-        //:   the nature of the UTF-8 error.
+        //: 2 The message logged when UTF-8 occurs correctly describes the
+        //:   nature of the UTF-8 error.
         //:
-        //: 3 The the message logged contains the offset of the UTF-8 error
-        //:   in the 'streambuf'.
+        //: 3 The message logged contains the offset of the UTF-8 error in the
+        //:   'streambuf'.
         //:
-        //: 4 That the message accurately describes the context in which the
+        //: 4 The message accurately describes the context in which the
         //:   offending invalid UTF-8 sequences occurred (this was especially a
         //:   worry, because the tokenizer reads data 8K at at time, and we
         //:   didn't want to be giving decoder messages describing a context at
-        //:   the start of the buffer when in fac the invalid UTF-8 was several
-        //:   kilobytes later).
+        //:   the start of the buffer when in fact the invalid UTF-8 was
+        //:   several kilobytes later).
         //
         // Plan:
         //: 1 Start out with 'pattern', a valid UTF-8 string of JSON input for
@@ -36653,10 +36655,14 @@ int main(int argc, char *argv[])
         //:   'pattern'.
         //:
         //: 4 Iterate through 'FIND_DATA' forwarding to each point in 'pattern'
-        //:   identified by the string in 'FIND_DATA'.  Go twice, once at the
-        //:   beginning of the string from 'FIND_DATA', and once at the end of
-        //:   it.  Keep a bool 'AFTER' to indicate whether we are before or
-        //:   after that substring.
+        //:   identified by the string in 'FIND_DATA'.  Each field in the
+        //:   'FIND_DATA' table is visited twice in a row, the first time with
+        //:   the boolean 'AFTER' 'false', meaning that the good UTF-8 is
+        //:   truncated before the string from 'FIND_DATA', and then the next
+        //:   iteration with 'AFTER' 'true', in which case the good UTF-8 is
+        //:   trucated immediately after the found string.  Note that we only
+        //:   search for the tab-separated strings in the case where 'AFTER'
+        //:   was 'false'.
         //:
         //: 5 In a nested loop, iterate through 'UTF-8' data
         //:   o splice the invalid UTF-8 sequence right at the point indicated
@@ -36831,6 +36837,9 @@ int main(int argc, char *argv[])
         //: 1 The string returned from 'loggedMessages' resets each time
         //:   'decode' is invoked, such that the contents of the logged
         //:   messages refer to only the most recent invocation of 'decode'.
+        //:
+        //: 2 That when the input contains no invalid UTF-8, enabling or
+        //:   disabling UTF-8 checking has no influence on behavior.
         //
         // Plan:
         //: 1 Define a type, 'SOType', that 'baljsn::Decoder' is able to
@@ -36852,6 +36861,10 @@ int main(int argc, char *argv[])
         //:   where some/all succeed/fail, the 'loggedMessages' are empty if
         //:   the last operation succeeds, and contain an expected message
         //:   if and only if the last operation fails.
+        //:
+        //: 7 Have a boolean 'UTF8' variable that enables / disables UTF-8
+        //:   checking, and run ALL of the tests in the case with it 'true' and
+        //:   'false' and observe that this has no influence on test outcomes.
         //
         // Testing:
         //   int decode(bsl::streambuf *streamBuf, TYPE *y, options);
@@ -37322,7 +37335,7 @@ int main(int argc, char *argv[])
         using namespace CASE5;
 
         for (int tu = 0; tu < 2; ++tu) {
-            checkUtf8 = tu;
+            bool checkUtf8 = tu;
 
             bsl::vector<balb::FeatureTestMessage> testObjects;
             constructFeatureTestMessage(&testObjects);
@@ -37330,6 +37343,7 @@ int main(int argc, char *argv[])
             ThreadData threadData;
             threadData.d_testObjects_p = &testObjects;
             threadData.d_veryVerbose   = veryVerbose;
+            threadData.d_checkUtf8     = checkUtf8;
 
             const int NUM_THREADS = 20;
             bslmt::ThreadUtil::Handle handles[NUM_THREADS];

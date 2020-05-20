@@ -23,6 +23,7 @@ BSLS_IDENT("$Id: $")
 //  ------------------    -----------    -------         ------------------
 //  maxDepth              int            32              >= 0
 //  skipUnknownElements   bool           true            none
+//  validateInputIsUtf8   bool           false           none
 //..
 //: o 'maxDepth': maximum depth of the decoded data
 //:

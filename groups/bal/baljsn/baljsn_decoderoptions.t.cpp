@@ -34,10 +34,12 @@ using namespace bsl;
 // Primary Manipulators:
 //: o 'setMaxDepth'
 //: o 'setSkipUnknownElements'
+//: o 'setValidateInputIsUtf8'
 //
 // Basic Accessors:
 //: o 'maxDepth'
 //: o 'skipUnknownElements'
+//: o 'validateInputIsUtf8'
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [ 8] -- 'swap' is not implemented for this class.
@@ -64,11 +66,13 @@ using namespace bsl;
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [ 3] setMaxDepth(int value);
 // [ 3] setSkipUnknownElements(bool value);
+// [ 3] setValidateInputIsUtf8(bool value);
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 4] int  maxDepth() const;
 // [ 4] bool skipUnknownElements() const;
+// [ 4] bool validateInputIsUtf8() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -1369,6 +1373,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 32;                   // 'maxDepth'
         const bool  D2   = true;                 // 'skipUnknownElements'
+        const bool  D3   = false;
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1384,6 +1389,8 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(D1, X.maxDepth(), D1 == X.maxDepth());
         LOOP2_ASSERT(D2, X.skipUnknownElements(),
                      D2 == X.skipUnknownElements());
+        LOOP2_ASSERT(D3, X.validateInputIsUtf8(),
+                     D3 == X.validateInputIsUtf8());
       } break;
       case 1: {
         // --------------------------------------------------------------------

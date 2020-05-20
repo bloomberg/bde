@@ -200,8 +200,6 @@ class Tokenizer {
         k_UTF8_MESSAGE_BUFFER_SIZE = 256
     };
 
-
-
     // DATA
     bsls::AlignedBuffer<k_BUFSIZE>
                         d_buffer;           // string buffer
@@ -248,7 +246,8 @@ class Tokenizer {
                                             // option for allowing arrays of
                                             // heterogenous values
 
-    bool                d_checkUtf8;        // enables UTF-8 validation
+    bool                d_allowNonUTF8Tokens;
+                                            // Disables UTF-8 validation
 
     // PRIVATE MANIPULATORS
     int extractStringValue();
@@ -287,12 +286,6 @@ class Tokenizer {
     void pushContext(ContextType context);
         // Push the specified 'context' onto the 'd_contextStack' stack.
 
-    void setUtf8ErrorMessage(int utf8ErrorStatus);
-        // Set the UTF-8 message string to reflect the contents of
-        // 'utf8ErrorStatus' and 'd_readOffset'.  The behavior is undefined
-        // unless 'utf8ErrorStatus < 0' and 'utf8ErrorStatus' is one of the
-        // values defined in the 'enum' 'bdlde::Utf8Util::ErrorStatus'.
-
     int skipNonWhitespaceOrTillToken();
         // Skip all characters until a whitespace or a token character is
         // encountered and position the cursor onto the first such character.
@@ -324,11 +317,13 @@ class Tokenizer {
         // Destroy this object.
 
     // MANIPULATORS
-    void reset(bsl::streambuf *streambuf, bool checkUtf8);
-        // Reset this tokenizer to read data from the specified 'streambuf'.
+    void reset(bsl::streambuf *streambuf);
+        // Reset this tokenizer to read data from the specified 'streambuf' and
+        // set 'd_d_allowNonUTF8Tokens' to the specified 'allowNonUTF8Tokens'.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
-        // change the value of the 'allowStandAloneValues' option.
+        // change the value of the 'allowStandAloneValues',
+        // 'd_allowHeterogenousArrays', or 'd_allowNonUTF8Tokens' options.
 
     int advanceToNextToken();
         // Move to the next token in the data steam.  Return 0 on success and a
@@ -348,6 +343,21 @@ class Tokenizer {
         // invoked on this object should only be done after calling 'reset' and
         // specifying a new 'streambuf'.
 
+    void setAllowHeterogenousArrays(bool value);
+        // Set the 'allowHeterogenousArrays' option to the specified 'value'.
+        // If the 'allowHeterogenousArrays' value is 'true' this tokenizer will
+        // successfully tokenize heterogenous values within an array.  If the
+        // option's value is 'false' then the tokenizer will return an error
+        // for arrays having heterogenous values.  By default, the value of the
+        // 'allowHeterogenousArrays' option is 'true'.
+
+    void setAllowNonUTF8Tokens(bool value);
+        // Set the 'allowNonUTF8Tokens' option to the specified 'value'.  If
+        // the 'allowNonUTF8Tokens' value is 'true' this tokenizer will check
+        // input for invalid UTF-8, and enter an error mode if any invalid
+        // UTF-8 is encountered, and quit working until 'reset' is called.  By
+        // default, the value of the 'allowNonUTF8Tokens' option is 'false'.
+
     void setAllowStandAloneValues(bool value);
         // Set the 'allowStandAloneValues' option to the specified 'value'.  If
         // the 'allowStandAloneValues' value is 'true' this tokenizer will
@@ -357,25 +367,26 @@ class Tokenizer {
         // error for stand alone JSON values.  By default, the value of the
         // 'allowStandAloneValues' option is 'true'.
 
-    void setAllowHeterogenousArrays(bool value);
-        // Set the 'allowHeterogenousArrays' option to the specified 'value'.
-        // If the 'allowHeterogenousArrays' value is 'true' this tokenizer will
-        // successfully tokenize heterogenous values within an array.  If the
-        // option's value is 'false' then the tokenizer will return an error
-        // for arrays having heterogenous values.  By default, the value of the
-        // 'allowHeterogenousArrays' option is 'true'.
-
     // ACCESSORS
-    bool allowStandAloneValues() const;
-        // Return the value of the 'allowStandAloneValues' option of this
-        // tokenizer.
-
     bool allowHeterogenousArrays() const;
         // Return the value of the 'allowHeterogenousArrays' option of this
         // tokenizer.
 
-    TokenType tokenType() const;
-        // Return the token type of the current token.
+    bool allowNonUTF8Tokens() const;
+        // Return the value of the 'allowNonUTF8Tokens' option of this
+        // tokenizer.
+
+    bool allowStandAloneValues() const;
+        // Return the value of the 'allowStandAloneValues' option of this
+        // tokenizer.
+
+    bsls::Types::Uint64 readOffset() const;
+        // If end of file or bad UTF-8 is encountered, the position in the
+        // 'streambuf' of the beginning of the end of file or the bad UTF-8
+        // sequence.  If the 'streambuf' is not seekable, there is no way for
+        // this 'Tokenizer' object to know the position in the 'streambuf', in
+        // which case the object will assume that the 'streambuf' was at
+        // location 0 when 'reset' was called.
 
     int readStatus() const;
         // The status of the last read from the 'streambuf'.
@@ -385,11 +396,16 @@ class Tokenizer {
         //:   'bdlde::Utf8Util:: ErrorStatus'
         //:
         //: o +1 if no data could be read before EOF
+        // Note that, usually, each read from the 'streambuf' loads a large
+        // amount of data into the buffer.  If bad UTF-8 occurs anywhere by the
+        // read, there could still be kilobytes of good data in the bufer, but
+        // 'readStatus' will reflect the UTF-8 problem, even while
+        // 'advanceToNextToken' is succeeding at reading data kilobytes before
+        // the problem, so this funciton and 'readOffset' should only be called
+        // when the client is not able to get more data.
 
-    bsls::Types::Uint64 readOffset() const;
-        // The number of valid bytes read so far.  If bad UTF-8 was
-        // encountered, this is the offset of the beginning of the invalid
-        // UTF-8 sequence.
+    TokenType tokenType() const;
+        // Return the token type of the current token.
 
     int value(bslstl::StringRef *data) const;
         // Load into the specified 'data' the value of the specified token if
@@ -448,7 +464,7 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_readStatus(0)
 , d_allowStandAloneValues(true)
 , d_allowHeterogenousArrays(true)
-, d_checkUtf8(false)
+, d_allowNonUTF8Tokens(true)
 {
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
     d_contextStack.clear();
@@ -462,7 +478,7 @@ Tokenizer::~Tokenizer()
 
 // MANIPULATORS
 inline
-void Tokenizer::reset(bsl::streambuf *streambuf, bool checkUtf8)
+void Tokenizer::reset(bsl::streambuf *streambuf)
 {
     d_streambuf_p = streambuf;
     d_stringBuffer.clear();
@@ -472,7 +488,6 @@ void Tokenizer::reset(bsl::streambuf *streambuf, bool checkUtf8)
     d_valueIter   = 0;
     d_tokenType   = e_BEGIN;
     d_readStatus  = 0;
-    d_checkUtf8   = checkUtf8;
 
     bsl::streamoff pos = d_streambuf_p->pubseekoff(0,
                                                    bsl::ios_base::cur,
@@ -495,6 +510,12 @@ void Tokenizer::setAllowHeterogenousArrays(bool value)
     d_allowHeterogenousArrays = value;
 }
 
+inline
+void Tokenizer::setAllowNonUTF8Tokens(bool value)
+{
+    d_allowNonUTF8Tokens = value;
+}
+
 // ACCESSORS
 inline
 bool Tokenizer::allowStandAloneValues() const
@@ -506,6 +527,12 @@ inline
 bool Tokenizer::allowHeterogenousArrays() const
 {
     return d_allowHeterogenousArrays;
+}
+
+inline
+bool Tokenizer::allowNonUTF8Tokens() const
+{
+    return d_allowNonUTF8Tokens;
 }
 
 inline
