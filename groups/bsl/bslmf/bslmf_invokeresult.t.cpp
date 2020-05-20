@@ -17,6 +17,10 @@
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages(off, functypequal)
+#endif
+
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 // The MSVC 18.0 and 19.0 compilers have a bug whereby an expression like,
 // 'func().*ptrtomem', where 'func()' returns 'volatile SomeClass&&' and

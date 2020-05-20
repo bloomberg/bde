@@ -14,6 +14,10 @@ using namespace BloombergLP;
 # define BSLMF_ISFUNCTION_NO_ABOMINABLE_TYPES
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages(off, functypequal)
+#endif
+
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------

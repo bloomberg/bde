@@ -9,6 +9,10 @@
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strcmp'
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages(off, functypequal, refarray0)
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================
