@@ -1,4 +1,4 @@
-// bslstl_ratio.t.cpp                                                -*-C++-*-
+// bslstl_ratio.t.cpp                                                 -*-C++-*-
 #include <bslstl_ratio.h>
 
 #include <bslmf_issame.h>
@@ -19,9 +19,9 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // The component under test implements a version of the ratio operations
-// introduced into the standard library in C++11 (and 14). We test to make
-// sure that the operations exist and give sane results. 
-// The tests are not exhaustive.
+// introduced into the standard library in C++11 (and 14).  We test to make sure
+// that the operations exist and give sane results. The tests are not
+// exhaustive.
 //
 // Groups of operations tested:
 // * Basic ratio functionality - numerator/denominator/nested 'type'
@@ -31,7 +31,7 @@ using namespace BloombergLP;
 // * Ratio operations - add/subtract/multiply/divide, etc.
 // ** There are no '_t' versions of these operations.
 // ----------------------------------------------------------------------------
-// [2] USAGE EXAMPLE
+// [ 1] '<ratio>' STL header
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -131,39 +131,38 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) printf("Cannot test 'bsl::ratio' in pre-C++11 mode.\n");
+#else
         // --------------------------------------------------------------------
-        // TESTING <ratio> HEADER VERIFICATION
+        // VERIFYING '<ratio>' HEADER
         //
         // Concerns:
         //: 1 That the operations are successfully imported into the 'bsl'
         //:   namespace from the underlying STL implementation.
-        //: 
-        //: 2 That the short versions of the comparison operators, such
-        //:   as 'ratio_less_v' exist and work even if the underlying STL
-        //:   does not provide them.
+        //:
+        //: 2 That the short versions of the comparison operators, such as
+        //:   'ratio_less_v' exist, and work even in C++14.
         //
         // Plan:
-        //: 1 Verify that the template 'ratio' exists in the bsl namespace and
-        //:   that it behaves like std::ratio.
+        //: 1 Verify that the template 'ratio' exists in the 'bsl' namespace and
+        //:   that it behaves like 'std::ratio'.
         //:
-        //: 2 Verify that the SI typedefs exist and have the correct numerator
+        //: 2 Verify that the SI 'typedef's exist and have the correct numerator
         //:   and denominator.
         //:
         //: 3 Verify that the comparison operations exist, and give expected
-        //:   results. Check again for the '_v' versions.
+        //:   results.  Check again for the '_v' versions.
         //:
         //: 4 Verify that the arithmetic operations exist, and give expected
         //:   results.
         //
         // Testing:
-        //  Basic ratio functionality - numerator/denominator/nested 'type'
-        //   SI prefixes - kilo, mega, milli, etc.
-        //   Ratio comparisons - less/greater/equal, etc.
-        //   Ratio operations - add/subtract/multiply/divide, etc.
+        //   '<ratio>' STL header
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting <ratio> HEADER VERIFICATION"
-                            "\n===================================\n");
+        if (verbose) printf("\nVERIFYING '<ratio>' HEADER"
+                            "\n==========================\n");
 
         if (verbose) printf("\tTest basic ratio functionality.\n");
         {
@@ -179,11 +178,11 @@ int main(int argc, char *argv[])
             // make sure that the ratio is reduced
             ASSERT(3 == Six4ths::num);
             ASSERT(2 == Six4ths::den);
-            
-            // A nested typedef named 'type'
+
+            // a nested 'typedef' named 'type'
             ASSERT((bsl::is_same<Zero, Zero::type>::value));
-            
         }
+
         if (verbose) printf("\tTest SI unit prefixes.\n");
         {
             ASSERT(1 == bsl::deci::num);
@@ -235,7 +234,7 @@ int main(int argc, char *argv[])
         #endif
         }
 
-        if (verbose) printf("\tTest ratio comparisons.\n");
+        if (verbose) printf("\tTest 'ratio' comparisons.\n");
         {
             typedef bsl::ratio<3, 2> ThreeHalfs;
             typedef bsl::ratio<6, 4> Six4ths;
@@ -244,67 +243,70 @@ int main(int argc, char *argv[])
 
             ASSERT( (bsl::ratio_less<NegTwo3rds, ThreeHalfs>::value));
             ASSERT( (bsl::ratio_less<NegTwo3rds, Zero>::value));
-            ASSERT(!(bsl::ratio_less<ThreeHalfs,Zero>::value));
+            ASSERT(!(bsl::ratio_less<ThreeHalfs, Zero>::value));
             ASSERT(!(bsl::ratio_less<ThreeHalfs, Six4ths>::value));
 
             ASSERT( (bsl::ratio_less_equal<NegTwo3rds, ThreeHalfs>::value));
             ASSERT( (bsl::ratio_less_equal<NegTwo3rds, Zero>::value));
-            ASSERT(!(bsl::ratio_less_equal<ThreeHalfs,Zero>::value));
+            ASSERT(!(bsl::ratio_less_equal<ThreeHalfs, Zero>::value));
             ASSERT( (bsl::ratio_less_equal<ThreeHalfs, Six4ths>::value));
 
             ASSERT(!(bsl::ratio_greater<NegTwo3rds, ThreeHalfs>::value));
             ASSERT(!(bsl::ratio_greater<NegTwo3rds, Zero>::value));
-            ASSERT( (bsl::ratio_greater<ThreeHalfs,Zero>::value));
+            ASSERT( (bsl::ratio_greater<ThreeHalfs, Zero>::value));
             ASSERT(!(bsl::ratio_greater<ThreeHalfs, Six4ths>::value));
 
             ASSERT(!(bsl::ratio_greater_equal<NegTwo3rds, ThreeHalfs>::value));
             ASSERT(!(bsl::ratio_greater_equal<NegTwo3rds, Zero>::value));
-            ASSERT( (bsl::ratio_greater_equal<ThreeHalfs,Zero>::value));
+            ASSERT( (bsl::ratio_greater_equal<ThreeHalfs, Zero>::value));
             ASSERT( (bsl::ratio_greater_equal<ThreeHalfs, Six4ths>::value));
 
             ASSERT(!(bsl::ratio_equal<NegTwo3rds, ThreeHalfs>::value));
             ASSERT(!(bsl::ratio_equal<NegTwo3rds, Zero>::value));
-            ASSERT(!(bsl::ratio_equal<ThreeHalfs,Zero>::value));
+            ASSERT(!(bsl::ratio_equal<ThreeHalfs, Zero>::value));
             ASSERT( (bsl::ratio_equal<ThreeHalfs, Six4ths>::value));
 
             ASSERT( (bsl::ratio_not_equal<NegTwo3rds, ThreeHalfs>::value));
             ASSERT( (bsl::ratio_not_equal<NegTwo3rds, Zero>::value));
-            ASSERT( (bsl::ratio_not_equal<ThreeHalfs,Zero>::value));
+            ASSERT( (bsl::ratio_not_equal<ThreeHalfs, Zero>::value));
             ASSERT(!(bsl::ratio_not_equal<ThreeHalfs, Six4ths>::value));
 
-            // same tests, with using the _v suffix
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) || \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
+            // same tests, with using the '_v' suffix
             ASSERT( (bsl::ratio_less_v<NegTwo3rds, ThreeHalfs>));
             ASSERT( (bsl::ratio_less_v<NegTwo3rds, Zero>));
-            ASSERT(!(bsl::ratio_less_v<ThreeHalfs,Zero>));
+            ASSERT(!(bsl::ratio_less_v<ThreeHalfs, Zero>));
             ASSERT(!(bsl::ratio_less_v<ThreeHalfs, Six4ths>));
 
             ASSERT( (bsl::ratio_less_equal_v<NegTwo3rds, ThreeHalfs>));
             ASSERT( (bsl::ratio_less_equal_v<NegTwo3rds, Zero>));
-            ASSERT(!(bsl::ratio_less_equal_v<ThreeHalfs,Zero>));
+            ASSERT(!(bsl::ratio_less_equal_v<ThreeHalfs, Zero>));
             ASSERT( (bsl::ratio_less_equal_v<ThreeHalfs, Six4ths>));
 
             ASSERT(!(bsl::ratio_greater_v<NegTwo3rds, ThreeHalfs>));
             ASSERT(!(bsl::ratio_greater_v<NegTwo3rds, Zero>));
-            ASSERT( (bsl::ratio_greater_v<ThreeHalfs,Zero>));
+            ASSERT( (bsl::ratio_greater_v<ThreeHalfs, Zero>));
             ASSERT(!(bsl::ratio_greater_v<ThreeHalfs, Six4ths>));
 
             ASSERT(!(bsl::ratio_greater_equal_v<NegTwo3rds, ThreeHalfs>));
             ASSERT(!(bsl::ratio_greater_equal_v<NegTwo3rds, Zero>));
-            ASSERT( (bsl::ratio_greater_equal_v<ThreeHalfs,Zero>));
+            ASSERT( (bsl::ratio_greater_equal_v<ThreeHalfs, Zero>));
             ASSERT( (bsl::ratio_greater_equal_v<ThreeHalfs, Six4ths>));
 
             ASSERT(!(bsl::ratio_equal_v<NegTwo3rds, ThreeHalfs>));
             ASSERT(!(bsl::ratio_equal_v<NegTwo3rds, Zero>));
-            ASSERT(!(bsl::ratio_equal_v<ThreeHalfs,Zero>));
+            ASSERT(!(bsl::ratio_equal_v<ThreeHalfs, Zero>));
             ASSERT( (bsl::ratio_equal_v<ThreeHalfs, Six4ths>));
 
             ASSERT( (bsl::ratio_not_equal_v<NegTwo3rds, ThreeHalfs>));
             ASSERT( (bsl::ratio_not_equal_v<NegTwo3rds, Zero>));
-            ASSERT( (bsl::ratio_not_equal_v<ThreeHalfs,Zero>));
+            ASSERT( (bsl::ratio_not_equal_v<ThreeHalfs, Zero>));
             ASSERT(!(bsl::ratio_not_equal_v<ThreeHalfs, Six4ths>));
+#endif
         }
 
-        if (verbose) printf("\tTest ratio arithmetic operations.\n");
+        if (verbose) printf("\tTest 'ratio' arithmetic operations.\n");
         {
             typedef bsl::ratio<3, 2> ThreeHalfs;
             typedef bsl::ratio<3, 2> Six4ths;
@@ -312,7 +314,7 @@ int main(int argc, char *argv[])
             typedef bsl::ratio<-2, 3> NegTwo3rds;
 
             ASSERT((bsl::ratio_equal_v<
-                            bsl::ratio_add<Zero, ThreeHalfs>::type, 
+                            bsl::ratio_add<Zero, ThreeHalfs>::type,
                             ThreeHalfs>));
             ASSERT((bsl::ratio_equal_v<
                             bsl::ratio_add<ThreeHalfs, Six4ths>::type,
@@ -352,6 +354,7 @@ int main(int argc, char *argv[])
                             bsl::ratio<-9,4>>));
         }
 
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
