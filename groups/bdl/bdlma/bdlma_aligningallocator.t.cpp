@@ -9,9 +9,11 @@
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>        // atoi
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -38,12 +40,13 @@ using bsl::flush;
 // the underlying allocator not providing it.  In test case 3, we verified that
 // the 'deallocate' function was indeed freeing memory.
 //-----------------------------------------------------------------------------
-// [3] deallocate(void *address);
-// [2] AligningAllocator(size_type alignment, Allocator *alloctor);
-// [2] allocate(bsls::Types::size_type size);
+// [4] deallocate(void *address);
+// [3] AligningAllocator(size_type alignment, Allocator *allocator);
+// [3] allocate(bsls::Types::size_type size);
+// [2] Test machinery
 // [1] bdlma_bufferedsequentialallocator -- Test Framework
 //-----------------------------------------------------------------------------
-// [4] USAGE EXAMPLE
+// [5] USAGE EXAMPLE
 //=============================================================================
 
 // ============================================================================
@@ -90,6 +93,115 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+                        // ============================
+                        // class AlignmentTestAllocator
+                        // ============================
+
+class AlignmentTestAllocator : public bslma::Allocator {
+    // This 'class' provides a mechanism to wrap another allocator and return,
+    // in sequence, blocks with alignments that cover useful sample alignment
+    // offsets.
+
+    // DATA
+    bsls::Types::size_type  d_alignment;        // alignment passed at
+                                                // construction
+
+    bslma::Allocator       *d_allocator_p;      // allocator passed at
+                                                // construction
+
+    int                     d_counter;          // counter to track how to
+                                                // misallocate next allocation
+
+    int                     d_samples;          // number of boundary values
+                                                // to sample if available
+  public:
+    // CREATORS
+     AlignmentTestAllocator(bsls::Types::size_type  alignment,
+                            bslma::Allocator       *allocator);
+        // Create an "AlignmentTestAllocator' with the specified 'alignment'
+        // and 'allocator'.
+
+    // MANIPULATORS
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
+
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
+
+    // ACCESSORS
+    int numSamples();
+};
+
+AlignmentTestAllocator::AlignmentTestAllocator(
+    bsls::Types::size_type  alignment,
+    bslma::Allocator       *allocator)
+: d_alignment(alignment)
+, d_allocator_p(allocator)
+, d_counter(0)
+, d_samples(8)
+{
+}
+
+void *AlignmentTestAllocator::allocate(bsls::Types::size_type size)
+{
+    if (0 == size) {
+        return 0;                                                     // RETURN
+    }
+
+    if (d_alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) {
+        size = (size + d_alignment) & ~(d_alignment-1);
+        return d_allocator_p->allocate(size);                         // RETURN
+    }
+
+    bsls::Types::size_type allocSize = size + 3 * d_alignment;
+
+    void *underlying = d_allocator_p->allocate(allocSize);
+
+    bsls::Types::size_type offset =
+        bsls::AlignmentUtil::calculateAlignmentOffset(
+            underlying, static_cast<int>(d_alignment)) + d_alignment;
+
+    int                    adjustmentCounter = ((d_counter++) % d_samples)
+                                                               - (d_samples/2);
+    bsls::Types::size_type adjustment        =
+        (adjustmentCounter * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT)
+                                                                 % d_alignment;
+    offset += adjustment;
+
+    BSLS_ASSERT( offset + size <= allocSize);
+    BSLS_ASSERT( offset >= sizeof(void*));
+
+    void *ret = reinterpret_cast<void *>(
+        reinterpret_cast<unsigned char *>(underlying) + offset);
+
+    void **header = reinterpret_cast<void **>(
+        reinterpret_cast<unsigned char *>(ret) - sizeof(void*));
+    *header = underlying;
+    return ret;
+}
+
+void AlignmentTestAllocator::deallocate(void *address)
+{
+    if (d_alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) {
+        d_allocator_p->deallocate(address);
+    }
+    else {
+        if (address != 0) {
+            void **header = reinterpret_cast<void**>(
+                reinterpret_cast<unsigned char *>(address) - sizeof(void*));
+            d_allocator_p->deallocate(*header);
+        }
+    }
+}
+
+int AlignmentTestAllocator::numSamples()
+{
+    return d_samples;
+}
+
+
+//=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
@@ -108,105 +220,66 @@ namespace USAGE_EXAMPLE {
 // First, the externally supplied library defines the 'struct' describing a
 // node in the linked list:
 //..
-    struct Node {
-        // This 'struct' describes one node in a linked list containing
-        // strings.
+struct Node {
+    // This 'struct' describes one node in a linked list containing
+    // strings.
 
-        Node *d_next;
-        char  d_string[1];
+    Node *d_next;
+    char  d_string[1];
 
-        // CLASS METHODS
-        static
-        bsl::size_t sizeNeededForString(const char *string)
-            // Return the size in bytes needed to store a 'Node' containing a
-            // copy of the specified 'string'.
-        {
-            Node node;
+    // CLASS METHODS
+    static
+    bsl::size_t sizeNeededForString(const char *string)
+        // Return the size in bytes needed to store a 'Node' containing a
+        // copy of the specified 'string'.
+    {
+        Node node;
 
-            return sizeof(node.d_next) + bsl::strlen(string) + 1;
-        }
-    };
+        return sizeof(node.d_next) + bsl::strlen(string) + 1;
+    }
+};
 //..
 // Then, the externally-supplied library defines the function that will create
 // the linked list of nodes from a null-terminated array of pointers to
 // C-strings:
 //..
-    void externalPopulateStringList(Node             **head,
-                                    const char       **stringArray,
-                                    bslma::Allocator  *allocator)
-        // Create a linked list of strings beginning with the specified '*head'
-        // containing the null-terminated strings from the null-terminated
-        // 'stringArray'.  Use the specified 'allocator' to supply memory.
-    {
-        *head = 0;
-        const char *string;
-        for (int ii = 0; 0 != (string = stringArray[ii]); ++ii) {
-            Node *newNode = static_cast<Node *>(allocator->allocate(
-                                           Node::sizeNeededForString(string)));
-            bsl::strcpy(newNode->d_string, string);
+void externalPopulateStringList(Node             **head,
+                                const char       **stringArray,
+                                bslma::Allocator  *allocator)
+    // Create a linked list of strings beginning with the specified '*head'
+    // containing the null-terminated strings from the null-terminated
+    // 'stringArray'.  Use the specified 'allocator' to supply memory.
+{
+    *head = 0;
+    const char *string;
+    for (int ii = 0; 0 != (string = stringArray[ii]); ++ii) {
+        Node *newNode = static_cast<Node *>(allocator->allocate(
+                                   Node::sizeNeededForString(string)));
+        ASSERT(newNode != 0);
 
-            newNode->d_next = *head;
-            *head = newNode;
-        }
+        bsl::strcpy(newNode->d_string, string);
+
+        newNode->d_next = *head;
+        *head = newNode;
     }
+}
 //..
-// Next, the externally-supplied buffered sequential allocator that we are to
-// use:
+// Next, our example function will begin with the externally-supplied buffered
+// sequential allocator that we are to use:
 //..
+void printFromNodes(bsl::ostream *out) {
     enum { k_BUFFER_SIZE = 4 * 1024 };
     char                               buffer4k[k_BUFFER_SIZE];
     bdlma::BufferedSequentialAllocator bsAlloc(buffer4k, k_BUFFER_SIZE);
 //..
-
-}  // close namespace USAGE_EXAMPLE
-
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
-
-int main(int argc, char *argv[])
-{
-    int  test        = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool verbose     = argc > 2;
-    bool veryVerbose = argc > 3;
-
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    enum { k_BUFFER_SIZE = 64 << 10 };    // 64K
-
-    static char                        buffer[k_BUFFER_SIZE];
-    bdlma::BufferedSequentialAllocator bsa(buffer, k_BUFFER_SIZE);
-
-    switch (test) { case 0:
-      case 4: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        //: 1 That the usage example compiles and works, to demonstrate the
-        //:   usage of this component.
-        //
-        // Plan:
-        //: 1 Code and test the usage example, then propagate it to the
-        //:   include file.
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "USAGE EXAMPLE\n"
-                             "=============\n";
-
-        using namespace USAGE_EXAMPLE;
-
 // There is a problem here, in that the nodes must be aligned by
 // 'sizeof(Node *)', but our buffered sequential allocator, like most BDE
-// allocators, has a "natural alignment" strategy (see bsls_alignment), meaning
-// that it infers the required alignment from the size of the allocation
-// requested.  This would normally give us properly aligned memory if we were
-// allocating by 'sizeof(struct)', but our 'Node' objects are variable length,
-// which will mislead the allocator to sometimes align the new segments by less
-// than 'sizeof(Node *)'.
+// allocators, has a "natural alignment" strategy (see {'bsls_alignment'}),
+// meaning that it infers the required alignment from the size of the
+// allocation requested.  This would normally give us properly aligned memory
+// if we were allocating by 'sizeof(Node)', but our 'Node' objects are variable
+// length, which will mislead the allocator to sometimes align the new segments
+// by less than 'sizeof(Node *)'.
 //
 // Then, we solve this problem by using an aligning allocator to wrap the
 // buffered sequential allocator, ensuring that the memory will still come from
@@ -244,26 +317,73 @@ int main(int argc, char *argv[])
 // nodes are properly aligned:
 //..
     for (const Node *node = head; node; node = node->d_next) {
-        ASSERT(0 == (reinterpret_cast<bsl::size_t>(node) & (k_ALIGNMENT - 1)));
-
-if (veryVerbose) {
-        cout << node->d_string;
-}
+        ASSERT(0 == (reinterpret_cast<bsl::size_t>(node) &
+                     (k_ALIGNMENT - 1)));
+        if (out) {
+            *out << node->d_string;
+        }
     }
+}
 //..
+
+}  // close namespace USAGE_EXAMPLE
+
+
+
+//=============================================================================
+//                                 MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int  test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    enum { k_BUFFER_SIZE = 64 << 10 };    // 64K
+
+    switch (test) { case 0:
+      case 5: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 That the usage example compiles and works, to demonstrate the
+        //:   usage of this component.
+        //
+        // Plan:
+        //: 1 Code and test the usage example, then propagate it to the include
+        //:   file.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
+
+        USAGE_EXAMPLE::printFromNodes(veryVerbose ? &bsl::cout : 0);
+
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // DEALLOCATE TEST
         //
         // Concerns:
         //: 1 That deallocate properly frees memory.
+        //:
+        //: 2 That the memory allocated is of at least the requested size.
         //
         // Plan:
         //: 1 Repeat the test framework from the previous cases, except using
-        //:   bslma::TestAllocator as the underlying allocator, and free all
-        //:   the memory with 'deallocate'.  When the test allocator is
-        //:   destroyed, it will abort if any memory wasn't freed.
+        //:   bslma::TestAllocator as the underlying allocator, writing data to
+        //:   the entirety of the returned buffer, and free all the memory with
+        //:   'deallocate'.  When the test allocator is destroyed, it will
+        //:   abort if any memory wasn't freed, or if there was an overrun of
+        //:   the buffers it had allocated.
         //
         // Testing:
         //   deallocate(void *address);
@@ -274,15 +394,24 @@ if (veryVerbose) {
 
         bslma::TestAllocator ta;
 
-        enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT << 8 };
 
-        for (bsl::size_t align = 2; align <= k_MAX_ALIGN; align *= 2) {
+        for (bsl::size_t align = 1; align <= k_MAX_ALIGN; align *= 2) {
+            AlignmentTestAllocator   ata(align, &ta);
             bsl::vector<void *>      segments(&ta);
-            bdlma::AligningAllocator aa(align, &ta);
+            bdlma::AligningAllocator aa(align, &ata);
 
             for (bsl::size_t size = 0; size < 2 * align; ++size) {
-                for (int ii = 0; ii < 4; ++ii) {
-                    segments.push_back(aa.allocate(size));
+                for (int ii = 0; ii < ata.numSamples(); ++ii) {
+                    void * segment = aa.allocate(size);
+
+                    ASSERT(0 == size || segment);
+
+                    // write to entire buffer (allowing 'ta' to hopefully catch
+                    // if we did not actually get sufficient memory allocated).
+                    bsl::memset(segment, 17, size);
+
+                    segments.push_back(segment);
                 }
             }
 
@@ -291,7 +420,7 @@ if (veryVerbose) {
             }
         }
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // ALIGNING ALLOCATOR ALIGNMENT TEST
         //
@@ -300,21 +429,24 @@ if (veryVerbose) {
         //
         // Plan:
         //: 1 Repeat the same framework used in case 1, except using a
-        //:   'bdlma::AligingAllocator' around the buffered sequential
-        //:   allocatoor, and verify that the allocated memory is appropriately
+        //:   'bdlma::AligningAllocator' around the buffered sequential
+        //:   allocator, and verify that the allocated memory is appropriately
         //:   aligned.
         //
         // Testing:
-        //   AligningAllocator(size_type alignment, Allocator *alloctor);
+        //   AligningAllocator(size_type alignment, Allocator *allocator);
         //   allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "ALIGNING ALLOCATOR ALIGNMENT TEST\n"
                              "=================================\n";
 
-        enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT << 8 };
 
-        for (bsl::size_t align = 2; align <= k_MAX_ALIGN; align *= 2) {
+        static char                        buffer[k_BUFFER_SIZE];
+        bdlma::BufferedSequentialAllocator bsa(buffer, k_BUFFER_SIZE);
+
+        for (bsl::size_t align = 1; align <= k_MAX_ALIGN; align *= 2) {
             bdlma::AligningAllocator aa(align, &bsa);
             bsl::size_t              alignBits = 0;
 
@@ -322,13 +454,113 @@ if (veryVerbose) {
                 for (int ii = 0; ii < 4; ++ii) {
                     void *segment = aa.allocate(size);
 
+                    ASSERT(0 == size || segment);
                     alignBits |= reinterpret_cast<bsl::size_t>(segment);
+
+                    bsls::Types::size_type offset =
+                        bsls::AlignmentUtil::calculateAlignmentOffset(
+                                             segment, static_cast<int>(align));
+                    ASSERT(0 == offset);
+
+                    aa.deallocate(segment);
                 }
             }
 
             ASSERT(0 == (alignBits & (align - 1)));
             ASSERT(0 == (alignBits & (align / 2)));
         }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TEST MACHINERY
+        //   We need to verify that our test allocator gives us varying
+        //   misalignments.
+        //
+        // Concerns:
+        //: 1 'AlignmentTestAllocator' needs to return allocations with the
+        //:   full range of possible misalignments.
+        //
+        // Plan:
+        //: 1 Track the alignments returned and validate they they are all
+        //:   covered.
+        //
+        // Testing:
+        //   AlignmentTestAllocator
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TEST MACHINERY\n"
+                             "==============\n";
+
+        bslma::TestAllocator ta;
+
+        enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT << 8 };
+
+        for (bsl::size_t align = 1; align <= k_MAX_ALIGN; align *= 2) {
+            AlignmentTestAllocator   ata(align, &ta);
+
+            bsl::size_t minAlign = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+            if (minAlign > align) {
+                minAlign = align;
+            }
+
+            ASSERT(0 == (align % minAlign));
+
+            bsl::unordered_set<bsls::Types::size_type> seenAlignments;
+
+            for (int ii = 0; ii < ata.numSamples(); ++ii) {
+                void * segment = ata.allocate(1);
+                ASSERT(0 != segment);
+
+                bsls::Types::size_type offset =
+                    bsls::AlignmentUtil::calculateAlignmentOffset(
+                        segment,
+                        static_cast<int>(align));
+
+                seenAlignments.insert(offset);
+
+                // write to the segment to attempt to catch if this isn't
+                // really safely allocated space
+                bsl::memset(segment, 17, 1);
+
+                ata.deallocate(segment);
+            }
+
+            bsl::size_t maxNumAlignments = align / minAlign;
+            if (maxNumAlignments <=
+                                  static_cast<bsl::size_t>(ata.numSamples())) {
+                ASSERT(seenAlignments.size() == maxNumAlignments);
+            }
+            else {
+                ASSERT(seenAlignments.size() >=
+                                   static_cast<bsl::size_t>(ata.numSamples()));
+                ASSERT(seenAlignments.size() >= 8);
+            }
+
+            if (veryVerbose) {
+                bsl::cout << "\tAlignment: " << align
+                          << " produced offsets:" << seenAlignments.size()
+                          << "\n";
+            }
+            if (veryVeryVerbose) {
+                for (bsl::unordered_set<bsls::Types::size_type>::const_iterator
+                         it = seenAlignments.begin(),
+                         itend = seenAlignments.end();
+                     it != itend;
+                     ++it) {
+                    bsl::cout << "\t\t" << *it << "\n";
+                }
+            }
+
+            ASSERT(seenAlignments.find(0) != seenAlignments.end());
+            ASSERT(seenAlignments.find(
+                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT % align)
+                                                      != seenAlignments.end());
+            ASSERT(seenAlignments.find(
+                       -bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT % align)
+                                                      != seenAlignments.end());
+
+        }
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -356,12 +588,16 @@ if (veryVerbose) {
 
         enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
+        static char                        buffer[k_BUFFER_SIZE];
+        bdlma::BufferedSequentialAllocator bsa(buffer, k_BUFFER_SIZE);
+
         for (bsl::size_t align = 2; align <= k_MAX_ALIGN; align *= 2) {
             bsl::size_t alignBits = 0;
 
             for (bsl::size_t size = 0; size < 2 * align; ++size) {
                 for (int ii = 0; ii < 4; ++ii) {
                     void *segment = bsa.allocate(size);
+                    ASSERT(0 == size || segment);
 
                     alignBits |= reinterpret_cast<bsl::size_t>(segment);
                 }
