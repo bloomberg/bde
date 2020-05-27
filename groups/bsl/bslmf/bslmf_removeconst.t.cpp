@@ -116,6 +116,8 @@ void aSsErT(bool condition, const char *message, int line)
 # pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 # pragma warning(disable : 4180)
+#elif defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages(off, functypequal)
 #endif
 
 //=============================================================================

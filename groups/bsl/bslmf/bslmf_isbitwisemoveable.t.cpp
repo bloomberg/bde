@@ -17,6 +17,10 @@
 #include <string.h>
 #include <new>
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages(off, functypequal)
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
