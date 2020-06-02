@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 Whitespace is ignored in all legal locations.
         //:
-        //: 6 All allocations are done via the passed-in allocator.
+        //: 5 All allocations are done via the passed-in allocator.
         //
         // Plan:
         //: 1 'decode' strings, and compare them with the expected return codes
