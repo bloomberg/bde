@@ -429,7 +429,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 The 'strictTypes()' option is handled correctly.
         //:
-        //: 5 All allocations are done via the passed-in allocator.
+        //: 5 Datum maps with duplicate keys are propagated and handled
+        //:   correctly.
+        //:
+        //: 6 All allocations are done via the passed-in allocator.
         //
         // Plan:
         //: 1 'encode' 'Datum's, and compare them with the expected return
@@ -778,6 +781,22 @@ int main(int argc, char *argv[])
                             PR,  1,  1,
                        " {\n  \"a\" : {\n   \"a\" : 1,\n   \"b\" : 2\n  }\n }",
                                                                      0,    0 },
+           // e_MAP of e_INTEGER with duplicate keys
+            { L, m.m("a", 1, "a", 2),
+                            CO,  0,  0,  "{\"a\":1,\"a\":2}",        0,    1 },
+            { L, m.m("a", 1, "a", 2),
+                            PR,  0,  0,  "{\n\"a\" : 1,\n\"a\" : 2\n}",
+                                                                     0,    1 },
+            { L, m.m("a", 1, "a", 2),
+                            PR,  1,  0,  "{\n\"a\" : 1,\n\"a\" : 2\n}",
+                                                                     0,    1 },
+            { L, m.m("a", 1, "a", 2),
+                            PR,  0,  1,  "{\n \"a\" : 1,\n \"a\" : 2\n}",
+                                                                     0,    1 },
+            { L, m.m("a", 1, "a", 2),
+                            PR,  1,  1,  " {\n  \"a\" : 1,\n  \"a\" : 2\n }",
+                                                                     0,    1 },
+
         };
 #undef PR
 #undef CO
@@ -909,9 +928,12 @@ int main(int argc, char *argv[])
         //:
         //: 2 The empty string is decoded correctly.
         //:
-        //: 3 Whitespace is ignored in all legal locations.
+        //: 3 JSON objects with duplicate keys are decoded correctly,
+        //:   preserving the first key/value pair for a given key.
         //:
-        //: 4 All allocations are done via the passed-in allocator.
+        //: 4 Whitespace is ignored in all legal locations.
+        //:
+        //: 6 All allocations are done via the passed-in allocator.
         //
         // Plan:
         //: 1 'decode' strings, and compare them with the expected return codes
@@ -1033,6 +1055,13 @@ int main(int argc, char *argv[])
                   "}",                     0,        m.m("Name", m.m(
                                                         "first", "Bart",
                                                         "last",  "Simpson")) },
+            // Duplicate key test
+            { L_, "{\"Name\":{"
+                               "\"first\":\"Bart\"," WS
+                               "\"first\":\"Lisa\""
+                            "}"
+                  "}",                     0,        m.m("Name", m.m(
+                                                        "first",  "Bart")) },
             { L_, "{\"Family\":["
                          "\"Homer\","
                          "\"Marge\","

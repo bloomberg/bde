@@ -38,6 +38,12 @@ BSLS_IDENT("$Id$ $CSID$")
 // is preserved in the decoded 'Datum'.  If multiple entries with the same
 // 'key' are present in an object, 'decode' will return the *first* such value.
 //
+// The order of key/value pairs ('DatumMapEntry') in 'Datum' objects passed to
+// 'encode' will be preserved in the resulting 'JSON', and all keys/value pairs
+// will be present.  'strictTypes' checking does not alter the behavior for
+// duplicate keys in maps.  They are allowed whether 'strictTypes' is 'true' or
+// 'false'.
+//
 ///Supported Types
 ///---------------
 // The table below describes the set of types that a 'Datum' may be, whether it
