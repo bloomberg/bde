@@ -17,7 +17,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //: 1 'ManagedDatum' provides value-semantic-like operations for 'Datum'.
 //:
-//: 2 'ManagedDatum' is a resource manager, similar to a smart-pointer, for
+//: 2 'ManagedDatum' is a resource manager, similar to a smart pointer, for
 //:   'Datum'.
 //
 // These services allow clients to use a 'ManagedDatum' object in most contexts
@@ -36,33 +36,33 @@ BSLS_IDENT("$Id$ $CSID$")
 // set of value-semantic-like operations for 'Datum' (see
 // {'bsldoc_glossary'|Value-Semantic Operations}):
 //
-//   o Equality and Non-Equality Comparisons
-//   o Copy Construction
-//   o Copy Assignment
-//   o Default Construction
-//   o 'ostream' Printing
+//:  o Equality and Non-Equality Comparisons
+//:  o Copy Construction
+//:  o Copy Assignment
+//:  o Default Construction
+//:  o 'ostream' Printing
 //
-// In other words the syntax of 'ManagedDatum' *regular*, but not all of its
+// In other words, the syntax of 'ManagedDatum' is *regular*, but not all of its
 // copy behavior is value-semantic.  Specifically, for certain values (i.e.,
 // those where 'isExternalReference' is 'true') 'ManagedDatum' performs a
 // shallow copy (copying the reference rather than the value), which is
 // inconsistent with value-semantics.
 //
 // Note that a default constructed 'ManagedDatum', or a 'ManagedDatum' on which
-// 'release' has been called will have the null 'Datum' value.
+// 'release' has been called, will have the null 'Datum' value.
 //
-///Resource-Management
+///Resource Management
 ///-------------------
 // A 'Datum' object's relationship to memory can be seen as analogous to a raw
 // pointer, requiring calls to static functions 'Datum::create*' and
 // 'Datum::destroy' to initialize and release resources (see the {'bdld_datum'}
 // component documentation).  A 'ManagedDatum', by extension, provides a
-// resource manager for a 'Datum' that is an analogous to a smart-pointer.
+// resource manager for a 'Datum' that is analogous to a smart-pointer.
 //
 // The 'adopt' method of a 'ManagedDatum' is used to take ownership of a
 // supplied 'Datum' object, after which point the 'ManagedDatum' object's
 // destructor will free the resources of the managed 'Datum' (unless 'release'
-// is subsequently called).  Similar to a smart-pointer, a 'ManagedDatum'
+// is subsequently called).  Similar to a smart pointer, a 'ManagedDatum'
 // provides dereference operators to access the 'Datum' object under
 // management.
 //
@@ -70,13 +70,13 @@ BSLS_IDENT("$Id$ $CSID$")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdld::MangedDatum'
-///- - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Basic Use of 'bdld::ManagedDatum'
+///- - - - - - - - - - - - - - - - - - - - - - -
 // The example demonstrates the basic construction and manipulation of a
 // 'ManagedDatum' object.
 //
-// First, we create a 'ManagedDatum' object that holds a double value and
-// verify that it has the same double value inside it:
+// First, we create a 'ManagedDatum' object that holds a 'double' value and
+// verify that it has the same 'double' value inside it:
 //..
 //  bslma::TestAllocator ta("test", veryVeryVerbose);
 //
