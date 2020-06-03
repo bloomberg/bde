@@ -294,8 +294,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  Datum::destroy(cityName, &oa);
 //..
 //
-///Example 2: Creating 'Datum' Referring to an Array of 'Datum' objects
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Creating a 'Datum' Referring to an Array of 'Datum' Objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the construction of the 'Datum' object referring
 // to an existing array of 'Datum' object.
 //
@@ -336,8 +336,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  Datum::destroy(array[1], &oa);
 //..
 //
-///Example 3: Creating 'Datum' with array value
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: Creating a 'Datum' with an Array Value
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of an owned array of
 // datums.
 //
@@ -377,8 +377,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // Note that the same allocator must be used to create the array, the
 // elements, and to destroy the datum.
 //
-///Example 4: Creating 'Datum' with map value
-/// - - - - - - - - - - - - - - - - - - - - -
+///Example 4: Creating a 'Datum' with a Map Value
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of a map of datums
 // indexed by string keys.
 //
