@@ -42,10 +42,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //:  o Default Construction
 //:  o 'ostream' Printing
 //
-// In other words, the syntax of 'ManagedDatum' is *regular*, but not all of its
-// copy behavior is value-semantic.  Specifically, for certain values (i.e.,
-// those where 'isExternalReference' is 'true') 'ManagedDatum' performs a
-// shallow copy (copying the reference rather than the value), which is
+// In other words, the syntax of 'ManagedDatum' is *regular*, but not all of
+// its copy behavior is value-semantic.  Specifically, for certain values
+// (i.e., those where 'isExternalReference' is 'true') 'ManagedDatum' performs
+// a shallow copy (copying the reference rather than the value), which is
 // inconsistent with value-semantics.
 //
 // Note that a default constructed 'ManagedDatum', or a 'ManagedDatum' on which
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // pointer, requiring calls to static functions 'Datum::create*' and
 // 'Datum::destroy' to initialize and release resources (see the {'bdld_datum'}
 // component documentation).  A 'ManagedDatum', by extension, provides a
-// resource manager for a 'Datum' that is analogous to a smart-pointer.
+// resource manager for a 'Datum' that is analogous to a smart pointer.
 //
 // The 'adopt' method of a 'ManagedDatum' is used to take ownership of a
 // supplied 'Datum' object, after which point the 'ManagedDatum' object's
