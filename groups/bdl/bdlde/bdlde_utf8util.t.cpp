@@ -45,11 +45,8 @@ using bsl::size_t;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
+// To fit functions on one line, 'typedef const char cchar'.
 //
-// To fit functions on one like, 'typedef const char cchar'.
-//-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 4] IntPtr advanceIfValid(int *, const char **, const char *, int);
 // [ 4] IntPtr advanceIfValid(int*,const char**,const char *,int,int);
@@ -112,10 +109,6 @@ using bsl::size_t;
 // [14] USAGE EXAMPLE 1
 // [15] USAGE EXAMPLE 2
 // [16] USAGE EXAMPLE 3
-// [ 9] 'advanceIfValid' on correct input plus incorrect input
-// [ 9] 'isValid' on correct input plus incorrect input
-// [ 9] 'numCodePointsIfValid' on correct input plus incorrect input
-// [ 9]  'readIfValid' on correct input plus incorrect input
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
 
@@ -1966,8 +1959,8 @@ void appendRandCorrectCodePoint(bsl::string *dst,
 }
 
 bsl::string code8(int b)
-    // Return the encoded representation of the specified 7-bit Unicode code
-    // point 'b'.  Note that this is simply 'b'.
+    // Return the encoded representation of the 7-bit Unicode code point
+    // specified by 'b'.  Note that this is simply 'b'.
 {
     bsl::string ret;
 
@@ -1980,8 +1973,8 @@ bsl::string code8(int b)
 
 static
 bsl::string code16(int b)
-    // Return the encoded representation of the specified 2-byte Unicode
-    // code point 'b'.
+    // Return the encoded representation of the 2-byte Unicode code point
+    // specified by 'b'.
 {
     ASSERT(0 == (b & ~0x7ff));
 
@@ -1995,8 +1988,8 @@ bsl::string code16(int b)
 
 static
 bsl::string code24(int b)
-    // Return the encoded representation of the specified 3-byte Unicode
-    // code point 'b'.
+    // Return the encoded representation of the 3-byte Unicode code point
+    // specified by 'b'.
 {
     ASSERT(0 == (b & ~0xffff));
 
@@ -2011,8 +2004,8 @@ bsl::string code24(int b)
 
 static
 bsl::string code32(int b)
-    // Return the encoded representation of the specified 4-byte Unicode
-    // code point 'b'.
+    // Return the encoded representation of the 4-byte Unicode code point
+    // specified by 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -2302,9 +2295,10 @@ IntPtr allNumCodePoints(const bsl::string& str)
 static
 IntPtr allNumCodePointsIfValid(const char         **invalidPointArg,
                                const bsl::string&   str)
-    // Run both 'numCodePointsIfValid' overloads on the specied 'str' and check
-    // that they yeild identical results, and return those results.  Return the
-    // address of any invalid UTF-8 in the specified 'invalidPointArg'
+    // Run both 'numCodePointsIfValid' overloads on the specified 'str' and
+    // check that they yield identical results, and return those results.
+    // Return the address of any invalid UTF-8 in the specified
+    // 'invalidPointArg'
 {
     *invalidPointArg = 0;
     const IntPtr ret = Obj::numCodePointsIfValid(invalidPointArg, str.c_str());
@@ -2323,10 +2317,10 @@ IntPtr allAdvanceIfValid(int                 *statusArg,
                          const char         **invalidPointArg,
                          const bsl::string&   str)
     // Run both the 4 and 5 argument overloads of 'advanceIfValid' on the
-    // specified 'str', check that they yield the seame results.  Return the
+    // specified 'str', check that they yield the same results.  Return the
     // number of code points, and set the specified 'statusArg' to the type of
     // error encountered (or 0 if no error), and set the specified
-    // 'invalidPointArg' to the address if the first UTF-8 error.
+    // 'invalidPointArg' to the address of the first UTF-8 error.
 {
     const IntPtr infinity = bsl::numeric_limits<IntPtr>::max();
 
@@ -2557,7 +2551,7 @@ enum {
 namespace USAGE_3 {
 
 //
-///Example 3: Validating UTF-8 read from a 'bsl::streambuf'
+///Example 3: Validating UTF-8 Read from a 'bsl::streambuf'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this usage example, we will demonstrate reading and validating UTF-8
 // from a stream.
@@ -2650,7 +2644,7 @@ const int  surrogates[] = {0xd800,
                           0xdf24,
                           0xdfff};
 const int *loSgates     = surrogates;
-const int *hiSgates     = surrogates + 8;
+const int *hiSgates     = surrogates + 8;    // beginning of high surrogates
 
 bsl::string codeRandSurrogate()
     // Return a random surrogate.
@@ -3286,11 +3280,14 @@ int main(int argc, char *argv[])
         //   const char *toAscii(IntPtr);
         // --------------------------------------------------------------------
 
+        if (verbose) cout << "TESTING 'toAscii':\n"
+                             "=================\n";
+
         static const char *NOT_FOUND = "(* unrecognized value *)";
 
         static const struct Data {
             IntPtr      d_status;
-            const char *d_expStr;
+            const char *d_expStr_p;
         } DATA[] = {
           { Obj::k_END_OF_INPUT_TRUNCATION,    "END_OF_INPUT_TRUNCATION" },
           { Obj::k_UNEXPECTED_CONTINUATION_OCTET,
@@ -3316,7 +3313,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < k_NUM_DATA; ++ti) {
             const IntPtr      STATUS  = DATA[ti].d_status;
-            const bsl::string EXP_STR = DATA[ti].d_expStr;
+            const bsl::string EXP_STR = DATA[ti].d_expStr_p;
 
             ASSERT(EXP_STR == Obj::toAscii(STATUS));
         }
@@ -3463,6 +3460,18 @@ int main(int argc, char *argv[])
         //: 1 That 'advanceIfValid' will detect all forms of error sequences
         //:   and properly terminate and report them, when the incorrect
         //:   sequences are surrounded by correct UTF-8.
+        //:
+        //: 2 Test 'advanceIfValid' on correct input concatenated with
+        //:   incorrect input.
+        //:
+        //: 3 Test 'isValid' on correct input concatenated with incorrect
+        //:   input.
+        //:
+        //: 4 Test 'numCodePointsIfValid' on correct input concatenated with
+        //:   incorrect input.
+        //:
+        //: 5 Test 'readIfValid' on correct input concatenated with incorrect
+        //:   input.
         //
         // PLAN:
         //: 1 In this test case, we test incorrect UTF-8 sequences both
@@ -3527,7 +3536,7 @@ int main(int argc, char *argv[])
 
         const IntPtr INT_PTR_MAX = ~static_cast<bsl::size_t>(0) >> 1;
 
-        enum { k_NUM_ITERATIONS          = 2500,
+        enum { k_NUM_ITERATIONS          = 800,
                k_NUM_USE_ZERO_ITERATIONS = k_NUM_ITERATIONS / 10,
                k_MAX_INPUT_LEN           = 200 };
 
@@ -3537,9 +3546,11 @@ int main(int argc, char *argv[])
                                                 // 'string' will result in a
                                                 // reallocation and a move of
                                                 // the buffer.
+
         str.reserve(k_MAX_INPUT_LEN + 10);      // enough room to copy
                                                 // 'correctStr' and tack some
                                                 // carnage on to the end of it.
+
         out.reserve(k_MAX_INPUT_LEN + 14);      // enough room for output from
                                                 // str
         errorStr.reserve(200);
@@ -3682,33 +3693,57 @@ int main(int argc, char *argv[])
                 for (IntPtr endOutLen = intStrLen + 4,
                                    outLen = bsl::max<IntPtr>(4, intStrLen - 1);
                                            outLen <= endOutLen + 4; ++outLen) {
-                    fsb.pubsetbuf(begin, str.length());
-                    out.resize(0);
-                    out.resize(outLen + 1, badChar);
+                    // Do the test twice, with and without the seek check,
+                    // since that seek might throw off the behavior after it.
 
-                    IntPtr intBufLen = Obj::readIfValid(&sts,
-                                                        &out[0],
-                                                        outLen,
-                                                        &fsb);
-                    ASSERT(0 <= intBufLen);
+                    for (int tk = 0; tk < 2; ++tk) {
+                        bool CHECK_WITH_SEEK = tk;
 
-                    ASSERTV(dumpStr(str), intBufLen, outLen,
+                        fsb.pubsetbuf(begin, str.length());
+                        out.resize(0);
+                        out.resize(outLen + 1, badChar);
+
+                        IntPtr intBufLen = Obj::readIfValid(&sts,
+                                                            &out[0],
+                                                            outLen,
+                                                            &fsb);
+                        ASSERT(0 <= intBufLen);
+
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
                                                           intBufLen <= outLen);
-                    ASSERTV(dumpStr(str), intBufLen, outLen,
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
                                                         intBufLen <= validLen);
-                    ASSERT(badChar == out[outLen]);
+                        ASSERT(badChar == out[outLen]);
 
-                    if (sts == ERROR_STATUS) {
-                        ASSERT(intBufLen == validLen);
-                        ASSERT(0 == validLen || 0 < intBufLen);
-                    }
-                    else {
-                        ASSERTV(sts, ERROR_STATUS, 0 < sts);
-                        ASSERTV(outLen, intStrLen, outLen - 3 <= intStrLen);
-                    }
+                        if (sts == ERROR_STATUS) {
+                            ASSERT(intBufLen == validLen);
+                            ASSERT(0 == validLen || 0 < intBufLen);
+                        }
+                        else {
+                            ASSERTV(sts, ERROR_STATUS, 0 < sts);
+                            ASSERTV(outLen, intStrLen,
+                                                      outLen - 3 <= intStrLen);
+                        }
 
-                    out.resize(intBufLen);
-                    ASSERTV(dumpStr(out), Obj::isValid(&out[0], intBufLen));
+                        out.resize(intBufLen);
+                        ASSERTV(dumpStr(out),
+                                             Obj::isValid(&out[0], intBufLen));
+
+                        if (CHECK_WITH_SEEK) {
+                            ASSERT(fsb.pubseekoff(0, bsl::ios_base::cur,
+                                  bsl::ios_base::in) ==
+                                          bsl::streambuf::pos_type(intBufLen));
+                        }
+
+                        bsl::string remainderStr;
+                        remainderStr.resize(1024);
+                        const IntPtr expLen = str.length() - intBufLen;
+                        ASSERT(expLen == fsb.sgetn(&remainderStr[0], 1024));
+                        remainderStr.resize(expLen);
+                        ASSERTV(dumpStr(str.substr(intBufLen)),
+                                                         dumpStr(remainderStr),
+                                        str.substr(intBufLen) == remainderStr);
+                    }
                 }
 
                 // Now, we tack a correct char on after and observe no change
@@ -3778,33 +3813,56 @@ int main(int argc, char *argv[])
                 for (IntPtr endOutLen = intStrLen + 4,
                                    outLen = bsl::max<IntPtr>(4, intStrLen - 1);
                                            outLen <= endOutLen + 4; ++outLen) {
-                    fsb.pubsetbuf(begin, str.length());
-                    out.resize(0);
-                    out.resize(outLen + 1, badChar);
+                    // Do the test twice, with and without the seek check,
+                    // since that seek might throw off the behavior after it.
 
-                    IntPtr intBufLen = Obj::readIfValid(&sts,
-                                                        &out[0],
-                                                        outLen,
-                                                        &fsb);
-                    ASSERT(0 <= intBufLen);
-                    ASSERT(badChar == out[outLen]);
+                    for (int tk = 0; tk < 2; ++tk) {
+                        bool CHECK_WITH_SEEK = tk;
 
-                    ASSERTV(dumpStr(str), intBufLen, outLen,
+                        fsb.pubsetbuf(begin, str.length());
+                        out.resize(0);
+                        out.resize(outLen + 1, badChar);
+
+                        IntPtr intBufLen = Obj::readIfValid(&sts,
+                                                            &out[0],
+                                                            outLen,
+                                                            &fsb);
+                        ASSERT(0 <= intBufLen);
+                        ASSERT(badChar == out[outLen]);
+
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
                                                           intBufLen <= outLen);
-                    ASSERTV(dumpStr(str), intBufLen, outLen,
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
                                                         intBufLen <= validLen);
 
-                    if (sts == ERROR_STATUS) {
-                        ASSERT(intBufLen == validLen);
-                        ASSERT(0 == validLen || 0 < intBufLen);
-                    }
-                    else {
-                        ASSERTV(sts, ERROR_STATUS, 0 < sts);
-                        ASSERTV(outLen, intStrLen, outLen - 3 <= intStrLen);
-                    }
+                        if (sts == ERROR_STATUS) {
+                            ASSERT(intBufLen == validLen);
+                            ASSERT(0 == validLen || 0 < intBufLen);
+                        }
+                        else {
+                            ASSERTV(sts, ERROR_STATUS, 0 < sts);
+                            ASSERTV(outLen, intStrLen,
+                                                      outLen - 3 <= intStrLen);
+                        }
 
-                    out.resize(intBufLen);
-                    ASSERTV(dumpStr(out), Obj::isValid(&out[0], intBufLen));
+                        out.resize(intBufLen);
+                        ASSERTV(dumpStr(out), Obj::isValid(&out[0],
+                                                                   intBufLen));
+
+                        if (CHECK_WITH_SEEK) {
+                            ASSERT(fsb.pubseekoff(0, bsl::ios_base::cur,
+                                  bsl::ios_base::in) ==
+                                          bsl::streambuf::pos_type(intBufLen));
+                        }
+                        bsl::string remainderStr;
+                        remainderStr.resize(1024);
+                        const IntPtr expLen = str.length() - intBufLen;
+                        ASSERT(expLen == fsb.sgetn(&remainderStr[0], 1024));
+                        remainderStr.resize(expLen);
+                        ASSERTV(dumpStr(str.substr(intBufLen)),
+                                                         dumpStr(remainderStr),
+                                        str.substr(intBufLen) == remainderStr);
+                    }
                 }
             }
         }

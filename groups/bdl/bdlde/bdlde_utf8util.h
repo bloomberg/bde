@@ -99,8 +99,8 @@ BSLS_IDENT("$Id: $")
 //                                                   string.length()));
 //  assert(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next, we encode a lone surrogate value, '0xd8ab', which we encode as the raw
-// 3 byte sequence "\xed\xa2\xab" to avoid validation.
+// Next, we encode a lone surrogate value, '0xd8ab', that we encode as the raw
+// 3-byte sequence "\xed\xa2\xab" to avoid validation:
 //..
 //  bsl::string stringWithSurrogate = string + "\xed\xa2\xab";
 //..
@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // not valid UTF-8 (since ':' can be "encoded" in 1 byte):
 //..
 //  bsl::string stringWithOverlong = string;
-//  stringWithOverlong += static_cast<char>(0xc0);        // start of 2 byte
+//  stringWithOverlong += static_cast<char>(0xc0);        // start of 2-byte
 //                                                        // sequence
 //  stringWithOverlong += static_cast<char>(0x80 | ':');  // continuation byte
 //
@@ -263,7 +263,7 @@ BSLS_IDENT("$Id: $")
 //  assert(static_cast<int>(string.length()) == result - start);
 //..
 //
-///Example 3: Validating UTF-8 Read From a 'bsl::streambuf'
+///Example 3: Validating UTF-8 Read from a 'bsl::streambuf'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this usage example, we will demonstrate reading and validating UTF-8
 // from a stream.
@@ -297,8 +297,8 @@ BSLS_IDENT("$Id: $")
 //
 //          output->resize(len + numBytes);
 //          if (0 < status) {
-//              // Buffer was full before the end of input was encounted.  Note
-//              // that 'numBytes' may be up to 3 bytes less than
+//              // Buffer was full before the end of input was encountered.
+//              // Note that 'numBytes' may be up to 3 bytes less than
 //              // 'k_READ_LENGTH'.
 //
 //              BSLS_ASSERT(k_READ_LENGTH - 4 < numBytes);
@@ -359,11 +359,12 @@ struct Utf8Util {
     typedef bsls::Types::IntPtr          IntPtr;
 
     enum ErrorStatus {
-        // For those functions in this 'struct' for which invalid UTF-8 input
-        // is not undefined behavior, if invalid UTF-8 is passed, either the
-        // return value or the 'status' code returned from the argument list
-        // are set to one of these values (all of which are negative) to
-        // indicate which type of UTF-8 error occurred.
+        // Enumerate the error status values that are returned (possibly
+        // through an out parameter) from some methods in this utility.  Note
+        // that some of the functions in this 'struct' have a return value
+        // that is non-negative on success, and one of these values when an
+        // error occurs, so all of these values must be negative to distinguish
+        // them from a 'success' value.
 
         k_END_OF_INPUT_TRUNCATION       = -1,
            // The end of input was reached partway through a multibyte UTF-8
@@ -475,11 +476,11 @@ struct Utf8Util {
         // the specified 'output' string.  Return 0 on success, and a non-zero
         // value otherwise.
 
-    static int getByteSize(const char* string);
-        // Return the length (in bytes) of the specified UTF-8-encoded
-        // code point beginning at 'string'.  The behavior is undefined unless
-        // 'string' addresses valid UTF-8.  Note that the value returned will
-        // be in the range '[1 .. 4]'.  Also note that 1 is returned if
+    static int getByteSize(const char *string);
+        // Return the length (in bytes) of the UTF-8-encoded code point
+        // beginning at the specified 'string'.  The behavior is undefined
+        // unless 'string' addresses valid UTF-8.  Note that the value returned
+        // will be in the range '[1 .. 4]'.  Also note that 1 is returned if
         // '0 == *string' since '\0' is a valid 1-byte encoding.
 
     static bool isValid(const char *string);
@@ -625,26 +626,30 @@ struct Utf8Util {
                                  char           *outputBuffer,
                                  size_type       outputBufferLength,
                                  bsl::streambuf *input);
-        // Read from the specified 'input', copying valid UTF-8 to the
+        // Read from the specified 'input' and copy *valid* UTF-8 (only) to the
         // specified 'outputBuffer' having the specified 'outputBufferLength'
-        // (in bytes).  Load 'status' with:
+        // (in bytes).  Load the specified 'status' with:
+        //: o 0 if 'input' reached 'eof' without encountering any invalid UTF-8
+        //:   or prematurely exhausting 'outputBuffer'.
+        //:
+        //: o A positive value if 'input' was not completely read due to
+        //:   'outputBuffer' being filled (or nearly filled) without
+        //:   encountering any invalid UTF-8.
+        //:
         //: o A negative value from 'ErrorStatus' if invalid UTF-8 was
         //:   encountered (without having written the invalid sequence to
         //:   'outputBuffer').
-        //:
-        //: o A positive value if input was not completely read due to
-        //:   'outputBuffer' being filled (or nearly filled).
-        //:
-        //: o 0 if 'input' reached 'eof' without encountering any invalid UTF-8
-        //:   or prematurely exhausting 'outputBuffer'.
         // Return the number of bytes of valid UTF-8 written to 'outputBuffer.
-        // The behavior is undefined unless '4 <= outputBufferLength'.  Note
-        // that this function will stop reading input when less than 4 bytes of
-        // space remain in outputBuffer to prevent the possibility of a 4-byte
-        // sequence being truncated partway through.  Also note that if invalid
-        // UTF-8 is encountered, 'input' is left in an unspecified state.
+        // If no invalid UTF-8 is encountered, or if 'input' supports
+        // 'sputbackc' with a putback buffer capacity of at least 4 bytes,
+        // 'input' will be left positioned at the end of the valid UTF-8 read,
+        // otherwise, 'input' will be left in an unspecified state.  The
+        // behavior is undefined unless '4 <= outputBufferLength'.  Note that
+        // this function will stop reading 'input' when less than 4 bytes of
+        // space remain in 'outputBuffer' to prevent the possibility of a
+        // 4-byte UTF-8 sequence being truncated partway through.
 
-    static const char *toAscii(IntPtr errorStatus);
+    static const char *toAscii(IntPtr value);
         // Return the non-modifiable string representation of the 'ErrorStatus'
         // enumerator matching the specified 'value', if it exists, and "(*
         // unrecognized value *)" otherwise.  The string representation of an
@@ -668,7 +673,7 @@ bool Utf8Util::isValid(const char *string)
 {
     BSLS_ASSERT(string);
 
-    const char *dummy;
+    const char *dummy = 0;
     return isValid(&dummy, string);
 }
 
@@ -677,7 +682,7 @@ bool Utf8Util::isValid(const char *string, size_type length)
 {
     BSLS_ASSERT(string);
 
-    const char *dummy;
+    const char *dummy = 0;
     return isValid(&dummy, string, length);
 }
 

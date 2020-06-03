@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_streambuf.h>
 
 // LOCAL MACROS
 
@@ -1355,6 +1356,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
     // 'outputBuffer'.
 
     char        tmpBuf[4] = { 0 };    // zero out to silence purify
+    char       *tmp_p;
 
     char       *out = outputBuffer;
     const char *end = outputBuffer + outputBufferLength - 3;
@@ -1378,7 +1380,8 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
             break;
         }
 
-        tmpBuf[0] = static_cast<char>(c);
+        tmp_p = tmpBuf;
+        *tmp_p++ = static_cast<char>(c);
 
         switch (static_cast<unsigned char>(c) >> 4) {
           case 0x0: BSLA_FALLTHROUGH;
@@ -1408,7 +1411,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 break;
             }
 
-            tmpBuf[1] = static_cast<char>(c);
+            *tmp_p++ = static_cast<char>(c);
 
             const int value = get2ByteValue(tmpBuf);
             if (UNLIKELY(isNotContinuation(tmpBuf[1])
@@ -1432,7 +1435,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                     break;
                 }
 
-                tmpBuf[ii] = static_cast<char>(c);
+                *tmp_p++ = static_cast<char>(c);
 
                 if (UNLIKELY(isNotContinuation(tmpBuf[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1477,7 +1480,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                     break;
                 }
 
-                tmpBuf[ii] = static_cast<char>(c);
+                *tmp_p++ = static_cast<char>(c);
 
                 if (UNLIKELY(isNotContinuation(tmpBuf[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1509,6 +1512,10 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
         }
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
+        while (tmpBuf < tmp_p) {
+            input->sputbackc(*--tmp_p);
+        }
+
         break;
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1521,12 +1528,12 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
     return out - outputBuffer;
 }
 
-const char *Utf8Util::toAscii(IntPtr errorStatus)
+const char *Utf8Util::toAscii(IntPtr value)
 {
 #undef  U_ASCII_CASE
 #define U_ASCII_CASE(es)    case k_ ## es: return #es
 
-    switch (errorStatus) {
+    switch (value) {
       U_ASCII_CASE(END_OF_INPUT_TRUNCATION);
       U_ASCII_CASE(UNEXPECTED_CONTINUATION_OCTET);
       U_ASCII_CASE(NON_CONTINUATION_OCTET);
