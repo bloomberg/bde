@@ -70,8 +70,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // the 'Datum::create*' static functions).  This memory is said to be
 // "externally managed" because it not released when a 'Datum' object is
 // destroyed, instead clients must explicitly call 'Datum::destroy' on a
-// 'Datum' to release its memory (see {'Analogy to Raw Pointers'}).  The
-// 'bdlb' package provides tools and components that can simplify the process
+// 'Datum' to release its memory (see {Analogy to Raw Pointers}).  The
+// 'bdld' package provides tools and components that can simplify the process
 // of managing the memory (see 'bdld_manageddatum', and the various builder
 // components like 'bdld_datumarraybuilder').
 //
@@ -294,8 +294,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  Datum::destroy(cityName, &oa);
 //..
 //
-///Example 2: Creating 'Datum' Referring to the Array of 'Datum' objects
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Creating a 'Datum' Referring to an Array of 'Datum' Objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the construction of the 'Datum' object referring
 // to an existing array of 'Datum' object.
 //
@@ -336,8 +336,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  Datum::destroy(array[1], &oa);
 //..
 //
-///Example 3: Creating the 'Datum' having the array value.
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: Creating a 'Datum' with an Array Value
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of an owned array of
 // datums.
 //
@@ -377,8 +377,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // Note that the same allocator must be used to create the array, the
 // elements, and to destroy the datum.
 //
-///Example 4: Creating the 'Datum' having the map value
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 4: Creating a 'Datum' with a Map Value
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of a map of datums
 // indexed by string keys.
 //
@@ -508,7 +508,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  assert(reinterpret_cast<const int*>(blob.data())[2] == 3);
 //  Datum::destroy(datumBlob, &oa);
 //..
-// Note, that the bytes have been copied.
+// Note that the bytes have been copied.
 
 #include <bdlscm_version.h>
 
